@@ -49,3 +49,26 @@ This is a future connection point only. Do not merge the two projects now.
 If this starts distracting from the current rain implementation:
 
 > ソラ、洗濯物どこいった？
+
+
+## Commercial note — Misaki Premium candidate
+
+Treat the EmergencyAlert connection as a candidate Premium capability for
+Misaki, not as a generic paid weather forecast.
+
+The value proposition is:
+
+> 美咲が、現実の暮らしまで気にかけてくれる。
+
+Examples include grounded, proactive care about approaching rain, heat, snow or
+wind. The weather/disaster fact must still come from EmergencyAlert's official
+source pipeline; Misaki only adds relationship-aware wording and appropriate
+delivery through her existing self-initiated messaging system.
+
+This may also create a future funding loop: Misaki Premium revenue can help
+support higher-quality official data acquisition for EmergencyAlert when that
+cost becomes justified.
+
+Do not implement or price this yet. Preserve it as a Premium product hypothesis
+until EmergencyAlert's core rain experience and Misaki's current relationship /
+Body Clock work are stable.
