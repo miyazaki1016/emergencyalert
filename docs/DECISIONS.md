@@ -148,3 +148,14 @@ A detected RGB must **never** be promoted automatically into the production pale
 The palette watcher is therefore a detector, not an updater. This preserves the project rule that uncertainty must not be converted into safety.
 
 Long term, an authorized numeric precipitation feed should reduce or remove this presentation-color dependency. The zero-fixed-cost phase continues to use public PNG imagery conservatively.
+
+
+## Observation freshness is part of truthfulness
+
+A fresh API response must not make stale meteorological evidence look fresh.
+
+For the rain v1 public-imagery path, the interpretation engine currently withholds user-facing claims when the latest observation is more than 15 minutes old (or implausibly more than 5 minutes in the future). JMA high-resolution precipitation nowcast updates on a 5-minute cadence; the 15-minute limit is an operational tolerance, not a meteorological threshold.
+
+This guard is intentionally conservative and may be revised when provider behavior is better characterized. If revised, keep the reason and tests with the change.
+
+> **確認時刻が新しくても、元データが古ければ「最新」として語らない。**
