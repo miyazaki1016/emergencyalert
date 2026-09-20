@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import type { OfficialRainFrame, RainIntensityClass } from "../types";
 import { interpretRainSeries } from "./RainInterpretationEngine";
 import { canPublishRainInterpretation } from "./canPublishRainInterpretation";
