@@ -36,7 +36,11 @@ export function interpretRainSeries(input: RainSeriesInput): RainInterpretation 
   const { now, current, expectedForecastFrames } = input;
 
   if (!current || INVALID.has(current.status)) return empty("INSUFFICIENT_DATA");
-  if (!isValidJmaTime(current.validTime) || input.forecast.some((f) => !isValidJmaTime(f.validTime))) {
+  if (
+    !isValidJmaTime(current.baseTime) ||
+    !isValidJmaTime(current.validTime) ||
+    input.forecast.some((f) => !isValidJmaTime(f.baseTime) || !isValidJmaTime(f.validTime))
+  ) {
     return empty("INSUFFICIENT_DATA");
   }
   // JMA nowcast updates every 5 minutes. Keep a small operational tolerance,
