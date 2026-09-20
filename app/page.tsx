@@ -23,6 +23,7 @@ type RainSemanticEvent = {
 };
 type RainResponse = {
   source: string;
+  checkedAt: string;
   location: { lat: number; lon: number };
   observation: unknown[];
   forecast: unknown[];
@@ -67,7 +68,8 @@ export default function Home() {
         if (!res.ok) throw new Error();
         const json = (await res.json()) as RainResponse;
         setData(json);
-        setLastCheckedAt(new Date());
+        const serverCheckedAt = new Date(json.checkedAt);
+        setLastCheckedAt(Number.isNaN(serverCheckedAt.getTime()) ? new Date() : serverCheckedAt);
         setStatus(json.interpretationEnabled
           ? "この場所の、このあとの雨を見たよ。"
           : "情報は取れたけど、まだちゃんと判断できないところがあるよ。");
