@@ -98,3 +98,29 @@ Next verification method:
 - record exact RGB values and only then promote them.
 
 Current verified subset remains intentionally unchanged.
+
+
+## Live page resource enumeration — direct result
+
+Directly enumerating the eight image resources referenced by the current JMA
+`/bosai/nowc/` page produced these resource paths:
+
+- `images/CG.svg`
+- `images/CC.svg`
+- `images/ND.png`
+- `images/circle_000_170_255.svg` -> #00AAFF
+- `images/circle_242_242_255.svg` -> #F2F2FF
+- `images/circle_250_245_000.svg` -> #FAF500
+- `images/circle_255_040_000.svg` -> #FF2800
+- `images/circle_255_170_000.svg` -> #FFAA00
+
+This confirms #00AAFF as an additional current JMA-hosted RGB asset and confirms
+that the earlier four filenames came from the live page itself, not a search
+index.
+
+Important: resource enumeration alone does not yet prove which precipitation
+mm/h band #00AAFF or #FFAA00 represents. Do not promote either to the verified
+rain-intensity palette until its semantic legend association is established.
+
+The old 2023 table contains neither #00AAFF nor #FFAA00, strengthening the
+evidence that at least part of the presentation palette changed after 2023.
