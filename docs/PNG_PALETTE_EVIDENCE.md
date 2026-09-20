@@ -79,3 +79,22 @@ Therefore the historical table must not be copied wholesale.
 The remaining legend classes still need direct asset/pixel confirmation and
 semantic association with the mm/h bands before the 2026 verified palette is
 enabled.
+
+
+## Search pass: remaining colors
+
+A targeted search for the remaining current JMA legend asset filenames did not
+produce authoritative indexed results. This is not evidence that the assets do
+not exist; the live nowcast application is not comprehensively indexed by web
+search.
+
+Do not fill the five missing mappings from memory or from similarly named
+assets.
+
+Next verification method:
+- inspect the live nowcast application's loaded resources / source directly;
+- enumerate the legend SVG assets actually referenced by the page;
+- map each asset to its displayed mm/h label;
+- record exact RGB values and only then promote them.
+
+Current verified subset remains intentionally unchanged.
