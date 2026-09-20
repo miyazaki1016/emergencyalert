@@ -64,6 +64,31 @@ describe("RainInterpretationEngine", () => {
     expect(result.endingTime).toBeNull();
   });
 
+  it("calls sustained weaker official rain EASING without claiming it will end", () => {
+    const result = interpretRainSeries({
+      now, current: frame(0, "RAIN", "20_TO_30"),
+      forecast: [
+        frame(5, "RAIN", "10_TO_20"),
+        frame(10, "RAIN", "5_TO_10"),
+        frame(15, "RAIN", "5_TO_10"),
+      ],
+    });
+    expect(result.state).toBe("EASING");
+    expect(result.endingTime).toBeNull();
+  });
+
+  it("does not call a one-frame dip EASING", () => {
+    const result = interpretRainSeries({
+      now, current: frame(0, "RAIN", "20_TO_30"),
+      forecast: [
+        frame(5, "RAIN", "10_TO_20"),
+        frame(10, "RAIN", "20_TO_30"),
+        frame(15, "RAIN", "10_TO_20"),
+      ],
+    });
+    expect(result.state).toBe("RAINING");
+  });
+
   it("requires three consecutive valid no-rain frames for ENDING", () => {
     const result = interpretRainSeries({
       now, current: frame(0, "RAIN", "5_TO_10"),
