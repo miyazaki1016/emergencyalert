@@ -95,11 +95,15 @@ function isEasing(current: OfficialRainFrame, frames: OfficialRainFrame[]): bool
     LT_1: 0, "1_TO_5": 1, "5_TO_10": 2, "10_TO_20": 3,
     "20_TO_30": 4, "30_TO_50": 5, "50_TO_80": 6, GTE_80: 7,
   };
-  const comparable = frames
-    .filter((f) => !INVALID.has(f.status))
-    .slice(0, 3);
+  // Trend claims must use the next three chronological frames. Never skip an
+  // unknown/missing frame and stitch later values together into a false trend.
+  const comparable = frames.slice(0, 3);
   if (comparable.length < 3) return false;
-  if (comparable.some((f) => f.status !== "RAIN" || f.intensityClass === null)) return false;
+  if (
+    comparable.some(
+      (f) => INVALID.has(f.status) || f.status !== "RAIN" || f.intensityClass === null,
+    )
+  ) return false;
   return comparable.every((f) => rank[f.intensityClass!] < rank[current.intensityClass!]);
 }
 
