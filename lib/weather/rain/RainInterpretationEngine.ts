@@ -124,6 +124,18 @@ function minutesFrom(now: Date, jmaTime: string): number {
   return (parseJmaTime(jmaTime).getTime() - now.getTime()) / 60_000;
 }
 
+function isValidJmaTime(value: string): boolean {
+  if (!/^\\d{14}$/.test(value)) return false;
+  const parsed = parseJmaTime(value);
+  return Number.isFinite(parsed.getTime()) &&
+    parsed.getUTCFullYear() === Number(value.slice(0, 4)) &&
+    parsed.getUTCMonth() === Number(value.slice(4, 6)) - 1 &&
+    parsed.getUTCDate() === Number(value.slice(6, 8)) &&
+    parsed.getUTCHours() === Number(value.slice(8, 10)) &&
+    parsed.getUTCMinutes() === Number(value.slice(10, 12)) &&
+    parsed.getUTCSeconds() === Number(value.slice(12, 14));
+}
+
 function parseJmaTime(value: string): Date {
   if (!/^\d{14}$/.test(value)) throw new Error("Invalid JMA timestamp.");
   const y = Number(value.slice(0, 4));
