@@ -26,6 +26,16 @@ describe("RainInterpretationEngine", () => {
     expect(result.shouldNotify).toBe(true);
   });
 
+  it("does not call an empty forecast DRY", () => {
+    const result = interpretRainSeries({
+      now,
+      current: frame(0, "NO_RAIN"),
+      forecast: [],
+      expectedForecastFrames: 0,
+    });
+    expect(result.state).toBe("INSUFFICIENT_DATA");
+  });
+
   it("withholds DRY when expected coverage is not independently known", () => {
     const result = interpretRainSeries({
       now, current: frame(0, "NO_RAIN"),
