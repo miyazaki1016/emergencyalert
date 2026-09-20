@@ -57,3 +57,25 @@ compression/color handling can alter exact byte values.
 The precipitation-intensity class boundaries themselves are now supported by
 both current JMA documentation/display and the historical implementation.
 The remaining verification target is the exact current PNG RGB encoding.
+
+
+## Direct evidence from the current JMA page
+
+Inspection of the current JMA `/bosai/nowc/` page exposed legend image asset
+filenames that encode RGB values directly. Confirmed current assets include:
+
+- `circle_242_242_255.svg` -> #F2F2FF
+- `circle_250_245_000.svg` -> #FAF500
+- `circle_255_040_000.svg` -> #FF2800
+- `circle_255_170_000.svg` -> #FFAA00
+
+This is stronger evidence than sampling a screenshot: these are current
+JMA-hosted asset names from the live nowcast page.
+
+Three of those values exactly match the recovered 2023 table (#F2F2FF,
+#FAF500, #FF2800). One current asset, #FFAA00, does NOT equal the old #FF9900.
+Therefore the historical table must not be copied wholesale.
+
+The remaining legend classes still need direct asset/pixel confirmation and
+semantic association with the mm/h bands before the 2026 verified palette is
+enabled.
