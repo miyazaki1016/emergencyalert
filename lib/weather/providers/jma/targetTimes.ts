@@ -20,7 +20,7 @@ export async function fetchForecastTargetTimes(
   const value: unknown = await response.json();
   if (!Array.isArray(value)) throw new Error("Invalid JMA target times payload.");
 
-  return value.filter(isRainTargetTime);
+  return value.filter(isRainTargetTime).sort((a, b) => a.validtime.localeCompare(b.validtime));
 }
 
 function isRainTargetTime(value: unknown): value is JmaTargetTime {
