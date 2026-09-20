@@ -15,18 +15,18 @@ export async function GET(request: NextRequest) {
 
   try {
     const provider = new JmaPublicImageProvider();
-    const [observation, forecast] = await Promise.all([
+    const [observation, forecastSeries] = await Promise.all([
       provider.getObservationFrames(lat, lon),
-      provider.getForecastFrames(lat, lon),
+      provider.getForecastSeries(lat, lon),
     ]);
+    const forecast = forecastSeries.frames;
 
     const now = new Date();
-    // Do not claim DRY yet: the public-PNG path has not established an
-    // independent completeness contract for the full expected forecast series.
     const interpretation = interpretRainSeries({
       now,
       current: observation[0] ?? null,
       forecast,
+      expectedForecastFrames: forecastSeries.expectedFrames,
     });
 
     const unsafeStatuses = new Set(["UNKNOWN_PIXEL", "NO_DATA", "OUT_OF_COVERAGE", "FETCH_ERROR"]);
