@@ -53,6 +53,9 @@ export function interpretRainSeries(input: RainSeriesInput): RainInterpretation 
   const forecast = [...input.forecast].sort(
     (a, b) => parseJmaTime(a.validTime).getTime() - parseJmaTime(b.validTime).getTime(),
   );
+  if (forecast.some((f) => parseJmaTime(f.baseTime).getTime() > parseJmaTime(f.validTime).getTime())) {
+    return empty("INSUFFICIENT_DATA");
+  }
 
   // Forecast metadata should describe now/future frames. If every target is
   // already in the past, fail closed instead of presenting a fresh-looking claim.
