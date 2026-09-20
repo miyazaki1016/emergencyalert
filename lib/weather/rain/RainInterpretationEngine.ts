@@ -98,6 +98,7 @@ export function interpretRainSeries(input: RainSeriesInput): RainInterpretation 
 
   const complete =
     expectedForecastFrames !== undefined &&
+    expectedForecastFrames > 0 &&
     future.length === expectedForecastFrames &&
     future.every((f) => !INVALID.has(f.status));
 
