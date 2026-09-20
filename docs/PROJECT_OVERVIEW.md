@@ -154,3 +154,23 @@ And the engineering rule:
 > 未来のソラを信用するなｗ
 
 That is why this file exists.
+
+
+## 2023 design intent recovered from operation history
+
+The animated rain-cloud GIF was not decoration. Its purpose was to make the
+coming change visually understandable: not merely “heavy rain will arrive
+around XX:XX”, but “this rain area is moving toward you like this, so act now.”
+
+The 2023 implementation automated a browser, captured successive JMA nowcast
+frames, assembled them into an animated GIF, and posted it to Twitter/X.
+Twitter could transcode the uploaded animated GIF to MP4 for timeline delivery;
+that does not mean EmergencyAlert itself generated MP4.
+
+This is an important product principle for 2026:
+
+> 情報を増やすのではなく、行動につながる実感を増やす。
+
+When useful, EmergencyAlert should help the user understand the time progression
+of an officially published phenomenon, while never creating or extrapolating
+meteorological movement on its own.
