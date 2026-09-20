@@ -2,17 +2,18 @@ import { describe, expect, it } from "vitest";
 import { classifyRainPixel } from "./classifyPixel";
 
 describe("classifyRainPixel", () => {
-  it("never converts transparent/no-data pixels into no-rain", () => {
-    expect(classifyRainPixel({ r: 0, g: 0, b: 0, a: 0 })).toEqual({
-      status: "NO_DATA",
-      intensityClass: null,
+  it("keeps transparent pixels as NO_DATA", () => {
+    expect(classifyRainPixel({ r: 0, g: 0, b: 0, a: 0 }).status).toBe("NO_DATA");
+  });
+  it("recognises a directly confirmed current JMA legend color", () => {
+    expect(classifyRainPixel({ r: 250, g: 245, b: 0, a: 255 })).toEqual({
+      status: "RAIN", intensityClass: "20_TO_30",
     });
   });
-
-  it("keeps an unverified opaque color unknown", () => {
-    expect(classifyRainPixel({ r: 242, g: 242, b: 255, a: 255 })).toEqual({
-      status: "UNKNOWN_PIXEL",
-      intensityClass: null,
-    });
+  it("does not resurrect an old unverified color", () => {
+    expect(classifyRainPixel({ r: 255, g: 153, b: 0, a: 255 }).status).toBe("UNKNOWN_PIXEL");
+  });
+  it("never turns an unknown opaque pixel into dry", () => {
+    expect(classifyRainPixel({ r: 1, g: 2, b: 3, a: 255 }).status).toBe("UNKNOWN_PIXEL");
   });
 });
