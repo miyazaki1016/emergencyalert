@@ -25,7 +25,7 @@ describe("formatRainMessage", () => {
       endingTime: null,
     }, now);
     expect(result.headline).toContain("30分後");
-    expect(result.detail).toContain("急いで取り込む強さとは判定していません");
+    expect(result.detail).toContain("急いで入れるほどじゃないよ");
   });
 
   it("never calls insufficient data dry or safe", () => {
@@ -36,8 +36,9 @@ describe("formatRainMessage", () => {
       firstActionableRainTime: null,
       endingTime: null,
     }, now);
-    expect(result.headline).toContain("確認できません");
-    expect(result.detail).toContain("雨が降らないという意味ではありません");
+    expect(result.headline).toContain("確認できないよ");
+    expect(result.detail).toContain("雨が降らないって意味じゃないよ");
+    expect(result.headline).not.toContain("雨なし");
   });
 
   it("uses cautious language for ending rain", () => {
@@ -48,7 +49,8 @@ describe("formatRainMessage", () => {
       firstActionableRainTime: "20260920092000",
       endingTime: "20260920094000",
     }, now);
-    expect(result.detail).toContain("降水のない予報が続いています");
+    expect(result.headline).toContain("やみそう");
+    expect(result.detail).toContain("雨のない予報が続いてるよ");
     expect(result.detail).not.toContain("やみます");
   });
 });
