@@ -144,6 +144,16 @@ describe("RainInterpretationEngine", () => {
     expect(result.state).toBe("INSUFFICIENT_DATA");
   });
 
+  it("withholds claims when an observation is implausibly in the future", () => {
+    const result = interpretRainSeries({
+      now,
+      current: frame(10, "NO_RAIN"),
+      forecast: [frame(15, "NO_RAIN")],
+      expectedForecastFrames: 1,
+    });
+    expect(result.state).toBe("INSUFFICIENT_DATA");
+  });
+
   it("accepts a recent observation within the freshness tolerance", () => {
     const result = interpretRainSeries({
       now,
