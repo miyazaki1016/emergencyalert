@@ -174,3 +174,37 @@ This is an important product principle for 2026:
 When useful, EmergencyAlert should help the user understand the time progression
 of an officially published phenomenon, while never creating or extrapolating
 meteorological movement on its own.
+
+
+## Output boundary — facts first, expression later
+
+EmergencyAlert's reusable output must stop at structured facts and
+interpretation. Product-specific wording is a separate presentation layer.
+
+Canonical flow:
+
+> Official source → EmergencyAlert interpretation → structured event → presentation/personality layer
+
+The structured event should carry the facts needed by downstream consumers,
+for example state, relevant times, intensity class, source, checked-at time,
+location and location accuracy, plus data/interpretation status.
+
+EmergencyAlert may provide its own simple everyday-language presentation, but
+that wording is not the canonical output and must not be required by downstream
+integrations.
+
+For Misaki or any future consumer:
+
+- the consumer may change tone, phrasing and personality;
+- it may use its own relationship/context rules to decide how to say the fact;
+- it must not change the underlying meteorological interpretation;
+- it must not invent rain, timing, intensity or danger that EmergencyAlert did
+  not establish from the official source.
+
+In short:
+
+> EmergencyAlert = 目。各サービス = 伝え方。
+
+This boundary is a project-wide overview item because it keeps the weather
+truth reusable while allowing Misaki, Push, LINE, voice or future products to
+express the same event in their own way.
