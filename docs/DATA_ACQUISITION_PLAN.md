@@ -1,62 +1,56 @@
 # Data acquisition plan
 
-## Decision
+## Current decision — zero fixed data cost
 
-For production numeric rain decisions, EmergencyAlert will target the official
-JMA high-resolution precipitation nowcast GRIB2 feed distributed through the
-Japan Meteorological Business Support Center (JMBSC).
+EmergencyAlert 2026 will be developed with **no paid weather-data subscription**
+for now.
 
-The public JMA PNG path remains a Phase 1 development/display adapter and
-fallback diagnostic surface. It is not promoted to the numeric source of truth.
+The paid JMBSC GRIB2 route is preserved as a future upgrade path, not a Phase 1
+dependency. Reconsider it only when the project has revenue/funding that makes
+the recurring cost reasonable.
 
-## Confirmed cost model (checked 2026-09)
+## What JMA makes publicly available
 
-JMBSC's published online-delivery charges list:
+JMA's developer guide states that precipitation-nowcast imagery can be obtained
+from the JMA website. The information catalogue identifies the high-resolution
+precipitation nowcast analysis and forecast images as PNG, updated every five
+minutes and covering up to one hour.
 
-- Initial setup for file-format delivery: JPY 50,000 (one time, before tax)
-- Basic charge: JPY 4,200/month
-- High-resolution precipitation nowcast: JPY 7,200/month
-- Internet communications equipment charge: JPY 1,500/month
+Therefore Phase 1 uses the public JMA image product for development and the
+first working experience.
 
-That implies a published baseline of JPY 12,900/month before tax for the above
-combination, plus the one-time setup charge, receiver/network costs, and any
-contract-specific conditions.
+## Safety boundary
 
-JMBSC also describes a regional scheme that can reduce eligible basic and
-information charges to 1/6 per region after review. Eligibility depends on the
-user's business/use area, not merely requesting a geographically smaller file.
+Free does not mean guessed.
 
-Do not assume EmergencyAlert qualifies for the regional scheme until JMBSC
-approves it.
+- Never invent meteorological values.
+- Never convert NO_DATA, FETCH_ERROR, OUT_OF_COVERAGE or UNKNOWN_PIXEL to dry.
+- Keep raw RGBA, frame times, tile/pixel coordinates and source visible in
+  Developer View.
+- Do not present an exact mm/h value unless the mapping is verified.
+- If the current PNG palette cannot be verified strongly enough, use only
+  interpretations that the verified public product supports, or display the
+  raw/visual state without an unsupported numeric claim.
+- JMA itself notes that radar/nowcast display can be missing, weaker than
+  reality, or show precipitation where none exists; UI language must remain
+  appropriately cautious.
 
-## Development strategy
+## Phase 1 path
 
-Phase 1A must not be blocked by a paid production feed.
+Browser location
+  -> public JMA target times
+  -> public JMA high-resolution nowcast PNG
+  -> Web Mercator tile/pixel
+  -> conservative pixel classification
+  -> RainInterpretationEngine (only when inputs are verified)
+  -> UI + Developer View
 
-1. Finish the provider boundary and interpretation engine with deterministic
-   fixtures/tests.
-2. Keep live public-PNG diagnostics isolated.
-3. Build the app UI and Developer View against fixtures/provider interfaces.
-4. Before production notification decisions, connect an authorized numeric
-   feed and validate real GRIB2 samples end-to-end.
-5. Never switch production to guessed RGB classification merely to avoid feed
-   cost.
+No DB, paid feed, AI-generated forecast, or Push is required to prove this
+chain.
 
-## Deployment shape
+## Future paid path — parked
 
-A server-side ingestion worker receives each official update once, validates
-and decodes it, and stores only the normalized data EmergencyAlert needs.
-Browsers must not individually download/parse nationwide GRIB2 files.
+JMBSC GRIB2 remains behind the existing provider interface. It can later replace
+or augment the public-image adapter without rewriting the product logic.
 
-Flow:
-
-JMBSC/JMA numeric feed
-  -> ingestion worker
-  -> GRIB2 decoder + quality checks
-  -> normalized official rain frames
-  -> place lookup
-  -> RainInterpretationEngine
-  -> change detector
-  -> app / later Push
-
-This keeps source access centralized, auditable and replaceable.
+Do not spend recurring money on this feed during the current development phase.
