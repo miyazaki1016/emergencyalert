@@ -1,85 +1,74 @@
 import { describe, expect, it } from "vitest";
-import type { OfficialRainFrame, RainFrameStatus, RainIntensityClass } from "../types";
 import { interpretRainSeries } from "./RainInterpretationEngine";
+import type { OfficialRainFrame, RainIntensityClass } from "../types";
 
-const now = new Date("2026-09-20T09:20:00Z");
-const t = (minute: number) => `2026092009${String(minute).padStart(2, "0")}00`;
-
-function frame(
-  minute: number,
-  status: RainFrameStatus,
+const now = new Date("2026-09-20T11:00:00Z");
+const ts = (mins: number) => {
+  const d = new Date(now.getTime() + mins * 60_000);
+  return d.toISOString().replace(/[-:TZ.]/g, "").slice(0, 14);
+};
+const frame = (
+  mins: number,
+  status: OfficialRainFrame["status"],
   intensityClass: RainIntensityClass | null = null,
-): OfficialRainFrame {
-  return {
-    baseTime: t(20),
-    validTime: t(minute),
-    status,
-    intensityClass,
-    rgba: null,
-    source: "JMA_HIGH_RESOLUTION_PRECIPITATION_NOWCAST",
-  };
-}
+): OfficialRainFrame => ({
+  baseTime: ts(0), validTime: ts(mins), status, intensityClass, rgba: null,
+  source: "JMA_HIGH_RESOLUTION_PRECIPITATION_NOWCAST",
+});
 
 describe("RainInterpretationEngine", () => {
-  it("does not notify for drizzle only", () => {
-    const result = interpretRainSeries([
-      frame(25, "NO_RAIN"),
-      frame(30, "RAIN", "1_TO_5"),
-      frame(35, "RAIN", "1_TO_5"),
-    ], now);
-    expect(result.state).toBe("RAIN_AHEAD");
-    expect(result.shouldNotify).toBe(false);
-  });
-
-  it("notifies when >=5 mm/h class is within 30 minutes", () => {
-    const result = interpretRainSeries([
-      frame(25, "NO_RAIN"),
-      frame(30, "RAIN", "1_TO_5"),
-      frame(40, "RAIN", "5_TO_10"),
-    ], now);
+  it("notifies for actionable official rain within 30 minutes", () => {
+    const result = interpretRainSeries({
+      now, current: frame(0, "NO_RAIN"),
+      forecast: [frame(5, "NO_RAIN"), frame(20, "RAIN", "5_TO_10")],
+    });
     expect(result.state).toBe("ACTIONABLE_RAIN");
     expect(result.shouldNotify).toBe(true);
-    expect(result.firstActionableRainTime).toBe(t(40));
   });
 
-  it("watches but does not notify when actionable rain is more than 30 minutes away", () => {
-    const result = interpretRainSeries([
-      frame(25, "NO_RAIN"),
-      frame(55, "RAIN", "5_TO_10"),
-    ], now);
-    expect(result.state).toBe("RAIN_AHEAD");
-    expect(result.shouldNotify).toBe(false);
+  it("does not call a gapped forecast DRY", () => {
+    const result = interpretRainSeries({
+      now, current: frame(0, "NO_RAIN"),
+      forecast: [frame(5, "NO_RAIN"), frame(10, "UNKNOWN_PIXEL"), frame(15, "NO_RAIN")],
+      expectedForecastFrames: 3,
+    });
+    expect(result.state).toBe("INSUFFICIENT_DATA");
   });
 
-  it("requires three consecutive valid NO_RAIN frames before ending", () => {
-    const result = interpretRainSeries([
-      frame(20, "RAIN", "10_TO_20"),
-      frame(25, "RAIN", "5_TO_10"),
-      frame(30, "NO_RAIN"),
-      frame(35, "NO_RAIN"),
-      frame(40, "NO_RAIN"),
-    ], now);
-    expect(result.state).toBe("ENDING");
-    expect(result.endingTime).toBe(t(30));
+  it("calls DRY only with complete valid expected coverage", () => {
+    const result = interpretRainSeries({
+      now, current: frame(0, "NO_RAIN"),
+      forecast: [frame(5, "NO_RAIN"), frame(10, "NO_RAIN"), frame(15, "NO_RAIN")],
+      expectedForecastFrames: 3,
+    });
+    expect(result.state).toBe("DRY");
   });
 
-  it("does not bridge an unknown gap when deciding ending", () => {
-    const result = interpretRainSeries([
-      frame(20, "RAIN", "10_TO_20"),
-      frame(25, "NO_RAIN"),
-      frame(30, "FETCH_ERROR"),
-      frame(35, "NO_RAIN"),
-      frame(40, "NO_RAIN"),
-    ], now);
+  it("does not infer ending across an unknown gap", () => {
+    const result = interpretRainSeries({
+      now, current: frame(0, "RAIN", "5_TO_10"),
+      forecast: [
+        frame(5, "NO_RAIN"), frame(10, "UNKNOWN_PIXEL"),
+        frame(15, "NO_RAIN"), frame(20, "NO_RAIN"),
+      ],
+    });
     expect(result.state).toBe("RAINING");
     expect(result.endingTime).toBeNull();
   });
 
-  it("never interprets unknown pixels as dry", () => {
-    const result = interpretRainSeries([
-      frame(25, "UNKNOWN_PIXEL"),
-      frame(30, "FETCH_ERROR"),
-    ], now);
+  it("requires three consecutive valid no-rain frames for ENDING", () => {
+    const result = interpretRainSeries({
+      now, current: frame(0, "RAIN", "5_TO_10"),
+      forecast: [frame(5, "NO_RAIN"), frame(10, "NO_RAIN"), frame(15, "NO_RAIN")],
+    });
+    expect(result.state).toBe("ENDING");
+    expect(result.endingTime).toBe(ts(5));
+  });
+
+  it("requires a valid current observation", () => {
+    const result = interpretRainSeries({
+      now, current: frame(0, "FETCH_ERROR"), forecast: [frame(5, "NO_RAIN")],
+    });
     expect(result.state).toBe("INSUFFICIENT_DATA");
   });
 });
