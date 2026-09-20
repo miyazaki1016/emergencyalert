@@ -34,14 +34,15 @@ const INVALID = new Set([
 
 export function interpretRainSeries(input: RainSeriesInput): RainInterpretation {
   const { now, current, expectedForecastFrames } = input;
-  const forecast = [...input.forecast].sort(
-    (a, b) => parseJmaTime(a.validTime).getTime() - parseJmaTime(b.validTime).getTime(),
-  );
 
   if (!current || INVALID.has(current.status)) return empty("INSUFFICIENT_DATA");
   if (!isValidJmaTime(current.validTime) || input.forecast.some((f) => !isValidJmaTime(f.validTime))) {
     return empty("INSUFFICIENT_DATA");
   }
+
+  const forecast = [...input.forecast].sort(
+    (a, b) => parseJmaTime(a.validTime).getTime() - parseJmaTime(b.validTime).getTime(),
+  );
 
   const future = forecast.filter((f) => minutesFrom(now, f.validTime) >= 0);
   const validFuture = future.filter((f) => !INVALID.has(f.status));
