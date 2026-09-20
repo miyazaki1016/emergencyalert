@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { JmaPublicImageProvider } from "@/lib/weather/providers/jma/JmaPublicImageProvider";
 import { interpretRainSeries } from "@/lib/weather/rain/RainInterpretationEngine";
 import { formatRainMessage } from "@/lib/weather/rain/formatRainMessage";
+import { toRainSemanticEvent } from "@/lib/weather/rain/toRainSemanticEvent";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,7 @@ export async function GET(request: NextRequest) {
       observation,
       forecast,
       interpretation: interpretationEnabled ? interpretation : null,
+      event: interpretationEnabled ? toRainSemanticEvent(interpretation, now) : null,
       message: interpretationEnabled ? formatRainMessage(interpretation, now) : null,
       interpretationEnabled,
       note: interpretationEnabled
