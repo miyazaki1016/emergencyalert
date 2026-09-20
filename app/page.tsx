@@ -92,6 +92,20 @@ export default function Home() {
       <h1 style={{ marginTop: 0, fontSize: 40 }}>アメくる？</h1>
       <p>{status}</p>
 
+      {data && !data.interpretationEnabled && (
+        <section style={{ margin: "28px 0", padding: 24, border: "1px solid #ddd", borderRadius: 16 }}>
+          <div style={{ fontSize: 22, fontWeight: 700 }}>いまは、はっきり言えないよ。</div>
+          <div style={{ marginTop: 10, fontSize: 18 }}>雨が降らないって意味じゃないよ。</div>
+          {lastCheckedAt && (
+            <div style={{ marginTop: 18, fontSize: 13, color: "#666" }}>
+              {lastCheckedAt.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} 時点
+              {locationAccuracy !== null && ` ・ 現在地 ±${Math.round(locationAccuracy)}m`}
+              {" ・ 気象庁"}
+            </div>
+          )}
+        </section>
+      )}
+
       {data?.message && data.interpretation && (
         <section style={{ margin: "28px 0", padding: 24, border: "1px solid #ddd", borderRadius: 16 }}>
           <div style={{ fontSize: "clamp(28px, 7vw, 44px)", fontWeight: 800, lineHeight: 1.2, marginBottom: 16 }}>
