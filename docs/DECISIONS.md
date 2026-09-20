@@ -159,3 +159,12 @@ For the rain v1 public-imagery path, the interpretation engine currently withhol
 This guard is intentionally conservative and may be revised when provider behavior is better characterized. If revised, keep the reason and tests with the change.
 
 > **確認時刻が新しくても、元データが古ければ「最新」として語らない。**
+
+
+## Do not force symmetry across JMA observation and forecast metadata
+
+Observation and forecast metadata are different products. A validation rule that is valid for forecast frames must not be copied to observation frames merely because the fields have similar names.
+
+In particular, the rain v1 engine validates the shape of both `baseTime` and `validTime`, but it does not impose the forecast-only `baseTime <= validTime` ordering rule on observation frames without provider-specific evidence.
+
+> **同じ名前の項目でも、同じ意味とは決めつけない。**
