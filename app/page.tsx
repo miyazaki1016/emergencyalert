@@ -70,10 +70,10 @@ export default function Home() {
 
       {data?.message && data.interpretation && (
         <section style={{ margin: "28px 0", padding: 24, border: "1px solid #ddd", borderRadius: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>
+          <div style={{ fontSize: "clamp(28px, 7vw, 44px)", fontWeight: 800, lineHeight: 1.2, marginBottom: 16 }}>
             {stateLabel(data.interpretation.state)}
           </div>
-          <div style={{ fontSize: 24, fontWeight: 700 }}>{data.message.headline}</div>
+          <div style={{ fontSize: 22, fontWeight: 700 }}>{data.message.headline}</div>
           <div style={{ marginTop: 10, fontSize: 18 }}>{data.message.detail}</div>
         </section>
       )}
