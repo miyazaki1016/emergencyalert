@@ -17,63 +17,44 @@ export interface RainInterpretation {
   endingTime: string | null;
 }
 
+export interface RainSeriesInput {
+  now: Date;
+  current: OfficialRainFrame | null;
+  forecast: OfficialRainFrame[];
+  expectedForecastFrames?: number;
+}
+
 const ACTIONABLE = new Set<RainIntensityClass>([
-  "5_TO_10",
-  "10_TO_20",
-  "20_TO_30",
-  "30_TO_50",
-  "50_TO_80",
-  "GTE_80",
+  "5_TO_10", "10_TO_20", "20_TO_30", "30_TO_50", "50_TO_80", "GTE_80",
 ]);
 
 const INVALID = new Set([
-  "NO_DATA",
-  "OUT_OF_COVERAGE",
-  "FETCH_ERROR",
-  "UNKNOWN_PIXEL",
+  "NO_DATA", "OUT_OF_COVERAGE", "FETCH_ERROR", "UNKNOWN_PIXEL",
 ]);
 
-export function interpretRainSeries(
-  frames: OfficialRainFrame[],
-  now: Date,
-): RainInterpretation {
-  const ordered = [...frames].sort(
+export function interpretRainSeries(input: RainSeriesInput): RainInterpretation {
+  const { now, current, expectedForecastFrames } = input;
+  const forecast = [...input.forecast].sort(
     (a, b) => parseJmaTime(a.validTime).getTime() - parseJmaTime(b.validTime).getTime(),
   );
-  const valid = ordered.filter((f) => !INVALID.has(f.status));
-  if (valid.length === 0) return empty("INSUFFICIENT_DATA");
 
-  const current = valid.find((f) => minutesFrom(now, f.validTime) <= 5) ?? valid[0];
-  const currentlyRaining = current.status === "RAIN";
+  if (!current || INVALID.has(current.status)) return empty("INSUFFICIENT_DATA");
 
-  const firstRain = valid.find(
-    (f) => minutesFrom(now, f.validTime) >= 0 && f.status === "RAIN",
-  );
-  const firstActionable = valid.find(
-    (f) =>
-      minutesFrom(now, f.validTime) >= 0 &&
-      f.status === "RAIN" &&
-      f.intensityClass !== null &&
-      ACTIONABLE.has(f.intensityClass),
+  const future = forecast.filter((f) => minutesFrom(now, f.validTime) >= 0);
+  const validFuture = future.filter((f) => !INVALID.has(f.status));
+  const firstRain = validFuture.find((f) => f.status === "RAIN");
+  const firstActionable = validFuture.find(
+    (f) => f.status === "RAIN" && f.intensityClass !== null && ACTIONABLE.has(f.intensityClass),
   );
 
-  if (currentlyRaining) {
-    const ending = findEndingTime(ordered);
-    if (ending) {
-      return {
-        state: "ENDING",
-        shouldNotify: false,
-        firstRainTime: current.validTime,
-        firstActionableRainTime: firstActionable?.validTime ?? null,
-        endingTime: ending,
-      };
-    }
+  if (current.status === "RAIN") {
+    const ending = findEndingTime(future);
     return {
-      state: "RAINING",
+      state: ending ? "ENDING" : "RAINING",
       shouldNotify: false,
       firstRainTime: current.validTime,
       firstActionableRainTime: firstActionable?.validTime ?? null,
-      endingTime: null,
+      endingTime: ending,
     };
   }
 
@@ -81,7 +62,7 @@ export function interpretRainSeries(
     const mins = minutesFrom(now, firstActionable.validTime);
     return {
       state: mins <= 30 ? "ACTIONABLE_RAIN" : "RAIN_AHEAD",
-      shouldNotify: mins >= 0 && mins <= 30,
+      shouldNotify: mins <= 30,
       firstRainTime: firstRain?.validTime ?? null,
       firstActionableRainTime: firstActionable.validTime,
       endingTime: null,
@@ -98,10 +79,12 @@ export function interpretRainSeries(
     };
   }
 
-  const future = valid.filter((f) => minutesFrom(now, f.validTime) >= 0);
-  if (future.length > 0 && future.every((f) => f.status === "NO_RAIN")) {
-    return empty("DRY");
-  }
+  const complete =
+    expectedForecastFrames !== undefined &&
+    future.length === expectedForecastFrames &&
+    future.every((f) => !INVALID.has(f.status));
+
+  if (complete && future.every((f) => f.status === "NO_RAIN")) return empty("DRY");
   return empty("INSUFFICIENT_DATA");
 }
 
@@ -130,11 +113,5 @@ function parseJmaTime(value: string): Date {
 }
 
 function empty(state: RainInterpretationState): RainInterpretation {
-  return {
-    state,
-    shouldNotify: false,
-    firstRainTime: null,
-    firstActionableRainTime: null,
-    endingTime: null,
-  };
+  return { state, shouldNotify: false, firstRainTime: null, firstActionableRainTime: null, endingTime: null };
 }
