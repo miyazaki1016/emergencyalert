@@ -134,6 +134,26 @@ describe("RainInterpretationEngine", () => {
     expect(result.state).toBe("INSUFFICIENT_DATA");
   });
 
+  it("withholds claims when the latest observation is stale", () => {
+    const result = interpretRainSeries({
+      now,
+      current: frame(-20, "NO_RAIN"),
+      forecast: [frame(5, "NO_RAIN")],
+      expectedForecastFrames: 1,
+    });
+    expect(result.state).toBe("INSUFFICIENT_DATA");
+  });
+
+  it("accepts a recent observation within the freshness tolerance", () => {
+    const result = interpretRainSeries({
+      now,
+      current: frame(-10, "NO_RAIN"),
+      forecast: [frame(5, "NO_RAIN")],
+      expectedForecastFrames: 1,
+    });
+    expect(result.state).toBe("DRY");
+  });
+
   it("requires a valid current observation", () => {
     const result = interpretRainSeries({
       now, current: frame(0, "FETCH_ERROR"), forecast: [frame(5, "NO_RAIN")],
