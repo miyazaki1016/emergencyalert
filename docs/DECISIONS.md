@@ -102,3 +102,32 @@ must be able to recover the product intent without guessing. Record important
 decisions together with their rationale, constraints, rejected shortcuts and
 safety boundaries. Do not reinterpret a documented product philosophy merely
 because a different implementation looks newer or more elegant.
+
+
+## Trust is accumulated before an emergency
+
+EmergencyAlert must earn trust during ordinary, low-stakes use before asking the
+user to act during a life-safety event.
+
+Trust is built by being consistently transparent about:
+
+- when the information was checked;
+- which location is being evaluated and, where useful, its location accuracy;
+- uncertainty, missing data and unsupported interpretation;
+- the difference between "no rain" and "we could not confirm it".
+
+Principle:
+
+> 普段から正直だから、緊急時の強い言葉が届く。
+
+Do not optimize ordinary notifications for fear, urgency or engagement.
+Everyday notices should be calm and proportionate. When the system cannot
+confirm something, it should say so plainly instead of manufacturing certainty.
+
+The product should therefore treat each ordinary notification as both useful
+information and a small deposit of trust. That accumulated trust is what gives
+an authoritative emergency message weight when a genuine official life-safety
+alert arrives.
+
+Future Sora: never trade this accumulated trust for a more dramatic message,
+a prettier success state, or a higher notification rate.
