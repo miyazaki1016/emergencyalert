@@ -124,3 +124,27 @@ rain-intensity palette until its semantic legend association is established.
 
 The old 2023 table contains neither #00AAFF nor #FFAA00, strengthening the
 evidence that at least part of the presentation palette changed after 2023.
+
+
+## 2026-09-20 official-source recheck
+
+A fresh search of current/recent JMA-hosted materials again confirms the
+published precipitation-intensity legend boundaries used by 雨雲の動き:
+1, 5, 10, 20, 30, 50 and 80 mm/h.
+
+This strengthens the semantic intensity-band side of the model, but it does
+**not** by itself prove the RGB value assigned to each band in the current
+public PNG tiles.
+
+Therefore the implementation rule remains unchanged:
+
+- do not promote an RGB mapping merely because an old EmergencyAlert color
+  occupied the same legend band;
+- do not infer the meaning of current assets such as #00AAFF or #FFAA00 from
+  ordering or visual similarity alone;
+- keep an opaque unverified pixel as UNKNOWN_PIXEL;
+- require current evidence that associates a specific RGB value with a
+  specific JMA legend band before adding it to VERIFIED_JMA_PNG_PALETTE.
+
+The remaining blocker is not the legend thresholds. It is the authoritative
+RGB-to-band association for the current PNG layer.
