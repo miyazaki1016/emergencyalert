@@ -23,45 +23,45 @@ type RainResponse = {
 
 function stateLabel(state: RainInterpretation["state"]): string {
   switch (state) {
-    case "DRY": return "☀️ この先は雨なし";
-    case "RAIN_AHEAD": return "☁️ このあと雨";
-    case "ACTIONABLE_RAIN": return "☔ 雨が近づいています";
-    case "RAINING": return "🌧️ 雨が降っています";
-    case "EASING": return "🌦️ 弱まる方向";
-    case "ENDING": return "🌤️ やみそう";
+    case "DRY": return "☀️ この先、雨なし";
+    case "RAIN_AHEAD": return "☁️ このあと雨くるよ";
+    case "ACTIONABLE_RAIN": return "☔ もうすぐ雨くるよ";
+    case "RAINING": return "🌧️ いま雨だよ";
+    case "EASING": return "🌦️ 弱くなりそう";
+    case "ENDING": return "🌤️ もうすぐやみそう";
     default: return "確認中";
   }
 }
 
 export default function Home() {
-  const [status, setStatus] = useState("現在地から、このあとの雨を確認します。");
+  const [status, setStatus] = useState("このあとの雨、見てみる？");
   const [data, setData] = useState<RainResponse | null>(null);
   const [busy, setBusy] = useState(false);
   const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
   const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null);
 
   const check = () => {
-    if (!navigator.geolocation) return setStatus("この端末では現在地を取得できません。");
+    if (!navigator.geolocation) return setStatus("この端末では現在地を確認できないよ。");
     setBusy(true);
-    setStatus("現在地を確認しています…");
+    setStatus("いまいる場所を確認中…");
     navigator.geolocation.getCurrentPosition(async ({ coords }) => {
       setLocationAccuracy(coords.accuracy);
       try {
-        setStatus("気象庁の最新データを確認しています…");
+        setStatus("最新の雨情報を確認中…");
         const res = await fetch(`/api/rain?lat=${coords.latitude}&lon=${coords.longitude}`, { cache: "no-store" });
         if (!res.ok) throw new Error();
         const json = (await res.json()) as RainResponse;
         setData(json);
         setLastCheckedAt(new Date());
         setStatus(json.interpretationEnabled
-          ? "この場所の、これからを確認しました。"
-          : "公式データは取得できましたが、まだ安全に判定できない色が含まれています。");
+          ? "この場所の、このあとの雨を見たよ。"
+          : "情報は取れたけど、まだちゃんと判断できないところがあるよ。");
       } catch {
         setData(null);
-        setStatus("最新の雨情報を確認できませんでした。雨が降らないという意味ではありません。");
+        setStatus("いま最新の雨情報をうまく確認できないよ。雨が降らないって意味じゃないよ。");
       } finally { setBusy(false); }
     }, () => {
-      setStatus("現在地を取得できませんでした。位置情報の許可を確認してください。");
+      setStatus("いまいる場所を確認できなかったよ。位置情報の許可を確認してね。");
       setBusy(false);
     }, { enableHighAccuracy: true, timeout: 10000 });
   };
