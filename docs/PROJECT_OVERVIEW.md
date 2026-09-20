@@ -208,3 +208,36 @@ In short:
 This boundary is a project-wide overview item because it keeps the weather
 truth reusable while allowing Misaki, Push, LINE, voice or future products to
 express the same event in their own way.
+
+
+### Consumer simplicity is part of the EmergencyAlert contract
+
+Separation must not mean pushing meteorological complexity into each consumer.
+EmergencyAlert is responsible for turning its interpretation into a
+consumer-ready semantic event.
+
+A downstream service should not need to understand JMA tile colors, rainfall
+thresholds, consecutive-frame rules, missing-data handling, or the logic that
+decides whether an event is actionable.
+
+A semantic event may therefore include fields such as:
+
+- event type (for example, rain approaching / raining / easing / ending);
+- urgency class;
+- relevant timing;
+- normalized intensity;
+- suggested action (for example, bring laundry inside);
+- source, checked-at time and data status.
+
+The exact schema will evolve, but the responsibility boundary is fixed:
+
+> 判断はEmergencyAlertに寄せる。表現は利用側に渡す。
+> ただし、利用側に気象ロジックを再実装させない。
+
+Misaki and other consumers should mainly decide how to express an already
+grounded event in their own voice and context. They must not be forced to
+reconstruct EmergencyAlert's weather logic in order to use it.
+
+Future integration APIs/SDKs should optimize for this goal: receiving and using
+an EmergencyAlert event should be simple even when the implementation behind
+that event is complex.
