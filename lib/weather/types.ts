@@ -38,3 +38,27 @@ export interface OfficialRainFrame {
     pixelY: number;
   };
 }
+
+
+export type RainSemanticEventType =
+  | "RAIN_CLEAR"
+  | "RAIN_APPROACHING"
+  | "ACTIONABLE_RAIN_APPROACHING"
+  | "RAINING"
+  | "RAIN_EASING"
+  | "RAIN_ENDING";
+
+export type RainSemanticUrgency = "INFO" | "LIFESTYLE_ACTION";
+export type RainSuggestedAction = "NONE" | "BRING_LAUNDRY_INSIDE";
+
+export interface RainSemanticEvent {
+  schemaVersion: 1;
+  eventType: RainSemanticEventType;
+  urgency: RainSemanticUrgency;
+  suggestedAction: RainSuggestedAction;
+  startsAt: string | null;
+  actionableAt: string | null;
+  endingAt: string | null;
+  source: "JMA_HIGH_RESOLUTION_PRECIPITATION_NOWCAST";
+  checkedAt: string;
+}
