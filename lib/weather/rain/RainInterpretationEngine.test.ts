@@ -122,6 +122,17 @@ describe("RainInterpretationEngine", () => {
     expect(result.endingTime).toBe(ts(5));
   });
 
+  it("fails closed when a JMA base time is malformed", () => {
+    const malformedCurrent = { ...frame(0, "NO_RAIN"), baseTime: "not-a-jma-time" };
+    const result = interpretRainSeries({
+      now,
+      current: malformedCurrent,
+      forecast: [frame(5, "NO_RAIN")],
+      expectedForecastFrames: 1,
+    });
+    expect(result.state).toBe("INSUFFICIENT_DATA");
+  });
+
   it("fails closed when a JMA timestamp is malformed", () => {
     const malformedCurrent = { ...frame(0, "NO_RAIN"), validTime: "20261301120000" };
     const result = interpretRainSeries({
