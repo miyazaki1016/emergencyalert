@@ -20,6 +20,17 @@ export class JmaPublicImageProvider implements RainDataProvider {
     return this.readTargets(targets, lat, lon);
   }
 
+  async getForecastSeries(lat: number, lon: number): Promise<{
+    frames: OfficialRainFrame[];
+    expectedFrames: number;
+  }> {
+    const targets = await fetchForecastTargetTimes(this.fetcher);
+    return {
+      frames: await this.readTargets(targets, lat, lon),
+      expectedFrames: targets.length,
+    };
+  }
+
   private async readTargets(
     targets: Array<{ basetime: string; validtime: string }>,
     lat: number,
