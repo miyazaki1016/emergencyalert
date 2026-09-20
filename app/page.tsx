@@ -37,6 +37,7 @@ export default function Home() {
   const [status, setStatus] = useState("現在地から、このあとの雨を確認します。");
   const [data, setData] = useState<RainResponse | null>(null);
   const [busy, setBusy] = useState(false);
+  const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
 
   const check = () => {
     if (!navigator.geolocation) return setStatus("この端末では現在地を取得できません。");
@@ -49,6 +50,7 @@ export default function Home() {
         if (!res.ok) throw new Error();
         const json = (await res.json()) as RainResponse;
         setData(json);
+        setLastCheckedAt(new Date());
         setStatus(json.interpretationEnabled
           ? "この場所の、これからを確認しました。"
           : "公式データは取得できましたが、まだ安全に判定できない色が含まれています。");
@@ -75,11 +77,16 @@ export default function Home() {
           </div>
           <div style={{ fontSize: 22, fontWeight: 700 }}>{data.message.headline}</div>
           <div style={{ marginTop: 10, fontSize: 18 }}>{data.message.detail}</div>
+          {lastCheckedAt && (
+            <div style={{ marginTop: 18, fontSize: 13, color: "#666" }}>
+              {lastCheckedAt.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} 時点
+            </div>
+          )}
         </section>
       )}
 
       <button onClick={check} disabled={busy} style={{ padding: "13px 20px", fontSize: 16, cursor: busy ? "default" : "pointer" }}>
-        {busy ? "確認中…" : "この場所の雨を確認"}
+        {busy ? "確認中…" : data ? "最新情報に更新" : "この場所の雨を確認"}
       </button>
 
       {data && (
