@@ -241,3 +241,25 @@ reconstruct EmergencyAlert's weather logic in order to use it.
 Future integration APIs/SDKs should optimize for this goal: receiving and using
 an EmergencyAlert event should be simple even when the implementation behind
 that event is complex.
+
+
+### Keep each consumer's experience distinct
+
+Sharing the same EmergencyAlert event must not make every consumer feel like the
+same notification UI.
+
+**アメくる？** is a glanceable utility. Its job is to answer the immediate
+question with the shortest useful wording. Do not turn it into a conversational
+character merely because the event layer can support richer expression.
+
+**Misaki** is a conversational relationship experience. EmergencyAlert events
+should enter naturally through conversation and context, as something Misaki
+noticed and cared to mention. Do not turn Misaki into a weather notification
+bot or simply paste アメくる？ copy into chat.
+
+Therefore:
+
+> アメくる？は簡潔に。美咲は会話の中に。
+
+The shared event carries the grounded fact and actionable meaning; each
+consumer owns its experience. Reuse the truth, not the presentation.
