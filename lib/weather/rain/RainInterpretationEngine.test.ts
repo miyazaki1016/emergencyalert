@@ -134,6 +134,16 @@ describe("RainInterpretationEngine", () => {
     expect(result.state).toBe("INSUFFICIENT_DATA");
   });
 
+  it("withholds claims when the entire forecast series is already stale", () => {
+    const result = interpretRainSeries({
+      now,
+      current: frame(0, "NO_RAIN"),
+      forecast: [frame(-15, "NO_RAIN"), frame(-10, "NO_RAIN"), frame(-5, "NO_RAIN")],
+      expectedForecastFrames: 3,
+    });
+    expect(result.state).toBe("INSUFFICIENT_DATA");
+  });
+
   it("withholds claims when the latest observation is stale", () => {
     const result = interpretRainSeries({
       now,
