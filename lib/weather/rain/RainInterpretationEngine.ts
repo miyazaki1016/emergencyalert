@@ -39,6 +39,9 @@ export function interpretRainSeries(input: RainSeriesInput): RainInterpretation 
   );
 
   if (!current || INVALID.has(current.status)) return empty("INSUFFICIENT_DATA");
+  if (!isValidJmaTime(current.validTime) || input.forecast.some((f) => !isValidJmaTime(f.validTime))) {
+    return empty("INSUFFICIENT_DATA");
+  }
 
   const future = forecast.filter((f) => minutesFrom(now, f.validTime) >= 0);
   const validFuture = future.filter((f) => !INVALID.has(f.status));
