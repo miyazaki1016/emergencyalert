@@ -3,6 +3,7 @@ import { JmaPublicImageProvider } from "@/lib/weather/providers/jma/JmaPublicIma
 import { interpretRainSeries } from "@/lib/weather/rain/RainInterpretationEngine";
 import { formatRainMessage } from "@/lib/weather/rain/formatRainMessage";
 import { toRainSemanticEvent } from "@/lib/weather/rain/toRainSemanticEvent";
+import { canPublishRainInterpretation } from "@/lib/weather/rain/canPublishRainInterpretation";
 
 export const dynamic = "force-dynamic";
 
@@ -30,11 +31,11 @@ export async function GET(request: NextRequest) {
       expectedForecastFrames: forecastSeries.expectedFrames,
     });
 
-    const unsafeStatuses = new Set(["UNKNOWN_PIXEL", "NO_DATA", "OUT_OF_COVERAGE", "FETCH_ERROR"]);
-    const hasUnusableFrame = [...observation, ...forecast].some((frame) =>
-      unsafeStatuses.has(frame.status),
+    const interpretationEnabled = canPublishRainInterpretation(
+      interpretation,
+      observation,
+      forecast,
     );
-    const interpretationEnabled = !hasUnusableFrame && interpretation.state !== "INSUFFICIENT_DATA";
 
     return NextResponse.json({
       source: "JMA high-resolution precipitation nowcast public imagery",
