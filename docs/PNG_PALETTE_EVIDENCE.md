@@ -148,3 +148,35 @@ Therefore the implementation rule remains unchanged:
 
 The remaining blocker is not the legend thresholds. It is the authoritative
 RGB-to-band association for the current PNG layer.
+
+
+## 2026-09-20 evidence checkpoint — promotion remains blocked
+
+A further evidence pass checked current JMA first-party documentation and the
+current indexed web surface.
+
+Confirmed from JMA first-party material:
+
+- high-resolution precipitation nowcast is updated every 5 minutes;
+- it provides precipitation intensity out to 1 hour;
+- JMA explicitly catalogs both analysis and forecast products as PNG images on
+  the JMA website;
+- the published intensity legend boundaries remain
+  1 / 5 / 10 / 20 / 30 / 50 / 80 mm/h.
+
+Targeted exact searches for the current live-page asset names
+`circle_000_170_255.svg` (#00AAFF) and `circle_255_170_000.svg` (#FFAA00)
+returned no authoritative indexed document that associates either RGB value
+with a specific precipitation-intensity band.
+
+Therefore neither color is promoted. The three existing verified mappings stay
+unchanged.
+
+This is an intentional stop, not a failed classification attempt:
+
+> **色が見つかったことと、その色の意味が分かったことは別。**
+
+The remaining proof requires inspecting the live nowcast application's resource
+relationships (legend label -> referenced asset) or an equivalent first-party
+machine-readable definition. Search-engine absence must never be replaced with
+visual inference, historical ordering, or guesswork.
