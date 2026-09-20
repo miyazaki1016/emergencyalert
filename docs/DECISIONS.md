@@ -36,3 +36,54 @@ rendering palette. Until the palette is verified for the current tile product,
 opaque unrecognised pixels remain UNKNOWN_PIXEL.
 
 Future Sora: do not "fix" this by copying the 2023 colors without verification.
+
+
+## Voice and urgency — product constitution
+
+EmergencyAlert speaks in two clearly separated modes.
+
+### Everyday / lifestyle information
+
+Use ordinary, family-like language. Do not sound bureaucratic or technical.
+The user should understand the situation at a glance.
+
+Principle:
+
+> かしこまらない。難しくしない。見た瞬間わかる。
+
+Examples of the intended tone:
+
+- 「もうすぐ雨くるよ」
+- 「洗濯物いれとこ」
+- 「もうすぐやみそう」
+
+Technical evidence, thresholds and source details remain available underneath,
+but the main UI translates them into everyday action language.
+
+### Life-safety information
+
+When an official source indicates an urgent threat to life or physical safety,
+the voice changes deliberately: short, strong, direct and action-oriented.
+Do not soften an urgent official warning into the casual lifestyle voice.
+
+Principle:
+
+> 普段は、家族が声をかけるように。
+> 命に関わるときは、ためらわず強く。
+
+Examples include official emergency earthquake warnings, extreme heat alerts,
+special warnings, evacuation information, and other authoritative emergency
+information. Exact wording and escalation rules must be grounded in the
+official source and its defined severity; EmergencyAlert must not invent or
+independently upgrade a danger level.
+
+### Voice escalation boundary
+
+The system does not choose an emergency tone merely because its own logic
+"feels" that conditions are dangerous. Emergency voice escalation must be
+triggered by an authoritative official alert/severity signal that the
+integration explicitly understands.
+
+Future Sora: never let a life-safety alert say something merely cute or casual
+because the everyday rain UI uses that tone. Conversely, do not make ordinary
+lifestyle notices frightening just to attract attention.
