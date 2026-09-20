@@ -54,6 +54,9 @@ export default function Home() {
 
   const check = () => {
     if (!navigator.geolocation) return setStatus("この端末では現在地を確認できないよ。");
+    setData(null);
+    setLastCheckedAt(null);
+    setLocationAccuracy(null);
     setBusy(true);
     setStatus("いまいる場所を確認中…");
     navigator.geolocation.getCurrentPosition(async ({ coords }) => {
@@ -73,6 +76,9 @@ export default function Home() {
         setStatus("いま最新の雨情報をうまく確認できないよ。雨が降らないって意味じゃないよ。");
       } finally { setBusy(false); }
     }, () => {
+      setData(null);
+      setLastCheckedAt(null);
+      setLocationAccuracy(null);
       setStatus("いまいる場所を確認できなかったよ。位置情報の許可を確認してね。");
       setBusy(false);
     }, { enableHighAccuracy: true, timeout: 10000 });
