@@ -110,29 +110,98 @@ The paid JMBSC GRIB2 feed is a future provider option only. Do not make it a
 Phase 1 dependency. Reconsider it when the project has sufficient revenue or
 funding.
 
-## Current implementation
+## Current implementation / checkpoint (2026-09-20)
+
+「アメくる？2026」の Phase 1 本線は、現在地から気象庁データを取り、
+安全に解釈して簡潔な生活言葉で表示するところまで接続済み。
+
+Implemented:
 
 - Next.js + TypeScript scaffold
-- JMA public-image provider
-- browser geolocation -> server API -> JMA frame/tile/pixel path
-- Developer View
-- Web Mercator coordinate tests
-- RainInterpretationEngine
-- conservative missing-data states
-- future GRIB2 provider boundary
-- documentation for PNG/GRIB2 validation
+- browser geolocation -> server API -> JMA public-image provider
+- Web Mercator tile/pixel path and tests
+- RainInterpretationEngine states:
+  `INSUFFICIENT_DATA / DRY / RAIN_AHEAD / ACTIONABLE_RAIN / RAINING / EASING / ENDING`
+- claim-specific publication gate: unknown data after a supported near-term claim
+  does not erase that claim, while unknown data required for the claim blocks it
+- semantic event v1 separated from presentation
+- casual 「アメくる？」 message formatter and visible UI
+- checked-at time, location accuracy and JMA source display
+- explicit uncertainty card when a claim is withheld
+- stale UI results are cleared before re-check/location failure
+- provider integration tests and end-to-end interpretation -> publication ->
+  semantic event -> message pipeline tests
+- daily fail-safe palette watcher scaffold; it detects change but never promotes
+  a new RGB mapping automatically
 
-User-facing numeric/actionable interpretation remains deliberately disabled
-until the current PNG encoding is verified strongly enough.
+### Rain interpretation safety now locked by tests
 
-## Immediate work
+The engine currently fails closed for:
 
-1. Finish direct verification of all current JMA precipitation-legend colors.
-2. Compare current values with the recovered 2023 table.
-3. Promote only verified values into the 2026 palette.
-4. Fix interpretation-engine completeness/current-vs-forecast edge cases.
-5. Connect the verified public-data chain to the visible 「アメくる？」 UI.
-6. Then add watch-place/change-detection behavior before Push.
+- malformed JMA `baseTime` / `validTime`
+- stale observation (>15 minutes old)
+- implausibly future observation (>5 minutes ahead)
+- a forecast series whose targets are all already in the past
+- empty forecast coverage (zero frames can never become DRY)
+- incomplete/unknown evidence needed for a user-facing claim
+- easing claims that would have to skip an unknown frame
+- impossible forecast metadata where `baseTime > validTime`
+
+The 15-minute observation tolerance is an operational freshness guard, not a
+meteorological threshold.
+
+Do not copy the forecast `baseTime <= validTime` rule onto observation frames
+without provider-specific evidence. Observation and forecast metadata are
+different products even when field names look similar.
+
+> 同じ名前の項目でも、同じ意味とは決めつけない。
+
+### Current user-facing behavior
+
+The main UI intentionally stays simple:
+
+- 「この先、雨なし」
+- 「このあと雨くるよ」
+- 「もうすぐ雨くるよ」
+- 「いま雨だよ」
+- 「弱くなりそう」
+- 「もうすぐやみそう」
+
+When the evidence is insufficient it instead says, in effect:
+
+> いまは、はっきり言えないよ。雨が降らないって意味じゃないよ。
+
+The implementation underneath may be strict; the surface should remain
+glanceable and everyday.
+
+### Current blocker
+
+The largest remaining production blocker is the current JMA PNG precipitation
+palette. The current 2026 page has verified mappings for only part of the
+legend. Unknown opaque RGB values remain `UNKNOWN_PIXEL`; old 2023 mappings
+must not be resurrected by guesswork.
+
+The palette watcher is intentionally fail-safe:
+
+> 変更は自動で見つける。意味は勝手に決めない。
+
+It is scaffolding only; finishing the main 「アメくる？」 flow takes priority
+over building a clever automatic palette-promotion system.
+
+## Immediate work from this checkpoint
+
+1. Keep the Phase 1 rain path stable and CI-green.
+2. Tighten any remaining user-facing wording that can sound more absolute than
+   the official evidence (for example, prefer “雨の予報なし” over an absolute
+   “雨なし” where appropriate).
+3. Expose source-valid time separately from app check time when useful, so a
+   fresh UI check cannot hide old source data.
+4. Finish evidence-backed verification of the remaining current JMA PNG legend
+   RGB mappings; never guess them.
+5. Re-check the transparent-pixel => NO_RAIN assumption against current evidence
+   before calling the public-image path production-ready.
+6. Once the verified rain path is solid, add watch-place/change detection and
+   only then Push behavior.
 
 ## Must not break
 
