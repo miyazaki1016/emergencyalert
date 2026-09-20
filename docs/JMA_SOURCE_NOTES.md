@@ -21,3 +21,16 @@ Do not convert an RGB value to a rain class until that palette is verified.
 
 EmergencyAlert may say what the official JMA series supports. It must not turn
 a fetch error, unknown color or missing frame into "no rain" or "safe".
+
+
+## 2026-09 re-check: official nowcast cadence/resolution
+
+JMA's current help page states that "雨雲の動き" provides:
+- through 30 minutes: 5-minute intervals, 250 m grid;
+- through 1 hour: 1 km grid.
+
+This supports the 2026 product's use of official successive frames to show
+time progression. It does not authorize EmergencyAlert to extrapolate movement
+between or beyond JMA frames.
+
+Source: https://www.jma.go.jp/bosai/faq/pc.html
