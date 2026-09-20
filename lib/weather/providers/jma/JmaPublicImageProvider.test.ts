@@ -20,8 +20,8 @@ function response(body: BodyInit, init?: ResponseInit) {
 describe("JmaPublicImageProvider integration boundary", () => {
   it("preserves JMA target count and classifies a complete transparent series as no-rain frames", async () => {
     const targets = [
-      { basetime: "20260920120000", validtime: "20260920120500" },
-      { basetime: "20260920120000", validtime: "20260920121000" },
+      { basetime: "20260920120000", validtime: "20260920120500", elements: ["hrpns"] },
+      { basetime: "20260920120000", validtime: "20260920121000", elements: ["hrpns"] },
     ];
     const fetcher = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
@@ -39,8 +39,8 @@ describe("JmaPublicImageProvider integration boundary", () => {
 
   it("keeps one failed tile as FETCH_ERROR instead of silently shrinking the series", async () => {
     const targets = [
-      { basetime: "20260920120000", validtime: "20260920120500" },
-      { basetime: "20260920120000", validtime: "20260920121000" },
+      { basetime: "20260920120000", validtime: "20260920120500", elements: ["hrpns"] },
+      { basetime: "20260920120000", validtime: "20260920121000", elements: ["hrpns"] },
     ];
     let tile = 0;
     const fetcher = vi.fn(async (input: RequestInfo | URL) => {
@@ -60,7 +60,7 @@ describe("JmaPublicImageProvider integration boundary", () => {
   });
 
   it("keeps an unverified opaque color UNKNOWN_PIXEL", async () => {
-    const targets = [{ basetime: "20260920120000", validtime: "20260920120500" }];
+    const targets = [{ basetime: "20260920120000", validtime: "20260920120500", elements: ["hrpns"] }];
     const fetcher = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
       if (url.includes("targetTimes_N2.json")) return response(JSON.stringify(targets));
