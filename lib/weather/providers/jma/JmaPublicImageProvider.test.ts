@@ -72,4 +72,23 @@ describe("JmaPublicImageProvider integration boundary", () => {
 
     expect(series.frames[0].status).toBe("UNKNOWN_PIXEL");
   });
+  it("selects the newest observation even when JMA metadata arrives out of order", async () => {
+    const targets = [
+      { basetime: "20260920115500", validtime: "20260920115500", elements: ["hrpns"] },
+      { basetime: "20260920120500", validtime: "20260920120500", elements: ["hrpns"] },
+      { basetime: "20260920120000", validtime: "20260920120000", elements: ["hrpns"] },
+    ];
+    const fetcher = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("targetTimes_N1.json")) return response(JSON.stringify(targets));
+      return response(pngPixel(0, 0, 0, 0));
+    }) as unknown as typeof fetch;
+
+    const provider = new JmaPublicImageProvider(fetcher);
+    const frames = await provider.getObservationFrames(35.681236, 139.767125);
+
+    expect(frames).toHaveLength(1);
+    expect(frames[0].validTime).toBe("20260920120500");
+  });
+
 });
