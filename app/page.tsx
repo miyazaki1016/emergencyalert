@@ -38,12 +38,14 @@ export default function Home() {
   const [data, setData] = useState<RainResponse | null>(null);
   const [busy, setBusy] = useState(false);
   const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
+  const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null);
 
   const check = () => {
     if (!navigator.geolocation) return setStatus("この端末では現在地を取得できません。");
     setBusy(true);
     setStatus("現在地を確認しています…");
     navigator.geolocation.getCurrentPosition(async ({ coords }) => {
+      setLocationAccuracy(coords.accuracy);
       try {
         setStatus("気象庁の最新データを確認しています…");
         const res = await fetch(`/api/rain?lat=${coords.latitude}&lon=${coords.longitude}`, { cache: "no-store" });
@@ -80,6 +82,7 @@ export default function Home() {
           {lastCheckedAt && (
             <div style={{ marginTop: 18, fontSize: 13, color: "#666" }}>
               {lastCheckedAt.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} 時点
+              {locationAccuracy !== null && ` ・ 現在地 ±${Math.round(locationAccuracy)}m`}
             </div>
           )}
         </section>
