@@ -50,6 +50,12 @@ export function interpretRainSeries(input: RainSeriesInput): RainInterpretation 
     (a, b) => parseJmaTime(a.validTime).getTime() - parseJmaTime(b.validTime).getTime(),
   );
 
+  // Forecast metadata should describe now/future frames. If every target is
+  // already in the past, fail closed instead of presenting a fresh-looking claim.
+  if (forecast.length > 0 && forecast.every((f) => minutesFrom(now, f.validTime) < 0)) {
+    return empty("INSUFFICIENT_DATA");
+  }
+
   const future = forecast.filter((f) => minutesFrom(now, f.validTime) >= 0);
   const validFuture = future.filter((f) => !INVALID.has(f.status));
   const firstRain = validFuture.find((f) => f.status === "RAIN");
