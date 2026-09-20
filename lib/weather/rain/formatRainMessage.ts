@@ -14,50 +14,50 @@ export function formatRainMessage(
       const mins = minutesUntil(now, interpretation.firstActionableRainTime);
       return {
         headline: mins !== null && mins <= 15
-          ? "まもなく、まとまった雨の予報です。"
-          : `${roundFive(mins)}分後ごろから、まとまった雨の予報です。`,
-        detail: "洗濯物は今のうちに取り込んでおいた方がよさそうです。",
+          ? "もうすぐ、ちゃんとした雨くるよ☔️"
+          : `${roundFive(mins)}分後くらいから、ちゃんとした雨くるよ☔️`,
+        detail: "洗濯物、今のうちにいれとこ🧺",
       };
     }
     case "RAIN_AHEAD": {
       const mins = minutesUntil(now, interpretation.firstRainTime);
       return {
         headline: mins === null
-          ? "このあと、この場所に雨の予報が出ています。"
-          : `${roundFive(mins)}分後ごろから、この場所に雨の予報が出ています。`,
+          ? "このあと雨くるよ☔️"
+          : `${roundFive(mins)}分後くらいから雨くるよ☔️`,
         detail: interpretation.firstActionableRainTime
-          ? "まとまった雨はまだ少し先です。引き続き見張ります。"
-          : "今のところ、洗濯物を急いで取り込む強さとは判定していません。",
+          ? "まとまった雨はまだ少し先。引き続き見張ってるよ。"
+          : "今のところ、洗濯物を急いで入れるほどじゃないよ。",
       };
     }
     case "RAINING":
       return {
-        headline: "現在、この場所には雨の情報があります。",
-        detail: "気象庁の最新データをもとに表示しています。",
+        headline: "いま、この場所は雨だよ🌧️",
+        detail: "気象庁の最新データで確認してるよ。",
       };
     case "ENDING": {
       const mins = minutesUntil(now, interpretation.endingTime);
       return {
-        headline: "雨は弱まる方向です。",
+        headline: "もうすぐやみそう🌤️",
         detail: mins === null
-          ? "このあと降水のない予報が続いています。"
-          : `${roundFive(mins)}分後ごろから、降水のない予報が続いています。`,
+          ? "このあと、雨のない予報が続いてるよ。"
+          : `${roundFive(mins)}分後くらいから、雨のない予報が続いてるよ。`,
       };
     }
     case "DRY":
       return {
-        headline: "今後1時間、この場所に雨の予報は出ていません。",
-        detail: "気象庁の現在取得できているデータの範囲での表示です。",
+        headline: "この先1時間、雨の予報は出てないよ☀️",
+        detail: "気象庁のいま取れているデータで確認したよ。",
       };
     case "EASING":
       return {
-        headline: "雨は弱まる予報です。",
-        detail: "まだ、やむとは判断していません。",
+        headline: "雨、だんだん弱くなりそう🌦️",
+        detail: "まだ、やむとは言い切れないよ。",
       };
     case "INSUFFICIENT_DATA":
       return {
-        headline: "最新の雨情報を十分に確認できませんでした。",
-        detail: "雨が降らないという意味ではありません。",
+        headline: "いま、最新の雨情報をうまく確認できないよ。",
+        detail: "雨が降らないって意味じゃないよ。",
       };
   }
 }
