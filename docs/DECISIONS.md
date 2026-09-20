@@ -131,3 +131,20 @@ alert arrives.
 
 Future Sora: never trade this accumulated trust for a more dramatic message,
 a prettier success state, or a higher notification rate.
+
+
+## JMA PNG palette changes — detect automatically, promote manually
+
+Current public-PNG interpretation depends on verified RGB-to-intensity associations, so a JMA presentation change can affect classification even when the precipitation intensity bands themselves remain stable.
+
+Policy:
+
+> 変更は自動で見つける。意味は勝手に決めない。
+
+EmergencyAlert may automatically observe and compare the current JMA legend against the verified production palette. A difference becomes CHANGE_DETECTED and should eventually trigger operational review/alerting.
+
+A detected RGB must **never** be promoted automatically into the production palette. Promotion requires independent evidence that associates the new RGB with the official intensity band. Until then, unverified opaque pixels remain UNKNOWN_PIXEL; they must not become NO_RAIN or another guessed class.
+
+The palette watcher is therefore a detector, not an updater. This preserves the project rule that uncertainty must not be converted into safety.
+
+Long term, an authorized numeric precipitation feed should reduce or remove this presentation-color dependency. The zero-fixed-cost phase continues to use public PNG imagery conservatively.
