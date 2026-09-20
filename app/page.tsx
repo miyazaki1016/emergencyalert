@@ -10,12 +10,24 @@ type RainInterpretation = {
   firstActionableRainTime: string | null;
   endingTime: string | null;
 };
+type RainSemanticEvent = {
+  schemaVersion: 1;
+  eventType: "RAIN_CLEAR" | "RAIN_APPROACHING" | "ACTIONABLE_RAIN_APPROACHING" | "RAINING" | "RAIN_EASING" | "RAIN_ENDING";
+  urgency: "INFO" | "LIFESTYLE_ACTION";
+  suggestedAction: "NONE" | "BRING_LAUNDRY_INSIDE";
+  startsAt: string | null;
+  actionableAt: string | null;
+  endingAt: string | null;
+  source: "JMA_HIGH_RESOLUTION_PRECIPITATION_NOWCAST";
+  checkedAt: string;
+};
 type RainResponse = {
   source: string;
   location: { lat: number; lon: number };
   observation: unknown[];
   forecast: unknown[];
   interpretation: RainInterpretation | null;
+  event: RainSemanticEvent | null;
   message: RainMessage | null;
   interpretationEnabled: boolean;
   note: string;
@@ -83,6 +95,7 @@ export default function Home() {
             <div style={{ marginTop: 18, fontSize: 13, color: "#666" }}>
               {lastCheckedAt.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} 時点
               {locationAccuracy !== null && ` ・ 現在地 ±${Math.round(locationAccuracy)}m`}
+              {" ・ 気象庁"}
             </div>
           )}
         </section>
