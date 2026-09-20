@@ -3,16 +3,35 @@
 import { useState } from "react";
 
 type RainMessage = { headline: string; detail: string };
+type RainInterpretation = {
+  state: "INSUFFICIENT_DATA" | "DRY" | "RAIN_AHEAD" | "ACTIONABLE_RAIN" | "RAINING" | "EASING" | "ENDING";
+  shouldNotify: boolean;
+  firstRainTime: string | null;
+  firstActionableRainTime: string | null;
+  endingTime: string | null;
+};
 type RainResponse = {
   source: string;
   location: { lat: number; lon: number };
   observation: unknown[];
   forecast: unknown[];
-  interpretation: unknown | null;
+  interpretation: RainInterpretation | null;
   message: RainMessage | null;
   interpretationEnabled: boolean;
   note: string;
 };
+
+function stateLabel(state: RainInterpretation["state"]): string {
+  switch (state) {
+    case "DRY": return "☀️ この先は雨なし";
+    case "RAIN_AHEAD": return "☁️ このあと雨";
+    case "ACTIONABLE_RAIN": return "☔ 雨が近づいています";
+    case "RAINING": return "🌧️ 雨が降っています";
+    case "EASING": return "🌦️ 弱まる方向";
+    case "ENDING": return "🌤️ やみそう";
+    default: return "確認中";
+  }
+}
 
 export default function Home() {
   const [status, setStatus] = useState("現在地から、このあとの雨を確認します。");
@@ -49,8 +68,11 @@ export default function Home() {
       <h1 style={{ marginTop: 0, fontSize: 40 }}>アメくる？</h1>
       <p>{status}</p>
 
-      {data?.message && (
+      {data?.message && data.interpretation && (
         <section style={{ margin: "28px 0", padding: 24, border: "1px solid #ddd", borderRadius: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>
+            {stateLabel(data.interpretation.state)}
+          </div>
           <div style={{ fontSize: 24, fontWeight: 700 }}>{data.message.headline}</div>
           <div style={{ marginTop: 10, fontSize: 18 }}>{data.message.detail}</div>
         </section>
