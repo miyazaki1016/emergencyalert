@@ -87,3 +87,18 @@ integration explicitly understands.
 Future Sora: never let a life-safety alert say something merely cute or casual
 because the everyday rain UI uses that tone. Conversely, do not make ordinary
 lifestyle notices frightening just to attract attention.
+
+
+## Project continuity — rule zero
+
+This rule applies across the owner's projects, not only EmergencyAlert.
+
+> 第0条：未来のソラを信用するな。
+> 第1条：決めたことより「なぜ決めたか」を残せ。
+> 第2条：思想は継承する。実装は検証する。
+
+This is not a joke-only convention. Future sessions and future implementations
+must be able to recover the product intent without guessing. Record important
+decisions together with their rationale, constraints, rejected shortcuts and
+safety boundaries. Do not reinterpret a documented product philosophy merely
+because a different implementation looks newer or more elegant.
