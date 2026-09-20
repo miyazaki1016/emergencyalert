@@ -1,12 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { findVerifiedIntensity, VERIFIED_JMA_PNG_PALETTE } from "./pngPalette";
+import { VERIFIED_JMA_PNG_PALETTE, findVerifiedIntensity } from "./pngPalette";
 
 describe("verified JMA PNG palette", () => {
-  it("starts with no guessed RGB mappings", () => {
-    expect(VERIFIED_JMA_PNG_PALETTE).toHaveLength(0);
+  it("contains only explicitly evidence-gated current JMA mappings", () => {
+    expect(VERIFIED_JMA_PNG_PALETTE.length).toBeGreaterThan(0);
+    expect(VERIFIED_JMA_PNG_PALETTE.every((entry) => entry.evidence === "CURRENT_JMA_ASSET")).toBe(true);
   });
 
-  it("does not classify an unverified opaque pixel", () => {
-    expect(findVerifiedIntensity({ r: 33, g: 140, b: 255, a: 255 })).toBeNull();
+  it("recognises a verified current JMA color", () => {
+    expect(findVerifiedIntensity({ r: 250, g: 245, b: 0, a: 255 })).toBe("20_TO_30");
+  });
+
+  it("does not classify an old unverified opaque color", () => {
+    expect(findVerifiedIntensity({ r: 255, g: 153, b: 0, a: 255 })).toBeNull();
   });
 });
