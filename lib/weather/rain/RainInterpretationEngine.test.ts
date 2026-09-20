@@ -77,6 +77,20 @@ describe("RainInterpretationEngine", () => {
     expect(result.endingTime).toBeNull();
   });
 
+
+  it("does not infer EASING by skipping an unknown near-term frame", () => {
+    const result = interpretRainSeries({
+      now, current: frame(0, "RAIN", "20_TO_30"),
+      forecast: [
+        frame(5, "UNKNOWN_PIXEL"),
+        frame(10, "RAIN", "10_TO_20"),
+        frame(15, "RAIN", "5_TO_10"),
+        frame(20, "RAIN", "5_TO_10"),
+      ],
+    });
+    expect(result.state).toBe("RAINING");
+  });
+
   it("does not call a one-frame dip EASING", () => {
     const result = interpretRainSeries({
       now, current: frame(0, "RAIN", "20_TO_30"),
