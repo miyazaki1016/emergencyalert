@@ -39,6 +39,12 @@ export function interpretRainSeries(input: RainSeriesInput): RainInterpretation 
   if (!isValidJmaTime(current.validTime) || input.forecast.some((f) => !isValidJmaTime(f.validTime))) {
     return empty("INSUFFICIENT_DATA");
   }
+  // JMA nowcast updates every 5 minutes. Keep a small operational tolerance,
+  // but never publish a fresh-looking claim from an old observation.
+  const observationAgeMinutes = (now.getTime() - parseJmaTime(current.validTime).getTime()) / 60_000;
+  if (observationAgeMinutes < -5 || observationAgeMinutes > 15) {
+    return empty("INSUFFICIENT_DATA");
+  }
 
   const forecast = [...input.forecast].sort(
     (a, b) => parseJmaTime(a.validTime).getTime() - parseJmaTime(b.validTime).getTime(),
