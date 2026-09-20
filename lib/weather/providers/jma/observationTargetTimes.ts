@@ -23,5 +23,5 @@ export async function fetchObservationTargetTimes(
       v.basetime === v.validtime &&
       Array.isArray(v.elements) &&
       v.elements.includes("hrpns");
-  });
+  }).sort((a, b) => b.validtime.localeCompare(a.validtime));
 }
