@@ -49,8 +49,9 @@ export function interpretRainSeries(input: RainSeriesInput): RainInterpretation 
 
   if (current.status === "RAIN") {
     const ending = findEndingTime(future);
+    const easing = !ending && isEasing(current, future);
     return {
-      state: ending ? "ENDING" : "RAINING",
+      state: ending ? "ENDING" : easing ? "EASING" : "RAINING",
       shouldNotify: false,
       firstRainTime: current.validTime,
       firstActionableRainTime: firstActionable?.validTime ?? null,
@@ -86,6 +87,20 @@ export function interpretRainSeries(input: RainSeriesInput): RainInterpretation 
 
   if (complete && future.every((f) => f.status === "NO_RAIN")) return empty("DRY");
   return empty("INSUFFICIENT_DATA");
+}
+
+function isEasing(current: OfficialRainFrame, frames: OfficialRainFrame[]): boolean {
+  if (current.status !== "RAIN" || current.intensityClass === null) return false;
+  const rank: Record<RainIntensityClass, number> = {
+    LT_1: 0, "1_TO_5": 1, "5_TO_10": 2, "10_TO_20": 3,
+    "20_TO_30": 4, "30_TO_50": 5, "50_TO_80": 6, GTE_80: 7,
+  };
+  const comparable = frames
+    .filter((f) => !INVALID.has(f.status))
+    .slice(0, 3);
+  if (comparable.length < 3) return false;
+  if (comparable.some((f) => f.status !== "RAIN" || f.intensityClass === null)) return false;
+  return comparable.every((f) => rank[f.intensityClass!] < rank[current.intensityClass!]);
 }
 
 function findEndingTime(frames: OfficialRainFrame[]): string | null {
