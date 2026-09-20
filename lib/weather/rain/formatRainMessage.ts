@@ -19,11 +19,17 @@ export function formatRainMessage(
         detail: "洗濯物は今のうちに取り込んでおいた方がよさそうです。",
       };
     }
-    case "RAIN_AHEAD":
+    case "RAIN_AHEAD": {
+      const mins = minutesUntil(now, interpretation.firstRainTime);
       return {
-        headline: "このあと、この場所に雨の予報が出ています。",
-        detail: "まだ通知する強さ・近さではありません。引き続き見張ります。",
+        headline: mins === null
+          ? "このあと、この場所に雨の予報が出ています。"
+          : `${roundFive(mins)}分後ごろから、この場所に雨の予報が出ています。`,
+        detail: interpretation.firstActionableRainTime
+          ? "まとまった雨はまだ少し先です。引き続き見張ります。"
+          : "今のところ、洗濯物を急いで取り込む強さとは判定していません。",
       };
+    }
     case "RAINING":
       return {
         headline: "現在、この場所には雨の情報があります。",
