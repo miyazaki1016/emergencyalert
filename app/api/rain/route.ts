@@ -9,8 +9,8 @@ export async function GET(request: NextRequest) {
   const lat = Number(request.nextUrl.searchParams.get("lat"));
   const lon = Number(request.nextUrl.searchParams.get("lon"));
 
-  if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
-    return NextResponse.json({ error: "lat and lon are required" }, { status: 400 });
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+    return NextResponse.json({ error: "valid lat and lon are required" }, { status: 400 });
   }
 
   try {
@@ -21,17 +21,19 @@ export async function GET(request: NextRequest) {
     ]);
 
     const now = new Date();
+    // Do not claim DRY yet: the public-PNG path has not established an
+    // independent completeness contract for the full expected forecast series.
     const interpretation = interpretRainSeries({
       now,
       current: observation[0] ?? null,
       forecast,
-      expectedForecastFrames: forecast.length,
     });
 
-    const hasUnknownPalette = [...observation, ...forecast].some(
-      (frame) => frame.status === "UNKNOWN_PIXEL",
+    const unsafeStatuses = new Set(["UNKNOWN_PIXEL", "NO_DATA", "OUT_OF_COVERAGE", "FETCH_ERROR"]);
+    const hasUnusableFrame = [...observation, ...forecast].some((frame) =>
+      unsafeStatuses.has(frame.status),
     );
-    const interpretationEnabled = !hasUnknownPalette;
+    const interpretationEnabled = !hasUnusableFrame && interpretation.state !== "INSUFFICIENT_DATA";
 
     return NextResponse.json({
       source: "JMA high-resolution precipitation nowcast public imagery",
@@ -42,8 +44,8 @@ export async function GET(request: NextRequest) {
       message: interpretationEnabled ? formatRainMessage(interpretation, now) : null,
       interpretationEnabled,
       note: interpretationEnabled
-        ? "Interpretation uses only currently verified JMA PNG colors."
-        : "Interpretation withheld because one or more PNG colors are not yet verified.",
+        ? "Interpretation uses only usable frames and currently verified JMA PNG colors."
+        : "Interpretation withheld: palette, coverage, fetch, or forecast completeness is not yet sufficient for a safe user-facing claim.",
     });
   } catch {
     return NextResponse.json(
