@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { PNG } from "pngjs";
 import { JmaPublicImageProvider } from "./JmaPublicImageProvider";
 
-function pngPixel(r: number, g: number, b: number, a: number): Uint8Array {
+function pngPixel(r: number, g: number, b: number, a: number): ArrayBuffer {
   const png = new PNG({ width: 256, height: 256 });
   for (let i = 0; i < png.data.length; i += 4) {
     png.data[i] = r;
@@ -10,7 +10,7 @@ function pngPixel(r: number, g: number, b: number, a: number): Uint8Array {
     png.data[i + 2] = b;
     png.data[i + 3] = a;
   }
-  return PNG.sync.write(png);
+  return Uint8Array.from(PNG.sync.write(png)).buffer;
 }
 
 function response(body: BodyInit, init?: ResponseInit) {
@@ -59,12 +59,12 @@ describe("JmaPublicImageProvider integration boundary", () => {
     expect(series.frames.map((f) => f.status)).toEqual(["NO_RAIN", "FETCH_ERROR"]);
   });
 
-  it("keeps an unverified opaque color UNKNOWN_PIXEL", async () => {
+  it.each([[1, 2, 3], [250, 245, 0], [255, 245, 0], [0, 170, 255], [255, 170, 0]])("keeps unsupported RGB (%i,%i,%i) UNKNOWN_PIXEL", async (r, g, b) => {
     const targets = [{ basetime: "20260920120000", validtime: "20260920120500", elements: ["hrpns"] }];
     const fetcher = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
       if (url.includes("targetTimes_N2.json")) return response(JSON.stringify(targets));
-      return response(pngPixel(1, 2, 3, 255));
+      return response(pngPixel(r, g, b, 255));
     }) as unknown as typeof fetch;
 
     const provider = new JmaPublicImageProvider(fetcher);
