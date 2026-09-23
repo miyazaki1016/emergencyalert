@@ -255,7 +255,7 @@ export default function Home() {
               maxLength={30}
               style={{ width: "100%", boxSizing: "border-box", marginTop: 6, padding: "11px 12px", fontSize: 16 }}
             />
-            <button disabled title="保存機能は次の段階で接続" style={{ marginTop: 10, padding: "9px 12px" }}>この場所を見張る</button>
+            <button onClick={() => void savePlace(place)} disabled={savingPlaceId !== null} style={{ marginTop: 10, padding: "9px 12px" }}>{savingPlaceId === place.id ? "登録中…" : "この場所を見張る"}</button>
           </div>
         ))}
       </section>
