@@ -1,3 +1,5 @@
+import { normalize } from "@geolonia/normalize-japanese-addresses";
+
 export interface PlaceSearchResult {
   id: string;
   displayName: string;
@@ -52,16 +54,28 @@ export async function searchPlaces(query: string): Promise<PlaceSearchResult[]> 
   if (trimmed.length < 2) return [];
 
   const normalized = normalizeJapaneseAddress(trimmed);
-  const attempts = Array.from(new Set([
-    normalized,
-    normalized.replace(/^(東京都|北海道|(?:京都|大阪)府|.{2,3}県)/, ""),
-  ].filter((value) => value.length >= 2)));
 
-  let items: NominatimItem[] = [];
-  for (const attempt of attempts) {
-    items = await fetchNominatim(attempt);
-    if (items.length) break;
+  if (/\\d/.test(normalized) && /[都道府県市区町村丁目番]/.test(normalized)) {
+    try {
+      const address = await normalize(normalized);
+      if (address.point && address.level >= 3) {
+        const displayAddress = [address.pref, address.city, address.town, address.addr].filter(Boolean).join("");
+        return [{
+          id: `address:${displayAddress}`,
+          displayName: address.town || displayAddress || trimmed,
+          displayAddress: displayAddress || trimmed,
+          latitude: address.point.lat,
+          longitude: address.point.lng,
+        }];
+      }
+    } catch {
+      // Keep facility/station search available through Nominatim.
+    }
   }
+
+  // Use one explicit Nominatim request for stations/facilities. Avoid rapid
+  // retry loops so we stay within the public service usage policy.
+  const items = await fetchNominatim(normalized);
 
   return items.flatMap((item) => {
     const latitude = Number(item.lat);
