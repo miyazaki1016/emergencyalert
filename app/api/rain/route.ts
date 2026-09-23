@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       source: "JMA high-resolution precipitation nowcast public imagery",
       checkedAt: now.toISOString(),
+      sourceValidAt: observation[0]?.validTime ?? null,
       location: { lat, lon },
       observation,
       forecast,
