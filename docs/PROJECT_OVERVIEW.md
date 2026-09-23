@@ -176,6 +176,17 @@ glanceable and everyday.
 
 ### Current blocker
 
+**2026-09-23 correction:** Direct browser DOM/resource inspection now links
+the hrpns layer to its own precipitation legend. Seven RGB mappings are verified
+against original current PNGs (including zoom 10). The remaining 20–30 mm/h
+legend uses #FFF500, while PNGs contain #FAF500; the former #FAF500 registration
+has been withdrawn and both yellows remain UNKNOWN_PIXEL. #00AAFF/#FFAA00
+circle assets belong to AMeDAS ten-minute rainfall, not hrpns intensity.
+#FF9900 is confirmed by current hrpns evidence. See
+[PNG_PALETTE_EVIDENCE.md](PNG_PALETTE_EVIDENCE.md) for the source chain, originals,
+hashes, exact band table and unresolved conflict. The older archaeology and
+checkpoint notes must not override this correction.
+
 The largest remaining production blocker is the current JMA PNG precipitation
 palette. The current 2026 page has verified mappings for only part of the
 legend. Unknown opaque RGB values remain `UNKNOWN_PIXEL`; old 2023 mappings

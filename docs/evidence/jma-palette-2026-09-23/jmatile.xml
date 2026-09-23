@@ -1,0 +1,365 @@
+<properties>
+  <!--
+      jmatileプロパティ(PC・スマホ共通)
+      @author T.Nishimura@JMA
+      @version 2022.08.01
+  -->
+  <!-- 表示領域定義 -->
+  <displayArea>
+    <!-- ズームレベル最小値 -->
+    <minZoom>4</minZoom>
+    <!-- ズームレベル最大値 -->
+    <maxZoom>14</maxZoom>
+    <!-- ズームレベル単位 -->
+    <zoomSnap>1</zoomSnap>
+    <!-- ズームレベルデフォルト値 -->
+    <defaultZoom>5</defaultZoom>
+    <!-- 緯度最小値 -->
+    <minLat>7</minLat>
+    <!-- 緯度最大値 -->
+    <maxLat>61</maxLat>
+    <!-- 緯度デフォルト値 -->
+    <defaultLat>34</defaultLat>
+    <!-- 経度最小値 -->
+    <minLon>100</minLon>
+    <!-- 経度最大値 -->
+    <maxLon>178</maxLon>
+    <!-- 経度デフォルト値 -->
+    <defaultLon>135</defaultLon>
+  </displayArea>
+  <!-- モバイル端末用表示領域定義 -->
+  <mobileDisplayArea>
+    <minZoom>4</minZoom>
+    <maxZoom>14</maxZoom>
+    <zoomSnap>1</zoomSnap>
+    <defaultZoom>4</defaultZoom>
+    <minLat>7</minLat>
+    <maxLat>61</maxLat>
+    <defaultLat>34</defaultLat>
+    <minLon>100</minLon>
+    <maxLon>178</maxLon>
+    <defaultLon>135</defaultLon>
+  </mobileDisplayArea>
+  <!-- 色の濃さ
+       @id{String} 識別子
+       @opacity{Number} 不透明度
+       [@defaultSelected{Boolean} デフォルト選択フラグ]
+         # ラジオボタンのラベルに利用するため
+         # /properties/jp|en/notation[@id="label_color_depth_{@id}"]を定義すること -->
+  <colorDepth id="thin" opacity="50" />
+  <colorDepth id="normal" opacity="75" defaultSelected="true" />
+  <colorDepth id="deep" opacity="100" />
+  <!-- xyJSON URL
+       情報通信基盤課HP整備班が管理する定数ファイル
+       area_type(領域種別),area_code(領域コード)に対応する中心位置(xy)が格納されている -->
+  <xyJSONUrl>../common/const/xy.json</xyJSONUrl>
+  <!-- 日本語コンテンツ -->
+  <jp>
+    <!--
+      日本語表記
+      @id{String} 識別子
+    -->
+    <notation id="jma">気象庁</notation>
+    <notation id="title">タイル地図</notation>
+    <notation id="label_time">表示時間</notation>
+    <notation id="label_time_prev">前へ（Shift&amp;plus;&amp;larr;,&amp;nbsp;Shift&amp;plus;&amp;lt）</notation>
+    <notation id="label_time_next">次へ（Shift&amp;plus;&amp;rarr;,&amp;nbsp;Shift&amp;plus;&amp;gt）</notation>
+    <notation id="label_refresh">最新（Shift&amp;plus;Enter）</notation>
+    <notation id="label_auto_update">自動更新</notation>
+    <notation id="title_auto_update">自動更新（Shift&amp;plus;A）</notation>
+    <notation id="dialog_title_explain">説明</notation>
+    <notation id="title_explain">説明（Shift&amp;plus;N）</notation>
+    <notation id="title_save_image">画像保存（Shift&amp;plus;S）</notation>
+    <notation id="title_print">印刷（Shift&amp;plus;P）</notation>
+    <notation id="label_color_depth">色の濃さ</notation>
+    <notation id="label_color_depth_thin">薄い</notation>
+    <notation id="label_color_depth_normal">通常</notation>
+    <notation id="label_color_depth_deep">濃い</notation>
+    <notation id="label_animation">動画</notation>
+    <notation id="title_play">再生（Ctrl/control&amp;plus;Enter）</notation>
+    <notation id="title_stop">停止（Ctrl/control&amp;plus;Enter）</notation>
+    <notation id="title_anime_speed">動画速度</notation>
+    <notation id="label_slow">遅い</notation>
+    <notation id="label_fast">速い</notation>
+    <notation id="label_close">閉じる</notation>
+    <notation id="title_zoomIn">拡大</notation>
+    <notation id="title_zoomOut">縮小</notation>
+    <notation id="tooltip_prefix_zoom">ズーム </notation>
+    <notation id="title_location">現在地へ</notation>
+    <notation id="title_location_on">現在地を表示</notation>
+    <notation id="title_location_off">現在地を非表示</notation>
+    <notation id="label_terrain">地形</notation>
+    <notation id="title_terrain_on">地形を表示</notation>
+    <notation id="title_terrain_off">地形を非表示</notation>
+    <notation id="label_graticule">緯度経度</notation>
+    <notation id="title_graticule_on">緯度経度を表示</notation>
+    <notation id="title_graticule_off">緯度経度を非表示</notation>
+    <notation id="dialog_title_mapsource">地図出典</notation>
+    <notation id="dialog_title_legend">凡例</notation>
+    <notation id="dialog_title_error">エラー</notation>
+    <notation id="error_load_timeFile">時刻リストの取得に失敗しました.</notation>
+    <notation id="error_invalid_timeFile">時刻リストが不正です.</notation>
+    <notation id="error_no_valid_time">有効な時刻がありません.</notation>
+    <notation id="error_geolocation_1">位置情報の取得を許可されませんでした.</notation>
+    <notation id="error_geolocation_2">位置情報を特定できませんでした.</notation>
+    <notation id="error_geolocation_3">位置情報の取得がタイムアウトしました.</notation>
+    <notation id="error_save_image">保存用画像を作成できませんでした.</notation>
+    <notation id="error_print">印刷用画像を作成できませんでした.</notation>
+    <notation id="error_change_view">表示領域を特定できませんでした.</notation>
+    <notation id="label_notes">説明</notation>
+    <notation id="menu_icon">気象庁</notation>
+    <notation id="label_time_slider">時刻スライダー</notation>
+    <notation id="label_zoom_slider">ズームスライダー</notation>
+    <notation id="title_fit_window">画面に合わせる</notation>
+    <notation id="title_map_switch">地図を切り替え</notation>
+    <notation id="label_map">ベース地図</notation>
+    <notation id="label_ad">[広告]</notation>
+    <notation id="label_clear_ad">広告非表示</notation>
+    <!-- 表示タイムゾーン(IANAタイムゾーン) -->
+    <viewTimezone>Asia/Tokyo</viewTimezone>
+    <!-- ヘルプHTML -->
+    <helpHTML>
+      <div class="jmatile-help-table">
+        <div class="header">マウス・キーボードの操作</div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">mouse</i></div>
+          <div class="jmatile-help-table-cell">ドラッグ</div>
+          <div class="jmatile-help-table-cell">移動</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">mouse</i></div>
+          <div class="jmatile-help-table-cell">ホイール</div>
+          <div class="jmatile-help-table-cell">拡大縮小</div>
+        </div>
+        <div class="jmatile-help-table-row jmatile-view-doubleclick-zoom">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">mouse</i></div>
+          <div class="jmatile-help-table-cell">ダブルクリック</div>
+          <div class="jmatile-help-table-cell">拡大</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">mouse</i><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">Shiftキーとドラッグ</div>
+          <div class="jmatile-help-table-cell">選択した矩形にズーム</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">mouse</i></div>
+          <div class="jmatile-help-table-cell">地図の右辺/下辺をドラッグ</div>
+          <div class="jmatile-help-table-cell">地図の大きさを変更</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">&amp;uarr;/&amp;darr;/&amp;larr;/&amp;rarr;</div>
+          <div class="jmatile-help-table-cell">移動&#42;</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">&amp;plus;</div>
+          <div class="jmatile-help-table-cell">拡大&#42;</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">&amp;minus;</div>
+          <div class="jmatile-help-table-cell">縮小&#42;<br />&#42;マウスカーソルが地図上にある間</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell">&amp;nbsp;</div>
+        </div>
+        <div class="jmatile-help-table-row jmatile-view-explain">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">ShiftキーとN</div>
+          <div class="jmatile-help-table-cell">説明を開く</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">ShiftキーとS</div>
+          <div class="jmatile-help-table-cell">画像保存</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">ShiftキーとP</div>
+          <div class="jmatile-help-table-cell">印刷</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">Shiftキーと&amp;larr;/&amp;rarr;/&amp;lt;/&amp;gt;</div>
+          <div class="jmatile-help-table-cell">表示時間を変更</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">ShiftキーとEnterキー</div>
+          <div class="jmatile-help-table-cell">最新表示</div>
+        </div>
+        <div class="jmatile-help-table-row jmatile-view-auto-update">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">ShiftキーとA</div>
+          <div class="jmatile-help-table-cell">自動更新のON/OFF</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">Ctrl/controlキーとEnterキー</div>
+          <div class="jmatile-help-table-cell">動画再生/停止</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">Ctrl/controlキーと&amp;larr;/&amp;rarr;/&amp;lt;/&amp;gt;</div>
+          <div class="jmatile-help-table-cell">要素を変更</div>
+        </div>
+      </div>
+      <div class="jmatile-help-tips jmatile-view-hash">
+        ブックマークに登録すると表示領域と要素を保存できます。
+      </div>
+    </helpHTML>
+    <!-- 地図幅最小値(px) -->
+    <minMapWidth>600</minMapWidth>
+    <!-- 地図高さ最小値(px) -->
+    <minMapHeight>450</minMapHeight>
+  </jp>
+  <!-- 英語コンテンツ -->
+  <en>
+    <notation id="jma">Japan Meteorological Agency</notation>
+    <notation id="title">Tile Map</notation>
+    <notation id="label_time">Valid for</notation>
+    <notation id="label_time_prev">Previous (Shift&amp;plus;&amp;larr;,&amp;nbsp;Shift&amp;plus;&amp;lt)</notation>
+    <notation id="label_time_next">Next (Shift&amp;plus;&amp;rarr;,&amp;nbsp;Shift&amp;plus;&amp;gt)</notation>
+    <notation id="label_refresh">Refresh (Shift&amp;plus;Enter)</notation>
+    <notation id="label_auto_update">Automatic&lt;br /&gt;update</notation>
+    <notation id="title_auto_update">Automatic update (Shift&amp;plus;A)</notation>
+    <notation id="dialog_title_explain">Notes</notation>
+    <notation id="title_explain">Notes (Shift&amp;plus;N)</notation>
+    <notation id="title_save_image">Save content (Shift&amp;plus;S)</notation>
+    <notation id="title_print">Print (Shift&amp;plus;P)</notation>
+    <notation id="label_color_depth">Color depth</notation>
+    <notation id="label_color_depth_thin">Thin</notation>
+    <notation id="label_color_depth_normal">Normal</notation>
+    <notation id="label_color_depth_deep">Deep</notation>
+    <notation id="label_animation">Animation</notation>
+    <notation id="label_graticule">Lat/Lon</notation>
+    <notation id="title_play">Play (Ctrl/control&amp;plus;Enter)</notation>
+    <notation id="title_stop">Stop (Ctrl/control&amp;plus;Enter)</notation>
+    <notation id="title_anime_speed">Animation speed</notation>
+    <notation id="label_slow">Slow</notation>
+    <notation id="label_fast">Fast</notation>
+    <notation id="label_close">Close</notation>
+    <notation id="title_zoomIn">Zoom in</notation>
+    <notation id="title_zoomOut">Zoom out</notation>
+    <notation id="tooltip_prefix_zoom">Zoom </notation>
+    <notation id="title_location">Pan to current location</notation>
+    <notation id="title_location_on">Location on</notation>
+    <notation id="title_location_off">Location off</notation>
+    <notation id="label_terrain">Terrain</notation>
+    <notation id="title_terrain_on">Terrain on</notation>
+    <notation id="title_terrain_off">Terrain off</notation>
+    <notation id="dialog_title_mapsource">Map source</notation>
+    <notation id="dialog_title_legend">Legend</notation>
+    <notation id="dialog_title_error">Error</notation>
+    <notation id="error_load_timeFile">Load error (target times)</notation>
+    <notation id="error_invalid_timeFile">Invalid data (target times)</notation>
+    <notation id="error_no_valid_time">No valid data (target times)</notation>
+    <notation id="error_save_image">Unable to create picture to be saved.</notation>
+    <notation id="error_print">Unable to create picture to be printed.</notation>
+    <notation id="error_change_view">Unable to identify display area.</notation>
+    <notation id="label_notes">Notes</notation>
+    <notation id="menu_icon">Japan Meteorological Agency</notation>
+    <notation id="label_time_slider">Time slider</notation>
+    <notation id="label_zoom_slider">Zoom slider</notation>
+    <notation id="title_fit_window">Fit window</notation>
+    <notation id="title_map_switch">Switch map</notation>
+    <notation id="label_map">Base map</notation>
+    <notation id="label_ad">[Ad]</notation>
+    <notation id="label_clear_ad">Clear ad</notation>
+    <viewTimezone>Asia/Tokyo</viewTimezone>
+    <helpHTML>
+      <div class="jmatile-help-table">
+        <div class="header">Mouse/key actions</div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">mouse</i></div>
+          <div class="jmatile-help-table-cell">Drag</div>
+          <div class="jmatile-help-table-cell">Move</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">mouse</i></div>
+          <div class="jmatile-help-table-cell">Wheel</div>
+          <div class="jmatile-help-table-cell">Zoom in/out</div>
+        </div>
+        <div class="jmatile-help-table-row jmatile-view-doubleclick-zoom">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">mouse</i></div>
+          <div class="jmatile-help-table-cell">Double click</div>
+          <div class="jmatile-help-table-cell">Zoom in</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">mouse</i><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">Shift and drag</div>
+          <div class="jmatile-help-table-cell">Zoom to a rectangular area</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">mouse</i></div>
+          <div class="jmatile-help-table-cell">Drag the right/bottom edge of the map</div>
+          <div class="jmatile-help-table-cell">Change the size of the map</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">&amp;uarr;/&amp;darr;/&amp;larr;/&amp;rarr;</div>
+          <div class="jmatile-help-table-cell">Move&#42;</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">&amp;plus;</div>
+          <div class="jmatile-help-table-cell">Zoom in&#42;</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">&amp;minus;</div>
+          <div class="jmatile-help-table-cell">Zoom out&#42;<br />&#42;while your mouse is over the map</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell">&amp;nbsp;</div>
+        </div>
+        <div class="jmatile-help-table-row jmatile-view-explain">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">Shift &amp;plus; N</div>
+          <div class="jmatile-help-table-cell">Open notes</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">Shift &amp;plus; S</div>
+          <div class="jmatile-help-table-cell">Save Content</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">Shift &amp;plus; P</div>
+          <div class="jmatile-help-table-cell">Print</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">Shift &amp;plus; &amp;larr;/&amp;rarr;/&amp;lt;/&amp;gt;</div>
+          <div class="jmatile-help-table-cell">Change valid time</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">Shift &amp;plus; Enter</div>
+          <div class="jmatile-help-table-cell">Refresh</div>
+        </div>
+        <div class="jmatile-help-table-row jmatile-view-auto-update">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">Shift &amp;plus; A</div>
+          <div class="jmatile-help-table-cell">Automatic update on / off</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">Ctrl/control &amp;plus; Enter</div>
+          <div class="jmatile-help-table-cell">Animation play/stop</div>
+        </div>
+        <div class="jmatile-help-table-row">
+          <div class="jmatile-help-table-cell"><i class="material-icons jmatile-inline-icon">keyboard</i></div>
+          <div class="jmatile-help-table-cell">Ctrl/control &amp;plus; &amp;larr;/&amp;rarr;/&amp;lt;/&amp;gt;</div>
+          <div class="jmatile-help-table-cell">Change information</div>
+        </div>
+      </div>
+      <div class="jmatile-help-tips jmatile-view-hash">
+        [TIPS] Bookmark URL on your browser to save display area/options.
+      </div>
+    </helpHTML>
+    <minMapWidth>600</minMapWidth>
+    <minMapHeight>450</minMapHeight>
+  </en>
+</properties>
