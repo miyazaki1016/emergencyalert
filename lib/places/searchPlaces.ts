@@ -55,7 +55,7 @@ export async function searchPlaces(query: string): Promise<PlaceSearchResult[]> 
 
   const normalized = normalizeJapaneseAddress(trimmed);
 
-  if (/\\d/.test(normalized) && /[都道府県市区町村丁目番]/.test(normalized)) {
+  if (/\d/.test(normalized) && /[都道府県市区町村丁目番]/.test(normalized)) {
     try {
       const address = await normalize(normalized);
       if (address.point && address.level >= 3) {
