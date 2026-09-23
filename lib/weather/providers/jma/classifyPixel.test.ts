@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 import { classifyRainPixel } from "./classifyPixel";
 
 describe("classifyRainPixel", () => {
-  it("treats a fully transparent precipitation-overlay pixel as NO_RAIN", () => {
+  it("fails closed on a fully transparent pixel until coverage semantics are verified", () => {
     expect(classifyRainPixel({ r: 0, g: 0, b: 0, a: 0 })).toEqual({
-      status: "NO_RAIN", intensityClass: null,
+      status: "UNKNOWN_PIXEL", intensityClass: null,
     });
   });
   it("recognises a directly confirmed current JMA legend color", () => {
