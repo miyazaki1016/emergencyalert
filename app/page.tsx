@@ -116,6 +116,34 @@ export default function Home() {
     return signedIn.data.session;
   };
 
+  const savePlace = async (place: typeof placeResults[number]) => {
+    const label = (placeLabels[place.id] ?? "").trim();
+    if (!label) return setPlaceStatus("この場所の名前を入れてね。");
+    setSavingPlaceId(place.id);
+    setPlaceStatus("見張る場所を登録してるよ…");
+    try {
+      const session = await ensureAnonymousSession();
+      const supabase = getSupabaseBrowserClient();
+      const { error } = await supabase.from("watch_targets").insert({
+        owner_id: session.user.id,
+        label,
+        latitude: place.latitude,
+        longitude: place.longitude,
+        display_name: place.displayName,
+        display_address: place.displayAddress,
+        location_source: place.id === "current-location" ? "CURRENT_LOCATION" : "SEARCH",
+        enabled: true,
+        notifications_enabled: true,
+      });
+      if (error) throw error;
+      setPlaceStatus(`「${label}」を見張る場所に登録したよ。`);
+    } catch {
+      setPlaceStatus("登録できなかったよ。少しあとでもう一度試してね。");
+    } finally {
+      setSavingPlaceId(null);
+    }
+  };
+
   const sourceValidAt = data?.sourceValidAt && /^\d{14}$/.test(data.sourceValidAt)
     ? new Date(`${data.sourceValidAt.slice(0,4)}-${data.sourceValidAt.slice(4,6)}-${data.sourceValidAt.slice(6,8)}T${data.sourceValidAt.slice(8,10)}:${data.sourceValidAt.slice(10,12)}:${data.sourceValidAt.slice(12,14)}Z`)
     : null;
