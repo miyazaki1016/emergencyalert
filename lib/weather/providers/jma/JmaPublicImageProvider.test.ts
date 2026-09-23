@@ -18,7 +18,7 @@ function response(body: BodyInit, init?: ResponseInit) {
 }
 
 describe("JmaPublicImageProvider integration boundary", () => {
-  it("preserves JMA target count and classifies a complete transparent series as no-rain frames", async () => {
+  it("preserves JMA target count and keeps a complete transparent series unknown", async () => {
     const targets = [
       { basetime: "20260920120000", validtime: "20260920120500", elements: ["hrpns"] },
       { basetime: "20260920120000", validtime: "20260920121000", elements: ["hrpns"] },
@@ -34,7 +34,7 @@ describe("JmaPublicImageProvider integration boundary", () => {
 
     expect(series.expectedFrames).toBe(2);
     expect(series.frames).toHaveLength(2);
-    expect(series.frames.every((f) => f.status === "NO_RAIN")).toBe(true);
+    expect(series.frames.every((f) => f.status === "UNKNOWN_PIXEL")).toBe(true);
   });
 
   it("keeps one failed tile as FETCH_ERROR instead of silently shrinking the series", async () => {
@@ -56,7 +56,7 @@ describe("JmaPublicImageProvider integration boundary", () => {
 
     expect(series.expectedFrames).toBe(2);
     expect(series.frames).toHaveLength(2);
-    expect(series.frames.map((f) => f.status)).toEqual(["NO_RAIN", "FETCH_ERROR"]);
+    expect(series.frames.map((f) => f.status)).toEqual(["UNKNOWN_PIXEL", "FETCH_ERROR"]);
   });
 
   it.each([[1, 2, 3], [250, 245, 0], [255, 245, 0], [0, 170, 255], [255, 170, 0]])("keeps unsupported RGB (%i,%i,%i) UNKNOWN_PIXEL", async (r, g, b) => {
