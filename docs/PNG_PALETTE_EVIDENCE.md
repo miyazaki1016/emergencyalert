@@ -358,3 +358,33 @@ are encoded in the public PNG alpha channel.
 to useful dry claims is now narrowed to a separate validated coverage/data
 check, not an alpha-only shortcut. Do not weaken this rule merely because the
 first production iPhone test was on land.
+
+
+## 2026-09-23 coverage-gate design decision
+
+Further first-party JMA review narrows the implementation choice. JMA documents
+the HRPN product as a Japan-area precipitation-intensity product at 250 m–1 km,
+with explicit 250 m / 1 km / outside-forecast regions. JMA also warns that radar
+operation outages can cause precipitation intensity not to be displayed or to
+appear weaker. The public catalogue separately identifies the JMA-website PNG
+as a presentation product and the Support Center GRIB2 as the machine-readable
+product.
+
+Therefore **geographic inclusion alone is not sufficient evidence for a dry
+claim**. A point can be geographically inside the normal forecast region while
+source availability/quality is degraded. EmergencyAlert must not implement
+`inside coverage + transparent PNG => NO_RAIN` as a shortcut.
+
+The robust zero-guess design is now:
+
+1. keep public PNG alpha transparent as `UNKNOWN_PIXEL`;
+2. use verified opaque PNG colors only for positive rain/intensity claims;
+3. require an independently validated machine-readable zero-precipitation value
+   (or a future explicit JMA PNG encoding definition) before emitting `NO_RAIN`;
+4. keep fetch/source/coverage uncertainty separate from meteorological zero.
+
+This means useful DRY claims remain intentionally unavailable on the PNG-only
+path for now. That is a product limitation, not a reason to weaken the trust
+boundary.
+
+> 対象地域にいることと、雨がないことは別。
