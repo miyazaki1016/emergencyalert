@@ -41,6 +41,17 @@ describe("toRainSemanticEvent", () => {
     });
   });
 
+  it("carries the official source valid time for downstream consumers", () => {
+    const event = toRainSemanticEvent(
+      interpretation({ state: "DRY" }),
+      checkedAt,
+      "20260920115500",
+    );
+
+    expect(event?.checkedAt).toBe("2026-09-20T12:00:00.000Z");
+    expect(event?.sourceValidAt).toBe("20260920115500");
+  });
+
   it("does not manufacture an event when data is insufficient", () => {
     expect(toRainSemanticEvent(
       interpretation({ state: "INSUFFICIENT_DATA" }),
