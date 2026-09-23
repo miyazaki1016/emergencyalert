@@ -54,6 +54,54 @@ export default function Home() {
   const [busy, setBusy] = useState(false);
   const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
   const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null);
+  const [placeQuery, setPlaceQuery] = useState("");
+  const [placeResults, setPlaceResults] = useState<Array<{ id: string; displayName: string; displayAddress: string; latitude: number; longitude: number }>>([]);
+  const [placeStatus, setPlaceStatus] = useState("");
+  const [placeBusy, setPlaceBusy] = useState(false);
+
+  const searchPlace = async () => {
+    const q = placeQuery.trim();
+    if (q.length < 2) return setPlaceStatus("住所や施設名を2文字以上入れてね。");
+    setPlaceBusy(true);
+    setPlaceStatus("場所を探してるよ…");
+    setPlaceResults([]);
+    try {
+      const res = await fetch(`/api/places/search?q=${encodeURIComponent(q)}`, { cache: "no-store" });
+      if (!res.ok) throw new Error();
+      const json = await res.json() as { results: typeof placeResults };
+      setPlaceResults(json.results);
+      setPlaceStatus(json.results.length ? "この中にある？" : "見つからなかったよ。住所を少し詳しくしてみてね。");
+    } catch {
+      setPlaceStatus("いま場所を検索できないよ。少しあとでもう一度試してね。");
+    } finally {
+      setPlaceBusy(false);
+    }
+  };
+
+  const previewCurrentPlace = () => {
+    if (!navigator.geolocation) return setPlaceStatus("この端末では現在地を確認できないよ。");
+    setPlaceBusy(true);
+    setPlaceStatus("いまいる場所を確認中…");
+    navigator.geolocation.getCurrentPosition(async ({ coords }) => {
+      try {
+        const res = await fetch(`/api/places/reverse?lat=${coords.latitude}&lon=${coords.longitude}`, { cache: "no-store" });
+        const json = res.ok ? await res.json() as { result: { displayName: string | null; displayAddress: string; latitude: number; longitude: number } | null } : { result: null };
+        setPlaceResults([{
+          id: "current-location",
+          displayName: json.result?.displayName || "現在地",
+          displayAddress: json.result?.displayAddress || `緯度 ${coords.latitude.toFixed(5)} / 経度 ${coords.longitude.toFixed(5)}`,
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        }]);
+        setPlaceStatus("この場所で合ってる？");
+      } finally {
+        setPlaceBusy(false);
+      }
+    }, () => {
+      setPlaceStatus("現在地を確認できなかったよ。位置情報の許可を確認してね。");
+      setPlaceBusy(false);
+    }, { enableHighAccuracy: true, timeout: 10000 });
+  };
 
   const sourceValidAt = data?.sourceValidAt && /^\d{14}$/.test(data.sourceValidAt)
     ? new Date(`${data.sourceValidAt.slice(0,4)}-${data.sourceValidAt.slice(4,6)}-${data.sourceValidAt.slice(6,8)}T${data.sourceValidAt.slice(8,10)}:${data.sourceValidAt.slice(10,12)}:${data.sourceValidAt.slice(12,14)}Z`)
