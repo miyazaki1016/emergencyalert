@@ -419,3 +419,26 @@ fail-closed and evaluate another authorized source rather than weakening the
 meaning of `NO_RAIN`.
 
 > ゼロを言うなら、ゼロというデータを読む。透明から作らない。
+
+
+## 2026-09-23 cost gate for machine-readable HRPN
+
+A current JMBSC cost review changes the implementation priority. The Support
+Center charges users for real-time/cloud data delivery. Its published cost
+material lists High-Resolution Precipitation Nowcast as a charged information
+item; the broader service also carries a basic monthly charge and delivery/
+access-related charges. The cloud service likewise has an initial setup charge
+and monthly/access/download charges for applicable products.
+
+Therefore the machine-readable GRIB2 route is **not assumed to satisfy the
+project's zero-fixed-cost requirement**. Do not start implementing a paid JMBSC
+provider merely to recover DRY claims. Keep it as a future provider option.
+
+Current priority returns to the zero-fixed-cost public JMA path: preserve
+`alpha=0 -> UNKNOWN_PIXEL`, retain verified positive-rain classification, and
+look for first-party public metadata/encoding evidence that can distinguish a
+true zero from missing/out-of-coverage data. If no such evidence exists, the
+free tier must remain conservative rather than silently acquiring a recurring
+data dependency.
+
+> 正しくても、固定費ゼロを壊すなら今の本線ではない。
