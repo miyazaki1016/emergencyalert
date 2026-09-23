@@ -73,27 +73,9 @@ export async function searchPlaces(query: string): Promise<PlaceSearchResult[]> 
     }
   }
 
-  // Nominatim is useful for stations/facilities, but Japanese street addresses can
-  // be missing at block/house-number level. Try the Japanese address registry
-  // first when the query looks like an address, then keep Nominatim as fallback.
-  if (/\\d/.test(normalized) && /[都道府県市区町村丁目番]/.test(normalized)) {
-    try {
-      const addressResults = await searchJapaneseAddress(normalized);
-      if (addressResults.length) return addressResults;
-    } catch {
-      // Fall through to the existing place search.
-    }
-  }
-  const attempts = Array.from(new Set([
-    normalized,
-    normalized.replace(/^(東京都|北海道|(?:京都|大阪)府|.{2,3}県)/, ""),
-  ].filter((value) => value.length >= 2)));
-
-  let items: NominatimItem[] = [];
-  for (const attempt of attempts) {
-    items = await fetchNominatim(attempt);
-    if (items.length) break;
-  }
+  // Use one explicit Nominatim request for stations/facilities. Avoid rapid
+  // retry loops so we stay within the public service usage policy.
+  const items = await fetchNominatim(normalized);
 
   return items.flatMap((item) => {
     const latitude = Number(item.lat);
