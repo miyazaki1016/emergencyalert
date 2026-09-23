@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { getSupabaseBrowserClient } from "../lib/supabase/browser";
 
 type RainMessage = { headline: string; detail: string };
 type RainInterpretation = {
@@ -59,6 +60,7 @@ export default function Home() {
   const [placeStatus, setPlaceStatus] = useState("");
   const [placeBusy, setPlaceBusy] = useState(false);
   const [placeLabels, setPlaceLabels] = useState<Record<string, string>>({});
+  const [savingPlaceId, setSavingPlaceId] = useState<string | null>(null);
 
   const searchPlace = async () => {
     const q = placeQuery.trim();
