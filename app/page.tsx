@@ -24,6 +24,7 @@ type RainSemanticEvent = {
 type RainResponse = {
   source: string;
   checkedAt: string;
+  sourceValidAt: string | null;
   location: { lat: number; lon: number };
   observation: unknown[];
   forecast: unknown[];
@@ -52,6 +53,11 @@ export default function Home() {
   const [busy, setBusy] = useState(false);
   const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
   const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null);
+
+  const sourceValidAt = data?.sourceValidAt ? new Date(`${data.sourceValidAt.slice(0,4)}-${data.sourceValidAt.slice(4,6)}-${data.sourceValidAt.slice(6,8)}T${data.sourceValidAt.slice(8,10)}:${data.sourceValidAt.slice(10,12)}:${data.sourceValidAt.slice(12,14)}Z`) : null;
+  const sourceTimeLabel = sourceValidAt && !Number.isNaN(sourceValidAt.getTime())
+    ? sourceValidAt.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Tokyo" })
+    : null;
 
   const check = () => {
     if (!navigator.geolocation) return setStatus("この端末では現在地を確認できないよ。");
@@ -100,7 +106,7 @@ export default function Home() {
             <div style={{ marginTop: 18, fontSize: 13, color: "#666" }}>
               {lastCheckedAt.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} 時点
               {locationAccuracy !== null && ` ・ 現在地 ±${Math.round(locationAccuracy)}m`}
-              {" ・ 気象庁"}
+              {sourceTimeLabel ? ` ・ 気象庁データ ${sourceTimeLabel}` : " ・ 気象庁"}
             </div>
           )}
         </section>
@@ -117,7 +123,7 @@ export default function Home() {
             <div style={{ marginTop: 18, fontSize: 13, color: "#666" }}>
               {lastCheckedAt.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} 時点
               {locationAccuracy !== null && ` ・ 現在地 ±${Math.round(locationAccuracy)}m`}
-              {" ・ 気象庁"}
+              {sourceTimeLabel ? ` ・ 気象庁データ ${sourceTimeLabel}` : " ・ 気象庁"}
             </div>
           )}
         </section>
