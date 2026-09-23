@@ -388,3 +388,34 @@ path for now. That is a product limitation, not a reason to weaken the trust
 boundary.
 
 > 対象地域にいることと、雨がないことは別。
+
+
+## 2026-09-23 machine-readable dry-claim route
+
+JMA's current information catalogue makes the product boundary explicit:
+
+- the public JMA website supplies the high-resolution precipitation-nowcast
+  analysis/forecast **images** as PNG;
+- the corresponding high-resolution analysis and forecast values (5-minute
+  precipitation intensity) are supplied as **GRIB2** through the Japan
+  Meteorological Business Support Center;
+- the GRIB2 product covers 250 m–1 km grids, one hour ahead, every five minutes;
+- JMA's specification names the 0–30 minute high-resolution precipitation
+  intensity GRIB2 file and documents 1 km production for 35–60 minutes.
+
+This establishes the correct architecture for a trustworthy dry claim:
+
+the PNG path remains useful for verified positive-rain colors, while an
+explicit machine-readable precipitation value is the authoritative candidate
+for distinguishing meteorological zero from missing/coverage/presentation
+transparency. It also confirms that obtaining those live GRIB2 values is a
+**data-access/provider decision**, not something EmergencyAlert should infer
+from PNG bytes.
+
+Do not implement a GRIB2 decoder against a guessed public URL. First establish
+the actual Support Center access terms/delivery path and fixed/variable cost.
+If that conflicts with the project's zero-fixed-cost constraint, keep DRY
+fail-closed and evaluate another authorized source rather than weakening the
+meaning of `NO_RAIN`.
+
+> ゼロを言うなら、ゼロというデータを読む。透明から作らない。
