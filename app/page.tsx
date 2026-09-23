@@ -185,6 +185,29 @@ export default function Home() {
         {busy ? "確認中…" : data ? "最新情報に更新" : "この場所の雨を確認"}
       </button>
 
+      <section style={{ marginTop: 40, paddingTop: 28, borderTop: "1px solid #ddd" }}>
+        <h2 style={{ marginBottom: 6 }}>見張る場所を登録</h2>
+        <p style={{ marginTop: 0, color: "#666" }}>自宅や実家など、雨を見張ってほしい場所を選んでね。</p>
+        <button onClick={previewCurrentPlace} disabled={placeBusy} style={{ padding: "12px 16px", fontSize: 16 }}>
+          📍 現在地から選ぶ
+        </button>
+        <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
+          <input value={placeQuery} onChange={(e) => setPlaceQuery(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") void searchPlace(); }}
+            placeholder="住所・駅・学校・施設名など" aria-label="見張る場所を検索"
+            style={{ flex: 1, minWidth: 0, padding: "12px 14px", fontSize: 16 }} />
+          <button onClick={() => void searchPlace()} disabled={placeBusy} style={{ padding: "12px 16px", fontSize: 16 }}>検索</button>
+        </div>
+        {placeStatus && <p style={{ color: "#666" }}>{placeStatus}</p>}
+        {placeResults.map((place) => (
+          <div key={place.id} style={{ marginTop: 12, padding: 16, border: "1px solid #ddd", borderRadius: 12 }}>
+            <div style={{ fontWeight: 700 }}>{place.displayName}</div>
+            <div style={{ marginTop: 4, fontSize: 14, color: "#666" }}>{place.displayAddress}</div>
+            <button disabled title="保存機能は次の段階で接続" style={{ marginTop: 10, padding: "9px 12px" }}>この場所を見張る</button>
+          </div>
+        ))}
+      </section>
+
       {data && (
         <details style={{ marginTop: 32 }}>
           <summary>Developer View</summary>
