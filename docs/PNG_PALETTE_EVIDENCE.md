@@ -291,3 +291,31 @@ or corrected first-party legend that resolves the contradiction. The separate
 transparent-pixel/coverage semantics remain outside this verification: observing
 transparent pixels does not itself prove NO_RAIN. Existing coverage policy was
 not changed here.
+
+
+## 2026-09-23 transparency/coverage investigation checkpoint
+
+**Unresolved:** `classifyRainPixel` currently treats any `alpha=0` pixel as
+`NO_RAIN`. The 2026-09-23 RGB verification explicitly did **not** validate
+this rule. A transparent PNG pixel proves only that the hrpns overlay painted
+nothing at that coordinate, not that the coordinate was inside a valid
+precipitation-forecast coverage area.
+
+JMA's [HRPN product description](https://www.jma.go.jp/jma/en/Activities/highres_nowcast.html)
+explicitly distinguishes forecast regions from areas where no forecasts are
+provided, with resolution and lead-time-dependent coverage. Its published
+[GRIB2 product specification](https://www.data.jma.go.jp/suishin/shiyou/pdf/no11802)
+likewise describes target areas. Neither source establishes an alpha-channel
+meaning for public hrpns PNG tiles. Do not promote the existing transparent
+pixel assumption into a verified coverage claim on this evidence alone.
+
+**Next proof requirement:** establish the actual public PNG transparency and
+coverage semantics from a first-party encoding definition or a reproducible
+comparison against authoritative coverage/data at the same target time,
+lead time and coordinate. Specifically test transparent pixels both inside
+and outside the documented coverage, including the 35–60 minute range.
+If this cannot be established, fail closed for transparent pixels until an
+independent, validated coverage check is available. Do not equate a successful
+tile HTTP response with valid meteorological coverage.
+
+> 透明は「描かれていない」の証拠。「雨がない」の証拠とは限らない。
