@@ -4,6 +4,7 @@ import type { RainInterpretation } from "./RainInterpretationEngine";
 export function toRainSemanticEvent(
   interpretation: RainInterpretation,
   checkedAt: Date,
+  sourceValidAt: string | null = null,
 ): RainSemanticEvent | null {
   if (interpretation.state === "INSUFFICIENT_DATA") return null;
 
@@ -26,5 +27,6 @@ export function toRainSemanticEvent(
     endingAt: interpretation.endingTime,
     source: "JMA_HIGH_RESOLUTION_PRECIPITATION_NOWCAST",
     checkedAt: checkedAt.toISOString(),
+    sourceValidAt,
   };
 }
