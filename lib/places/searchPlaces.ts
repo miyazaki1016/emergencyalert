@@ -47,11 +47,52 @@ async function fetchNominatim(query: string): Promise<NominatimItem[]> {
   return (await response.json()) as NominatimItem[];
 }
 
+interface GeoloniaNormalizeResult {
+  pref?: string;
+  city?: string;
+  town?: string;
+  addr?: string;
+  level?: number;
+  point?: { lat: number; lng: number; level?: number };
+}
+
+async function searchJapaneseAddress(query: string): Promise<PlaceSearchResult[]> {
+  const response = await fetch(
+    `https://japanese-addresses-v2.geoloniamaps.com/api/normalize?address=${encodeURIComponent(query)}`,
+    { cache: "no-store" },
+  );
+  if (!response.ok) return [];
+
+  const result = (await response.json()) as GeoloniaNormalizeResult;
+  if (!result.point || !Number.isFinite(result.point.lat) || !Number.isFinite(result.point.lng)) return [];
+
+  const displayAddress = [result.pref, result.city, result.town, result.addr].filter(Boolean).join("");
+  return [{
+    id: `address:${query}`,
+    displayName: result.town || displayAddress || query,
+    displayAddress: displayAddress || query,
+    latitude: result.point.lat,
+    longitude: result.point.lng,
+  }];
+}
+
 export async function searchPlaces(query: string): Promise<PlaceSearchResult[]> {
   const trimmed = query.trim();
   if (trimmed.length < 2) return [];
 
   const normalized = normalizeJapaneseAddress(trimmed);
+
+  // Nominatim is useful for stations/facilities, but Japanese street addresses can
+  // be missing at block/house-number level. Try the Japanese address registry
+  // first when the query looks like an address, then keep Nominatim as fallback.
+  if (/\\d/.test(normalized) && /[都道府県市区町村丁目番]/.test(normalized)) {
+    try {
+      const addressResults = await searchJapaneseAddress(normalized);
+      if (addressResults.length) return addressResults;
+    } catch {
+      // Fall through to the existing place search.
+    }
+  }
   const attempts = Array.from(new Set([
     normalized,
     normalized.replace(/^(東京都|北海道|(?:京都|大阪)府|.{2,3}県)/, ""),
