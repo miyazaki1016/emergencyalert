@@ -61,4 +61,5 @@ export interface RainSemanticEvent {
   endingAt: string | null;
   source: "JMA_HIGH_RESOLUTION_PRECIPITATION_NOWCAST";
   checkedAt: string;
+  sourceValidAt: string | null;
 }
