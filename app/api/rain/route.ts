@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
       observation,
       forecast,
       interpretation: interpretationEnabled ? interpretation : null,
-      event: interpretationEnabled ? toRainSemanticEvent(interpretation, now) : null,
+      event: interpretationEnabled ? toRainSemanticEvent(interpretation, now, observation[0]?.validTime ?? null) : null,
       message: interpretationEnabled ? formatRainMessage(interpretation, now) : null,
       interpretationEnabled,
       note: interpretationEnabled
