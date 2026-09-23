@@ -343,3 +343,23 @@ Therefore:
 
 The shared event carries the grounded fact and actionable meaning; each
 consumer owns its experience. Reuse the truth, not the presentation.
+
+
+### Current trust metadata checkpoint (2026-09-23)
+
+The rain API now keeps the time EmergencyAlert checked the data separate from
+the valid time of the JMA observation used for the claim:
+
+- `checkedAt`: when EmergencyAlert performed the interpretation;
+- `sourceValidAt`: the observation `validTime` supplied by the JMA source.
+
+The user-facing アメくる？ card may show both values, but must not turn a
+malformed source timestamp into a plausible-looking time. If the source time
+cannot be validated, omit that detail rather than guessing.
+
+Likewise, a DRY result is presented as **「雨の予報なし」**, not the stronger
+**「雨なし」**. EmergencyAlert reports what the official data supports; it does
+not convert a forecast into certainty.
+
+> 確認した時刻と、元データの時刻は別物。
+> 予報がないことと、絶対に降らないことも別物。
