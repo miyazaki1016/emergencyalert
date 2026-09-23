@@ -319,3 +319,21 @@ independent, validated coverage check is available. Do not equate a successful
 tile HTTP response with valid meteorological coverage.
 
 > 透明は「描かれていない」の証拠。「雨がない」の証拠とは限らない。
+
+
+## 2026-09-23 first real-device transparency observation
+
+The first iPhone production test successfully exercised the complete public path:
+geolocation -> JMA metadata/tile fetch -> provider -> interpretation -> UI.
+The device reported approximately ±8 m location accuracy; the UI showed a JMA
+source valid time one minute behind the server check time. The returned current
+and forecast frames were present, but their sampled pixels were transparent and
+therefore classified as `UNKNOWN_PIXEL` under the fail-closed rule.
+
+This is useful operational evidence that the safety boundary is active in the
+real deployment. It is **not** evidence that transparent means dry. The next
+investigation must compare the same coordinate/time against authoritative JMA
+coverage semantics (including forecast lead time) before any transparent pixel
+can be promoted to `NO_RAIN`.
+
+> 実機で止まったことは確認できた。止めなくてよい根拠は、まだない。
