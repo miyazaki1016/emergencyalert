@@ -36,7 +36,7 @@ type RainResponse = {
 
 function stateLabel(state: RainInterpretation["state"]): string {
   switch (state) {
-    case "DRY": return "☀️ この先、雨なし";
+    case "DRY": return "☀️ この先、雨の予報なし";
     case "RAIN_AHEAD": return "☁️ このあと雨くるよ";
     case "ACTIONABLE_RAIN": return "☔ もうすぐ雨くるよ";
     case "RAINING": return "🌧️ いま雨だよ";
