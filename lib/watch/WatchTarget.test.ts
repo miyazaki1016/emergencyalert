@@ -6,13 +6,27 @@ const valid: NewWatchTarget = {
   label: "自宅",
   latitude: 35.6812,
   longitude: 139.7671,
+  displayName: "東京駅",
+  displayAddress: "東京都千代田区丸の内1丁目",
+  source: "SEARCH",
   enabled: true,
   notificationsEnabled: true,
 };
 
 describe("validateNewWatchTarget", () => {
-  it("accepts an explicitly selected saved place", () => {
+  it("accepts a searched place with human-readable context", () => {
     expect(() => validateNewWatchTarget(valid)).not.toThrow();
+  });
+
+  it("accepts current location even when reverse geocoding has no label", () => {
+    expect(() =>
+      validateNewWatchTarget({
+        ...valid,
+        source: "CURRENT_LOCATION",
+        displayName: null,
+        displayAddress: null,
+      }),
+    ).not.toThrow();
   });
 
   it("rejects invalid coordinates", () => {
