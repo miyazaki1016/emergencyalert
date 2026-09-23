@@ -106,6 +106,16 @@ export default function Home() {
     }, { enableHighAccuracy: true, timeout: 10000 });
   };
 
+  const ensureAnonymousSession = async () => {
+    const supabase = getSupabaseBrowserClient();
+    const current = await supabase.auth.getSession();
+    if (current.error) throw current.error;
+    if (current.data.session) return current.data.session;
+    const signedIn = await supabase.auth.signInAnonymously();
+    if (signedIn.error || !signedIn.data.session) throw signedIn.error ?? new Error("Anonymous sign-in failed");
+    return signedIn.data.session;
+  };
+
   const sourceValidAt = data?.sourceValidAt && /^\d{14}$/.test(data.sourceValidAt)
     ? new Date(`${data.sourceValidAt.slice(0,4)}-${data.sourceValidAt.slice(4,6)}-${data.sourceValidAt.slice(6,8)}T${data.sourceValidAt.slice(8,10)}:${data.sourceValidAt.slice(10,12)}:${data.sourceValidAt.slice(12,14)}Z`)
     : null;
