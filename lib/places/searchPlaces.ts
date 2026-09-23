@@ -1,3 +1,5 @@
+import { normalize } from "@geolonia/normalize-japanese-addresses";
+
 export interface PlaceSearchResult {
   id: string;
   displayName: string;
@@ -52,6 +54,24 @@ export async function searchPlaces(query: string): Promise<PlaceSearchResult[]> 
   if (trimmed.length < 2) return [];
 
   const normalized = normalizeJapaneseAddress(trimmed);
+
+  if (/\\d/.test(normalized) && /[都道府県市区町村丁目番]/.test(normalized)) {
+    try {
+      const address = await normalize(normalized);
+      if (address.point && address.level >= 3) {
+        const displayAddress = [address.pref, address.city, address.town, address.addr].filter(Boolean).join("");
+        return [{
+          id: `address:${displayAddress}`,
+          displayName: address.town || displayAddress || trimmed,
+          displayAddress: displayAddress || trimmed,
+          latitude: address.point.lat,
+          longitude: address.point.lng,
+        }];
+      }
+    } catch {
+      // Keep facility/station search available through Nominatim.
+    }
+  }
 
   // Nominatim is useful for stations/facilities, but Japanese street addresses can
   // be missing at block/house-number level. Try the Japanese address registry
