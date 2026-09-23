@@ -54,7 +54,9 @@ export default function Home() {
   const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
   const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null);
 
-  const sourceValidAt = data?.sourceValidAt && /^\\d{14}$/.test(data.sourceValidAt)\n    ? new Date(`${data.sourceValidAt.slice(0,4)}-${data.sourceValidAt.slice(4,6)}-${data.sourceValidAt.slice(6,8)}T${data.sourceValidAt.slice(8,10)}:${data.sourceValidAt.slice(10,12)}:${data.sourceValidAt.slice(12,14)}Z`)\n    : null;
+  const sourceValidAt = data?.sourceValidAt && /^\d{14}$/.test(data.sourceValidAt)
+    ? new Date(`${data.sourceValidAt.slice(0,4)}-${data.sourceValidAt.slice(4,6)}-${data.sourceValidAt.slice(6,8)}T${data.sourceValidAt.slice(8,10)}:${data.sourceValidAt.slice(10,12)}:${data.sourceValidAt.slice(12,14)}Z`)
+    : null;
   const sourceTimeLabel = sourceValidAt && !Number.isNaN(sourceValidAt.getTime())
     ? sourceValidAt.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Tokyo" })
     : null;
