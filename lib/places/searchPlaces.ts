@@ -47,35 +47,6 @@ async function fetchNominatim(query: string): Promise<NominatimItem[]> {
   return (await response.json()) as NominatimItem[];
 }
 
-interface GeoloniaNormalizeResult {
-  pref?: string;
-  city?: string;
-  town?: string;
-  addr?: string;
-  level?: number;
-  point?: { lat: number; lng: number; level?: number };
-}
-
-async function searchJapaneseAddress(query: string): Promise<PlaceSearchResult[]> {
-  const response = await fetch(
-    `https://japanese-addresses-v2.geoloniamaps.com/api/normalize?address=${encodeURIComponent(query)}`,
-    { cache: "no-store" },
-  );
-  if (!response.ok) return [];
-
-  const result = (await response.json()) as GeoloniaNormalizeResult;
-  if (!result.point || !Number.isFinite(result.point.lat) || !Number.isFinite(result.point.lng)) return [];
-
-  const displayAddress = [result.pref, result.city, result.town, result.addr].filter(Boolean).join("");
-  return [{
-    id: `address:${query}`,
-    displayName: result.town || displayAddress || query,
-    displayAddress: displayAddress || query,
-    latitude: result.point.lat,
-    longitude: result.point.lng,
-  }];
-}
-
 export async function searchPlaces(query: string): Promise<PlaceSearchResult[]> {
   const trimmed = query.trim();
   if (trimmed.length < 2) return [];
