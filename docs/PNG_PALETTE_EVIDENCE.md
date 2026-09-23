@@ -442,3 +442,25 @@ free tier must remain conservative rather than silently acquiring a recurring
 data dependency.
 
 > 正しくても、固定費ゼロを壊すなら今の本線ではない。
+
+
+## 2026-09-23 free-path search checkpoint
+
+A further JMA-only search did not uncover a first-party public definition that
+assigns a meteorological meaning to hrpns PNG alpha=0. JMA's developer guide
+confirms that nowcast images are obtainable from the public website, while
+bulk/binary data are available through the Support Center. JMA's HRPN guidance
+also explicitly distinguishes forecast coverage regions and warns that radar
+outages can make precipitation intensity absent or weaker on the display.
+
+Accordingly, there is still no evidence basis for turning a transparent public
+PNG pixel into precipitation zero. The free PNG path remains suitable for
+verified positive-rain colors but cannot currently support a trustworthy DRY
+claim by itself.
+
+**Stop condition:** do not spend implementation time inventing another alpha or
+geographic heuristic. Resume this branch only if new first-party encoding
+metadata appears or an authorized zero-cost numeric source is identified.
+Until then, move product work forward with uncertainty represented honestly.
+
+> 根拠が増えない調査は、推測を増やすだけ。ここでは止める。
