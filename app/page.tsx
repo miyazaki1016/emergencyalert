@@ -44,7 +44,7 @@ function stateLabel(state: RainInterpretation["state"]): string {
     case "RAINING": return "🌧️ いま雨だよ";
     case "EASING": return "🌦️ 弱くなりそう";
     case "ENDING": return "🌤️ もうすぐやみそう";
-    default: return "確認中";
+    default: return "いまは、はっきり言えないよ";
   }
 }
 
