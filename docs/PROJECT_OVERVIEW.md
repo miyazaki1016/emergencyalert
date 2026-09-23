@@ -363,3 +363,18 @@ not convert a forecast into certainty.
 
 > 確認した時刻と、元データの時刻は別物。
 > 予報がないことと、絶対に降らないことも別物。
+
+
+### Transparent hrpns pixels fail closed until coverage semantics are proven
+
+As of 2026-09-23, a fully transparent public hrpns PNG pixel is **not** treated
+as `NO_RAIN`. It is classified as `UNKNOWN_PIXEL` because transparency proves
+only that the overlay did not paint precipitation at that pixel; it does not by
+itself prove that the coordinate/time was inside valid meteorological coverage.
+
+This intentionally reduces useful DRY claims while the evidence gap remains.
+The restriction may be relaxed only after first-party encoding evidence or a
+reproducible authoritative coverage comparison establishes the public PNG
+alpha/coverage semantics.
+
+> 分からないものを「雨なし」にしない。
