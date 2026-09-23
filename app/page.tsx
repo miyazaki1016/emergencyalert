@@ -58,6 +58,7 @@ export default function Home() {
   const [placeResults, setPlaceResults] = useState<Array<{ id: string; displayName: string; displayAddress: string; latitude: number; longitude: number }>>([]);
   const [placeStatus, setPlaceStatus] = useState("");
   const [placeBusy, setPlaceBusy] = useState(false);
+  const [placeLabels, setPlaceLabels] = useState<Record<string, string>>({});
 
   const searchPlace = async () => {
     const q = placeQuery.trim();
@@ -203,6 +204,17 @@ export default function Home() {
           <div key={place.id} style={{ marginTop: 12, padding: 16, border: "1px solid #ddd", borderRadius: 12 }}>
             <div style={{ fontWeight: 700 }}>{place.displayName}</div>
             <div style={{ marginTop: 4, fontSize: 14, color: "#666" }}>{place.displayAddress}</div>
+            <label style={{ display: "block", marginTop: 14, fontSize: 14, fontWeight: 700 }} htmlFor={`place-label-${place.id}`}>
+              この場所の名前
+            </label>
+            <input
+              id={`place-label-${place.id}`}
+              value={placeLabels[place.id] ?? ""}
+              onChange={(e) => setPlaceLabels((labels) => ({ ...labels, [place.id]: e.target.value }))}
+              placeholder="例：自宅・実家・学校・職場"
+              maxLength={30}
+              style={{ width: "100%", boxSizing: "border-box", marginTop: 6, padding: "11px 12px", fontSize: 16 }}
+            />
             <button disabled title="保存機能は次の段階で接続" style={{ marginTop: 10, padding: "9px 12px" }}>この場所を見張る</button>
           </div>
         ))}
