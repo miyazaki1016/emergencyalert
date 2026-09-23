@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../lib/supabase/browser";
 
 type RainMessage = { headline: string; detail: string };
@@ -23,6 +23,13 @@ type RainSemanticEvent = {
   checkedAt: string;
   sourceValidAt: string | null;
 };
+type SavedWatchTarget = {
+  id: string;
+  label: string;
+  display_address: string | null;
+  enabled: boolean;
+};
+
 type RainResponse = {
   source: string;
   checkedAt: string;
@@ -61,6 +68,47 @@ export default function Home() {
   const [placeBusy, setPlaceBusy] = useState(false);
   const [placeLabels, setPlaceLabels] = useState<Record<string, string>>({});
   const [savingPlaceId, setSavingPlaceId] = useState<string | null>(null);
+  const [savedTargets, setSavedTargets] = useState<SavedWatchTarget[]>([]);
+  const [targetsBusy, setTargetsBusy] = useState(false);
+
+  const loadSavedTargets = async () => {
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const session = (await supabase.auth.getSession()).data.session;
+      if (!session) return;
+      const { data, error } = await supabase
+        .from("watch_targets")
+        .select("id,label,display_address,enabled")
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      setSavedTargets((data ?? []) as SavedWatchTarget[]);
+    } catch {
+      // Registration still works even if the saved list cannot be refreshed.
+    }
+  };
+
+  useEffect(() => {
+    void loadSavedTargets();
+  }, []);
+
+  const toggleTarget = async (target: SavedWatchTarget) => {
+    setTargetsBusy(true);
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const { error } = await supabase
+        .from("watch_targets")
+        .update({ enabled: !target.enabled })
+        .eq("id", target.id);
+      if (error) throw error;
+      setSavedTargets((targets) =>
+        targets.map((item) => item.id === target.id ? { ...item, enabled: !item.enabled } : item),
+      );
+    } catch {
+      setPlaceStatus("見張りの切り替えができなかったよ。少しあとでもう一度試してね。");
+    } finally {
+      setTargetsBusy(false);
+    }
+  };
 
   const searchPlace = async () => {
     const q = placeQuery.trim();
@@ -137,6 +185,7 @@ export default function Home() {
       });
       if (error) throw error;
       setPlaceStatus(`「${label}」を見張る場所に登録したよ。`);
+      await loadSavedTargets();
     } catch {
       setPlaceStatus("登録できなかったよ。少しあとでもう一度試してね。");
     } finally {
@@ -259,6 +308,27 @@ export default function Home() {
           </div>
         ))}
       </section>
+
+      {savedTargets.length > 0 && (
+        <section style={{ marginTop: 32 }}>
+          <h2 style={{ marginBottom: 6 }}>見張っている場所</h2>
+          <p style={{ marginTop: 0, color: "#666" }}>場所ごとに、見張る・休むを切り替えられるよ。</p>
+          {savedTargets.map((target) => (
+            <div key={target.id} style={{ marginTop: 10, padding: 16, border: "1px solid #ddd", borderRadius: 12 }}>
+              <div style={{ fontWeight: 700 }}>{target.label}</div>
+              {target.display_address && <div style={{ marginTop: 4, fontSize: 13, color: "#666" }}>{target.display_address}</div>}
+              <button
+                onClick={() => void toggleTarget(target)}
+                disabled={targetsBusy}
+                aria-pressed={target.enabled}
+                style={{ marginTop: 10, padding: "9px 12px" }}
+              >
+                {target.enabled ? "見張る：ON" : "見張る：OFF"}
+              </button>
+            </div>
+          ))}
+        </section>
+      )}
 
       {data && (
         <details style={{ marginTop: 32 }}>
