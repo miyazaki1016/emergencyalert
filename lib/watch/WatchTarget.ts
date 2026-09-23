@@ -1,3 +1,5 @@
+export type WatchTargetSource = "CURRENT_LOCATION" | "SEARCH";
+
 export interface WatchTarget {
   schemaVersion: 1;
   id: string;
@@ -5,6 +7,9 @@ export interface WatchTarget {
   label: string;
   latitude: number;
   longitude: number;
+  displayName: string | null;
+  displayAddress: string | null;
+  source: WatchTargetSource;
   enabled: boolean;
   notificationsEnabled: boolean;
   createdAt: string;
