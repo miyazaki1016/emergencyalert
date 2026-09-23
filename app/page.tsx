@@ -91,6 +91,25 @@ export default function Home() {
     void loadSavedTargets();
   }, []);
 
+  const deleteTarget = async (target: SavedWatchTarget) => {
+    if (!window.confirm(`「${target.label}」を削除する？\nこの場所の見張り登録も消えるよ。`)) return;
+    setTargetsBusy(true);
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const { error } = await supabase
+        .from("watch_targets")
+        .delete()
+        .eq("id", target.id);
+      if (error) throw error;
+      setSavedTargets((targets) => targets.filter((item) => item.id !== target.id));
+      setPlaceStatus(`「${target.label}」を見張る場所から削除したよ。`);
+    } catch {
+      setPlaceStatus("削除できなかったよ。少しあとでもう一度試してね。");
+    } finally {
+      setTargetsBusy(false);
+    }
+  };
+
   const toggleTarget = async (target: SavedWatchTarget) => {
     setTargetsBusy(true);
     try {
@@ -324,6 +343,13 @@ export default function Home() {
                 style={{ marginTop: 10, padding: "9px 12px" }}
               >
                 {target.enabled ? "見張る：ON" : "見張る：OFF"}
+              </button>
+              <button
+                onClick={() => void deleteTarget(target)}
+                disabled={targetsBusy}
+                style={{ marginTop: 10, marginLeft: 8, padding: "9px 12px" }}
+              >
+                削除
               </button>
             </div>
           ))}
