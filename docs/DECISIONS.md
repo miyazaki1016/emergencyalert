@@ -168,3 +168,30 @@ Observation and forecast metadata are different products. A validation rule that
 In particular, the rain v1 engine validates the shape of both `baseTime` and `validTime`, but it does not impose the forecast-only `baseTime <= validTime` ordering rule on observation frames without provider-specific evidence.
 
 > **同じ名前の項目でも、同じ意味とは決めつけない。**
+
+
+## Watch locations are explicit saved places, not continuous tracking
+
+EmergencyAlert's server-side monitoring model uses **user-selected watch
+targets**. A user intentionally saves a place (for example home, school or a
+family member's home), and the server evaluates that saved coordinate on the
+monitoring cadence even while the browser/app is closed.
+
+The initial design must **not** continuously track the device's current
+location in the background. Current-location lookup remains useful for the
+one-shot 「この場所の雨を確認」 flow and may be used to make saving a watch
+place easy, but monitoring begins only after the user chooses to watch that
+place.
+
+A watch target should eventually persist at least: owner identity, stable target
+ID, user-facing label, coordinate, enabled state, notification preferences and
+state needed for semantic-event deduplication. Do not store a trail of device
+movement merely to implement weather monitoring.
+
+At scale, monitoring must be organized around reusable JMA source work rather
+than one upstream fetch per user. Nearby watch targets that depend on the same
+JMA tile/frame should share that source fetch, after which EmergencyAlert may
+sample/evaluate each saved coordinate independently and notify only targets with
+a grounded actionable semantic change.
+
+> 見張る場所はユーザーが決める。ユーザーの移動を見張らない。
