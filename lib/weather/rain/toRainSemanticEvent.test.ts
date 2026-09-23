@@ -37,6 +37,7 @@ describe("toRainSemanticEvent", () => {
       endingAt: null,
       source: "JMA_HIGH_RESOLUTION_PRECIPITATION_NOWCAST",
       checkedAt: "2026-09-20T12:00:00.000Z",
+      sourceValidAt: null,
     });
   });
 
