@@ -105,6 +105,7 @@ export default function Home() {
         <section style={{ margin: "28px 0", padding: 24, border: "1px solid #ddd", borderRadius: 16 }}>
           <div style={{ fontSize: 22, fontWeight: 700 }}>いまは、はっきり言えないよ。</div>
           <div style={{ marginTop: 10, fontSize: 18 }}>雨が降らないって意味じゃないよ。</div>
+          <div style={{ marginTop: 10, fontSize: 14, color: "#666" }}>気象庁の雨情報は確認できたけど、この場所を安全に判定できる材料が足りなかったよ。</div>
           {lastCheckedAt && (
             <div style={{ marginTop: 18, fontSize: 13, color: "#666" }}>
               {lastCheckedAt.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} 時点
