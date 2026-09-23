@@ -378,3 +378,35 @@ reproducible authoritative coverage comparison establishes the public PNG
 alpha/coverage semantics.
 
 > 分からないものを「雨なし」にしない。
+
+
+## First production-device milestone and next product phase (2026-09-23)
+
+The first iPhone production test completed the real path from browser geolocation
+to JMA retrieval, conservative interpretation and user-facing display. The test
+also confirmed that withheld interpretation is presented separately from a data
+fetch failure, with checked time, location accuracy and JMA source time visible.
+
+This closes the initial "can the real phone ask about this place now?" milestone.
+Do not keep polishing the one-shot screen as a substitute for the product's
+actual purpose.
+
+The next product phase is **watching a place over time and noticing a meaningful
+change**. Design it around the existing semantic event boundary:
+
+- a watch target is a location the user has intentionally chosen;
+- repeated checks must preserve uncertainty rather than treating UNKNOWN as dry;
+- notification eligibility comes from a grounded semantic transition/event, not
+  from raw PNG color changes;
+- deduplicate the same episode so a 5-minute source cadence does not become
+  repeated nagging;
+- lifestyle notifications remain quiet when there is nothing useful to say;
+- Push is a delivery layer after change detection, not the weather decision
+  engine itself.
+
+Phase order: **watch target -> repeated evaluation -> semantic change detection
+-> deduplication/cooldown -> Push delivery**. Persistence and scheduling should
+be added only as required by that path; do not introduce accounts or a large DB
+before the first watch flow needs them.
+
+> 見張るのは天気ではなく、「今ならひと言かける意味がある変化」。
