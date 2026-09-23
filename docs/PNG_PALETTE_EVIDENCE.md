@@ -337,3 +337,24 @@ coverage semantics (including forecast lead time) before any transparent pixel
 can be promoted to `NO_RAIN`.
 
 > 実機で止まったことは確認できた。止めなくてよい根拠は、まだない。
+
+
+## 2026-09-23 official coverage recheck after first device test
+
+A first-party JMA recheck confirms the product's meteorological coverage model,
+but still does not define public PNG alpha semantics. JMA states that HRPN
+provides 250 m forecasts through 30 minutes over land and near-coastal sea,
+1 km forecasts over other sea areas, and 1 km forecasts from 35 through 60
+minutes. JMA also explicitly depicts a separate outside-forecast region.
+Specification No. 11802 describes the same target-time and target-area split.
+
+This is enough to reject a global rule that a successful transparent tile means
+`NO_RAIN`: the product itself has coverage boundaries. It is not yet enough to
+release transparent pixels *inside* coverage as `NO_RAIN`, because no examined
+first-party source states how zero/no-precipitation and outside-coverage cells
+are encoded in the public PNG alpha channel.
+
+**Implementation consequence:** keep `alpha=0 -> UNKNOWN_PIXEL`. The safe path
+to useful dry claims is now narrowed to a separate validated coverage/data
+check, not an alpha-only shortcut. Do not weaken this rule merely because the
+first production iPhone test was on land.
