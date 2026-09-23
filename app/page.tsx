@@ -137,9 +137,8 @@ export default function Home() {
       });
       if (error) throw error;
       setPlaceStatus(`「${label}」を見張る場所に登録したよ。`);
-    } catch (error) {
-      const detail = error instanceof Error ? error.message : String(error);
-      setPlaceStatus(`登録エラー（診断中）：${detail}`);
+    } catch {
+      setPlaceStatus("登録できなかったよ。少しあとでもう一度試してね。");
     } finally {
       setSavingPlaceId(null);
     }
