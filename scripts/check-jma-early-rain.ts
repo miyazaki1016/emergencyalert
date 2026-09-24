@@ -1,6 +1,24 @@
 import { fetchEarlyForecastTargetTimes } from "../lib/weather/providers/jma/earlyForecastTargetTimes";
-import { buildJmaEarlyForecastTileUrl } from "../lib/weather/providers/jma/earlyForecastTileUrl";
 import { latLonToTilePixel } from "../lib/weather/providers/jma/webMercator";
+
+function buildDiagnosticTileUrl(
+  target: { basetime: string; validtime: string; member: string },
+  zoom: number,
+  tileX: number,
+  tileY: number,
+) {
+  return [
+    "https://www.jma.go.jp/bosai/jmatile/data/rasrf",
+    target.basetime,
+    target.member,
+    target.validtime,
+    "surf",
+    "rasrf",
+    String(zoom),
+    String(tileX),
+    `${tileY}.png`,
+  ].join("/");
+}
 
 async function main() {
   const lat = 35.5494;
@@ -9,7 +27,7 @@ async function main() {
   const targets = await fetchEarlyForecastTargetTimes();
 
   const results = await Promise.all(targets.map(async (target) => {
-    const url = buildJmaEarlyForecastTileUrl(target, point.zoom, point.tileX, point.tileY);
+    const url = buildDiagnosticTileUrl(target, point.zoom, point.tileX, point.tileY);
     try {
       const response = await fetch(url, { cache: "no-store" });
       const contentType = response.headers.get("content-type");
@@ -40,12 +58,13 @@ async function main() {
   console.log(JSON.stringify({
     checkedAt: new Date().toISOString(),
     targetCount: targets.length,
+    successCount: results.filter((result) => result.ok).length,
     point,
     results,
   }, null, 2));
 
-  if (results.every((result) => !result.ok)) {
-    throw new Error("JMA early rain diagnostic returned no successful tile responses");
+  if (results.some((result) => !result.ok)) {
+    throw new Error("One or more JMA early rain member-aware tile requests failed");
   }
 }
 
