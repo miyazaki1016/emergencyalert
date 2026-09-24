@@ -340,7 +340,7 @@ export default function Home() {
                 onClick={() => void toggleTarget(target)}
                 disabled={targetsBusy}
                 aria-pressed={target.enabled}
-                style={{ marginTop: 10, padding: "9px 12px" }}
+                style={{ marginTop: 10, padding: "9px 12px", background: target.enabled ? "#b7f34a" : "#e5e7eb", color: "#111", border: "1px solid #d1d5db", borderRadius: 999, fontWeight: 700 }}
               >
                 {target.enabled ? "見張る：ON" : "見張る：OFF"}
               </button>
