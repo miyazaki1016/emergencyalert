@@ -485,15 +485,44 @@ The Supabase Edge Function `watch-rain` is invoked by cron every five minutes us
 - CI must pass before merge; verify Production deployment afterward.
 - Do not expose or repeat secrets. The watch cron token was previously visible during setup and should eventually be rotated.
 
-### Immediate next work
+### Current implementation status and immediate next work (updated 2026-09-25)
 
-1. Implement the approved watch ON/OFF visual state (ON = light yellow-green, OFF = neutral), test, PR, CI, deploy.
-2. Implement explicit Push permission/subscription UX for installed PWA and persist to `push_subscriptions`.
-3. Add Push handling to the service worker.
-4. Add server-side Web Push delivery to the watcher without changing meteorological meaning.
-5. Correct notification bookkeeping so `last_notified_at` is written only after successful Push delivery.
-6. Test Android installed PWA Push, then iPhone home-screen PWA Push.
-7. Add episode dedupe/cooldown behavior needed to prevent repeated notices for the same rain episode.
+The operational handoff above was written before several items were merged. The
+repository on `main` is now ahead of that handoff in these areas:
+
+- the saved watch-target ON/OFF control is implemented and deployed:
+  `見張る：ON` uses the approved light yellow-green/lime active state and OFF
+  is neutral/subdued;
+- explicit Web Push permission/subscription UI is implemented in the PWA;
+- Push subscriptions are persisted to `public.push_subscriptions`;
+- the service worker already contains Push reception/notification handling;
+- VAPID-key changes are handled by replacing an incompatible existing browser
+  subscription;
+- temporary one-shot Push test UI used during verification was removed after
+  testing;
+- saved-place registration now clears the place-search UI after a successful
+  registration.
+
+Therefore, do **not** restart work from the old items 1–3. The next main product
+work is the server-delivery side:
+
+1. inspect the current `watch-rain` worker and existing notification decision
+   code before changing it;
+2. add/finish server-side Web Push delivery from the watcher only for grounded,
+   actionable semantic changes;
+3. make `last_notified_at` mean **successful Push delivery only** — eligibility,
+   an attempted send, or a failed send must not advance it;
+4. preserve UNKNOWN/fetch-error behavior and the existing meteorological
+   interpretation boundary while adding delivery;
+5. test Push end-to-end on the installed Android PWA, then on the iPhone
+   home-screen PWA;
+6. add/verify episode dedupe and cooldown so the five-minute watcher does not
+   repeatedly notify the same rain episode.
+
+Keep the JMA `rasrf` member-path correction isolated from Push work. PR #26 is
+the scoped correction for carrying `targetTimes.json` frame `member` into the
+tile URL; it still requires its own CI/evidence/merge verification and must not
+be mixed into watcher/Push changes.
 
 > 第3条：ソラの「入れた」は、実物を見るまで信用するな。
 
