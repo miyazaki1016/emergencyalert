@@ -46,4 +46,40 @@ describe("watch-rain notification decision", () => {
       lastNotifiedAt: null,
     })).toBe(false);
   });
+
+  it("notifies a new actionable episode after an INFO reset even if an older episode was delivered", () => {
+    expect(shouldNotifyForRain({
+      notificationsEnabled: true,
+      currentUrgency: "LIFESTYLE_ACTION",
+      previousUrgency: "INFO",
+      lastNotifiedAt: "2026-09-24T06:00:00.000Z",
+    })).toBe(true);
+  });
+
+  it("does not notify when an actionable episode falls back to INFO", () => {
+    expect(shouldNotifyForRain({
+      notificationsEnabled: true,
+      currentUrgency: "INFO",
+      previousUrgency: "LIFESTYLE_ACTION",
+      lastNotifiedAt: "2026-09-24T06:00:00.000Z",
+    })).toBe(false);
+  });
+
+  it("treats a missing previous event as a new actionable episode", () => {
+    expect(shouldNotifyForRain({
+      notificationsEnabled: true,
+      currentUrgency: "LIFESTYLE_ACTION",
+      previousUrgency: null,
+      lastNotifiedAt: null,
+    })).toBe(true);
+  });
+
+  it("keeps retry pending while actionable when delivery has never succeeded", () => {
+    expect(shouldNotifyForRain({
+      notificationsEnabled: true,
+      currentUrgency: "LIFESTYLE_ACTION",
+      previousUrgency: "LIFESTYLE_ACTION",
+      lastNotifiedAt: null,
+    })).toBe(true);
+  });
 });
