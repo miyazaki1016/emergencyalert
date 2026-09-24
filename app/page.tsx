@@ -78,7 +78,8 @@ export default function Home() {
   const [savedTargets, setSavedTargets] = useState<SavedWatchTarget[]>([]);
   const [targetsBusy, setTargetsBusy] = useState(false);
   const [pushStatus, setPushStatus] = useState("");
-  const [pushBusy, setPushBusy] = useState(false);\n  const [testPushBusy, setTestPushBusy] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [testPushBusy, setTestPushBusy] = useState(false);
 
   const enablePush = async () => {
     if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
