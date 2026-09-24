@@ -1,5 +1,6 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
+import { shouldNotifyForRain } from "./notificationDecision.ts";
 
 type RainEvent = {
   schemaVersion: 1;
@@ -67,9 +68,12 @@ Deno.serve(async (req: Request) => {
 
       const previousEvent = previous?.last_event as RainEvent | null | undefined;
       const actionable = rain.event.urgency === "LIFESTYLE_ACTION";
-      const becameActionable = actionable && previousEvent?.urgency !== "LIFESTYLE_ACTION";
-      const retryPending = actionable && !previous?.last_notified_at;
-      const shouldNotify = Boolean(target.notifications_enabled) && (becameActionable || retryPending);
+      const shouldNotify = shouldNotifyForRain({
+        notificationsEnabled: Boolean(target.notifications_enabled),
+        currentUrgency: rain.event.urgency,
+        previousUrgency: previousEvent?.urgency,
+        lastNotifiedAt: previous?.last_notified_at,
+      });
 
       let delivered = 0;
       let failed = 0;

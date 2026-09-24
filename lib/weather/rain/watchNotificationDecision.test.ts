@@ -1,18 +1,5 @@
 import { describe, expect, it } from "vitest";
-
-type Urgency = "INFO" | "LIFESTYLE_ACTION";
-
-export function shouldNotifyForRain(args: {
-  notificationsEnabled: boolean;
-  currentUrgency: Urgency;
-  previousUrgency?: Urgency | null;
-  lastNotifiedAt?: string | null;
-}) {
-  const actionable = args.currentUrgency === "LIFESTYLE_ACTION";
-  const becameActionable = actionable && args.previousUrgency !== "LIFESTYLE_ACTION";
-  const retryPending = actionable && !args.lastNotifiedAt;
-  return args.notificationsEnabled && (becameActionable || retryPending);
-}
+import { shouldNotifyForRain } from "../../../supabase/functions/watch-rain/notificationDecision";
 
 describe("watch-rain notification decision", () => {
   it("notifies when a target becomes actionable", () => {
