@@ -125,24 +125,6 @@ export default function Home() {
     }
   };
 
-  const sendTestPush = async () => {
-    setTestPushBusy(true);
-    try {
-      const session = await ensureAnonymousSession();
-      const supabase = getSupabaseBrowserClient();
-      const { error } = await supabase.functions.invoke("test-push-once", {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-        body: {},
-      });
-      if (error) throw error;
-      setPushStatus("テスト通知を送ったよ。iPhoneに届いたか確認してね。");
-    } catch {
-      setPushStatus("テスト通知を送れなかったよ。");
-    } finally {
-      setTestPushBusy(false);
-    }
-  };
-
   const loadSavedTargets = async () => {
     try {
       const supabase = getSupabaseBrowserClient();
@@ -371,9 +353,6 @@ export default function Home() {
         <p style={{ marginTop: 0, color: "#666" }}>見張っている場所で、今ならひと言かける意味がある変化があったときだけ知らせるよ。</p>
         <button onClick={() => void enablePush()} disabled={pushBusy} style={{ padding: "12px 16px", fontSize: 16 }}>
           {pushBusy ? "設定中…" : "通知を受け取る"}
-        </button>
-        <button onClick={() => void sendTestPush()} disabled={testPushBusy} style={{ marginLeft: 8, padding: "12px 16px", fontSize: 16 }}>
-          {testPushBusy ? "送信中…" : "テスト通知を送る"}
         </button>
         {pushStatus && <p style={{ color: "#666" }}>{pushStatus}</p>}
       </section>
