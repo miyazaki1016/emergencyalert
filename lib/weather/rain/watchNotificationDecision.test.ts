@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { shouldNotifyForRain } from "../../../supabase/functions/watch-rain/notificationDecision";
+import { nextLastNotifiedAt, shouldNotifyForRain } from "../../../supabase/functions/watch-rain/notificationDecision";
 
 describe("watch-rain notification decision", () => {
   it("notifies when a target becomes actionable", () => {
@@ -107,5 +107,22 @@ describe("watch-rain notification decision", () => {
       previousUrgency: "INFO",
       lastNotifiedAt: null,
     })).toBe(true);
+  });
+  describe("last_notified_at delivery state", () => {
+    const previous = "2026-09-24T06:00:00.000Z";
+    const now = "2026-09-25T06:00:00.000Z";
+
+    it("advances only when at least one Push delivery succeeds", () => {
+      expect(nextLastNotifiedAt({ delivered: 1, actionable: true, previousLastNotifiedAt: previous, now })).toBe(now);
+    });
+
+    it("does not advance when no Push delivery succeeds", () => {
+      expect(nextLastNotifiedAt({ delivered: 0, actionable: true, previousLastNotifiedAt: previous, now })).toBe(previous);
+      expect(nextLastNotifiedAt({ delivered: 0, actionable: true, previousLastNotifiedAt: null, now })).toBeNull();
+    });
+
+    it("clears the marker when the grounded event is no longer actionable", () => {
+      expect(nextLastNotifiedAt({ delivered: 0, actionable: false, previousLastNotifiedAt: previous, now })).toBeNull();
+    });
   });
 });
