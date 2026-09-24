@@ -70,6 +70,52 @@ export default function Home() {
   const [savingPlaceId, setSavingPlaceId] = useState<string | null>(null);
   const [savedTargets, setSavedTargets] = useState<SavedWatchTarget[]>([]);
   const [targetsBusy, setTargetsBusy] = useState(false);
+  const [pushStatus, setPushStatus] = useState("");
+  const [pushBusy, setPushBusy] = useState(false);
+
+  const enablePush = async () => {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
+      setPushStatus("この端末では通知を使えないよ。");
+      return;
+    }
+    const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+    if (!vapidPublicKey) {
+      setPushStatus("通知の準備中だよ。");
+      return;
+    }
+    setPushBusy(true);
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        setPushStatus("通知が許可されていないよ。端末の通知設定を確認してね。");
+        return;
+      }
+      const registration = await navigator.serviceWorker.ready;
+      const existing = await registration.pushManager.getSubscription();
+      const subscription = existing ?? await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: vapidPublicKey,
+      });
+      const json = subscription.toJSON();
+      if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) throw new Error("Incomplete push subscription");
+      const session = await ensureAnonymousSession();
+      const supabase = getSupabaseBrowserClient();
+      const { error } = await supabase.from("push_subscriptions").upsert({
+        owner_id: session.user.id,
+        endpoint: json.endpoint,
+        p256dh: json.keys.p256dh,
+        auth: json.keys.auth,
+        user_agent: navigator.userAgent,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "owner_id,endpoint" });
+      if (error) throw error;
+      setPushStatus("通知を受け取れるようになったよ。");
+    } catch {
+      setPushStatus("通知の登録ができなかったよ。少しあとでもう一度試してね。");
+    } finally {
+      setPushBusy(false);
+    }
+  };
 
   const loadSavedTargets = async () => {
     try {
@@ -293,6 +339,15 @@ export default function Home() {
       <button onClick={check} disabled={busy} style={{ padding: "13px 20px", fontSize: 16, cursor: busy ? "default" : "pointer" }}>
         {busy ? "確認中…" : data ? "最新情報に更新" : "この場所の雨を確認"}
       </button>
+
+      <section style={{ marginTop: 40, paddingTop: 28, borderTop: "1px solid #ddd" }}>
+        <h2 style={{ marginBottom: 6 }}>通知</h2>
+        <p style={{ marginTop: 0, color: "#666" }}>見張っている場所で、今ならひと言かける意味がある変化があったときだけ知らせるよ。</p>
+        <button onClick={() => void enablePush()} disabled={pushBusy} style={{ padding: "12px 16px", fontSize: 16 }}>
+          {pushBusy ? "設定中…" : "通知を受け取る"}
+        </button>
+        {pushStatus && <p style={{ color: "#666" }}>{pushStatus}</p>}
+      </section>
 
       <section style={{ marginTop: 40, paddingTop: 28, borderTop: "1px solid #ddd" }}>
         <h2 style={{ marginBottom: 6 }}>見張る場所を登録</h2>
