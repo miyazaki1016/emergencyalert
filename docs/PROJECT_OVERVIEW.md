@@ -496,3 +496,34 @@ The Supabase Edge Function `watch-rain` is invoked by cron every five minutes us
 7. Add episode dedupe/cooldown behavior needed to prevent repeated notices for the same rain episode.
 
 > 第3条：ソラの「入れた」は、実物を見るまで信用するな。
+
+
+## JMA rasrf target member checkpoint — 2026-09-25
+
+The precipitation short-range forecast path has an additional source-contract
+requirement that must be preserved before continuing Push work.
+
+`rasrf/targetTimes.json` supplies a `member` for each forecast frame. The
+early-forecast tile URL builder must treat that value as part of the frame
+metadata and use it for the member path segment. Do not hard-code `none` in
+the URL builder.
+
+Canonical frame-to-tile relationship:
+
+> target frame `basetime` + `member` + `validtime` -> rasrf tile URL
+
+Implementation rule:
+
+- `buildJmaEarlyForecastTileUrl` receives `basetime`, `validtime`, and
+  `member`;
+- the URL member segment comes from `frame.member`;
+- tests must cover at least `immed` and `none`;
+- a tile fetch failure remains `FETCH_ERROR`; it must never become NO_RAIN;
+- this correction does not change Push, Supabase, watch-target persistence, or
+  the meteorological interpretation boundary.
+
+PR #26 is the isolated implementation of this correction. Keep it separate
+from Push work, require CI to pass before merge, and verify the resulting
+Production deployment afterward.
+
+> targetTimes の値を読んでいるだけでは足りない。URLまで同じフレーム情報を運ぶ。
