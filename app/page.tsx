@@ -99,10 +99,20 @@ export default function Home() {
         return;
       }
       const registration = await navigator.serviceWorker.ready;
-      const existing = await registration.pushManager.getSubscription();
+      const configuredKey = urlBase64ToUint8Array(vapidPublicKey);
+      let existing = await registration.pushManager.getSubscription();
+      if (existing?.options.applicationServerKey) {
+        const existingKey = new Uint8Array(existing.options.applicationServerKey);
+        const keyMatches = existingKey.length === configuredKey.length
+          && existingKey.every((value, index) => value === configuredKey[index]);
+        if (!keyMatches) {
+          await existing.unsubscribe();
+          existing = null;
+        }
+      }
       const subscription = existing ?? await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+        applicationServerKey: configuredKey,
       });
       const json = subscription.toJSON();
       if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) throw new Error("Incomplete push subscription");
