@@ -82,4 +82,13 @@ describe("watch-rain notification decision", () => {
       lastNotifiedAt: null,
     })).toBe(true);
   });
+
+  it("does not duplicate after an UNKNOWN check when the last grounded actionable event is preserved", () => {
+    expect(shouldNotifyForRain({
+      notificationsEnabled: true,
+      currentUrgency: "LIFESTYLE_ACTION",
+      previousUrgency: "LIFESTYLE_ACTION",
+      lastNotifiedAt: "2026-09-24T06:00:00.000Z",
+    })).toBe(false);
+  });
 });
