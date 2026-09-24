@@ -268,6 +268,9 @@ export default function Home() {
       });
       if (error) throw error;
       setPlaceStatus(`「${label}」を見張る場所に登録したよ。`);
+      setPlaceQuery("");
+      setPlaceResults([]);
+      setPlaceLabels({});
       await loadSavedTargets();
     } catch {
       setPlaceStatus("登録できなかったよ。少しあとでもう一度試してね。");
