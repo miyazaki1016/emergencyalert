@@ -1,6 +1,6 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
-import { shouldNotifyForRain } from "./notificationDecision.ts";
+import { nextLastNotifiedAt, shouldNotifyForRain } from "./notificationDecision.ts";
 
 type RainEvent = {
   schemaVersion: 1;
@@ -109,7 +109,7 @@ Deno.serve(async (req: Request) => {
       }
 
       const now = new Date().toISOString();
-      const notifiedAt = delivered > 0 ? now : (actionable ? (previous?.last_notified_at ?? null) : null);
+      const notifiedAt = nextLastNotifiedAt({ delivered, actionable, previousLastNotifiedAt: previous?.last_notified_at, now });
       await db.from("watch_states").upsert({
         target_id: target.id,
         last_event: rain.event,
