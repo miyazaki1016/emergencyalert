@@ -11,3 +11,15 @@ export function shouldNotifyForRain(args: {
   const retryPending = actionable && !args.lastNotifiedAt;
   return args.notificationsEnabled && (becameActionable || retryPending);
 }
+
+
+export function nextLastNotifiedAt(args: {
+  delivered: number;
+  actionable: boolean;
+  previousLastNotifiedAt?: string | null;
+  now: string;
+}) {
+  if (args.delivered > 0) return args.now;
+  if (args.actionable) return args.previousLastNotifiedAt ?? null;
+  return null;
+}
