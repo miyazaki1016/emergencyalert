@@ -24,9 +24,28 @@ EmergencyAlert の仕様・実装方針・運用上の決定事項を、次の�
 - 場所ごとの監視状態は `watch_targets` / `watch_states` で管理。
 - iPhone はホーム画面に追加した PWA から通知許可・Push購読を行う。
 
-## 現在のPushテスト方針
+## 雨通知の現行仕様
 
-- 本番の `watch-rain` をテストのために崩さない。
-- 一時的な `test-push-once` を使い、認証済みクライアント経由でテストする。
-- テスト用経路を恒久的に公開したままにしない。
-- Push確認後はテストUI/テスト関数を撤去または無効化する。
+- 気象庁高解像度降水ナウキャストを判定元にする。
+- 現在は雨が降っておらず、5mm/h以上の雨が30分以内に来る場合を `ACTIONABLE_RAIN` とする。
+- semantic event の urgency が `LIFESTYLE_ACTION` のときだけ Push 候補になる。
+- 場所ごとの `notifications_enabled` が ON であることが必要。
+- 未配信の actionable event は再試行し、すでに配信済みの同一 actionable 状態は重複通知しない。
+- 5mm/h・30分境界と通知判定ロジックは CI の回帰テストで固定している。
+
+## Web Push 現在地
+
+- iPhone Home Screen PWA で通知許可 → PushSubscription → Supabase保存まで確認済み。
+- 認証済みテスト送信で、Supabase Edge Function → Web Push → iPhone通知センターへの実配信を確認済み。
+- テスト用UIは Production から撤去済み。
+- `test-push` / `test-push-once` は 410 Gone のみ返す無害なFunctionへ置換済み。
+- 本番 `watch-rain` はテストのために変更せず稼働を継続。
+- 自然発生した実際の気象条件で `watch-rain` 自身からiPhoneへ通知された実績は、まだ未確認。
+
+## 残る本番ハードニング
+
+- 現在の VAPID 秘密鍵は開発中にチャットへ露出したため、最終リリース前にローテーションする。
+- ローテーション時は Supabase秘密鍵、Vercel公開鍵、Edge Function側公開鍵を同時更新する。
+- クライアント側で applicationServerKey の不一致を検出し、自動で購読し直せるようにしてから鍵を切り替える。
+- `watch-rain` の VAPID subject は仮の mailto ではなく管理下の HTTPS origin に変更する。
+- Supabase Edge Function の本番ソースをGitHubで正本管理できる構成へ移す。
