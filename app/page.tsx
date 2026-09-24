@@ -323,7 +323,7 @@ export default function Home() {
               maxLength={30}
               style={{ width: "100%", boxSizing: "border-box", marginTop: 6, padding: "11px 12px", fontSize: 16 }}
             />
-            <button onClick={() => void savePlace(place)} disabled={savingPlaceId !== null} style={{ marginTop: 10, padding: "9px 12px" }}>{savingPlaceId === place.id ? "登録中…" : "この場所を見張る"}</button>
+            <button onClick={() => void savePlace(place)} disabled={savingPlaceId !== null} style={{ marginTop: 10, padding: "9px 12px", background: target.enabled ? "#b7f34a" : "#e5e7eb", color: "#111", border: "1px solid #d1d5db", borderRadius: 999, fontWeight: 700 }}>{savingPlaceId === place.id ? "登録中…" : "この場所を見張る"}</button>
           </div>
         ))}
       </section>
