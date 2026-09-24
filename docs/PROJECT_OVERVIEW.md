@@ -410,3 +410,89 @@ be added only as required by that path; do not introduce accounts or a large DB
 before the first watch flow needs them.
 
 > 見張るのは天気ではなく、「今ならひと言かける意味がある変化」。
+
+
+## Handoff checkpoint — 2026-09-24
+
+This section is the current operational handoff. Read it before continuing work.
+
+### Production / verified on real devices
+
+- Production: `emergencyalert-gilt.vercel.app`.
+- PWA foundation is deployed: manifest, service worker registration and EmergencyAlert icon.
+- Android real-device test confirmed EmergencyAlert can be installed to the home screen as a Chrome-origin PWA.
+- iPhone real-device weather flow is working.
+- Watch-place persistence works through Supabase anonymous auth + RLS.
+- A saved watch target remains until the user deletes it.
+- Each target has independent `enabled` state: OFF pauses monitoring without deleting the registration.
+- Delete action is deployed and was verified end-to-end on iPhone: confirmation -> DB deletion -> card disappears.
+- GPS/current-location registration works.
+- Facility/station search through Nominatim works.
+- Japanese street-number address search now uses `@geolonia/normalize-japanese-addresses`; `江東区塩浜2-9-8` was resolved and registered successfully on a real device.
+- Important bug already fixed: the address detector was accidentally `/\\\\d/` instead of `/\\d/`.
+- Public Nominatim is now used as a single explicit request for facility/station search; do not restore rapid retry loops.
+- The 5-minute server watcher is proven to fire automatically. `watch-rain-every-5-minutes` showed repeated successful cron runs and `watch_states.last_checked_at` updates.
+- UNKNOWN remains UNKNOWN; it is not converted to dry/no-rain.
+
+### Push — current starting point
+
+Push delivery is the current main line of work.
+
+A Supabase table `public.push_subscriptions` has already been created with:
+- `owner_id`, `endpoint`, `p256dh`, `auth`, optional `user_agent`;
+- unique `(owner_id, endpoint)`;
+- RLS enabled;
+- authenticated users can select/insert/update/delete only their own subscriptions.
+
+The PWA does **not** yet have the complete notification-permission/subscription UI and the server watcher does **not** yet send Web Push. Continue from here.
+
+Required flow:
+site/PWA -> user explicitly enables notifications -> browser Push subscription -> save subscription -> watcher finds grounded actionable semantic change -> send Push -> only after successful delivery record notification delivery state.
+
+Do not set `last_notified_at` merely because a notification *would* be eligible. The existing watch worker previously had simplified eligibility bookkeeping; before real Push is enabled, make `last_notified_at` mean successful delivery.
+
+iPhone Web Push should be tested from the home-screen installed PWA. Android PWA installation has already been verified on a real device.
+
+### Watch-target UI decision waiting for implementation
+
+The owner requested a clearer ON/OFF control:
+- `見張る：ON` should have a **light yellow-green / lime** active appearance.
+- OFF should be visually subdued/neutral so state is obvious at a glance.
+- Keep the control simple; color is a state cue, not decoration.
+- Delete remains a separate destructive action.
+
+This UI tweak is approved direction but was **not implemented yet** at this checkpoint.
+
+### Current DB / worker model
+
+`watch_targets` is the canonical saved-place table. Important fields include:
+`owner_id`, label, latitude/longitude, display address/name, source, `enabled`, and `notifications_enabled`.
+
+`watch_states` stores per-target monitoring state and is deleted with its target through the FK cascade.
+
+The Supabase Edge Function `watch-rain` is invoked by cron every five minutes using the configured secret header. It evaluates enabled targets against the production rain API. Push sending still needs to be added.
+
+### Product/engineering invariants for the next Sora
+
+- EmergencyAlert does not predict weather independently.
+- Official/authorized source -> interpretation -> semantic event -> presentation/delivery.
+- Do not turn missing/unknown data into safety.
+- Watch saved places, not device movement.
+- Notify only meaningful grounded change; avoid 5-minute nagging.
+- UI stays simpler as internals become more complex.
+- Misaki may later consume EmergencyAlert facts, but EmergencyAlert and Misaki remain separate products and presentation layers.
+- Verify actual files/results after writes. A successful commit message is not proof that the intended code is present.
+- CI must pass before merge; verify Production deployment afterward.
+- Do not expose or repeat secrets. The watch cron token was previously visible during setup and should eventually be rotated.
+
+### Immediate next work
+
+1. Implement the approved watch ON/OFF visual state (ON = light yellow-green, OFF = neutral), test, PR, CI, deploy.
+2. Implement explicit Push permission/subscription UX for installed PWA and persist to `push_subscriptions`.
+3. Add Push handling to the service worker.
+4. Add server-side Web Push delivery to the watcher without changing meteorological meaning.
+5. Correct notification bookkeeping so `last_notified_at` is written only after successful Push delivery.
+6. Test Android installed PWA Push, then iPhone home-screen PWA Push.
+7. Add episode dedupe/cooldown behavior needed to prevent repeated notices for the same rain episode.
+
+> 第3条：ソラの「入れた」は、実物を見るまで信用するな。
