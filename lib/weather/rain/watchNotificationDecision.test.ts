@@ -91,4 +91,21 @@ describe("watch-rain notification decision", () => {
       lastNotifiedAt: "2026-09-24T06:00:00.000Z",
     })).toBe(false);
   });
+
+  it("notifies again when a delivered rain episode ended and a later episode becomes actionable", () => {
+    const endedEpisode = shouldNotifyForRain({
+      notificationsEnabled: true,
+      currentUrgency: "INFO",
+      previousUrgency: "LIFESTYLE_ACTION",
+      lastNotifiedAt: "2026-09-24T06:00:00.000Z",
+    });
+    expect(endedEpisode).toBe(false);
+
+    expect(shouldNotifyForRain({
+      notificationsEnabled: true,
+      currentUrgency: "LIFESTYLE_ACTION",
+      previousUrgency: "INFO",
+      lastNotifiedAt: null,
+    })).toBe(true);
+  });
 });
