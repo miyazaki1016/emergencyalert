@@ -1,7 +1,7 @@
 import type { JmaEarlyForecastTargetTime } from "./earlyForecastTargetTimes";
 
 export function buildJmaEarlyForecastTileUrl(
-  frame: Pick<JmaEarlyForecastTargetTime, "basetime" | "validtime">,
+  frame: Pick<JmaEarlyForecastTargetTime, "basetime" | "validtime" | "member">,
   zoom: number,
   tileX: number,
   tileY: number,
@@ -9,7 +9,7 @@ export function buildJmaEarlyForecastTileUrl(
   return [
     "https://www.jma.go.jp/bosai/jmatile/data/rasrf",
     frame.basetime,
-    "none",
+    frame.member,
     frame.validtime,
     "surf",
     "rasrf",
