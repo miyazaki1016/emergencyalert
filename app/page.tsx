@@ -44,6 +44,13 @@ type RainResponse = {
   note: string;
 };
 
+function urlBase64ToUint8Array(value: string): Uint8Array<ArrayBuffer> {
+  const padding = "=".repeat((4 - value.length % 4) % 4);
+  const base64 = (value + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = window.atob(base64);
+  return Uint8Array.from(raw, (char) => char.charCodeAt(0));
+}
+
 function stateLabel(state: RainInterpretation["state"]): string {
   switch (state) {
     case "DRY": return "☀️ この先、雨の予報なし";
@@ -94,7 +101,7 @@ export default function Home() {
       const existing = await registration.pushManager.getSubscription();
       const subscription = existing ?? await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: vapidPublicKey,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
       });
       const json = subscription.toJSON();
       if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) throw new Error("Incomplete push subscription");
