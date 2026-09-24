@@ -130,11 +130,11 @@ export default function Home() {
     try {
       const session = await ensureAnonymousSession();
       const supabase = getSupabaseBrowserClient();
-      const { data, error } = await supabase.functions.invoke("test-push-once", {
+      const { error } = await supabase.functions.invoke("test-push-once", {
         headers: { Authorization: `Bearer ${session.access_token}` },
         body: {},
       });
-      if (error || !data?.ok) throw error ?? new Error("Test push failed");
+      if (error) throw error;
       setPushStatus("テスト通知を送ったよ。iPhoneに届いたか確認してね。");
     } catch {
       setPushStatus("テスト通知を送れなかったよ。");
