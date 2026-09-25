@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       console.warn("[rain-diagnostic]", JSON.stringify({
         checkedAt: now.toISOString(),
         location: { lat, lon },
-        sourceValidAt: observation[0]?.validTime ?? null,
+        sourceValidAt: observation[0]?.timestamp?.toISOString?.() ?? null,
         ...diagnostic,
       }));
     }
