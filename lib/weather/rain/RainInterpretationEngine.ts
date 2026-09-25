@@ -43,8 +43,6 @@ export function interpretRainSeries(input: RainSeriesInput): RainInterpretation 
   ) {
     return empty("INSUFFICIENT_DATA");
   }
-  // JMA nowcast updates every 5 minutes. Keep a small operational tolerance,
-  // but never publish a fresh-looking claim from an old observation.
   const observationAgeMinutes = (now.getTime() - parseJmaTime(current.validTime).getTime()) / 60_000;
   if (observationAgeMinutes < -5 || observationAgeMinutes > 15) {
     return empty("INSUFFICIENT_DATA");
@@ -57,8 +55,6 @@ export function interpretRainSeries(input: RainSeriesInput): RainInterpretation 
     return empty("INSUFFICIENT_DATA");
   }
 
-  // Forecast metadata should describe now/future frames. If every target is
-  // already in the past, fail closed instead of presenting a fresh-looking claim.
   if (forecast.length > 0 && forecast.every((f) => minutesFrom(now, f.validTime) < 0)) {
     return empty("INSUFFICIENT_DATA");
   }
@@ -66,9 +62,10 @@ export function interpretRainSeries(input: RainSeriesInput): RainInterpretation 
   const future = forecast.filter((f) => minutesFrom(now, f.validTime) >= 0);
   const validFuture = future.filter((f) => !INVALID.has(f.status));
   const firstRain = validFuture.find((f) => f.status === "RAIN");
-  const firstActionable = validFuture.find(
+  const firstStrongActionable = validFuture.find(
     (f) => f.status === "RAIN" && f.intensityClass !== null && ACTIONABLE.has(f.intensityClass),
   );
+  const firstPersistentLightRain = findPersistentLightRainStart(future);
 
   if (current.status === "RAIN") {
     const ending = findEndingTime(future);
@@ -77,10 +74,15 @@ export function interpretRainSeries(input: RainSeriesInput): RainInterpretation 
       state: ending ? "ENDING" : easing ? "EASING" : "RAINING",
       shouldNotify: false,
       firstRainTime: current.validTime,
-      firstActionableRainTime: firstActionable?.validTime ?? null,
+      firstActionableRainTime: firstStrongActionable?.validTime ?? firstPersistentLightRain?.validTime ?? null,
       endingTime: ending,
     };
   }
+
+  const actionableCandidates = [firstStrongActionable, firstPersistentLightRain]
+    .filter((f): f is OfficialRainFrame => f !== null && f !== undefined)
+    .sort((a, b) => parseJmaTime(a.validTime).getTime() - parseJmaTime(b.validTime).getTime());
+  const firstActionable = actionableCandidates[0];
 
   if (firstActionable) {
     const mins = minutesFrom(now, firstActionable.validTime);
@@ -113,14 +115,30 @@ export function interpretRainSeries(input: RainSeriesInput): RainInterpretation 
   return empty("INSUFFICIENT_DATA");
 }
 
+function findPersistentLightRainStart(frames: OfficialRainFrame[]): OfficialRainFrame | null {
+  for (let i = 0; i <= frames.length - 3; i++) {
+    const run = frames.slice(i, i + 3);
+    if (run.some((f) => INVALID.has(f.status))) continue;
+    if (
+      run.every(
+        (f) => f.status === "RAIN" && f.intensityClass === "1_TO_5",
+      )
+    ) {
+      const times = run.map((f) => parseJmaTime(f.validTime).getTime());
+      if (times[1] - times[0] === 5 * 60_000 && times[2] - times[1] === 5 * 60_000) {
+        return run[0];
+      }
+    }
+  }
+  return null;
+}
+
 function isEasing(current: OfficialRainFrame, frames: OfficialRainFrame[]): boolean {
   if (current.status !== "RAIN" || current.intensityClass === null) return false;
   const rank: Record<RainIntensityClass, number> = {
     LT_1: 0, "1_TO_5": 1, "5_TO_10": 2, "10_TO_20": 3,
     "20_TO_30": 4, "30_TO_50": 5, "50_TO_80": 6, GTE_80: 7,
   };
-  // Trend claims must use the next three chronological frames. Never skip an
-  // unknown/missing frame and stitch later values together into a false trend.
   const comparable = frames.slice(0, 3);
   if (comparable.length < 3) return false;
   if (

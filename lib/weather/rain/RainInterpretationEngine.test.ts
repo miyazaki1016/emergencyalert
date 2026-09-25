@@ -10,6 +10,10 @@ function frame(now: Date, minutes: number, status: "RAIN" | "NO_RAIN", intensity
   return { baseTime: jmaTime(now), validTime: jmaTime(new Date(now.getTime() + minutes * 60_000)), status, intensityClass, rgba: null, source: SOURCE };
 }
 
+function invalidFrame(now: Date, minutes: number): OfficialRainFrame {
+  return { baseTime: jmaTime(now), validTime: jmaTime(new Date(now.getTime() + minutes * 60_000)), status: "UNKNOWN_PIXEL", intensityClass: null, rgba: null, source: SOURCE };
+}
+
 describe("actionable rain boundary", () => {
   const now = new Date("2026-09-24T06:00:00.000Z");
   const current = frame(now, 0, "NO_RAIN", null);
@@ -20,12 +24,53 @@ describe("actionable rain boundary", () => {
     const event = toRainSemanticEvent(interpretation, now, current.validTime);
     expect(interpretation.state).toBe("ACTIONABLE_RAIN");
     expect(interpretation.shouldNotify).toBe(true);
-    expect(event?.eventType).toBe("ACTIONABLE_RAIN_APPROACHING");
+    expect(event?.urgency).toBe("LIFESTYLE_ACTION");
+  });
+
+  it("promotes persistent 1-5mm/h rain when three consecutive 5-minute frames start within 30 minutes", () => {
+    const forecast = [
+      frame(now, 15, "RAIN", "1_TO_5"),
+      frame(now, 20, "RAIN", "1_TO_5"),
+      frame(now, 25, "RAIN", "1_TO_5"),
+    ];
+    const interpretation = interpretRainSeries({ now, current, forecast });
+    const event = toRainSemanticEvent(interpretation, now, current.validTime);
+    expect(interpretation.state).toBe("ACTIONABLE_RAIN");
+    expect(interpretation.firstActionableRainTime).toBe(jmaTime(new Date(now.getTime() + 15 * 60_000)));
     expect(event?.urgency).toBe("LIFESTYLE_ACTION");
     expect(event?.suggestedAction).toBe("BRING_LAUNDRY_INSIDE");
   });
 
-  it("does not notify for the same intensity beyond 30 minutes", () => {
+  it("does not notify for a single light-rain frame", () => {
+    const interpretation = interpretRainSeries({ now, current, forecast: [frame(now, 20, "RAIN", "1_TO_5")] });
+    expect(interpretation.state).toBe("RAIN_AHEAD");
+    expect(interpretation.shouldNotify).toBe(false);
+  });
+
+  it("does not treat light rain as persistent across an UNKNOWN gap", () => {
+    const forecast = [
+      frame(now, 15, "RAIN", "1_TO_5"),
+      invalidFrame(now, 20),
+      frame(now, 25, "RAIN", "1_TO_5"),
+      frame(now, 30, "RAIN", "1_TO_5"),
+    ];
+    const interpretation = interpretRainSeries({ now, current, forecast });
+    expect(interpretation.state).toBe("RAIN_AHEAD");
+    expect(interpretation.shouldNotify).toBe(false);
+  });
+
+  it("does not notify for drizzle below 1mm/h even when it persists", () => {
+    const forecast = [
+      frame(now, 15, "RAIN", "LT_1"),
+      frame(now, 20, "RAIN", "LT_1"),
+      frame(now, 25, "RAIN", "LT_1"),
+    ];
+    const interpretation = interpretRainSeries({ now, current, forecast });
+    expect(interpretation.state).toBe("RAIN_AHEAD");
+    expect(interpretation.shouldNotify).toBe(false);
+  });
+
+  it("does not notify for the same strong intensity beyond 30 minutes", () => {
     const interpretation = interpretRainSeries({ now, current, forecast: [frame(now, 31, "RAIN", "5_TO_10")] });
     const event = toRainSemanticEvent(interpretation, now, current.validTime);
     expect(interpretation.state).toBe("RAIN_AHEAD");
@@ -33,11 +78,15 @@ describe("actionable rain boundary", () => {
     expect(event?.urgency).toBe("INFO");
   });
 
-  it("does not notify for rain below 5mm/h inside 30 minutes", () => {
-    const interpretation = interpretRainSeries({ now, current, forecast: [frame(now, 20, "RAIN", "1_TO_5")] });
-    const event = toRainSemanticEvent(interpretation, now, current.validTime);
-    expect(interpretation.state).toBe("RAIN_AHEAD");
+  it("does not create an approaching-rain notification after rain has already started", () => {
+    const rainingNow = frame(now, 0, "RAIN", "1_TO_5");
+    const forecast = [
+      frame(now, 5, "RAIN", "1_TO_5"),
+      frame(now, 10, "RAIN", "1_TO_5"),
+      frame(now, 15, "RAIN", "1_TO_5"),
+    ];
+    const interpretation = interpretRainSeries({ now, current: rainingNow, forecast });
+    expect(interpretation.state).toBe("RAINING");
     expect(interpretation.shouldNotify).toBe(false);
-    expect(event?.urgency).toBe("INFO");
   });
 });
