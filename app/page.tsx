@@ -79,6 +79,7 @@ export default function Home() {
   const [targetsBusy, setTargetsBusy] = useState(false);
   const [pushStatus, setPushStatus] = useState("");
   const [pushBusy, setPushBusy] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState(false);
   const [testPushBusy, setTestPushBusy] = useState(false);
 
   const enablePush = async () => {
@@ -127,11 +128,26 @@ export default function Home() {
         updated_at: new Date().toISOString(),
       }, { onConflict: "owner_id,endpoint" });
       if (error) throw error;
+      setPushEnabled(true);
       setPushStatus("通知を受け取れるようになったよ。");
     } catch {
       setPushStatus("通知の登録ができなかったよ。少しあとでもう一度試してね。");
     } finally {
       setPushBusy(false);
+    }
+  };
+
+  const restorePushStatus = async () => {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) return;
+    if (Notification.permission !== "granted") return;
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+      if (!subscription) return;
+      setPushEnabled(true);
+      setPushStatus("通知を受け取れるようになってるよ。");
+    } catch {
+      // Keep the setup button available if the current subscription cannot be checked.
     }
   };
 
@@ -153,6 +169,7 @@ export default function Home() {
 
   useEffect(() => {
     void loadSavedTargets();
+    void restorePushStatus();
   }, []);
 
   const deleteTarget = async (target: SavedWatchTarget) => {
@@ -365,7 +382,7 @@ export default function Home() {
         <h2 style={{ marginBottom: 6 }}>通知</h2>
         <p style={{ marginTop: 0, color: "#666" }}>見張っている場所で、今ならひと言かける意味がある変化があったときだけ知らせるよ。</p>
         <button onClick={() => void enablePush()} disabled={pushBusy} style={{ padding: "12px 16px", fontSize: 16 }}>
-          {pushBusy ? "設定中…" : "通知を受け取る"}
+          {pushBusy ? "設定中…" : pushEnabled ? "✓ 通知ON" : "通知を受け取る"}
         </button>
         {pushStatus && <p style={{ color: "#666" }}>{pushStatus}</p>}
       </section>
