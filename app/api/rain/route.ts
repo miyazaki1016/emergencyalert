@@ -44,6 +44,15 @@ export async function GET(request: NextRequest) {
       expectedForecastFrames: forecastSeries.expectedFrames,
     };
 
+    if (diagnostic) {
+      console.warn("[rain-diagnostic]", JSON.stringify({
+        checkedAt: now.toISOString(),
+        location: { lat, lon },
+        sourceValidAt: observation[0]?.validTime ?? null,
+        ...diagnostic,
+      }));
+    }
+
     return NextResponse.json({
       source: "JMA high-resolution precipitation nowcast public imagery",
       checkedAt: now.toISOString(),
