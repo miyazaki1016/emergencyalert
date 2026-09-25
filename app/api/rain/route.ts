@@ -36,6 +36,13 @@ export async function GET(request: NextRequest) {
       observation,
       forecast,
     );
+    const diagnostic = interpretationEnabled ? null : {
+      interpretationState: interpretation.state,
+      currentStatus: observation[0]?.status ?? "MISSING",
+      observationFrames: observation.length,
+      forecastFrames: forecast.length,
+      expectedForecastFrames: forecastSeries.expectedFrames,
+    };
 
     return NextResponse.json({
       source: "JMA high-resolution precipitation nowcast public imagery",
@@ -48,6 +55,7 @@ export async function GET(request: NextRequest) {
       event: interpretationEnabled ? toRainSemanticEvent(interpretation, now, observation[0]?.validTime ?? null) : null,
       message: interpretationEnabled ? formatRainMessage(interpretation, now) : null,
       interpretationEnabled,
+      diagnostic,
       note: interpretationEnabled
         ? "Interpretation uses only usable frames and currently verified JMA PNG colors."
         : "Interpretation withheld: palette, coverage, fetch, or forecast completeness is not yet sufficient for a safe user-facing claim.",
