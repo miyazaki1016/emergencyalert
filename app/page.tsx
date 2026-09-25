@@ -272,6 +272,27 @@ export default function Home() {
     try {
       const session = await ensureAnonymousSession();
       const supabase = getSupabaseBrowserClient();
+
+      const { data: existingTargets, error: existingError } = await supabase
+        .from("watch_targets")
+        .select("id,label,latitude,longitude")
+        .eq("owner_id", session.user.id);
+      if (existingError) throw existingError;
+
+      const duplicate = (existingTargets ?? []).find((target) => {
+        const latitude = Number(target.latitude);
+        const longitude = Number(target.longitude);
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return false;
+        const latMeters = (latitude - place.latitude) * 111_320;
+        const lonMeters = (longitude - place.longitude) * 111_320 * Math.cos(place.latitude * Math.PI / 180);
+        return Math.hypot(latMeters, lonMeters) <= 50;
+      });
+      if (duplicate) {
+        setPlaceStatus(`この場所はすでに「${duplicate.label}」として登録されてるよ。`);
+        await loadSavedTargets();
+        return;
+      }
+
       const { error } = await supabase.from("watch_targets").insert({
         owner_id: session.user.id,
         label,
