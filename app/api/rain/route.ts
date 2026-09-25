@@ -12,15 +12,6 @@ export async function GET(request: NextRequest) {
   const lon = Number(request.nextUrl.searchParams.get("lon"));
 
   if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
-    if (diagnostic) {
-      console.warn("[rain-diagnostic]", JSON.stringify({
-        checkedAt: now.toISOString(),
-        location: { lat, lon },
-        sourceValidAt: observation[0]?.timestamp?.toISOString?.() ?? null,
-        ...diagnostic,
-      }));
-    }
-
     return NextResponse.json({ error: "valid lat and lon are required" }, { status: 400 });
   }
 
@@ -52,6 +43,15 @@ export async function GET(request: NextRequest) {
       forecastFrames: forecast.length,
       expectedForecastFrames: forecastSeries.expectedFrames,
     };
+
+    if (diagnostic) {
+      console.warn("[rain-diagnostic]", JSON.stringify({
+        checkedAt: now.toISOString(),
+        location: { lat, lon },
+        sourceValidAt: observation[0]?.validTime ?? null,
+        ...diagnostic,
+      }));
+    }
 
     return NextResponse.json({
       source: "JMA high-resolution precipitation nowcast public imagery",
