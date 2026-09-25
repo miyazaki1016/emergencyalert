@@ -1,6 +1,6 @@
 # EmergencyAlert 総覧
 
-最終更新: 2026-09-24
+最終更新: 2026-09-25
 
 ## この文書の役割
 
@@ -67,3 +67,12 @@ EmergencyAlert の仕様・実装方針・運用上の決定事項を、次の�
 - 直前: 現行の高解像度降水ナウキャストを使い、5mm/h以上の雨が30分以内なら取り込みを促す通知を行う。
 - 目的は「雨を知らせる」ことではなく「洗濯物を濡らさないために先回りする」こと。
 - 次工程は、翌日予報・数時間先予報に利用できる気象庁データの調査 → 判定ロジック設計 → 実装。既存の30分前通知は維持する。
+
+## 2026-09-25 現在地（main実物確認）
+
+- JMA降水短時間予報の `targetTimes.json` が返す `member` をタイルURLへそのまま引き継ぐ修正は PR #26 で完了。ハードコードしていた `none` を廃止し、`immed` / `none` の両方を回帰テストで固定した。
+- PR #26 は CI #198 Success、Vercel Preview Success、main へのマージ、Production の Vercel Success まで確認済み。したがってこの修正を再実装しない。
+- 通知エピソード判定は、ACTIONABLE→INFO→新ACTIONABLE で再通知できること、UNKNOWN を挟んでも直前の grounded actionable 状態を保持すれば重複通知しないこと、未配信の actionable は再試行対象になることをテストで固定した。
+- `last_notified_at` は「Push候補になった時刻」ではなく「1件以上のPush配信に成功した時刻」を表す。配信成功0件の actionable では進めず、非actionableへ戻ったらクリアする。この判定を `nextLastNotifiedAt` として分離し、回帰テストを追加済み。
+- 現在の main HEAD は `7ce69b1f66df02726aaceb966303cbb4ea1e2014`。古い PR #25 はライブJMA検証用の履歴であり、`member` 修正の実装元として扱わない。
+- 次に進むときは、最新main上の `watch-rain` 実装とテストの整合を確認し、未完部分だけを1個ずつ進める。完了済みのJMA member修正やPush基盤を作り直さない。
