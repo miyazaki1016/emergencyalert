@@ -77,7 +77,7 @@ export async function searchPlaces(query: string): Promise<PlaceSearchResult[]> 
   // retry loops so we stay within the public service usage policy.
   const items = await fetchNominatim(normalized);
 
-  return items.flatMap((item) => {
+  const results = items.flatMap((item) => {
     const latitude = Number(item.lat);
     const longitude = Number(item.lon);
     if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return [];
@@ -89,4 +89,14 @@ export async function searchPlaces(query: string): Promise<PlaceSearchResult[]> 
       longitude,
     }];
   });
+
+  return results.filter((result, index, all) =>
+    all.findIndex((candidate) => {
+      if (candidate.displayAddress === result.displayAddress) return true;
+      const latMeters = (candidate.latitude - result.latitude) * 111_320;
+      const lonMeters = (candidate.longitude - result.longitude) * 111_320
+        * Math.cos(result.latitude * Math.PI / 180);
+      return Math.hypot(latMeters, lonMeters) <= 50;
+    }) === index
+  );
 }
