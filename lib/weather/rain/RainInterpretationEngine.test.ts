@@ -90,3 +90,37 @@ describe("actionable rain boundary", () => {
     expect(interpretation.shouldNotify).toBe(false);
   });
 });
+
+
+describe("dry forecast boundary", () => {
+  it("stays DRY when the first complete forecast frame is only seconds behind now", () => {
+    const boundary = new Date("2026-09-27T09:15:00.000Z");
+    const now = new Date("2026-09-27T09:15:05.000Z");
+    const current = frame(boundary, 0, "NO_RAIN", null);
+    const forecast = Array.from({ length: 12 }, (_, index) =>
+      frame(boundary, index * 5, "NO_RAIN", null),
+    );
+
+    const interpretation = interpretRainSeries({
+      now,
+      current,
+      forecast,
+      expectedForecastFrames: 12,
+    });
+
+    expect(interpretation.state).toBe("DRY");
+    expect(interpretation.shouldNotify).toBe(false);
+  });
+
+  it("still refuses DRY when a complete forecast contains an invalid frame", () => {
+    const boundary = new Date("2026-09-27T09:15:00.000Z");
+    const now = new Date("2026-09-27T09:15:05.000Z");
+    const current = frame(boundary, 0, "NO_RAIN", null);
+    const forecast = Array.from({ length: 12 }, (_, index) =>
+      index === 5 ? invalidFrame(boundary, index * 5) : frame(boundary, index * 5, "NO_RAIN", null),
+    );
+
+    const interpretation = interpretRainSeries({ now, current, forecast, expectedForecastFrames: 12 });
+    expect(interpretation.state).toBe("INSUFFICIENT_DATA");
+  });
+});

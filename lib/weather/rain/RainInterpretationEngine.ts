@@ -108,8 +108,8 @@ export function interpretRainSeries(input: RainSeriesInput): RainInterpretation 
   const complete =
     expectedForecastFrames !== undefined &&
     expectedForecastFrames > 0 &&
-    future.length === expectedForecastFrames &&
-    future.every((f) => !INVALID.has(f.status));
+    forecast.length === expectedForecastFrames &&
+    forecast.every((f) => !INVALID.has(f.status));
 
   if (complete && future.every((f) => f.status === "NO_RAIN")) return empty("DRY");
   return empty("INSUFFICIENT_DATA");
