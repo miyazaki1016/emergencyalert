@@ -23,7 +23,9 @@ type RainSemanticEvent = {
   checkedAt: string;
   sourceValidAt: string | null;
 };
-type NotificationDelivery = { id: number; target_id: string; event_type: string; title: string; body: string; delivered_at: string; };\n\ntype SavedWatchTarget = {
+type NotificationDelivery = { id: number; target_id: string; event_type: string; title: string; body: string; delivered_at: string; };
+
+type SavedWatchTarget = {
   id: string;
   label: string;
   display_address: string | null;
@@ -80,7 +82,8 @@ export default function Home() {
   const [pushStatus, setPushStatus] = useState("");
   const [pushBusy, setPushBusy] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
-  const [testPushBusy, setTestPushBusy] = useState(false);\n  const [latestAlerts, setLatestAlerts] = useState<NotificationDelivery[]>([]);
+  const [testPushBusy, setTestPushBusy] = useState(false);
+  const [latestAlerts, setLatestAlerts] = useState<NotificationDelivery[]>([]);
 
   const enablePush = async () => {
     if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
@@ -167,13 +170,39 @@ export default function Home() {
     }
   };
 
+  const loadLatestAlerts = async () => {
+    try {
+      const supabase = getSupabaseBrowserClient();
+      const session = (await supabase.auth.getSession()).data.session;
+      if (!session) return;
+      const tokyoDate = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+      const start = new Date(`${tokyoDate}T00:00:00+09:00`);
+      const { data, error } = await supabase
+        .from("notification_deliveries")
+        .select("id,target_id,event_type,title,body,delivered_at")
+        .gte("delivered_at", start.toISOString())
+        .order("delivered_at", { ascending: false });
+      if (error) throw error;
+      const seen = new Set<string>();
+      setLatestAlerts(((data ?? []) as NotificationDelivery[]).filter((item) => {
+        if (seen.has(item.target_id)) return false;
+        seen.add(item.target_id);
+        return true;
+      }));
+    } catch {
+      // Alerts are supplemental; keep the rest of the app usable.
+    }
+  };
+
   useEffect(() => {
     void loadSavedTargets();
+    void loadLatestAlerts();
     void restorePushStatus();
   }, []);
 
   const deleteTarget = async (target: SavedWatchTarget) => {
-    if (!window.confirm(`「${target.label}」を削除する？\nこの場所の見張り登録も消えるよ。`)) return;
+    if (!window.confirm(`「${target.label}」を削除する？
+この場所の見張り登録も消えるよ。`)) return;
     setTargetsBusy(true);
     try {
       const supabase = getSupabaseBrowserClient();
@@ -361,7 +390,20 @@ export default function Home() {
     <main style={{ maxWidth: 680, margin: "48px auto", padding: 24, fontFamily: "system-ui", lineHeight: 1.7 }}>
       <p style={{ marginBottom: 4, color: "#666" }}>EmergencyAlert 2026</p>
       <h1 style={{ marginTop: 0, fontSize: 40 }}>アメくる？</h1>
-      <p>{status}</p>\n\n      {latestAlerts.length > 0 && (\n        <section style={{ margin: "28px 0", padding: 20, border: "1px solid #ddd", borderRadius: 16 }}>\n          <h2 style={{ marginTop: 0, marginBottom: 6 }}>今日の最新アラート</h2>\n          <p style={{ marginTop: 0, color: "#666" }}>実際に通知できた内容を、場所ごとに最新1件だけ表示してるよ。</p>\n          {latestAlerts.map((alert) => (\n            <div key={alert.id} style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid #eee" }}>\n              <div style={{ fontWeight: 700 }}>{alert.body}</div>\n              <div style={{ marginTop: 4, fontSize: 13, color: "#666" }}>{new Date(alert.delivered_at).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} に通知</div>\n            </div>\n          ))}\n        </section>\n      )}
+      <p>{status}</p>
+
+      {latestAlerts.length > 0 && (
+        <section style={{ margin: "28px 0", padding: 20, border: "1px solid #ddd", borderRadius: 16 }}>
+          <h2 style={{ marginTop: 0, marginBottom: 6 }}>今日の最新アラート</h2>
+          <p style={{ marginTop: 0, color: "#666" }}>実際に通知できた内容を、場所ごとに最新1件だけ表示してるよ。</p>
+          {latestAlerts.map((alert) => (
+            <div key={alert.id} style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid #eee" }}>
+              <div style={{ fontWeight: 700 }}>{alert.body}</div>
+              <div style={{ marginTop: 4, fontSize: 13, color: "#666" }}>{new Date(alert.delivered_at).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} に通知</div>
+            </div>
+          ))}
+        </section>
+      )}
 
       {data && !data.interpretationEnabled && (
         <section style={{ margin: "28px 0", padding: 24, border: "1px solid #ddd", borderRadius: 16 }}>
