@@ -38,15 +38,18 @@ Deno.serve(async(req:Request)=>{
   const severeMinutes=severeFrame?.validTime?Math.max(0,Math.round((new Date(severeFrame.validTime).getTime()-Date.now())/60000)):null;
   const severeName=severeLevel===3?"猛烈な雨":severeLevel===2?"非常に激しい雨":"激しい雨";
   const severeBody=target.label?`${target.label}：${severeMinutes===0?"まもなく":`約${severeMinutes}分後`}に${severeName}（${severeLevel===3?"80mm/h以上":severeLevel===2?"50〜80mm/h":"30〜50mm/h"}）の予測です。周囲の状況に注意してね`:`${severeMinutes===0?"まもなく":`約${severeMinutes}分後`}に${severeName}の予測です。周囲の状況に注意してね`;
-  const body=severeEscalation?severeBody:rainConfirmed?(target.label?`${target.label}で雨が降ったよ☔️`:"雨が降ったよ☔️"):initialRaining?(target.label?`${target.label}はいま雨が降ってるよ☔️`:"いま雨が降ってるよ☔️"):rainEnding?(target.label?`${target.label}の雨、もうすぐ止みそうだよ🌥️`:"雨、もうすぐ止みそうだよ🌥️"):(rain.event.suggestedAction==="BRING_LAUNDRY_INSIDE"?(target.label?`${target.label}：もうすぐ雨が来そうだよ☔️ 洗濯物を確認してね`:"もうすぐ雨が来そうだよ☔️ 洗濯物を確認してね"):(target.label?`${target.label}：${rain.event.suggestedAction}`:rain.event.suggestedAction));
+  const confirmedAndEnding=rainConfirmed&&rain.event.eventType==="RAIN_ENDING";
+  const body=severeEscalation?severeBody:confirmedAndEnding?(target.label?`${target.label}はいま雨が降ってるよ☔️ でも、もうすぐ止みそう。`:"いま雨が降ってるよ☔️ でも、もうすぐ止みそう。"):rainConfirmed?(target.label?`${target.label}で雨が降ったよ☔️`:"雨が降ったよ☔️"):initialRaining?(target.label?`${target.label}はいま雨が降ってるよ☔️`:"いま雨が降ってるよ☔️"):rainEnding?(target.label?`${target.label}の雨、もうすぐ止みそうだよ🌥️`:"雨、もうすぐ止みそうだよ🌥️"):(rain.event.suggestedAction==="BRING_LAUNDRY_INSIDE"?(target.label?`${target.label}：もうすぐ雨が来そうだよ☔️ 洗濯物を確認してね`:"もうすぐ雨が来そうだよ☔️ 洗濯物を確認してね"):(target.label?`${target.label}：${rain.event.suggestedAction}`:rain.event.suggestedAction));
+  const notificationEventType=severeEscalation?`SEVERE_RAIN_${severeLevel}`:confirmedAndEnding?"RAIN_CONFIRMED_ENDING":rainConfirmed?"RAIN_CONFIRMED":rainEnding?"RAIN_ENDING":rain.event.eventType;
+  const notificationUrgency=severeEscalation?"DISASTER":rain.event.urgency;
   if(shouldNotify){const {data:subscriptions}=await db.from("push_subscriptions").select("id,endpoint,p256dh,auth").eq("owner_id",target.owner_id);
-   const payload=JSON.stringify({title:"EmergencyAlert",body,url:"/",data:{targetId:target.id,eventType:rain.event.eventType}});
+   const payload=JSON.stringify({title:"EmergencyAlert",body,url:"/",data:{targetId:target.id,eventType:notificationEventType}});
    for(const sub of subscriptions??[]){try{await webpush.sendNotification({endpoint:sub.endpoint,keys:{p256dh:sub.p256dh,auth:sub.auth}},payload);delivered++;}catch(err){const statusCode=Number((err as {statusCode?:number})?.statusCode??0);if(statusCode===404||statusCode===410)await db.from("push_subscriptions").delete().eq("id",sub.id);else failed++;}}
   }
   const now=new Date().toISOString();
-  if(delivered>0){await db.from("notification_deliveries").insert({owner_id:target.owner_id,target_id:target.id,event_type:rain.event.eventType,urgency:rain.event.urgency,title:"EmergencyAlert",body,delivered_at:now,delivered_count:delivered});}
+  if(delivered>0){await db.from("notification_deliveries").insert({owner_id:target.owner_id,target_id:target.id,event_type:notificationEventType,urgency:notificationUrgency,title:"EmergencyAlert",body,delivered_at:now,delivered_count:delivered});}
   const notifiedAt=nextLastNotifiedAt({delivered,actionable,previousLastNotifiedAt:previous?.last_notified_at,now});
-  const endingNotified=clearStreak>=3?false:(Boolean(previous?.rain_ending_notified)||(rain.event.eventType==="RAIN_ENDING"&&delivered>0));
+  const endingNotified=clearStreak>=3?false:(Boolean(previous?.rain_ending_notified)||((rainEnding||confirmedAndEnding)&&delivered>0));
   const rainConfirmedNotified=clearStreak>=3?false:(Boolean(previous?.rain_confirmed_notified)||(rainConfirmed&&delivered>0));
   const confirmedWeather=rainStreak>=3?"RAINING":clearStreak>=3?"DRY":(previous?.confirmed_weather??"UNKNOWN");
   const persistedSevere=clearStreak>=3?0:Math.max(previousSevere,severeLevel);
