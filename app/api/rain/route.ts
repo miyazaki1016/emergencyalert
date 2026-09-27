@@ -42,6 +42,13 @@ export async function GET(request: NextRequest) {
       observationFrames: observation.length,
       forecastFrames: forecast.length,
       expectedForecastFrames: forecastSeries.expectedFrames,
+      forecastDetails: forecast.map((frame) => ({
+        baseTime: frame.baseTime,
+        validTime: frame.validTime,
+        status: frame.status,
+        intensityClass: frame.intensityClass,
+        rgba: frame.rgba,
+      })),
     };
 
     if (diagnostic) {
