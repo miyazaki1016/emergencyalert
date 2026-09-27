@@ -23,7 +23,7 @@ type RainSemanticEvent = {
   checkedAt: string;
   sourceValidAt: string | null;
 };
-type SavedWatchTarget = {
+type NotificationDelivery = { id: number; target_id: string; event_type: string; title: string; body: string; delivered_at: string; };\n\ntype SavedWatchTarget = {
   id: string;
   label: string;
   display_address: string | null;
@@ -80,7 +80,7 @@ export default function Home() {
   const [pushStatus, setPushStatus] = useState("");
   const [pushBusy, setPushBusy] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
-  const [testPushBusy, setTestPushBusy] = useState(false);
+  const [testPushBusy, setTestPushBusy] = useState(false);\n  const [latestAlerts, setLatestAlerts] = useState<NotificationDelivery[]>([]);
 
   const enablePush = async () => {
     if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
@@ -361,7 +361,7 @@ export default function Home() {
     <main style={{ maxWidth: 680, margin: "48px auto", padding: 24, fontFamily: "system-ui", lineHeight: 1.7 }}>
       <p style={{ marginBottom: 4, color: "#666" }}>EmergencyAlert 2026</p>
       <h1 style={{ marginTop: 0, fontSize: 40 }}>アメくる？</h1>
-      <p>{status}</p>
+      <p>{status}</p>\n\n      {latestAlerts.length > 0 && (\n        <section style={{ margin: "28px 0", padding: 20, border: "1px solid #ddd", borderRadius: 16 }}>\n          <h2 style={{ marginTop: 0, marginBottom: 6 }}>今日の最新アラート</h2>\n          <p style={{ marginTop: 0, color: "#666" }}>実際に通知できた内容を、場所ごとに最新1件だけ表示してるよ。</p>\n          {latestAlerts.map((alert) => (\n            <div key={alert.id} style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid #eee" }}>\n              <div style={{ fontWeight: 700 }}>{alert.body}</div>\n              <div style={{ marginTop: 4, fontSize: 13, color: "#666" }}>{new Date(alert.delivered_at).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} に通知</div>\n            </div>\n          ))}\n        </section>\n      )}
 
       {data && !data.interpretationEnabled && (
         <section style={{ margin: "28px 0", padding: 24, border: "1px solid #ddd", borderRadius: 16 }}>
