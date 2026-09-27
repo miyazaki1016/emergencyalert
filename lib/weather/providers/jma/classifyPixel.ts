@@ -7,10 +7,10 @@ export interface PixelClassification {
 }
 
 export function classifyRainPixel(rgba: Rgba): PixelClassification {
-  // Transparency alone does not prove valid meteorological coverage.
-  // Until JMA's public PNG alpha/coverage semantics are independently verified,
-  // fail closed instead of turning an unpainted pixel into a no-rain claim.
-  if (rgba.a === 0) return { status: "UNKNOWN_PIXEL", intensityClass: null };
+  // Current JMA hrpns PNG field evidence (2026-09-26/27) shows transparent
+  // pixels at dry locations, including a same-location transition
+  // transparent -> verified rain color -> transparent as rain passed.
+  if (rgba.a === 0) return { status: "NO_RAIN", intensityClass: null };
   const intensityClass = findVerifiedIntensity(rgba);
   if (intensityClass) return { status: "RAIN", intensityClass };
   return { status: "UNKNOWN_PIXEL", intensityClass: null };
