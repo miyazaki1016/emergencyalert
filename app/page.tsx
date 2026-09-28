@@ -86,7 +86,12 @@ export default function Home() {
   const [latestAlerts, setLatestAlerts] = useState<NotificationDelivery[]>([]);
   const [mapPickerOpen, setMapPickerOpen] = useState(false);
   const [mapLatitude, setMapLatitude] = useState("35.00");
-  const [mapLongitude, setMapLongitude] = useState("139.50");\n  const mapLat = Number(mapLatitude);\n  const mapLon = Number(mapLongitude);\n  const mapPreviewUrl = Number.isFinite(mapLat) && Number.isFinite(mapLon)\n    ? "https://www.openstreetmap.org/export/embed.html?bbox=" + (mapLon - 0.35) + "%2C" + (mapLat - 0.25) + "%2C" + (mapLon + 0.35) + "%2C" + (mapLat + 0.25) + "&layer=mapnik&marker=" + mapLat + "%2C" + mapLon\n    : "";
+  const [mapLongitude, setMapLongitude] = useState("139.50");
+  const mapLat = Number(mapLatitude);
+  const mapLon = Number(mapLongitude);
+  const mapPreviewUrl = Number.isFinite(mapLat) && Number.isFinite(mapLon)
+    ? "https://www.openstreetmap.org/export/embed.html?bbox=" + (mapLon - 0.35) + "%2C" + (mapLat - 0.25) + "%2C" + (mapLon + 0.35) + "%2C" + (mapLat + 0.25) + "&layer=mapnik&marker=" + mapLat + "%2C" + mapLon
+    : "";
 
   const enablePush = async () => {
     if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
@@ -507,7 +512,9 @@ export default function Home() {
           <div style={{ marginTop: 14, padding: 16, border: "1px solid rgba(255,255,255,.10)", borderRadius: 16, background: "rgba(31,65,99,.76)" }}>
             <div style={{ fontWeight: 700 }}>地図の座標を指定</div>
             <p style={{ marginTop: 4, color: "#eef5ff", fontSize: 14 }}>海上や山など、住所がない場所も緯度・経度で見張れるよ。</p>
-            {mapPreviewUrl && <iframe title="指定地点の地図" src={mapPreviewUrl} loading="lazy" style={{ width: "100%", height: 280, border: 0, borderRadius: 14, marginBottom: 12, background: "#294f77" }} />}\n            <p style={{ marginTop: 0, color: "#eef5ff", fontSize: 13 }}>緯度・経度を変えると、地図上のピンも移動するよ。</p>\n            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {mapPreviewUrl && <iframe title="指定地点の地図" src={mapPreviewUrl} loading="lazy" style={{ width: "100%", height: 280, border: 0, borderRadius: 14, marginBottom: 12, background: "#294f77" }} />}
+            <p style={{ marginTop: 0, color: "#eef5ff", fontSize: 13 }}>緯度・経度を変えると、地図上のピンも移動するよ。</p>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <input value={mapLatitude} onChange={(e) => setMapLatitude(e.target.value)} inputMode="decimal" aria-label="緯度" placeholder="緯度" style={{ flex: "1 1 140px", minWidth: 0, padding: "11px 12px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#294f77", color: "#eaf2ff" }} />
               <input value={mapLongitude} onChange={(e) => setMapLongitude(e.target.value)} inputMode="decimal" aria-label="経度" placeholder="経度" style={{ flex: "1 1 140px", minWidth: 0, padding: "11px 12px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#294f77", color: "#eaf2ff" }} />
               <button onClick={() => void previewMapPoint()} disabled={placeBusy} style={{ padding: "11px 14px", borderRadius: 12, border: 0, background: "#5eb9ff", color: "#07111f", fontWeight: 800 }}>この地点を選ぶ</button>
