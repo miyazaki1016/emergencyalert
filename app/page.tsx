@@ -85,8 +85,8 @@ export default function Home() {
   const [testPushBusy, setTestPushBusy] = useState(false);
   const [latestAlerts, setLatestAlerts] = useState<NotificationDelivery[]>([]);
   const [mapPickerOpen, setMapPickerOpen] = useState(false);
-  const [mapLatitude, setMapLatitude] = useState("35.00");
-  const [mapLongitude, setMapLongitude] = useState("139.50");
+  const [mapLatitude, setMapLatitude] = useState("35.681236");
+  const [mapLongitude, setMapLongitude] = useState("139.767125");
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<any>(null);
 
@@ -98,7 +98,7 @@ export default function Home() {
       const L = await import("leaflet");
       if (cancelled || !mapContainerRef.current) return;
 
-      const map = L.map(mapContainerRef.current, { center: [35.0, 139.5], zoom: 14 });
+      const map = L.map(mapContainerRef.current, { center: [35.681236, 139.767125], zoom: 14 });
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19,
