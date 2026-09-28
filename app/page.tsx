@@ -104,6 +104,29 @@ export default function Home() {
         maxZoom: 19,
       }).addTo(map);
 
+      try {
+        const response = await fetch("https://www.jma.go.jp/bosai/jmatile/data/nowc/targetTimes_N1.json", { cache: "no-store" });
+        if (response.ok) {
+          const frames = await response.json() as Array<{ basetime?: string; validtime?: string; elements?: string[] }>;
+          const latest = frames
+            .filter((frame) => frame.basetime && frame.validtime && frame.basetime === frame.validtime && frame.elements?.includes("hrpns"))
+            .sort((a, b) => String(b.validtime).localeCompare(String(a.validtime)))[0];
+          if (latest?.basetime && latest.validtime) {
+            L.tileLayer(
+              `https://www.jma.go.jp/bosai/jmatile/data/nowc/${latest.basetime}/none/${latest.validtime}/surf/hrpns/{z}/{x}/{y}.png`,
+              {
+                opacity: 0.58,
+                maxNativeZoom: 10,
+                maxZoom: 19,
+                attribution: "気象庁",
+              },
+            ).addTo(map);
+          }
+        }
+      } catch {
+        // The map remains usable when the optional radar overlay cannot be loaded.
+      }
+
       const syncCenter = () => {
         const center = map.getCenter();
         setMapLatitude(center.lat.toFixed(6));
