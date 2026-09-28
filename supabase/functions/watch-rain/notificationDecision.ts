@@ -5,11 +5,12 @@ export function shouldNotifyForRain(args: {
   currentUrgency: WatchRainUrgency;
   previousUrgency?: WatchRainUrgency | null;
   lastNotifiedAt?: string | null;
+  rainEnding?: boolean;
 }) {
   const actionable = args.currentUrgency === "LIFESTYLE_ACTION";
   const becameActionable = actionable && args.previousUrgency !== "LIFESTYLE_ACTION";
   const retryPending = actionable && !args.lastNotifiedAt;
-  return args.notificationsEnabled && (becameActionable || retryPending);
+  return args.notificationsEnabled && (Boolean(args.rainEnding) || becameActionable || retryPending);
 }
 
 
