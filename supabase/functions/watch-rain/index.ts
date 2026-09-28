@@ -13,10 +13,13 @@ Deno.serve(async(req:Request)=>{
  if(!url||!serviceKey||!vapidPrivateKey)return Response.json({error:"server_config"},{status:500});
  webpush.setVapidDetails("mailto:emergencyalert@example.com",VAPID_PUBLIC_KEY,vapidPrivateKey);
  const db=createClient(url,serviceKey,{auth:{persistSession:false}});
- const {data:targets,error}=await db.from("watch_targets").select("id,owner_id,label,latitude,longitude,notifications_enabled").eq("enabled",true).limit(100);
+ const {data:targets,error}=await db.from("watch_targets").select("id,owner_id,label,display_name,latitude,longitude,notifications_enabled").eq("enabled",true).limit(100);
  if(error)return Response.json({error:"target_query_failed"},{status:500});
+ const labelCounts=new Map<string,number>();
+ for(const target of targets??[]){if(target.label)labelCounts.set(target.label,(labelCounts.get(target.label)??0)+1);}
  const results=[];
  for(const target of targets??[]){try{
+  const notificationLabel=target.label&&(labelCounts.get(target.label)??0)>1&&target.display_name?`${target.label}（${target.display_name}）`:target.label;
   const rainUrl=new URL("https://emergencyalert-gilt.vercel.app/api/rain"); rainUrl.searchParams.set("lat",String(target.latitude)); rainUrl.searchParams.set("lon",String(target.longitude));
   const response=await fetch(rainUrl,{headers:{accept:"application/json"}}); if(!response.ok)throw new Error("rain_unavailable");
   const rain=await response.json() as RainResponse; const checkedAt=rain.checkedAt??new Date().toISOString(); const diagnostic=rain.diagnostic&&typeof rain.diagnostic==="object"?{...(rain.diagnostic as Record<string,unknown>),forecastDetails:rain.forecast?.map(frame=>({baseTime:frame.baseTime??null,validTime:frame.validTime??null,status:frame.status??null,intensityClass:frame.intensityClass??null,rgba:frame.rgba??null}))??[]}:rain.diagnostic??null;
@@ -37,10 +40,10 @@ Deno.serve(async(req:Request)=>{
   let delivered=0,failed=0;
   const severeMinutes=severeFrame?.validTime?Math.max(0,Math.round((new Date(severeFrame.validTime).getTime()-Date.now())/60000)):null;
   const severeName=severeLevel===3?"猛烈な雨":severeLevel===2?"非常に激しい雨":"激しい雨";
-  const severeBody=target.label?`${target.label}：${severeMinutes===0?"まもなく":`約${severeMinutes}分後`}に${severeName}（${severeLevel===3?"80mm/h以上":severeLevel===2?"50〜80mm/h":"30〜50mm/h"}）の予測です。周囲の状況に注意してね`:`${severeMinutes===0?"まもなく":`約${severeMinutes}分後`}に${severeName}の予測です。周囲の状況に注意してね`;
+  const severeBody=notificationLabel?`${notificationLabel}：${severeMinutes===0?"まもなく":`約${severeMinutes}分後`}に${severeName}（${severeLevel===3?"80mm/h以上":severeLevel===2?"50〜80mm/h":"30〜50mm/h"}）の予測です。周囲の状況に注意してね`:`${severeMinutes===0?"まもなく":`約${severeMinutes}分後`}に${severeName}の予測です。周囲の状況に注意してね`;
   const confirmedAndEnding=rainConfirmed&&rain.event.eventType==="RAIN_ENDING";
   const returningRain=previous?.confirmed_weather==="RAINING"&&clearStreak>0&&clearStreak<3&&actionable;
-  const body=severeEscalation?severeBody:confirmedAndEnding?(target.label?`${target.label}はいま雨が降ってるよ☔️ でも、もうすぐ止みそう。`:"いま雨が降ってるよ☔️ でも、もうすぐ止みそう。"):rainConfirmed?(target.label?`${target.label}で雨が降ったよ☔️`:"雨が降ったよ☔️"):initialRaining?(target.label?`${target.label}はいま雨が降ってるよ☔️`:"いま雨が降ってるよ☔️"):rainEnding?(target.label?`${target.label}の雨、もうすぐ止みそうだよ🌥️`:"雨、もうすぐ止みそうだよ🌥️"):returningRain?(target.label?`${target.label}：いったん弱まってるけど、また降りそうだよ☔️`:"いったん弱まってるけど、また降りそうだよ☔️"):(rain.event.suggestedAction==="BRING_LAUNDRY_INSIDE"?(target.label?`${target.label}：もうすぐ雨が来そうだよ☔️ 洗濯物を確認してね`:"もうすぐ雨が来そうだよ☔️ 洗濯物を確認してね"):(target.label?`${target.label}：${rain.event.suggestedAction}`:rain.event.suggestedAction));
+  const body=severeEscalation?severeBody:confirmedAndEnding?(notificationLabel?`${notificationLabel}はいま雨が降ってるよ☔️ でも、もうすぐ止みそう。`:"いま雨が降ってるよ☔️ でも、もうすぐ止みそう。"):rainConfirmed?(notificationLabel?`${notificationLabel}で雨が降ったよ☔️`:"雨が降ったよ☔️"):initialRaining?(notificationLabel?`${notificationLabel}はいま雨が降ってるよ☔️`:"いま雨が降ってるよ☔️"):rainEnding?(notificationLabel?`${notificationLabel}の雨、もうすぐ止みそうだよ🌥️`:"雨、もうすぐ止みそうだよ🌥️"):returningRain?(notificationLabel?`${notificationLabel}：いったん弱まってるけど、また降りそうだよ☔️`:"いったん弱まってるけど、また降りそうだよ☔️"):(rain.event.suggestedAction==="BRING_LAUNDRY_INSIDE"?(notificationLabel?`${notificationLabel}：もうすぐ雨が来そうだよ☔️ 洗濯物を確認してね`:"もうすぐ雨が来そうだよ☔️ 洗濯物を確認してね"):(notificationLabel?`${notificationLabel}：${rain.event.suggestedAction}`:rain.event.suggestedAction));
   const notificationEventType=severeEscalation?`SEVERE_RAIN_${severeLevel}`:confirmedAndEnding?"RAIN_CONFIRMED_ENDING":rainConfirmed?"RAIN_CONFIRMED":rainEnding?"RAIN_ENDING":returningRain?"RAIN_RETURNING":rain.event.eventType;
   const notificationUrgency=severeEscalation?"DISASTER":rain.event.urgency;
   if(shouldNotify){const {data:subscriptions}=await db.from("push_subscriptions").select("id,endpoint,p256dh,auth").eq("owner_id",target.owner_id);
