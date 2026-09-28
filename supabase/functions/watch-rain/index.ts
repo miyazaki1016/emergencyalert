@@ -35,7 +35,7 @@ Deno.serve(async(req:Request)=>{
   const severeFrame=(rain.forecast??[]).filter(f=>f.validTime&&new Date(f.validTime).getTime()>=Date.now()&&severeRank(f.intensityClass)>0).sort((a,b)=>severeRank(b.intensityClass)-severeRank(a.intensityClass)||new Date(a.validTime!).getTime()-new Date(b.validTime!).getTime())[0];
   const severeLevel=severeRank(severeFrame?.intensityClass); const previousSevere=Number(previous?.severe_rain_level??0); const severeEscalation=severeLevel>previousSevere;
   const initialRaining=false;
-  const rainEnding=rain.event.eventType==="RAIN_ENDING"&&previousEvent?.eventType!=="RAIN_ENDING"&&!previous?.rain_ending_notified;
+  const rainEnding=rain.event.eventType==="RAIN_ENDING"&&previousEvent?.eventType!=="RAIN_ENDING"&&!previous?.rain_ending_notified&&previous?.confirmed_weather==="RAINING";
   const shouldNotify=Boolean(target.notifications_enabled)&&(severeEscalation||shouldNotifyForRain({notificationsEnabled:true,currentUrgency:rain.event.urgency,previousUrgency:previousEvent?.urgency,lastNotifiedAt:previous?.last_notified_at,initialRaining,rainEnding}));
   let delivered=0,failed=0;
   const severeMinutes=severeFrame?.validTime?Math.max(0,Math.round((new Date(severeFrame.validTime).getTime()-Date.now())/60000)):null;
