@@ -112,15 +112,40 @@ export default function Home() {
             .filter((frame) => frame.basetime && frame.validtime && frame.basetime === frame.validtime && frame.elements?.includes("hrpns"))
             .sort((a, b) => String(b.validtime).localeCompare(String(a.validtime)))[0];
           if (latest?.basetime && latest.validtime) {
-            L.tileLayer(
-              `https://www.jma.go.jp/bosai/jmatile/data/nowc/${latest.basetime}/none/${latest.validtime}/surf/hrpns/{z}/{x}/{y}.png`,
-              {
+            const radarUrl = `https://www.jma.go.jp/bosai/jmatile/data/nowc/${latest.basetime}/none/${latest.validtime}/surf/hrpns/{z}/{x}/{y}.png`;
+            let radarLayer: any = null;
+            let radarNativeZoom: number | null = null;
+
+            const syncRadarLayer = () => {
+              const mapZoom = map.getZoom();
+              if (mapZoom < 4) {
+                if (radarLayer) {
+                  map.removeLayer(radarLayer);
+                  radarLayer = null;
+                  radarNativeZoom = null;
+                }
+                return;
+              }
+
+              // JMA's current HRPN tiles are rendered at even native zooms.
+              // On odd map zooms, upscale the preceding even zoom instead of
+              // requesting a non-rendered odd-z tile.
+              const nextNativeZoom = Math.min(10, mapZoom % 2 === 0 ? mapZoom : mapZoom - 1);
+              if (radarLayer && radarNativeZoom === nextNativeZoom) return;
+
+              if (radarLayer) map.removeLayer(radarLayer);
+              radarLayer = L.tileLayer(radarUrl, {
                 opacity: 0.58,
-                maxNativeZoom: 10,
+                minNativeZoom: 4,
+                maxNativeZoom: nextNativeZoom,
                 maxZoom: 19,
                 attribution: "気象庁",
-              },
-            ).addTo(map);
+              }).addTo(map);
+              radarNativeZoom = nextNativeZoom;
+            };
+
+            map.on("zoomend", syncRadarLayer);
+            syncRadarLayer();
           }
         }
       } catch {
