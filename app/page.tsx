@@ -104,6 +104,54 @@ export default function Home() {
         maxZoom: 19,
       }).addTo(map);
 
+      try {
+        const response = await fetch("https://www.jma.go.jp/bosai/jmatile/data/nowc/targetTimes_N1.json", { cache: "no-store" });
+        if (response.ok) {
+          const frames = await response.json() as Array<{ basetime?: string; validtime?: string; elements?: string[] }>;
+          const latest = frames
+            .filter((frame) => frame.basetime && frame.validtime && frame.basetime === frame.validtime && frame.elements?.includes("hrpns"))
+            .sort((a, b) => String(b.validtime).localeCompare(String(a.validtime)))[0];
+          if (latest?.basetime && latest.validtime) {
+            const radarUrl = `https://www.jma.go.jp/bosai/jmatile/data/nowc/${latest.basetime}/none/${latest.validtime}/surf/hrpns/{z}/{x}/{y}.png`;
+            let radarLayer: any = null;
+            let radarNativeZoom: number | null = null;
+
+            const syncRadarLayer = () => {
+              const mapZoom = map.getZoom();
+              if (mapZoom < 4) {
+                if (radarLayer) {
+                  map.removeLayer(radarLayer);
+                  radarLayer = null;
+                  radarNativeZoom = null;
+                }
+                return;
+              }
+
+              // JMA's current HRPN tiles are rendered at even native zooms.
+              // On odd map zooms, upscale the preceding even zoom instead of
+              // requesting a non-rendered odd-z tile.
+              const nextNativeZoom = Math.min(10, mapZoom % 2 === 0 ? mapZoom : mapZoom - 1);
+              if (radarLayer && radarNativeZoom === nextNativeZoom) return;
+
+              if (radarLayer) map.removeLayer(radarLayer);
+              radarLayer = L.tileLayer(radarUrl, {
+                opacity: 0.58,
+                minNativeZoom: 4,
+                maxNativeZoom: nextNativeZoom,
+                maxZoom: 19,
+                attribution: "気象庁",
+              }).addTo(map);
+              radarNativeZoom = nextNativeZoom;
+            };
+
+            map.on("zoomend", syncRadarLayer);
+            syncRadarLayer();
+          }
+        }
+      } catch {
+        // The map remains usable when the optional radar overlay cannot be loaded.
+      }
+
       const syncCenter = () => {
         const center = map.getCenter();
         setMapLatitude(center.lat.toFixed(6));
