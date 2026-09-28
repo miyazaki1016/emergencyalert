@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "../lib/supabase/browser";
 
 type RainMessage = { headline: string; detail: string };
@@ -85,8 +85,44 @@ export default function Home() {
   const [testPushBusy, setTestPushBusy] = useState(false);
   const [latestAlerts, setLatestAlerts] = useState<NotificationDelivery[]>([]);
   const [mapPickerOpen, setMapPickerOpen] = useState(false);
-  const [mapLatitude, setMapLatitude] = useState("35.00");
-  const [mapLongitude, setMapLongitude] = useState("139.50");
+  const [mapLatitude, setMapLatitude] = useState("35.681236");
+  const [mapLongitude, setMapLongitude] = useState("139.767125");
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapInstanceRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (!mapPickerOpen || !mapContainerRef.current || mapInstanceRef.current) return;
+
+    let cancelled = false;
+    const setupMap = async () => {
+      const L = await import("leaflet");
+      if (cancelled || !mapContainerRef.current) return;
+
+      const map = L.map(mapContainerRef.current, { center: [35.681236, 139.767125], zoom: 14 });
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+      }).addTo(map);
+
+      const syncCenter = () => {
+        const center = map.getCenter();
+        setMapLatitude(center.lat.toFixed(6));
+        setMapLongitude(center.lng.toFixed(6));
+      };
+      map.on("moveend", syncCenter);
+      syncCenter();
+      mapInstanceRef.current = map;
+    };
+    void setupMap();
+
+    return () => {
+      cancelled = true;
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [mapPickerOpen]);
 
   const enablePush = async () => {
     if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
@@ -218,7 +254,8 @@ export default function Home() {
   }, []);
 
   const deleteTarget = async (target: SavedWatchTarget) => {
-    if (!window.confirm(`「${target.label}」を削除する？\\nこの場所の見張り登録も消えるよ。`)) return;
+    if (!window.confirm(`「${target.label}」を削除する？
+この場所の見張り登録も消えるよ。`)) return;
     setTargetsBusy(true);
     try {
       const supabase = getSupabaseBrowserClient();
@@ -506,9 +543,13 @@ export default function Home() {
           <div style={{ marginTop: 14, padding: 16, border: "1px solid rgba(255,255,255,.10)", borderRadius: 16, background: "rgba(31,65,99,.76)" }}>
             <div style={{ fontWeight: 700 }}>地図の座標を指定</div>
             <p style={{ marginTop: 4, color: "#eef5ff", fontSize: 14 }}>海上や山など、住所がない場所も緯度・経度で見張れるよ。</p>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <input value={mapLatitude} onChange={(e) => setMapLatitude(e.target.value)} inputMode="decimal" aria-label="緯度" placeholder="緯度" style={{ flex: "1 1 140px", minWidth: 0, padding: "11px 12px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#294f77", color: "#eaf2ff" }} />
-              <input value={mapLongitude} onChange={(e) => setMapLongitude(e.target.value)} inputMode="decimal" aria-label="経度" placeholder="経度" style={{ flex: "1 1 140px", minWidth: 0, padding: "11px 12px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#294f77", color: "#eaf2ff" }} />
+            <div style={{ position: "relative", marginBottom: 12 }}>
+              <div ref={mapContainerRef} aria-label="地点を選ぶ地図" style={{ width: "100%", height: 320, borderRadius: 14, overflow: "hidden", background: "#294f77" }} />
+              <div aria-hidden="true" style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -100%)", zIndex: 500, fontSize: 38, lineHeight: 1, pointerEvents: "none", filter: "drop-shadow(0 2px 2px rgba(0,0,0,.45))" }}>📍</div>
+            </div>
+            <p style={{ marginTop: 0, color: "#eef5ff", fontSize: 13 }}>地図を動かして、中央のピンを見張りたい場所に合わせてね。</p>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+              <div style={{ flex: "1 1 210px", fontSize: 13, color: "#eef5ff" }}>緯度 {mapLatitude} / 経度 {mapLongitude}</div>
               <button onClick={() => void previewMapPoint()} disabled={placeBusy} style={{ padding: "11px 14px", borderRadius: 12, border: 0, background: "#5eb9ff", color: "#07111f", fontWeight: 800 }}>この地点を選ぶ</button>
             </div>
           </div>

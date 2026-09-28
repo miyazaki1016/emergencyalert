@@ -1,3 +1,4 @@
+import "leaflet/dist/leaflet.css";
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { PwaRegister } from "./pwa-register";
