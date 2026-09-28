@@ -218,7 +218,8 @@ export default function Home() {
   }, []);
 
   const deleteTarget = async (target: SavedWatchTarget) => {
-    if (!window.confirm(`「${target.label}」を削除する？\\nこの場所の見張り登録も消えるよ。`)) return;
+    if (!window.confirm(`「${target.label}」を削除する？
+この場所の見張り登録も消えるよ。`)) return;
     setTargetsBusy(true);
     try {
       const supabase = getSupabaseBrowserClient();
