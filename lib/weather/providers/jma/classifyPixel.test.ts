@@ -17,8 +17,10 @@ describe("classifyRainPixel", () => {
       status: "RAIN", intensityClass: "30_TO_50",
     });
   });
-  it("withdraws yellow when current SVG and PNG evidence disagree", () => {
-    expect(classifyRainPixel({ r: 250, g: 245, b: 0, a: 255 }).status).toBe("UNKNOWN_PIXEL");
+  it("recognises verified JMA PNG yellow as 20_TO_30", () => {
+    expect(classifyRainPixel({ r: 250, g: 245, b: 0, a: 255 })).toEqual({
+      status: "RAIN", intensityClass: "20_TO_30",
+    });
   });
   it("never turns an unknown opaque pixel into dry", () => {
     expect(classifyRainPixel({ r: 1, g: 2, b: 3, a: 255 }).status).toBe("UNKNOWN_PIXEL");
