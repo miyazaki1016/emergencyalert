@@ -24,3 +24,13 @@ export function nextLastNotifiedAt(args: {
   if (args.actionable) return args.previousLastNotifiedAt ?? null;
   return null;
 }
+
+export function nextRainEndingNotified(args: {
+  previousRainEndingNotified: boolean;
+  rainStreak: number;
+  endingDelivered: boolean;
+}) {
+  if (args.endingDelivered) return true;
+  if (args.rainStreak >= 3) return false;
+  return args.previousRainEndingNotified;
+}
