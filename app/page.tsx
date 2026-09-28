@@ -387,34 +387,34 @@ export default function Home() {
 
   return (
     <main style={{ maxWidth: 680, margin: "0 auto", minHeight: "100vh", padding: "36px 20px 72px", fontFamily: "system-ui", lineHeight: 1.7, color: "#eaf2ff" }}>
-      <p style={{ marginBottom: 4, color: "#91a4bf", fontSize: 13, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase" }}>EmergencyAlert 2026</p>
+      <p style={{ marginBottom: 4, color: "#b1c3da", fontSize: 13, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase" }}>EmergencyAlert 2026</p>
       <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: "clamp(42px, 12vw, 64px)", lineHeight: 1.05, letterSpacing: "-0.05em" }}>アメくる？</h1>
-      <p style={{ marginTop: 0, color: "#c4d3e7", fontSize: 18 }}>{status}</p>
+      <p style={{ marginTop: 0, color: "#d3e1f1", fontSize: 18 }}>{status}</p>
 
       <button onClick={check} disabled={busy} style={{ width: "100%", padding: "15px 20px", fontSize: 16, cursor: busy ? "default" : "pointer", border: 0, borderRadius: 14, background: "linear-gradient(135deg,#5eb9ff,#6d7cff)", color: "white", fontWeight: 800, boxShadow: "0 12px 30px rgba(56,130,246,.25)" }}>
         {busy ? "確認中…" : data ? "最新情報に更新" : "この場所の雨を確認"}
       </button>
 
       {latestAlerts.length > 0 && (
-        <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.10)", borderRadius: 20, background: "rgba(15,29,50,.78)", boxShadow: "0 18px 50px rgba(0,0,0,.20)", backdropFilter: "blur(18px)" }}>
+        <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.10)", borderRadius: 20, background: "rgba(25,48,78,.76)", boxShadow: "0 18px 50px rgba(0,0,0,.20)", backdropFilter: "blur(18px)" }}>
           <h2 style={{ marginTop: 0, marginBottom: 6 }}>今日の最新アラート</h2>
-          <p style={{ marginTop: 0, color: "#91a4bf" }}>実際に通知できた内容を、場所ごとに最新1件だけ表示してるよ。</p>
+          <p style={{ marginTop: 0, color: "#b1c3da" }}>実際に通知できた内容を、場所ごとに最新1件だけ表示してるよ。</p>
           {latestAlerts.map((alert) => (
             <div key={alert.id} style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.08)" }}>
               <div style={{ fontWeight: 700 }}>{alert.body}</div>
-              <div style={{ marginTop: 4, fontSize: 13, color: "#91a4bf" }}>{new Date(alert.delivered_at).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} に通知</div>
+              <div style={{ marginTop: 4, fontSize: 13, color: "#b1c3da" }}>{new Date(alert.delivered_at).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} に通知</div>
             </div>
           ))}
         </section>
       )}
 
       {data && !data.interpretationEnabled && (
-        <section style={{ margin: "28px 0", padding: 24, border: "1px solid rgba(255,255,255,.10)", borderRadius: 20, background: "rgba(15,29,50,.78)", boxShadow: "0 18px 50px rgba(0,0,0,.20)", backdropFilter: "blur(18px)" }}>
+        <section style={{ margin: "28px 0", padding: 24, border: "1px solid rgba(255,255,255,.10)", borderRadius: 20, background: "rgba(25,48,78,.76)", boxShadow: "0 18px 50px rgba(0,0,0,.20)", backdropFilter: "blur(18px)" }}>
           <div style={{ fontSize: 22, fontWeight: 700 }}>いまは、はっきり言えないよ。</div>
           <div style={{ marginTop: 10, fontSize: 18 }}>雨が降らないって意味じゃないよ。</div>
-          <div style={{ marginTop: 10, fontSize: 14, color: "#91a4bf" }}>気象庁の雨情報は確認できたけど、この場所を安全に判定できる材料が足りなかったよ。</div>
+          <div style={{ marginTop: 10, fontSize: 14, color: "#b1c3da" }}>気象庁の雨情報は確認できたけど、この場所を安全に判定できる材料が足りなかったよ。</div>
           {lastCheckedAt && (
-            <div style={{ marginTop: 18, fontSize: 13, color: "#91a4bf" }}>
+            <div style={{ marginTop: 18, fontSize: 13, color: "#b1c3da" }}>
               {lastCheckedAt.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} 時点
               {locationAccuracy !== null && ` ・ 現在地 ±${Math.round(locationAccuracy)}m`}
               {sourceTimeLabel ? ` ・ 気象庁データ ${sourceTimeLabel}` : " ・ 気象庁"}
@@ -424,14 +424,14 @@ export default function Home() {
       )}
 
       {data?.message && data.interpretation && (
-        <section style={{ margin: "28px 0", padding: 24, border: "1px solid rgba(255,255,255,.10)", borderRadius: 20, background: "rgba(15,29,50,.78)", boxShadow: "0 18px 50px rgba(0,0,0,.20)", backdropFilter: "blur(18px)" }}>
+        <section style={{ margin: "28px 0", padding: 24, border: "1px solid rgba(255,255,255,.10)", borderRadius: 20, background: "rgba(25,48,78,.76)", boxShadow: "0 18px 50px rgba(0,0,0,.20)", backdropFilter: "blur(18px)" }}>
           <div style={{ fontSize: "clamp(28px, 7vw, 44px)", fontWeight: 800, lineHeight: 1.2, marginBottom: 16 }}>
             {stateLabel(data.interpretation.state)}
           </div>
           <div style={{ fontSize: 22, fontWeight: 700 }}>{data.message.headline}</div>
           <div style={{ marginTop: 10, fontSize: 18 }}>{data.message.detail}</div>
           {lastCheckedAt && (
-            <div style={{ marginTop: 18, fontSize: 13, color: "#91a4bf" }}>
+            <div style={{ marginTop: 18, fontSize: 13, color: "#b1c3da" }}>
               {lastCheckedAt.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} 時点
               {locationAccuracy !== null && ` ・ 現在地 ±${Math.round(locationAccuracy)}m`}
               {sourceTimeLabel ? ` ・ 気象庁データ ${sourceTimeLabel}` : " ・ 気象庁"}
@@ -442,31 +442,31 @@ export default function Home() {
 
       <section style={{ marginTop: 40, paddingTop: 28, borderTop: "1px solid rgba(255,255,255,.10)" }}>
         <h2 style={{ marginBottom: 6 }}>通知</h2>
-        <p style={{ marginTop: 0, color: "#91a4bf" }}>見張っている場所で、今ならひと言かける意味がある変化があったときだけ知らせるよ。</p>
-        <button onClick={() => void enablePush()} disabled={pushBusy} style={{ padding: "12px 16px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#162943", color: "#eaf2ff", fontWeight: 700 }}>
+        <p style={{ marginTop: 0, color: "#b1c3da" }}>見張っている場所で、今ならひと言かける意味がある変化があったときだけ知らせるよ。</p>
+        <button onClick={() => void enablePush()} disabled={pushBusy} style={{ padding: "12px 16px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#24456d", color: "#eaf2ff", fontWeight: 700 }}>
           {pushBusy ? "設定中…" : pushEnabled ? "✓ 通知ON" : "通知を受け取る"}
         </button>
-        {pushStatus && <p style={{ color: "#91a4bf" }}>{pushStatus}</p>}
+        {pushStatus && <p style={{ color: "#b1c3da" }}>{pushStatus}</p>}
       </section>
 
       <section style={{ marginTop: 40, paddingTop: 28, borderTop: "1px solid rgba(255,255,255,.10)" }}>
         <h2 style={{ marginBottom: 6 }}>見張る場所を登録</h2>
-        <p style={{ marginTop: 0, color: "#91a4bf" }}>自宅や実家など、雨を見張ってほしい場所を選んでね。</p>
-        <button onClick={previewCurrentPlace} disabled={placeBusy} style={{ padding: "12px 16px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#162943", color: "#eaf2ff", fontWeight: 700 }}>
+        <p style={{ marginTop: 0, color: "#b1c3da" }}>自宅や実家など、雨を見張ってほしい場所を選んでね。</p>
+        <button onClick={previewCurrentPlace} disabled={placeBusy} style={{ padding: "12px 16px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#24456d", color: "#eaf2ff", fontWeight: 700 }}>
           📍 現在地から選ぶ
         </button>
         <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
           <input value={placeQuery} onChange={(e) => setPlaceQuery(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") void searchPlace(); }}
             placeholder="住所・駅・学校・施設名など" aria-label="見張る場所を検索"
-            style={{ flex: 1, minWidth: 0, padding: "12px 14px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#0e1d31", color: "#eaf2ff", outline: "none" }} />
-          <button onClick={() => void searchPlace()} disabled={placeBusy} style={{ padding: "12px 16px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#162943", color: "#eaf2ff", fontWeight: 700 }}>検索</button>
+            style={{ flex: 1, minWidth: 0, padding: "12px 14px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#183556", color: "#eaf2ff", outline: "none" }} />
+          <button onClick={() => void searchPlace()} disabled={placeBusy} style={{ padding: "12px 16px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#24456d", color: "#eaf2ff", fontWeight: 700 }}>検索</button>
         </div>
-        {placeStatus && <p style={{ color: "#91a4bf" }}>{placeStatus}</p>}
+        {placeStatus && <p style={{ color: "#b1c3da" }}>{placeStatus}</p>}
         {placeResults.map((place) => (
-          <div key={place.id} style={{ marginTop: 12, padding: 16, border: "1px solid rgba(255,255,255,.10)", borderRadius: 16, background: "rgba(15,29,50,.70)" }}>
+          <div key={place.id} style={{ marginTop: 12, padding: 16, border: "1px solid rgba(255,255,255,.10)", borderRadius: 16, background: "rgba(25,48,78,.68)" }}>
             <div style={{ fontWeight: 700 }}>{place.displayName}</div>
-            <div style={{ marginTop: 4, fontSize: 14, color: "#91a4bf" }}>{place.displayAddress}</div>
+            <div style={{ marginTop: 4, fontSize: 14, color: "#b1c3da" }}>{place.displayAddress}</div>
             <label style={{ display: "block", marginTop: 14, fontSize: 14, fontWeight: 700 }} htmlFor={`place-label-${place.id}`}>
               この場所の名前
             </label>
@@ -476,7 +476,7 @@ export default function Home() {
               onChange={(e) => setPlaceLabels((labels) => ({ ...labels, [place.id]: e.target.value }))}
               placeholder="例：自宅・実家・学校・職場"
               maxLength={30}
-              style={{ width: "100%", boxSizing: "border-box", marginTop: 6, padding: "11px 12px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#0e1d31", color: "#eaf2ff" }}
+              style={{ width: "100%", boxSizing: "border-box", marginTop: 6, padding: "11px 12px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#183556", color: "#eaf2ff" }}
             />
             <button onClick={() => void savePlace(place)} disabled={savingPlaceId !== null} style={{ marginTop: 10, padding: "9px 12px", borderRadius: 10, border: 0, background: "#5eb9ff", color: "#07111f", fontWeight: 800 }}>{savingPlaceId === place.id ? "登録中…" : "この場所を見張る"}</button>
           </div>
@@ -486,23 +486,23 @@ export default function Home() {
       {savedTargets.length > 0 && (
         <section style={{ marginTop: 32 }}>
           <h2 style={{ marginBottom: 6 }}>見張っている場所</h2>
-          <p style={{ marginTop: 0, color: "#91a4bf" }}>場所ごとに、見張る・休むを切り替えられるよ。</p>
+          <p style={{ marginTop: 0, color: "#b1c3da" }}>場所ごとに、見張る・休むを切り替えられるよ。</p>
           {savedTargets.map((target) => (
-            <div key={target.id} style={{ marginTop: 10, padding: 16, border: "1px solid rgba(255,255,255,.10)", borderRadius: 16, background: "rgba(15,29,50,.70)" }}>
+            <div key={target.id} style={{ marginTop: 10, padding: 16, border: "1px solid rgba(255,255,255,.10)", borderRadius: 16, background: "rgba(25,48,78,.68)" }}>
               <div style={{ fontWeight: 700 }}>{target.label}</div>
-              {target.display_address && <div style={{ marginTop: 4, fontSize: 13, color: "#91a4bf" }}>{target.display_address}</div>}
+              {target.display_address && <div style={{ marginTop: 4, fontSize: 13, color: "#b1c3da" }}>{target.display_address}</div>}
               <button
                 onClick={() => void toggleTarget(target)}
                 disabled={targetsBusy}
                 aria-pressed={target.enabled}
-                style={{ marginTop: 10, padding: "9px 12px", background: target.enabled ? "#b7f34a" : "#26364b", color: target.enabled ? "#07110a" : "#b8c7db", border: "1px solid rgba(255,255,255,.12)", borderRadius: 999, fontWeight: 700 }}
+                style={{ marginTop: 10, padding: "9px 12px", background: target.enabled ? "#b7f34a" : "#36516f", color: target.enabled ? "#07110a" : "#d0dceb", border: "1px solid rgba(255,255,255,.12)", borderRadius: 999, fontWeight: 700 }}
               >
                 {target.enabled ? "見張る：ON" : "見張る：OFF"}
               </button>
               <button
                 onClick={() => void deleteTarget(target)}
                 disabled={targetsBusy}
-                style={{ marginTop: 10, marginLeft: 8, padding: "9px 12px", borderRadius: 10, border: "1px solid rgba(255,255,255,.14)", background: "transparent", color: "#b8c7db" }}
+                style={{ marginTop: 10, marginLeft: 8, padding: "9px 12px", borderRadius: 10, border: "1px solid rgba(255,255,255,.14)", background: "transparent", color: "#d0dceb" }}
               >
                 削除
               </button>
