@@ -14,13 +14,13 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: "#07111f",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ja">
-      <body style={{ margin: 0 }}>
+      <body style={{ margin: 0, background: "radial-gradient(circle at top, #18365d 0, #0b1b30 34%, #07111f 72%)", minHeight: "100vh" }}>
         <PwaRegister />
         {children}
       </body>
