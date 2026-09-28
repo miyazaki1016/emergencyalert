@@ -116,8 +116,7 @@ export default function Home() {
               `https://www.jma.go.jp/bosai/jmatile/data/nowc/${latest.basetime}/none/${latest.validtime}/surf/hrpns/{z}/{x}/{y}.png`,
               {
                 opacity: 0.58,
-                minNativeZoom: 4,
-                maxNativeZoom: 14,
+                maxNativeZoom: 10,
                 maxZoom: 19,
                 attribution: "気象庁",
               },
