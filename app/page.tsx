@@ -391,6 +391,10 @@ export default function Home() {
       <h1 style={{ marginTop: 0, fontSize: 40 }}>アメくる？</h1>
       <p>{status}</p>
 
+      <button onClick={check} disabled={busy} style={{ padding: "13px 20px", fontSize: 16, cursor: busy ? "default" : "pointer" }}>
+        {busy ? "確認中…" : data ? "最新情報に更新" : "この場所の雨を確認"}
+      </button>
+
       {latestAlerts.length > 0 && (
         <section style={{ margin: "28px 0", padding: 20, border: "1px solid #ddd", borderRadius: 16 }}>
           <h2 style={{ marginTop: 0, marginBottom: 6 }}>今日の最新アラート</h2>
@@ -435,10 +439,6 @@ export default function Home() {
           )}
         </section>
       )}
-
-      <button onClick={check} disabled={busy} style={{ padding: "13px 20px", fontSize: 16, cursor: busy ? "default" : "pointer" }}>
-        {busy ? "確認中…" : data ? "最新情報に更新" : "この場所の雨を確認"}
-      </button>
 
       <section style={{ marginTop: 40, paddingTop: 28, borderTop: "1px solid #ddd" }}>
         <h2 style={{ marginBottom: 6 }}>通知</h2>
