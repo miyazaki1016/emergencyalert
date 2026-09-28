@@ -84,6 +84,9 @@ export default function Home() {
   const [pushEnabled, setPushEnabled] = useState(false);
   const [testPushBusy, setTestPushBusy] = useState(false);
   const [latestAlerts, setLatestAlerts] = useState<NotificationDelivery[]>([]);
+  const [mapPickerOpen, setMapPickerOpen] = useState(false);
+  const [mapLatitude, setMapLatitude] = useState("35.00");
+  const [mapLongitude, setMapLongitude] = useState("139.50");
 
   const enablePush = async () => {
     if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
@@ -296,6 +299,33 @@ export default function Home() {
     }, { enableHighAccuracy: true, timeout: 10000 });
   };
 
+  const previewMapPoint = async () => {
+    const latitude = Number(mapLatitude);
+    const longitude = Number(mapLongitude);
+    if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90 || !Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
+      setPlaceStatus("緯度・経度を確認してね。");
+      return;
+    }
+    setPlaceBusy(true);
+    setPlaceStatus("指定した地点を確認中…");
+    try {
+      const res = await fetch(`/api/places/reverse?lat=${latitude}&lon=${longitude}`, { cache: "no-store" });
+      const json = res.ok ? await res.json() as { result: { displayName: string | null; displayAddress: string } | null } : { result: null };
+      setPlaceResults([{
+        id: `map-${latitude.toFixed(6)}-${longitude.toFixed(6)}`,
+        displayName: json.result?.displayName || "地図指定地点",
+        displayAddress: json.result?.displayAddress || `緯度 ${latitude.toFixed(5)} / 経度 ${longitude.toFixed(5)}`,
+        latitude, longitude,
+      }]);
+      setPlaceStatus(json.result ? "この場所で合ってる？" : "住所のない場所でも、この座標を見張れるよ。");
+    } catch {
+      setPlaceResults([{ id: `map-${latitude.toFixed(6)}-${longitude.toFixed(6)}`, displayName: "地図指定地点", displayAddress: `緯度 ${latitude.toFixed(5)} / 経度 ${longitude.toFixed(5)}`, latitude, longitude }]);
+      setPlaceStatus("住所のない場所でも、この座標を見張れるよ。");
+    } finally {
+      setPlaceBusy(false);
+    }
+  };
+
   const ensureAnonymousSession = async () => {
     const supabase = getSupabaseBrowserClient();
     const current = await supabase.auth.getSession();
@@ -342,7 +372,7 @@ export default function Home() {
         longitude: place.longitude,
         display_name: place.displayName,
         display_address: place.displayAddress,
-        location_source: place.id === "current-location" ? "CURRENT_LOCATION" : "SEARCH",
+        location_source: place.id === "current-location" ? "CURRENT_LOCATION" : place.id.startsWith("map-") ? "MAP" : "SEARCH",
         enabled: true,
         notifications_enabled: true,
       });
@@ -469,6 +499,20 @@ export default function Home() {
         <button onClick={previewCurrentPlace} disabled={placeBusy} style={{ padding: "12px 16px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#37628d", color: "#eaf2ff", fontWeight: 700 }}>
           📍 現在地から選ぶ
         </button>
+        <button onClick={() => setMapPickerOpen((open) => !open)} disabled={placeBusy} style={{ marginLeft: 8, padding: "12px 16px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#37628d", color: "#eaf2ff", fontWeight: 700 }}>
+          🗺️ 地図から選ぶ
+        </button>
+        {mapPickerOpen && (
+          <div style={{ marginTop: 14, padding: 16, border: "1px solid rgba(255,255,255,.10)", borderRadius: 16, background: "rgba(31,65,99,.76)" }}>
+            <div style={{ fontWeight: 700 }}>地図の座標を指定</div>
+            <p style={{ marginTop: 4, color: "#eef5ff", fontSize: 14 }}>海上や山など、住所がない場所も緯度・経度で見張れるよ。</p>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <input value={mapLatitude} onChange={(e) => setMapLatitude(e.target.value)} inputMode="decimal" aria-label="緯度" placeholder="緯度" style={{ flex: "1 1 140px", minWidth: 0, padding: "11px 12px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#294f77", color: "#eaf2ff" }} />
+              <input value={mapLongitude} onChange={(e) => setMapLongitude(e.target.value)} inputMode="decimal" aria-label="経度" placeholder="経度" style={{ flex: "1 1 140px", minWidth: 0, padding: "11px 12px", fontSize: 16, borderRadius: 12, border: "1px solid rgba(255,255,255,.14)", background: "#294f77", color: "#eaf2ff" }} />
+              <button onClick={() => void previewMapPoint()} disabled={placeBusy} style={{ padding: "11px 14px", borderRadius: 12, border: 0, background: "#5eb9ff", color: "#07111f", fontWeight: 800 }}>この地点を選ぶ</button>
+            </div>
+          </div>
+        )}
         <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
           <input value={placeQuery} onChange={(e) => setPlaceQuery(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") void searchPlace(); }}
