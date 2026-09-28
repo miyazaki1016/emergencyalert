@@ -199,21 +199,19 @@ export default function Home() {
     void loadLatestAlerts();
     void restorePushStatus();
 
-    const scheduleTokyoMidnightRefresh = () => {
-      const now = new Date();
-      const tokyoNow = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
-      const nextMidnight = new Date(tokyoNow);
-      nextMidnight.setDate(nextMidnight.getDate() + 1);
-      nextMidnight.setHours(0, 0, 1, 0);
-      const delay = nextMidnight.getTime() - tokyoNow.getTime();
-      return window.setTimeout(() => {
-        void loadLatestAlerts();
-        midnightTimer = scheduleTokyoMidnightRefresh();
-      }, delay);
-    };
+    const alertRefreshInterval = window.setInterval(() => {
+      void loadLatestAlerts();
+    }, 5 * 60 * 1000);
 
-    let midnightTimer = scheduleTokyoMidnightRefresh();
-    return () => window.clearTimeout(midnightTimer);
+    const refreshAlertsWhenVisible = () => {
+      if (document.visibilityState === "visible") void loadLatestAlerts();
+    };
+    document.addEventListener("visibilitychange", refreshAlertsWhenVisible);
+
+    return () => {
+      window.clearInterval(alertRefreshInterval);
+      document.removeEventListener("visibilitychange", refreshAlertsWhenVisible);
+    };
   }, []);
 
   const deleteTarget = async (target: SavedWatchTarget) => {
