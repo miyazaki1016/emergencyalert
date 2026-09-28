@@ -1,6 +1,6 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
-import { nextLastNotifiedAt, shouldNotifyForRain } from "./notificationDecision.ts";
+import { nextLastNotifiedAt, nextRainEndingNotified, shouldNotifyForRain } from "./notificationDecision.ts";
 
 type RainEvent = { schemaVersion:1; eventType:string; urgency:"INFO"|"LIFESTYLE_ACTION"; suggestedAction:string; startsAt:string|null; actionableAt:string|null; endingAt:string|null; source:string; checkedAt:string; sourceValidAt:string|null; };
 type Rgba = { r:number; g:number; b:number; a:number };
@@ -36,7 +36,7 @@ Deno.serve(async(req:Request)=>{
   const severeLevel=severeRank(severeFrame?.intensityClass); const previousSevere=Number(previous?.severe_rain_level??0); const severeEscalation=severeLevel>previousSevere;
   const initialRaining=false;
   const rainEnding=rain.event.eventType==="RAIN_ENDING"&&previousEvent?.eventType!=="RAIN_ENDING"&&!previous?.rain_ending_notified&&previous?.confirmed_weather==="RAINING";
-  const shouldNotify=Boolean(target.notifications_enabled)&&(severeEscalation||shouldNotifyForRain({notificationsEnabled:true,currentUrgency:rain.event.urgency,previousUrgency:previousEvent?.urgency,lastNotifiedAt:previous?.last_notified_at,initialRaining,rainEnding}));
+  const shouldNotify=Boolean(target.notifications_enabled)&&(severeEscalation||shouldNotifyForRain({notificationsEnabled:true,currentUrgency:rain.event.urgency,previousUrgency:previousEvent?.urgency,lastNotifiedAt:previous?.last_notified_at,rainEnding:rainEnding||confirmedAndEnding}));
   let delivered=0,failed=0;
   const severeMinutes=severeFrame?.validTime?Math.max(0,Math.round((new Date(severeFrame.validTime).getTime()-Date.now())/60000)):null;
   const severeName=severeLevel===3?"猛烈な雨":severeLevel===2?"非常に激しい雨":"激しい雨";
@@ -53,7 +53,7 @@ Deno.serve(async(req:Request)=>{
   const now=new Date().toISOString();
   if(delivered>0){await db.from("notification_deliveries").insert({owner_id:target.owner_id,target_id:target.id,event_type:notificationEventType,urgency:notificationUrgency,title:"EmergencyAlert",body,delivered_at:now,delivered_count:delivered});}
   const notifiedAt=nextLastNotifiedAt({delivered,actionable,previousLastNotifiedAt:previous?.last_notified_at,now});
-  const endingNotified=clearStreak>=3?false:(Boolean(previous?.rain_ending_notified)||((rainEnding||confirmedAndEnding)&&delivered>0));
+  const endingNotified=nextRainEndingNotified({previousRainEndingNotified:Boolean(previous?.rain_ending_notified),rainStreak,endingDelivered:(rainEnding||confirmedAndEnding)&&delivered>0});
   const rainConfirmedNotified=clearStreak>=3?false:(Boolean(previous?.rain_confirmed_notified)||rainConfirmed);
   const confirmedWeather=rainStreak>=3?"RAINING":clearStreak>=3?"DRY":(previous?.confirmed_weather??"UNKNOWN");
   const persistedSevere=clearStreak>=3?0:Math.max(previousSevere,severeLevel);
