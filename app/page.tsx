@@ -98,7 +98,7 @@ export default function Home() {
       const L = await import("leaflet");
       if (cancelled || !mapContainerRef.current) return;
 
-      const map = L.map(mapContainerRef.current, { center: [35.0, 139.5], zoom: 8 });
+      const map = L.map(mapContainerRef.current, { center: [35.0, 139.5], zoom: 14 });
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19,
