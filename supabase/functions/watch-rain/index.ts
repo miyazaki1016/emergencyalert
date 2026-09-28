@@ -19,7 +19,7 @@ Deno.serve(async(req:Request)=>{
  for(const target of targets??[]){if(target.label)labelCounts.set(target.label,(labelCounts.get(target.label)??0)+1);}
  const results=[];
  for(const target of targets??[]){try{
-  const notificationLabel=target.label&&labelCounts.get(target.label)!>1&&target.display_name?`${notificationLabel}（${target.display_name}）`:target.label;
+  const notificationLabel=target.label&&(labelCounts.get(target.label)??0)>1&&target.display_name?`${target.label}（${target.display_name}）`:target.label;
   const rainUrl=new URL("https://emergencyalert-gilt.vercel.app/api/rain"); rainUrl.searchParams.set("lat",String(target.latitude)); rainUrl.searchParams.set("lon",String(target.longitude));
   const response=await fetch(rainUrl,{headers:{accept:"application/json"}}); if(!response.ok)throw new Error("rain_unavailable");
   const rain=await response.json() as RainResponse; const checkedAt=rain.checkedAt??new Date().toISOString(); const diagnostic=rain.diagnostic&&typeof rain.diagnostic==="object"?{...(rain.diagnostic as Record<string,unknown>),forecastDetails:rain.forecast?.map(frame=>({baseTime:frame.baseTime??null,validTime:frame.validTime??null,status:frame.status??null,intensityClass:frame.intensityClass??null,rgba:frame.rgba??null}))??[]}:rain.diagnostic??null;
