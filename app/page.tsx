@@ -198,6 +198,20 @@ export default function Home() {
     void loadSavedTargets();
     void loadLatestAlerts();
     void restorePushStatus();
+
+    const alertRefreshInterval = window.setInterval(() => {
+      void loadLatestAlerts();
+    }, 5 * 60 * 1000);
+
+    const refreshAlertsWhenVisible = () => {
+      if (document.visibilityState === "visible") void loadLatestAlerts();
+    };
+    document.addEventListener("visibilitychange", refreshAlertsWhenVisible);
+
+    return () => {
+      window.clearInterval(alertRefreshInterval);
+      document.removeEventListener("visibilitychange", refreshAlertsWhenVisible);
+    };
   }, []);
 
   const deleteTarget = async (target: SavedWatchTarget) => {
