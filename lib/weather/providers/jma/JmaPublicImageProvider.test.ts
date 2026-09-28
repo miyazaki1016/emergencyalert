@@ -45,7 +45,7 @@ describe("JmaPublicImageProvider integration boundary", () => {
     expect(series.frames.map((f) => f.status)).toEqual(["NO_RAIN", "FETCH_ERROR"]);
   });
 
-  it.each([[1, 2, 3], [250, 245, 0], [255, 245, 0], [0, 170, 255], [255, 170, 0]])("keeps unsupported RGB (%i,%i,%i) UNKNOWN_PIXEL", async (r, g, b) => {
+  it.each([[1, 2, 3], [255, 245, 0], [0, 170, 255], [255, 170, 0]])("keeps unsupported RGB (%i,%i,%i) UNKNOWN_PIXEL", async (r, g, b) => {
     const targets = [{ basetime: "20260920120000", validtime: "20260920120500", elements: ["hrpns"] }];
     const fetcher = vi.fn(async (input: RequestInfo | URL) => {
       if (String(input).includes("targetTimes_N2.json")) return response(JSON.stringify(targets));
@@ -53,6 +53,17 @@ describe("JmaPublicImageProvider integration boundary", () => {
     }) as unknown as typeof fetch;
     const series = await new JmaPublicImageProvider(fetcher).getForecastSeries(35.681236, 139.767125);
     expect(series.frames[0].status).toBe("UNKNOWN_PIXEL");
+  });
+
+  it("classifies verified JMA #FAF500 as 20_TO_30 rain", async () => {
+    const targets = [{ basetime: "20260920120000", validtime: "20260920120500", elements: ["hrpns"] }];
+    const fetcher = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).includes("targetTimes_N2.json")) return response(JSON.stringify(targets));
+      return response(pngPixel(250, 245, 0, 255));
+    }) as unknown as typeof fetch;
+    const series = await new JmaPublicImageProvider(fetcher).getForecastSeries(35.681236, 139.767125);
+    expect(series.frames[0].status).toBe("RAIN");
+    expect(series.frames[0].intensityClass).toBe("20_TO_30");
   });
 
   it("selects the newest observation even when JMA metadata arrives out of order", async () => {
