@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nextLastNotifiedAt, shouldNotifyForRain } from "../../../supabase/functions/watch-rain/notificationDecision";
+import { nextLastNotifiedAt, nextRainEndingNotified, shouldNotifyForRain } from "../../../supabase/functions/watch-rain/notificationDecision";
 
 describe("watch-rain notification decision", () => {
   it("notifies when a target becomes actionable", () => {
@@ -124,5 +124,36 @@ describe("watch-rain notification decision", () => {
     it("clears the marker when the grounded event is no longer actionable", () => {
       expect(nextLastNotifiedAt({ delivered: 0, actionable: false, previousLastNotifiedAt: previous, now })).toBeNull();
     });
+  });
+});
+
+describe("rain-ending hysteresis", () => {
+  it("keeps ending latched through a dry streak", () => {
+    expect(nextRainEndingNotified({
+      previousRainEndingNotified: true,
+      rainStreak: 0,
+      endingDelivered: false,
+    })).toBe(true);
+  });
+
+  it("rearms only after three consecutive rain observations", () => {
+    expect(nextRainEndingNotified({
+      previousRainEndingNotified: true,
+      rainStreak: 2,
+      endingDelivered: false,
+    })).toBe(true);
+    expect(nextRainEndingNotified({
+      previousRainEndingNotified: true,
+      rainStreak: 3,
+      endingDelivered: false,
+    })).toBe(false);
+  });
+
+  it("keeps the latch set when a new ending notification is delivered", () => {
+    expect(nextRainEndingNotified({
+      previousRainEndingNotified: false,
+      rainStreak: 3,
+      endingDelivered: true,
+    })).toBe(true);
   });
 });
