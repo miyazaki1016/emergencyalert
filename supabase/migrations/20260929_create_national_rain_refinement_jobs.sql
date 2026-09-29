@@ -19,6 +19,27 @@ create table if not exists public.national_rain_refinement_jobs (
   unique (run_key, validtime, zoom, tile_x, tile_y)
 );
 
+create table if not exists public.national_rain_refinement_results (
+  job_id bigint primary key references public.national_rain_refinement_jobs(id) on delete cascade,
+  run_key text not null,
+  basetime timestamptz not null,
+  validtime timestamptz not null,
+  zoom integer not null,
+  tile_x integer not null,
+  tile_y integer not null,
+  strong_pixel_count integer not null default 0 check (strong_pixel_count >= 0),
+  footprint jsonb not null default '[]'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (run_key, validtime, zoom, tile_x, tile_y)
+);
+
+comment on table public.national_rain_refinement_results is
+  'High-resolution nationwide rain refinement results. footprint is reserved for bounded strong-rain geometry derived from official JMA tiles.';
+
+create index if not exists national_rain_refinement_results_time_idx
+  on public.national_rain_refinement_results (validtime, run_key);
+
 create index if not exists national_rain_refinement_jobs_pending_idx
   on public.national_rain_refinement_jobs (status, available_at, priority desc, validtime, id);
 
