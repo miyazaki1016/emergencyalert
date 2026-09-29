@@ -59,17 +59,21 @@ function refinementTiles(centers: Array<{ latitude: number; longitude: number }>
   return tiles;
 }
 
-async function refine(frame: { basetime: string; validtime: string }, tiles: Map<string, { x: number; y: number }>) {
+async function refine(frame: { basetime: string; validtime: string }, tiles: Map<string, { x: number; y: number }>, deadline: number) {
   let bytes = 0;
   let strongPixels = 0;
+  let tileCount = 0;
+  let deferred = false;
   for (const tile of tiles.values()) {
+    if (Date.now() >= deadline) { deferred = true; break; }
     const response = await fetch(buildJmaRainTileUrl(frame, REFINE_ZOOM, tile.x, tile.y));
     if (!response.ok) continue;
     const buffer = Buffer.from(await response.arrayBuffer());
     bytes += buffer.length;
     strongPixels += scanHeavyRainTile(buffer, REFINE_ZOOM, tile.x, tile.y, 1).length;
+    tileCount += 1;
   }
-  return { tileCount: tiles.size, bytes, strongPixels };
+  return { tileCount, bytes, strongPixels, deferred };
 }
 
 async function main() {
@@ -86,6 +90,7 @@ async function main() {
   const uniqueRefinedTiles = new Set<string>();
   const timelineTileFrames = new Map<string, string[]>();
   let deferredFrames = 0;
+  const refinementDeadline = started + REFINE_BUDGET_MS;
   for (const frame of forecasts) {
     const budgetExhausted = Date.now() - started >= REFINE_BUDGET_MS;
     const result = await scan(frame);
@@ -100,9 +105,10 @@ async function main() {
       summary.push({ validTime: frame.validtime, upcoming: upcoming.length, clusters: clusters.length, largestCluster: Math.max(0, ...clusters.map((c) => c.candidates.length)), refinedTiles: 0, refinedStrongPixels: 0, deferred: true });
       continue;
     }
-    const refined = await refine(frame, tiles);
+    const refined = await refine(frame, tiles, refinementDeadline);
     refinedBytes += refined.bytes;
     refinedTiles += refined.tileCount;
+    if (refined.deferred) deferredFrames += 1;
     for (const cluster of clusters) {
       const tile = latLonToTile(cluster.latitude, cluster.longitude, REFINE_ZOOM);
       const key = `${tile.x}:${tile.y}`;
@@ -111,7 +117,7 @@ async function main() {
       times.push(frame.validtime);
       timelineTileFrames.set(key, times);
     }
-    summary.push({ validTime: frame.validtime, upcoming: upcoming.length, clusters: clusters.length, largestCluster: Math.max(0, ...clusters.map((c) => c.candidates.length)), refinedTiles: refined.tileCount, refinedStrongPixels: refined.strongPixels });
+    summary.push({ validTime: frame.validtime, upcoming: upcoming.length, clusters: clusters.length, largestCluster: Math.max(0, ...clusters.map((c) => c.candidates.length)), refinedTiles: refined.tileCount, refinedStrongPixels: refined.strongPixels, deferred: refined.deferred });
   }
   const tracks = trackHeavyRainClusters(clusterFrames);
   console.log(JSON.stringify({
