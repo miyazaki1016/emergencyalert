@@ -1,13 +1,23 @@
 import { NextRequest } from "next/server";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-const { processJobs, createClient } = vi.hoisted(() => ({
+const { processJobs, createClient, createLoader, resolveMunicipalities } = vi.hoisted(() => ({
   processJobs: vi.fn(),
   createClient: vi.fn(() => ({ marker: "client" })),
+  createLoader: vi.fn(() => "loader"),
+  resolveMunicipalities: vi.fn(),
 }));
 
 vi.mock("@/lib/weather/rain/nationalRainQueue", () => ({
   createNationalRainQueueClient: createClient,
+}));
+
+vi.mock("@/lib/weather/rain/n03PreparedStorageLoader", () => ({
+  createSupabaseN03AdministrativeAreaLoader: createLoader,
+}));
+
+vi.mock("@/lib/weather/rain/nationalRainMunicipalityResolver", () => ({
+  resolveNationalRainMunicipalities: resolveMunicipalities,
 }));
 
 vi.mock("@/lib/weather/rain/nationalRainWorker", () => ({
@@ -48,7 +58,15 @@ describe("national rain worker route", () => {
 
     const response = await POST(request("Bearer proof-secret", "?limit=999"));
     expect(response.status).toBe(200);
-    expect(processJobs).toHaveBeenCalledWith({ marker: "client" }, { limit: 50 });
+    expect(createLoader).toHaveBeenCalledWith({ marker: "client" });
+    expect(processJobs).toHaveBeenCalledWith({ marker: "client" }, {
+      limit: 50,
+      resolveMunicipalities: expect.any(Function),
+    });
+    const workerOptions = processJobs.mock.calls[0][1];
+    const footprint = [{ type: "Polygon", coordinates: [] }];
+    await workerOptions.resolveMunicipalities(footprint);
+    expect(resolveMunicipalities).toHaveBeenCalledWith(footprint, "loader");
     expect(await response.json()).toMatchObject({
       mode: "NATIONAL_RAIN_REFINEMENT_WORKER_PROOF",
       claimed: 50,
