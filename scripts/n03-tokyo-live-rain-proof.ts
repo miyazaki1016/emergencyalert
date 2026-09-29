@@ -26,9 +26,16 @@ async function main() {
     const polygons = area.geometry.type === "Polygon" ? [area.geometry.coordinates as number[][][]] : area.geometry.coordinates as number[][][][];
     return polygons.flatMap((polygon) => polygon[0] ?? []);
   });
-  const xs = points.map((p) => p[0]), ys = points.map((p) => p[1]);
-  const minX = lonToTileX(Math.min(...xs)), maxX = lonToTileX(Math.max(...xs));
-  const minY = latToTileY(Math.max(...ys)), maxY = latToTileY(Math.min(...ys));
+  if (!points.length) throw new Error("Tokyo N03 geometry has no points");
+  let west = Infinity, east = -Infinity, south = Infinity, north = -Infinity;
+  for (const point of points) {
+    west = Math.min(west, point[0]);
+    east = Math.max(east, point[0]);
+    south = Math.min(south, point[1]);
+    north = Math.max(north, point[1]);
+  }
+  const minX = lonToTileX(west), maxX = lonToTileX(east);
+  const minY = latToTileY(north), maxY = latToTileY(south);
 
   let strongPixels = 0;
   const rainPolygons = [];
