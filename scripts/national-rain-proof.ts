@@ -2,7 +2,7 @@ import { PNG } from "pngjs";
 import { fetchObservationTargetTimes } from "../lib/weather/providers/jma/observationTargetTimes";
 import { fetchForecastTargetTimes } from "../lib/weather/providers/jma/targetTimes";
 import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
-import { candidateKey, clusterHeavyRainCandidates, scanHeavyRainTile, trackHeavyRainClusters } from "../lib/weather/rain/nationalHeavyRain";
+import { candidateKey, clusterHeavyRainCandidates, heavyRainAreaPolygons, scanHeavyRainTile, trackHeavyRainClusters, type HeavyRainPolygon } from "../lib/weather/rain/nationalHeavyRain";
 
 const ZOOM = 4;
 const REFINE_ZOOM = 8;
@@ -64,6 +64,7 @@ async function refine(frame: { basetime: string; validtime: string }, tiles: Map
   let strongPixels = 0;
   let tileCount = 0;
   let deferred = false;
+  const polygons: HeavyRainPolygon[] = [];
   const processedTiles: Array<{ x: number; y: number }> = [];
   const remainingTiles: Array<{ x: number; y: number }> = [];
   const tileList = [...tiles.values()];
@@ -74,11 +75,13 @@ async function refine(frame: { basetime: string; validtime: string }, tiles: Map
     if (!response.ok) continue;
     const buffer = Buffer.from(await response.arrayBuffer());
     bytes += buffer.length;
-    strongPixels += scanHeavyRainTile(buffer, REFINE_ZOOM, tile.x, tile.y, 1).length;
+    const candidates = scanHeavyRainTile(buffer, REFINE_ZOOM, tile.x, tile.y, 1);
+    strongPixels += candidates.length;
+    polygons.push(...heavyRainAreaPolygons(candidates, REFINE_ZOOM));
     tileCount += 1;
     processedTiles.push(tile);
   }
-  return { tileCount, bytes, strongPixels, deferred, remainingTiles, processedTiles };
+  return { tileCount, bytes, strongPixels, polygons, deferred, remainingTiles, processedTiles };
 }
 
 async function main() {
@@ -96,6 +99,7 @@ async function main() {
   const timelineTileFrames = new Map<string, string[]>();
   let deferredFrames = 0;
   const processedJobKeys = new Set<string>();
+  let refinedPolygonCount = 0;
   const queuedJobs: Array<{ runKey: string; basetime: string; validtime: string; zoom: number; tileX: number; tileY: number; priority: number }> = [];
   const refinementDeadline = started + REFINE_BUDGET_MS;
   for (const frame of forecasts) {
@@ -116,6 +120,7 @@ async function main() {
     const refined = await refine(frame, tiles, refinementDeadline);
     refinedBytes += refined.bytes;
     refinedTiles += refined.tileCount;
+    refinedPolygonCount += refined.polygons.length;
     for (const tile of refined.processedTiles) processedJobKeys.add(`${frame.validtime}:${REFINE_ZOOM}:${tile.x}:${tile.y}`);
     if (refined.deferred) {
       deferredFrames += 1;
@@ -144,7 +149,7 @@ async function main() {
     fetchedBytes: totalBytes,
     queueValidation: { processedTileKeys: processedJobKeys.size, queuedJobKeys: queuedJobKeys.length, processedQueuedOverlap: processedQueuedOverlap.length },
     queuedRefinementJobs: queuedJobs,
-    refinement: { zoom: REFINE_ZOOM, budgetMs: REFINE_BUDGET_MS, tileBudget: REFINE_TILE_BUDGET, deferredFrames, tileFetches: refinedTiles, uniqueTilesAcrossTimeline: uniqueRefinedTiles.size, duplicateTileFetches: refinedTiles - uniqueRefinedTiles.size, fetchedBytes: refinedBytes },
+    refinement: { zoom: REFINE_ZOOM, budgetMs: REFINE_BUDGET_MS, tileBudget: REFINE_TILE_BUDGET, deferredFrames, tileFetches: refinedTiles, polygonCount: refinedPolygonCount, uniqueTilesAcrossTimeline: uniqueRefinedTiles.size, duplicateTileFetches: refinedTiles - uniqueRefinedTiles.size, fetchedBytes: refinedBytes },
     rainTracks: tracks.map((track) => ({ id: track.id, frameCount: track.points.length, firstValidTime: track.points[0]?.validTime, lastValidTime: track.points[track.points.length - 1]?.validTime, maxLevel: track.level, start: track.points[0] ? { latitude: track.points[0].latitude, longitude: track.points[0].longitude } : null, end: track.points[track.points.length - 1] ? { latitude: track.points[track.points.length - 1].latitude, longitude: track.points[track.points.length - 1].longitude } : null })),
     trackedRegions: [...timelineTileFrames.entries()].map(([tile, validTimes]) => ({ tile, firstValidTime: validTimes[0], lastValidTime: validTimes[validTimes.length - 1], frameCount: validTimes.length }))
   }, null, 2));
