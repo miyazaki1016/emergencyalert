@@ -45,40 +45,43 @@ describe("heavyRainFootprint", () => {
 
 
 describe("heavyRainAreaPolygons", () => {
-  const candidate = (pixelX: number, pixelY: number, latitude = 35, longitude = 139): HeavyRainCandidate => ({
-    tileX: 1, tileY: 2, pixelX, pixelY, latitude, longitude,
+  const candidate = (pixelX: number, pixelY: number, tileX = 1, tileY = 2): HeavyRainCandidate => ({
+    tileX, tileY, pixelX, pixelY, latitude: 35, longitude: 139,
     intensityClass: "30_TO_50", level: "HEAVY",
   });
 
-  it("preserves one polygon per strong raster cell instead of filling a component bounding box", () => {
-    const polygons = heavyRainAreaPolygons([
-      candidate(10, 10),
-      candidate(11, 10),
-      candidate(10, 11),
-    ], 8);
-    expect(polygons).toHaveLength(3);
-    for (const polygon of polygons) {
-      expect(polygon.type).toBe("Polygon");
-      expect(polygon.coordinates[0]).toHaveLength(5);
-      expect(polygon.coordinates[0][0]).toEqual(polygon.coordinates[0][4]);
+  it("merges adjacent cells into one exact outer boundary", () => {
+    const polygons = heavyRainAreaPolygons([candidate(10, 10), candidate(11, 10)], 8);
+    expect(polygons).toHaveLength(1);
+    expect(polygons[0].coordinates).toHaveLength(1);
+  });
+
+  it("keeps the dry center of a raster ring as a hole", () => {
+    const cells: HeavyRainCandidate[] = [];
+    for (let y = 10; y < 13; y++) for (let x = 10; x < 13; x++) {
+      if (!(x === 11 && y === 11)) cells.push(candidate(x, y));
     }
+    const polygons = heavyRainAreaPolygons(cells, 8);
+    expect(polygons).toHaveLength(1);
+    expect(polygons[0].coordinates).toHaveLength(2);
   });
 
-  it("does not invent the missing dry cell inside an L-shaped rain area", () => {
+  it("does not fill the missing dry cell in an L shape", () => {
+    const polygons = heavyRainAreaPolygons([candidate(10, 10), candidate(11, 10), candidate(10, 11)], 8);
+    expect(polygons).toHaveLength(1);
+    expect(polygons[0].coordinates[0].length).toBeGreaterThan(5);
+  });
+
+  it("joins cells across a tile boundary using world pixel coordinates", () => {
     const polygons = heavyRainAreaPolygons([
-      candidate(10, 10),
-      candidate(11, 10),
-      candidate(10, 11),
+      candidate(255, 10, 1, 2),
+      candidate(0, 10, 2, 2),
     ], 8);
-    const dryCell = heavyRainAreaPolygons([candidate(11, 11)], 8)[0];
-    expect(polygons).not.toContainEqual(dryCell);
+    expect(polygons).toHaveLength(1);
   });
 
-  it("keeps separated strong pixels as separate cell polygons", () => {
-    expect(heavyRainAreaPolygons([
-      candidate(10, 10),
-      candidate(50, 50),
-    ], 8)).toHaveLength(2);
+  it("keeps separated cells as separate polygons", () => {
+    expect(heavyRainAreaPolygons([candidate(10, 10), candidate(50, 50)], 8)).toHaveLength(2);
   });
 });
 
