@@ -125,3 +125,28 @@ export function trackHeavyRainClusters(frames: Array<{ validTime: string; cluste
   }
   return tracks;
 }
+
+export interface HeavyRainEventCandidate {
+  trackId: string;
+  startsAt: string;
+  endsAt: string;
+  maxLevel: HeavyRainLevel;
+  start: { latitude: number; longitude: number };
+  end: { latitude: number; longitude: number };
+  frameCount: number;
+}
+
+export function heavyRainTrackToEvent(track: HeavyRainTrack): HeavyRainEventCandidate | null {
+  const first = track.points[0];
+  const last = track.points[track.points.length - 1];
+  if (!first || !last) return null;
+  return {
+    trackId: track.id,
+    startsAt: first.validTime,
+    endsAt: last.validTime,
+    maxLevel: track.level,
+    start: { latitude: first.latitude, longitude: first.longitude },
+    end: { latitude: last.latitude, longitude: last.longitude },
+    frameCount: track.points.length,
+  };
+}
