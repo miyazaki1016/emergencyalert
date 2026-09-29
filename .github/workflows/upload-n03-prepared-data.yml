@@ -1,0 +1,39 @@
+name: Upload prepared N03 data
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type UPLOAD_N03_PREPARED_DATA to generate and upload all 47 prefectures"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: upload-n03-prepared-data
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    if: ${{ inputs.confirm == 'UPLOAD_N03_PREPARED_DATA' }}
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/national-heavy-rain-preview
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Generate all 47 prepared N03 files
+        run: npx tsx scripts/prepare-n03-storage-data.ts /tmp/n03-prepared/2026
+      - name: Upload prepared N03 files
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          N03_STORAGE_UPLOAD_CONFIRM: UPLOAD_N03_PREPARED_DATA
+        run: npx tsx scripts/upload-n03-storage-data.ts /tmp/n03-prepared/2026
