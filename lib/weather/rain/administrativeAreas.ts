@@ -100,7 +100,26 @@ export function rainPolygonIntersectsAdministrativeArea(rain: HeavyRainPolygon, 
 }
 
 export function affectedAdministrativeAreas(rainPolygons: HeavyRainPolygon[], areas: AdministrativeArea[]) {
-  return areas.filter((area) =>
-    rainPolygons.some((rain) => rainPolygonIntersectsAdministrativeArea(rain, area)),
-  );
+  const rainWithBounds = rainPolygons.map((rain) => ({
+    rain,
+    bounds: polygonBounds(rain.coordinates),
+  }));
+  const areasWithBounds = areas.map((area) => {
+    const polygons = area.geometry.type === "Polygon"
+      ? [area.geometry.coordinates as number[][][]]
+      : area.geometry.coordinates as number[][][][];
+    return {
+      area,
+      bounds: polygons.map((polygon) => polygonBounds(polygon)),
+    };
+  });
+
+  return areasWithBounds
+    .filter(({ area, bounds }) =>
+      rainWithBounds.some(({ rain, bounds: rainBounds }) =>
+        bounds.some((areaBounds) => boundsIntersect(rainBounds, areaBounds)) &&
+        rainPolygonIntersectsAdministrativeArea(rain, area),
+      ),
+    )
+    .map(({ area }) => area);
 }
