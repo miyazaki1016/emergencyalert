@@ -17,6 +17,7 @@ const root = process.env.N03_CACHE_DIR || mkdtempSync(join(tmpdir(), "n03-select
 mkdirSync(root, { recursive: true });
 const timings = { downloadMs: 0, unzipMs: 0, readParseMs: 0, convertMs: 0, intersectionMs: 0 };
 let cacheHits = 0;
+let preparedCacheHits = 0;
 
 let started = performance.now();
 const downloads = input.prefectures.map(async (prefecture) => {
