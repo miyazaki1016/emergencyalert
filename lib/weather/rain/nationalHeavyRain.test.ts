@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { heavyRainLevel } from "./nationalHeavyRain";
+import { clusterHeavyRainCandidates, heavyRainLevel, type HeavyRainCandidate } from "./nationalHeavyRain";
 
 describe("heavyRainLevel", () => {
   it("publishes only JMA heavy-rain classes", () => {
@@ -7,5 +7,23 @@ describe("heavyRainLevel", () => {
     expect(heavyRainLevel("30_TO_50")).toBe("HEAVY");
     expect(heavyRainLevel("50_TO_80")).toBe("VERY_HEAVY");
     expect(heavyRainLevel("GTE_80")).toBe("TORRENTIAL");
+  });
+});
+
+describe("clusterHeavyRainCandidates", () => {
+  const candidate = (latitude: number, longitude: number, level: HeavyRainCandidate["level"] = "HEAVY"): HeavyRainCandidate => ({
+    tileX: 0, tileY: 0, pixelX: 0, pixelY: 0, latitude, longitude,
+    intensityClass: level === "TORRENTIAL" ? "GTE_80" : level === "VERY_HEAVY" ? "50_TO_80" : "30_TO_50",
+    level,
+  });
+
+  it("groups nearby candidates and keeps separate rain areas apart", () => {
+    const clusters = clusterHeavyRainCandidates([
+      candidate(35.68, 139.76),
+      candidate(35.70, 139.78, "VERY_HEAVY"),
+      candidate(34.69, 135.50),
+    ], 35);
+    expect(clusters).toHaveLength(2);
+    expect(clusters.find((c) => c.candidates.length === 2)?.level).toBe("VERY_HEAVY");
   });
 });
