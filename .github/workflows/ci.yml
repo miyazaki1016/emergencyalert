@@ -44,6 +44,11 @@ jobs:
           N03_CACHE_DIR=/tmp/n03-cache npx tsx scripts/n03-selected-prefectures-proof.ts < /tmp/n03-selected-input.json | tee /tmp/n03-cached.json
           node -e 'const fs=require("fs");const a=JSON.parse(fs.readFileSync("/tmp/n03-first.json","utf8"));const b=JSON.parse(fs.readFileSync("/tmp/n03-cached.json","utf8"));if(b.cacheHits!==b.loadedPrefectures.length)throw new Error("expected all N03 prefectures from cache");if(b.preparedCacheHits!==b.loadedPrefectures.length)throw new Error("expected all prepared N03 areas from cache");if(JSON.stringify(a.affectedAreas)!==JSON.stringify(b.affectedAreas))throw new Error("cached N03 result mismatch");'
           node -e 'const fs=require("fs"),path=require("path");const root="/tmp/n03-cache";const rows=fs.readdirSync(root).filter(n=>n.endsWith(".areas.json")).sort().map(name=>({prefectureCode:name.slice(0,2),bytes:fs.statSync(path.join(root,name)).size}));const totalBytes=rows.reduce((sum,row)=>sum+row.bytes,0);console.log(JSON.stringify({preparedN03Sizes:rows,totalBytes,totalMiB:Math.round(totalBytes/1048576*100)/100}));'
+      - name: Verify reproducible N03 prepared-data generator
+        run: |
+          rm -rf /tmp/n03-prepared-check
+          npx tsx scripts/prepare-n03-storage-data.ts /tmp/n03-prepared-check 13
+          node -e 'const fs=require("fs");const m=JSON.parse(fs.readFileSync("/tmp/n03-prepared-check/manifest.json","utf8"));if(m.dataset!=="N03-20260101")throw new Error("unexpected dataset");if(m.files.length!==1||m.files[0].code!=="13")throw new Error("unexpected prepared prefecture");if(!fs.existsSync("/tmp/n03-prepared-check/13.areas.json"))throw new Error("prepared Tokyo file missing");if(m.files[0].bytes<=0||m.files[0].areas<=0)throw new Error("prepared Tokyo file empty");'
       - name: Prove national rain queue lifecycle
         env:
           PGPASSWORD: postgres
