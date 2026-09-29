@@ -39,7 +39,7 @@ export async function processNationalRainRefinementJobs(
       PNG.sync.read(buffer);
       const strongCandidates = scanHeavyRainTile(buffer, job.zoom, job.tile_x, job.tile_y, 1);
       const strongPixelCount = strongCandidates.length;
-      const footprint = heavyRainAreaPolygons(strongCandidates);
+      const footprint = heavyRainAreaPolygons(strongCandidates, job.zoom);
       result.strongPixels += strongPixelCount;
       await saveNationalRainRefinementResult(supabase, {
         jobId: job.id,
