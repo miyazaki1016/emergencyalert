@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clusterHeavyRainCandidates, heavyRainAreaPolygons, heavyRainFootprint, heavyRainLevel, type HeavyRainCandidate } from "./nationalHeavyRain";
+import { clusterHeavyRainCandidates, heavyRainAreaPolygons, excludeCurrentHeavyRain, heavyRainFootprint, heavyRainLevel, type HeavyRainCandidate } from "./nationalHeavyRain";
 
 describe("heavyRainLevel", () => {
   it("publishes only JMA heavy-rain classes", () => {
@@ -85,3 +85,22 @@ describe("heavyRainAreaPolygons", () => {
   });
 });
 
+
+describe("excludeCurrentHeavyRain", () => {
+  const candidate = (tileX: number, tileY: number, pixelX: number, pixelY: number): HeavyRainCandidate => ({
+    tileX, tileY, pixelX, pixelY, latitude: 35, longitude: 139,
+    intensityClass: "30_TO_50", level: "HEAVY",
+  });
+
+  it("keeps only high-resolution cells that are not already heavy now", () => {
+    const current = [candidate(100, 50, 10, 20), candidate(100, 50, 11, 20)];
+    const forecast = [candidate(100, 50, 10, 20), candidate(100, 50, 12, 20)];
+    expect(excludeCurrentHeavyRain(forecast, current)).toEqual([forecast[1]]);
+  });
+
+  it("distinguishes the same local pixel coordinates in different tiles", () => {
+    const current = [candidate(100, 50, 10, 20)];
+    const forecast = [candidate(101, 50, 10, 20)];
+    expect(excludeCurrentHeavyRain(forecast, current)).toEqual(forecast);
+  });
+});
