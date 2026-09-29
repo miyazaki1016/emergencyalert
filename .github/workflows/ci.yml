@@ -48,7 +48,7 @@ jobs:
         run: |
           rm -rf /tmp/n03-prepared-check
           npx tsx scripts/prepare-n03-storage-data.ts /tmp/n03-prepared-check 13
-          node -e 'const fs=require("fs");const m=JSON.parse(fs.readFileSync("/tmp/n03-prepared-check/manifest.json","utf8"));if(m.dataset!=="N03-20260101")throw new Error("unexpected dataset");if(m.files.length!==1||m.files[0].code!=="13")throw new Error("unexpected prepared prefecture");if(!fs.existsSync("/tmp/n03-prepared-check/13.areas.json"))throw new Error("prepared Tokyo file missing");if(m.files[0].bytes<=0||m.files[0].areas<=0)throw new Error("prepared Tokyo file empty");'
+          node -e 'const fs=require("fs");const m=JSON.parse(fs.readFileSync("/tmp/n03-prepared-check/manifest.json","utf8"));if(m.dataset!=="N03-20260101")throw new Error("unexpected dataset");if(m.files.length!==1||m.files[0].code!=="13")throw new Error("unexpected prepared prefecture");if(!fs.existsSync("/tmp/n03-prepared-check/13.areas.json"))throw new Error("prepared Tokyo file missing");if(m.files[0].bytes<=0||m.files[0].areas<=0)throw new Error("prepared Tokyo file empty");if(!/^[a-f0-9]{64}$/.test(m.files[0].sha256))throw new Error("prepared Tokyo hash missing");'
       - name: Prove national rain queue lifecycle
         env:
           PGPASSWORD: postgres
