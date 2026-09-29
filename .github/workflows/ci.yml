@@ -34,6 +34,11 @@ jobs:
         env:
           PGPASSWORD: postgres
         run: |
+          psql -h 127.0.0.1 -U postgres -d emergencyalert_test -v ON_ERROR_STOP=1 <<'SQL'
+          create role anon nologin;
+          create role authenticated nologin;
+          create role service_role nologin;
+          SQL
           psql -h 127.0.0.1 -U postgres -d emergencyalert_test -v ON_ERROR_STOP=1 -f supabase/migrations/20260929_create_national_rain_refinement_jobs.sql
           psql -h 127.0.0.1 -U postgres -d emergencyalert_test -v ON_ERROR_STOP=1 <<'SQL'
           insert into public.national_rain_refinement_jobs
