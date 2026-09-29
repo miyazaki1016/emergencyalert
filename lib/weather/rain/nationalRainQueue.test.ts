@@ -24,7 +24,7 @@ describe("national rain queue", () => {
 });
 
 
-test("finish calls atomic queue completion RPC", async () => {
+it("finish calls atomic queue completion RPC", async () => {
   const rpc = vi.fn().mockResolvedValue({ error: null });
   await finishNationalRainJob({ rpc } as any, 42, false, "network");
   expect(rpc).toHaveBeenCalledWith("finish_national_rain_refinement_job", {
