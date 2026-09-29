@@ -28,7 +28,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm ci
+      - run: npm install
       - name: Generate all 47 prepared N03 files
         run: npx tsx scripts/prepare-n03-storage-data.ts /tmp/n03-prepared/20260101
       - name: Upload prepared N03 files
