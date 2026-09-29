@@ -65,7 +65,7 @@ export type HeavyRainPolygon = {
   coordinates: [number, number][][];
 };
 
-export function heavyRainAreaPolygons(candidates: HeavyRainCandidate[]): HeavyRainPolygon[] {
+export function heavyRainAreaPolygons(candidates: HeavyRainCandidate[], zoom: number): HeavyRainPolygon[] {
   const byPixel = new Map(candidates.map((candidate) => [`${candidate.pixelX}:${candidate.pixelY}`, candidate]));
   const remaining = new Set(byPixel.keys());
   const polygons: HeavyRainPolygon[] = [];
@@ -88,10 +88,6 @@ export function heavyRainAreaPolygons(candidates: HeavyRainCandidate[]): HeavyRa
       }
     }
 
-    const sample = members[0];
-    const topLeft = worldPixelToLatLon(sample.tileX === sample.tileX ? 0 : 0, 0, 0);
-    void topLeft;
-    const zoom = inferZoomFromCandidateSpacing(members);
     const corners = members.flatMap((candidate) => pixelBounds(candidate, zoom));
     const west = Math.min(...corners.map((point) => point.lon));
     const east = Math.max(...corners.map((point) => point.lon));
@@ -104,10 +100,6 @@ export function heavyRainAreaPolygons(candidates: HeavyRainCandidate[]): HeavyRa
   }
 
   return polygons;
-}
-
-function inferZoomFromCandidateSpacing(_members: HeavyRainCandidate[]) {
-  return 8;
 }
 
 function pixelBounds(candidate: HeavyRainCandidate, zoom: number) {
