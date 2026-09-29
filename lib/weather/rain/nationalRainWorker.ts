@@ -3,6 +3,7 @@ import { PNG } from "pngjs";
 import { buildJmaRainTileUrl } from "../providers/jma/tileUrl";
 import { heavyRainAreaPolygons, scanHeavyRainTile } from "./nationalHeavyRain";
 import { claimNationalRainJobs, finishNationalRainJob, saveNationalRainRefinementResult } from "./nationalRainQueue";
+import type { NationalRainMunicipality } from "./nationalRainMunicipalities";
 
 export type ClaimedNationalRainJob = {
   id: number;
@@ -23,7 +24,11 @@ export type NationalRainWorkerResult = {
 
 export async function processNationalRainRefinementJobs(
   supabase: SupabaseClient,
-  options: { limit?: number; fetcher?: typeof fetch } = {},
+  options: {
+    limit?: number;
+    fetcher?: typeof fetch;
+    resolveMunicipalities?: (footprint: ReturnType<typeof heavyRainAreaPolygons>) => Promise<NationalRainMunicipality[]>;
+  } = {},
 ): Promise<NationalRainWorkerResult> {
   const fetcher = options.fetcher ?? fetch;
   const jobs = (await claimNationalRainJobs(supabase, options.limit ?? 10)) as ClaimedNationalRainJob[];
@@ -40,6 +45,7 @@ export async function processNationalRainRefinementJobs(
       const strongCandidates = scanHeavyRainTile(buffer, job.zoom, job.tile_x, job.tile_y, 1);
       const strongPixelCount = strongCandidates.length;
       const footprint = heavyRainAreaPolygons(strongCandidates, job.zoom);
+      if (options.resolveMunicipalities) await options.resolveMunicipalities(footprint);
       result.strongPixels += strongPixelCount;
       await saveNationalRainRefinementResult(supabase, {
         jobId: job.id,
