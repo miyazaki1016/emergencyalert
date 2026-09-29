@@ -46,6 +46,19 @@ function worldPixelToLatLon(zoom: number, worldX: number, worldY: number) {
   return { lat, lon };
 }
 
+
+export type HeavyRainFootprint = {
+  type: "MultiPoint";
+  coordinates: [number, number][];
+};
+
+export function heavyRainFootprint(candidates: HeavyRainCandidate[]): HeavyRainFootprint {
+  return {
+    type: "MultiPoint",
+    coordinates: candidates.map((candidate) => [candidate.longitude, candidate.latitude]),
+  };
+}
+
 export function candidateKey(candidate: Pick<HeavyRainCandidate, "tileX" | "tileY" | "pixelX" | "pixelY">) {
   return `${candidate.tileX}:${candidate.tileY}:${candidate.pixelX}:${candidate.pixelY}`;
 }
