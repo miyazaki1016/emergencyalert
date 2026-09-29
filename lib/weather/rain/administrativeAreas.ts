@@ -28,17 +28,33 @@ function pointInPolygon(point: Position, polygon: number[][][]) {
   return !polygon.slice(1).some((hole) => pointInRing(point, hole));
 }
 
-function orientation(a: Position, b: Position, c: Position) {
-  return (b[1] - a[1]) * (c[0] - b[0]) - (b[0] - a[0]) * (c[1] - b[1]);
+const EPSILON = 1e-12;
+
+function cross(a: Position, b: Position, c: Position) {
+  return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+}
+
+function onSegment(a: Position, b: Position, p: Position) {
+  if (Math.abs(cross(a, b, p)) > EPSILON) return false;
+  return p[0] >= Math.min(a[0], b[0]) - EPSILON &&
+    p[0] <= Math.max(a[0], b[0]) + EPSILON &&
+    p[1] >= Math.min(a[1], b[1]) - EPSILON &&
+    p[1] <= Math.max(a[1], b[1]) + EPSILON;
 }
 
 function segmentsIntersect(a: Position, b: Position, c: Position, d: Position) {
-  const o1 = orientation(a, b, c);
-  const o2 = orientation(a, b, d);
-  const o3 = orientation(c, d, a);
-  const o4 = orientation(c, d, b);
-  return (o1 === 0 || o2 === 0 || Math.sign(o1) !== Math.sign(o2)) &&
-    (o3 === 0 || o4 === 0 || Math.sign(o3) !== Math.sign(o4));
+  const abC = cross(a, b, c);
+  const abD = cross(a, b, d);
+  const cdA = cross(c, d, a);
+  const cdB = cross(c, d, b);
+
+  if (Math.abs(abC) <= EPSILON && onSegment(a, b, c)) return true;
+  if (Math.abs(abD) <= EPSILON && onSegment(a, b, d)) return true;
+  if (Math.abs(cdA) <= EPSILON && onSegment(c, d, a)) return true;
+  if (Math.abs(cdB) <= EPSILON && onSegment(c, d, b)) return true;
+
+  return (abC > EPSILON) !== (abD > EPSILON) &&
+    (cdA > EPSILON) !== (cdB > EPSILON);
 }
 
 function ringsIntersect(a: number[][], b: number[][]) {
