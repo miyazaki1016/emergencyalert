@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { performance } from "node:perf_hooks";
@@ -8,6 +8,7 @@ import { n03PrefectureArchiveUrl, n03PrefectureGeoJsonName } from "../lib/weathe
 import { parseN03FeatureCollection, type N03FeatureCollection } from "../lib/weather/rain/n03AdministrativeAreas";
 import type { HeavyRainPolygon } from "../lib/weather/rain/nationalHeavyRain";
 
+async function main() {
 const input = JSON.parse(readFileSync(0, "utf8")) as {
   polygons: HeavyRainPolygon[];
   prefectures: { code: string; name: string }[];
@@ -21,7 +22,7 @@ const downloads = input.prefectures.map((prefecture) => {
   return fetch(n03PrefectureArchiveUrl(prefecture.code))
     .then(async (response) => {
       if (!response.ok) throw new Error(`N03 download failed: ${prefecture.code} ${response.status}`);
-      await Bun.write(zip, await response.arrayBuffer());
+      writeFileSync(zip, Buffer.from(await response.arrayBuffer()));
       return { prefecture, zip };
     });
 });
@@ -51,3 +52,9 @@ console.log(JSON.stringify({
   timings: Object.fromEntries(Object.entries(timings).map(([key, value]) => [key, Math.round(value * 100) / 100])),
   affectedAreas: affected.map((a) => ({ code: a.code, prefecture: a.prefecture, municipality: a.municipality })),
 }));
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
