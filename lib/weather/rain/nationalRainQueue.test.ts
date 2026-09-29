@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { claimNationalRainJobs, enqueueNationalRainJobs, queueRows } from "./nationalRainQueue";
+import { claimNationalRainJobs, enqueueNationalRainJobs, finishNationalRainJob, queueRows } from "./nationalRainQueue";
 
 const jobs = [{ runKey: "run-1", basetime: "2026-09-29T10:00:00Z", validtime: "2026-09-29T10:05:00Z", zoom: 8, tileX: 221, tileY: 100, priority: 2 }];
 
@@ -20,5 +20,16 @@ describe("national rain queue", () => {
     const result = await claimNationalRainJobs({ rpc } as any, 12);
     expect(rpc).toHaveBeenCalledWith("claim_national_rain_refinement_jobs", { p_limit: 12 });
     expect(result).toEqual([{ id: 1 }]);
+  });
+});
+
+
+test("finish calls atomic queue completion RPC", async () => {
+  const rpc = vi.fn().mockResolvedValue({ error: null });
+  await finishNationalRainJob({ rpc } as any, 42, false, "network");
+  expect(rpc).toHaveBeenCalledWith("finish_national_rain_refinement_job", {
+    p_id: 42,
+    p_success: false,
+    p_error: "network",
   });
 });
