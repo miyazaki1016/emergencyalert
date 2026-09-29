@@ -74,7 +74,7 @@ jobs:
             ('ci-stale', '2026-09-29T10:00:00Z', '2026-09-29T10:15:00Z', 8, 223, 100, 'PROCESSING', 1, now() - interval '6 minutes'),
             ('ci-fail', '2026-09-29T10:00:00Z', '2026-09-29T10:20:00Z', 8, 224, 100, 'PROCESSING', 5, now());
 
-          do $
+          do $queue$
           declare
             stale_id bigint;
             stale_attempts integer;
