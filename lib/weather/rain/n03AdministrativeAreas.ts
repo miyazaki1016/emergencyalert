@@ -22,10 +22,7 @@ export function n03FeatureToAdministrativeArea(feature: N03Feature): Administrat
   if (!feature.geometry || (feature.geometry.type !== "Polygon" && feature.geometry.type !== "MultiPolygon")) return null;
   const properties = feature.properties ?? {};
   const prefecture = textProperty(properties, "N03_001");
-  const municipality =
-    textProperty(properties, "N03_004") ||
-    textProperty(properties, "N03_003") ||
-    textProperty(properties, "N03_002");
+  const municipality = textProperty(properties, "N03_004");
   const code = textProperty(properties, "N03_007");
   if (!prefecture || !municipality || !code) return null;
   return { code, prefecture, municipality, geometry: feature.geometry };
