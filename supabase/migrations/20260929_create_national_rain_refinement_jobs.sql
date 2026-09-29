@@ -24,3 +24,59 @@ create index if not exists national_rain_refinement_jobs_pending_idx
 
 comment on table public.national_rain_refinement_jobs is
   'Internal queue for nationwide heavy-rain high-resolution refinement. Separate from per-user watch_targets.';
+
+
+create or replace function public.claim_national_rain_refinement_jobs(p_limit integer default 20)
+returns setof public.national_rain_refinement_jobs
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  return query
+  with picked as (
+    select id
+    from public.national_rain_refinement_jobs
+    where status = 'PENDING'
+      and available_at <= now()
+    order by priority desc, validtime, id
+    for update skip locked
+    limit greatest(1, least(coalesce(p_limit, 20), 100))
+  )
+  update public.national_rain_refinement_jobs j
+  set status = 'PROCESSING',
+      attempts = j.attempts + 1,
+      claimed_at = now(),
+      updated_at = now()
+  from picked
+  where j.id = picked.id
+  returning j.*;
+end;
+$$;
+
+create or replace function public.finish_national_rain_refinement_job(
+  p_id bigint,
+  p_success boolean,
+  p_error text default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.national_rain_refinement_jobs
+  set status = case when p_success then 'DONE' else 'PENDING' end,
+      completed_at = case when p_success then now() else null end,
+      available_at = case when p_success then available_at else now() + interval '1 minute' end,
+      last_error = case when p_success then null else left(coalesce(p_error, 'unknown_error'), 2000) end,
+      updated_at = now()
+  where id = p_id
+    and status = 'PROCESSING';
+end;
+$$;
+
+revoke all on function public.claim_national_rain_refinement_jobs(integer) from public, anon, authenticated;
+revoke all on function public.finish_national_rain_refinement_job(bigint, boolean, text) from public, anon, authenticated;
+grant execute on function public.claim_national_rain_refinement_jobs(integer) to service_role;
+grant execute on function public.finish_national_rain_refinement_job(bigint, boolean, text) to service_role;
