@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { performance } from "node:perf_hooks";
@@ -13,18 +13,20 @@ const input = JSON.parse(readFileSync(0, "utf8")) as {
   polygons: HeavyRainPolygon[];
   prefectures: { code: string; name: string }[];
 };
-const root = mkdtempSync(join(tmpdir(), "n03-selected-"));
-const timings = { downloadMs: 0, unzipMs: 0, readParseMs: 0, convertMs: 0, intersectionMs: 0 };
+const root = process.env.N03_CACHE_DIR || mkdtempSync(join(tmpdir(), "n03-selected-"));\nmkdirSync(root, { recursive: true });
+const timings = { downloadMs: 0, unzipMs: 0, readParseMs: 0, convertMs: 0, intersectionMs: 0 };\nlet cacheHits = 0;
 
 let started = performance.now();
-const downloads = input.prefectures.map((prefecture) => {
+const downloads = input.prefectures.map(async (prefecture) => {
   const zip = join(root, prefecture.code + ".zip");
-  return fetch(n03PrefectureArchiveUrl(prefecture.code))
-    .then(async (response) => {
-      if (!response.ok) throw new Error(`N03 download failed: ${prefecture.code} ${response.status}`);
-      writeFileSync(zip, Buffer.from(await response.arrayBuffer()));
-      return { prefecture, zip };
-    });
+  if (existsSync(zip)) {
+    cacheHits++;
+    return { prefecture, zip };
+  }
+  const response = await fetch(n03PrefectureArchiveUrl(prefecture.code));
+  if (!response.ok) throw new Error(`N03 download failed: ${prefecture.code} ${response.status}`);
+  writeFileSync(zip, Buffer.from(await response.arrayBuffer()));
+  return { prefecture, zip };
 });
 const downloaded = await Promise.all(downloads);
 timings.downloadMs = performance.now() - started;
@@ -47,7 +49,7 @@ started = performance.now();
 const affected = affectedAdministrativeAreas(input.polygons, areas);
 timings.intersectionMs = performance.now() - started;
 console.log(JSON.stringify({
-  loadedPrefectures: input.prefectures,
+  loadedPrefectures: input.prefectures,\n  cacheHits,
   administrativeAreas: areas.length,
   timings: Object.fromEntries(Object.entries(timings).map(([key, value]) => [key, Math.round(value * 100) / 100])),
   affectedAreas: affected.map((a) => ({ code: a.code, prefecture: a.prefecture, municipality: a.municipality })),
