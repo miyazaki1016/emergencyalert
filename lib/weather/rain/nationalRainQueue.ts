@@ -38,6 +38,20 @@ export async function claimNationalRainJobs(supabase: SupabaseClient, limit = 20
   return data ?? [];
 }
 
+export async function finishNationalRainJob(
+  supabase: SupabaseClient,
+  id: number,
+  success: boolean,
+  errorMessage?: string,
+) {
+  const { error } = await supabase.rpc("finish_national_rain_refinement_job", {
+    p_id: id,
+    p_success: success,
+    p_error: errorMessage ?? null,
+  });
+  if (error) throw error;
+}
+
 export function createNationalRainQueueClient() {
   const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
