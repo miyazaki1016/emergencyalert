@@ -35,12 +35,19 @@ describe("processNationalRainRefinementJobs", () => {
     const body = pngBuffer();
     const fetcher = vi.fn().mockResolvedValue(new Response(body, { status: 200 }));
 
-    const result = await processNationalRainRefinementJobs(client, { limit: 1, fetcher: fetcher as any });
+    const resolveMunicipalities = vi.fn().mockResolvedValue([]);
+    const result = await processNationalRainRefinementJobs(client, {
+      limit: 1,
+      fetcher: fetcher as any,
+      resolveMunicipalities,
+    });
 
     expect(result.claimed).toBe(1);
     expect(result.done).toBe(1);
     expect(result.failed).toBe(0);
     expect(upsert).toHaveBeenCalled();
+    expect(resolveMunicipalities).toHaveBeenCalledTimes(1);
+    expect(resolveMunicipalities.mock.calls[0][0].length).toBeGreaterThan(0);
     expect(rpc).toHaveBeenCalledWith("finish_national_rain_refinement_job", {
       p_id: 7, p_success: true, p_error: null,
     });
