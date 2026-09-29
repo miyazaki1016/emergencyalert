@@ -11,8 +11,10 @@ const areas = parseN03FeatureCollection(collection);
 const ota = areas.find((area) => area.code === "13111" && area.prefecture === "東京都" && area.municipality === "大田区");
 if (!ota) throw new Error("official N03 data did not parse 大田区 / 13111");
 
-const polygons = ota.geometry.type === "Polygon" ? [ota.geometry.coordinates] : ota.geometry.coordinates;
-const outer = polygons.flatMap((polygon) => polygon[0] ?? []);
+const polygons: number[][][][] = ota.geometry.type === "Polygon"
+  ? [ota.geometry.coordinates as number[][][]]
+  : ota.geometry.coordinates as number[][][][];
+const outer: number[][] = polygons.flatMap((polygon) => polygon[0] ?? []);
 if (!outer.length) throw new Error("大田区 geometry has no outer ring");
 
 const xs = outer.map((point) => point[0]);
