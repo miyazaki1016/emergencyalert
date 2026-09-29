@@ -1,11 +1,11 @@
 import { readFileSync } from "node:fs";
-import { fetchForecastTargetTimes } from "../lib/weather/providers/jma/targetTimes";
+import { fetchObservationTargetTimes } from "../lib/weather/providers/jma/observationTargetTimes";\nimport { fetchForecastTargetTimes } from "../lib/weather/providers/jma/targetTimes";
 import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
 import { affectedAdministrativeAreas } from "../lib/weather/rain/administrativeAreas";
 import { parseN03FeatureCollection, type N03FeatureCollection } from "../lib/weather/rain/n03AdministrativeAreas";
 import { prefecturesForRainPolygons } from "../lib/weather/rain/n03Prefectures";
 import { N03_PREFECTURE_INDEX_2026 } from "../lib/weather/rain/n03PrefectureIndex2026";
-import { clusterHeavyRainCandidates, heavyRainAreaPolygons, scanHeavyRainTile } from "../lib/weather/rain/nationalHeavyRain";
+import { clusterHeavyRainCandidates, excludeCurrentHeavyRain, heavyRainAreaPolygons, scanHeavyRainTile } from "../lib/weather/rain/nationalHeavyRain";
 
 const COARSE_ZOOM = 4;
 const REFINE_ZOOM = 8;
@@ -25,7 +25,7 @@ function latLonToTile(latitude: number, longitude: number, zoom: number) {
 }
 
 async function main() {
-  const frames = await fetchForecastTargetTimes();
+  const [observations, frames] = await Promise.all([fetchObservationTargetTimes(), fetchForecastTargetTimes()]);\n  const currentFrame = observations[0];\n  if (!currentFrame) throw new Error("No JMA observation frame");
   if (!frames.length) throw new Error("No JMA forecast frames");
   let coarseStrongPixels = 0, refinedStrongPixels = 0, refinedTileFetches = 0;
   const rainPolygons = [];
