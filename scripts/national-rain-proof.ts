@@ -6,7 +6,7 @@ import { candidateKey, clusterHeavyRainCandidates, scanHeavyRainTile, trackHeavy
 
 const ZOOM = 4;
 const REFINE_ZOOM = 8;
-const TILES = [[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;
+const TILES = [[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;\nconst REFINE_BUDGET_MS = 45_000;
 
 async function scan(frame: { basetime: string; validtime: string }) {
   const all = [];
@@ -79,13 +79,13 @@ async function main() {
   let refinedTiles = 0;
   const uniqueRefinedTiles = new Set<string>();
   const timelineTileFrames = new Map<string, string[]>();
-  for (const frame of forecasts) {
+  let deferredFrames = 0;\n  for (const frame of forecasts) {\n    const budgetExhausted = Date.now() - started >= REFINE_BUDGET_MS;
     const result = await scan(frame);
     totalBytes += result.bytes;
     const upcoming = result.candidates.filter((c) => !currentKeys.has(candidateKey(c)));
     const clusters = clusterHeavyRainCandidates(upcoming);
     clusterFrames.push({ validTime: frame.validtime, clusters });
-    const refined = await refine(frame, clusters.map((c) => ({ latitude: c.latitude, longitude: c.longitude })));
+    if (budgetExhausted) {\n      deferredFrames += 1;\n      summary.push({ validTime: frame.validtime, upcoming: upcoming.length, clusters: clusters.length, largestCluster: Math.max(0, ...clusters.map((c) => c.candidates.length)), refinedTiles: 0, refinedStrongPixels: 0, deferred: true });\n      continue;\n    }\n    const refined = await refine(frame, clusters.map((c) => ({ latitude: c.latitude, longitude: c.longitude })));
     refinedBytes += refined.bytes;
     refinedTiles += refined.tileCount;
     for (const cluster of clusters) {
@@ -106,7 +106,7 @@ async function main() {
     currentStrongPixels: current.candidates.length,
     forecastFrames: summary,
     fetchedBytes: totalBytes,
-    refinement: { zoom: REFINE_ZOOM, tileFetches: refinedTiles, uniqueTilesAcrossTimeline: uniqueRefinedTiles.size, duplicateTileFetches: refinedTiles - uniqueRefinedTiles.size, fetchedBytes: refinedBytes },
+    refinement: { zoom: REFINE_ZOOM, budgetMs: REFINE_BUDGET_MS, deferredFrames, tileFetches: refinedTiles, uniqueTilesAcrossTimeline: uniqueRefinedTiles.size, duplicateTileFetches: refinedTiles - uniqueRefinedTiles.size, fetchedBytes: refinedBytes },
     rainTracks: tracks.map((track) => ({ id: track.id, frameCount: track.points.length, firstValidTime: track.points[0]?.validTime, lastValidTime: track.points[track.points.length - 1]?.validTime, maxLevel: track.level, start: track.points[0] ? { latitude: track.points[0].latitude, longitude: track.points[0].longitude } : null, end: track.points[track.points.length - 1] ? { latitude: track.points[track.points.length - 1].latitude, longitude: track.points[track.points.length - 1].longitude } : null })),
     trackedRegions: [...timelineTileFrames.entries()].map(([tile, validTimes]) => ({ tile, firstValidTime: validTimes[0], lastValidTime: validTimes[validTimes.length - 1], frameCount: validTimes.length }))
   }, null, 2));
