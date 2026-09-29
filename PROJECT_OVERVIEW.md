@@ -1,6 +1,6 @@
 # EmergencyAlert 総覧
 
-最終更新: 2026-09-29
+最終更新: 2026-09-30
 
 ## この文書の役割
 
@@ -408,3 +408,120 @@ PR: https://github.com/miyazaki1016/emergencyalert/pull/59
 8. ここまで安定してから全国タイムラインUI/DBへ接続する。
 
 > 全国タイムラインを本体にする。最初の情報源が「これから来る大雨予報」。
+
+
+## 2026-09-30 PR #59 全国大雨二段階解析・N03実証 最新スナップショット
+
+この節は上の「PR #59 実証版」開始時点以後の実装・実測結果を更新したもの。PR #59に関して古い次工程記述と矛盾する場合は本節を優先する。
+
+### 現在の扱い
+
+- PR #59 `Add nationwide heavy-rain scan proof` は引き続き **OPEN / 未マージ / Production未反映**。
+- branch: `feat/national-heavy-rain-preview`。
+- 2026-09-30更新時点のhead: `3fe209ffdb91ee09e4caf780c3fe7b5fb2b63ae8`。
+- 既存 `watch-rain`、登録地点Push、本番DBの雨監視には接続していない。
+- PR #59は明示承認なしにマージしない。特にPR内のqueue用migrationはProduction Supabaseへまだ適用しない。
+
+### 全国解析の確定アーキテクチャ
+
+全国版は **二段階** で進める。
+
+1. Stage 1 粗探索: zoom 4 の広域JMAタイルを低コスト走査し、30 mm/h以上になる候補雨域を見つける。
+2. Stage 2 精密化: 候補地域だけzoom 8へ上げ、正確な強雨raster footprintを作る。現在すでに30 mm/h以上の高解像度セルを除外し、これから30 mm/h以上になる部分だけを残す。
+3. 精密footprintから都道府県をbboxで候補選択し、公式N03行政区域との詳細交差で市区町村を決める。
+4. 将来はこの全国解析結果をイベント化し、タイムラインと登録地点Pushの共通入力にする。
+
+35 kmクラスタリングはユーザー向け予報範囲ではなく、Stage 1で同じ雨域らしい候補をまとめてStage 2へ渡すための暫定値。最終地域判定はzoom 8 footprint + 行政境界で行う。
+
+### 実JMAで確認済みのこと
+
+- GitHub Actionsにlive JMA proofを追加し、zoom 4全国粗探索が実データで成立することを確認。
+- zoom 8 refinementも実JMAで成立。ただし全候補を1 invocationで逐次精密化すると60秒級を超えるため、Productionではジョブ分割前提。
+- 無条件3x3近傍タイル精密化は重すぎて不採用。候補中心がtile edge付近の場合だけ上下左右を追加する軽量方式を実証。
+- 45秒程度の時間budget、tile budget、per-tile deadlineの実証を追加。途中で残りをdeferできる構造を確認。
+- 現在zoom 8基準は同じ地理tileを未来フレームごとに取り直さず、run内で1回取得してcacheする。
+- 実測run `36605264932` はSuccess。未来75 tile fetchに対して現在baselineは **15 unique tiles** の取得で済み、現在雨除外後は23,690 strong cells → 182 exact rain polygons。
+- このcurrent-vs-future除外は「すでに大雨」ではなく「これから大雨」を主役にする製品要件のため必須。
+
+### Persistent refinement queue（PR内のみ）
+
+PR #59には将来の分割実行用として以下のproof実装がある。
+
+- `national_rain_refinement_jobs`: PENDING / PROCESSING / DONE / FAILED、attempts、available_at等を持つqueue。
+- `claim_national_rain_refinement_jobs`: `FOR UPDATE SKIP LOCKED` によるatomic claim。
+- finish/retry helper、CI用PostgreSQL lifecycle proof。
+- `national_rain_refinement_results`: jobごとのstrong pixel countとfootprint保存。
+- worker proof: claim → JMA tile取得 → PNG scan → result保存 → DONE / retry。
+
+**重要:** migrationはPR branch上の設計proofでありProduction DB未適用。stale PROCESSING / max attemptsの最終仕様は本番投入前にSQL実体を再監査する。
+
+### 精密rain footprint
+
+最初のconnected-component bbox Polygonは、L字等の乾いた部分まで塗りつぶして行政区域を誤検出し得るため廃止方向。
+
+その後、1 strong pixel = 1 Polygonの完全raster方式を試したが、行政境界との総当たりが重すぎてN03 proofがcancelされた。
+
+現在は **raster cell unionの外周をtraceするexact boundary方式**。
+- 内部共有edgeを相殺して外周だけを残す。
+- concavityを保持する。
+- 乾いたholeをPolygon holeとして保持する。
+- tile境界をまたぐ隣接cellもworld pixel座標で連結する。
+- one-cell-per-polygonよりPolygon数を大幅に減らす。
+
+2026-09-30に安全対策を追加:
+- 重複raster cellを先にdedupeして、重複入力で外周edgeまで相殺される事故を防ぐ。
+- 斜めに角だけ接するcellが誤って1 Polygonに結合しないようboundary分岐を改善。
+- duplicate / diagonal-touch / empty inputの回帰テストを追加。
+- commits: `e090b80a6634b22b9bdba3ad30783a6d3bdf902e` → `3fe209ffdb91ee09e4caf780c3fe7b5fb2b63ae8`。
+- **この最新headのCI / live proofsはGitHub接続タイムアウトのため、この総覧更新時点では未確認。成功扱いにしない。**
+
+### 公式N03行政区域
+
+地域名付与には国土交通省 国土数値情報の **N03 2026行政区域** を採用する。
+- N03_001: 都道府県
+- N03_004: 市区町村名
+- N03_007: 行政区域コード
+- dataset date: 2026-01-01。
+- 東京公式データで大田区 code 13111 の存在と実geometry intersectionをproof済み。
+- 47都道府県のbbox indexを公式geometryから生成済み。
+- bboxは離島を含み広くなる都道府県があるため、bbox一致だけを最終地域判定にしない。詳細N03 geometryで絞る。
+- 本番化時は毎run ZIP downloadではなく、version/attributionを保持した前処理済みgeometry cacheを使う。
+
+### N03詳細照合の高速化
+
+exact boundaryは精度を保てる一方、当初の `雨Polygon全部 × 行政区域全部` 精密交差が大きなボトルネックだった。
+
+commit `d92f3e8c20e0f3da2a5badffae750dad1c718104` で、各雨Polygonと行政Polygonのbboxを先に比較し、bboxが交差しない組み合わせはedge/pointの精密判定へ進めないようにした。
+
+実測run `36607078378` は **Success**。
+- frames: 12
+- refined future tile fetches: 101
+- current baseline unique tile fetches: 15
+- current rain除外後 strong cells: 46,743
+- exact rain polygons: 227
+- このrunは前回より雨側処理量が多い条件でもWorkflow全体が約3分で完走。
+- bbox prefilterは判定ルールを変えるものではなく、明らかに離れた組み合わせの高コスト精密判定をskipする最適化として維持する。
+
+異なる時刻のJMAデータ同士なので、run間の所要時間差を厳密な同条件benchmarkとは扱わない。ただし詳細N03総当たりが主要ボトルネックだったこと、bbox prefilter後に実データproofが完走したことは確認済み。
+
+### イベント・地域の考え方
+
+- 1市区町村 = 1記事にはしない。
+- 1つの気象学的な雨域イベントが複数市区町村へまたがる構造を許容する。
+- eventには `affectedAreas[]` を持たせ、行政区域は表示・Push対象判定に使う。
+- coarse rain trackのIDはproof上の一時IDで、最終イベントIDにはまだ使わない。
+- rain trackは時間連続性・移動対応を本番前に再監査する。過去に時間gap再接続を防ぐ修正を入れたが、branch実体で保持されているか再確認が必要。
+
+### PR #59 次の再開地点
+
+新チャットでは最初に **head `3fe209f` のGitHub Actionsを再取得**する。
+1. CIがSuccessか確認。
+2. National rain proof / N03 administrative proof / N03 prefecture index proofも確認。
+3. 失敗ならログを読み、boundary tracerのduplicate/diagonal対応を修正。未確認のまま成功扱いしない。
+4. green後、boundary tracerのL字dry-cell × 行政区域のfalse-positive回帰、collinear vertex圧縮等を必要に応じて追加。
+5. `scripts/national-rain-proof.ts` 側でもzoom 8 current-vs-future除外が本当に同じhelper経路で使われているか再監査する。過去確認ではimportだけでrefine内未使用だったため、proof名だけを信用しない。
+6. Production workerへcurrent baselineのrun-level設計を入れるのは、その後。proofのcurrent cacheがworkerへ自動反映されたとは扱わない。
+7. queueのstale PROCESSING/max attempts、fetch timeout/AbortController、tracker時間gap、zoom4の全国領土/離島coverageを本番化前に解消。
+8. ここまで安定後、全国イベントDB/タイムラインUIへ進む。
+
+> 現在の到達点は「全国粗探索 → 候補だけzoom8精密化 → 現在大雨を除外 → exact raster boundary → 公式N03市区町村」の実データ経路が成立した段階。まだProduction機能ではない。
