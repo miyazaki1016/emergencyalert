@@ -1,3 +1,4 @@
+import { NextRequest } from "next/server";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 const { processJobs, createClient } = vi.hoisted(() => ({
@@ -16,10 +17,10 @@ vi.mock("@/lib/weather/rain/nationalRainWorker", () => ({
 import { POST } from "./route";
 
 function request(auth?: string, query = "") {
-  return new Request(`http://localhost/api/rain/national-worker${query}`, {
+  return new NextRequest(`http://localhost/api/rain/national-worker${query}`, {
     method: "POST",
     headers: auth ? { authorization: auth } : {},
-  }) as any;
+  });
 }
 
 describe("national rain worker route", () => {
