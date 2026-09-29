@@ -64,8 +64,11 @@ async function refine(frame: { basetime: string; validtime: string }, tiles: Map
   let strongPixels = 0;
   let tileCount = 0;
   let deferred = false;
-  for (const tile of tiles.values()) {
-    if (Date.now() >= deadline) { deferred = true; break; }
+  const remainingTiles: Array<{ x: number; y: number }> = [];
+  const tileList = [...tiles.values()];
+  for (let index = 0; index < tileList.length; index += 1) {
+    const tile = tileList[index];
+    if (Date.now() >= deadline) { deferred = true; remainingTiles.push(...tileList.slice(index)); break; }
     const response = await fetch(buildJmaRainTileUrl(frame, REFINE_ZOOM, tile.x, tile.y));
     if (!response.ok) continue;
     const buffer = Buffer.from(await response.arrayBuffer());
@@ -73,7 +76,7 @@ async function refine(frame: { basetime: string; validtime: string }, tiles: Map
     strongPixels += scanHeavyRainTile(buffer, REFINE_ZOOM, tile.x, tile.y, 1).length;
     tileCount += 1;
   }
-  return { tileCount, bytes, strongPixels, deferred };
+  return { tileCount, bytes, strongPixels, deferred, remainingTiles };
 }
 
 async function main() {
@@ -90,6 +93,7 @@ async function main() {
   const uniqueRefinedTiles = new Set<string>();
   const timelineTileFrames = new Map<string, string[]>();
   let deferredFrames = 0;
+  const queuedJobs: Array<{ runKey: string; basetime: string; validtime: string; zoom: number; tileX: number; tileY: number; priority: number }> = [];
   const refinementDeadline = started + REFINE_BUDGET_MS;
   for (const frame of forecasts) {
     const budgetExhausted = Date.now() - started >= REFINE_BUDGET_MS;
@@ -102,13 +106,17 @@ async function main() {
     const tileBudgetExhausted = refinedTiles + tiles.size > REFINE_TILE_BUDGET;
     if (budgetExhausted || tileBudgetExhausted) {
       deferredFrames += 1;
+      for (const tile of tiles.values()) queuedJobs.push({ runKey: obs[0].basetime, basetime: frame.basetime, validtime: frame.validtime, zoom: REFINE_ZOOM, tileX: tile.x, tileY: tile.y, priority: 0 });
       summary.push({ validTime: frame.validtime, upcoming: upcoming.length, clusters: clusters.length, largestCluster: Math.max(0, ...clusters.map((c) => c.candidates.length)), refinedTiles: 0, refinedStrongPixels: 0, deferred: true });
       continue;
     }
     const refined = await refine(frame, tiles, refinementDeadline);
     refinedBytes += refined.bytes;
     refinedTiles += refined.tileCount;
-    if (refined.deferred) deferredFrames += 1;
+    if (refined.deferred) {
+      deferredFrames += 1;
+      for (const tile of refined.remainingTiles) queuedJobs.push({ runKey: obs[0].basetime, basetime: frame.basetime, validtime: frame.validtime, zoom: REFINE_ZOOM, tileX: tile.x, tileY: tile.y, priority: 0 });
+    }
     for (const cluster of clusters) {
       const tile = latLonToTile(cluster.latitude, cluster.longitude, REFINE_ZOOM);
       const key = `${tile.x}:${tile.y}`;
@@ -127,6 +135,7 @@ async function main() {
     currentStrongPixels: current.candidates.length,
     forecastFrames: summary,
     fetchedBytes: totalBytes,
+    queuedRefinementJobs: queuedJobs,
     refinement: { zoom: REFINE_ZOOM, budgetMs: REFINE_BUDGET_MS, tileBudget: REFINE_TILE_BUDGET, deferredFrames, tileFetches: refinedTiles, uniqueTilesAcrossTimeline: uniqueRefinedTiles.size, duplicateTileFetches: refinedTiles - uniqueRefinedTiles.size, fetchedBytes: refinedBytes },
     rainTracks: tracks.map((track) => ({ id: track.id, frameCount: track.points.length, firstValidTime: track.points[0]?.validTime, lastValidTime: track.points[track.points.length - 1]?.validTime, maxLevel: track.level, start: track.points[0] ? { latitude: track.points[0].latitude, longitude: track.points[0].longitude } : null, end: track.points[track.points.length - 1] ? { latitude: track.points[track.points.length - 1].latitude, longitude: track.points[track.points.length - 1].longitude } : null })),
     trackedRegions: [...timelineTileFrames.entries()].map(([tile, validTimes]) => ({ tile, firstValidTime: validTimes[0], lastValidTime: validTimes[validTimes.length - 1], frameCount: validTimes.length }))
