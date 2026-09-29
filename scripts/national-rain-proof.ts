@@ -34,8 +34,21 @@ async function refine(frame: { basetime: string; validtime: string }, centers: A
   const tiles = new Map<string, { x: number; y: number }>();
   for (const center of centers) {
     const tile = latLonToTile(center.latitude, center.longitude, REFINE_ZOOM);
-    for (let dy = -1; dy <= 1; dy++) {
-      for (let dx = -1; dx <= 1; dx++) {
+    const n = 2 ** REFINE_ZOOM;
+    const worldX = (center.longitude + 180) / 360 * n;
+    const latRad = center.latitude * Math.PI / 180;
+    const worldY = (1 - Math.asinh(Math.tan(latRad)) / Math.PI) / 2 * n;
+    const fx = worldX - Math.floor(worldX);
+    const fy = worldY - Math.floor(worldY);
+    const offsetsX = [0];
+    const offsetsY = [0];
+    const edge = 0.2;
+    if (fx < edge) offsetsX.push(-1);
+    if (fx > 1 - edge) offsetsX.push(1);
+    if (fy < edge) offsetsY.push(-1);
+    if (fy > 1 - edge) offsetsY.push(1);
+    for (const dy of offsetsY) {
+      for (const dx of offsetsX) {
         const neighbor = { x: tile.x + dx, y: tile.y + dy };
         tiles.set(`${neighbor.x}:${neighbor.y}`, neighbor);
       }
