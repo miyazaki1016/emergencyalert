@@ -35,6 +35,14 @@ timings.downloadMs = performance.now() - started;
 
 const areas = [];
 for (const { prefecture, zip } of downloaded) {
+  const preparedPath = join(root, prefecture.code + ".areas.json");
+  if (existsSync(preparedPath)) {
+    started = performance.now();
+    areas.push(...JSON.parse(readFileSync(preparedPath, "utf8")));
+    timings.readParseMs += performance.now() - started;
+    preparedCacheHits++;
+    continue;
+  }
   const dir = join(root, prefecture.code);
   execFileSync("mkdir", ["-p", dir]);
   started = performance.now();
@@ -44,7 +52,9 @@ for (const { prefecture, zip } of downloaded) {
   const collection = JSON.parse(readFileSync(join(dir, n03PrefectureGeoJsonName(prefecture.code)), "utf8")) as N03FeatureCollection;
   timings.readParseMs += performance.now() - started;
   started = performance.now();
-  areas.push(...parseN03FeatureCollection(collection).filter((a) => a.prefecture === prefecture.name));
+  const prefectureAreas = parseN03FeatureCollection(collection).filter((a) => a.prefecture === prefecture.name);
+  areas.push(...prefectureAreas);
+  writeFileSync(preparedPath, JSON.stringify(prefectureAreas));
   timings.convertMs += performance.now() - started;
 }
 started = performance.now();
