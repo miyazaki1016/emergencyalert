@@ -76,9 +76,11 @@ export function heavyRainAreaPolygons(candidates: HeavyRainCandidate[], zoom: nu
     return ak < bk ? `${ak}|${bk}` : `${bk}|${ak}`;
   };
   const edges = new Map<string, [GridPoint, GridPoint]>();
-  for (const candidate of candidates) {
-    const x = candidate.tileX * 256 + candidate.pixelX;
-    const y = candidate.tileY * 256 + candidate.pixelY;
+  const occupied = new Set(candidates.map((candidate) =>
+    `${candidate.tileX * 256 + candidate.pixelX}:${candidate.tileY * 256 + candidate.pixelY}`,
+  ));
+  for (const cellKey of occupied) {
+    const [x, y] = cellKey.split(":").map(Number);
     const cell: Array<[GridPoint, GridPoint]> = [
       [[x, y], [x + 1, y]], [[x + 1, y], [x + 1, y + 1]],
       [[x + 1, y + 1], [x, y + 1]], [[x, y + 1], [x, y]],
@@ -100,9 +102,16 @@ export function heavyRainAreaPolygons(candidates: HeavyRainCandidate[], zoom: nu
     const ring: GridPoint[] = [first[0]];
     let current = first[0];
     while (true) {
-      const options = outgoing.get(pointKey(current)) ?? [];
-      const next = options.find((p) => edges.has(edgeKey(current, p)));
-      if (!next) break;
+      const options = (outgoing.get(pointKey(current)) ?? []).filter((p) => edges.has(edgeKey(current, p)));
+      if (!options.length) break;
+      const previous = ring.length > 1 ? ring[ring.length - 2] : null;
+      const direction = (from: GridPoint, to: GridPoint) => Math.atan2(to[1] - from[1], to[0] - from[0]);
+      const next = !previous || options.length === 1 ? options[0] : options.reduce((best, option) => {
+        const incoming = direction(previous, current);
+        const turn = (direction(current, option) - incoming + Math.PI * 2) % (Math.PI * 2);
+        const bestTurn = (direction(current, best) - incoming + Math.PI * 2) % (Math.PI * 2);
+        return turn < bestTurn ? option : best;
+      });
       edges.delete(edgeKey(current, next));
       current = next; ring.push(current);
       if (pointKey(current) === pointKey(ring[0])) break;
