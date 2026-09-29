@@ -9,6 +9,7 @@ on:
       - "lib/weather/rain/n03AdministrativeAreas.ts"
       - "lib/weather/rain/n03AdministrativeAreas.test.ts"
       - "scripts/n03-tokyo-proof.ts"
+      - "scripts/n03-tokyo-live-rain-proof.ts"
 
 jobs:
   prove-tokyo:
@@ -37,3 +38,5 @@ jobs:
           echo "Official N03 Tokyo data contains 大田区 / 13111"
       - name: Parse official GeoJSON and prove real Ota geometry intersection
         run: npx tsx scripts/n03-tokyo-proof.ts /tmp/n03-tokyo/N03-20260101_13.geojson
+      - name: Intersect live JMA heavy rain with official Tokyo areas
+        run: npx tsx scripts/n03-tokyo-live-rain-proof.ts /tmp/n03-tokyo/N03-20260101_13.geojson
