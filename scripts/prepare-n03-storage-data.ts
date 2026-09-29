@@ -1,8 +1,10 @@
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import {
+  N03_DATASET_DATE,
   n03PrefectureArchiveUrl,
   n03PrefectureGeoJsonName,
 } from "../lib/weather/rain/n03Dataset";
@@ -13,7 +15,7 @@ import {
 import { N03_PREFECTURE_INDEX_2026 } from "../lib/weather/rain/n03PrefectureIndex2026";
 
 async function main() {
-  const outputRoot = resolve(process.argv[2] ?? "tmp/n03-prepared/2026");
+  const outputRoot = resolve(process.argv[2] ?? `tmp/n03-prepared/${N03_DATASET_DATE}`);
   const requested = process.argv.slice(3);
   const selected = requested.length
     ? N03_PREFECTURE_INDEX_2026.filter(({ code }) => requested.includes(code))
@@ -25,7 +27,7 @@ async function main() {
 
   mkdirSync(outputRoot, { recursive: true });
   const workRoot = mkdtempSync(join(tmpdir(), "n03-prepare-"));
-  const manifest: { code: string; name: string; areas: number; bytes: number }[] = [];
+  const manifest: { code: string; name: string; areas: number; bytes: number; sha256: string }[] = [];
 
   try {
     for (const prefecture of selected) {
@@ -52,6 +54,7 @@ async function main() {
         name: prefecture.name,
         areas: areas.length,
         bytes: Buffer.byteLength(body),
+        sha256: createHash("sha256").update(body).digest("hex"),
       });
       console.log(`prepared ${prefecture.code} ${prefecture.name}: ${areas.length} areas`);
     }
@@ -59,7 +62,7 @@ async function main() {
     const totalBytes = manifest.reduce((sum, item) => sum + item.bytes, 0);
     writeFileSync(
       join(outputRoot, "manifest.json"),
-      JSON.stringify({ dataset: "N03-20260101", files: manifest, totalBytes }, null, 2),
+      JSON.stringify({ dataset: `N03-${N03_DATASET_DATE}`, files: manifest, totalBytes }, null, 2),
     );
     console.log(JSON.stringify({ outputRoot, prefectures: manifest.length, totalBytes }));
   } finally {
