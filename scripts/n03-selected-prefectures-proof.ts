@@ -38,7 +38,7 @@ for (const { prefecture, zip } of downloaded) {
   const dir = join(root, prefecture.code);
   execFileSync("mkdir", ["-p", dir]);
   started = performance.now();
-  execFileSync("unzip", ["-q", zip, "-d", dir]);
+  execFileSync("unzip", ["-oq", zip, "-d", dir]);
   timings.unzipMs += performance.now() - started;
   started = performance.now();
   const collection = JSON.parse(readFileSync(join(dir, n03PrefectureGeoJsonName(prefecture.code)), "utf8")) as N03FeatureCollection;
