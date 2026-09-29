@@ -37,3 +37,8 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           N03_STORAGE_UPLOAD_CONFIRM: UPLOAD_N03_PREPARED_DATA
         run: npx tsx scripts/upload-n03-storage-data.ts /tmp/n03-prepared/20260101
+      - name: Verify all 47 uploaded N03 objects
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npx tsx scripts/verify-n03-storage-data.ts /tmp/n03-prepared/20260101/manifest.json
