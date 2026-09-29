@@ -12,7 +12,8 @@ on:
       - "lib/weather/rain/n03PrefectureIndex2026.ts"
       - "scripts/n03-tokyo-proof.ts"
       - "scripts/n03-tokyo-live-rain-proof.ts"
-      - "scripts/n03-selected-prefectures-proof.ts"\n      - "scripts/n03-administrative-area-benchmark.ts"
+      - "scripts/n03-selected-prefectures-proof.ts"
+      - "scripts/n03-administrative-area-benchmark.ts"
 
 jobs:
   prove-tokyo:
