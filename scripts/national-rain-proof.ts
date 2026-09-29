@@ -58,6 +58,7 @@ async function main() {
   const summary = [];
   let refinedBytes = 0;
   let refinedTiles = 0;
+  const uniqueRefinedTiles = new Set<string>();
   for (const frame of forecasts) {
     const result = await scan(frame);
     totalBytes += result.bytes;
@@ -66,6 +67,10 @@ async function main() {
     const refined = await refine(frame, clusters.map((c) => ({ latitude: c.latitude, longitude: c.longitude })));
     refinedBytes += refined.bytes;
     refinedTiles += refined.tileCount;
+    for (const cluster of clusters) {
+      const tile = latLonToTile(cluster.latitude, cluster.longitude, REFINE_ZOOM);
+      uniqueRefinedTiles.add(`${tile.x}:${tile.y}`);
+    }
     summary.push({ validTime: frame.validtime, upcoming: upcoming.length, clusters: clusters.length, largestCluster: Math.max(0, ...clusters.map((c) => c.candidates.length)), refinedTiles: refined.tileCount, refinedStrongPixels: refined.strongPixels });
   }
   console.log(JSON.stringify({
@@ -75,7 +80,7 @@ async function main() {
     currentStrongPixels: current.candidates.length,
     forecastFrames: summary,
     fetchedBytes: totalBytes,
-    refinement: { zoom: REFINE_ZOOM, tileFetches: refinedTiles, fetchedBytes: refinedBytes }
+    refinement: { zoom: REFINE_ZOOM, tileFetches: refinedTiles, uniqueTilesAcrossTimeline: uniqueRefinedTiles.size, duplicateTileFetches: refinedTiles - uniqueRefinedTiles.size, fetchedBytes: refinedBytes }
   }, null, 2));
   
 }
