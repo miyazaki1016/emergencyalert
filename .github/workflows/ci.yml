@@ -8,6 +8,20 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: emergencyalert_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d emergencyalert_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -16,4 +30,37 @@ jobs:
       - run: npm install
       - run: npm test
       - run: npx tsx scripts/national-rain-budget-proof.ts
+      - name: Prove national rain queue lifecycle
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -U postgres -d emergencyalert_test -v ON_ERROR_STOP=1 -f supabase/migrations/20260929_create_national_rain_refinement_jobs.sql
+          psql -h 127.0.0.1 -U postgres -d emergencyalert_test -v ON_ERROR_STOP=1 <<'SQL'
+          insert into public.national_rain_refinement_jobs
+            (run_key, basetime, validtime, zoom, tile_x, tile_y, priority)
+          values
+            ('ci-run', '2026-09-29T10:00:00Z', '2026-09-29T10:05:00Z', 8, 221, 100, 2),
+            ('ci-run', '2026-09-29T10:00:00Z', '2026-09-29T10:10:00Z', 8, 222, 100, 1);
+
+          do $$
+          declare
+            claimed_count integer;
+            first_id bigint;
+            remaining_count integer;
+          begin
+            select count(*), min(id) into claimed_count, first_id
+            from public.claim_national_rain_refinement_jobs(1);
+            if claimed_count <> 1 then raise exception 'expected one claimed job, got %', claimed_count; end if;
+
+            perform public.finish_national_rain_refinement_job(first_id, true, null);
+
+            select count(*) into remaining_count
+            from public.claim_national_rain_refinement_jobs(20);
+            if remaining_count <> 1 then raise exception 'expected one remaining job, got %', remaining_count; end if;
+
+            select count(*) into remaining_count
+            from public.claim_national_rain_refinement_jobs(20);
+            if remaining_count <> 0 then raise exception 'expected no re-claim of processing/done jobs, got %', remaining_count; end if;
+          end $$;
+          SQL
       - run: npm run build
