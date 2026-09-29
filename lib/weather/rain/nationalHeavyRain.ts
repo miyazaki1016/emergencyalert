@@ -59,6 +59,48 @@ export function heavyRainFootprint(candidates: HeavyRainCandidate[]): HeavyRainF
   };
 }
 
+
+export type HeavyRainPolygon = {
+  type: "Polygon";
+  coordinates: [number, number][][];
+};
+
+export function heavyRainAreaPolygons(candidates: HeavyRainCandidate[]): HeavyRainPolygon[] {
+  const byPixel = new Map(candidates.map((candidate) => [`${candidate.pixelX}:${candidate.pixelY}`, candidate]));
+  const remaining = new Set(byPixel.keys());
+  const polygons: HeavyRainPolygon[] = [];
+  const offsets = [[-1, 0], [1, 0], [0, -1], [0, 1]] as const;
+
+  while (remaining.size) {
+    const seed = remaining.values().next().value as string;
+    remaining.delete(seed);
+    const queue = [seed];
+    const members: HeavyRainCandidate[] = [];
+
+    while (queue.length) {
+      const key = queue.shift()!;
+      const current = byPixel.get(key);
+      if (!current) continue;
+      members.push(current);
+      for (const [dx, dy] of offsets) {
+        const neighborKey = `${current.pixelX + dx}:${current.pixelY + dy}`;
+        if (remaining.delete(neighborKey)) queue.push(neighborKey);
+      }
+    }
+
+    const west = Math.min(...members.map((candidate) => candidate.longitude));
+    const east = Math.max(...members.map((candidate) => candidate.longitude));
+    const south = Math.min(...members.map((candidate) => candidate.latitude));
+    const north = Math.max(...members.map((candidate) => candidate.latitude));
+    polygons.push({
+      type: "Polygon",
+      coordinates: [[[west, south], [east, south], [east, north], [west, north], [west, south]]],
+    });
+  }
+
+  return polygons;
+}
+
 export function candidateKey(candidate: Pick<HeavyRainCandidate, "tileX" | "tileY" | "pixelX" | "pixelY">) {
   return `${candidate.tileX}:${candidate.tileY}:${candidate.pixelX}:${candidate.pixelY}`;
 }
