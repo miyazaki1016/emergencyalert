@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createNationalRainQueueClient } from "@/lib/weather/rain/nationalRainQueue";
+import { resolveNationalRainMunicipalities } from "@/lib/weather/rain/nationalRainMunicipalityResolver";
+import { createSupabaseN03AdministrativeAreaLoader } from "@/lib/weather/rain/n03PreparedStorageLoader";
 import { processNationalRainRefinementJobs } from "@/lib/weather/rain/nationalRainWorker";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +23,13 @@ export async function POST(request: NextRequest) {
 
   try {
     const supabase = createNationalRainQueueClient();
-    const result = await processNationalRainRefinementJobs(supabase, { limit });
+    const loadAdministrativeAreas = createSupabaseN03AdministrativeAreaLoader(supabase);
+    const resolveMunicipalities = (footprint: Parameters<typeof resolveNationalRainMunicipalities>[0]) =>
+      resolveNationalRainMunicipalities(footprint, loadAdministrativeAreas);
+    const result = await processNationalRainRefinementJobs(supabase, {
+      limit,
+      resolveMunicipalities,
+    });
     return NextResponse.json({
       mode: "NATIONAL_RAIN_REFINEMENT_WORKER_PROOF",
       checkedAt: new Date().toISOString(),
