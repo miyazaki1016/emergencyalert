@@ -2,6 +2,12 @@ name: N03 administrative area proof
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/n03-administrative-area-proof.yml"
+      - "lib/weather/rain/administrativeAreas.ts"
+      - "lib/weather/rain/n03AdministrativeAreas.ts"
+      - "lib/weather/rain/n03AdministrativeAreas.test.ts"
 
 jobs:
   prove-tokyo:
