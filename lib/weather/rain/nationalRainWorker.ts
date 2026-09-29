@@ -45,7 +45,9 @@ export async function processNationalRainRefinementJobs(
       const strongCandidates = scanHeavyRainTile(buffer, job.zoom, job.tile_x, job.tile_y, 1);
       const strongPixelCount = strongCandidates.length;
       const footprint = heavyRainAreaPolygons(strongCandidates, job.zoom);
-      if (options.resolveMunicipalities) await options.resolveMunicipalities(footprint);
+      const municipalities = options.resolveMunicipalities
+        ? await options.resolveMunicipalities(footprint)
+        : [];
       result.strongPixels += strongPixelCount;
       await saveNationalRainRefinementResult(supabase, {
         jobId: job.id,
@@ -57,6 +59,7 @@ export async function processNationalRainRefinementJobs(
         tileY: job.tile_y,
         strongPixelCount,
         footprint,
+        municipalities,
       });
       await finishNationalRainJob(supabase, job.id, true);
       result.done += 1;
