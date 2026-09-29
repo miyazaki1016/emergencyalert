@@ -2,10 +2,11 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { PNG } from "pngjs";
 import { buildJmaRainTileUrl } from "../providers/jma/tileUrl";
 import { scanHeavyRainTile } from "./nationalHeavyRain";
-import { claimNationalRainJobs, finishNationalRainJob } from "./nationalRainQueue";
+import { claimNationalRainJobs, finishNationalRainJob, saveNationalRainRefinementResult } from "./nationalRainQueue";
 
 export type ClaimedNationalRainJob = {
   id: number;
+  run_key: string;
   basetime: string;
   validtime: string;
   zoom: number;
@@ -36,7 +37,18 @@ export async function processNationalRainRefinementJobs(
       if (!response.ok) throw new Error(`JMA tile fetch failed: ${response.status}`);
       const buffer = Buffer.from(await response.arrayBuffer());
       PNG.sync.read(buffer);
-      result.strongPixels += scanHeavyRainTile(buffer, job.zoom, job.tile_x, job.tile_y, 1).length;
+      const strongPixelCount = scanHeavyRainTile(buffer, job.zoom, job.tile_x, job.tile_y, 1).length;
+      result.strongPixels += strongPixelCount;
+      await saveNationalRainRefinementResult(supabase, {
+        jobId: job.id,
+        runKey: job.run_key,
+        basetime: job.basetime,
+        validtime: job.validtime,
+        zoom: job.zoom,
+        tileX: job.tile_x,
+        tileY: job.tile_y,
+        strongPixelCount,
+      });
       await finishNationalRainJob(supabase, job.id, true);
       result.done += 1;
     } catch (error) {
