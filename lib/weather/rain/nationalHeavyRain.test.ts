@@ -45,20 +45,40 @@ describe("heavyRainFootprint", () => {
 
 
 describe("heavyRainAreaPolygons", () => {
-  const candidate = (pixelX: number, pixelY: number, latitude: number, longitude: number): HeavyRainCandidate => ({
+  const candidate = (pixelX: number, pixelY: number, latitude = 35, longitude = 139): HeavyRainCandidate => ({
     tileX: 1, tileY: 2, pixelX, pixelY, latitude, longitude,
     intensityClass: "30_TO_50", level: "HEAVY",
   });
 
-  it("groups adjacent strong pixels and keeps separate areas apart", () => {
+  it("preserves one polygon per strong raster cell instead of filling a component bounding box", () => {
     const polygons = heavyRainAreaPolygons([
-      candidate(10, 10, 35.0, 139.0),
-      candidate(11, 10, 35.0, 139.1),
-      candidate(50, 50, 36.0, 140.0),
+      candidate(10, 10),
+      candidate(11, 10),
+      candidate(10, 11),
     ], 8);
-    expect(polygons).toHaveLength(2);
-    expect(polygons[0].type).toBe("Polygon");
-    expect(polygons[0].coordinates[0]).toHaveLength(5);
-    expect(polygons[0].coordinates[0][0]).toEqual(polygons[0].coordinates[0][4]);
+    expect(polygons).toHaveLength(3);
+    for (const polygon of polygons) {
+      expect(polygon.type).toBe("Polygon");
+      expect(polygon.coordinates[0]).toHaveLength(5);
+      expect(polygon.coordinates[0][0]).toEqual(polygon.coordinates[0][4]);
+    }
+  });
+
+  it("does not invent the missing dry cell inside an L-shaped rain area", () => {
+    const polygons = heavyRainAreaPolygons([
+      candidate(10, 10),
+      candidate(11, 10),
+      candidate(10, 11),
+    ], 8);
+    const dryCell = heavyRainAreaPolygons([candidate(11, 11)], 8)[0];
+    expect(polygons).not.toContainEqual(dryCell);
+  });
+
+  it("keeps separated strong pixels as separate cell polygons", () => {
+    expect(heavyRainAreaPolygons([
+      candidate(10, 10),
+      candidate(50, 50),
+    ], 8)).toHaveLength(2);
   });
 });
+
