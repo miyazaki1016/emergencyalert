@@ -51,6 +51,7 @@ export async function saveNationalRainRefinementResult(
     tileY: number;
     strongPixelCount: number;
     footprint?: unknown[];
+    municipalities?: unknown[];
   },
 ) {
   const { error } = await supabase.from("national_rain_refinement_results").upsert({
@@ -63,6 +64,7 @@ export async function saveNationalRainRefinementResult(
     tile_y: result.tileY,
     strong_pixel_count: result.strongPixelCount,
     footprint: result.footprint ?? [],
+    municipalities: result.municipalities ?? [],
     updated_at: new Date().toISOString(),
   }, { onConflict: "job_id" });
   if (error) throw error;
