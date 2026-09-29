@@ -88,10 +88,15 @@ export function heavyRainAreaPolygons(candidates: HeavyRainCandidate[]): HeavyRa
       }
     }
 
-    const west = Math.min(...members.map((candidate) => candidate.longitude));
-    const east = Math.max(...members.map((candidate) => candidate.longitude));
-    const south = Math.min(...members.map((candidate) => candidate.latitude));
-    const north = Math.max(...members.map((candidate) => candidate.latitude));
+    const sample = members[0];
+    const topLeft = worldPixelToLatLon(sample.tileX === sample.tileX ? 0 : 0, 0, 0);
+    void topLeft;
+    const zoom = inferZoomFromCandidateSpacing(members);
+    const corners = members.flatMap((candidate) => pixelBounds(candidate, zoom));
+    const west = Math.min(...corners.map((point) => point.lon));
+    const east = Math.max(...corners.map((point) => point.lon));
+    const south = Math.min(...corners.map((point) => point.lat));
+    const north = Math.max(...corners.map((point) => point.lat));
     polygons.push({
       type: "Polygon",
       coordinates: [[[west, south], [east, south], [east, north], [west, north], [west, south]]],
@@ -99,6 +104,19 @@ export function heavyRainAreaPolygons(candidates: HeavyRainCandidate[]): HeavyRa
   }
 
   return polygons;
+}
+
+function inferZoomFromCandidateSpacing(_members: HeavyRainCandidate[]) {
+  return 8;
+}
+
+function pixelBounds(candidate: HeavyRainCandidate, zoom: number) {
+  const worldX = candidate.tileX * 256 + candidate.pixelX;
+  const worldY = candidate.tileY * 256 + candidate.pixelY;
+  return [
+    worldPixelToLatLon(zoom, worldX, worldY),
+    worldPixelToLatLon(zoom, worldX + 1, worldY + 1),
+  ];
 }
 
 export function candidateKey(candidate: Pick<HeavyRainCandidate, "tileX" | "tileY" | "pixelX" | "pixelY">) {
