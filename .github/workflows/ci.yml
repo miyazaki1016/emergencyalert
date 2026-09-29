@@ -32,6 +32,11 @@ jobs:
       - run: npx tsx scripts/national-rain-budget-proof.ts
       - name: Benchmark fixed N03 intersection
         run: npx tsx scripts/n03-administrative-area-benchmark.ts
+      - name: Measure live N03 detail phases
+        run: |
+          npx tsx scripts/n03-tokyo-live-rain-proof.ts > /tmp/n03-live.json
+          node -e 'const fs=require("fs");const x=JSON.parse(fs.readFileSync("/tmp/n03-live.json","utf8"));process.stdout.write(JSON.stringify(x.selectedDetailInput));' > /tmp/n03-selected-input.json
+          npx tsx scripts/n03-selected-prefectures-proof.ts < /tmp/n03-selected-input.json
       - name: Prove national rain queue lifecycle
         env:
           PGPASSWORD: postgres
