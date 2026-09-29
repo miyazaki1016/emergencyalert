@@ -134,6 +134,13 @@ export interface HeavyRainEventCandidate {
   start: { latitude: number; longitude: number };
   end: { latitude: number; longitude: number };
   frameCount: number;
+  affectedAreas: HeavyRainAffectedArea[];
+}
+
+export interface HeavyRainAffectedArea {
+  code?: string;
+  prefecture: string;
+  municipality: string;
 }
 
 export function heavyRainTrackToEvent(track: HeavyRainTrack): HeavyRainEventCandidate | null {
@@ -148,5 +155,6 @@ export function heavyRainTrackToEvent(track: HeavyRainTrack): HeavyRainEventCand
     start: { latitude: first.latitude, longitude: first.longitude },
     end: { latitude: last.latitude, longitude: last.longitude },
     frameCount: track.points.length,
+    affectedAreas: [],
   };
 }
