@@ -83,6 +83,21 @@ describe("heavyRainAreaPolygons", () => {
   it("keeps separated cells as separate polygons", () => {
     expect(heavyRainAreaPolygons([candidate(10, 10), candidate(50, 50)], 8)).toHaveLength(2);
   });
+
+  it("deduplicates repeated raster cells before tracing boundaries", () => {
+    const cell = candidate(10, 10);
+    const polygons = heavyRainAreaPolygons([cell, cell], 8);
+    expect(polygons).toHaveLength(1);
+    expect(polygons[0].coordinates).toHaveLength(1);
+  });
+
+  it("keeps diagonally touching cells as separate rain polygons", () => {
+    expect(heavyRainAreaPolygons([candidate(10, 10), candidate(11, 11)], 8)).toHaveLength(2);
+  });
+
+  it("returns no polygons for an empty candidate set", () => {
+    expect(heavyRainAreaPolygons([], 8)).toEqual([]);
+  });
 });
 
 
