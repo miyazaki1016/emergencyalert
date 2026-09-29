@@ -66,6 +66,40 @@ jobs:
             select count(*) into remaining_count
             from public.claim_national_rain_refinement_jobs(20);
             if remaining_count <> 0 then raise exception 'expected no re-claim of processing/done jobs, got %', remaining_count; end if;
-          end $$;
+          end $;
+
+          insert into public.national_rain_refinement_jobs
+            (run_key, basetime, validtime, zoom, tile_x, tile_y, status, attempts, claimed_at)
+          values
+            ('ci-stale', '2026-09-29T10:00:00Z', '2026-09-29T10:15:00Z', 8, 223, 100, 'PROCESSING', 1, now() - interval '6 minutes'),
+            ('ci-fail', '2026-09-29T10:00:00Z', '2026-09-29T10:20:00Z', 8, 224, 100, 'PROCESSING', 5, now());
+
+          do $
+          declare
+            stale_id bigint;
+            stale_attempts integer;
+            failed_id bigint;
+            failed_status text;
+            reclaimed_count integer;
+          begin
+            select id into stale_id from public.national_rain_refinement_jobs where run_key = 'ci-stale';
+            select count(*) into reclaimed_count
+            from public.claim_national_rain_refinement_jobs(20)
+            where id = stale_id;
+            if reclaimed_count <> 1 then raise exception 'expected stale processing job to be reclaimed'; end if;
+
+            select attempts into stale_attempts from public.national_rain_refinement_jobs where id = stale_id;
+            if stale_attempts <> 2 then raise exception 'expected stale job attempts=2, got %', stale_attempts; end if;
+
+            select id into failed_id from public.national_rain_refinement_jobs where run_key = 'ci-fail';
+            perform public.finish_national_rain_refinement_job(failed_id, false, 'synthetic failure');
+            select status into failed_status from public.national_rain_refinement_jobs where id = failed_id;
+            if failed_status <> 'FAILED' then raise exception 'expected FAILED after max attempts, got %', failed_status; end if;
+
+            select count(*) into reclaimed_count
+            from public.claim_national_rain_refinement_jobs(100)
+            where id = failed_id;
+            if reclaimed_count <> 0 then raise exception 'FAILED job must not be reclaimed'; end if;
+          end $;
           SQL
       - run: npm run build
