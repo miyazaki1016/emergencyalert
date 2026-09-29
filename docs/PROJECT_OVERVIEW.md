@@ -556,3 +556,92 @@ from Push work, require CI to pass before merge, and verify the resulting
 Production deployment afterward.
 
 > targetTimes の値を読んでいるだけでは足りない。URLまで同じフレーム情報を運ぶ。
+
+
+## Nationwide heavy-rain refinement checkpoint — 2026-09-30
+
+PR #59 (`feat/national-heavy-rain-preview`) establishes the proof architecture
+for nationwide strong-rain discovery and municipality refinement. It remains
+proof-only: do not connect it to production Push or `watch_targets`, and do not
+apply its proof migration to Production until the worker/data path is reviewed.
+
+### Locked semantics
+
+- nationwide candidates use official JMA tiles;
+- only >=30 mm/h classes are refined: HEAVY / VERY_HEAVY / TORRENTIAL;
+- forecast strong rain is excluded when the corresponding current observation
+  is already >=30 mm/h;
+- the rain footprint preserves the exact union boundary of occupied raster cells
+  rather than replacing it with one outer rectangle/polygon;
+- municipality results are determined by exact intersection with detailed N03
+  geometry after a coarse prefecture-bbox preselection;
+- N03 output order is preserved; optimization must not silently reorder results.
+
+### Performance findings
+
+The exact administrative-area intersection itself is no longer the main
+bottleneck. A fixed benchmark improved from about 21.8 ms median to about
+2.8 ms median (~7.8x) after bbox/prepared-geometry pruning.
+
+Real N03 phase measurements showed that repeated archive download, unzip and
+conversion dominate the cold path. Parallel prefecture downloads reduced a
+comparable four-prefecture download phase from about 12.30 s to 5.11 s.
+With ZIP and prepared-area caches warm, a three-prefecture proof reached roughly
+0.64 s total for prepared-data read plus exact intersection (about 0.56 s read,
+0.08 s intersection).
+
+Production rule:
+
+> N03 is static reference data. Do not download and unzip MLIT archives every
+> five-minute worker run.
+
+The production path should use preprocessed compact per-prefecture data (and
+process-memory caching where appropriate), while retaining the same exact
+municipality-intersection semantics.
+
+### Queue / worker proof
+
+The proof queue is separate from per-user monitoring. It uses service-role-only
+claim/finish RPCs, `FOR UPDATE SKIP LOCKED`, stale-processing recovery, bounded
+attempts and retry delay.
+
+A protected POST endpoint now exists at
+`/api/rain/national-worker`. It requires the dedicated
+`NATIONAL_RAIN_WORKER_SECRET`, bounds the requested job limit, and remains
+explicitly disconnected from alert publication and Push.
+
+The worker path is now:
+
+> JMA high-resolution tile -> strong pixels -> exact footprint ->
+> municipality resolver -> proof result persistence
+
+The municipality resolver is reusable and dependency-injected: it first selects
+candidate prefectures from `N03_PREFECTURE_INDEX_2026`, then asks an injected
+loader for detailed administrative areas, then performs exact municipality
+intersection. Empty footprints or no-prefecture matches do not load N03 detail.
+
+The proof result schema now reserves both:
+
+- `footprint jsonb`
+- `municipalities jsonb`
+
+The worker persists resolved municipalities into the same proof result row.
+This schema change is still proof-only and has not been applied to Production.
+
+### Verification checkpoint
+
+At commit `6265d3c11c37439ed24e5d7966261833ba3a4d46`, all three relevant
+workflows completed successfully:
+
+- CI — SUCCESS, including tests, nationwide rain budget proof, fixed N03
+  benchmark, live N03 phases, queue lifecycle and production build;
+- National rain proof — SUCCESS;
+- N03 national prefecture index proof — SUCCESS.
+
+Do not treat this as authorization to merge or deploy PR #59. The next
+engineering step is to provide the worker with production-safe prepared N03
+data without per-run MLIT ZIP download, then re-run the same proof/CI gates
+before any production integration.
+
+> 全国を見る処理と、ユーザーへ知らせる処理はまだつながない。
+> まず「どこで強い雨になるか」を速く正確に確定する。
