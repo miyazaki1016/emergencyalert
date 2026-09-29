@@ -36,6 +36,11 @@ jobs:
           grep -R -q "大田区" /tmp/n03-tokyo
           grep -R -q "13111" /tmp/n03-tokyo
           echo "Official N03 Tokyo data contains 大田区 / 13111"
+      - name: Generate Tokyo prefecture index from official geometry
+        run: |
+          npx tsx scripts/n03-prefecture-index.ts /tmp/n03-tokyo/N03-20260101_13.geojson | tee /tmp/n03-prefecture-index.json
+          grep -q '"code":"13"' /tmp/n03-prefecture-index.json
+          grep -q '"name":"東京都"' /tmp/n03-prefecture-index.json
       - name: Parse official GeoJSON and prove real Ota geometry intersection
         run: npx tsx scripts/n03-tokyo-proof.ts /tmp/n03-tokyo/N03-20260101_13.geojson
       - name: Intersect live JMA heavy rain with official Tokyo areas
