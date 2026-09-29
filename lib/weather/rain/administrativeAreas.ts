@@ -110,15 +110,20 @@ export function affectedAdministrativeAreas(rainPolygons: HeavyRainPolygon[], ar
       : area.geometry.coordinates as number[][][][];
     return {
       area,
-      bounds: polygons.map((polygon) => polygonBounds(polygon)),
+      polygons: polygons.map((polygon) => ({
+        polygon,
+        bounds: polygonBounds(polygon),
+      })),
     };
   });
 
   return areasWithBounds
-    .filter(({ area, bounds }) =>
+    .filter(({ polygons }) =>
       rainWithBounds.some(({ rain, bounds: rainBounds }) =>
-        bounds.some((areaBounds) => boundsIntersect(rainBounds, areaBounds)) &&
-        rainPolygonIntersectsAdministrativeArea(rain, area),
+        polygons.some(({ polygon, bounds: areaBounds }) =>
+          boundsIntersect(rainBounds, areaBounds) &&
+          polygonsIntersect(rain.coordinates, polygon),
+        ),
       ),
     )
     .map(({ area }) => area);
