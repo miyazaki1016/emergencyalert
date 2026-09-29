@@ -108,23 +108,27 @@ export function affectedAdministrativeAreas(rainPolygons: HeavyRainPolygon[], ar
     const polygons = area.geometry.type === "Polygon"
       ? [area.geometry.coordinates as number[][][]]
       : area.geometry.coordinates as number[][][][];
+    const prepared = polygons.map((polygon) => ({
+      polygon,
+      bounds: polygonBounds(polygon),
+    }));
     return {
       area,
-      polygons: polygons.map((polygon) => ({
-        polygon,
-        bounds: polygonBounds(polygon),
-      })),
+      polygons: prepared,
+      west: Math.min(...prepared.map(({ bounds }) => bounds[0])),
+      east: Math.max(...prepared.map(({ bounds }) => bounds[2])),
     };
-  });
+  }).sort((a, b) => a.west - b.west);
 
   return areasWithBounds
-    .filter(({ polygons }) =>
-      rainWithBounds.some(({ rain, bounds: rainBounds }) =>
-        polygons.some(({ polygon, bounds: areaBounds }) =>
+    .filter(({ polygons, west, east }) =>
+      rainWithBounds.some(({ rain, bounds: rainBounds }) => {
+        if (west > rainBounds[2] || east < rainBounds[0]) return false;
+        return polygons.some(({ polygon, bounds: areaBounds }) =>
           boundsIntersect(rainBounds, areaBounds) &&
           polygonsIntersect(rain.coordinates, polygon),
-        ),
-      ),
+        );
+      }),
     )
     .map(({ area }) => area);
 }
