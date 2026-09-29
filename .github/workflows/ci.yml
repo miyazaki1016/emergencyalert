@@ -47,7 +47,7 @@ jobs:
             ('ci-run', '2026-09-29T10:00:00Z', '2026-09-29T10:05:00Z', 8, 221, 100, 2),
             ('ci-run', '2026-09-29T10:00:00Z', '2026-09-29T10:10:00Z', 8, 222, 100, 1);
 
-          do $$
+          do $queue$
           declare
             claimed_count integer;
             first_id bigint;
@@ -66,7 +66,7 @@ jobs:
             select count(*) into remaining_count
             from public.claim_national_rain_refinement_jobs(20);
             if remaining_count <> 0 then raise exception 'expected no re-claim of processing/done jobs, got %', remaining_count; end if;
-          end $;
+          end $queue$;
 
           insert into public.national_rain_refinement_jobs
             (run_key, basetime, validtime, zoom, tile_x, tile_y, status, attempts, claimed_at)
@@ -100,6 +100,6 @@ jobs:
             from public.claim_national_rain_refinement_jobs(100)
             where id = failed_id;
             if reclaimed_count <> 0 then raise exception 'FAILED job must not be reclaimed'; end if;
-          end $;
+          end $queue$;
           SQL
       - run: npm run build
