@@ -64,6 +64,7 @@ async function refine(frame: { basetime: string; validtime: string }, tiles: Map
   let strongPixels = 0;
   let tileCount = 0;
   let deferred = false;
+  const processedTiles: Array<{ x: number; y: number }> = [];
   const remainingTiles: Array<{ x: number; y: number }> = [];
   const tileList = [...tiles.values()];
   for (let index = 0; index < tileList.length; index += 1) {
@@ -75,8 +76,9 @@ async function refine(frame: { basetime: string; validtime: string }, tiles: Map
     bytes += buffer.length;
     strongPixels += scanHeavyRainTile(buffer, REFINE_ZOOM, tile.x, tile.y, 1).length;
     tileCount += 1;
+    processedTiles.push(tile);
   }
-  return { tileCount, bytes, strongPixels, deferred, remainingTiles };
+  return { tileCount, bytes, strongPixels, deferred, remainingTiles, processedTiles };
 }
 
 async function main() {
@@ -93,6 +95,7 @@ async function main() {
   const uniqueRefinedTiles = new Set<string>();
   const timelineTileFrames = new Map<string, string[]>();
   let deferredFrames = 0;
+  const processedJobKeys = new Set<string>();
   const queuedJobs: Array<{ runKey: string; basetime: string; validtime: string; zoom: number; tileX: number; tileY: number; priority: number }> = [];
   const refinementDeadline = started + REFINE_BUDGET_MS;
   for (const frame of forecasts) {
@@ -113,6 +116,7 @@ async function main() {
     const refined = await refine(frame, tiles, refinementDeadline);
     refinedBytes += refined.bytes;
     refinedTiles += refined.tileCount;
+    for (const tile of refined.processedTiles) processedJobKeys.add(`${frame.validtime}:${REFINE_ZOOM}:${tile.x}:${tile.y}`);
     if (refined.deferred) {
       deferredFrames += 1;
       for (const tile of refined.remainingTiles) queuedJobs.push({ runKey: obs[0].basetime, basetime: frame.basetime, validtime: frame.validtime, zoom: REFINE_ZOOM, tileX: tile.x, tileY: tile.y, priority: 0 });
@@ -128,6 +132,9 @@ async function main() {
     summary.push({ validTime: frame.validtime, upcoming: upcoming.length, clusters: clusters.length, largestCluster: Math.max(0, ...clusters.map((c) => c.candidates.length)), refinedTiles: refined.tileCount, refinedStrongPixels: refined.strongPixels, deferred: refined.deferred });
   }
   const tracks = trackHeavyRainClusters(clusterFrames);
+  const queuedJobKeys = queuedJobs.map((job) => `${job.validtime}:${job.zoom}:${job.tileX}:${job.tileY}`);
+  const processedQueuedOverlap = queuedJobKeys.filter((key) => processedJobKeys.has(key));
+  if (processedQueuedOverlap.length > 0) throw new Error(`processed/deferred tile overlap: ${processedQueuedOverlap.join(",")}`);
   console.log(JSON.stringify({
     elapsedMs: Date.now() - started,
     zoom: ZOOM,
@@ -135,6 +142,7 @@ async function main() {
     currentStrongPixels: current.candidates.length,
     forecastFrames: summary,
     fetchedBytes: totalBytes,
+    queueValidation: { processedTileKeys: processedJobKeys.size, queuedJobKeys: queuedJobKeys.length, processedQueuedOverlap: processedQueuedOverlap.length },
     queuedRefinementJobs: queuedJobs,
     refinement: { zoom: REFINE_ZOOM, budgetMs: REFINE_BUDGET_MS, tileBudget: REFINE_TILE_BUDGET, deferredFrames, tileFetches: refinedTiles, uniqueTilesAcrossTimeline: uniqueRefinedTiles.size, duplicateTileFetches: refinedTiles - uniqueRefinedTiles.size, fetchedBytes: refinedBytes },
     rainTracks: tracks.map((track) => ({ id: track.id, frameCount: track.points.length, firstValidTime: track.points[0]?.validTime, lastValidTime: track.points[track.points.length - 1]?.validTime, maxLevel: track.level, start: track.points[0] ? { latitude: track.points[0].latitude, longitude: track.points[0].longitude } : null, end: track.points[track.points.length - 1] ? { latitude: track.points[track.points.length - 1].latitude, longitude: track.points[track.points.length - 1].longitude } : null })),
