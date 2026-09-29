@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clusterHeavyRainCandidates, heavyRainLevel, type HeavyRainCandidate } from "./nationalHeavyRain";
+import { clusterHeavyRainCandidates, heavyRainFootprint, heavyRainLevel, type HeavyRainCandidate } from "./nationalHeavyRain";
 
 describe("heavyRainLevel", () => {
   it("publishes only JMA heavy-rain classes", () => {
@@ -25,5 +25,20 @@ describe("clusterHeavyRainCandidates", () => {
     ], 35);
     expect(clusters).toHaveLength(2);
     expect(clusters.find((c) => c.candidates.length === 2)?.level).toBe("VERY_HEAVY");
+  });
+});
+
+
+describe("heavyRainFootprint", () => {
+  it("preserves refined candidate coordinates as GeoJSON longitude-latitude points", () => {
+    const candidate = {
+      tileX: 1, tileY: 2, pixelX: 3, pixelY: 4,
+      latitude: 35.68, longitude: 139.76,
+      intensityClass: "30_TO_50", level: "HEAVY",
+    } as HeavyRainCandidate;
+    expect(heavyRainFootprint([candidate])).toEqual({
+      type: "MultiPoint",
+      coordinates: [[139.76, 35.68]],
+    });
   });
 });
