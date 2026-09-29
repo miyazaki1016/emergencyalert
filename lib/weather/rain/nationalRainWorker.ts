@@ -1,7 +1,7 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { PNG } from "pngjs";
 import { buildJmaRainTileUrl } from "../providers/jma/tileUrl";
-import { heavyRainFootprint, scanHeavyRainTile } from "./nationalHeavyRain";
+import { heavyRainAreaPolygons, scanHeavyRainTile } from "./nationalHeavyRain";
 import { claimNationalRainJobs, finishNationalRainJob, saveNationalRainRefinementResult } from "./nationalRainQueue";
 
 export type ClaimedNationalRainJob = {
@@ -39,7 +39,7 @@ export async function processNationalRainRefinementJobs(
       PNG.sync.read(buffer);
       const strongCandidates = scanHeavyRainTile(buffer, job.zoom, job.tile_x, job.tile_y, 1);
       const strongPixelCount = strongCandidates.length;
-      const footprint = heavyRainFootprint(strongCandidates);
+      const footprint = heavyRainAreaPolygons(strongCandidates);
       result.strongPixels += strongPixelCount;
       await saveNationalRainRefinementResult(supabase, {
         jobId: job.id,
@@ -50,7 +50,7 @@ export async function processNationalRainRefinementJobs(
         tileX: job.tile_x,
         tileY: job.tile_y,
         strongPixelCount,
-        footprint: [footprint],
+        footprint,
       });
       await finishNationalRainJob(supabase, job.id, true);
       result.done += 1;
