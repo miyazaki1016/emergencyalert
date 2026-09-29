@@ -37,8 +37,9 @@ begin
   with picked as (
     select id
     from public.national_rain_refinement_jobs
-    where status = 'PENDING'
-      and available_at <= now()
+    where ((status = 'PENDING' and available_at <= now())
+        or (status = 'PROCESSING' and claimed_at <= now() - interval '5 minutes'))
+      and attempts < 5
     order by priority desc, validtime, id
     for update skip locked
     limit greatest(1, least(coalesce(p_limit, 20), 100))
@@ -66,9 +67,13 @@ set search_path = public
 as $$
 begin
   update public.national_rain_refinement_jobs
-  set status = case when p_success then 'DONE' else 'PENDING' end,
-      completed_at = case when p_success then now() else null end,
-      available_at = case when p_success then available_at else now() + interval '1 minute' end,
+  set status = case
+        when p_success then 'DONE'
+        when attempts >= 5 then 'FAILED'
+        else 'PENDING'
+      end,
+      completed_at = case when p_success or attempts >= 5 then now() else null end,
+      available_at = case when p_success or attempts >= 5 then available_at else now() + interval '1 minute' end,
       last_error = case when p_success then null else left(coalesce(p_error, 'unknown_error'), 2000) end,
       updated_at = now()
   where id = p_id
