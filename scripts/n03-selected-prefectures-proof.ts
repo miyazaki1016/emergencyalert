@@ -64,6 +64,7 @@ timings.intersectionMs = performance.now() - started;
 console.log(JSON.stringify({
   loadedPrefectures: input.prefectures,
   cacheHits,
+  preparedCacheHits,
   administrativeAreas: areas.length,
   timings: Object.fromEntries(Object.entries(timings).map(([key, value]) => [key, Math.round(value * 100) / 100])),
   affectedAreas: affected.map((a) => ({ code: a.code, prefecture: a.prefecture, municipality: a.municipality })),
