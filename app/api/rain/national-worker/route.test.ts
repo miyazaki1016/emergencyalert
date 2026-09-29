@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-const processJobs = vi.fn();
-const createClient = vi.fn(() => ({ marker: "client" }));
+const { processJobs, createClient } = vi.hoisted(() => ({
+  processJobs: vi.fn(),
+  createClient: vi.fn(() => ({ marker: "client" })),
+}));
 
 vi.mock("@/lib/weather/rain/nationalRainQueue", () => ({
   createNationalRainQueueClient: createClient,
