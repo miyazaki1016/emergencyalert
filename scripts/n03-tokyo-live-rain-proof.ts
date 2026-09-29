@@ -47,13 +47,13 @@ async function main() {
   }
 
   for (const frame of frames) {
-    const coarse = [];
-    for (const [x, y] of COARSE_TILES) {
+    const coarseResults = await Promise.all(COARSE_TILES.map(async ([x, y]) => {
       const response = await fetch(buildJmaRainTileUrl(frame, COARSE_ZOOM, x, y));
-      if (!response.ok) continue;
+      if (!response.ok) return [];
       const buffer = Buffer.from(await response.arrayBuffer());
-      coarse.push(...scanHeavyRainTile(buffer, COARSE_ZOOM, x, y));
-    }
+      return scanHeavyRainTile(buffer, COARSE_ZOOM, x, y);
+    }));
+    const coarse = coarseResults.flat();
     coarseStrongPixels += coarse.length;
     const clusters = clusterHeavyRainCandidates(coarse);
     const tiles = new Map<string, {x:number;y:number}>();
@@ -61,16 +61,20 @@ async function main() {
       const tile = latLonToTile(cluster.latitude, cluster.longitude, REFINE_ZOOM);
       tiles.set(`${tile.x}:${tile.y}`, tile);
     }
-    for (const tile of tiles.values()) {
+    const refinedResults = await Promise.all(Array.from(tiles.values()).map(async (tile) => {
       const response = await fetch(buildJmaRainTileUrl(frame, REFINE_ZOOM, tile.x, tile.y));
-      if (!response.ok) continue;
-      refinedTileFetches += 1;
+      if (!response.ok) return null;
       const buffer = Buffer.from(await response.arrayBuffer());
       const candidates = scanHeavyRainTile(buffer, REFINE_ZOOM, tile.x, tile.y, 1);
       const currentCandidates = await scanCurrentTile(tile.x, tile.y);
       const upcomingCandidates = excludeCurrentHeavyRain(candidates, currentCandidates);
-      refinedStrongPixels += upcomingCandidates.length;
-      rainPolygons.push(...heavyRainAreaPolygons(upcomingCandidates, REFINE_ZOOM));
+      return { upcomingCandidates };
+    }));
+    for (const result of refinedResults) {
+      if (!result) continue;
+      refinedTileFetches += 1;
+      refinedStrongPixels += result.upcomingCandidates.length;
+      rainPolygons.push(...heavyRainAreaPolygons(result.upcomingCandidates, REFINE_ZOOM));
     }
   }
 
