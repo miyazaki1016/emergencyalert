@@ -21,24 +21,32 @@ async function scan(frame: { basetime: string; validtime: string }) {
   return { candidates: all, bytes };
 }
 
-const started = Date.now();
-const [obs, forecasts] = await Promise.all([fetchObservationTargetTimes(), fetchForecastTargetTimes()]);
-if (!obs[0]) throw new Error("No current observation frame");
-const current = await scan(obs[0]);
-const currentKeys = new Set(current.candidates.map(candidateKey));
-let totalBytes = current.bytes;
-const summary = [];
-for (const frame of forecasts) {
-  const result = await scan(frame);
-  totalBytes += result.bytes;
-  const upcoming = result.candidates.filter((c) => !currentKeys.has(candidateKey(c)));
-  summary.push({ validTime: frame.validtime, upcoming: upcoming.length });
+async function main() {
+  const started = Date.now();
+  const [obs, forecasts] = await Promise.all([fetchObservationTargetTimes(), fetchForecastTargetTimes()]);
+  if (!obs[0]) throw new Error("No current observation frame");
+  const current = await scan(obs[0]);
+  const currentKeys = new Set(current.candidates.map(candidateKey));
+  let totalBytes = current.bytes;
+  const summary = [];
+  for (const frame of forecasts) {
+    const result = await scan(frame);
+    totalBytes += result.bytes;
+    const upcoming = result.candidates.filter((c) => !currentKeys.has(candidateKey(c)));
+    summary.push({ validTime: frame.validtime, upcoming: upcoming.length });
+  }
+  console.log(JSON.stringify({
+    elapsedMs: Date.now() - started,
+    zoom: ZOOM,
+    tileCount: TILES.length,
+    currentStrongPixels: current.candidates.length,
+    forecastFrames: summary,
+    fetchedBytes: totalBytes
+  }, null, 2));
+  
 }
-console.log(JSON.stringify({
-  elapsedMs: Date.now() - started,
-  zoom: ZOOM,
-  tileCount: TILES.length,
-  currentStrongPixels: current.candidates.length,
-  forecastFrames: summary,
-  fetchedBytes: totalBytes
-}, null, 2));
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
