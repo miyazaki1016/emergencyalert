@@ -32,6 +32,19 @@ async function main() {
   if (!frames.length) throw new Error("No JMA forecast frames");
   let coarseStrongPixels = 0, refinedStrongPixels = 0, refinedTileFetches = 0;
   const rainPolygons = [];
+  const currentTileCache = new Map<string, Awaited<ReturnType<typeof scanCurrentTile>>>();
+
+  async function scanCurrentTile(x: number, y: number) {
+    const key = `${x}:${y}`;
+    const cached = currentTileCache.get(key);
+    if (cached) return cached;
+    const response = await fetch(buildJmaRainTileUrl(currentFrame, REFINE_ZOOM, x, y));
+    if (!response.ok) throw new Error(`Current JMA tile unavailable: ${key}`);
+    const buffer = Buffer.from(await response.arrayBuffer());
+    const candidates = scanHeavyRainTile(buffer, REFINE_ZOOM, x, y, 1);
+    currentTileCache.set(key, candidates);
+    return candidates;
+  }
 
   for (const frame of frames) {
     const coarse = [];
@@ -54,8 +67,10 @@ async function main() {
       refinedTileFetches += 1;
       const buffer = Buffer.from(await response.arrayBuffer());
       const candidates = scanHeavyRainTile(buffer, REFINE_ZOOM, tile.x, tile.y, 1);
-      refinedStrongPixels += candidates.length;
-      rainPolygons.push(...heavyRainAreaPolygons(candidates, REFINE_ZOOM));
+      const currentCandidates = await scanCurrentTile(tile.x, tile.y);
+      const upcomingCandidates = excludeCurrentHeavyRain(candidates, currentCandidates);
+      refinedStrongPixels += upcomingCandidates.length;
+      rainPolygons.push(...heavyRainAreaPolygons(upcomingCandidates, REFINE_ZOOM));
     }
   }
 
@@ -69,6 +84,7 @@ async function main() {
     coarseStrongPixels,
     refinedTileFetches,
     refinedStrongPixels,
+    currentRefinedTileFetches: currentTileCache.size,
     rainPolygons: rainPolygons.length,
     selectedPrefectures: selectedPrefectures.map((entry) => ({ code: entry.code, name: entry.name })),
     affectedAreas: affected.map((a) => ({ code: a.code, prefecture: a.prefecture, municipality: a.municipality })),
