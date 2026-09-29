@@ -116,14 +116,17 @@ export function affectedAdministrativeAreas(rainPolygons: HeavyRainPolygon[], ar
       area,
       polygons: prepared,
       west: Math.min(...prepared.map(({ bounds }) => bounds[0])),
+      south: Math.min(...prepared.map(({ bounds }) => bounds[1])),
       east: Math.max(...prepared.map(({ bounds }) => bounds[2])),
+      north: Math.max(...prepared.map(({ bounds }) => bounds[3])),
     };
   }).sort((a, b) => a.west - b.west);
 
   return areasWithBounds
-    .filter(({ polygons, west, east }) =>
+    .filter(({ polygons, west, south, east, north }) =>
       rainWithBounds.some(({ rain, bounds: rainBounds }) => {
-        if (west > rainBounds[2] || east < rainBounds[0]) return false;
+        if (west > rainBounds[2] || east < rainBounds[0] ||
+            south > rainBounds[3] || north < rainBounds[1]) return false;
         return polygons.some(({ polygon, bounds: areaBounds }) =>
           boundsIntersect(rainBounds, areaBounds) &&
           polygonsIntersect(rain.coordinates, polygon),
