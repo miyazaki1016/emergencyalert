@@ -66,40 +66,20 @@ export type HeavyRainPolygon = {
 };
 
 export function heavyRainAreaPolygons(candidates: HeavyRainCandidate[], zoom: number): HeavyRainPolygon[] {
-  const byPixel = new Map(candidates.map((candidate) => [`${candidate.pixelX}:${candidate.pixelY}`, candidate]));
-  const remaining = new Set(byPixel.keys());
-  const polygons: HeavyRainPolygon[] = [];
-  const offsets = [[-1, 0], [1, 0], [0, -1], [0, 1]] as const;
-
-  while (remaining.size) {
-    const seed = remaining.values().next().value as string;
-    remaining.delete(seed);
-    const queue = [seed];
-    const members: HeavyRainCandidate[] = [];
-
-    while (queue.length) {
-      const key = queue.shift()!;
-      const current = byPixel.get(key);
-      if (!current) continue;
-      members.push(current);
-      for (const [dx, dy] of offsets) {
-        const neighborKey = `${current.pixelX + dx}:${current.pixelY + dy}`;
-        if (remaining.delete(neighborKey)) queue.push(neighborKey);
-      }
-    }
-
-    const corners = members.flatMap((candidate) => pixelBounds(candidate, zoom));
-    const west = Math.min(...corners.map((point) => point.lon));
-    const east = Math.max(...corners.map((point) => point.lon));
-    const south = Math.min(...corners.map((point) => point.lat));
-    const north = Math.max(...corners.map((point) => point.lat));
-    polygons.push({
+  // Keep each strong-rain raster cell as its own exact Web Mercator cell polygon.
+  // A bounding rectangle around a connected component can fill dry gaps and
+  // falsely intersect neighboring municipalities.
+  return candidates.map((candidate) => {
+    const bounds = pixelBounds(candidate, zoom);
+    const west = Math.min(...bounds.map((point) => point.lon));
+    const east = Math.max(...bounds.map((point) => point.lon));
+    const south = Math.min(...bounds.map((point) => point.lat));
+    const north = Math.max(...bounds.map((point) => point.lat));
+    return {
       type: "Polygon",
       coordinates: [[[west, south], [east, south], [east, north], [west, north], [west, south]]],
-    });
-  }
-
-  return polygons;
+    };
+  });
 }
 
 function pixelBounds(candidate: HeavyRainCandidate, zoom: number) {
