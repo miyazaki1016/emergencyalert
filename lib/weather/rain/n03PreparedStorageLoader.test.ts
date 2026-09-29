@@ -31,8 +31,8 @@ function client(files: Record<string, AdministrativeArea[]>) {
 describe("createSupabaseN03AdministrativeAreaLoader", () => {
   it("downloads only requested prefectures and preserves requested order", async () => {
     const storage = client({
-      "2026/13.areas.json": [area("13111", "東京都")],
-      "2026/14.areas.json": [area("14130", "神奈川県")],
+      "20260101/13.areas.json": [area("13111", "東京都")],
+      "20260101/14.areas.json": [area("14130", "神奈川県")],
     });
     const loader = createSupabaseN03AdministrativeAreaLoader(storage as any);
 
@@ -47,7 +47,7 @@ describe("createSupabaseN03AdministrativeAreaLoader", () => {
   });
 
   it("reuses cached prefecture data across calls", async () => {
-    const storage = client({ "2026/13.areas.json": [area("13111", "東京都")] });
+    const storage = client({ "20260101/13.areas.json": [area("13111", "東京都")] });
     const cache = new Map<string, AdministrativeArea[]>();
     const loader = createSupabaseN03AdministrativeAreaLoader(storage as any, cache);
     const prefecture = [{ code: "13", name: "東京都", bbox: [0, 0, 0, 0] as [number, number, number, number] }];
@@ -68,15 +68,23 @@ describe("createSupabaseN03AdministrativeAreaLoader", () => {
   });
 
   it("rejects a prefecture mismatch instead of using wrong geometry", async () => {
-    const storage = client({ "2026/13.areas.json": [area("14130", "神奈川県")] });
+    const storage = client({ "20260101/13.areas.json": [area("14130", "神奈川県")] });
     const loader = createSupabaseN03AdministrativeAreaLoader(storage as any);
 
     await expect(loader([{ code: "13", name: "東京都", bbox: [0, 0, 0, 0] }]))
       .rejects.toThrow("N03 prepared data prefecture mismatch: 13");
   });
 
-  it("uses a stable year/prefecture object path", () => {
-    expect(nationalRainN03ObjectPath("13")).toBe("2026/13.areas.json");
+  it("rejects malformed prepared area data", async () => {
+    const storage = client({ "20260101/13.areas.json": [{ prefecture: "東京都" } as any] });
+    const loader = createSupabaseN03AdministrativeAreaLoader(storage as any);
+
+    await expect(loader([{ code: "13", name: "東京都", bbox: [0, 0, 0, 0] }]))
+      .rejects.toThrow("N03 prepared data has invalid area shape: 13");
+  });
+
+  it("uses the exact dataset date/prefecture object path", () => {
+    expect(nationalRainN03ObjectPath("13")).toBe("20260101/13.areas.json");
     expect(() => nationalRainN03ObjectPath("1")).toThrow("Invalid N03 prefecture code");
   });
 });
