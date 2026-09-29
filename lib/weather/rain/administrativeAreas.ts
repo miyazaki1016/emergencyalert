@@ -11,6 +11,20 @@ export interface AdministrativeArea {
 }
 
 type Position = [number, number];
+type Bounds = [west: number, south: number, east: number, north: number];
+
+function polygonBounds(polygon: number[][][]): Bounds {
+  let west = Infinity, south = Infinity, east = -Infinity, north = -Infinity;
+  for (const ring of polygon) for (const [x, y] of ring) {
+    west = Math.min(west, x); south = Math.min(south, y);
+    east = Math.max(east, x); north = Math.max(north, y);
+  }
+  return [west, south, east, north];
+}
+
+function boundsIntersect(a: Bounds, b: Bounds) {
+  return a[0] <= b[2] && a[2] >= b[0] && a[1] <= b[3] && a[3] >= b[1];
+}
 
 function pointInRing([x, y]: Position, ring: number[][]) {
   let inside = false;
@@ -79,7 +93,10 @@ export function rainPolygonIntersectsAdministrativeArea(rain: HeavyRainPolygon, 
   const areaPolygons = area.geometry.type === "Polygon"
     ? [area.geometry.coordinates as number[][][]]
     : area.geometry.coordinates as number[][][][];
-  return areaPolygons.some((polygon) => polygonsIntersect(rainPolygon, polygon));
+  const rainBounds = polygonBounds(rainPolygon);
+  return areaPolygons.some((polygon) =>
+    boundsIntersect(rainBounds, polygonBounds(polygon)) && polygonsIntersect(rainPolygon, polygon),
+  );
 }
 
 export function affectedAdministrativeAreas(rainPolygons: HeavyRainPolygon[], areas: AdministrativeArea[]) {
