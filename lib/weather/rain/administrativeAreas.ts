@@ -120,7 +120,7 @@ export function affectedAdministrativeAreas(rainPolygons: HeavyRainPolygon[], ar
       east: Math.max(...prepared.map(({ bounds }) => bounds[2])),
       north: Math.max(...prepared.map(({ bounds }) => bounds[3])),
     };
-  }).sort((a, b) => a.west - b.west);
+  });
 
   return areasWithBounds
     .filter(({ polygons, west, south, east, north }) =>
