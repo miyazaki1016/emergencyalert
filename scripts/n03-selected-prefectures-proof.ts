@@ -13,8 +13,10 @@ const input = JSON.parse(readFileSync(0, "utf8")) as {
   polygons: HeavyRainPolygon[];
   prefectures: { code: string; name: string }[];
 };
-const root = process.env.N03_CACHE_DIR || mkdtempSync(join(tmpdir(), "n03-selected-"));\nmkdirSync(root, { recursive: true });
-const timings = { downloadMs: 0, unzipMs: 0, readParseMs: 0, convertMs: 0, intersectionMs: 0 };\nlet cacheHits = 0;
+const root = process.env.N03_CACHE_DIR || mkdtempSync(join(tmpdir(), "n03-selected-"));
+mkdirSync(root, { recursive: true });
+const timings = { downloadMs: 0, unzipMs: 0, readParseMs: 0, convertMs: 0, intersectionMs: 0 };
+let cacheHits = 0;
 
 let started = performance.now();
 const downloads = input.prefectures.map(async (prefecture) => {
@@ -49,7 +51,8 @@ started = performance.now();
 const affected = affectedAdministrativeAreas(input.polygons, areas);
 timings.intersectionMs = performance.now() - started;
 console.log(JSON.stringify({
-  loadedPrefectures: input.prefectures,\n  cacheHits,
+  loadedPrefectures: input.prefectures,
+  cacheHits,
   administrativeAreas: areas.length,
   timings: Object.fromEntries(Object.entries(timings).map(([key, value]) => [key, Math.round(value * 100) / 100])),
   affectedAreas: affected.map((a) => ({ code: a.code, prefecture: a.prefecture, municipality: a.municipality })),
