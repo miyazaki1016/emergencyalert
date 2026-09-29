@@ -34,6 +34,12 @@ describe("affectedAdministrativeAreas", () => {
     expect(affectedAdministrativeAreas([rain(1, 0.25, 2, 0.75)], [left])).toEqual([left]);
   });
 
+  it("preserves input order for matched municipalities", () => {
+    const east = area("E", "E市", 140.0, 35.0, 141.0, 36.0);
+    const west = area("W", "W市", 139.0, 35.0, 140.0, 36.0);
+    expect(affectedAdministrativeAreas([rain(139.5, 35.2, 140.5, 35.8)], [east, west])).toEqual([east, west]);
+  });
+
   it("does not match a distant municipality", () => {
     const distant = area("D", "D市", 140.0, 36.0, 140.5, 36.5);
     expect(affectedAdministrativeAreas([rain(139.0, 35.0, 139.1, 35.1)], [distant])).toEqual([]);
