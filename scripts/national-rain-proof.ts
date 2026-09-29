@@ -2,7 +2,7 @@ import { PNG } from "pngjs";
 import { fetchObservationTargetTimes } from "../lib/weather/providers/jma/observationTargetTimes";
 import { fetchForecastTargetTimes } from "../lib/weather/providers/jma/targetTimes";
 import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
-import { candidateKey, clusterHeavyRainCandidates, heavyRainAreaPolygons, scanHeavyRainTile, trackHeavyRainClusters, type HeavyRainPolygon } from "../lib/weather/rain/nationalHeavyRain";
+import { candidateKey, clusterHeavyRainCandidates, excludeCurrentHeavyRain, heavyRainAreaPolygons, scanHeavyRainTile, trackHeavyRainClusters, type HeavyRainPolygon } from "../lib/weather/rain/nationalHeavyRain";
 
 const ZOOM = 4;
 const REFINE_ZOOM = 8;
@@ -59,7 +59,7 @@ function refinementTiles(centers: Array<{ latitude: number; longitude: number }>
   return tiles;
 }
 
-async function refine(frame: { basetime: string; validtime: string }, tiles: Map<string, { x: number; y: number }>, deadline: number) {
+async function refine(frame: { basetime: string; validtime: string }, currentFrame: { basetime: string; validtime: string }, tiles: Map<string, { x: number; y: number }>, deadline: number) {
   let bytes = 0;
   let strongPixels = 0;
   let tileCount = 0;
@@ -117,7 +117,7 @@ async function main() {
       summary.push({ validTime: frame.validtime, upcoming: upcoming.length, clusters: clusters.length, largestCluster: Math.max(0, ...clusters.map((c) => c.candidates.length)), refinedTiles: 0, refinedStrongPixels: 0, deferred: true });
       continue;
     }
-    const refined = await refine(frame, tiles, refinementDeadline);
+    const refined = await refine(frame, obs[0], tiles, refinementDeadline);
     refinedBytes += refined.bytes;
     refinedTiles += refined.tileCount;
     refinedPolygonCount += refined.polygons.length;
