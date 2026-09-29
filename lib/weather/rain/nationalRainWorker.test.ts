@@ -35,7 +35,8 @@ describe("processNationalRainRefinementJobs", () => {
     const body = pngBuffer();
     const fetcher = vi.fn().mockResolvedValue(new Response(body, { status: 200 }));
 
-    const resolveMunicipalities = vi.fn().mockResolvedValue([]);
+    const municipalities = [{ code: "13111", prefecture: "東京都", municipality: "大田区" }];
+    const resolveMunicipalities = vi.fn().mockResolvedValue(municipalities);
     const result = await processNationalRainRefinementJobs(client, {
       limit: 1,
       fetcher: fetcher as any,
@@ -45,7 +46,10 @@ describe("processNationalRainRefinementJobs", () => {
     expect(result.claimed).toBe(1);
     expect(result.done).toBe(1);
     expect(result.failed).toBe(0);
-    expect(upsert).toHaveBeenCalled();
+    expect(upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ municipalities }),
+      expect.objectContaining({ onConflict: "job_id" }),
+    );
     expect(resolveMunicipalities).toHaveBeenCalledTimes(1);
     expect(resolveMunicipalities.mock.calls[0][0].length).toBeGreaterThan(0);
     expect(rpc).toHaveBeenCalledWith("finish_national_rain_refinement_job", {
