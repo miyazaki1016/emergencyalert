@@ -141,6 +141,14 @@ function pixelBounds(candidate: HeavyRainCandidate, zoom: number) {
   ];
 }
 
+export function excludeCurrentHeavyRain(
+  forecast: HeavyRainCandidate[],
+  current: HeavyRainCandidate[],
+): HeavyRainCandidate[] {
+  const currentKeys = new Set(current.map(candidateKey));
+  return forecast.filter((candidate) => !currentKeys.has(candidateKey(candidate)));
+}
+
 export function candidateKey(candidate: Pick<HeavyRainCandidate, "tileX" | "tileY" | "pixelX" | "pixelY">) {
   return `${candidate.tileX}:${candidate.tileY}:${candidate.pixelX}:${candidate.pixelY}`;
 }
