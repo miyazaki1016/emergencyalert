@@ -1,0 +1,30 @@
+name: N03 administrative area proof
+
+on:
+  workflow_dispatch:
+
+jobs:
+  prove-tokyo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Download official 2026 Tokyo N03 data
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 \
+            "https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-2026/N03-20260101_13_GML.zip" \
+            -o /tmp/n03-tokyo.zip
+          unzip -l /tmp/n03-tokyo.zip
+      - name: Prove Ota City exists in official data
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/n03-tokyo
+          mkdir -p /tmp/n03-tokyo
+          unzip -q /tmp/n03-tokyo.zip -d /tmp/n03-tokyo
+          grep -R -q "大田区" /tmp/n03-tokyo
+          grep -R -q "13111" /tmp/n03-tokyo
+          echo "Official N03 Tokyo data contains 大田区 / 13111"
