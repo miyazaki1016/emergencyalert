@@ -13,26 +13,41 @@ const input = JSON.parse(readFileSync(0, "utf8")) as {
   prefectures: { code: string; name: string }[];
 };
 const root = mkdtempSync(join(tmpdir(), "n03-selected-"));
-const areas = [];
 const timings = { downloadMs: 0, unzipMs: 0, readParseMs: 0, convertMs: 0, intersectionMs: 0 };
-for (const prefecture of input.prefectures) {
+
+let started = performance.now();
+const downloads = input.prefectures.map((prefecture) => {
   const zip = join(root, prefecture.code + ".zip");
+  return fetch(n03PrefectureArchiveUrl(prefecture.code))
+    .then(async (response) => {
+      if (!response.ok) throw new Error(`N03 download failed: ${prefecture.code} ${response.status}`);
+      await Bun.write(zip, await response.arrayBuffer());
+      return { prefecture, zip };
+    });
+});
+const downloaded = await Promise.all(downloads);
+timings.downloadMs = performance.now() - started;
+
+const areas = [];
+for (const { prefecture, zip } of downloaded) {
   const dir = join(root, prefecture.code);
-  let started = performance.now();
-  execFileSync("curl", ["--fail","--location","--retry","3",n03PrefectureArchiveUrl(prefecture.code),"-o",zip], {stdio:"ignore"});
-  timings.downloadMs += performance.now() - started;
-  execFileSync("mkdir",["-p",dir]);
+  execFileSync("mkdir", ["-p", dir]);
   started = performance.now();
-  execFileSync("unzip",["-q",zip,"-d",dir]);
+  execFileSync("unzip", ["-q", zip, "-d", dir]);
   timings.unzipMs += performance.now() - started;
   started = performance.now();
-  const collection=JSON.parse(readFileSync(join(dir,n03PrefectureGeoJsonName(prefecture.code)),"utf8")) as N03FeatureCollection;
+  const collection = JSON.parse(readFileSync(join(dir, n03PrefectureGeoJsonName(prefecture.code)), "utf8")) as N03FeatureCollection;
   timings.readParseMs += performance.now() - started;
   started = performance.now();
-  areas.push(...parseN03FeatureCollection(collection).filter(a=>a.prefecture===prefecture.name));
+  areas.push(...parseN03FeatureCollection(collection).filter((a) => a.prefecture === prefecture.name));
   timings.convertMs += performance.now() - started;
 }
-let started = performance.now();
-const affected=affectedAdministrativeAreas(input.polygons,areas);
+started = performance.now();
+const affected = affectedAdministrativeAreas(input.polygons, areas);
 timings.intersectionMs = performance.now() - started;
-console.log(JSON.stringify({loadedPrefectures:input.prefectures,administrativeAreas:areas.length,timings:Object.fromEntries(Object.entries(timings).map(([key,value])=>[key,Math.round(value*100)/100])),affectedAreas:affected.map(a=>({code:a.code,prefecture:a.prefecture,municipality:a.municipality}))}));
+console.log(JSON.stringify({
+  loadedPrefectures: input.prefectures,
+  administrativeAreas: areas.length,
+  timings: Object.fromEntries(Object.entries(timings).map(([key, value]) => [key, Math.round(value * 100) / 100])),
+  affectedAreas: affected.map((a) => ({ code: a.code, prefecture: a.prefecture, municipality: a.municipality })),
+}));
