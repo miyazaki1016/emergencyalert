@@ -38,6 +38,36 @@ export async function claimNationalRainJobs(supabase: SupabaseClient, limit = 20
   return data ?? [];
 }
 
+
+export async function saveNationalRainRefinementResult(
+  supabase: SupabaseClient,
+  result: {
+    jobId: number;
+    runKey: string;
+    basetime: string;
+    validtime: string;
+    zoom: number;
+    tileX: number;
+    tileY: number;
+    strongPixelCount: number;
+    footprint?: unknown[];
+  },
+) {
+  const { error } = await supabase.from("national_rain_refinement_results").upsert({
+    job_id: result.jobId,
+    run_key: result.runKey,
+    basetime: result.basetime,
+    validtime: result.validtime,
+    zoom: result.zoom,
+    tile_x: result.tileX,
+    tile_y: result.tileY,
+    strong_pixel_count: result.strongPixelCount,
+    footprint: result.footprint ?? [],
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "job_id" });
+  if (error) throw error;
+}
+
 export async function finishNationalRainJob(
   supabase: SupabaseClient,
   id: number,
