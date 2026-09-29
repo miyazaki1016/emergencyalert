@@ -49,3 +49,51 @@ function worldPixelToLatLon(zoom: number, worldX: number, worldY: number) {
 export function candidateKey(candidate: Pick<HeavyRainCandidate, "tileX" | "tileY" | "pixelX" | "pixelY">) {
   return `${candidate.tileX}:${candidate.tileY}:${candidate.pixelX}:${candidate.pixelY}`;
 }
+
+export interface HeavyRainCluster {
+  candidates: HeavyRainCandidate[];
+  latitude: number;
+  longitude: number;
+  level: HeavyRainLevel;
+}
+
+const LEVEL_RANK: Record<HeavyRainLevel, number> = { HEAVY: 1, VERY_HEAVY: 2, TORRENTIAL: 3 };
+
+export function clusterHeavyRainCandidates(candidates: HeavyRainCandidate[], maxDistanceKm = 35): HeavyRainCluster[] {
+  const remaining = new Set(candidates.map((_, index) => index));
+  const clusters: HeavyRainCluster[] = [];
+  while (remaining.size) {
+    const seed = remaining.values().next().value as number;
+    remaining.delete(seed);
+    const members = [candidates[seed]];
+    const queue = [seed];
+    while (queue.length) {
+      const current = candidates[queue.shift()!];
+      for (const index of Array.from(remaining)) {
+        if (distanceKm(current, candidates[index]) <= maxDistanceKm) {
+          remaining.delete(index);
+          queue.push(index);
+          members.push(candidates[index]);
+        }
+      }
+    }
+    clusters.push({
+      candidates: members,
+      latitude: members.reduce((sum, c) => sum + c.latitude, 0) / members.length,
+      longitude: members.reduce((sum, c) => sum + c.longitude, 0) / members.length,
+      level: members.reduce((max, c) => LEVEL_RANK[c.level] > LEVEL_RANK[max] ? c.level : max, "HEAVY" as HeavyRainLevel),
+    });
+  }
+  return clusters;
+}
+
+function distanceKm(a: Pick<HeavyRainCandidate, "latitude" | "longitude">, b: Pick<HeavyRainCandidate, "latitude" | "longitude">) {
+  const r = 6371;
+  const toRad = (value: number) => value * Math.PI / 180;
+  const dLat = toRad(b.latitude - a.latitude);
+  const dLon = toRad(b.longitude - a.longitude);
+  const lat1 = toRad(a.latitude);
+  const lat2 = toRad(b.latitude);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+  return 2 * r * Math.asin(Math.sqrt(h));
+}
