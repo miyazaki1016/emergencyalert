@@ -12,7 +12,7 @@ on:
       - "lib/weather/rain/n03PrefectureIndex2026.ts"
       - "scripts/n03-tokyo-proof.ts"
       - "scripts/n03-tokyo-live-rain-proof.ts"
-      - "scripts/n03-selected-prefectures-proof.ts"
+      - "scripts/n03-selected-prefectures-proof.ts"\n      - "scripts/n03-administrative-area-benchmark.ts"
 
 jobs:
   prove-tokyo:
@@ -42,7 +42,7 @@ jobs:
           grep -q '"name":"東京都"' /tmp/n03-prefecture-index.json
       - name: Parse official GeoJSON and prove real Ota geometry intersection
         run: npx tsx scripts/n03-tokyo-proof.ts /tmp/n03-tokyo/N03-20260101_13.geojson
-      - name: Scan live JMA and select prefectures
+      - name: Benchmark fixed administrative intersection\n        run: npx tsx scripts/n03-administrative-area-benchmark.ts\n      - name: Scan live JMA and select prefectures
         run: npx tsx scripts/n03-tokyo-live-rain-proof.ts /tmp/n03-tokyo/N03-20260101_13.geojson | tee /tmp/n03-live.json
       - name: Intersect live rain with selected prefecture detail N03
         run: |
