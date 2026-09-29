@@ -66,20 +66,70 @@ export type HeavyRainPolygon = {
 };
 
 export function heavyRainAreaPolygons(candidates: HeavyRainCandidate[], zoom: number): HeavyRainPolygon[] {
-  // Keep each strong-rain raster cell as its own exact Web Mercator cell polygon.
-  // A bounding rectangle around a connected component can fill dry gaps and
-  // falsely intersect neighboring municipalities.
-  return candidates.map((candidate) => {
-    const bounds = pixelBounds(candidate, zoom);
-    const west = Math.min(...bounds.map((point) => point.lon));
-    const east = Math.max(...bounds.map((point) => point.lon));
-    const south = Math.min(...bounds.map((point) => point.lat));
-    const north = Math.max(...bounds.map((point) => point.lat));
-    return {
-      type: "Polygon",
-      coordinates: [[[west, south], [east, south], [east, north], [west, north], [west, south]]],
-    };
+  // Trace the exact union boundary of occupied raster cells. Shared internal
+  // edges cancel, so concavities and dry holes remain dry without producing
+  // one polygon per pixel.
+  type GridPoint = [number, number];
+  const pointKey = ([x, y]: GridPoint) => `${x}:${y}`;
+  const edgeKey = (a: GridPoint, b: GridPoint) => {
+    const ak = pointKey(a), bk = pointKey(b);
+    return ak < bk ? `${ak}|${bk}` : `${bk}|${ak}`;
+  };
+  const edges = new Map<string, [GridPoint, GridPoint]>();
+  for (const candidate of candidates) {
+    const x = candidate.tileX * 256 + candidate.pixelX;
+    const y = candidate.tileY * 256 + candidate.pixelY;
+    const cell: Array<[GridPoint, GridPoint]> = [
+      [[x, y], [x + 1, y]], [[x + 1, y], [x + 1, y + 1]],
+      [[x + 1, y + 1], [x, y + 1]], [[x, y + 1], [x, y]],
+    ];
+    for (const edge of cell) {
+      const key = edgeKey(...edge);
+      if (edges.has(key)) edges.delete(key); else edges.set(key, edge);
+    }
+  }
+
+  const outgoing = new Map<string, GridPoint[]>();
+  for (const [a, b] of edges.values()) {
+    const list = outgoing.get(pointKey(a)) ?? [];
+    list.push(b); outgoing.set(pointKey(a), list);
+  }
+  const rings: GridPoint[][] = [];
+  while (edges.size) {
+    const first = edges.values().next().value as [GridPoint, GridPoint];
+    const ring: GridPoint[] = [first[0]];
+    let current = first[0];
+    while (true) {
+      const options = outgoing.get(pointKey(current)) ?? [];
+      const next = options.find((p) => edges.has(edgeKey(current, p)));
+      if (!next) break;
+      edges.delete(edgeKey(current, next));
+      current = next; ring.push(current);
+      if (pointKey(current) === pointKey(ring[0])) break;
+    }
+    if (ring.length >= 4 && pointKey(ring[0]) === pointKey(ring[ring.length - 1])) rings.push(ring);
+  }
+
+  const signedArea = (ring: GridPoint[]) => ring.slice(0, -1).reduce((sum, p, i) => {
+    const q = ring[i + 1]; return sum + p[0] * q[1] - q[0] * p[1];
+  }, 0) / 2;
+  const outers = rings.filter((ring) => signedArea(ring) > 0);
+  const holes = rings.filter((ring) => signedArea(ring) < 0);
+  const gridContains = (ring: GridPoint[], p: GridPoint) => {
+    let inside = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [xi, yi] = ring[i], [xj, yj] = ring[j];
+      if ((yi > p[1]) !== (yj > p[1]) && p[0] < ((xj - xi) * (p[1] - yi)) / (yj - yi) + xi) inside = !inside;
+    }
+    return inside;
+  };
+  const toLonLat = (ring: GridPoint[]): [number, number][] => ring.map(([x, y]) => {
+    const p = worldPixelToLatLon(zoom, x, y); return [p.lon, p.lat];
   });
+  return outers.map((outer) => ({
+    type: "Polygon",
+    coordinates: [toLonLat(outer), ...holes.filter((hole) => gridContains(outer, hole[0])).map(toLonLat)],
+  }));
 }
 
 function pixelBounds(candidate: HeavyRainCandidate, zoom: number) {
