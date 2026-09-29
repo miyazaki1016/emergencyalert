@@ -69,6 +69,7 @@ async function main() {
     rainPolygons: rainPolygons.length,
     selectedPrefectures: selectedPrefectures.map((entry) => ({ code: entry.code, name: entry.name })),
     affectedAreas: affected.map((a) => ({ code: a.code, prefecture: a.prefecture, municipality: a.municipality })),
+    selectedDetailInput: { polygons: rainPolygons, prefectures: selectedPrefectures.map((entry) => ({ code: entry.code, name: entry.name })) },
   }));
 }
 main().catch((error) => { console.error(error); process.exit(1); });
