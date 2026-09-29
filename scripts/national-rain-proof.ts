@@ -59,6 +59,7 @@ async function main() {
   let refinedBytes = 0;
   let refinedTiles = 0;
   const uniqueRefinedTiles = new Set<string>();
+  const timelineTileFrames = new Map<string, string[]>();
   for (const frame of forecasts) {
     const result = await scan(frame);
     totalBytes += result.bytes;
@@ -69,7 +70,11 @@ async function main() {
     refinedTiles += refined.tileCount;
     for (const cluster of clusters) {
       const tile = latLonToTile(cluster.latitude, cluster.longitude, REFINE_ZOOM);
-      uniqueRefinedTiles.add(`${tile.x}:${tile.y}`);
+      const key = `${tile.x}:${tile.y}`;
+      uniqueRefinedTiles.add(key);
+      const times = timelineTileFrames.get(key) ?? [];
+      times.push(frame.validtime);
+      timelineTileFrames.set(key, times);
     }
     summary.push({ validTime: frame.validtime, upcoming: upcoming.length, clusters: clusters.length, largestCluster: Math.max(0, ...clusters.map((c) => c.candidates.length)), refinedTiles: refined.tileCount, refinedStrongPixels: refined.strongPixels });
   }
@@ -80,7 +85,8 @@ async function main() {
     currentStrongPixels: current.candidates.length,
     forecastFrames: summary,
     fetchedBytes: totalBytes,
-    refinement: { zoom: REFINE_ZOOM, tileFetches: refinedTiles, uniqueTilesAcrossTimeline: uniqueRefinedTiles.size, duplicateTileFetches: refinedTiles - uniqueRefinedTiles.size, fetchedBytes: refinedBytes }
+    refinement: { zoom: REFINE_ZOOM, tileFetches: refinedTiles, uniqueTilesAcrossTimeline: uniqueRefinedTiles.size, duplicateTileFetches: refinedTiles - uniqueRefinedTiles.size, fetchedBytes: refinedBytes },
+    trackedRegions: [...timelineTileFrames.entries()].map(([tile, validTimes]) => ({ tile, firstValidTime: validTimes[0], lastValidTime: validTimes[validTimes.length - 1], frameCount: validTimes.length }))
   }, null, 2));
   
 }
