@@ -97,3 +97,31 @@ function distanceKm(a: Pick<HeavyRainCandidate, "latitude" | "longitude">, b: Pi
   const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
   return 2 * r * Math.asin(Math.sqrt(h));
 }
+
+export interface HeavyRainTrackPoint { validTime: string; latitude: number; longitude: number; level: HeavyRainLevel; candidateCount: number; }
+export interface HeavyRainTrack { id: string; points: HeavyRainTrackPoint[]; level: HeavyRainLevel; }
+
+export function trackHeavyRainClusters(frames: Array<{ validTime: string; clusters: HeavyRainCluster[] }>, maxMoveKm = 45): HeavyRainTrack[] {
+  const tracks: HeavyRainTrack[] = [];
+  for (const frame of frames) {
+    const used = new Set<number>();
+    for (const cluster of frame.clusters) {
+      let best = -1, bestDistance = Infinity;
+      for (let i = 0; i < tracks.length; i++) {
+        if (used.has(i)) continue;
+        const last = tracks[i].points[tracks[i].points.length - 1];
+        if (last.validTime === frame.validTime) continue;
+        const d = distanceKm(last, cluster);
+        if (d <= maxMoveKm && d < bestDistance) { best = i; bestDistance = d; }
+      }
+      const point = { validTime: frame.validTime, latitude: cluster.latitude, longitude: cluster.longitude, level: cluster.level, candidateCount: cluster.candidates.length };
+      if (best >= 0) {
+        tracks[best].points.push(point); used.add(best);
+        if (LEVEL_RANK[cluster.level] > LEVEL_RANK[tracks[best].level]) tracks[best].level = cluster.level;
+      } else {
+        tracks.push({ id: `rain-${tracks.length + 1}`, points: [point], level: cluster.level }); used.add(tracks.length - 1);
+      }
+    }
+  }
+  return tracks;
+}
