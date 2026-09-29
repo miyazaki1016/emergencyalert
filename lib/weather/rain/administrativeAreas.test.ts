@@ -24,6 +24,16 @@ describe("affectedAdministrativeAreas", () => {
     expect(affectedAdministrativeAreas([rain(139.4, 35.2, 139.6, 35.3)], [a, b])).toEqual([a, b]);
   });
 
+  it("does not match disjoint collinear boundaries", () => {
+    const left = area("L", "L市", 0, 0, 1, 1);
+    expect(affectedAdministrativeAreas([rain(2, 0, 3, 1)], [left])).toEqual([]);
+  });
+
+  it("matches boundaries that actually touch", () => {
+    const left = area("L", "L市", 0, 0, 1, 1);
+    expect(affectedAdministrativeAreas([rain(1, 0.25, 2, 0.75)], [left])).toEqual([left]);
+  });
+
   it("does not match a distant municipality", () => {
     const distant = area("D", "D市", 140.0, 36.0, 140.5, 36.5);
     expect(affectedAdministrativeAreas([rain(139.0, 35.0, 139.1, 35.1)], [distant])).toEqual([]);
