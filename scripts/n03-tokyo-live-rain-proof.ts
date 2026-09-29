@@ -6,7 +6,7 @@ import { affectedAdministrativeAreas } from "../lib/weather/rain/administrativeA
 import { parseN03FeatureCollection, type N03FeatureCollection } from "../lib/weather/rain/n03AdministrativeAreas";
 import { prefecturesForRainPolygons } from "../lib/weather/rain/n03Prefectures";
 import { N03_PREFECTURE_INDEX_2026 } from "../lib/weather/rain/n03PrefectureIndex2026";
-import { clusterHeavyRainCandidates, excludeCurrentHeavyRain, heavyRainAreaPolygons, scanHeavyRainTile } from "../lib/weather/rain/nationalHeavyRain";
+import { clusterHeavyRainCandidates, excludeCurrentHeavyRain, heavyRainAreaPolygons, scanHeavyRainTile, type HeavyRainCandidate } from "../lib/weather/rain/nationalHeavyRain";
 
 const COARSE_ZOOM = 4;
 const REFINE_ZOOM = 8;
@@ -32,7 +32,7 @@ async function main() {
   if (!frames.length) throw new Error("No JMA forecast frames");
   let coarseStrongPixels = 0, refinedStrongPixels = 0, refinedTileFetches = 0;
   const rainPolygons = [];
-  const currentTileCache = new Map<string, Awaited<ReturnType<typeof scanCurrentTile>>>();
+  const currentTileCache = new Map<string, HeavyRainCandidate[]>();
 
   async function scanCurrentTile(x: number, y: number) {
     const key = `${x}:${y}`;
