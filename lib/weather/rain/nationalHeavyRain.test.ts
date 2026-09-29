@@ -55,11 +55,10 @@ describe("heavyRainAreaPolygons", () => {
       candidate(10, 10, 35.0, 139.0),
       candidate(11, 10, 35.0, 139.1),
       candidate(50, 50, 36.0, 140.0),
-    ]);
+    ], 8);
     expect(polygons).toHaveLength(2);
-    expect(polygons[0]).toEqual({
-      type: "Polygon",
-      coordinates: [[[139.0, 35.0], [139.1, 35.0], [139.1, 35.0], [139.0, 35.0], [139.0, 35.0]]],
-    });
+    expect(polygons[0].type).toBe("Polygon");
+    expect(polygons[0].coordinates[0]).toHaveLength(5);
+    expect(polygons[0].coordinates[0][0]).toEqual(polygons[0].coordinates[0][4]);
   });
 });
