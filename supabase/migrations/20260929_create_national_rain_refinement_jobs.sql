@@ -29,13 +29,14 @@ create table if not exists public.national_rain_refinement_results (
   tile_y integer not null,
   strong_pixel_count integer not null default 0 check (strong_pixel_count >= 0),
   footprint jsonb not null default '[]'::jsonb,
+  municipalities jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (run_key, validtime, zoom, tile_x, tile_y)
 );
 
 comment on table public.national_rain_refinement_results is
-  'High-resolution nationwide rain refinement results. footprint is reserved for bounded strong-rain geometry derived from official JMA tiles.';
+  'High-resolution nationwide rain refinement proof results. footprint stores bounded strong-rain geometry and municipalities stores N03 intersections. Not connected to watch_targets or push notifications.';
 
 create index if not exists national_rain_refinement_results_time_idx
   on public.national_rain_refinement_results (validtime, run_key);
