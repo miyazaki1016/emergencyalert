@@ -3,7 +3,8 @@ import { fetchForecastTargetTimes } from "../lib/weather/providers/jma/targetTim
 import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
 import { affectedAdministrativeAreas } from "../lib/weather/rain/administrativeAreas";
 import { parseN03FeatureCollection, type N03FeatureCollection } from "../lib/weather/rain/n03AdministrativeAreas";
-import { prefecturesForRainPolygons, type N03PrefectureIndexEntry } from "../lib/weather/rain/n03Prefectures";
+import { prefecturesForRainPolygons } from "../lib/weather/rain/n03Prefectures";
+import { N03_PREFECTURE_INDEX_2026 } from "../lib/weather/rain/n03PrefectureIndex2026";
 import { clusterHeavyRainCandidates, heavyRainAreaPolygons, scanHeavyRainTile } from "../lib/weather/rain/nationalHeavyRain";
 
 const COARSE_ZOOM = 4;
@@ -14,17 +15,6 @@ if (!file) throw new Error("usage: n03-tokyo-live-rain-proof.ts <N03 GeoJSON>");
 
 const collection = JSON.parse(readFileSync(file, "utf8")) as N03FeatureCollection;
 const tokyoAreas = parseN03FeatureCollection(collection).filter((area) => area.prefecture === "東京都");
-
-function prefectureIndexFromAreas(): N03PrefectureIndexEntry[] {
-  let west = Infinity, south = Infinity, east = -Infinity, north = -Infinity;
-  for (const area of tokyoAreas) {
-    const polygons = area.geometry.type === "Polygon" ? [area.geometry.coordinates as number[][][]] : area.geometry.coordinates as number[][][][];
-    for (const polygon of polygons) for (const [lon, lat] of polygon[0] ?? []) {
-      west = Math.min(west, lon); south = Math.min(south, lat); east = Math.max(east, lon); north = Math.max(north, lat);
-    }
-  }
-  return [{ code: "13", name: "東京都", bbox: [west, south, east, north] }];
-}
 
 function latLonToTile(latitude: number, longitude: number, zoom: number) {
   const n = 2 ** zoom;
@@ -66,7 +56,7 @@ async function main() {
     }
   }
 
-  const selectedPrefectures = prefecturesForRainPolygons(rainPolygons, prefectureIndexFromAreas());
+  const selectedPrefectures = prefecturesForRainPolygons(rainPolygons, N03_PREFECTURE_INDEX_2026);
   const affected = selectedPrefectures.some((entry) => entry.code === "13")
     ? affectedAdministrativeAreas(rainPolygons, tokyoAreas)
     : [];
