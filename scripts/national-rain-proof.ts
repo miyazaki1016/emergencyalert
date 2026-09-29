@@ -2,7 +2,7 @@ import { PNG } from "pngjs";
 import { fetchObservationTargetTimes } from "../lib/weather/providers/jma/observationTargetTimes";
 import { fetchForecastTargetTimes } from "../lib/weather/providers/jma/targetTimes";
 import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
-import { candidateKey, scanHeavyRainTile } from "../lib/weather/rain/nationalHeavyRain";
+import { candidateKey, clusterHeavyRainCandidates, scanHeavyRainTile } from "../lib/weather/rain/nationalHeavyRain";
 
 const ZOOM = 4;
 const TILES = [[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;
@@ -33,7 +33,8 @@ async function main() {
     const result = await scan(frame);
     totalBytes += result.bytes;
     const upcoming = result.candidates.filter((c) => !currentKeys.has(candidateKey(c)));
-    summary.push({ validTime: frame.validtime, upcoming: upcoming.length });
+    const clusters = clusterHeavyRainCandidates(upcoming);
+    summary.push({ validTime: frame.validtime, upcoming: upcoming.length, clusters: clusters.length, largestCluster: Math.max(0, ...clusters.map((c) => c.candidates.length)) });
   }
   console.log(JSON.stringify({
     elapsedMs: Date.now() - started,
