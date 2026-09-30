@@ -94,8 +94,13 @@ async function main() {
     const ownership = process.env.N03_PROOF_OWNER !== undefined ? JSON.parse(readFileSync("docs/proofs/national-all47-ownership.json", "utf8")).ownership : undefined;
     const owner = Number(process.env.N03_PROOF_OWNER);
     if (ownership && (!Number.isInteger(owner) || owner < 0 || owner >= ownership.regionCount)) throw new Error("Invalid proof owner");
+    const preparedDatasets = datasets(root,codes);
+    if (ownership) for (const d of preparedDatasets) for (const c of d.index.chunks) {
+      const assigned = ownership.owners[`${d.code}/${c.file}`];
+      if (!Number.isInteger(assigned) || assigned < 0 || assigned >= ownership.regionCount) throw new Error("Missing/invalid immutable chunk owner");
+    }
     const owns = ownership ? (code: string,file: string) => ownership.owners[`${code}/${file}`] === owner : undefined;
-    const resolver = variant === "cached" ? createBoundedPartitionResolver({ datasets: datasets(root, codes), read, owns, get signal() { return phaseSignal; } }) : undefined;
+    const resolver = variant === "cached" ? createBoundedPartitionResolver({ datasets: preparedDatasets, read, owns, get signal() { return phaseSignal; } }) : undefined;
     const wholeFlights = new Map<string, Promise<AdministrativeArea[]>>();
     const wholeLoad = (code: string) => {
       let loaded = wholeFlights.get(code);
