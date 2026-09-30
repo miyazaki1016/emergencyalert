@@ -14,12 +14,15 @@ export function refinementJobFromCoarseCandidate(
   candidate: { tileX: number; tileY: number; pixelX: number; pixelY: number },
   frame: { basetime: string; validtime: string },
   coarseZoom = 4,
-  refinementZoom = 8,
+  refinementZoom = 10,
 ): NationalRainQueueJob {
   const scale = 2 ** (refinementZoom - coarseZoom);
-  if (scale !== 16) throw new Error("Unsupported national rain refinement zoom ratio");
-  const tileX = candidate.tileX * scale + Math.floor(candidate.pixelX / 16);
-  const tileY = candidate.tileY * scale + Math.floor(candidate.pixelY / 16);
+  if (!Number.isInteger(scale) || scale < 1 || scale > 256 || 256 % scale !== 0) {
+    throw new Error("Unsupported national rain refinement zoom ratio");
+  }
+  const coarsePixelsPerRefinementTile = 256 / scale;
+  const tileX = candidate.tileX * scale + Math.floor(candidate.pixelX / coarsePixelsPerRefinementTile);
+  const tileY = candidate.tileY * scale + Math.floor(candidate.pixelY / coarsePixelsPerRefinementTile);
   return {
     runKey: `${frame.basetime}:${frame.validtime}`,
     basetime: frame.basetime,
