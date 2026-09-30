@@ -1,0 +1,30 @@
+name: JMA low-zoom max-rank proof
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/national-lowzoom-max-rank-proof.ts'
+      - 'scripts/national-lowzoom-max-rank-proof.test.ts'
+      - '.github/workflows/national-lowzoom-max-rank-proof.yml'
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npx vitest run scripts/national-lowzoom-max-rank-proof.test.ts
+      - name: Compare all z8 descendants with z4 parents for one live JMA frame
+        env:
+          JMA_LOWZOOM_CONCURRENCY: 8
+        run: |
+          set -o pipefail
+          npx tsx scripts/national-lowzoom-max-rank-proof.ts | tee /tmp/jma-lowzoom-max-rank.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jma-lowzoom-max-rank-evidence
+          path: /tmp/jma-lowzoom-max-rank.json
