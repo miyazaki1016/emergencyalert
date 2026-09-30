@@ -763,3 +763,80 @@ Do not apply the proof migration, connect Push/watch_targets, or merge PR #59
 until that next architecture gate is explicitly reviewed.
 
 > 未来のソラを信用するな。データセット日付とハッシュまで残して、実物で確認する。
+
+
+### Protected nationwide scan -> queue checkpoint — 2026-09-30
+
+The next architecture gate is now proven without coupling nationwide work to the
+existing per-user watcher.
+
+Do **not** put nationwide scanning inside `supabase/functions/watch-rain`.
+That function is the saved-target state/Push delivery path: it reads enabled
+`watch_targets`, evaluates each target, sends Web Push, and updates
+`watch_states`. Nationwide discovery is shared computation whose cost must not
+scale with user count.
+
+The proof flow is therefore kept separate:
+
+> protected nationwide scan -> refinement queue -> protected worker ->
+> high-resolution JMA tile -> exact rain footprint -> prepared N03 prefecture
+> data -> exact municipality intersection -> proof-result persistence
+
+A protected POST proof endpoint now exists at `/api/rain/national-queue`.
+It requires `NATIONAL_RAIN_WORKER_SECRET`, uses service-role Supabase only on
+the server, and does not publish alerts or mutate `watch_targets`.
+
+The scan keeps the locked rain semantics: current >=30 mm/h pixels suppress the
+corresponding forecast candidates. Coarse zoom-4 candidate pixels are mapped to
+their exact zoom-8 refinement tile; only refinement tiles containing new strong
+rain candidates are requested, rather than blindly queueing every zoom-8 tile
+covering Japan. Multiple coarse candidates mapping to the same refinement tile
+are deduplicated before enqueue.
+
+Queue identity remains
+`run_key + validtime + zoom + tile_x + tile_y`, and database upsert uses that
+unique identity with duplicate-ignore semantics. Re-running the same forecast
+therefore does not create duplicate jobs. The proof response deliberately calls
+its metric `requestedRefinementTiles`: it is the number of tiles requested for
+enqueue, not a claim that every request inserted a new database row.
+
+Unlike the public/read-only preview's tolerant display behavior, the queue scan
+fails closed. If any required coarse JMA tile cannot be fetched, the protected
+route returns 503 and does not enqueue an incomplete nationwide frame. A zero
+candidate frame is valid and safely produces zero jobs.
+
+Tests lock:
+
+- unauthenticated requests are rejected before scan/queue work;
+- current strong-rain pixels are excluded from forecast refinement;
+- multiple candidates mapping to one zoom-8 tile become one queue job;
+- any required coarse JMA fetch failure returns 503 with no enqueue;
+- zoom-4 candidate coordinates map deterministically to the matching zoom-8
+  refinement tile.
+
+At commit `8fe751b3d9a37b01bd7fe3b408469773af13f9fe`, all three final gates are
+green:
+
+- CI #473 — SUCCESS, including all tests, nationwide budget proof, N03
+  benchmarks/phases, reproducible prepared-data verification, queue lifecycle,
+  and production build;
+- National rain proof #177 — SUCCESS;
+- N03 national prefecture index proof #97 — SUCCESS.
+
+This closes the **scan -> queue -> worker -> municipality proof** architecture
+gate. It does not authorize Production integration.
+
+Still forbidden:
+
+- do not apply the proof queue/result migration to Production;
+- do not connect nationwide proof results to Push or `watch_targets`;
+- do not merge/deploy PR #59 merely because this proof path is green.
+
+Next engineering gate: define the scheduler/orchestration that invokes the
+protected scan and worker at the intended cadence, with failure/retry behavior
+that remains isolated from user alert delivery. Reconcile the repository's
+migration/source-of-truth representation of the private N03 bucket's current
+50 MiB object limit before Production rollout.
+
+> 全国計算は共通処理。ユーザーごとの5分監視とは混ぜない。
+> scanから市区町村確定までは閉じたproofとして完成。通知はまだつながない。
