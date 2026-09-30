@@ -17,11 +17,11 @@ jobs:
           node-version: 22
       - run: npm install
       - name: Scan every forecast frame at z4 and count required z8 refinement
-        run: npx tsx scripts/national-forecast-z4-screening-proof.ts | tee /tmp/forecast-z4-screening.json
+        run: |\n          set -o pipefail\n          npx tsx scripts/national-forecast-z4-screening-proof.ts | tee /tmp/forecast-z4-screening.json
       - name: Exhaustively validate nearest middle and farthest forecast frames
         env:
           JMA_FORECAST_LOWZOOM_CONCURRENCY: 8
-        run: npx tsx scripts/national-forecast-lowzoom-validation.ts | tee /tmp/forecast-lowzoom-validation.json
+        run: |\n          set -o pipefail\n          npx tsx scripts/national-forecast-lowzoom-validation.ts | tee /tmp/forecast-lowzoom-validation.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
