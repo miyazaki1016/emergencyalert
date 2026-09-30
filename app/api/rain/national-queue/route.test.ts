@@ -51,7 +51,7 @@ const forecast = { basetime: "20260930000000", validtime: "20260930000500" };
 
 describe("national rain queue proof route", () => {
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
     vi.clearAllMocks();
     delete process.env.NATIONAL_RAIN_WORKER_SECRET;
   });
