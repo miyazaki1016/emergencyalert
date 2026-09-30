@@ -74,10 +74,11 @@ export function stagedRefinementJobsFromCoarseCandidates(
   candidates: Array<{ tileX: number; tileY: number; pixelX: number; pixelY: number }>,
   frame: { basetime: string; validtime: string },
   childZoom: NationalRainRefinementStage = 6,
+  coarseZoom = 4,
 ): NationalRainQueueJob[] {
   const byTile = new Map<string, NationalRainQueueJob>();
   for (const candidate of candidates) {
-    for (const tile of childTilesForCandidate(candidate, 4, childZoom)) {
+    for (const tile of childTilesForCandidate(candidate, coarseZoom, childZoom)) {
       const job: NationalRainQueueJob = {
         runKey: `${frame.basetime}:${frame.validtime}`,
         basetime: frame.basetime,
