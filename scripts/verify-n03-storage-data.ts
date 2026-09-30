@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { readFileSync, resolve } from "node:fs";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { N03_DATASET_DATE } from "../lib/weather/rain/n03Dataset";
 import {
