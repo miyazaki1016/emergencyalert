@@ -40,6 +40,11 @@ jobs:
         run: |
           set -o pipefail
           npx tsx scripts/national-forecast-lowzoom-validation.ts | tee /tmp/forecast-lowzoom-validation.json
+      - name: Probe candidate refinement zoom availability across all forecast frames
+        timeout-minutes: 10
+        run: |
+          set -o pipefail
+          npx tsx scripts/national-forecast-refinement-zoom-proof.ts | tee /tmp/forecast-refinement-zoom.json
       - run: npx tsx scripts/national-rain-budget-proof.ts
       - name: Measure read-only live national rain throughput
         timeout-minutes: 10
