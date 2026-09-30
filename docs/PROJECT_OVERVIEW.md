@@ -840,3 +840,48 @@ migration/source-of-truth representation of the private N03 bucket's current
 
 > 全国計算は共通処理。ユーザーごとの5分監視とは混ぜない。
 > scanから市区町村確定までは閉じたproofとして完成。通知はまだつながない。
+
+
+### Nationwide scheduler/throughput correction — 2026-09-30
+
+The earlier overview wording closed the nationwide architecture gate too early.
+The implementation review after that checkpoint found and fixed request-level
+atomicity: all forecast frames are now scanned successfully before a single
+combined enqueue is attempted. A later-frame failure therefore returns 503
+without partially enqueueing earlier frames.
+
+The protected scan path uses JMA `nowc/.../surf/hrpns`. Its target-time
+contract does not contain a `member` field; the separate `rasrf` contract
+does. Do not import the old rasrf/member requirement into this nowc/hrpns queue.
+
+The isolated proof scheduler migration exists, but its original fixed
+`50 jobs x 2 worker calls / 5 minutes` capacity is **not** considered
+Production-ready. Six zoom-4 coarse tiles can theoretically map to as many as
+1,536 distinct zoom-8 refinement tiles per forecast frame, so fixed capacity
+can backlog under severe conditions.
+
+Worker safety has since been strengthened:
+
+- a 45-second internal execution budget prevents intentionally starting work
+  all the way to the 60-second route ceiling;
+- deadline-deferred claimed work returns to PENDING without consuming a retry
+  attempt, proven in both worker tests and the PostgreSQL queue lifecycle;
+- prepared N03 Storage loads now use a per-invocation cache plus single-flight
+  in-flight sharing so concurrent jobs requesting the same prefecture do not
+  duplicate the initial Storage download;
+- the worker is being changed from one large upfront claim/serial loop to
+  bounded batches: claim up to four jobs, process that batch concurrently,
+  re-check the deadline, then claim the next batch. Unclaimed work remains
+  PENDING naturally.
+
+Verified checkpoint before the bounded-batch change:
+CI #485 succeeded with the N03 single-flight unit test, live N03 phases,
+queue lifecycle, and production build. The bounded-batch worker and its
+concurrency/deadline tests are now the active proof and must pass CI before the
+throughput gate can be reconsidered.
+
+**Scheduler/throughput gate remains OPEN.** Do not apply the proof migrations,
+create Production nationwide cron jobs, connect Push/watch_targets, or merge
+PR #59 on the basis of the earlier gate wording.
+
+> 未来のソラを信用するな。atomicity と throughput は別ゲートで確認する。
