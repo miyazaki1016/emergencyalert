@@ -1,0 +1,29 @@
+name: Forecast low-zoom screening proof
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/national-forecast-z4-screening-proof.ts'
+      - 'scripts/national-forecast-lowzoom-validation.ts'
+      - '.github/workflows/national-forecast-lowzoom-proof.yml'
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Scan every forecast frame at z4 and count required z8 refinement
+        run: npx tsx scripts/national-forecast-z4-screening-proof.ts | tee /tmp/forecast-z4-screening.json
+      - name: Exhaustively validate nearest middle and farthest forecast frames
+        env:
+          JMA_FORECAST_LOWZOOM_CONCURRENCY: 8
+        run: npx tsx scripts/national-forecast-lowzoom-validation.ts | tee /tmp/forecast-lowzoom-validation.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: forecast-lowzoom-evidence
+          path: /tmp/forecast-*.json
