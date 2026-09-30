@@ -53,6 +53,43 @@ jobs:
           for mode in full partitioned compare worker-1 worker-4; do
             npx tsx scripts/n03-hokkaido-partition-design-proof.ts "$mode" /tmp/n03-partition-design | tee -a /tmp/national-rain-partition-throughput.log
           done
+      - name: Compare representative exact N03 partitions
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          root=/tmp/n03-readiness-data
+          mkdir -p "$root"
+          for code in 01 42 03 47; do
+            if [ -f "/tmp/national-rain-throughput-cache/$code.areas.json" ]; then
+              cp "/tmp/national-rain-throughput-cache/$code.areas.json" "$root/$code.areas.json"
+            else
+              npx tsx scripts/prepare-n03-storage-data.ts "$root" "$code"
+            fi
+            npx tsx scripts/n03-representative-readiness-proof.ts prepare "$root" "$code" | tee -a /tmp/national-rain-readiness-representatives-throughput.log
+            for mode in whole uncached partition compare; do
+              npx tsx scripts/n03-representative-readiness-proof.ts "$mode" "$root" "$code" | tee -a /tmp/national-rain-readiness-representatives-throughput.log
+            done
+          done
+      - name: Measure read-only HTTP sensitivity with actual worker
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          for args in '01 whole nominal 4 50' '01 cached nominal 4 50' '01 cached nominal 1 50' '42 cached nominal 4 32' '03 cached nominal 4 32' '47 cached nominal 4 32' '01 cached constrained 4 32' '01,42,03,47 cached nominal 4 16'; do
+            npx tsx scripts/n03-http-worker-readiness-proof.ts worker /tmp/n03-readiness-data $args | tee -a /tmp/national-rain-readiness-http-throughput.log
+          done
+      - name: Prove bounded cache under sustained actual worker calls
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          npx tsx scripts/n03-sustained-worker-readiness-proof.ts /tmp/n03-readiness-data 12 | tee /tmp/national-rain-readiness-sustained-throughput.log
+      - name: Compare separate worker invocations and scheduler replay
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          for args in 'national 0 2' 'regional 0 2' 'regional 3000 2' 'regional 0 4'; do
+            npx tsx scripts/n03-parallel-invocation-readiness-proof.ts /tmp/n03-readiness-data $args | tee -a /tmp/national-rain-readiness-parallel-throughput.log
+          done
+          npx tsx scripts/national-rain-readiness-scheduler-proof.ts /tmp/national-rain-readiness-parallel-throughput.log | tee /tmp/national-rain-readiness-scheduler-throughput.log
       - name: Retain nationwide throughput evidence
         if: always()
         uses: actions/upload-artifact@v4

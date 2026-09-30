@@ -1145,3 +1145,42 @@ All Production actions and partition uploads remain unexecuted.
 
 **atomicity gateとthroughput gateは別。** Throughput/scheduler acceptance remains
 OPEN. **未来のソラを信用するな。重要な判断は総覧へ残す。**
+
+### Representative/cache/communication/drain continuation — 2026-09-30
+
+Baseline `2a7471c` / CI #500 is confirmed. Added reproducible representative
+proofs for 01/42/03/47 (83 ordered queries), strict manifest/chunk checks,
+bounded cache, HTTP sensitivity, sustained real worker calls, separate-process
+region comparisons and measured-service arrival replay. Application routes and
+Production resources are unchanged. See `docs/NATIONAL_RAIN_READINESS_PROOF.md`.
+
+Local exploration rejected decoded geometry LRU (estimated 128 MiB charge):
+Iwate warm reads kept thrashing and national mixed work exceeded comfortable
+route headroom. Replacement retains at most 32 MiB of encoded Buffer bytes,
+shares loads, pins users, decodes one chunk at a time and retains no geometry.
+Some original polygons exceed 1 MiB; Iwate has a 4.13 MiB chunk, never clipped.
+Every representative's whole/uncached/cached ordered results match.
+
+Local sustained proof: 576 submitted/completed, zero pending, 36 invocations,
+peak RSS 430.45 MiB; final RSS about 414 MiB. This is accelerated filesystem
+work with virtual five-minute timestamps, not a live hour of network backlog.
+Local region-specific cap2 invocations outperform mixed-region cache churn;
+actual separate-process comparisons and 3-second offsets are retained.
+Measurements overlapped during local exploration: final causal comparisons and
+sizing decisions await sequential CI. Evidence is in
+`docs/proofs/national-readiness-local.json`.
+
+No private Storage GET credential/downloader is available; new partition data
+is not uploaded. Read-only localhost HTTP uses actual JSON with explicit
+80ms/8MiB-s and 250ms/2MiB-s sensitivity inputs, never claims measured Supabase
+latency. No Vault/policy/Storage changes are made to obtain measurements.
+
+Provisional next proof candidate: region-scoped jobs, c4, limit16, global cap2,
+3-second initial offsets and backlog-based refill/fairness. This is not accepted
+Production scheduling. Replay already shows substantial overload at severe
+1,536/18,432-per-cycle demand; pending jobs and oldest age remain visible.
+Four representative groups do not validate ten nationwide ownership groups.
+Runtime/real-IO/DB/timeout/ownership/stale-frame gates remain OPEN.
+
+**Production移行不可。atomicity gateとthroughput gateは別。**
+**未来のソラを信用するな。重要な判断は総覧へ残す。**
