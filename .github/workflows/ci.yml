@@ -45,6 +45,14 @@ jobs:
             done
           done
           N03_CACHE_DIR=/tmp/national-rain-throughput-cache npx tsx scripts/national-rain-stress-throughput-proof.ts hokkaido 4 | tee -a /tmp/national-rain-stress-throughput.log
+      - name: Prove exact Hokkaido polygon partition design locally
+        timeout-minutes: 5
+        run: |
+          set -o pipefail
+          npx tsx scripts/n03-hokkaido-partition-design-proof.ts prepare-prepared /tmp/n03-partition-design /tmp/national-rain-throughput-cache/01.areas.json | tee /tmp/national-rain-partition-throughput.log
+          for mode in full partitioned compare; do
+            npx tsx scripts/n03-hokkaido-partition-design-proof.ts "$mode" /tmp/n03-partition-design | tee -a /tmp/national-rain-partition-throughput.log
+          done
       - name: Retain nationwide throughput evidence
         if: always()
         uses: actions/upload-artifact@v4

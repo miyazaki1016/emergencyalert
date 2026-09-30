@@ -1,0 +1,61 @@
+{
+  "preparation": {
+    "mode": "HOKKAIDO_PARTITION_DESIGN_PREPARATION",
+    "sourceSha256": "43bc612e9a1b767cffba136202b64429a8210e369c0f3eb3c7cefa4173ee7182",
+    "preparedSha256": "31a26f7a09f1f36a788ff6c09e7e0eb6f5696d44f3be62d348cdec6e2bc9dd65",
+    "preparedBytes": 41606326,
+    "municipalities": 194,
+    "polygonParts": 9556,
+    "indexBytes": 1305074,
+    "chunks": 46,
+    "totalChunkBytes": 42440260,
+    "maxChunkBytes": 1328374,
+    "oversizedChunks": 1,
+    "exactCoordinateReconstruction": true
+  },
+  "equivalence": {
+    "queries": 37,
+    "orderedMunicipalityResultsEqual": true
+  },
+  "full": {
+    "mode": "HOKKAIDO_N03_ONLY_DESIGN_PROOF",
+    "variant": "full",
+    "loadMs": 378.75239400000004,
+    "afterLoadRssMiB": 258.33203125,
+    "afterLoadHeapUsedMiB": 187.5471649169922,
+    "elapsedMs": 1191.1868869999998,
+    "processMaxRssMiB": 402.70703125,
+    "queries": 37,
+    "limitations": [
+      "Local Node/filesystem; not Production Storage HTTP or Vercel",
+      "N03-only phase; cannot be subtracted from prior worker peak",
+      "No geometry cache; repeated-query IO/caching tradeoff remains",
+      "Serial chunk evaluation; no concurrency=4 memory guarantee"
+    ]
+  },
+  "partitioned": {
+    "mode": "HOKKAIDO_N03_ONLY_DESIGN_PROOF",
+    "variant": "partitioned",
+    "loadMs": 12.241854999999987,
+    "afterLoadRssMiB": 50.93359375,
+    "afterLoadHeapUsedMiB": 12.320167541503906,
+    "elapsedMs": 1538.843318,
+    "processMaxRssMiB": 152.10546875,
+    "queries": 37,
+    "limitations": [
+      "Local Node/filesystem; not Production Storage HTTP or Vercel",
+      "N03-only phase; cannot be subtracted from prior worker peak",
+      "No geometry cache; repeated-query IO/caching tradeoff remains",
+      "Serial chunk evaluation; no concurrency=4 memory guarantee"
+    ]
+  },
+  "stress": {
+    "tile": [
+      228,
+      94
+    ],
+    "municipalities": 44,
+    "readBytes": 12748337,
+    "chunksRead": 13
+  }
+}

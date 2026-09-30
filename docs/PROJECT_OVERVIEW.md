@@ -1076,3 +1076,34 @@ Production-ready merely because CI #496 succeeded.
 
 > 未来のソラを信用するな。重要な判断は総覧へ残す。
 > atomicity gateとthroughput gateは別。計測は完成、Productionの処理能力承認は未完了。
+
+### Hokkaido partition design checkpoint — 2026-09-30
+
+Continue with exact original Polygon-component chunks and bbox preselection,
+not four fixed Hokkaido geographic regions. Offline prototype and reproduction
+commands are in `docs/N03_PARTITION_DESIGN.md`; application loader is unchanged.
+All 9,556 components reconstruct exactly, and all 37 ordered query results match
+the whole loader. Local N03-only peak RSS changed from 402.71 to 152.11 MiB;
+elapsed changed from 1.191 to 1.539 seconds. This is not actual worker sizing.
+46 chunks have a soft 1 MiB target; one indivisible polygon makes a 1.27 MiB
+chunk. No strict 1 MiB memory claim is accepted.
+
+Read-only metadata of all 47 verified prepared objects identifies Hokkaido,
+Nagasaki, Iwate, Miyagi, Kagoshima, Okinawa and Mie as priority candidates.
+Generic format applicability is established by design; real-data performance
+and equivalence outside Hokkaido are not yet established. Evidence snapshots
+are retained under `docs/proofs/`. CI now repeats the Hokkaido local partition
+comparison using its existing prepared-data cache, with no Production access.
+
+Next: hardened manifest validation, invocation-wide chunk single-flight and
+bounded decode/cache admission, then actual c1/c4 worker plus real-IO/drain
+measurements. Region parallelism still requires unique tile ownership, neighbor
+intersection and a global invocation cap. No scheduler sizing is accepted yet.
+Baseline before this checkpoint: `981de532300521579c3c2caeeaf583e5b216b95d`,
+CI #497 / National #201 / N03 #121 all SUCCESS. Follow-up CI is associated with
+the partition-design commit in PR #59; logs are retained as CI artifacts.
+
+Production migration/cron/Vault/deploy/merge, new partition uploads and
+watch_targets/Push integration remain unexecuted. Existing Storage data is
+unchanged. **atomicity gateとthroughput gateは別。**
+**未来のソラを信用するな。重要な判断は総覧へ残す。**
