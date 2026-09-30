@@ -107,3 +107,26 @@ revoke all on function public.claim_national_rain_refinement_jobs(integer) from 
 revoke all on function public.finish_national_rain_refinement_job(bigint, boolean, text) from public, anon, authenticated;
 grant execute on function public.claim_national_rain_refinement_jobs(integer) to service_role;
 grant execute on function public.finish_national_rain_refinement_job(bigint, boolean, text) to service_role;
+
+
+create or replace function public.defer_national_rain_refinement_job(p_id bigint)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.national_rain_refinement_jobs
+  set status = 'PENDING',
+      attempts = greatest(attempts - 1, 0),
+      claimed_at = null,
+      available_at = now(),
+      last_error = null,
+      updated_at = now()
+  where id = p_id
+    and status = 'PROCESSING';
+end;
+$$;
+
+revoke all on function public.defer_national_rain_refinement_job(bigint) from public, anon, authenticated;
+grant execute on function public.defer_national_rain_refinement_job(bigint) to service_role;
