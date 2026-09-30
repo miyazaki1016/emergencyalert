@@ -33,7 +33,7 @@ describe("processNationalRainRefinementJobs", () => {
   test("marks a valid JMA tile done", async () => {
     const { client, rpc, upsert } = clientFor(job);
     const body = pngBuffer();
-    const fetcher = vi.fn().mockResolvedValue(new Response(body, { status: 200 }));
+    const fetcher = vi.fn().mockResolvedValue(new Response(new Uint8Array(body), { status: 200 }));
 
     const municipalities = [{ code: "13111", prefecture: "東京都", municipality: "大田区" }];
     const resolveMunicipalities = vi.fn().mockResolvedValue(municipalities);
@@ -59,7 +59,7 @@ describe("processNationalRainRefinementJobs", () => {
 
   test("fails closed when municipality resolution fails", async () => {
     const { client, rpc, upsert } = clientFor(job);
-    const fetcher = vi.fn().mockResolvedValue(new Response(pngBuffer(), { status: 200 }));
+    const fetcher = vi.fn().mockResolvedValue(new Response(new Uint8Array(pngBuffer()), { status: 200 }));
     const resolveMunicipalities = vi.fn().mockRejectedValue(new Error("N03 prepared data unavailable"));
 
     const result = await processNationalRainRefinementJobs(client, {
@@ -98,7 +98,7 @@ describe("processNationalRainRefinementJobs", () => {
   test("does not mark done when result persistence fails", async () => {
     const { client, rpc, upsert } = clientFor(job);
     upsert.mockResolvedValueOnce({ error: new Error("result db unavailable") });
-    const fetcher = vi.fn().mockResolvedValue(new Response(pngBuffer(), { status: 200 }));
+    const fetcher = vi.fn().mockResolvedValue(new Response(new Uint8Array(pngBuffer()), { status: 200 }));
 
     const result = await processNationalRainRefinementJobs(client, { limit: 1, fetcher: fetcher as any });
 
@@ -131,7 +131,7 @@ test("leaves unclaimed work pending when the budget expires between small batche
   const now = vi.fn(() => currentTime);
   const fetcher = vi.fn(async () => {
     currentTime = 46_000;
-    return new Response(pngBuffer(), { status: 200 });
+    return new Response(new Uint8Array(pngBuffer()), { status: 200 });
   });
 
   const result = await processNationalRainRefinementJobs(client, {
@@ -176,7 +176,7 @@ test("claims and processes jobs in bounded parallel batches", async () => {
     maxActive = Math.max(maxActive, active);
     await new Promise((resolve) => setTimeout(resolve, 5));
     active -= 1;
-    return new Response(pngBuffer(), { status: 200 });
+    return new Response(new Uint8Array(pngBuffer()), { status: 200 });
   });
 
   const result = await processNationalRainRefinementJobs(client, {
@@ -211,7 +211,7 @@ test("does not claim another batch after the execution budget is exhausted", asy
   const fetcher = vi.fn(async () => {
     completed += 1;
     if (completed === 4) currentTime = 46_000;
-    return new Response(pngBuffer(), { status: 200 });
+    return new Response(new Uint8Array(pngBuffer()), { status: 200 });
   });
 
   const result = await processNationalRainRefinementJobs(client, {

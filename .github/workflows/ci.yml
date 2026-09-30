@@ -31,7 +31,26 @@ jobs:
       - run: npm test
       - run: npx tsx scripts/national-rain-budget-proof.ts
       - name: Measure read-only live national rain throughput
-        run: N03_CACHE_DIR=/tmp/national-rain-throughput-cache npx tsx scripts/national-rain-live-throughput-proof.ts
+        timeout-minutes: 10
+        run: |
+          set -o pipefail
+          N03_CACHE_DIR=/tmp/national-rain-throughput-cache npx tsx scripts/national-rain-live-throughput-proof.ts | tee /tmp/national-rain-live-throughput.log
+      - name: Measure bounded worker with real N03 and synthetic strong-rain stress
+        timeout-minutes: 15
+        run: |
+          set -o pipefail
+          for scenario in dense fragmented; do
+            for concurrency in 1 4; do
+              N03_CACHE_DIR=/tmp/national-rain-throughput-cache npx tsx scripts/national-rain-stress-throughput-proof.ts "$scenario" "$concurrency" | tee -a /tmp/national-rain-stress-throughput.log
+            done
+          done
+          N03_CACHE_DIR=/tmp/national-rain-throughput-cache npx tsx scripts/national-rain-stress-throughput-proof.ts hokkaido 4 | tee -a /tmp/national-rain-stress-throughput.log
+      - name: Retain nationwide throughput evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: national-rain-throughput-evidence
+          path: /tmp/national-rain-*-throughput.log
       - name: Benchmark fixed N03 intersection
         run: npx tsx scripts/n03-administrative-area-benchmark.ts
       - name: Measure live N03 detail phases

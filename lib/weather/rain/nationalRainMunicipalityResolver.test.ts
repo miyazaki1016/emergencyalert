@@ -38,7 +38,7 @@ function area(
 
 describe("resolveNationalRainMunicipalities", () => {
   it("selects prefectures before loading detailed N03 areas", async () => {
-    const loader = vi.fn(async () => [
+    const loader = vi.fn(async (_prefectures: typeof index) => [
       area("13111", "東京都", "大田区", 139.6, 35.5, 139.8, 35.7),
       area("14130", "神奈川県", "川崎市", 139.55, 35.45, 139.75, 35.65),
     ]);
@@ -58,13 +58,13 @@ describe("resolveNationalRainMunicipalities", () => {
   });
 
   it("does not load N03 detail when the footprint is empty", async () => {
-    const loader = vi.fn(async () => []);
+    const loader = vi.fn(async (_prefectures: typeof index) => []);
     await expect(resolveNationalRainMunicipalities([], loader, index)).resolves.toEqual([]);
     expect(loader).not.toHaveBeenCalled();
   });
 
   it("does not load N03 detail when no prefecture bbox matches", async () => {
-    const loader = vi.fn(async () => []);
+    const loader = vi.fn(async (_prefectures: typeof index) => []);
     await expect(
       resolveNationalRainMunicipalities([rain(130, 30, 130.1, 30.1)], loader, index),
     ).resolves.toEqual([]);

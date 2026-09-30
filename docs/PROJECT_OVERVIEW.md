@@ -885,3 +885,63 @@ create Production nationwide cron jobs, connect Push/watch_targets, or merge
 PR #59 on the basis of the earlier gate wording.
 
 > 未来のソラを信用するな。atomicity と throughput は別ゲートで確認する。
+
+### Throughput evidence correction and reproducible stress proof — 2026-09-30
+
+At head `78cdb884cfbceed15b355801faf2b6413ba53ff1`, all workflows completed:
+CI #494, National rain proof #198 and N03 index proof #118 — SUCCESS.
+CI #494's live sample was **not skipped**: frame 20260930060000 /
+20260930060500, zoom-8 tile 221/107, 129 strong pixels, prefectures 46/47,
+zero intersecting municipalities, 1 job in 7,322.81 ms, end RSS 452.58 MiB.
+The logged 6.15 jobs/45s is an extrapolation, not an accepted capacity.
+The old 84.6 jobs/45s empty-rain sample is also NOT accepted.
+
+Review found that this live script was serial and included MLIT ZIP generation
+in its timed section. It did not measure the bounded concurrent production
+worker or private prepared Storage HTTP. A zero municipality result can be a
+correct offshore intersection result; it does not prove a positive land match.
+
+The bounded-batch worker implementation is complete (default concurrency 4,
+claim at most four, finish batch, check deadline, next claim). The earlier
+"being changed" wording is historical. Atomicity tests and CI are green.
+**Atomicity gate and throughput gate are separate. Throughput gate remains OPEN.**
+
+New proof tooling executes the actual worker against local-only queue/result
+RPC stubs, including result JSON serialization. The live proof now examines all
+forecast frames, records per-frame candidate queue size, selects at most four
+jobs, fetches JMA zoom-8 tiles during each cold/warm measured invocation, and
+uses the production single-flight Storage-loader code over local prepared N03.
+MLIT generation runs outside worker timing in a separate process. No real DB
+client, queue write or Production Storage mutation is used.
+
+Always-run synthetic stress uses 256x256 manufactured strong-rain PNGs, dense
+and fragmented patterns, concurrency 1/4, 50 offered jobs, and a separate
+Hokkaido case with real N03 detail. It requires positive exact municipality
+intersections, captures each batch duration, pending work and process peak RSS,
+and verifies one load per selected prefecture. Synthetic rain is load testing,
+never meteorological evidence. Each case starts a fresh process. CI retains
+live/stress logs as `national-rain-throughput-evidence` even on failure.
+
+Limitations to keep explicit: local DB RPCs exclude database network latency;
+local prepared Storage excludes private Storage HTTP; CI Node is not the Vercel
+runtime; repeated shapes do not bound diverse nationwide-prefecture memory.
+A 45-second start-work budget is not a hard end-time guarantee: the last batch
+may complete afterward. Its tail and RPC overhead must fit the 60-second route.
+No small-sample jobs/45s extrapolation is a Production-safe job limit.
+
+Adopted at this checkpoint: keep isolated endpoints and bounded batches;
+retain concurrency=4 / budget=45s as proof defaults, not accepted sizing.
+Do not endorse limit=50 or the two worker calls/5 minutes. The scheduler stays
+unapplied until measured safe sustained capacity, invocation count and memory
+cover arrivals/backlog, including multiple frames and up to 1,536 tiles/frame.
+Record final CI measurements in the next checkpoint rather than overwriting
+this evidence history.
+
+Remaining Production work (all deliberately unexecuted): proof DB migrations;
+dedicated scan/worker secrets and cron/Vault; runtime-equivalent read-only
+Storage/DB latency and memory validation; load-driven scheduler acceptance;
+PR #59 merge/application deployment. Push/watch_targets integration is a later,
+separate review. Existing watch-rain and immutable N03 objects stay untouched.
+
+> 未来のソラを信用するな。重要な判断は総覧へ残す。
+> atomicity gateとthroughput gateは別。成功したCIと採用できる処理能力も別。
