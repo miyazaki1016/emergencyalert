@@ -30,6 +30,8 @@ jobs:
       - run: npm install
       - run: npm test
       - run: npx tsx scripts/national-rain-budget-proof.ts
+      - name: Measure read-only live national rain throughput
+        run: N03_CACHE_DIR=/tmp/national-rain-throughput-cache npx tsx scripts/national-rain-live-throughput-proof.ts
       - name: Benchmark fixed N03 intersection
         run: npx tsx scripts/n03-administrative-area-benchmark.ts
       - name: Measure live N03 detail phases
