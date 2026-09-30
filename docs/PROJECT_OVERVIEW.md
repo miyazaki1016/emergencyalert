@@ -1514,3 +1514,82 @@ Observed totals across the three horizons:
 - wet-class: 300/300 HTTP 200, 293 mixed transparent+opaque, 7 fully opaque, 0 HTTP 404.
 
 Therefore JMA does create and serve fully transparent high-zoom PNG tiles. Earlier 404s cannot be explained simply by 'no rain => no file'. Treat those 404s as coverage/product-availability behavior until proven otherwise. Continue to preserve 404 as NO_DATA/unavailable, never NO_RAIN.
+
+
+## 新チャット引き継ぎ用・最優先チェックポイント — 2026-09-30 23時台
+
+この節を新チャットの起点として扱う。下の古いスケーリング研究より、まずこの最新方針を優先する。
+
+### 現在位置
+- Repo: `miyazaki1016/emergencyalert`
+- PR: #59 `Add nationwide heavy-rain scan proof`
+- Branch: `feat/national-heavy-rain-preview`
+- PRはOPEN / 未merge。
+- Production DB migration / cron / Vault / Storage mutation / watch-rain/Push接続 / Production deploy は実施していない。
+- Atomicity gate: CLOSED。
+- Production readiness: NO。
+
+### いま最も重要な設計転換
+以前は「全国z8を大量に処理する前提」でworker/scheduler/N03負荷を詰めていたが、最新のJMA実測により、最終設計は次を本命とする。
+
+1. 12個の未来validtime（約+5〜+60分）をz4で全国粗走査。
+2. z4で30 mm/h以上になった候補だけ残す。
+3. 候補だけ高zoomへ掘る。CI #523では全12フレームで候補タイルがz10まで取得できた。
+4. 高zoom候補だけ市区町村/N03判定する。
+5. 取得不能はNO_DATA。404をNO_RAINにしない。
+
+この方式では実測上、高zoom対象は極小。CI #523では1フレームあたり概ね z8=2枚、z9=4枚、z10=6〜9枚程度だった。全国z8総当たりを前提にした過去の1,536 jobs/frameストレスは、最終設計としては悲観的な旧前提になりつつある。
+
+### z4スクリーニングの実測
+- 観測1フレームでは、z8 >=30 mm/h の6,078ピクセルに対し z4親 <30 の取りこぼし0。
+- 同フレームでは393,216親について z4ランク = z8子最大ランク 100%。
+- 未来予報でも取得できたz8範囲では繰り返し取りこぼし0、親max-rank一致100%。
+- ただしこれはJMA公開仕様として保証された契約ではない。反例探索を継続し、z4<30を永久除外ルールへ昇格するのは慎重に行う。
+
+### 透明PNGと404について確定したこと
+「雨がない高zoomタイルはファイル自体を作らず404になる」という仮説はCI #526で否定された。
+- 近/中/遠の3未来時刻で、z4側が完全透明のz10候補を各100枚、計300枚取得。
+- **300/300 HTTP 200**。
+- **300/300 中身は完全透明PNG**。
+- 雨あり側も300/300 HTTP 200。
+したがってJMAは無降水域でも透明PNGを配信する。404の原因は「雨なしだからファイルがない」ではない。
+
+### 404再現調査
+CI #529に `scripts/jma-404-reproduction-proof.ts` を追加済み。
+- 近未来・中間・60分先のz8を、z4全国6タイル配下の **1,536枚/時刻** で総当たりする。
+- 200 / 404 / その他を数える。
+- 404の先頭20件は `x / y / 実URL / basetime / validtime` を記録する。
+- ステップ `Reproduce live JMA forecast 404s and capture coordinates` は最新確認時点ですでにSUCCESS。
+- ただしCI #529全体はまだin_progressで、GitHubの実行中ログBlobが取れず、実URL一覧は未回収。
+
+**新チャット最初の作業:**
+1. CI #529の完了を確認。
+2. job logから `JMA_404_REPRODUCTION_PROOF` を抜く。
+3. 実404 URL・x/y・validtimeを確認。
+4. 404座標を地理位置/提供範囲/予報時刻/zoomパターンで分類する。
+5. 候補限定ルートでは同座標系が取れるか比較する。
+6. 結果をこの総覧とPR #59へ追記する。
+
+### 重要な解釈
+404調査は重要だが、アメくる本体の成立条件そのものではなくなっている。候補限定方式ではCI #523で+60分までz10取得に成功しているため、404の正体が完全解明できなくても、
+
+**z4全国スキャン → 30以上候補だけ高zoom取得 → 市区町村判定**
+
+のルートが実装本命。
+
+### まだ残る統合課題
+- proofで成立した候補限定高zoom方式を、実際のPreview/application workerへ統合する。
+- 実routeはまだ旧 `processNationalRainRefinementJobs()` 系で、新しいdeadline/partition/ownership proofと完全統合されていない。
+- 404/NO_DATA/fetch errorはfail-closedを維持。
+- Production変更、PR merge、Production deployはオーナー承認まで禁止。
+
+### 運用ルール
+- オーナーの「りょ」「進めて」後は、安全なfeature branch作業を調査→実装→commit→CI→診断→修正まで継続してよい。
+- 止まるのは Production migration / cron・Vault / Storage破壊変更 / Push接続 / merge / Production deploy 等の高影響操作のみ。
+- 「ソラの入れたは実物を見るまで信用するな」。必ずCI/log/実物で確認する。
+- 「未来のソラを信用するな」。重要判断は総覧へ残す。
+
+### 直近コミット
+- `8b21137` — JMA透明タイル存在結果を総覧へ記録。
+- `3d04f5a` — 404再現・URL座標取得proofをCIへ追加。現在PR head。
+
