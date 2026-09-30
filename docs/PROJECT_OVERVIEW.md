@@ -1002,3 +1002,77 @@ headroom. Do not fix the backlog by silently dropping rain candidates.
 The isolated proof/data path and reproducible measurements are complete;
 the throughput/scheduler acceptance gate remains OPEN. All Production actions
 listed above remain unexecuted. Continue safely on the feature branch.
+
+### Optimized worker proof result / Production hold — 2026-09-30
+
+Code commit `ba9a0b0360ab9cf30a1431f4ce8fb3a2b0a2576e` completed all gates:
+CI #496 — SUCCESS (164 tests, live throughput, all five stress cases, local
+PostgreSQL queue lifecycle and build); National rain proof #200 — SUCCESS;
+N03 index proof #120 — SUCCESS. Evidence is retained in
+`docs/proofs/national-throughput-ci496.json`, raw artifact ID 11080733870.
+
+| Optimized sample | Concurrency | Done / offered | Elapsed | Max batch | Process peak RSS |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Live JMA, cold prepared | 4 | 4 / 4 | 1.035 s | 1.034 s | 727.48 MiB |
+| Live JMA, warm prepared | 4 | 4 / 4 | 0.097 s | 0.096 s | 727.48 MiB |
+| Dense raster + 7 prefectures | 1 | 50 / 50 | 7.356 s | 0.530 s | 664.91 MiB |
+| Dense raster + 7 prefectures | 4 | 50 / 50 | 7.789 s | 0.944 s | 761.04 MiB |
+| Fragmented raster + 4 prefectures | 1 | 50 / 50 | 2.933 s | 0.409 s | 398.54 MiB |
+| Fragmented raster + 4 prefectures | 4 | 50 / 50 | 2.822 s | 0.589 s | 540.95 MiB |
+| Dense Hokkaido raster | 4 | 50 / 50 | 7.049 s | 1.042 s | 1,017.12 MiB |
+
+The dense benchmark changed from 12 jobs / 49.386 s to 50 / 7.789 s at c4;
+compare per-job workload, not just unequal invocation totals. Exact municipality
+hit counts per repeated job remain unchanged: dense 258, fragmented 24,
+Hokkaido 44. CPU-heavy work does not benefit substantially from async c4;
+its benefit is overlapping network waits, with increased memory to consider.
+
+The live proof observed 23 requested refinement tiles across **12 official
+forecast frames** and measured four jobs with 131 strong pixels total. Actual
+JMA retrieval, full zoom-8 scan, exact footprint, prepared N03 parsing and exact
+intersection ran inside the actual bounded worker. The selected land matches
+were zero; synthetic proofs cover positive intersections separately. Each
+selected prefecture (01/13/46/47) loaded once. Live images are not frozen across
+CI runs, so the live result is not a before/after speed benchmark.
+
+Decisions, deliberately separated from Production sizing:
+
+- Accept the exact collinear-boundary optimization and the reproducible worker
+  harness. Retain concurrency 4 and 45-second budget as **proof defaults**.
+- 50 jobs is now demonstrated for these synthetic cases, not a safe universal
+  Production limit. Do not turn four sparse live jobs into jobs/45s capacity.
+  Private Storage HTTP and result/claim/finish DB network latency are still
+  excluded; CI hardware is not the target Vercel runtime.
+- The observed stress batches now fit within 15 seconds, but this is an
+  observation, not a bound on JMA/Storage/RPC latency. The 45-second start-work
+  cutoff alone still cannot guarantee completion within the route's 60 seconds.
+- Memory gate remains open: Hokkaido peaked near 1 GiB even in isolation;
+  the per-invocation N03 cache has no nationwide retained-byte bound. Need
+  diverse-prefecture sustained tests, explicit memory allocation/headroom,
+  and a bounded retention/admission policy before accepting worker sizing.
+- Reject the fixed `worker limit=50 x 2 calls/5min` scheduler as nationwide
+  coverage capacity. With 12 frames the 1,536/frame theoretical bound is
+  18,432 jobs/scan; even if all 50 jobs complete per call, that needs at least
+  **369 invocations per scan** when frames can share a batch. This is a demand
+  lower bound, not permission to launch 369 calls or a measured safe rate.
+- A replacement should drain on observed backlog under a global invocation
+  cap, record pending count and oldest job age, and explicitly handle obsolete
+  forecast frames. It must pass sustained arrival/drain and memory tests with
+  real IO before any cadence or global concurrency is adopted. No silent
+  candidate drop, unbounded fan-out or coupling to watch-rain is acceptable.
+
+**Completed before Production:** isolated scan/atomic queue/worker/N03/result
+proof implementation; immutable 47-prefecture data already verified; actual
+worker load measurement; exact boundary optimization; positive municipality
+stress evidence; CI/log retention and this handoff. Atomicity gate is closed.
+
+**Not completed / not executed:** throughput/scheduler acceptance; bounded
+nationwide memory and target-runtime real-IO/drain validation; accepted safe
+job limit or invocation count; Production proof DB migration, cron/Vault or
+secret changes; PR merge/application Production deployment; Push/watch_targets
+connection. The unchanged scheduler SQL is an unaccepted proof draft, not a
+rollout plan. Stop before Production modifications; do not describe this PR as
+Production-ready merely because CI #496 succeeded.
+
+> 未来のソラを信用するな。重要な判断は総覧へ残す。
+> atomicity gateとthroughput gateは別。計測は完成、Productionの処理能力承認は未完了。
