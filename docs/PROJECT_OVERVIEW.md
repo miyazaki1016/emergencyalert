@@ -28,6 +28,45 @@ Functional tagline:
 
 > あなたの場所の、これからを見張る。
 
+## 🚨 ABSOLUTE LIFE-SAFETY RULE — 最上位・例外なし 🚨
+
+> **人命に関わる情報について、EmergencyAlert / アメくるは推定を事実として断定しない。**
+>
+> **観測・公式発表・予測・推定を必ず区別する。**
+>
+> **不明・取得失敗・データなしを「安全」と解釈しない。**
+>
+> **危険を過小評価する断定も、根拠なく危険を煽る断定もしない。**
+
+This rule is above feature behavior, notification wording, AI presentation,
+optimization and convenience. It applies project-wide to rain, inundation,
+flooding, rivers, landslides, evacuation information and every future
+life-safety feature.
+
+- Never say 「安全です」「浸水しません」「避難の必要はありません」 merely
+  because data is absent, incomplete, stale or below an app-defined threshold.
+- Never say 「現在○cm冠水しています」「必ず浸水します」 unless an authorized
+  source or direct observation actually establishes that fact at the relevant
+  place/time.
+- A forecast remains a forecast. A risk estimate remains an estimate. A hazard
+  map describes modeled/potential hazard; it is not evidence of current water
+  depth.
+- When evidence supports only possibility or rising risk, wording must preserve
+  that uncertainty: e.g. 「浸水の危険が高まる可能性があります」.
+- If an official/authorized source confirms occurrence, EmergencyAlert may
+  report that confirmation while retaining source, place and valid-time
+  context.
+- AI/personality layers may simplify expression but may never strengthen the
+  certainty of the underlying semantic event.
+
+Engineering shorthand:
+
+> **推定を事実にしない。分からないを安全にしない。命に関わる断定を勝手に作らない。**
+
+The existing rules `UNKNOWN_PIXEL != NO_RAIN`, `FETCH_ERROR != NO_RAIN` and
+`NO_DATA != SAFE` are concrete implementations of this constitution, not
+isolated rain-only exceptions.
+
 ## Meteorological boundary
 
 EmergencyAlert does not independently forecast weather.
