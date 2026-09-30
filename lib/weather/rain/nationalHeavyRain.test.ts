@@ -54,6 +54,22 @@ describe("heavyRainAreaPolygons", () => {
     const polygons = heavyRainAreaPolygons([candidate(10, 10), candidate(11, 10)], 8);
     expect(polygons).toHaveLength(1);
     expect(polygons[0].coordinates).toHaveLength(1);
+    expect(polygons[0].coordinates[0]).toHaveLength(5);
+  });
+
+  it("reduces a dense tile to its exact four corners without changing extent", () => {
+    const cells: HeavyRainCandidate[] = [];
+    for (let y = 0; y < 256; y++) for (let x = 0; x < 256; x++) cells.push(candidate(x, y));
+    const ring = heavyRainAreaPolygons(cells, 8)[0].coordinates[0];
+    const firstCell = heavyRainAreaPolygons([candidate(0, 0)], 8)[0].coordinates[0];
+    const lastCell = heavyRainAreaPolygons([candidate(255, 255)], 8)[0].coordinates[0];
+    const west = Math.min(...firstCell.map(p => p[0]));
+    const north = Math.max(...firstCell.map(p => p[1]));
+    const east = Math.max(...lastCell.map(p => p[0]));
+    const south = Math.min(...lastCell.map(p => p[1]));
+    expect(ring).toHaveLength(5);
+    expect(ring[0]).toEqual(ring[4]);
+    expect(ring.slice(0, -1)).toEqual(expect.arrayContaining([[west, north], [east, north], [east, south], [west, south]]));
   });
 
   it("keeps the dry center of a raster ring as a hole", () => {
@@ -64,6 +80,7 @@ describe("heavyRainAreaPolygons", () => {
     const polygons = heavyRainAreaPolygons(cells, 8);
     expect(polygons).toHaveLength(1);
     expect(polygons[0].coordinates).toHaveLength(2);
+    expect(polygons[0].coordinates.map(ring => ring.length)).toEqual([5, 5]);
   });
 
   it("does not fill the missing dry cell in an L shape", () => {

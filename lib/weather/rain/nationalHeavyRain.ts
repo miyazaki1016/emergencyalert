@@ -132,7 +132,21 @@ export function heavyRainAreaPolygons(candidates: HeavyRainCandidate[], zoom: nu
     }
     return inside;
   };
-  const toLonLat = (ring: GridPoint[]): [number, number][] => ring.map(([x, y]) => {
+  // Remove only intermediate vertices on straight raster edges, before the
+  // geographic transform. Horizontal edges keep constant latitude and vertical
+  // edges keep constant longitude, so their exact boundary does not change.
+  // This is not a tolerance-based simplification or an outer bounding box:
+  // every turn, concavity and hole remains, in the original ring order.
+  const withoutCollinearVertices = (ring: GridPoint[]): GridPoint[] => {
+    const points = ring.slice(0, -1);
+    const corners = points.filter(([x, y], i) => {
+      const [px, py] = points[(i + points.length - 1) % points.length];
+      const [nx, ny] = points[(i + 1) % points.length];
+      return (x - px) * (ny - y) !== (y - py) * (nx - x);
+    });
+    return corners.length >= 3 ? [...corners, corners[0]] : ring;
+  };
+  const toLonLat = (ring: GridPoint[]): [number, number][] => withoutCollinearVertices(ring).map(([x, y]) => {
     const p = worldPixelToLatLon(zoom, x, y); return [p.lon, p.lat];
   });
   return outers.map((outer) => ({

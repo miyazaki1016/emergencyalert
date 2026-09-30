@@ -945,3 +945,60 @@ separate review. Existing watch-rain and immutable N03 objects stay untouched.
 
 > 未来のソラを信用するな。重要な判断は総覧へ残す。
 > atomicity gateとthroughput gateは別。成功したCIと採用できる処理能力も別。
+
+### Measured scheduler rejection and exact footprint optimization — 2026-09-30
+
+At `20174bd1452dabecc3b0fb6f57e0dcc44e5bfe46`, CI #495, National rain
+proof #199 and N03 index proof #119 all completed SUCCESS. Full structured
+evidence (including frame counts and batch times) is retained in
+`docs/proofs/national-throughput-ci495.json`; the raw CI artifact is
+`national-rain-throughput-evidence`, artifact ID 11080624457.
+
+| Sample | Concurrency | Done / offered | Elapsed | Process peak RSS |
+| --- | ---: | ---: | ---: | ---: |
+| Live, cold prepared | 4 | 4 / 4 | 1.220 s | 470.45 MiB |
+| Live, warm prepared | 4 | 4 / 4 | 0.135 s | 470.45 MiB |
+| Dense raster + 7 prefectures | 1 | 11 / 50 | 45.890 s | 416.54 MiB |
+| Dense raster + 7 prefectures | 4 | 12 / 50 | 49.386 s | 495.60 MiB |
+| Fragmented raster + 4 prefectures | 1 | 50 / 50 | 5.881 s | 532.78 MiB |
+| Fragmented raster + 4 prefectures | 4 | 50 / 50 | 5.775 s | 538.17 MiB |
+| Dense Hokkaido raster | 4 | 48 / 50 | 48.242 s | 1,000.64 MiB |
+
+Live discovery requested 31 refinement tiles over all supplied forecast frames.
+The four measured jobs had 180 strong pixels in total, loaded prefectures
+13/46/47 once each, and intersected zero municipalities. Synthetic cases
+independently proved positive exact municipality intersections: dense c4
+3,096 hits, fragmented c4 1,200 hits, Hokkaido 2,112 hits (sums over repeated
+jobs, not counts of distinct municipalities). These manufactured images are
+not evidence of real rain in those places.
+
+**The original fixed scheduler is rejected by measurement.** In the dense
+c4 case only 12 jobs finished, with 38 still pending and a maximum batch of
+17.090 s. Concurrency 4 did not give a fourfold CPU gain on a single JS process.
+Two calls did not prove 100 jobs/5min; two similar dense invocations would
+complete only about 24 jobs. Even that estimate excludes HTTP/DB overhead.
+The 17.09-second measured batch also exceeds the 15-second reserve between
+the 45-second start-work cutoff and the 60-second route ceiling. Starting a
+similar batch at second 44 can exceed the route ceiling. Hokkaido's roughly
+1 GiB peak makes nationwide multi-prefecture cache growth an additional gate.
+
+The dense polygon's raster boundary contained many redundant collinear points.
+The next feature-branch fix removes only intermediate points on straight grid
+edges before converting to geographic coordinates. A full 256x256 occupied
+tile retains exactly its four boundary corners plus closure. Every turn, dry
+hole and concavity remains; polygon/municipality ordering stays unchanged.
+This is exact boundary reduction, not a bounding-box substitution or a
+tolerance-based approximation. Dense extent, hole and concavity tests lock it.
+Re-run the same CI stress matrix before accepting any claimed speed-up.
+
+No safe Production job count or invocation rate is adopted yet. A route's
+50-job cap implies at least 31 invocations for 1,536 tiles in one frame even
+if all 50 finish; multiple frames multiply that demand. This is only a
+count lower bound, not measured safe drain capacity. Replacement scheduling
+must have bounded global invocation concurrency, backlog/oldest-job-age
+observability, explicit stale-frame handling, and measured memory/last-batch
+headroom. Do not fix the backlog by silently dropping rain candidates.
+
+The isolated proof/data path and reproducible measurements are complete;
+the throughput/scheduler acceptance gate remains OPEN. All Production actions
+listed above remain unexecuted. Continue safely on the feature branch.
