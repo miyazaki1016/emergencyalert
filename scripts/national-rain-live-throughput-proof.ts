@@ -5,6 +5,8 @@ import { join } from "node:path";
 import { performance } from "node:perf_hooks";
 import { PNG } from "pngjs";
 import { fetchForecastTargetTimes } from "../lib/weather/providers/jma/targetTimes";
+import { fetchObservationTargetTimes } from "../lib/weather/providers/jma/observationTargetTimes";
+import { candidateKey } from "../lib/weather/rain/nationalHeavyRain";
 import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
 import { heavyRainAreaPolygons, scanHeavyRainTile } from "../lib/weather/rain/nationalHeavyRain";
 import { N03_PREFECTURE_INDEX_2026 } from "../lib/weather/rain/n03PrefectureIndex2026";
@@ -16,11 +18,22 @@ import { municipalitiesForNationalRainFootprint } from "../lib/weather/rain/nati
 async function main() {
   const root = process.env.N03_CACHE_DIR || mkdtempSync(join(tmpdir(), "national-rain-throughput-"));
   mkdirSync(root, { recursive: true });
-  const frames = await fetchForecastTargetTimes();
+  const [observations, frames] = await Promise.all([fetchObservationTargetTimes(), fetchForecastTargetTimes()]);
+  const currentFrame = observations[0];
   const frame = frames[0];
-  if (!frame) throw new Error("No JMA target time");
+  if (!currentFrame || !frame) throw new Error("No JMA target time");
   const zoom = 8;
-  const sampleTiles = [{ x: 226, y: 100 }, { x: 227, y: 100 }, { x: 226, y: 101 }, { x: 227, y: 101 }];
+  const coarseTiles = [[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;
+  const scanCoarse = async (target: { basetime:string; validtime:string }) => (await Promise.all(coarseTiles.map(async ([x,y]) => {
+    const r=await fetch(buildJmaRainTileUrl(target,4,x,y)); if(!r.ok) throw new Error(`coarse JMA tile fetch failed: ${r.status}`);
+    return scanHeavyRainTile(Buffer.from(await r.arrayBuffer()),4,x,y);
+  }))).flat();
+  const currentKeys=new Set((await scanCoarse(currentFrame)).map(candidateKey));
+  const upcoming=(await scanCoarse(frame)).filter(c=>!currentKeys.has(candidateKey(c)));
+  const selected=new Map<string,{x:number;y:number}>();
+  for(const c of upcoming){ const x=c.tileX*16+Math.floor(c.pixelX/16), y=c.tileY*16+Math.floor(c.pixelY/16); selected.set(`${x}:${y}`,{x,y}); if(selected.size>=4) break; }
+  const sampleTiles=[...selected.values()];
+  if(sampleTiles.length===0){ console.log(JSON.stringify({mode:"READ_ONLY_LIVE_THROUGHPUT_PROOF",frame,skipped:true,reason:"NO_LIVE_UPCOMING_HEAVY_RAIN"})); return; }
   const started = performance.now();
   const rows = [];
   for (const tile of sampleTiles) {
