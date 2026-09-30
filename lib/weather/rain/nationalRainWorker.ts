@@ -20,6 +20,7 @@ export type NationalRainWorkerResult = {
   done: number;
   failed: number;
   strongPixels: number;
+  deferred: number;
 };
 
 export async function processNationalRainRefinementJobs(
@@ -28,13 +29,23 @@ export async function processNationalRainRefinementJobs(
     limit?: number;
     fetcher?: typeof fetch;
     resolveMunicipalities?: (footprint: ReturnType<typeof heavyRainAreaPolygons>) => Promise<NationalRainMunicipality[]>;
+    budgetMs?: number;
+    now?: () => number;
   } = {},
 ): Promise<NationalRainWorkerResult> {
   const fetcher = options.fetcher ?? fetch;
+  const now = options.now ?? Date.now;
+  const budgetMs = Math.max(1, options.budgetMs ?? 45_000);
+  const deadline = now() + budgetMs;
   const jobs = (await claimNationalRainJobs(supabase, options.limit ?? 10)) as ClaimedNationalRainJob[];
-  const result: NationalRainWorkerResult = { claimed: jobs.length, done: 0, failed: 0, strongPixels: 0 };
+  const result: NationalRainWorkerResult = { claimed: jobs.length, done: 0, failed: 0, strongPixels: 0, deferred: 0 };
 
   for (const job of jobs) {
+    if (now() >= deadline) {
+      result.deferred += 1;
+      await finishNationalRainJob(supabase, job.id, false, "worker_time_budget_exhausted");
+      continue;
+    }
     try {
       const response = await fetcher(
         buildJmaRainTileUrl({ basetime: job.basetime, validtime: job.validtime }, job.zoom, job.tile_x, job.tile_y),
