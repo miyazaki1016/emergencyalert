@@ -12,6 +12,7 @@ export async function measureWorker(options: {
   fetcher: typeof fetch;
   resolveMunicipalities: (footprint: HeavyRainPolygon[]) => Promise<NationalRainMunicipality[]>;
   budgetMs?: number;
+  processor?: typeof processNationalRainRefinementJobs;
 }) {
   let offset = 0, saved = 0, municipalityHits = 0, serializedBytes = 0;
   let peakRss = process.memoryUsage().rss;
@@ -50,7 +51,7 @@ export async function measureWorker(options: {
   const timer = setInterval(sample, 5);
   const started = performance.now();
   try {
-    const result = await processNationalRainRefinementJobs(client, {
+    const result = await (options.processor ?? processNationalRainRefinementJobs)(client, {
       limit: options.jobs.length, concurrency: options.concurrency,
       budgetMs: options.budgetMs ?? 45_000,
       fetcher: options.fetcher, resolveMunicipalities: options.resolveMunicipalities,

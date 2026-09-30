@@ -27,7 +27,7 @@ async function main() {
         const targetStart = started + i * gapMs;
         if (targetStart > performance.now()) await new Promise(r => setTimeout(r, targetStart - performance.now()));
         const codes = layout === "national" ? REPRESENTATIVES.join(",") : REPRESENTATIVES[i];
-        const child = fork(fileURLToPath(new URL("./n03-http-worker-readiness-proof.ts", import.meta.url)), ["worker", root, codes, "cached", "nominal", "4", "16"], { env: { ...process.env, N03_PROOF_HTTP_URL: http.baseUrl, N03_PROOF_COLD_ONLY: "1" }, stdio: ["ignore", "pipe", "inherit", "ipc"] });
+        const child = fork(fileURLToPath(new URL("./n03-http-worker-readiness-proof.ts", import.meta.url)), ["worker", root, codes, "cached", "nominal", process.env.N03_PROOF_CONCURRENCY ?? "4", process.env.N03_PROOF_OFFERED ?? "16"], { env: { ...process.env, N03_PROOF_HTTP_URL: http.baseUrl, N03_PROOF_COLD_ONLY: "1" }, stdio: ["ignore", "pipe", "inherit", "ipc"] });
         children.push(child); invocationCount++;
         let output = ""; child.stdout!.on("data", data => { output += data; });
         await new Promise<void>((resolve, reject) => { child.once("error", reject); child.once("exit", code => code === 0 ? resolve() : reject(new Error(`Worker process exit ${code}`))); });

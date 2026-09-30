@@ -1,0 +1,37 @@
+name: All47 ownership proof
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/national-*ownership*'
+      - '.github/workflows/national-all47-ownership-proof.yml'
+jobs:
+  geometry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Exact real geometry and chunk ownership for all47
+        run: |
+          set -euo pipefail
+          root=/tmp/national-all47
+          mkdir -p "$root"
+          for i in $(seq 1 47); do
+            code=$(printf '%02d' "$i")
+            npx tsx scripts/prepare-n03-storage-data.ts "$root" "$code"
+            npx tsx scripts/national-all47-ownership-proof.ts "$root" "$code" | tee -a "$root/all47.log"
+            rm "$root/$code.areas.json"
+          done
+          npx tsx scripts/national-ownership-summary.ts "$root" | tee "$root/summary.log"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: all47-ownership-evidence
+          path: |
+            /tmp/national-all47/*.ownership.json
+            /tmp/national-all47/ownership-summary.json
+            /tmp/national-all47/*.log

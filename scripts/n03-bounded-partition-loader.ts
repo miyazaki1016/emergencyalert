@@ -27,6 +27,7 @@ export function createBoundedPartitionResolver(options: {
   datasets: Dataset[];
   read: (code: string, file: string) => Promise<Buffer>;
   maxWeight?: number;
+  signal?: AbortSignal;
 }) {
   // Retain encoded bytes only: exact cache accounting, no persistent decoded
   // geometry. Synchronous per-chunk consumption admits one JS decode at a time.
@@ -58,6 +59,7 @@ export function createBoundedPartitionResolver(options: {
   const metrics = { transfers: 0, transferBytes: 0, selectedBytes: 0, resolutions: 0, decodes: 0, activeDecodes: 0, peakActiveDecodes: 0 };
 
   async function resolve(rain: HeavyRainPolygon[]): Promise<NationalRainMunicipality[]> {
+    options.signal?.throwIfAborted();
     metrics.resolutions++;
     const rainBounds = rain.map(p => bounds(p.coordinates));
     const results: NationalRainMunicipality[] = [];
@@ -67,6 +69,7 @@ export function createBoundedPartitionResolver(options: {
       const selectedIds = new Set(selected.map(p => p.id));
       const found = new Set<number>();
       for (const file of new Set(selected.map(p => p.chunk))) {
+        options.signal?.throwIfAborted();
         const expected = chunks.get(file)!;
         metrics.selectedBytes += expected.bytes;
         await cache.use(`${N03_DATASET_DATE}/${code}/${indexSha256}/${file}`, expected.bytes, async () => {
@@ -75,6 +78,7 @@ export function createBoundedPartitionResolver(options: {
           if (body.length !== expected.bytes || sha256(body) !== expected.sha256) throw new Error("Partition chunk integrity mismatch");
           return body;
         }, body => {
+          options.signal?.throwIfAborted();
           metrics.activeDecodes++; metrics.peakActiveDecodes = Math.max(metrics.peakActiveDecodes, metrics.activeDecodes); metrics.decodes++;
           try {
           const value = JSON.parse(body.toString("utf8")) as Part[];
