@@ -45,6 +45,11 @@ jobs:
         run: |
           set -o pipefail
           npx tsx scripts/national-forecast-refinement-zoom-proof.ts | tee /tmp/forecast-refinement-zoom.json
+      - name: Probe whether JMA omits empty high-zoom forecast tiles
+        timeout-minutes: 5
+        run: |
+          set -o pipefail
+          JMA_TILE_EXISTENCE_SAMPLE=100 npx tsx scripts/jma-sparse-tile-existence-proof.ts | tee /tmp/jma-sparse-tile-existence.json
       - run: npx tsx scripts/national-rain-budget-proof.ts
       - name: Measure read-only live national rain throughput
         timeout-minutes: 10
