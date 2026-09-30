@@ -268,3 +268,46 @@ all47 prefectures, geographic ownership or neighboring-prefecture detection.
 
 **atomicity gateとthroughput gateは別。**
 **未来のソラを信用するな。重要な判断は総覧へ残す。**
+
+
+### Follow-up CI #502 SUCCESS — 2026-09-30
+
+Runtime code `c8da0d9c702fd9093aebebef6a6f8222b06561a9`: CI #502,
+National #206, N03 #126 all SUCCESS. Artifact11087306586 / run36693482756;
+full structured evidence: `docs/proofs/national-readiness-ci502.json`.
+The report-only maxReadMs correction is verified: single-region warm phases
+have zero GETs, zero bytes and maxReadMs0. All83 ordered representative queries
+still match, and cache peak retained bytes remain below32MiB.
+
+Repeated nominal localhost HTTP Hokkaido50jobs c4: whole15.990s /1038.63MiB
+process peak RSS versus encoded16.716s /374.86MiB; c1 encoded16.795s /264.13MiB.
+Measured transfer bytes remain41,606,326 whole vs12,748,337 partitioned.
+Timing and allocator peaks vary across CI runs: retain both CI501 and502,
+not a best-run Production estimate. Sustained accelerated local worker again
+finishes576/576 with zero pending in36 calls; wall204.89s, peak366.42MiB,
+first/last three-cycle maxima338.98/326.49MiB. This is finite local evidence.
+
+Separate-process repeat: nationalmixed cap2 completes48/64 in104.713s,
+aggregate634.21MiB; regionalcap2 completes64/64 in22.356s /667.99MiB;
+regional3s offsets21.0s /688.81MiB; regionalcap4 18.333s /1215.28MiB.
+Again offsets do not lower measured memory. All profiles use assumed loopback
+latency/bandwidth and synthetic dense rain, not private Production Storage IO.
+
+Updated cold-service replay,12 virtual five-minute cycles /1.5x margin:
+regional384/cycle finishes4608 with no remaining jobs using288 calls;
+1536/cycle finishes7728, leaves10704, oldest2100s,485 calls;
+18432/cycle leaves213456, oldest3600s. Compared with CI501, lower measured
+service increases backlog; the decision remains **Production不可 / gate OPEN**.
+
+Read-only live JMA discovery finds26 refinement candidates across12 frames;
+selects4 jobs on Okinawa zoom8(218,107),333 upcoming strong pixels total.
+Cold prepared N03 path completes4/4 in0.527s (discovery14.263s separately),
+process peak253.61MiB; warm0.100s. Municipality intersection executes but returns
+**zero municipality hits**: this is not land-impact throughput and cannot close
+the gate. N03 is local prepared data through the existing Storage loader code,
+not private Storage HTTP; result/queue RPCs remain local stubs.
+
+Proof and decision materials are complete; final scheduler sizing, real IO,
+all47 regional ownership, production loader integration, runtime deadline and
+severe-load drain remain uncompleted. All Production changes, merge and deploy
+remain unexecuted. Atomicity gate and throughput gate remain separate.
