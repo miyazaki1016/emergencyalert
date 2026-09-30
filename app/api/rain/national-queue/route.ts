@@ -55,18 +55,22 @@ export async function POST(request: NextRequest) {
     if (!current) throw new Error("observation unavailable");
 
     const currentStrong = new Set((await scanFrame(current)).map(candidateKey));
-    const supabase = createNationalRainQueueClient();
     const frames = [];
-    let requestedRefinementTiles = 0;
+    const allJobs: NationalRainQueueJob[] = [];
 
+    // Scan every required forecast before touching the queue. If any JMA frame
+    // fails, the request fails closed with zero queue writes.
     for (const forecast of forecasts) {
       const candidates = (await scanFrame(forecast))
         .filter((candidate) => !currentStrong.has(candidateKey(candidate)));
       const jobs = uniqueJobs(candidates, forecast);
-      await enqueueNationalRainJobs(supabase, jobs);
-      requestedRefinementTiles += jobs.length;
+      allJobs.push(...jobs);
       frames.push({ validTime: forecast.validtime, coarseCandidates: candidates.length, refinementTiles: jobs.length });
     }
+
+    const supabase = createNationalRainQueueClient();
+    await enqueueNationalRainJobs(supabase, allJobs);
+    const requestedRefinementTiles = allJobs.length;
 
     return NextResponse.json({
       mode: "NATIONAL_RAIN_QUEUE_PROOF",
