@@ -144,3 +144,77 @@ test("defers unstarted claimed jobs without consuming a failure attempt", async 
   expect(rpc).toHaveBeenCalledWith("defer_national_rain_refinement_job", { p_id: 8 });
   expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", expect.objectContaining({ p_id: 8 }));
 });
+
+
+test("claims and processes jobs in bounded parallel batches", async () => {
+  const jobs = Array.from({ length: 6 }, (_, i) => ({ ...job, id: 20 + i, tile_x: 220 + i }));
+  let offset = 0;
+  const claimSizes: number[] = [];
+  const rpc = vi.fn(async (name: string, args: Record<string, unknown>) => {
+    if (name === "claim_national_rain_refinement_jobs") {
+      const size = Number(args.p_limit);
+      claimSizes.push(size);
+      const batch = jobs.slice(offset, offset + size);
+      offset += batch.length;
+      return { data: batch, error: null };
+    }
+    if (name === "finish_national_rain_refinement_job") return { data: null, error: null };
+    throw new Error(`unexpected RPC ${name}`);
+  });
+  const upsert = vi.fn().mockResolvedValue({ error: null });
+  const client = { rpc, from: vi.fn().mockReturnValue({ upsert }) } as any;
+  let active = 0;
+  let maxActive = 0;
+  const fetcher = vi.fn(async () => {
+    active += 1;
+    maxActive = Math.max(maxActive, active);
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    active -= 1;
+    return new Response(pngBuffer(), { status: 200 });
+  });
+
+  const result = await processNationalRainRefinementJobs(client, {
+    limit: 6,
+    concurrency: 4,
+    fetcher: fetcher as any,
+  });
+
+  expect(result.claimed).toBe(6);
+  expect(result.done).toBe(6);
+  expect(result.failed).toBe(0);
+  expect(claimSizes).toEqual([4, 2]);
+  expect(maxActive).toBe(4);
+});
+
+test("does not claim another batch after the execution budget is exhausted", async () => {
+  const firstBatch = Array.from({ length: 4 }, (_, i) => ({ ...job, id: 40 + i, tile_x: 230 + i }));
+  let claims = 0;
+  const rpc = vi.fn(async (name: string) => {
+    if (name === "claim_national_rain_refinement_jobs") {
+      claims += 1;
+      return { data: claims === 1 ? firstBatch : [{ ...job, id: 99 }], error: null };
+    }
+    if (name === "finish_national_rain_refinement_job") return { data: null, error: null };
+    throw new Error(`unexpected RPC ${name}`);
+  });
+  const upsert = vi.fn().mockResolvedValue({ error: null });
+  const client = { rpc, from: vi.fn().mockReturnValue({ upsert }) } as any;
+  const fetcher = vi.fn().mockResolvedValue(new Response(pngBuffer(), { status: 200 }));
+  let calls = 0;
+  const now = vi.fn(() => {
+    calls += 1;
+    return calls <= 6 ? 0 : 46_000;
+  });
+
+  const result = await processNationalRainRefinementJobs(client, {
+    limit: 8,
+    concurrency: 4,
+    budgetMs: 45_000,
+    now,
+    fetcher: fetcher as any,
+  });
+
+  expect(result.claimed).toBe(4);
+  expect(result.done).toBe(4);
+  expect(claims).toBe(1);
+});
