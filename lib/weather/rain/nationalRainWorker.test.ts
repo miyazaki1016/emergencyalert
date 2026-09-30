@@ -113,20 +113,23 @@ describe("processNationalRainRefinementJobs", () => {
   });
 
 
-test("defers unstarted claimed jobs without consuming a failure attempt", async () => {
+test("leaves unclaimed work pending when the budget expires between small batches", async () => {
   const second = { ...job, id: 8, tile_x: 222 };
+  let claims = 0;
   const rpc = vi.fn(async (name: string) => {
-    if (name === "claim_national_rain_refinement_jobs") return { data: [job, second], error: null };
+    if (name === "claim_national_rain_refinement_jobs") {
+      claims += 1;
+      return { data: claims === 1 ? [job] : [second], error: null };
+    }
     if (name === "finish_national_rain_refinement_job") return { data: null, error: null };
     if (name === "defer_national_rain_refinement_job") return { data: null, error: null };
     throw new Error(`unexpected RPC ${name}`);
   });
   const upsert = vi.fn().mockResolvedValue({ error: null });
   const client = { rpc, from: vi.fn().mockReturnValue({ upsert }) } as any;
-  const fetcher = vi.fn().mockResolvedValue(new Response(pngBuffer(), { status: 200 }));
   let currentTime = 0;
   const now = vi.fn(() => currentTime);
-  const timedFetcher = vi.fn(async () => {
+  const fetcher = vi.fn(async () => {
     currentTime = 46_000;
     return new Response(pngBuffer(), { status: 200 });
   });
@@ -136,17 +139,18 @@ test("defers unstarted claimed jobs without consuming a failure attempt", async 
     concurrency: 1,
     budgetMs: 45_000,
     now,
-    fetcher: timedFetcher as any,
+    fetcher: fetcher as any,
   });
 
+  expect(result.claimed).toBe(1);
   expect(result.done).toBe(1);
   expect(result.failed).toBe(0);
-  expect(result.deferred).toBe(1);
-  expect(timedFetcher).toHaveBeenCalledTimes(1);
-  expect(rpc).toHaveBeenCalledWith("defer_national_rain_refinement_job", { p_id: 8 });
+  expect(result.deferred).toBe(0);
+  expect(fetcher).toHaveBeenCalledTimes(1);
+  expect(claims).toBe(1);
+  expect(rpc).not.toHaveBeenCalledWith("defer_national_rain_refinement_job", expect.anything());
   expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", expect.objectContaining({ p_id: 8 }));
 });
-
 
 test("claims and processes jobs in bounded parallel batches", async () => {
   const jobs = Array.from({ length: 6 }, (_, i) => ({ ...job, id: 20 + i, tile_x: 220 + i }));
