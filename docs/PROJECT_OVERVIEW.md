@@ -1466,3 +1466,30 @@ Interpretation:
 Missing tiles must remain NO_DATA/unavailable, never NO_RAIN. Before promoting `z4 <30` to a permanent exclusion invariant, add a land-aware/coverage-aware proof or otherwise establish why the missing higher-zoom forecast tiles cannot contain relevant rain.
 
 The CI #518 overall failure occurred later in an older read-only live throughput measurement when a coarse JMA tile returned 404. That is separate from the low-zoom validation result. The live throughput proof has been adjusted to report this transient source unavailability as a skipped measurement without weakening Production queue fail-closed semantics.
+
+
+### Forecast candidate refinement zoom checkpoint — 2026-09-30
+
+CI #523 completed successfully. The candidate-only refinement probe used a fresh JMA forecast cycle with 12 validtimes from +5 to +60 minutes.
+
+For every forecast frame:
+- the six nationwide zoom-4 coarse tiles were fully available;
+- every zoom-4 >=30 mm/h candidate's descendant tiles were then probed at zooms 5, 6, 7, 8, 9 and 10;
+- **all requested candidate descendant tiles were available through zoom 10 for all 12 frames**;
+- highestFullyAvailableCandidateZoom = 10 for every frame;
+- no coarse-frame 404 occurred in this run.
+
+Observed candidate footprint was tiny: roughly one z5-z7 tile, two z8 tiles, four z9 tiles, and 6-9 z10 tiles per frame. This is candidate-only refinement, not nationwide high-zoom enumeration.
+
+The key architectural consequence is important: do not infer high-zoom forecast usability from nationwide exhaustive tile availability. Earlier exhaustive zoom-8 proofs saw many 404s because they requested all 1,536 descendants under the six coarse tiles. CI #523 shows that the tiles actually selected by zoom-4 >=30 candidates were available all the way to zoom 10 across the full +60 minute horizon in this cycle.
+
+Preferred direction:
+1. scan all forecast validtimes at zoom 4;
+2. identify only zoom-4 cells >=30 mm/h;
+3. refine only those candidate descendants, potentially directly to zoom 10 when available;
+4. if a selected descendant tile is unavailable, preserve NO_DATA/fail-closed semantics rather than broadening or inventing rain;
+5. perform municipality/alert work only on the refined candidate footprint.
+
+This can reduce high-resolution work by orders of magnitude while preserving the product goal of finding future strong rain. It also means the earlier scheduler stress based on exhaustive nationwide zoom-8 refinement is likely a pessimistic architecture rather than the desired final design.
+
+This is still empirical JMA behavior, not a published permanent contract. Continue collecting samples across different weather events. Keep z4<30 => safe to ignore as an evidence-backed hypothesis until enough counterexample-seeking runs have accumulated.
