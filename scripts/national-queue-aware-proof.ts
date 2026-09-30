@@ -1,7 +1,8 @@
 import {readFileSync} from 'node:fs';
 import {replayScheduler,type ServiceProfile} from './national-rain-scheduler-replay';
-const evidence=JSON.parse(readFileSync(process.argv[2]??'docs/proofs/national-readiness-ci502.json','utf8'));
-const rows=Object.values(evidence.sources).flat() as {layout?:string;globalCap?:number;gapMs?:number;reports?:{codes:string[];result:{done:number};elapsedMs:number;processMaxRssMiB:number}[]}[];
+const evidenceText=readFileSync(process.argv[2]??'docs/proofs/national-readiness-ci502.json','utf8');
+const evidence=JSON.parse(evidenceText);
+const rows=(evidence.sources ? Object.values(evidence.sources).flat() : [evidence]) as {layout?:string;globalCap?:number;gapMs?:number;reports?:{codes:string[];result:{done:number};elapsedMs:number;processMaxRssMiB:number}[]}[];
 const regional=rows.find(r=>r.layout==='regional' && r.globalCap===2 && r.gapMs===0);
 if(!regional?.reports) throw new Error('Missing calibration');
 const profiles:Record<string,ServiceProfile>={};
@@ -13,5 +14,5 @@ for(const scenario of ['normal','576','1536','consecutive-burst'] as const) for(
  const arrivals=distribute(total);
  const arrivalsByCycle=scenario==='consecutive-burst'?Array.from({length:24},(_,i)=>distribute(i<12?1536:48)):undefined;
  const result=replayScheduler({policy:'regional',profiles,mixed:profiles[regions[0]],arrivals,arrivalsByCycle,cycles:24,globalCap:policy==='queue-aware3'?3:2,serviceMultiplier:1.5,...(policy==='continuous2'?{}:{backlogThreshold:64,oldestThresholdMs:60000})});
- console.log(JSON.stringify({scenario,schedulerPolicy:policy,calibration:'CI502 cold 4 representative workers; 1.5x service margin',rssIsMeasured:false,profiles,...result,decision:policy==='queue-aware3'?'COMPARISON_ONLY_NOT_ACCEPTED':'PROOF_ONLY'}));
+ console.log(JSON.stringify({scenario,schedulerPolicy:policy,calibration:process.argv[2] ?? 'CI502 cold 4 representative workers; 1.5x service margin',rssIsMeasured:false,profiles,...result,decision:policy==='queue-aware3'?'COMPARISON_ONLY_NOT_ACCEPTED':'PROOF_ONLY'}));
 }

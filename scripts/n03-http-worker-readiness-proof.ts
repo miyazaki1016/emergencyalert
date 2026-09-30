@@ -82,11 +82,14 @@ async function main() {
     let phaseSignal: AbortSignal | undefined;
     const read = async (code: string, file: string) => {
       const started = performance.now();
-      const response = await fetch(`${http.baseUrl}/${code}/${file}`, { headers: { Authorization: "Bearer local-read-only-proof" }, signal: phaseSignal ? AbortSignal.any([phaseSignal, AbortSignal.timeout(30000)]) : AbortSignal.timeout(30000) });
-      if (!response.ok) throw new Error(`Proof Storage HTTP ${response.status}`);
-      const body = Buffer.from(await response.arrayBuffer());
-      requests++; transferBytes += body.length; readDurations.push(performance.now() - started);
-      return body;
+      requests++;
+      try {
+        const response = await fetch(`${http.baseUrl}/${code}/${file}`, { headers: { Authorization: "Bearer local-read-only-proof" }, signal: phaseSignal ? AbortSignal.any([phaseSignal, AbortSignal.timeout(30000)]) : AbortSignal.timeout(30000) });
+        if (!response.ok || !response.body) throw new Error(`Proof Storage HTTP ${response.status}`);
+        const parts: Buffer[] = [];
+        for await (const part of response.body as unknown as AsyncIterable<Uint8Array>) { transferBytes += part.byteLength; parts.push(Buffer.from(part)); }
+        return Buffer.concat(parts);
+      } finally { readDurations.push(performance.now() - started); }
     };
     const resolver = variant === "cached" ? createBoundedPartitionResolver({ datasets: datasets(root, codes), read, get signal() { return phaseSignal; } }) : undefined;
     const wholeFlights = new Map<string, Promise<AdministrativeArea[]>>();
@@ -104,9 +107,9 @@ async function main() {
     const jobs = Array.from({ length: offered }, (_, i) => ({ id: i + 1, run_key: `http-${i}`, basetime: "20260930060000", validtime: "20260930060500", zoom: 8, tile_x: STRESS_TILES[codes[i % codes.length]].x, tile_y: STRESS_TILES[codes[i % codes.length]].y }));
     for (const phase of (process.env.N03_PROOF_COLD_ONLY ? ["cold"] : ["cold", "warm"])) {
       phaseSignal = process.env.N03_PROOF_HARD_DEADLINE ? AbortSignal.timeout(42000) : undefined;
-      const before = { requests, transferBytes, readCount: readDurations.length }; const measured = await measureWorker({ jobs, concurrency, fetcher: async () => new Response(new Uint8Array(body)), resolveMunicipalities: phaseSignal ? async rain => { phaseSignal!.throwIfAborted(); const r = await resolve(rain); phaseSignal!.throwIfAborted(); return r; } : resolve, processor: phaseSignal ? (client,opts) => processDeadlineProofJobs(client,{...opts,signal:phaseSignal}) : undefined });
+      const before = { requests, transferBytes, readCount: readDurations.length, cache: resolver ? {...resolver.cache.stats} : undefined }; const measured = await measureWorker({ jobs, concurrency, fetcher: async () => new Response(new Uint8Array(body)), resolveMunicipalities: phaseSignal ? async rain => { phaseSignal!.throwIfAborted(); const r = await resolve(rain); phaseSignal!.throwIfAborted(); return r; } : resolve, processor: phaseSignal ? (client,opts) => processDeadlineProofJobs(client,{...opts,signal:phaseSignal}) : undefined });
       if (!measured.municipalityHits) throw new Error("HTTP proof must intersect real municipalities");
-      console.log(JSON.stringify({ mode: "HTTP_READINESS_ACTUAL_WORKER", codes, variant, phase, profile: { ...profiles[profileName], name: profileName, source: "ASSUMED sensitivity inputs; measured localhost transfers" }, offered, hardDeadlineProof: !!phaseSignal, deadlineReached: Number(phaseSignal?.aborted ?? false), unclaimed: offered-measured.result.claimed, defer: measured.result.deferred, requests: requests - before.requests, transferBytes: transferBytes - before.transferBytes, maxReadMs: Math.max(0, ...readDurations.slice(before.readCount)), cache: resolver?.cache.stats, ...measured, limitations: [...measured.limitations, "Child HTTP server excluded from worker RSS", "Loopback HTTP, no TLS/auth service/CDN/Supabase measurement", "Synthetic repeated dense rain; no real JMA latency", "Warm phase is same invocation cache lifetime, not guaranteed across invocations"], schedulerDecision: "CONDITIONAL_PROOF_ONLY" }));
+      console.log(JSON.stringify({ mode: "HTTP_READINESS_ACTUAL_WORKER", codes, variant, phase, profile: { ...profiles[profileName], name: profileName, source: "ASSUMED sensitivity inputs; measured localhost transfers" }, offered, hardDeadlineProof: !!phaseSignal, deadlineReached: Number(phaseSignal?.aborted ?? false), deadlineReachedJobs: measured.result.deferred, admissionStopped: !!phaseSignal && measured.result.claimed < offered, unclaimed: offered-measured.result.claimed, defer: measured.result.deferred, requests: requests - before.requests, transferBytes: transferBytes - before.transferBytes, maxReadMs: Math.max(0, ...readDurations.slice(before.readCount)), cache: resolver?.cache.stats, cachePhase: resolver ? Object.fromEntries(Object.entries(resolver.cache.stats).filter(([k])=>["hits","misses","shared","evictions","loads"].includes(k)).map(([k,v])=>[k, Number(v)-Number((before.cache as unknown as Record<string,number>)?.[k] ?? 0)])) : undefined, ...measured, limitations: [...measured.limitations, "Child HTTP server excluded from worker RSS", "Loopback HTTP, no TLS/auth service/CDN/Supabase measurement", "Synthetic repeated dense rain; no real JMA latency", "Warm phase is same invocation cache lifetime, not guaranteed across invocations"], schedulerDecision: "CONDITIONAL_PROOF_ONLY" }));
     }
   } finally { http.stop(); }
 }
