@@ -1493,3 +1493,24 @@ Preferred direction:
 This can reduce high-resolution work by orders of magnitude while preserving the product goal of finding future strong rain. It also means the earlier scheduler stress based on exhaustive nationwide zoom-8 refinement is likely a pessimistic architecture rather than the desired final design.
 
 This is still empirical JMA behavior, not a published permanent contract. Continue collecting samples across different weather events. Keep z4<30 => safe to ignore as an evidence-backed hypothesis until enough counterexample-seeking runs have accumulated.
+
+
+### JMA sparse-tile existence hypothesis test — 2026-09-30
+
+CI #526 tested the hypothesis that high-zoom forecast PNG files are omitted (404) when their covered area is completely dry/transparent.
+
+Result: **the hypothesis was falsified in this sample**.
+
+Three forecast horizons were sampled (nearest, middle, farthest), with up to 100 z10 tiles selected from z4 child blocks containing precipitation data and 100 z10 tiles selected from z4 child blocks that were fully transparent.
+
+For all three horizons:
+- wet-class sample: 100/100 HTTP 200, 0 HTTP 404;
+- dry-class sample: 100/100 HTTP 200, 0 HTTP 404;
+- every dry-class HTTP-200 z10 PNG was itself **fully transparent**;
+- wet-class z10 PNGs were almost always mixed transparent+opaque, with a few fully opaque tiles.
+
+Observed totals across the three horizons:
+- dry-class: 300/300 HTTP 200, 300/300 all-transparent PNGs, 0 HTTP 404;
+- wet-class: 300/300 HTTP 200, 293 mixed transparent+opaque, 7 fully opaque, 0 HTTP 404.
+
+Therefore JMA does create and serve fully transparent high-zoom PNG tiles. Earlier 404s cannot be explained simply by 'no rain => no file'. Treat those 404s as coverage/product-availability behavior until proven otherwise. Continue to preserve 404 as NO_DATA/unavailable, never NO_RAIN.
