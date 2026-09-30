@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { performance } from "node:perf_hooks";
 import { PNG } from "pngjs";
-import { fetchJmaTargetTimes } from "../lib/weather/providers/jma/targetTimes";
+import { fetchForecastTargetTimes } from "../lib/weather/providers/jma/targetTimes";
 import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
 import { heavyRainAreaPolygons, scanHeavyRainTile } from "../lib/weather/rain/nationalHeavyRain";
 import { N03_PREFECTURE_INDEX_2026 } from "../lib/weather/rain/n03PrefectureIndex2026";
@@ -16,8 +16,8 @@ import { municipalitiesForNationalRainFootprint } from "../lib/weather/rain/nati
 async function main() {
   const root = process.env.N03_CACHE_DIR || mkdtempSync(join(tmpdir(), "national-rain-throughput-"));
   mkdirSync(root, { recursive: true });
-  const target = await fetchJmaTargetTimes();
-  const frame = target.observation ?? target.forecasts[0];
+  const frames = await fetchForecastTargetTimes();
+  const frame = frames[0];
   if (!frame) throw new Error("No JMA target time");
   const zoom = 8;
   const sampleTiles = [{ x: 226, y: 100 }, { x: 227, y: 100 }, { x: 226, y: 101 }, { x: 227, y: 101 }];
