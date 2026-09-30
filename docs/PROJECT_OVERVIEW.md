@@ -1439,3 +1439,30 @@ This could reduce nationwide detail/N03 work dramatically and should be investig
 **Do not yet promote this to a hard invariant.** This is one live observation frame, not a published JMA contract. Repeat across multiple observation/forecast frames and diverse rain events before adopting the screening rule. In particular validate forecast targetTimes as well as current observations and confirm no z4<30 / z8>=30 counterexample.
 
 Evidence: JMA low-zoom max-rank proof #1 SUCCESS, artifact 11094195166.
+
+
+### Forecast low-zoom screening checkpoint — 2026-09-30
+
+The future-frame screening idea was tested against live JMA forecast data.
+
+All 12 forecast validtimes were scanned at zoom 4 first. In the CI #518 sample:
+- naive nationwide zoom-8 work: 18,432 tiles (12 frames x 1,536 tiles/frame);
+- zoom-4 >=30 mm/h candidates mapped to only 12 zoom-8 refinement tiles total;
+- 18,420 zoom-8 tile fetches were avoided;
+- observed reduction: **99.9348958%**.
+
+Safety validation then exhaustively compared available zoom-8 descendants with their exact zoom-4 parents for the nearest, middle and farthest selected forecast frames:
+- nearest frame 12:05: 1,536/1,536 zoom-8 tiles available; 4,667 zoom-8 >=30 mm/h pixels; **0 misses**; zoom-4 parent rank equaled descendant max rank for every compared parent;
+- middle frame 12:30: 141/1,536 zoom-8 tiles available; 1,395 returned 404; among available data, 3,895 zoom-8 >=30 mm/h pixels; **0 misses**; exact parent=max rank for every compared parent;
+- farthest frame 13:00: 51/1,536 zoom-8 tiles available; 1,485 returned 404; among available data, 3,471 zoom-8 >=30 mm/h pixels; **0 misses**; exact parent=max rank for every compared parent.
+
+Interpretation:
+- the low-zoom screening design shows extremely large observed load reduction;
+- on every forecast zoom-8 tile that was actually available, no counterexample was found to the rule `z8 >=30 => parent z4 >=30`;
+- exact max-rank behavior also held on every compared parent;
+- however, the middle/farthest exhaustive proof lacked complete zoom-8 coverage because JMA returned 404 for many detail tiles;
+- therefore **the hard screening contract is not yet universally confirmed**.
+
+Missing tiles must remain NO_DATA/unavailable, never NO_RAIN. Before promoting `z4 <30` to a permanent exclusion invariant, add a land-aware/coverage-aware proof or otherwise establish why the missing higher-zoom forecast tiles cannot contain relevant rain.
+
+The CI #518 overall failure occurred later in an older read-only live throughput measurement when a coarse JMA tile returned 404. That is separate from the low-zoom validation result. The live throughput proof has been adjusted to report this transient source unavailability as a skipped measurement without weakening Production queue fail-closed semantics.
