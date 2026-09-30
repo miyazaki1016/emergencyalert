@@ -91,6 +91,11 @@ export async function saveNationalRainRefinementResult(
   if (error) throw error;
 }
 
+export async function deferNationalRainJob(supabase: SupabaseClient, id: number) {
+  const { error } = await supabase.rpc("defer_national_rain_refinement_job", { p_id: id });
+  if (error) throw error;
+}
+
 export async function finishNationalRainJob(
   supabase: SupabaseClient,
   id: number,
