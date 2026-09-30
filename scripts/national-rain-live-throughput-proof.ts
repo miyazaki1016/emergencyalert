@@ -24,7 +24,11 @@ async function main() {
   const coarseTiles = [[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;
   const scan = async (frame: JmaTargetTime) => (await Promise.all(coarseTiles.map(async ([x,y]) => {
     const r = await fetch(buildJmaRainTileUrl(frame,4,x,y));
-    if (!r.ok) throw new Error(`coarse JMA fetch failed ${r.status}`);
+    if (!r.ok) {
+      const error = new Error(`coarse JMA fetch failed ${r.status}`) as Error & { status?: number };
+      error.status = r.status;
+      throw error;
+    }
     return scanHeavyRainTile(Buffer.from(await r.arrayBuffer()),4,x,y);
   }))).flat();
   const currentKeys = new Set((await scan(current)).map(candidateKey));
@@ -68,4 +72,18 @@ async function main() {
     }));
   }
 }
-main().catch(e => { console.error(e); process.exitCode=1; });
+main().catch((e: Error & { status?: number }) => {
+  if (e?.status === 404) {
+    console.log(JSON.stringify({
+      mode:"READ_ONLY_LIVE_THROUGHPUT_PROOF",
+      skipped:true,
+      reason:"LIVE_JMA_COARSE_TILE_UNAVAILABLE",
+      detail:e.message,
+      capacityExtrapolationAllowed:false,
+      note:"Read-only live throughput evidence is unavailable for this CI moment. Production queue semantics remain fail-closed; this skip does not treat missing JMA data as no rain.",
+    }));
+    return;
+  }
+  console.error(e);
+  process.exitCode=1;
+});
