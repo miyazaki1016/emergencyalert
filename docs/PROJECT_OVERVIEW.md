@@ -1284,3 +1284,28 @@ timeouts, atomic region ownership/global leases/fairness, audited stale-frame
 policy and severe-demand sustained real-IO drain. No Production migrations,
 cron/Vault/Storage changes, notification connections, PR merge or Production
 deploy are executed. New loader remains proof-only, absent from application routes.
+
+
+### Supplemental cold-batch admission proof — 2026-09-30
+
+Evidence: `docs/proofs/national-readiness-supplement.json`, local sensitivity
+using the same scripts as CI #501; local hardware is not directly comparable
+with the CI runner. Constrained loopback HTTP (assumed 250ms/request, shared
+2MiB/s), c4 / 16 offered: Iwate completes 16 in 22.817s, peak RSS about445MiB,
+19 GETs, maximum cold batch **19.018s**; Nagasaki completes16 in16.990s,
+maximum cold batch13.867s. Warm phases issue zero GETs. Mixed nominal c4/8
+still requires122 GETs in each cold/warm phase and about28seconds.
+
+A 19.018-second cold batch exceeds the15-second reserve after a45-second
+start cutoff: beginning such a batch at second44 can exceed60seconds before
+final DB RPCs. Limit16 is a conditional proof setting, **not an accepted safe
+Production limit**. Remaining-time admission, cancellation, bounded fetches
+and final RPC budgets require further implementation and target-runtime proof.
+Throughput/scheduler gate remains OPEN; no Production actions are authorized
+by these measurements. Approximately10 future ownership groups (Hokkaido,
+Tohoku, Kanto, Hokuriku/Koshin, Tokai, Kinki, Chugoku, Shikoku, Kyushu, Okinawa)
+are a design candidate only: four measured workload classes do not validate
+all47 prefectures, geographic ownership or neighboring-prefecture detection.
+
+**atomicity gateとthroughput gateは別。**
+**未来のソラを信用するな。重要な判断は総覧へ残す。**
