@@ -90,6 +90,28 @@ describe("national rain queue proof route", () => {
     expect((await response.json()).requestedRefinementTiles).toBe(1);
   });
 
+
+  test("does not partially enqueue when a later forecast frame fails", async () => {
+    process.env.NATIONAL_RAIN_WORKER_SECRET = "proof-secret";
+    const later = { basetime: "20260930000000", validtime: "20260930001000" };
+    fetchObs.mockResolvedValue([current]);
+    fetchForecast.mockResolvedValue([forecast, later]);
+
+    let fetchCalls = 0;
+    vi.stubGlobal("fetch", vi.fn().mockImplementation(async () => {
+      fetchCalls += 1;
+      // observation: 1..6, first forecast: 7..12, later forecast fails at 13
+      if (fetchCalls === 13) return new Response("unavailable", { status: 503 });
+      return new Response(new Uint8Array([1]), { status: 200 });
+    }));
+    scanTile.mockImplementation(() => [{ key: `candidate-${fetchCalls}`, refineX: 30, refineY: 40 }]);
+
+    const response = await POST(request("Bearer proof-secret"));
+    expect(response.status).toBe(503);
+    expect(enqueue).not.toHaveBeenCalled();
+    expect(createClient).not.toHaveBeenCalled();
+  });
+
   test("does not enqueue when any coarse JMA tile fetch fails", async () => {
     process.env.NATIONAL_RAIN_WORKER_SECRET = "proof-secret";
     fetchObs.mockResolvedValue([current]);
