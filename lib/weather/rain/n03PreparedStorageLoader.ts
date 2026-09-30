@@ -27,10 +27,16 @@ export function createSupabaseN03AdministrativeAreaLoader(
   supabase: Pick<SupabaseClient, "storage">,
   cache = new Map<string, AdministrativeArea[]>(),
 ): N03AdministrativeAreaLoader {
-  return async (prefectures) => {
-    const missing = prefectures.filter(({ code }) => !cache.has(code));
+  const loading = new Map<string, Promise<AdministrativeArea[]>>();
 
-    await Promise.all(missing.map(async ({ code, name }) => {
+  const loadOne = ({ code, name }: { code: string; name: string }) => {
+    const cached = cache.get(code);
+    if (cached) return Promise.resolve(cached);
+
+    const existing = loading.get(code);
+    if (existing) return existing;
+
+    const promise = (async () => {
       const path = nationalRainN03ObjectPath(code);
       const { data, error } = await supabase.storage.from(NATIONAL_RAIN_N03_BUCKET).download(path);
       if (error || !data) {
@@ -53,8 +59,18 @@ export function createSupabaseN03AdministrativeAreaLoader(
         throw new Error(`N03 prepared data prefecture mismatch: ${code}`);
       }
       cache.set(code, areas);
-    }));
+      return areas;
+    })();
 
+    loading.set(code, promise);
+    void promise.finally(() => {
+      if (loading.get(code) === promise) loading.delete(code);
+    }).catch(() => undefined);
+    return promise;
+  };
+
+  return async (prefectures) => {
+    await Promise.all(prefectures.map(loadOne));
     return prefectures.flatMap(({ code }) => cache.get(code) ?? []);
   };
 }
