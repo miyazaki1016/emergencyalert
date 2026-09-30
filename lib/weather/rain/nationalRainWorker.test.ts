@@ -111,3 +111,36 @@ describe("processNationalRainRefinementJobs", () => {
       p_id: 7, p_success: false, p_error: "result db unavailable",
     });
   });
+
+
+test("defers unstarted claimed jobs without consuming a failure attempt", async () => {
+  const second = { ...job, id: 8, tile_x: 222 };
+  const rpc = vi.fn(async (name: string) => {
+    if (name === "claim_national_rain_refinement_jobs") return { data: [job, second], error: null };
+    if (name === "finish_national_rain_refinement_job") return { data: null, error: null };
+    if (name === "defer_national_rain_refinement_job") return { data: null, error: null };
+    throw new Error(`unexpected RPC ${name}`);
+  });
+  const upsert = vi.fn().mockResolvedValue({ error: null });
+  const client = { rpc, from: vi.fn().mockReturnValue({ upsert }) } as any;
+  const fetcher = vi.fn().mockResolvedValue(new Response(pngBuffer(), { status: 200 }));
+  let nowCalls = 0;
+  const now = vi.fn(() => {
+    nowCalls += 1;
+    return nowCalls <= 2 ? 0 : 46_000;
+  });
+
+  const result = await processNationalRainRefinementJobs(client, {
+    limit: 2,
+    budgetMs: 45_000,
+    now,
+    fetcher: fetcher as any,
+  });
+
+  expect(result.done).toBe(1);
+  expect(result.failed).toBe(0);
+  expect(result.deferred).toBe(1);
+  expect(fetcher).toHaveBeenCalledTimes(1);
+  expect(rpc).toHaveBeenCalledWith("defer_national_rain_refinement_job", { p_id: 8 });
+  expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", expect.objectContaining({ p_id: 8 }));
+});
