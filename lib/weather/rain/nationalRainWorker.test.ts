@@ -57,6 +57,28 @@ describe("processNationalRainRefinementJobs", () => {
     });
   });
 
+  test("fails closed when municipality resolution fails", async () => {
+    const { client, rpc, upsert } = clientFor(job);
+    const fetcher = vi.fn().mockResolvedValue(new Response(pngBuffer(), { status: 200 }));
+    const resolveMunicipalities = vi.fn().mockRejectedValue(new Error("N03 prepared data unavailable"));
+
+    const result = await processNationalRainRefinementJobs(client, {
+      limit: 1,
+      fetcher: fetcher as any,
+      resolveMunicipalities,
+    });
+
+    expect(result.done).toBe(0);
+    expect(result.failed).toBe(1);
+    expect(upsert).not.toHaveBeenCalled();
+    expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", {
+      p_id: 7, p_success: true, p_error: null,
+    });
+    expect(rpc).toHaveBeenCalledWith("finish_national_rain_refinement_job", {
+      p_id: 7, p_success: false, p_error: "N03 prepared data unavailable",
+    });
+  });
+
   test("returns a failed fetch to queue completion logic", async () => {
     const { client, rpc } = clientFor(job);
     const fetcher = vi.fn().mockResolvedValue(new Response("unavailable", { status: 503 }));
