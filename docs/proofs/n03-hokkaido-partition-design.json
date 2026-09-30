@@ -57,5 +57,325 @@
     "municipalities": 44,
     "readBytes": 12748337,
     "chunksRead": 13
+  },
+  "localActualWorker": {
+    "1": {
+      "mode": "HOKKAIDO_PARTITION_ACTUAL_WORKER_LOCAL_PROOF",
+      "admission": "one N03 resolver per invocation; serial chunks; no geometry cache",
+      "reads": 650,
+      "bytes": 637416850,
+      "result": {
+        "claimed": 50,
+        "done": 50,
+        "failed": 0,
+        "strongPixels": 3276800,
+        "deferred": 0
+      },
+      "elapsedMs": 11291.599449,
+      "concurrency": 1,
+      "budgetMs": 45000,
+      "pending": 0,
+      "municipalityHits": 2200,
+      "serializedBytes": 173831,
+      "batches": [
+        {
+          "jobs": 1,
+          "elapsedMs": 330.070011
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 216.86048200000005
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 218.66292799999997
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 238.50484599999993
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 236.4333079999999
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 227.0254910000001
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 200.27009699999985
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 201.12417299999993
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 213.07992000000013
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 216.88254800000004
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 228.4500049999997
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 205.80999999999995
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 235.35453800000005
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 248.47624499999984
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 232.28363799999988
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 203.5640629999998
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 201.5652399999999
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 220.68952000000036
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 225.01796399999967
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 208.58790099999987
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 215.38824900000054
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 207.55958499999997
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 215.0140280000005
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 213.41490000000067
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 220.25192499999957
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 218.82504999999946
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 228.1552189999993
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 220.37329000000045
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 204.39649499999996
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 223.1897939999999
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 258.1221880000003
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 221.50778599999921
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 197.32448399999976
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 209.03663200000028
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 226.77567
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 221.70774000000074
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 201.27762799999982
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 223.85565999999926
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 251.00395600000047
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 226.4339629999995
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 229.08703799999967
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 223.010542
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 374.07860699999947
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 282.6957309999998
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 202.87371499999972
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 223.59406599999966
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 218.6134689999999
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 209.0094599999993
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 207.0924559999985
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 207.80281899999864
+        }
+      ],
+      "maxBatchMs": 374.07860699999947,
+      "peakRssMiB": 306.296875,
+      "processMaxRssMiB": 310.58203125,
+      "capacityExtrapolationAllowed": false,
+      "limitations": [
+        "Local queue/result RPCs; no DB network latency",
+        "CI Node process is not Vercel runtime",
+        "Sample workload is not a nationwide worst-case bound",
+        "Synthetic repeated dense PNG and local chunk IO; no JMA/Storage HTTP",
+        "Prototype manifest is locally generated; not an application loader"
+      ],
+      "schedulerDecision": "NOT_PRODUCTION_READY"
+    },
+    "4": {
+      "mode": "HOKKAIDO_PARTITION_ACTUAL_WORKER_LOCAL_PROOF",
+      "admission": "one N03 resolver per invocation; serial chunks; no geometry cache",
+      "reads": 650,
+      "bytes": 637416850,
+      "result": {
+        "claimed": 50,
+        "done": 50,
+        "failed": 0,
+        "strongPixels": 3276800,
+        "deferred": 0
+      },
+      "elapsedMs": 11176.843571000001,
+      "concurrency": 4,
+      "budgetMs": 45000,
+      "pending": 0,
+      "municipalityHits": 2200,
+      "serializedBytes": 173831,
+      "batches": [
+        {
+          "jobs": 4,
+          "elapsedMs": 1076.3687009999999
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 973.2588310000001
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 911.9826980000003
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 914.3726090000005
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 899.8893280000002
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 916.6919550000002
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 877.4728910000003
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 818.7925679999998
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 805.816694000001
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 854.0617169999987
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 831.0193719999988
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 858.9985589999997
+        },
+        {
+          "jobs": 2,
+          "elapsedMs": 436.9375200000013
+        }
+      ],
+      "maxBatchMs": 1076.3687009999999,
+      "peakRssMiB": 451.55859375,
+      "processMaxRssMiB": 453.43359375,
+      "capacityExtrapolationAllowed": false,
+      "limitations": [
+        "Local queue/result RPCs; no DB network latency",
+        "CI Node process is not Vercel runtime",
+        "Sample workload is not a nationwide worst-case bound",
+        "Synthetic repeated dense PNG and local chunk IO; no JMA/Storage HTTP",
+        "Prototype manifest is locally generated; not an application loader"
+      ],
+      "schedulerDecision": "NOT_PRODUCTION_READY"
+    }
   }
 }

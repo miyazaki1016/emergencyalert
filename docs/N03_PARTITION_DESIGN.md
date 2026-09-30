@@ -45,6 +45,14 @@ JMA PNG, worker concurrency, DB and Storage HTTP. The extra time is a tradeoff;
 the 152 MiB result is **not** the worker peak and cannot be subtracted from the
 previous approximately 1 GiB worker peak. Throughput acceptance remains open.
 
+The prototype also exercises the actual bounded worker on 50 synthetic dense
+Hokkaido jobs, using a single N03 resolver admission slot across the invocation
+and no geometry retention. Local c1: 50/50 in 11.292 s, peak 310.58 MiB;
+c4: 50/50 in 11.177 s, peak 453.43 MiB, max batch 1.076 s. Both retain 44 exact
+hits/job. This runs PNG scan, exact footprint and result serialization, but
+still excludes real HTTP/DB. It reads 650 chunks / 637,416,850 bytes per run:
+the cache-free policy is memory evidence, not an accepted IO strategy.
+
 ## Other prefectures
 
 The component format is generic across all prefectures. Prioritize by actual
@@ -103,6 +111,8 @@ npx tsx scripts/n03-hokkaido-partition-design-proof.ts prepare /tmp/n03-partitio
 npx tsx scripts/n03-hokkaido-partition-design-proof.ts full /tmp/n03-partition
 npx tsx scripts/n03-hokkaido-partition-design-proof.ts partitioned /tmp/n03-partition
 npx tsx scripts/n03-hokkaido-partition-design-proof.ts compare /tmp/n03-partition
+npx tsx scripts/n03-hokkaido-partition-design-proof.ts worker-1 /tmp/n03-partition
+npx tsx scripts/n03-hokkaido-partition-design-proof.ts worker-4 /tmp/n03-partition
 ```
 
 CI reuses locally generated Hokkaido prepared data from the stress proof, runs

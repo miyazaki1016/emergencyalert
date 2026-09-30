@@ -1107,3 +1107,11 @@ Production migration/cron/Vault/deploy/merge, new partition uploads and
 watch_targets/Push integration remain unexecuted. Existing Storage data is
 unchanged. **atomicity gateとthroughput gateは別。**
 **未来のソラを信用するな。重要な判断は総覧へ残す。**
+
+Follow-up local actual-worker proof also completed: partitioned Hokkaido c1
+50/50 in 11.292 s / peak 310.58 MiB, c4 50/50 in 11.177 s / peak 453.43 MiB,
+44 exact hits/job. The prototype admits only one N03 resolver at a time across
+the invocation and retains no decoded geometry. Its 650 chunk reads per run
+exclude HTTP/DB latency; this does not approve a Production IO policy. CI runs
+these fresh-process variants as well. Prototype application integration and
+bounded-cache/real-IO validation remain uncompleted.

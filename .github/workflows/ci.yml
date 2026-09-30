@@ -50,7 +50,7 @@ jobs:
         run: |
           set -o pipefail
           npx tsx scripts/n03-hokkaido-partition-design-proof.ts prepare-prepared /tmp/n03-partition-design /tmp/national-rain-throughput-cache/01.areas.json | tee /tmp/national-rain-partition-throughput.log
-          for mode in full partitioned compare; do
+          for mode in full partitioned compare worker-1 worker-4; do
             npx tsx scripts/n03-hokkaido-partition-design-proof.ts "$mode" /tmp/n03-partition-design | tee -a /tmp/national-rain-partition-throughput.log
           done
       - name: Retain nationwide throughput evidence
