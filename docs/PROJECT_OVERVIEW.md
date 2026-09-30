@@ -67,6 +67,108 @@ The existing rules `UNKNOWN_PIXEL != NO_RAIN`, `FETCH_ERROR != NO_RAIN` and
 `NO_DATA != SAFE` are concrete implementations of this constitution, not
 isolated rain-only exceptions.
 
+## Product north star — 普段は洗濯物、必要な時は大切な場所を見守る
+
+User-side principle:
+
+> **知りたいことを、知りたい人に、知らせたいタイミングで。**
+
+EmergencyAlert / アメくる？ should normally feel like a small everyday utility,
+not a disaster app that constantly demands attention. Its ordinary face is the
+original laundry use case: notice useful rain early enough to bring washing in
+or tell someone you care about.
+
+The same registered places become more important when conditions become severe.
+A saved place is therefore not merely a weather-query coordinate. It is a
+**「見守りたい場所」**.
+
+Examples include:
+- 自宅
+- おかあさんち
+- 子供の学校
+- other places the user chooses to care about
+
+The user does not need to be physically present at a registered place for it to
+matter. EmergencyAlert may watch official/authorized information relevant to
+that place and surface meaningful change when the evidence and timing justify
+it.
+
+The intended escalation is:
+
+> 普段の雨 → 強い雨 → その場所の公的な危険度情報 → 必要なら避難・生活支援情報
+
+The application should stay quiet when nothing useful has changed. When the
+situation becomes serious, it may shift from everyday rain assistance toward
+life-safety support without changing the fundamental product relationship.
+
+> **普段は洗濯物を守る。必要な時には、大切な人や場所を気にかけるきっかけを届ける。**
+
+### Flood / water-disaster roadmap
+
+A future water-risk layer may combine, while keeping provenance separate:
+
+1. official rainfall observations and forecasts;
+2. official inundation/risk indices such as surface-water risk information;
+3. static hazard-map / terrain vulnerability information;
+4. direct observations or official confirmed occurrence where available.
+
+These categories MUST NOT be collapsed into one apparent fact. In particular:
+rainfall alone must not be converted into an invented current water depth, and
+scenario-based hazard-map inundation depth must not be presented as current
+observed flooding.
+
+Future semantic provenance should preserve distinctions such as:
+`OBSERVED`, `FORECAST`, `RISK_INDEX`, `STATIC_HAZARD`, and `INFERRED`.
+
+### Evacuation and life-support roadmap
+
+When serious risk is relevant to a watched place, the product should eventually
+help the user reach the next useful information rather than stopping at
+「注意してください」.
+
+Potential chain:
+
+> risk near watched place
+> → disaster-appropriate designated emergency evacuation places / shelters
+> → current opening/availability status when an authoritative source provides it
+> → water-supply points and other life-support information when authoritative
+>   current data is available
+> → hand off the selected destination to a navigation service such as Google Maps
+
+Do not equate nearest with safest. A place must not be recommended merely
+because it is geographically closest; disaster type, official designation,
+current status and available evidence matter.
+
+Likewise, a normal navigation route is **not** automatically a safe disaster
+evacuation route. Flooded roads, underpasses, rivers, closures and other hazards
+may make an ordinary shortest/fastest route unsuitable. Until authoritative
+route-safety evidence exists, the UI should say things such as
+「Googleマップで経路を確認する」 rather than 「安全な避難経路」.
+
+### 「逃げ地図」 as a conceptual origin
+
+The user's earlier inspiration for the evacuation side of this project is
+「逃げ地図」 (Nigechizu). The important idea to inherit is not merely plotting
+shelters on a map, but helping people think about **where to go, how long it may
+take, and how route/timing relate to hazard conditions**.
+
+EmergencyAlert should not copy or claim to replace Nigechizu. Its distinct
+direction is to connect that human-centered evacuation concept with
+place-specific, time-sensitive, authoritative information and the user's
+already-watched places.
+
+Long-term experience:
+
+> 雨が来る
+> → いつもの雨ではないことに気づく
+> → 見守りたい場所の危険情報を確認する
+> → 必要なら適切な避難先・支援情報を確認する
+> → 行き方をナビで確認する
+
+This roadmap remains subordinate to the ABSOLUTE LIFE-SAFETY RULE above.
+Convenience, personalization, urgency and navigation must never promote an
+estimate into a fact or an unknown state into safety.
+
 ## Meteorological boundary
 
 EmergencyAlert does not independently forecast weather.
