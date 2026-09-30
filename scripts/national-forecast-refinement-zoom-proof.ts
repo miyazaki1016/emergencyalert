@@ -41,11 +41,27 @@ async function main(){
   const frames=await fetchForecastTargetTimes();
   const rows=[];
   for(const frame of frames){
-    const candidates=(await Promise.all(TILES.map(async([x,y])=>{
+    let coarseMissing404=0, coarseOtherErrors=0;
+    const coarseParts=await Promise.all(TILES.map(async([x,y])=>{
       const r=await fetch(buildJmaRainTileUrl(frame,COARSE_ZOOM,x,y),{cache:"no-store"});
-      if(!r.ok) throw new Error(`coarse fetch failed ${frame.validtime} ${x}/${y}: ${r.status}`);
-      return scan(Buffer.from(await r.arrayBuffer()),x,y);
-    }))).flat();
+      if(r.ok) return scan(Buffer.from(await r.arrayBuffer()),x,y);
+      if(r.status===404){coarseMissing404++;return [];}
+      coarseOtherErrors++; return [];
+    }));
+    const candidates=coarseParts.flat();
+    if(coarseMissing404>0 || coarseOtherErrors>0){
+      rows.push({
+        basetime:frame.basetime,
+        validtime:frame.validtime,
+        coarseHeavyPixels:null,
+        coarseMissing404,
+        coarseOtherErrors,
+        zooms:[],
+        highestFullyAvailableCandidateZoom:null,
+        frameUsable:false,
+      });
+      continue;
+    }
 
     const zooms=[] as Array<{zoom:number;requested:number;ok:number;missing404:number;otherErrors:number;allRequestedAvailable:boolean}>;
     for(const zoom of ZOOMS){
@@ -63,15 +79,20 @@ async function main(){
       basetime:frame.basetime,
       validtime:frame.validtime,
       coarseHeavyPixels:candidates.length,
+      coarseMissing404:0,
+      coarseOtherErrors:0,
       zooms,
       highestFullyAvailableCandidateZoom:fullyAvailable.length?Math.max(...fullyAvailable):null,
+      frameUsable:true,
     });
   }
   console.log(JSON.stringify({
     mode:"FORECAST_CANDIDATE_REFINEMENT_ZOOM_PROOF",
     frameCount:frames.length,
     rows,
-    note:"Availability is measured only for descendant tiles selected by z4 >=30 mm/h candidates. A 404 is unavailable, never no-rain. This identifies practical per-horizon refinement zooms; it does not by itself prove that z4<30 cannot hide heavier detail.",
+    usableFrames:rows.filter((r:any)=>r.frameUsable).length,
+    unavailableCoarseFrames:rows.filter((r:any)=>!r.frameUsable).length,
+    note:"Availability is measured only for descendant tiles selected by complete z4 >=30 mm/h scans. Any coarse or descendant 404 is unavailable, never no-rain. Frames with incomplete z4 coverage are reported unusable and are not refined. This identifies practical per-horizon refinement zooms; it does not by itself prove that z4<30 cannot hide heavier detail.",
   }));
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});
