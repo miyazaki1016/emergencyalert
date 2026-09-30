@@ -10,6 +10,27 @@ export type NationalRainQueueJob = {
   priority: number;
 };
 
+export function refinementJobFromCoarseCandidate(
+  candidate: { tileX: number; tileY: number; pixelX: number; pixelY: number },
+  frame: { basetime: string; validtime: string },
+  coarseZoom = 4,
+  refinementZoom = 8,
+): NationalRainQueueJob {
+  const scale = 2 ** (refinementZoom - coarseZoom);
+  if (scale !== 16) throw new Error("Unsupported national rain refinement zoom ratio");
+  const tileX = candidate.tileX * scale + Math.floor(candidate.pixelX / 16);
+  const tileY = candidate.tileY * scale + Math.floor(candidate.pixelY / 16);
+  return {
+    runKey: `${frame.basetime}:${frame.validtime}`,
+    basetime: frame.basetime,
+    validtime: frame.validtime,
+    zoom: refinementZoom,
+    tileX,
+    tileY,
+    priority: 0,
+  };
+}
+
 export function queueRows(jobs: NationalRainQueueJob[]) {
   return jobs.map((job) => ({
     run_key: job.runKey,
