@@ -29,6 +29,17 @@ jobs:
           node-version: 22
       - run: npm install
       - run: npm test
+      - name: Scan all forecast frames at z4
+        run: |
+          set -o pipefail
+          npx tsx scripts/national-forecast-z4-screening-proof.ts | tee /tmp/forecast-z4-screening.json
+      - name: Validate forecast z4 screening against available z8 descendants
+        timeout-minutes: 15
+        env:
+          JMA_FORECAST_LOWZOOM_CONCURRENCY: 8
+        run: |
+          set -o pipefail
+          npx tsx scripts/national-forecast-lowzoom-validation.ts | tee /tmp/forecast-lowzoom-validation.json
       - run: npx tsx scripts/national-rain-budget-proof.ts
       - name: Measure read-only live national rain throughput
         timeout-minutes: 10
