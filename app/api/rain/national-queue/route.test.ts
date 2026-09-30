@@ -87,7 +87,7 @@ describe("national rain queue proof route", () => {
     const jobs = enqueue.mock.calls[0][1];
     expect(jobs).toHaveLength(1);
     expect(jobs[0]).toMatchObject({ zoom: 8, tileX: 30, tileY: 40 });
-    expect((await response.json()).queued).toBe(1);
+    expect((await response.json()).requestedRefinementTiles).toBe(1);
   });
 
   test("does not enqueue when any coarse JMA tile fetch fails", async () => {
