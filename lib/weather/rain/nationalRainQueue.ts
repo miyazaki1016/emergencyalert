@@ -34,6 +34,65 @@ export function refinementJobFromCoarseCandidate(
   };
 }
 
+export type NationalRainRefinementStage = 6 | 8 | 10;
+
+export function childTilesForCandidate(
+  candidate: { tileX: number; tileY: number; pixelX: number; pixelY: number },
+  coarseZoom: number,
+  childZoom: NationalRainRefinementStage,
+) {
+  const scale = 2 ** (childZoom - coarseZoom);
+  if (!Number.isInteger(scale) || scale < 1 || scale > 256 || 256 % scale !== 0) {
+    throw new Error("Unsupported national rain refinement zoom ratio");
+  }
+
+  // One coarse pixel spans scale detail pixels. Convert that exact world-pixel
+  // rectangle to every child tile it intersects. At z4 -> z6 this is a 4x4
+  // detail-pixel area, normally contained by one z6 tile; boundary pixels can
+  // touch adjacent tiles, so derive the tile bounds instead of assuming one.
+  const coarseWorldX = candidate.tileX * 256 + candidate.pixelX;
+  const coarseWorldY = candidate.tileY * 256 + candidate.pixelY;
+  const minDetailWorldX = coarseWorldX * scale;
+  const minDetailWorldY = coarseWorldY * scale;
+  const maxDetailWorldX = (coarseWorldX + 1) * scale - 1;
+  const maxDetailWorldY = (coarseWorldY + 1) * scale - 1;
+  const minTileX = Math.floor(minDetailWorldX / 256);
+  const minTileY = Math.floor(minDetailWorldY / 256);
+  const maxTileX = Math.floor(maxDetailWorldX / 256);
+  const maxTileY = Math.floor(maxDetailWorldY / 256);
+
+  const tiles: Array<{ zoom: NationalRainRefinementStage; tileX: number; tileY: number }> = [];
+  for (let tileY = minTileY; tileY <= maxTileY; tileY++) {
+    for (let tileX = minTileX; tileX <= maxTileX; tileX++) {
+      tiles.push({ zoom: childZoom, tileX, tileY });
+    }
+  }
+  return tiles;
+}
+
+export function stagedRefinementJobsFromCoarseCandidates(
+  candidates: Array<{ tileX: number; tileY: number; pixelX: number; pixelY: number }>,
+  frame: { basetime: string; validtime: string },
+  childZoom: NationalRainRefinementStage = 6,
+): NationalRainQueueJob[] {
+  const byTile = new Map<string, NationalRainQueueJob>();
+  for (const candidate of candidates) {
+    for (const tile of childTilesForCandidate(candidate, 4, childZoom)) {
+      const job: NationalRainQueueJob = {
+        runKey: `${frame.basetime}:${frame.validtime}`,
+        basetime: frame.basetime,
+        validtime: frame.validtime,
+        zoom: tile.zoom,
+        tileX: tile.tileX,
+        tileY: tile.tileY,
+        priority: 0,
+      };
+      byTile.set(`${job.zoom}:${job.tileX}:${job.tileY}`, job);
+    }
+  }
+  return [...byTile.values()];
+}
+
 export function queueRows(jobs: NationalRainQueueJob[]) {
   return jobs.map((job) => ({
     run_key: job.runKey,
