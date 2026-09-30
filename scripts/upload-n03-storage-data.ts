@@ -42,7 +42,19 @@ async function main() {
     const { error } = await supabase.storage
       .from(NATIONAL_RAIN_N03_BUCKET)
       .upload(path, body, { contentType: "application/json", upsert: false });
-    if (error) throw new Error(`Upload failed: ${path}: ${error.message}`);
+    if (error) {
+      const { data: existing, error: downloadError } = await supabase.storage
+        .from(NATIONAL_RAIN_N03_BUCKET)
+        .download(path);
+      if (downloadError || !existing) throw new Error(`Upload failed: ${path}: ${error.message}`);
+      const existingBody = Buffer.from(await existing.arrayBuffer());
+      const existingSha256 = createHash("sha256").update(existingBody).digest("hex");
+      if (existingBody.byteLength !== file.bytes || existingSha256 !== file.sha256) {
+        throw new Error(`Existing Storage object mismatch: ${path}`);
+      }
+      console.log(`already verified ${path} (${existingBody.byteLength} bytes)`);
+      continue;
+    }
     console.log(`uploaded ${path} (${body.byteLength} bytes)`);
   }
 
