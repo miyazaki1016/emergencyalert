@@ -1352,3 +1352,64 @@ Proof and decision materials are complete; final scheduler sizing, real IO,
 all47 regional ownership, production loader integration, runtime deadline and
 severe-load drain remain uncompleted. All Production changes, merge and deploy
 remain unexecuted. Atomicity gate and throughput gate remain separate.
+
+
+### PR #59 authoritative checkpoint after Work handoff — 2026-09-30
+
+This checkpoint supersedes the older "all47/timeout ownership still unproven" wording below. It records the actual branch state at `3a6827ceb3458a45f2330c216492bbdf19de03e2`.
+
+**Verified branch state**
+- PR #59 remains OPEN / unmerged. No Production DB migration, cron, Vault, Storage mutation, watch-rain/Push connection or intentional Production deploy has been performed.
+- CI #507 SUCCESS, National rain proof #211 SUCCESS, N03 national prefecture index proof #131 SUCCESS, All47 ownership proof #5 SUCCESS.
+- CI #507: 38 test files / 187 tests passed; all proof stages, local queue lifecycle and build passed.
+- All47 ownership proof: 47 prefectures, 502 partition chunks, 591 real-geometry queries, 355 positive queries; ordered municipality results match whole-data results. Eight byte-balanced proof owners are ~59.1 MB each.
+- Deadline-tail proof: under assumed 250 ms/request + 0.5 MiB/s loopback sensitivity, an invocation offered 100 jobs, claimed only 2, hit ~42 s cancellation, deferred both, left 98 unclaimed, failed 0. This proves no job loss in the proof path when in-flight HTTP is cancelled.
+- Existing evidence remains valid: exact polygon-component partitioning, encoded 32 MiB bounded cache, single-flight, bounded retention, regional-locality benefit, sustained 576-job local drain, and the finding that global cap4 materially increases aggregate memory.
+
+**Critical integration gap**
+The newest safety mechanisms are still proof-only and are NOT used by the application route:
+- `app/api/rain/national-worker/route.ts` still calls `processNationalRainRefinementJobs()` and `createSupabaseN03AdministrativeAreaLoader()`.
+- `lib/weather/rain/nationalRainWorker.ts` does not yet use AbortSignal admission/final reserve or in-flight cancellation.
+- The partitioned 32 MiB loader, ownership/gather logic and `processDeadlineProofJobs()` live under proof scripts.
+Therefore the branch has proved a safer architecture, but the actual Preview worker is not yet running that architecture.
+
+**Scheduler draft is stale by design**
+`supabase/migrations/20260930_create_national_rain_proof_cron.sql` still contains fixed `limit=50` primary + drain calls. Later evidence rejects fixed 50x2 as a rollout policy. Keep this migration unapplied and treat it only as historical proof scaffolding until replaced by the accepted dispatcher design.
+
+**Architecture correction**
+The all47 LPT ownership proof demonstrates deterministic, complete and byte-balanced ownership, but pure byte balancing scatters chunks from unrelated prefectures across owners. Earlier measurements show mixed-national cache locality performs poorly while region-local workers perform much better. Therefore LPT-bytes-only is evidence for ownership completeness, not the final deployment topology.
+
+Preferred next architecture to integrate:
+1. Preserve geographic/regional locality.
+2. Partition heavy prefectures into exact original polygon-component chunks.
+3. Load only intersecting chunks through the encoded 32 MiB bounded cache.
+4. Use a small global invocation cap (cap2 remains the baseline candidate; cap4 is not accepted).
+5. Add queue-aware refill/fairness rather than fixed worker calls.
+6. Add real deadline admission + AbortSignal cancellation + explicit final DB-RPC reserve.
+7. Gather partial owner results only after all expected chunk tasks complete; never publish incomplete municipality results.
+
+**Open defects/gates before Production**
+- Final DB claim/save/finish/defer RPCs are not yet bounded/cancelled by the same runtime budget.
+- All47 ownership proof balances bytes, not measured traffic/CPU/RSS; the final region-local ownership map and hot-region sizing are not yet accepted.
+- Queue-aware replay still uses representative measured service profiles, not measured all47 region service.
+- Severe 1,536 jobs/5 min scenarios still back up in the current calibrated models; throughput/scheduler gate remains OPEN.
+- Private Production Storage latency, real DB network latency, real JMA latency, Vercel runtime memory/headroom and sustained severe-load real-IO drain remain unverified.
+- Stale-frame disposition, regional/global lease/fairness and final dispatcher cadence remain unresolved.
+- The safer proof loader/worker path has not yet been integrated into the application route.
+
+**Next implementation sequence**
+Do not add more isolated proof variants first. Converge the proven pieces into one Preview-path implementation:
+1. update this overview/PR checkpoint;
+2. define the final region-local ownership strategy with heavy-prefecture chunking;
+3. integrate partitioned bounded N03 loading into the actual national worker;
+4. integrate admission reserve + AbortSignal cancellation + final RPC reserve into the actual worker;
+5. implement queue-aware region-scoped claiming/dispatcher proof against that same code path;
+6. measure Preview/authorized real IO;
+7. only then decide scheduler cadence and whether throughput/scheduler gate can close.
+
+Atomicity gate: **CLOSED**.
+Throughput/scheduler gate: **OPEN**.
+Production readiness: **NO**.
+
+> 未来のソラを信用するな。proofで成立したことと、実routeに統合済みなことを分けて記録する。
+> atomicity gateとthroughput gateは別。研究を増やすより、ここからは統合して同じコードパスで測る。
