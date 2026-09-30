@@ -2,7 +2,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { PNG } from "pngjs";
 import { buildJmaRainTileUrl } from "../providers/jma/tileUrl";
 import { heavyRainAreaPolygons, scanHeavyRainTile } from "./nationalHeavyRain";
-import { claimNationalRainJobs, deferNationalRainJob, finishNationalRainJob, saveNationalRainRefinementResult } from "./nationalRainQueue";
+import { claimNationalRainJobs, deferNationalRainJob, enqueueNationalRainJobs, finishNationalRainJob, saveNationalRainRefinementResult, stagedRefinementJobsFromCoarseCandidates } from "./nationalRainQueue";
 import type { NationalRainMunicipality } from "./nationalRainMunicipalities";
 
 export type ClaimedNationalRainJob = {
@@ -52,23 +52,37 @@ export async function processNationalRainRefinementJobs(
       PNG.sync.read(buffer);
       const strongCandidates = scanHeavyRainTile(buffer, job.zoom, job.tile_x, job.tile_y, 1);
       const strongPixelCount = strongCandidates.length;
-      const footprint = heavyRainAreaPolygons(strongCandidates, job.zoom);
-      const municipalities = options.resolveMunicipalities
-        ? await options.resolveMunicipalities(footprint)
-        : [];
       result.strongPixels += strongPixelCount;
-      await saveNationalRainRefinementResult(supabase, {
-        jobId: job.id,
-        runKey: job.run_key,
-        basetime: job.basetime,
-        validtime: job.validtime,
-        zoom: job.zoom,
-        tileX: job.tile_x,
-        tileY: job.tile_y,
-        strongPixelCount,
-        footprint,
-        municipalities,
-      });
+
+      if (job.zoom === 6 || job.zoom === 8) {
+        const nextZoom = job.zoom === 6 ? 8 : 10;
+        const nextJobs = stagedRefinementJobsFromCoarseCandidates(
+          strongCandidates,
+          { basetime: job.basetime, validtime: job.validtime },
+          nextZoom,
+          job.zoom,
+        );
+        await enqueueNationalRainJobs(supabase, nextJobs);
+      } else if (job.zoom === 10) {
+        const footprint = heavyRainAreaPolygons(strongCandidates, job.zoom);
+        const municipalities = options.resolveMunicipalities
+          ? await options.resolveMunicipalities(footprint)
+          : [];
+        await saveNationalRainRefinementResult(supabase, {
+          jobId: job.id,
+          runKey: job.run_key,
+          basetime: job.basetime,
+          validtime: job.validtime,
+          zoom: job.zoom,
+          tileX: job.tile_x,
+          tileY: job.tile_y,
+          strongPixelCount,
+          footprint,
+          municipalities,
+        });
+      } else {
+        throw new Error(`Unsupported national rain refinement zoom: ${job.zoom}`);
+      }
       await finishNationalRainJob(supabase, job.id, true);
       result.done += 1;
     } catch (error) {
