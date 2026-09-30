@@ -59,6 +59,31 @@ describe("createSupabaseN03AdministrativeAreaLoader", () => {
     expect(cache.has("13")).toBe(true);
   });
 
+  it("shares one in-flight download across concurrent calls for the same prefecture", async () => {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    const download = vi.fn(async () => {
+      await gate;
+      return {
+        data: new Blob([JSON.stringify([area("13111", "東京都")])], { type: "application/json" }),
+        error: null,
+      };
+    });
+    const storage = { storage: { from: vi.fn(() => ({ download })) } };
+    const loader = createSupabaseN03AdministrativeAreaLoader(storage as any);
+    const prefecture = [{ code: "13", name: "東京都", bbox: [0, 0, 0, 0] as [number, number, number, number] }];
+
+    const first = loader(prefecture);
+    const second = loader(prefecture);
+    expect(download).toHaveBeenCalledTimes(1);
+
+    release();
+    const [a, b] = await Promise.all([first, second]);
+    expect(download).toHaveBeenCalledTimes(1);
+    expect(a.map(({ code }) => code)).toEqual(["13111"]);
+    expect(b.map(({ code }) => code)).toEqual(["13111"]);
+  });
+
   it("fails closed when prepared data is missing", async () => {
     const storage = client({});
     const loader = createSupabaseN03AdministrativeAreaLoader(storage as any);
