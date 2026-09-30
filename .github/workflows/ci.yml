@@ -97,6 +97,7 @@ jobs:
           npx tsx scripts/national-queue-aware-proof.ts | tee /tmp/national-rain-queue-aware-throughput.log
           N03_PROOF_HARD_DEADLINE=1 N03_PROOF_CONCURRENCY=2 N03_PROOF_OFFERED=100 npx tsx scripts/n03-parallel-invocation-readiness-proof.ts /tmp/n03-readiness-data regional 0 2 | tee /tmp/national-rain-deadline-throughput.log
           npx tsx scripts/national-queue-aware-proof.ts /tmp/national-rain-deadline-throughput.log | tee /tmp/national-rain-deadline-scheduler-throughput.log
+          N03_PROOF_HARD_DEADLINE=1 N03_PROOF_CONCURRENCY=2 N03_PROOF_OFFERED=100 npx tsx scripts/n03-parallel-invocation-readiness-proof.ts /tmp/n03-readiness-data owned-chunks 0 2 | tee /tmp/national-rain-owned-chunks-throughput.log
           N03_PROOF_HARD_DEADLINE=1 npx tsx scripts/n03-http-worker-readiness-proof.ts worker /tmp/n03-readiness-data 03 cached constrained 2 100 | tee /tmp/national-rain-deadline-constrained-throughput.log
       - name: Retain nationwide throughput evidence
         if: always()

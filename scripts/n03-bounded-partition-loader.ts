@@ -28,6 +28,7 @@ export function createBoundedPartitionResolver(options: {
   read: (code: string, file: string) => Promise<Buffer>;
   maxWeight?: number;
   signal?: AbortSignal;
+  owns?: (code: string, file: string) => boolean;
 }) {
   // Retain encoded bytes only: exact cache accounting, no persistent decoded
   // geometry. Synchronous per-chunk consumption admits one JS decode at a time.
@@ -65,7 +66,7 @@ export function createBoundedPartitionResolver(options: {
     const results: NationalRainMunicipality[] = [];
     for (const dataset of prepared) {
       const { code, index, indexSha256, chunks } = dataset;
-      const selected = index.parts.filter(p => rainBounds.some(b => overlaps(p.bbox, b)));
+      const selected = index.parts.filter(p => (!options.owns || options.owns(code,p.chunk)) && rainBounds.some(b => overlaps(p.bbox, b)));
       const selectedIds = new Set(selected.map(p => p.id));
       const found = new Set<number>();
       for (const file of new Set(selected.map(p => p.chunk))) {

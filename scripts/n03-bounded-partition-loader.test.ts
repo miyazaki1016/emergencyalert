@@ -30,3 +30,11 @@ test("keeps national prefecture order even when dataset registration order diffe
   });
   expect((await resolver.resolve(rain)).map(m => m.code)).toEqual(["01202", "03202"]);
 });
+test('owned chunk resolvers read each chunk once and gather original area order',async()=>{
+ const {index,files}=partitionAreas([{...areas[0],geometry:{type:'MultiPolygon',coordinates:[areas[0].geometry.coordinates,areas[0].geometry.coordinates]}}],100);
+ const reads:string[]=[];
+ const workers=[0,1].map(owner=>createBoundedPartitionResolver({datasets:[{code:'01',index,indexSha256:sha256(JSON.stringify(index))}],owns:(_code,file)=>index.chunks.findIndex(c=>c.file===file)%2===owner,read:async(_code,file)=>{reads.push(file);return Buffer.from(files.get(file)!)}}));
+ const results=(await Promise.all(workers.map(w=>w.resolve(rain)))).flat();
+ expect(new Set(reads).size).toBe(index.chunks.length);expect(reads.length).toBe(index.chunks.length);
+ expect(new Set(results.map(m=>m.code))).toEqual(new Set(['01202']));
+});

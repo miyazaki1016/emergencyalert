@@ -65,3 +65,21 @@ and severe demand sustained drain are established. Cap3/4 is not adopted merely
 because virtual processing improves. Target Vercel memory allocation and a
 measured safe aggregate RSS budget remain required. Production migration is
 not ready. CI/test success alone does not change this decision.
+
+## First all47 result and owned HTTP extension
+
+All47 workflow #1 at c924da0: SUCCESS, 47 prefectures, 502 chunks, 591 exact
+ordered query matches (355 positive). Eight bins have 59,065,097–59,115,083
+encoded bytes each (56.33–56.38MiB). Artifact11089788891. Ownership table is
+retained in docs/proofs/national-all47-ownership.json. LRU remains32MiB per
+invocation: total assigned bytes do not imply all geometry is resident.
+
+The owned-chunks HTTP mode uses that same all47 placement, eight owner
+invocations, c2 and global cap2, over the four locally available representative
+prefectures. Each resolver selects only chunks belonging to its owner; every
+other chunk is skipped before IO. These are partial child results. Counts from
+eight children MUST NOT be reported as completed parent jobs or compared with
+whole-prefecture jobs/sec. Parent fan-out, atomic gather and real DB storage are
+not part of this IO harness. Full all47 HTTP traffic and eight-owner long-run
+service calibration remain unmeasured. The four-prefecture scheduler is a
+separate parent-job calibration; it does not certify the eight-owner system.

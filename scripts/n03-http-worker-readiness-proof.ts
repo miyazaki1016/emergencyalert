@@ -1,7 +1,7 @@
 import { processDeadlineProofJobs } from "./national-deadline-worker";
 import { fork, type ChildProcess } from "node:child_process";
 import { createServer } from "node:http";
-import { createReadStream, statSync } from "node:fs";
+import { createReadStream, statSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { performance } from "node:perf_hooks";
 import { fileURLToPath } from "node:url";
@@ -91,7 +91,11 @@ async function main() {
         return Buffer.concat(parts);
       } finally { readDurations.push(performance.now() - started); }
     };
-    const resolver = variant === "cached" ? createBoundedPartitionResolver({ datasets: datasets(root, codes), read, get signal() { return phaseSignal; } }) : undefined;
+    const ownership = process.env.N03_PROOF_OWNER !== undefined ? JSON.parse(readFileSync("docs/proofs/national-all47-ownership.json", "utf8")).ownership : undefined;
+    const owner = Number(process.env.N03_PROOF_OWNER);
+    if (ownership && (!Number.isInteger(owner) || owner < 0 || owner >= ownership.regionCount)) throw new Error("Invalid proof owner");
+    const owns = ownership ? (code: string,file: string) => ownership.owners[`${code}/${file}`] === owner : undefined;
+    const resolver = variant === "cached" ? createBoundedPartitionResolver({ datasets: datasets(root, codes), read, owns, get signal() { return phaseSignal; } }) : undefined;
     const wholeFlights = new Map<string, Promise<AdministrativeArea[]>>();
     const wholeLoad = (code: string) => {
       let loaded = wholeFlights.get(code);
@@ -109,7 +113,7 @@ async function main() {
       phaseSignal = process.env.N03_PROOF_HARD_DEADLINE ? AbortSignal.timeout(42000) : undefined;
       const before = { requests, transferBytes, readCount: readDurations.length, cache: resolver ? {...resolver.cache.stats} : undefined }; const measured = await measureWorker({ jobs, concurrency, fetcher: async () => new Response(new Uint8Array(body)), resolveMunicipalities: phaseSignal ? async rain => { phaseSignal!.throwIfAborted(); const r = await resolve(rain); phaseSignal!.throwIfAborted(); return r; } : resolve, processor: phaseSignal ? (client,opts) => processDeadlineProofJobs(client,{...opts,signal:phaseSignal}) : undefined });
       if (!measured.municipalityHits) throw new Error("HTTP proof must intersect real municipalities");
-      console.log(JSON.stringify({ mode: "HTTP_READINESS_ACTUAL_WORKER", codes, variant, phase, profile: { ...profiles[profileName], name: profileName, source: "ASSUMED sensitivity inputs; measured localhost transfers" }, offered, hardDeadlineProof: !!phaseSignal, deadlineReached: Number(phaseSignal?.aborted ?? false), deadlineReachedJobs: measured.result.deferred, admissionStopped: !!phaseSignal && measured.result.claimed < offered, unclaimed: offered-measured.result.claimed, defer: measured.result.deferred, requests: requests - before.requests, transferBytes: transferBytes - before.transferBytes, maxReadMs: Math.max(0, ...readDurations.slice(before.readCount)), cache: resolver?.cache.stats, cachePhase: resolver ? Object.fromEntries(Object.entries(resolver.cache.stats).filter(([k])=>["hits","misses","shared","evictions","loads"].includes(k)).map(([k,v])=>[k, Number(v)-Number((before.cache as unknown as Record<string,number>)?.[k] ?? 0)])) : undefined, ...measured, limitations: [...measured.limitations, "Child HTTP server excluded from worker RSS", "Loopback HTTP, no TLS/auth service/CDN/Supabase measurement", "Synthetic repeated dense rain; no real JMA latency", "Warm phase is same invocation cache lifetime, not guaranteed across invocations"], schedulerDecision: "CONDITIONAL_PROOF_ONLY" }));
+      console.log(JSON.stringify({ mode: "HTTP_READINESS_ACTUAL_WORKER", codes, variant, phase, profile: { ...profiles[profileName], name: profileName, source: "ASSUMED sensitivity inputs; measured localhost transfers" }, offered, chunkOwner: ownership ? owner : undefined, ownedChunkPartialResults: !!ownership, hardDeadlineProof: !!phaseSignal, deadlineReached: Number(phaseSignal?.aborted ?? false), deadlineReachedJobs: measured.result.deferred, admissionStopped: !!phaseSignal && measured.result.claimed < offered, unclaimed: offered-measured.result.claimed, defer: measured.result.deferred, requests: requests - before.requests, transferBytes: transferBytes - before.transferBytes, maxReadMs: Math.max(0, ...readDurations.slice(before.readCount)), cache: resolver?.cache.stats, cachePhase: resolver ? Object.fromEntries(Object.entries(resolver.cache.stats).filter(([k])=>["hits","misses","shared","evictions","loads"].includes(k)).map(([k,v])=>[k, Number(v)-Number((before.cache as unknown as Record<string,number>)?.[k] ?? 0)])) : undefined, ...measured, limitations: [...measured.limitations, "Child HTTP server excluded from worker RSS", "Loopback HTTP, no TLS/auth service/CDN/Supabase measurement", "Synthetic repeated dense rain; no real JMA latency", "Warm phase is same invocation cache lifetime, not guaranteed across invocations"], schedulerDecision: "CONDITIONAL_PROOF_ONLY" }));
     }
   } finally { http.stop(); }
 }
