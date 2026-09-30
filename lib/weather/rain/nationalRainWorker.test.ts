@@ -24,12 +24,32 @@ const job = {
   run_key: "run-1",
   basetime: "20260929100000",
   validtime: "20260929100500",
-  zoom: 8,
-  tile_x: 221,
+  zoom: 10,
+  tile_x: 885,
   tile_y: 100,
 };
 
 describe("processNationalRainRefinementJobs", () => {
+  test("queues only the next zoom for a strong intermediate tile", async () => {
+    const intermediate = { ...job, zoom: 6, tile_x: 55, tile_y: 24 };
+    const { client, upsert } = clientFor(intermediate);
+    const fetcher = vi.fn().mockResolvedValue(new Response(new Uint8Array(pngBuffer()), { status: 200 }));
+    const resolveMunicipalities = vi.fn();
+
+    const result = await processNationalRainRefinementJobs(client, {
+      limit: 1,
+      fetcher: fetcher as any,
+      resolveMunicipalities,
+    });
+
+    expect(result.done).toBe(1);
+    expect(resolveMunicipalities).not.toHaveBeenCalled();
+    expect(upsert).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ zoom: 8, status: "PENDING" })]),
+      expect.objectContaining({ onConflict: "run_key,validtime,zoom,tile_x,tile_y" }),
+    );
+  });
+
   test("marks a valid JMA tile done", async () => {
     const { client, rpc, upsert } = clientFor(job);
     const body = pngBuffer();
