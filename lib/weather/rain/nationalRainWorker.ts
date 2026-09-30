@@ -27,6 +27,7 @@ export async function processNationalRainRefinementJobs(
   supabase: SupabaseClient,
   options: {
     limit?: number;
+    concurrency?: number;
     fetcher?: typeof fetch;
     resolveMunicipalities?: (footprint: ReturnType<typeof heavyRainAreaPolygons>) => Promise<NationalRainMunicipality[]>;
     budgetMs?: number;
@@ -37,15 +38,11 @@ export async function processNationalRainRefinementJobs(
   const now = options.now ?? Date.now;
   const budgetMs = Math.max(1, options.budgetMs ?? 45_000);
   const deadline = now() + budgetMs;
-  const jobs = (await claimNationalRainJobs(supabase, options.limit ?? 10)) as ClaimedNationalRainJob[];
-  const result: NationalRainWorkerResult = { claimed: jobs.length, done: 0, failed: 0, strongPixels: 0, deferred: 0 };
+  const limit = Math.max(1, options.limit ?? 10);
+  const concurrency = Math.max(1, Math.min(options.concurrency ?? 4, limit));
+  const result: NationalRainWorkerResult = { claimed: 0, done: 0, failed: 0, strongPixels: 0, deferred: 0 };
 
-  for (const job of jobs) {
-    if (now() >= deadline) {
-      result.deferred += 1;
-      await deferNationalRainJob(supabase, job.id);
-      continue;
-    }
+  const processJob = async (job: ClaimedNationalRainJob) => {
     try {
       const response = await fetcher(
         buildJmaRainTileUrl({ basetime: job.basetime, validtime: job.validtime }, job.zoom, job.tile_x, job.tile_y),
@@ -83,6 +80,24 @@ export async function processNationalRainRefinementJobs(
       );
       result.failed += 1;
     }
+  };
+
+  while (result.claimed < limit && now() < deadline) {
+    const batchSize = Math.min(concurrency, limit - result.claimed);
+    const jobs = (await claimNationalRainJobs(supabase, batchSize)) as ClaimedNationalRainJob[];
+    if (jobs.length === 0) break;
+    result.claimed += jobs.length;
+
+    const runnable: ClaimedNationalRainJob[] = [];
+    for (const job of jobs) {
+      if (now() >= deadline) {
+        result.deferred += 1;
+        await deferNationalRainJob(supabase, job.id);
+      } else {
+        runnable.push(job);
+      }
+    }
+    await Promise.all(runnable.map(processJob));
   }
 
   return result;
