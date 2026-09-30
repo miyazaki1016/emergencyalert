@@ -50,6 +50,11 @@ jobs:
         run: |
           set -o pipefail
           JMA_TILE_EXISTENCE_SAMPLE=100 npx tsx scripts/jma-sparse-tile-existence-proof.ts | tee /tmp/jma-sparse-tile-existence.json
+      - name: Reproduce live JMA forecast 404s and capture coordinates
+        timeout-minutes: 10
+        run: |
+          set -o pipefail
+          npx tsx scripts/jma-404-reproduction-proof.ts | tee /tmp/jma-404-reproduction.json
       - run: npx tsx scripts/national-rain-budget-proof.ts
       - name: Measure read-only live national rain throughput
         timeout-minutes: 10
