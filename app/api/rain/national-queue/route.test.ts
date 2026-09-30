@@ -67,7 +67,7 @@ describe("national rain queue proof route", () => {
     process.env.NATIONAL_RAIN_WORKER_SECRET = "proof-secret";
     fetchObs.mockResolvedValue([current]);
     fetchForecast.mockResolvedValue([forecast]);
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(new Uint8Array([1]), { status: 200 })));
+    vi.stubGlobal("fetch", vi.fn().mockImplementation(async () => new Response(new Uint8Array([1]), { status: 200 })));
 
     let calls = 0;
     scanTile.mockImplementation(() => {
