@@ -6,7 +6,7 @@ import { candidateKey, scanHeavyRainTile, type HeavyRainCandidate } from "@/lib/
 import {
   createNationalRainQueueClient,
   enqueueNationalRainJobs,
-  refinementJobFromCoarseCandidate,
+  stagedRefinementJobsFromCoarseCandidates,
   type NationalRainQueueJob,
 } from "@/lib/weather/rain/nationalRainQueue";
 
@@ -35,12 +35,7 @@ async function scanFrame(frame: { basetime: string; validtime: string }) {
 }
 
 function uniqueJobs(candidates: HeavyRainCandidate[], frame: { basetime: string; validtime: string }) {
-  const byTile = new Map<string, NationalRainQueueJob>();
-  for (const candidate of candidates) {
-    const job = refinementJobFromCoarseCandidate(candidate, frame);
-    byTile.set(`${job.zoom}:${job.tileX}:${job.tileY}`, job);
-  }
-  return [...byTile.values()];
+  return stagedRefinementJobsFromCoarseCandidates(candidates, frame, 6);
 }
 
 export async function POST(request: NextRequest) {
@@ -65,7 +60,7 @@ export async function POST(request: NextRequest) {
         .filter((candidate) => !currentStrong.has(candidateKey(candidate)));
       const jobs = uniqueJobs(candidates, forecast);
       allJobs.push(...jobs);
-      frames.push({ validTime: forecast.validtime, coarseCandidates: candidates.length, refinementTiles: jobs.length });
+      frames.push({ validTime: forecast.validtime, coarseCandidates: candidates.length, refinementZoom: 6, refinementTiles: jobs.length });
     }
 
     const supabase = createNationalRainQueueClient();
