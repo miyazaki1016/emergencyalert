@@ -124,23 +124,25 @@ test("defers unstarted claimed jobs without consuming a failure attempt", async 
   const upsert = vi.fn().mockResolvedValue({ error: null });
   const client = { rpc, from: vi.fn().mockReturnValue({ upsert }) } as any;
   const fetcher = vi.fn().mockResolvedValue(new Response(pngBuffer(), { status: 200 }));
-  let nowCalls = 0;
-  const now = vi.fn(() => {
-    nowCalls += 1;
-    return nowCalls <= 2 ? 0 : 46_000;
+  let currentTime = 0;
+  const now = vi.fn(() => currentTime);
+  const timedFetcher = vi.fn(async () => {
+    currentTime = 46_000;
+    return new Response(pngBuffer(), { status: 200 });
   });
 
   const result = await processNationalRainRefinementJobs(client, {
     limit: 2,
+    concurrency: 1,
     budgetMs: 45_000,
     now,
-    fetcher: fetcher as any,
+    fetcher: timedFetcher as any,
   });
 
   expect(result.done).toBe(1);
   expect(result.failed).toBe(0);
   expect(result.deferred).toBe(1);
-  expect(fetcher).toHaveBeenCalledTimes(1);
+  expect(timedFetcher).toHaveBeenCalledTimes(1);
   expect(rpc).toHaveBeenCalledWith("defer_national_rain_refinement_job", { p_id: 8 });
   expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", expect.objectContaining({ p_id: 8 }));
 });
@@ -199,11 +201,13 @@ test("does not claim another batch after the execution budget is exhausted", asy
   });
   const upsert = vi.fn().mockResolvedValue({ error: null });
   const client = { rpc, from: vi.fn().mockReturnValue({ upsert }) } as any;
-  const fetcher = vi.fn().mockResolvedValue(new Response(pngBuffer(), { status: 200 }));
-  let calls = 0;
-  const now = vi.fn(() => {
-    calls += 1;
-    return calls <= 6 ? 0 : 46_000;
+  let currentTime = 0;
+  let completed = 0;
+  const now = vi.fn(() => currentTime);
+  const fetcher = vi.fn(async () => {
+    completed += 1;
+    if (completed === 4) currentTime = 46_000;
+    return new Response(pngBuffer(), { status: 200 });
   });
 
   const result = await processNationalRainRefinementJobs(client, {
