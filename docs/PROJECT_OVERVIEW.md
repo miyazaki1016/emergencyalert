@@ -659,8 +659,11 @@ detailed N03 files into the Vercel/app bundle. Store prepared geometry as
 private, per-prefecture objects and load only coarse-selected prefectures.
 
 Production Supabase now has a private bucket named `national-rain-n03` with a
-25 MiB per-object limit and JSON-only MIME restriction. The bucket exists, but
-the 47 prepared objects have not yet been uploaded.
+50 MiB per-object limit and JSON-only MIME restriction. The limit was raised
+from 25 MiB after the full nationwide run proved that Hokkaido alone exceeds
+25 MiB. The full prepared dataset is about 461,844,361 bytes (~440 MiB), and
+all 47 per-prefecture objects were uploaded successfully under the immutable
+20260101 prefix.
 
 Storage object identity is locked to the exact source dataset date:
 
@@ -683,12 +686,33 @@ supports a reusable process-memory cache, preserves requested prefecture order,
 and fails closed for missing files, invalid JSON, invalid administrative-area
 shape, or prefecture mismatch.
 
-A manual GitHub Actions upload workflow exists on the feature branch, but it has
-not been run. The connected GitHub integration cannot dispatch a new workflow
-and does not expose Secrets APIs; GitHub `workflow_dispatch` also must not be
-used as an excuse to merge PR #59 into `main`. The connected Vercel account
-currently exposes only the `misaki` project, so it is not an alternate
-EmergencyAlert credential path.
+A minimal manual GitHub Actions launcher now exists on `main` and checks out
+`feat/national-heavy-rain-preview` for the actual N03 tooling; this avoided
+merging PR #59 application code merely to make workflow_dispatch available.
+The Production GitHub Environment now supplies SUPABASE_URL and
+SUPABASE_SERVICE_ROLE_KEY without exposing either value in chat.
+
+The nationwide generation was exercised for all 47 prefectures. A transient
+MLIT HTTP 502 was observed in real execution, so the generator now retries
+retryable HTTP/network failures with bounded exponential backoff; a subsequent
+run demonstrated that recovery path in practice.
+
+The uploader has also been made safely resumable: if an immutable object already
+exists, it is downloaded and accepted only when both byte size and SHA-256 match
+the newly generated manifest. A mismatch fails closed; existing objects are not
+silently overwritten.
+
+The protected proof worker now uses the private prepared-N03 Storage loader and
+the reusable municipality resolver. Missing/malformed prepared data still fails
+the proof job closed. This remains proof-only and is still disconnected from
+Push and watch_targets.
+
+The first post-upload verification attempt exposed a script-only import bug
+(resolve imported from node:fs instead of node:path); that bug was fixed. The
+latest manual rerun was reported complete by the owner, but the connected
+GitHub integration cannot enumerate workflow_dispatch runs, so the final
+47-object SHA-256 verification result must still be confirmed from the GitHub
+run UI before recording it as verified.
 
 At commit `75006bb5ef8056d3d5f491e4d231d0710473b0a7`, CI and National rain
 proof are successful; the N03 national prefecture index proof was still running
@@ -701,9 +725,10 @@ Still forbidden at this checkpoint:
 - do not connect nationwide results to Push or `watch_targets`;
 - do not expose or paste a Supabase service-role key into chat.
 
-Next engineering gate: finish all CI proofs, establish a secret-safe one-time
-execution path for the guarded 47-prefecture upload, verify all 47 immutable
-Storage objects, then wire the protected proof worker to the prepared-data
-loader while keeping alert delivery disconnected.
+Next engineering gate: confirm the latest manual workflow's final
+`Verify all 47 uploaded N03 objects` step is green and records the 47-object
+SHA-256 verification, then re-run/fix PR #59 CI as needed. Keep the proof
+migration unapplied and alert delivery disconnected until those gates are
+explicitly reviewed.
 
 > 未来のソラを信用するな。データセット日付とハッシュまで残して、実物で確認する。
