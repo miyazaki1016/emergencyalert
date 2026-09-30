@@ -1413,3 +1413,29 @@ Production readiness: **NO**.
 
 > 未来のソラを信用するな。proofで成立したことと、実routeに統合済みなことを分けて記録する。
 > atomicity gateとthroughput gateは別。研究を増やすより、ここからは統合して同じコードパスで測る。
+
+
+### Low-zoom screening discovery — 2026-09-30
+
+Live JMA observation proof at frame `20260930113000` compared every z8 descendant pixel under the six nationwide z4 coarse tiles against its exact z4 parent pixel.
+
+Result:
+- 1,536 z8 tiles scanned.
+- 393,216 z4 parent pixels compared.
+- 6,078 z8 pixels were >=30 mm/h.
+- **0 heavy-pixel misses**: every z8 >=30 mm/h pixel had a z4 parent >=30 mm/h.
+- **0 parent max-rank misses**: for all 393,216 parent pixels, the z4 intensity rank exactly equaled the maximum z8 descendant rank.
+- Exact max-rank match rate: **100%** in this frame.
+- z8 GTE_80 parent groups: 15; all z4 parents were also GTE_80.
+- No UNKNOWN_PIXEL values observed in either compared z4 parents or z8 descendants.
+
+This is strong empirical evidence that, for this live hrpns observation frame, low zoom behaves as max-rank aggregation across the corresponding higher-resolution descendants. If this behavior is stable, nationwide work can be changed from "detail everywhere" to:
+1. scan z4 nationwide;
+2. keep only z4 pixels/cells >=30 mm/h;
+3. refine only their z8 descendants.
+
+This could reduce nationwide detail/N03 work dramatically and should be investigated before further scheduler scaling.
+
+**Do not yet promote this to a hard invariant.** This is one live observation frame, not a published JMA contract. Repeat across multiple observation/forecast frames and diverse rain events before adopting the screening rule. In particular validate forecast targetTimes as well as current observations and confirm no z4<30 / z8>=30 counterexample.
+
+Evidence: JMA low-zoom max-rank proof #1 SUCCESS, artifact 11094195166.
