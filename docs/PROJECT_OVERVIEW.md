@@ -1184,3 +1184,103 @@ Runtime/real-IO/DB/timeout/ownership/stale-frame gates remain OPEN.
 
 **Production移行不可。atomicity gateとthroughput gateは別。**
 **未来のソラを信用するな。重要な判断は総覧へ残す。**
+
+### Sequential CI readiness result / final gate — 2026-09-30
+
+Code `a80652ddeb5503e1d5e5f5931fda3863c265090c`: CI #501, National #205,
+N03 #125 all SUCCESS; 179 tests, local queue lifecycle and build passed.
+Raw artifact 11086367848; exact structured results:
+`docs/proofs/national-readiness-ci501.json`. All measurements below are sequential
+CI, with the documented synthetic/local HTTP assumptions. They are not measured
+Production Storage latency or target-runtime capacity.
+
+| N03-only representative (queries) | Whole sec / RSS MiB / read MiB | Bounded partition sec / RSS MiB / read MiB |
+| --- | ---: | ---: |
+| Hokkaido (37) | 1.154 / 331.86 / 39.68 | 1.839 / 180.83 / 74.42 |
+| Nagasaki (8) | 0.494 / 245.62 / 28.38 | 1.041 / 179.09 / 29.16 |
+| Iwate (8) | 0.479 / 236.20 / 27.48 | 0.993 / 183.93 / 28.17 |
+| Okinawa (30) | 0.472 / 211.04 / 17.69 | 0.683 / 146.29 / 18.18 |
+
+All **83 ordered results match** whole/uncached/cached. Full-coverage queries
+and cache churn make cumulative partition reads exceed a single whole load;
+partitioning is a memory reduction, not a universal IO/time reduction.
+Original boundaries/holes are retained; largest Iwate chunk is 4,333,892 bytes.
+
+Actual c4 Hokkaido worker over nominal HTTP, 50 jobs: whole cold 13.243 s /
+836.60 MiB / 39.68 MiB transferred (1 GET), bounded cold 13.300 s /
+371.80 MiB / 12.16 MiB (13 GETs). Bounded warm 10.339 s / 373.81 MiB /
+zero GETs and zero bytes. c1 bounded cold 13.194 s / 263.09 MiB: c4 provides
+no meaningful gain on this repeated CPU workload. For isolated regions c4,
+32 cold jobs: Nagasaki 11.780 s / 372.83 MiB, Iwate 15.537 s / 431.70 MiB,
+Okinawa 8.899 s / 353.99 MiB. All their warm phases perform zero GETs.
+Constrained Hokkaido cold 32 jobs: 16.174 s, max batch 10.367 s.
+
+**Reject nationwide mixed cache locality.** Mixed four-region c4 16 jobs cold
+55.919 s / warm 55.802 s, each 244 GETs and 250.35 MiB transferred; its maximum
+batch is 14.062 s. A nominally warm cache does not mean cache hits when the
+working set exceeds 32 MiB. Near-60-second completion without real JMA/DB is
+not a safe route limit. The initial 45-second budget only controls batch starts.
+
+Sustained actual worker filesystem stress: 12 accelerated cycles, 48 arrivals
+per cycle, 576/576 completed, zero pending/oldest age, 36 invocations, 156.225 s
+wall time. Peak RSS 366.66 MiB; first/last 3-cycle sampled maxima 338.99/344.86
+MiB. Encoded retained bytes peaked at 33,550,023 (<33,554,432 limit), 8,755
+LRU evictions, one active load/decode maximum. Mixed workload had **zero cache
+hits and 9,450,485,424 bytes read**. Bounded retention is verified; this does
+not certify hour-long network arrivals or an absolute V8 RSS bound.
+
+| Four cold invocations, 16 offered each | Wall sec | Summed sampled worker peak RSS MiB |
+| --- | ---: | ---: |
+| National mixed, global cap2 | 102.369 | 635.13 |
+| Region-specific, global cap2 | 19.272 | 673.47 |
+| Region-specific, 3s offsets, cap2 | 18.118 | 702.06 |
+| Region-specific, cap4 | 15.160 | 1167.79 |
+
+National mixed finishes only 48/64 offered; regional alternatives finish 64/64.
+Do not conflate elapsed times for unequal completed work. Region isolation
+reduces repeated loads and protects other regions from mixed-cache churn.
+Three-second offsets provide no demonstrated memory benefit (702 vs 673 MiB);
+keep them as a sensitivity candidate, not an accepted improvement. Cap4 buys
+about four seconds over cap2 but increases aggregate memory materially; reject
+it as the default without runtime memory allocation and higher-demand proof.
+
+Measured-service replay (12 virtual 5-minute cycles, 1.5x service margin):
+
+| Jobs/5min | Policy | Submitted / completed / remaining | Oldest sec | Calls |
+| --- | --- | ---: | ---: | ---: |
+| 48 | national | 576 / 576 / 0 | 0 | 48 |
+| 384 | national | 4608 / 1128 / 3480 | 3000 | 96 |
+| 384 | regional or staggered | 4608 / 4608 / 0 | 0 | 288 |
+| 1536 | national | 18432 / 1128 / 17304 | 3600 | 96 |
+| 1536 | regional or staggered | 18432 / 8944 / 9488 | 2100 | 561 |
+| 18432 | regional or staggered | 221184 / 8944 / 212240 | 3600 | 561 |
+
+At 384/5min with 75% Hokkaido, regional/staggered still completes 4608/4608;
+national leaves 3480. These are model outputs calibrated from cold worker
+service, not live sustained Production drains. The staggered replay uses the
+same regional calibration plus eligibility offsets; it does not independently
+establish a throughput improvement. Four representative groups cannot validate
+ten nationwide groups. Even one-frame severe 1536/5min fails: gate remains OPEN.
+
+Adopt for further proof: exact component partitions, encoded 32 MiB LRU,
+identity/integrity checks, regional locality. Next dispatcher experiment uses
+c4 (compare c1), region-scoped limit16, global cap2, zero initial offset as the
+baseline and 3s as a comparison; backlog-driven refill instead of two fixed
+calls. The 384 replay needs 24 calls/5min (288/12), not two. This is a measured
+scenario requirement, not approved Production frequency. Safe universal limit,
+Production call count, geographic group count and final offsets remain unset.
+Monitor pending/processing/oldest age by region+frame, arrival/completion rate,
+invocations/5min, retries/deferred/failures, batch/HTTP tails, RSS, cache churn,
+and global leases. Alert at oldest age >=300s or consecutive queue growth.
+
+A follow-up measurement-report fix scopes maxReadMs to each cold/warm phase;
+CI #501's maxReadMs was cumulative, so use per-phase requests/bytes and maxBatchMs
+above. The fix does not change worker processing, timing or these conclusions.
+
+**Production移行不可。Atomicity gate closed; throughput/scheduler gate OPEN.**
+Remaining: authorized real Storage/DB/JMA IO, trusted immutable partition
+placement, all-47 validation/diverse tiles, Vercel-runtime memory and last-batch
+timeouts, atomic region ownership/global leases/fairness, audited stale-frame
+policy and severe-demand sustained real-IO drain. No Production migrations,
+cron/Vault/Storage changes, notification connections, PR merge or Production
+deploy are executed. New loader remains proof-only, absent from application routes.
