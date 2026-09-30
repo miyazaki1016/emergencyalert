@@ -708,11 +708,13 @@ the proof job closed. This remains proof-only and is still disconnected from
 Push and watch_targets.
 
 The first post-upload verification attempt exposed a script-only import bug
-(resolve imported from node:fs instead of node:path); that bug was fixed. The
-latest manual rerun was reported complete by the owner, but the connected
-GitHub integration cannot enumerate workflow_dispatch runs, so the final
-47-object SHA-256 verification result must still be confirmed from the GitHub
-run UI before recording it as verified.
+(resolve imported from node:fs instead of node:path); that bug was fixed.
+Manual workflow run #7 was then verified from the GitHub Actions UI as fully
+successful in 5m09s: all 47 prepared files generated, all 47 Storage objects
+accepted/uploaded, and the final `Verify all 47 uploaded N03 objects` step
+completed successfully in 25s. This closes the immutable Storage integrity
+gate: all 47 objects were re-downloaded and matched the generated manifest's
+byte sizes and SHA-256 hashes.
 
 At commit `75006bb5ef8056d3d5f491e4d231d0710473b0a7`, CI and National rain
 proof are successful; the N03 national prefecture index proof was still running
@@ -725,10 +727,8 @@ Still forbidden at this checkpoint:
 - do not connect nationwide results to Push or `watch_targets`;
 - do not expose or paste a Supabase service-role key into chat.
 
-Next engineering gate: confirm the latest manual workflow's final
-`Verify all 47 uploaded N03 objects` step is green and records the 47-object
-SHA-256 verification, then re-run/fix PR #59 CI as needed. Keep the proof
-migration unapplied and alert delivery disconnected until those gates are
-explicitly reviewed.
+Next engineering gate: re-run/fix PR #59 CI as needed and review the complete
+proof worker/data path. Keep the proof migration unapplied and alert delivery
+disconnected until those gates are explicitly reviewed.
 
 > 未来のソラを信用するな。データセット日付とハッシュまで残して、実物で確認する。
