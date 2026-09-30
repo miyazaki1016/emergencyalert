@@ -727,8 +727,39 @@ Still forbidden at this checkpoint:
 - do not connect nationwide results to Push or `watch_targets`;
 - do not expose or paste a Supabase service-role key into chat.
 
-Next engineering gate: re-run/fix PR #59 CI as needed and review the complete
-proof worker/data path. Keep the proof migration unapplied and alert delivery
-disconnected until those gates are explicitly reviewed.
+The complete proof worker/data path has now been reviewed end-to-end:
+
+> protected worker POST -> service-role Supabase client -> private prepared N03
+> Storage -> coarse prefecture selection -> exact municipality intersection ->
+> proof-result municipalities persistence -> queue completion
+
+The route creates the prepared-N03 Storage loader from the same server-side
+service-role client and injects the municipality resolver into the worker.
+Storage download/JSON/shape/prefecture mismatches throw instead of becoming an
+empty successful municipality result. The worker persists municipalities before
+marking a job DONE. A dedicated worker test now locks the fail-closed behavior:
+if municipality resolution fails, no proof result is saved and the job is
+returned to queue completion logic as failed rather than successful.
+
+At commit `51e2a4aaee982267b1ff86951ef9242aadc4fe15`, the post-review gates are
+all green:
+
+- CI #464 — SUCCESS;
+- National rain proof #168 — SUCCESS;
+- N03 national prefecture index proof #88 — SUCCESS.
+
+The manual Production-environment data workflow also remains independently
+verified: run #7 completed successfully, including re-download and SHA-256/byte
+verification of all 47 immutable N03 objects.
+
+No Push publisher or `watch_targets` mutation exists in this reviewed worker
+path. The nationwide proof migration remains unapplied to Production. The
+minimal workflow launcher on `main` is only the manual N03 data-upload
+launcher; PR #59 application code has not been merged merely to enable it.
+
+Next engineering gate: decide and prove how the nationwide refinement queue is
+to be scheduled/invoked while keeping it isolated from user alert delivery.
+Do not apply the proof migration, connect Push/watch_targets, or merge PR #59
+until that next architecture gate is explicitly reviewed.
 
 > 未来のソラを信用するな。データセット日付とハッシュまで残して、実物で確認する。
