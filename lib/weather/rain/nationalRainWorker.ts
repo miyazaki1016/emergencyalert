@@ -2,7 +2,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { PNG } from "pngjs";
 import { buildJmaRainTileUrl } from "../providers/jma/tileUrl";
 import { heavyRainAreaPolygons, scanHeavyRainTile } from "./nationalHeavyRain";
-import { claimNationalRainJobs, finishNationalRainJob, saveNationalRainRefinementResult } from "./nationalRainQueue";
+import { claimNationalRainJobs, deferNationalRainJob, finishNationalRainJob, saveNationalRainRefinementResult } from "./nationalRainQueue";
 import type { NationalRainMunicipality } from "./nationalRainMunicipalities";
 
 export type ClaimedNationalRainJob = {
@@ -43,7 +43,7 @@ export async function processNationalRainRefinementJobs(
   for (const job of jobs) {
     if (now() >= deadline) {
       result.deferred += 1;
-      await finishNationalRainJob(supabase, job.id, false, "worker_time_budget_exhausted");
+      await deferNationalRainJob(supabase, job.id);
       continue;
     }
     try {
