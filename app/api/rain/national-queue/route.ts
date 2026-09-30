@@ -57,14 +57,14 @@ export async function POST(request: NextRequest) {
     const currentStrong = new Set((await scanFrame(current)).map(candidateKey));
     const supabase = createNationalRainQueueClient();
     const frames = [];
-    let queued = 0;
+    let requestedRefinementTiles = 0;
 
     for (const forecast of forecasts) {
       const candidates = (await scanFrame(forecast))
         .filter((candidate) => !currentStrong.has(candidateKey(candidate)));
       const jobs = uniqueJobs(candidates, forecast);
       await enqueueNationalRainJobs(supabase, jobs);
-      queued += jobs.length;
+      requestedRefinementTiles += jobs.length;
       frames.push({ validTime: forecast.validtime, coarseCandidates: candidates.length, refinementTiles: jobs.length });
     }
 
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       mode: "NATIONAL_RAIN_QUEUE_PROOF",
       checkedAt: new Date().toISOString(),
       currentValidTime: current.validtime,
-      queued,
+      requestedRefinementTiles,
       frames,
       note: "Proof queue only. It does not publish alerts or affect watch targets/push notifications.",
     });
