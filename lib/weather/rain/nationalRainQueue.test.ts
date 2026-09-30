@@ -1,9 +1,17 @@
 import { describe, expect, it, vi } from "vitest";
-import { claimNationalRainJobs, enqueueNationalRainJobs, finishNationalRainJob, queueRows } from "./nationalRainQueue";
+import { claimNationalRainJobs, enqueueNationalRainJobs, finishNationalRainJob, queueRows, refinementJobFromCoarseCandidate } from "./nationalRainQueue";
 
 const jobs = [{ runKey: "run-1", basetime: "2026-09-29T10:00:00Z", validtime: "2026-09-29T10:05:00Z", zoom: 8, tileX: 221, tileY: 100, priority: 2 }];
 
 describe("national rain queue", () => {
+  it("maps a zoom-4 candidate pixel to its exact zoom-8 refinement tile", () => {
+    const job = refinementJobFromCoarseCandidate(
+      { tileX: 13, tileY: 6, pixelX: 255, pixelY: 0 },
+      { basetime: "2026-09-29T10:00:00Z", validtime: "2026-09-29T10:05:00Z" },
+    );
+    expect(job).toMatchObject({ zoom: 8, tileX: 223, tileY: 96 });
+  });
+
   it("maps proof jobs to database rows", () => {
     expect(queueRows(jobs)[0]).toMatchObject({ run_key: "run-1", tile_x: 221, tile_y: 100, status: "PENDING" });
   });
