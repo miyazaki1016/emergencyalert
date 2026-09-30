@@ -1005,7 +1005,7 @@ listed above remain unexecuted. Continue safely on the feature branch.
 
 ### Optimized worker proof result / Production hold — 2026-09-30
 
-Code commit `ba9a0b0360ab9cf30a1431f4ce8fb3a2b0a2576e` completed all gates:
+Code commit `ba9a0b0360ab9cf30a1431f4ce8fb3a2b0a2576e` passed all listed CI workflows:
 CI #496 — SUCCESS (164 tests, live throughput, all five stress cases, local
 PostgreSQL queue lifecycle and build); National rain proof #200 — SUCCESS;
 N03 index proof #120 — SUCCESS. Evidence is retained in
@@ -1115,3 +1115,33 @@ the invocation and retains no decoded geometry. Its 650 chunk reads per run
 exclude HTTP/DB latency; this does not approve a Production IO policy. CI runs
 these fresh-process variants as well. Prototype application integration and
 bounded-cache/real-IO validation remain uncompleted.
+
+### Partition CI evidence / Production hold — 2026-09-30
+
+At `57c22e9bbf68226b6b432371f6e9307c3106ff06`, CI #499 (169 tests,
+partition proofs, queue lifecycle and build), National #203 and N03 #123 all
+completed SUCCESS. Full structured evidence is retained in
+`docs/proofs/national-throughput-ci499.json`, artifact ID 11083582169.
+
+| Same-CI Hokkaido actual worker | Done | Elapsed | Max batch | Peak RSS |
+| --- | ---: | ---: | ---: | ---: |
+| Whole prepared loader, c4 | 50 | 11.272 s | 1.487 s | 786.42 MiB |
+| Partition prototype, c1 | 50 | 15.390 s | 0.380 s | 176.05 MiB |
+| Partition prototype, c4 | 50 | 14.476 s | 1.255 s | 323.62 MiB |
+
+Each has 44 exact hits/job. Whole vs partitioned c4 shows lower observed memory
+and slower processing under the same repeated synthetic workload. N03-only
+37-query peaks were 336.06 vs 153.86 MiB; ordered arrays all matched. The
+prepared SHA256 also matches the local official-source proof. There is no
+Production HTTP/DB or Vercel-runtime capacity claim.
+
+Completed: reproducible exact partition generation, local integrity checks,
+result equivalence, actual-worker memory/time proof, CI retention and other
+prefecture priority ranking. Uncompleted: application loader integration,
+manifest hardening, bounded cache with real-IO and diverse-tile tests, sustained
+backlog drain and accepted scheduler sizing. Current prototype's one N03 slot
+and zero geometry retention are a measured baseline, not a final cache policy.
+All Production actions and partition uploads remain unexecuted.
+
+**atomicity gateとthroughput gateは別。** Throughput/scheduler acceptance remains
+OPEN. **未来のソラを信用するな。重要な判断は総覧へ残す。**

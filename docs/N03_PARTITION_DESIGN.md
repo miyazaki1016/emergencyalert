@@ -53,6 +53,14 @@ hits/job. This runs PNG scan, exact footprint and result serialization, but
 still excludes real HTTP/DB. It reads 650 chunks / 637,416,850 bytes per run:
 the cache-free policy is memory evidence, not an accepted IO strategy.
 
+CI #499 at `57c22e9bbf68226b6b432371f6e9307c3106ff06` passed all checks.
+Its same-run whole-loader c4 baseline was 50/50 in 11.272 s, peak 786.42 MiB;
+partition c4 was 50/50 in 14.476 s, peak 323.62 MiB (44 hits/job unchanged).
+Partition c1 was 15.390 s / 176.05 MiB. CI N03-only peaks were 336.06 vs
+153.86 MiB with all 37 ordered results matching. See
+`proofs/national-throughput-ci499.json`; do not compare isolated hardware
+samples as a universal memory bound.
+
 ## Other prefectures
 
 The component format is generic across all prefectures. Prioritize by actual
