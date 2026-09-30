@@ -88,6 +88,35 @@ jobs:
           end $queue$;
 
           insert into public.national_rain_refinement_jobs
+            (run_key, basetime, validtime, zoom, tile_x, tile_y, priority)
+          values
+            ('ci-defer', '2026-09-29T10:00:00Z', '2026-09-29T10:12:00Z', 8, 225, 100, 3);
+
+          do $queue$
+          declare
+            defer_id bigint;
+            before_attempts integer;
+            after_attempts integer;
+            defer_status text;
+          begin
+            select id into defer_id
+            from public.claim_national_rain_refinement_jobs(1)
+            where run_key = 'ci-defer';
+            if defer_id is null then raise exception 'expected defer job to be claimed'; end if;
+
+            select attempts into before_attempts
+            from public.national_rain_refinement_jobs where id = defer_id;
+            if before_attempts <> 1 then raise exception 'expected claimed defer attempts=1, got %', before_attempts; end if;
+
+            perform public.defer_national_rain_refinement_job(defer_id);
+
+            select attempts, status into after_attempts, defer_status
+            from public.national_rain_refinement_jobs where id = defer_id;
+            if after_attempts <> 0 then raise exception 'defer must restore attempt count, got %', after_attempts; end if;
+            if defer_status <> 'PENDING' then raise exception 'defer must return PENDING, got %', defer_status; end if;
+          end $queue$;
+
+          insert into public.national_rain_refinement_jobs
             (run_key, basetime, validtime, zoom, tile_x, tile_y, status, attempts, claimed_at)
           values
             ('ci-stale', '2026-09-29T10:00:00Z', '2026-09-29T10:15:00Z', 8, 223, 100, 'PROCESSING', 1, now() - interval '6 minutes'),
