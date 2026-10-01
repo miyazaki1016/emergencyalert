@@ -7,7 +7,24 @@ const { fetchObs, fetchForecast, scanTile, createClient, enqueue, stagedMapJobs 
   scanTile: vi.fn(),
   createClient: vi.fn(() => ({ marker: "client" })),
   enqueue: vi.fn().mockResolvedValue({ count: 0 }),
-  stagedMapJobs: vi.fn((candidates: any[], frame: any, childZoom: number) => {\n    const seen = new Set<string>();\n    return candidates.flatMap((candidate: any) => {\n      const key = `${childZoom}:${candidate.refineX}:${candidate.refineY}`;\n      if (seen.has(key)) return [];\n      seen.add(key);\n      return [{\n        runKey: `${frame.basetime}:${frame.validtime}`,\n        basetime: frame.basetime,\n        validtime: frame.validtime,\n        zoom: childZoom,\n        tileX: candidate.refineX,\n        tileY: candidate.refineY,\n        priority: 0,\n      }];\n    });\n  }),\n}));
+  stagedMapJobs: vi.fn((candidates: any[], frame: any, childZoom: number) => {
+    const seen = new Set<string>();
+    return candidates.flatMap((candidate: any) => {
+      const key = `${childZoom}:${candidate.refineX}:${candidate.refineY}`;
+      if (seen.has(key)) return [];
+      seen.add(key);
+      return [{
+        runKey: `${frame.basetime}:${frame.validtime}`,
+        basetime: frame.basetime,
+        validtime: frame.validtime,
+        zoom: childZoom,
+        tileX: candidate.refineX,
+        tileY: candidate.refineY,
+        priority: 0,
+      }];
+    });
+  }),
+}));
 
 vi.mock("@/lib/weather/providers/jma/observationTargetTimes", () => ({
   fetchObservationTargetTimes: fetchObs,
