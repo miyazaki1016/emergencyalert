@@ -1,22 +1,13 @@
 import { NextRequest } from "next/server";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-const { fetchObs, fetchForecast, scanTile, createClient, enqueue, mapJob } = vi.hoisted(() => ({
+const { fetchObs, fetchForecast, scanTile, createClient, enqueue, stagedMapJobs } = vi.hoisted(() => ({
   fetchObs: vi.fn(),
   fetchForecast: vi.fn(),
   scanTile: vi.fn(),
   createClient: vi.fn(() => ({ marker: "client" })),
   enqueue: vi.fn().mockResolvedValue({ count: 0 }),
-  mapJob: vi.fn((candidate: any, frame: any) => ({
-    runKey: `${frame.basetime}:${frame.validtime}`,
-    basetime: frame.basetime,
-    validtime: frame.validtime,
-    zoom: 8,
-    tileX: candidate.refineX,
-    tileY: candidate.refineY,
-    priority: 0,
-  })),
-}));
+  stagedMapJobs: vi.fn((candidates: any[], frame: any, childZoom: number) => {\n    const seen = new Set<string>();\n    return candidates.flatMap((candidate: any) => {\n      const key = `${childZoom}:${candidate.refineX}:${candidate.refineY}`;\n      if (seen.has(key)) return [];\n      seen.add(key);\n      return [{\n        runKey: `${frame.basetime}:${frame.validtime}`,\n        basetime: frame.basetime,\n        validtime: frame.validtime,\n        zoom: childZoom,\n        tileX: candidate.refineX,\n        tileY: candidate.refineY,\n        priority: 0,\n      }];\n    });\n  }),\n}));
 
 vi.mock("@/lib/weather/providers/jma/observationTargetTimes", () => ({
   fetchObservationTargetTimes: fetchObs,
@@ -34,7 +25,7 @@ vi.mock("@/lib/weather/rain/nationalHeavyRain", () => ({
 vi.mock("@/lib/weather/rain/nationalRainQueue", () => ({
   createNationalRainQueueClient: createClient,
   enqueueNationalRainJobs: enqueue,
-  refinementJobFromCoarseCandidate: mapJob,
+  stagedRefinementJobsFromCoarseCandidates: stagedMapJobs,
 }));
 
 import { POST } from "./route";
@@ -86,7 +77,7 @@ describe("national rain queue proof route", () => {
     expect(enqueue).toHaveBeenCalledTimes(1);
     const jobs = enqueue.mock.calls[0][1];
     expect(jobs).toHaveLength(1);
-    expect(jobs[0]).toMatchObject({ zoom: 8, tileX: 30, tileY: 40 });
+    expect(jobs[0]).toMatchObject({ zoom: 6, tileX: 30, tileY: 40 });
     expect((await response.json()).requestedRefinementTiles).toBe(1);
   });
 
