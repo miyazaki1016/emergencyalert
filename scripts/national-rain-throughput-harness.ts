@@ -14,7 +14,7 @@ export async function measureWorker(options: {
   budgetMs?: number;
   processor?: typeof processNationalRainRefinementJobs;
 }) {
-  let offset = 0, saved = 0, municipalityHits = 0, serializedBytes = 0;
+  let offset = 0, saved = 0, municipalityHits = 0, serializedBytes = 0, enqueuedRefinementJobs = 0;
   let peakRss = process.memoryUsage().rss;
   const sample = () => { peakRss = Math.max(peakRss, process.memoryUsage().rss); };
   const batches: { jobs: number; elapsedMs: number }[] = [];
@@ -40,6 +40,12 @@ export async function measureWorker(options: {
       throw new Error(`Unexpected RPC ${name}`);
     },
     from: (table: string) => {
+      if (table === "national_rain_refinement_jobs") {
+        return { upsert: async (rows: unknown[]) => {
+          enqueuedRefinementJobs += rows.length; sample();
+          return { error: null };
+        } };
+      }
       if (table !== "national_rain_refinement_results") throw new Error(`Unexpected table ${table}`);
       return { upsert: async (row: { municipalities: unknown[] }) => {
         serializedBytes += Buffer.byteLength(JSON.stringify(row));
@@ -63,7 +69,7 @@ export async function measureWorker(options: {
       result, elapsedMs, concurrency: options.concurrency,
       budgetMs: options.budgetMs ?? 45_000,
       pending: options.jobs.length - result.claimed + result.deferred,
-      municipalityHits, serializedBytes, batches,
+      municipalityHits, serializedBytes, enqueuedRefinementJobs, batches,
       maxBatchMs: Math.max(0, ...batches.map(b => b.elapsedMs)),
       peakRssMiB: peakRss / 1048576,
       processMaxRssMiB: process.resourceUsage().maxRSS / 1024,
