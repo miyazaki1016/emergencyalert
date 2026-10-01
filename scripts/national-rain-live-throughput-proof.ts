@@ -9,7 +9,7 @@ import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
 import { N03_PREFECTURE_INDEX_2026 } from "../lib/weather/rain/n03PrefectureIndex2026";
 import { prefecturesForRainPolygons } from "../lib/weather/rain/n03Prefectures";
 import { resolveNationalRainMunicipalities } from "../lib/weather/rain/nationalRainMunicipalityResolver";
-import { refinementJobFromCoarseCandidate } from "../lib/weather/rain/nationalRainQueue";
+import { stagedRefinementJobsFromCoarseCandidates } from "../lib/weather/rain/nationalRainQueue";
 import type { ClaimedNationalRainJob } from "../lib/weather/rain/nationalRainWorker";
 import { localPreparedLoader, prepareProofN03 } from "./national-rain-proof-n03";
 import { measureWorker } from "./national-rain-throughput-harness";
@@ -35,9 +35,10 @@ async function main() {
   const selected: ClaimedNationalRainJob[] = [];
   const counts: { frame: JmaTargetTime; requestedTiles: number }[] = [];
   for (const frame of frames) {
-    const jobs = new Map<string, ReturnType<typeof refinementJobFromCoarseCandidate>>();
-    for (const c of (await scan(frame)).filter(c => !currentKeys.has(candidateKey(c)))) {
-      const j = refinementJobFromCoarseCandidate(c, frame); jobs.set(`${j.tileX}:${j.tileY}`, j);
+    const jobs = new Map<string, ReturnType<typeof stagedRefinementJobsFromCoarseCandidates>[number]>();
+    const candidates = (await scan(frame)).filter(c => !currentKeys.has(candidateKey(c)));
+    for (const j of stagedRefinementJobsFromCoarseCandidates(candidates, frame, 6)) {
+      jobs.set(`${j.zoom}:${j.tileX}:${j.tileY}`, j);
     }
     counts.push({ frame, requestedTiles: jobs.size });
     for (const j of jobs.values()) {
@@ -48,20 +49,15 @@ async function main() {
   const discoveryMs = performance.now() - discoveryStarted;
   const context = { mode:"READ_ONLY_LIVE_THROUGHPUT_PROOF", counts, requestedTiles: counts.reduce((sum,c) => sum+c.requestedTiles,0), discoveryMs };
   if (!selected.length) { console.log(JSON.stringify({ ...context, skipped:true, reason:"NO_LIVE_UPCOMING_HEAVY_RAIN", capacityExtrapolationAllowed:false })); return; }
-  // Prepare outside worker timing, in a child process: production already has
-  // immutable prepared objects and never downloads/unzips MLIT in the worker.
+  // Staged refinement starts at z6. Intermediate stages only screen and enqueue
+  // the next zoom; municipality resolution belongs to final z10 jobs.
   const rows = [];
-  const codes = new Set<string>();
   for (const job of selected) {
-    const r = await fetch(buildJmaRainTileUrl(job,8,job.tile_x,job.tile_y));
+    const r = await fetch(buildJmaRainTileUrl(job,job.zoom,job.tile_x,job.tile_y));
     if (!r.ok) throw new Error(`refinement preflight failed ${r.status}`);
-    const candidates = scanHeavyRainTile(Buffer.from(await r.arrayBuffer()),8,job.tile_x,job.tile_y,1);
-    const footprint = heavyRainAreaPolygons(candidates,8);
-    const prefs = prefecturesForRainPolygons(footprint,N03_PREFECTURE_INDEX_2026);
-    prefs.forEach(p => codes.add(p.code));
-    rows.push({ job, strongPixels:candidates.length, prefectures:prefs.map(p => p.code) });
+    const candidates = scanHeavyRainTile(Buffer.from(await r.arrayBuffer()),job.zoom,job.tile_x,job.tile_y,1);
+    rows.push({ job, strongPixels:candidates.length });
   }
-  prepareProofN03(root,[...codes]);
   const loader = localPreparedLoader(root);
   const resolveMunicipalities = (footprint: Parameters<typeof resolveNationalRainMunicipalities>[0]) => resolveNationalRainMunicipalities(footprint,loader.load);
   for (const phase of ["COLD_PREPARED", "WARM_PREPARED"] as const) {
