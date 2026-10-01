@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { PNG } from "pngjs";
 import { measureWorker } from "./national-rain-throughput-harness";
 
-const jobs = Array.from({length:6},(_,i)=>({id:i+1,run_key:"proof",basetime:"20260930060000",validtime:"20260930060500",zoom:8,tile_x:227,tile_y:100}));
+const jobs = Array.from({length:6},(_,i)=>({id:i+1,run_key:"proof",basetime:"20260930060000",validtime:"20260930060500",zoom:10,tile_x:227,tile_y:100}));
 const png = new PNG({width:1,height:1});
 png.data.set([255,40,0,255]);
 const body=PNG.sync.write(png);
