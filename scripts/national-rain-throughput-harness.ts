@@ -63,7 +63,8 @@ export async function measureWorker(options: {
       fetcher: options.fetcher, resolveMunicipalities: options.resolveMunicipalities,
     });
     sample();
-    if (result.failed || saved !== result.done) throw new Error(`Proof worker failed: ${JSON.stringify({ result, errors, saved })}`);
+    const finalStageDone = options.jobs.filter((job) => job.zoom === 10).length;
+    if (result.failed || saved !== finalStageDone) throw new Error(`Proof worker failed: ${JSON.stringify({ result, errors, saved, finalStageDone })}`);
     const elapsedMs = performance.now() - started;
     return {
       result, elapsedMs, concurrency: options.concurrency,
