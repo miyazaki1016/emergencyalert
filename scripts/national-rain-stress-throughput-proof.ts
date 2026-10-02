@@ -14,7 +14,9 @@ async function main() {
   if (!["dense", "fragmented", "hokkaido"].includes(scenario)) throw new Error("Unknown stress scenario");
   const concurrency = Number(process.argv[3] ?? 4);
   if (![1,4].includes(concurrency)) throw new Error("Proof concurrency must be 1 or 4");
-  const tile = scenario === "hokkaido" ? { x:228,y:94 } : { x:227,y:100 };
+  const z8Tile = scenario === "hokkaido" ? { x:228,y:94 } : { x:227,y:100 };
+  // Preserve the same geographic area when moving the final-stage proof from z8 to z10.
+  const tile = { x: z8Tile.x * 4, y: z8Tile.y * 4 };
   const png = new PNG({ width:256,height:256 });
   for (let y=0;y<256;y++) for (let x=0;x<256;x++) {
     // Deliberate manufactured test data, never weather evidence.
