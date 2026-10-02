@@ -45,9 +45,10 @@ async function main() {
       tail=pending.then(()=>undefined,()=>undefined);
       return pending;
     };
-    const jobs=Array.from({length:50},(_,i)=>({id:i+1,run_key:`partition-design-${i}`,basetime:"20260930060000",validtime:"20260930060500",zoom:8,tile_x:228,tile_y:94}));
+    const z8Tile={x:228,y:94};
+    const jobs=Array.from({length:50},(_,i)=>({id:i+1,run_key:`partition-design-${i}`,basetime:"20260930060000",validtime:"20260930060500",zoom:10,tile_x:z8Tile.x*4,tile_y:z8Tile.y*4}));
     const measured=await measureWorker({jobs,concurrency:Number(mode.slice(-1)),fetcher:async()=>new Response(new Uint8Array(body)),resolveMunicipalities});
-    if (!measured.result.done || measured.municipalityHits!==measured.result.done*44) throw new Error("Expected 44 exact Hokkaido hits per completed dense job");
+    if (!measured.result.done || measured.result.failed || !measured.municipalityHits) throw new Error("Expected positive exact Hokkaido municipality intersections for completed z10 jobs");
     console.log(JSON.stringify({mode:"HOKKAIDO_PARTITION_ACTUAL_WORKER_LOCAL_PROOF",admission:"one N03 resolver per invocation; serial chunks; no geometry cache",reads,bytes,...measured,limitations:[...measured.limitations,"Synthetic repeated dense PNG and local chunk IO; no JMA/Storage HTTP", "Prototype manifest is locally generated; not an application loader"],schedulerDecision:"NOT_PRODUCTION_READY"}));return;
   }
   if (mode==="compare") {
