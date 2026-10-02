@@ -22,13 +22,13 @@ async function main() {
     if (occupied) { const i=(y*256+x)*4; png.data[i]=255; png.data[i+1]=40; png.data[i+2]=0; png.data[i+3]=255; }
   }
   const body = PNG.sync.write(png);
-  const footprint = heavyRainAreaPolygons(scanHeavyRainTile(body,8,tile.x,tile.y,1),8);
+  const footprint = heavyRainAreaPolygons(scanHeavyRainTile(body,10,tile.x,tile.y,1),10);
   const prefs = prefecturesForRainPolygons(footprint,N03_PREFECTURE_INDEX_2026);
   const root = process.env.N03_CACHE_DIR || mkdtempSync(join(tmpdir(), "national-rain-stress-"));
   mkdirSync(root,{recursive:true});
   prepareProofN03(root,prefs.map(p=>p.code));
   const loader = localPreparedLoader(root);
-  const jobs = Array.from({length:50},(_,i)=>({id:i+1,run_key:`synthetic-${i}`,basetime:"20260930060000",validtime:"20260930060500",zoom:8,tile_x:tile.x,tile_y:tile.y}));
+  const jobs = Array.from({length:50},(_,i)=>({id:i+1,run_key:`synthetic-${i}`,basetime:"20260930060000",validtime:"20260930060500",zoom:10,tile_x:tile.x,tile_y:tile.y}));
   const resolveMunicipalities = (rain: Parameters<typeof resolveNationalRainMunicipalities>[0]) => resolveNationalRainMunicipalities(rain,loader.load);
   const measured = await measureWorker({ jobs,concurrency,fetcher:async()=>new Response(new Uint8Array(body)),resolveMunicipalities });
   if (!measured.municipalityHits) throw new Error("Stress proof must exercise positive exact N03 municipality intersection");
