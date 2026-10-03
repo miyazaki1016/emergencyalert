@@ -11,7 +11,7 @@ import { municipalitiesForNationalRainFootprint } from "../lib/weather/rain/nati
 import { prefecturesForRainPolygons } from "../lib/weather/rain/n03Prefectures";
 import { N03_PREFECTURE_INDEX_2026 } from "../lib/weather/rain/n03PrefectureIndex2026";
 import { createBoundedPartitionResolver } from "./n03-bounded-partition-loader";
-import { datasets, STRESS_TILES } from "./n03-readiness-common";
+import { datasets, FINAL_STAGE_STRESS_TILES } from "./n03-readiness-common";
 import { measureWorker } from "./national-rain-throughput-harness";
 const wait = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
 const profiles: Record<string, { latencyMs: number; bytesPerSecond: number }> = {
@@ -114,7 +114,7 @@ async function main() {
       return municipalitiesForNationalRainFootprint(rain, areas);
     });
     const body = densePng();
-    const jobs = Array.from({ length: offered }, (_, i) => { const z8 = STRESS_TILES[codes[i % codes.length]]; return { id: i + 1, run_key: `http-${i}`, basetime: "20260930060000", validtime: "20260930060500", zoom: 10, tile_x: z8.x * 4, tile_y: z8.y * 4 }; });
+    const jobs = Array.from({ length: offered }, (_, i) => { const tile = FINAL_STAGE_STRESS_TILES[codes[i % codes.length]]; return { id: i + 1, run_key: `http-${i}`, basetime: "20260930060000", validtime: "20260930060500", zoom: 10, tile_x: tile.x, tile_y: tile.y }; });
     for (const phase of (process.env.N03_PROOF_COLD_ONLY ? ["cold"] : ["cold", "warm"])) {
       phaseSignal = process.env.N03_PROOF_HARD_DEADLINE ? AbortSignal.timeout(42000) : undefined;
       const before = { requests, transferBytes, readCount: readDurations.length, cache: resolver ? {...resolver.cache.stats} : undefined }; const measured = await measureWorker({ jobs, concurrency, fetcher: async () => new Response(new Uint8Array(body)), resolveMunicipalities: phaseSignal ? async rain => { phaseSignal!.throwIfAborted(); const r = await resolve(rain); phaseSignal!.throwIfAborted(); return r; } : resolve, processor: phaseSignal ? (client,opts) => processDeadlineProofJobs(client,{...opts,signal:phaseSignal}) : undefined });
