@@ -1,0 +1,62 @@
+import { describe, expect, it, vi } from "vitest";
+import { childTilesForCandidate, claimNationalRainJobs, enqueueNationalRainJobs, finishNationalRainJob, queueRows, refinementJobFromCoarseCandidate, stagedRefinementJobsFromCoarseCandidates } from "./nationalRainQueue";
+
+const jobs = [{ runKey: "run-1", basetime: "2026-09-29T10:00:00Z", validtime: "2026-09-29T10:05:00Z", zoom: 8, tileX: 221, tileY: 100, priority: 2 }];
+
+describe("national rain queue", () => {
+  it("maps a zoom-4 candidate pixel to its exact zoom-10 refinement tile", () => {
+    const job = refinementJobFromCoarseCandidate(
+      { tileX: 13, tileY: 6, pixelX: 255, pixelY: 0 },
+      { basetime: "2026-09-29T10:00:00Z", validtime: "2026-09-29T10:05:00Z" },
+    );
+    expect(job).toMatchObject({ zoom: 10, tileX: 895, tileY: 384 });
+  });
+
+  it("expands a candidate through staged refinement without scanning unrelated tiles", () => {
+    const frame = { basetime: "20260929100000", validtime: "20260929100500" };
+    const candidate = { tileX: 13, tileY: 6, pixelX: 255, pixelY: 0 };
+    expect(childTilesForCandidate(candidate, 4, 6)).toEqual([{ zoom: 6, tileX: 55, tileY: 24 }]);
+    expect(stagedRefinementJobsFromCoarseCandidates([candidate], frame, 6)).toEqual([
+      expect.objectContaining({ zoom: 6, tileX: 55, tileY: 24 }),
+    ]);
+  });
+
+  it("maps a z6 candidate to only its intersecting z8 tile", () => {
+    const jobs = stagedRefinementJobsFromCoarseCandidates(
+      [{ tileX: 55, tileY: 24, pixelX: 255, pixelY: 255 }],
+      { basetime: "20260929100000", validtime: "20260929100500" },
+      8,
+      6,
+    );
+    expect(jobs).toEqual([expect.objectContaining({ zoom: 8, tileX: 223, tileY: 99 })]);
+  });
+
+  it("maps proof jobs to database rows", () => {
+    expect(queueRows(jobs)[0]).toMatchObject({ run_key: "run-1", tile_x: 221, tile_y: 100, status: "PENDING" });
+  });
+
+  it("enqueues idempotently using the queue unique key", async () => {
+    const upsert = vi.fn().mockResolvedValue({ error: null });
+    const from = vi.fn().mockReturnValue({ upsert });
+    await enqueueNationalRainJobs({ from } as any, jobs);
+    expect(upsert).toHaveBeenCalledWith(expect.any(Array), { onConflict: "run_key,validtime,zoom,tile_x,tile_y", ignoreDuplicates: true });
+  });
+
+  it("claims a bounded batch through the atomic rpc", async () => {
+    const rpc = vi.fn().mockResolvedValue({ data: [{ id: 1 }], error: null });
+    const result = await claimNationalRainJobs({ rpc } as any, 12);
+    expect(rpc).toHaveBeenCalledWith("claim_national_rain_refinement_jobs", { p_limit: 12 });
+    expect(result).toEqual([{ id: 1 }]);
+  });
+});
+
+
+it("finish calls atomic queue completion RPC", async () => {
+  const rpc = vi.fn().mockResolvedValue({ error: null });
+  await finishNationalRainJob({ rpc } as any, 42, false, "network");
+  expect(rpc).toHaveBeenCalledWith("finish_national_rain_refinement_job", {
+    p_id: 42,
+    p_success: false,
+    p_error: "network",
+  });
+});
