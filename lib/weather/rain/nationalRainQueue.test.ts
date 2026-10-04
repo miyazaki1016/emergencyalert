@@ -31,6 +31,30 @@ describe("national rain queue", () => {
     expect(jobs).toEqual([expect.objectContaining({ zoom: 8, tileX: 223, tileY: 99 })]);
   });
 
+  it("preserves every parent candidate window when candidates share one child tile", () => {
+    const frame = { basetime: "20260929100000", validtime: "20260929100500" };
+    const jobs = stagedRefinementJobsFromCoarseCandidates(
+      [
+        { tileX: 13, tileY: 6, pixelX: 0, pixelY: 0 },
+        { tileX: 13, tileY: 6, pixelX: 1, pixelY: 0 },
+      ],
+      frame,
+      6,
+      4,
+    );
+
+    expect(jobs).toHaveLength(1);
+    expect(jobs[0]).toMatchObject({
+      zoom: 6,
+      tileX: 52,
+      tileY: 24,
+      scanWindows: [
+        { minX: 0, minY: 0, maxX: 3, maxY: 3 },
+        { minX: 4, minY: 0, maxX: 7, maxY: 3 },
+      ],
+    });
+  });
+
   it("maps proof jobs to database rows", () => {
     expect(queueRows(jobs)[0]).toMatchObject({ run_key: "run-1", tile_x: 221, tile_y: 100, status: "PENDING" });
   });
