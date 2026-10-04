@@ -17,14 +17,18 @@ jobs:
           node-version: 22
       - run: npm install
       - run: npx vitest run scripts/national-lowzoom-max-rank-proof.test.ts
-      - name: Compare all z8 descendants with z4 parents for one live JMA frame
+      - name: Compare z8 descendants with z4 parents across available observation frames
         env:
           JMA_LOWZOOM_CONCURRENCY: 8
         run: |
           set -o pipefail
-          npx tsx scripts/national-lowzoom-max-rank-proof.ts | tee /tmp/jma-lowzoom-max-rank.json
+          : > /tmp/jma-lowzoom-max-rank.jsonl
+          for frame_index in 0 1 2; do
+            echo "checking observation frame index ${frame_index}" >&2
+            JMA_LOWZOOM_FRAME_INDEX="${frame_index}" npx tsx scripts/national-lowzoom-max-rank-proof.ts | tee -a /tmp/jma-lowzoom-max-rank.jsonl
+          done
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: jma-lowzoom-max-rank-evidence
-          path: /tmp/jma-lowzoom-max-rank.json
+          path: /tmp/jma-lowzoom-max-rank.jsonl
