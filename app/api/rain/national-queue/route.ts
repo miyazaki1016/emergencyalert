@@ -56,7 +56,16 @@ export async function POST(request: NextRequest) {
     // Scan every required forecast before touching the queue. If any JMA frame
     // fails, the request fails closed with zero queue writes.
     for (const forecast of forecasts) {
-      const candidates = (await scanFrame(forecast))
+      let scanned: HeavyRainCandidate[];
+      try {
+        scanned = await scanFrame(forecast);
+      } catch (error) {
+        // targetTimes can lead tile publication briefly. A frame is usable only
+        // after every required z4 tile exists; unavailable is never "no rain".
+        console.warn("[national-rain-queue] forecast frame not ready", forecast.validtime, error);
+        continue;
+      }
+      const candidates = scanned
         .filter((candidate) => !currentStrong.has(candidateKey(candidate)));
       const jobs = uniqueJobs(candidates, forecast);
       allJobs.push(...jobs);
