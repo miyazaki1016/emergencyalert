@@ -4,10 +4,15 @@ import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
 import { classifyRainPixel } from "../lib/weather/providers/jma/classifyPixel";
 import type { RainIntensityClass } from "../lib/weather/types";
 
-const COARSE_ZOOM = 4;
-const DETAIL_ZOOM = 8;
+const COARSE_ZOOM = Number(process.env.JMA_LOWZOOM_PARENT_ZOOM ?? "4");
+const DETAIL_ZOOM = Number(process.env.JMA_LOWZOOM_DETAIL_ZOOM ?? "8");
+if (!Number.isInteger(COARSE_ZOOM) || !Number.isInteger(DETAIL_ZOOM) || DETAIL_ZOOM <= COARSE_ZOOM) throw new Error("Invalid low-zoom proof zoom pair");
 const SCALE = 2 ** (DETAIL_ZOOM - COARSE_ZOOM);
-const COARSE_TILES = [[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;
+const BASE_Z4_TILES = [[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;
+const COARSE_TILES: Array<[number,number]> = BASE_Z4_TILES.flatMap(([x,y]) => {
+  const scale = 2 ** (COARSE_ZOOM - 4);
+  return Array.from({length: scale * scale}, (_, i) => [x * scale + (i % scale), y * scale + Math.floor(i / scale)] as [number,number]);
+});
 const RANK: Record<RainIntensityClass, number> = {
   LT_1: 1, "1_TO_5": 2, "5_TO_10": 3, "10_TO_20": 4,
   "20_TO_30": 5, "30_TO_50": 6, "50_TO_80": 7, GTE_80: 8,
@@ -137,7 +142,7 @@ async function main() {
     missedExamples,
     screeningSafeFor30mmInThisFrame: missedHeavyPixels === 0 && criticalParentMisses === 0,
     maxPoolingConfirmed: coarseBelowDetailMax === 0,
-    limitation: "One live observation frame only. A zero-miss result is evidence for this frame, not a universal JMA contract. Repeat across rain events before adopting as a hard screening invariant.",
+    limitation: "Selected live observation frame only. A zero-miss result is evidence for this frame and zoom pair, not a universal JMA contract. Missing required tiles fail the proof rather than being treated as dry.",
   };
   console.log(JSON.stringify(result));
   if (missedHeavyPixels > 0 || criticalParentMisses > 0) process.exitCode = 2;
