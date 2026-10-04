@@ -8,6 +8,10 @@ create table if not exists public.national_rain_refinement_jobs (
   tile_x integer not null,
   tile_y integer not null,
   priority integer not null default 0,
+  scan_min_x integer not null default 0 check (scan_min_x between 0 and 255),
+  scan_min_y integer not null default 0 check (scan_min_y between 0 and 255),
+  scan_max_x integer not null default 255 check (scan_max_x between 0 and 255 and scan_max_x >= scan_min_x),
+  scan_max_y integer not null default 255 check (scan_max_y between 0 and 255 and scan_max_y >= scan_min_y),
   status text not null default 'PENDING' check (status in ('PENDING','PROCESSING','DONE','FAILED')),
   attempts integer not null default 0 check (attempts >= 0),
   available_at timestamptz not null default now(),
@@ -16,7 +20,7 @@ create table if not exists public.national_rain_refinement_jobs (
   last_error text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (run_key, validtime, zoom, tile_x, tile_y)
+  unique (run_key, validtime, zoom, tile_x, tile_y, scan_min_x, scan_min_y, scan_max_x, scan_max_y)
 );
 
 create table if not exists public.national_rain_refinement_results (
@@ -32,7 +36,9 @@ create table if not exists public.national_rain_refinement_results (
   municipalities jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (run_key, validtime, zoom, tile_x, tile_y)
+  -- Multiple lineage windows may legitimately refine the same z10 tile.
+  -- job_id remains the idempotent result identity.
+  unique (job_id)
 );
 
 comment on table public.national_rain_refinement_results is
