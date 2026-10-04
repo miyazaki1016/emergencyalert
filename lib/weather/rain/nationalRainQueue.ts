@@ -8,6 +8,7 @@ export type NationalRainQueueJob = {
   tileX: number;
   tileY: number;
   priority: number;
+  scanWindow?: { minX: number; minY: number; maxX: number; maxY: number };
 };
 
 export function refinementJobFromCoarseCandidate(
@@ -61,10 +62,15 @@ export function childTilesForCandidate(
   const maxTileX = Math.floor(maxDetailWorldX / 256);
   const maxTileY = Math.floor(maxDetailWorldY / 256);
 
-  const tiles: Array<{ zoom: NationalRainRefinementStage; tileX: number; tileY: number }> = [];
+  const tiles: Array<{ zoom: NationalRainRefinementStage; tileX: number; tileY: number; scanWindow: { minX: number; minY: number; maxX: number; maxY: number } }> = [];
   for (let tileY = minTileY; tileY <= maxTileY; tileY++) {
     for (let tileX = minTileX; tileX <= maxTileX; tileX++) {
-      tiles.push({ zoom: childZoom, tileX, tileY });
+      tiles.push({ zoom: childZoom, tileX, tileY, scanWindow: {
+        minX: Math.max(0, minDetailWorldX - tileX * 256),
+        minY: Math.max(0, minDetailWorldY - tileY * 256),
+        maxX: Math.min(255, maxDetailWorldX - tileX * 256),
+        maxY: Math.min(255, maxDetailWorldY - tileY * 256),
+      } });
     }
   }
   return tiles;
@@ -76,7 +82,9 @@ export function stagedRefinementJobsFromCoarseCandidates(
   childZoom: NationalRainRefinementStage = 6,
   coarseZoom = 4,
 ): NationalRainQueueJob[] {
-  const byTile = new Map<string, NationalRainQueueJob>();
+  // Keep each parent-pixel lineage as its own job. Merging by tile alone loses
+  // candidate windows when jobs arrive in separate worker batches.
+  const byWindow = new Map<string, NationalRainQueueJob>();
   for (const candidate of candidates) {
     for (const tile of childTilesForCandidate(candidate, coarseZoom, childZoom)) {
       const job: NationalRainQueueJob = {
@@ -87,11 +95,13 @@ export function stagedRefinementJobsFromCoarseCandidates(
         tileX: tile.tileX,
         tileY: tile.tileY,
         priority: 0,
+        scanWindow: tile.scanWindow,
       };
-      byTile.set(`${job.zoom}:${job.tileX}:${job.tileY}`, job);
+      const w = tile.scanWindow;
+      byWindow.set(`${job.zoom}:${job.tileX}:${job.tileY}:${w.minX}:${w.minY}:${w.maxX}:${w.maxY}`, job);
     }
   }
-  return [...byTile.values()];
+  return [...byWindow.values()];
 }
 
 export function queueRows(jobs: NationalRainQueueJob[]) {
@@ -103,6 +113,10 @@ export function queueRows(jobs: NationalRainQueueJob[]) {
     tile_x: job.tileX,
     tile_y: job.tileY,
     priority: job.priority,
+    scan_min_x: job.scanWindow?.minX ?? 0,
+    scan_min_y: job.scanWindow?.minY ?? 0,
+    scan_max_x: job.scanWindow?.maxX ?? 255,
+    scan_max_y: job.scanWindow?.maxY ?? 255,
     status: "PENDING",
   }));
 }
@@ -111,7 +125,7 @@ export async function enqueueNationalRainJobs(supabase: SupabaseClient, jobs: Na
   if (jobs.length === 0) return { count: 0 };
   const { error } = await supabase
     .from("national_rain_refinement_jobs")
-    .upsert(queueRows(jobs), { onConflict: "run_key,validtime,zoom,tile_x,tile_y", ignoreDuplicates: true });
+    .upsert(queueRows(jobs), { onConflict: "run_key,validtime,zoom,tile_x,tile_y,scan_min_x,scan_min_y,scan_max_x,scan_max_y", ignoreDuplicates: true });
   if (error) throw error;
   return { count: jobs.length };
 }
