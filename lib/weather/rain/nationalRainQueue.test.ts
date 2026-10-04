@@ -15,7 +15,7 @@ describe("national rain queue", () => {
   it("expands a candidate through staged refinement without scanning unrelated tiles", () => {
     const frame = { basetime: "20260929100000", validtime: "20260929100500" };
     const candidate = { tileX: 13, tileY: 6, pixelX: 255, pixelY: 0 };
-    expect(childTilesForCandidate(candidate, 4, 6)).toEqual([{ zoom: 6, tileX: 55, tileY: 24 }]);
+    expect(childTilesForCandidate(candidate, 4, 6)).toEqual([{ zoom: 6, tileX: 55, tileY: 24, scanWindow: { minX: 252, minY: 0, maxX: 255, maxY: 3 } }]);
     expect(stagedRefinementJobsFromCoarseCandidates([candidate], frame, 6)).toEqual([
       expect.objectContaining({ zoom: 6, tileX: 55, tileY: 24 }),
     ]);
@@ -43,16 +43,12 @@ describe("national rain queue", () => {
       4,
     );
 
-    expect(jobs).toHaveLength(1);
-    expect(jobs[0]).toMatchObject({
-      zoom: 6,
-      tileX: 52,
-      tileY: 24,
-      scanWindows: [
-        { minX: 0, minY: 0, maxX: 3, maxY: 3 },
-        { minX: 4, minY: 0, maxX: 7, maxY: 3 },
-      ],
-    });
+    expect(jobs).toHaveLength(2);
+    expect(jobs.map((job) => job.scanWindow)).toEqual([
+      { minX: 0, minY: 0, maxX: 3, maxY: 3 },
+      { minX: 4, minY: 0, maxX: 7, maxY: 3 },
+    ]);
+    expect(jobs.every((job) => job.tileX === 52 && job.tileY === 24)).toBe(true);
   });
 
   it("maps proof jobs to database rows", () => {
@@ -63,7 +59,7 @@ describe("national rain queue", () => {
     const upsert = vi.fn().mockResolvedValue({ error: null });
     const from = vi.fn().mockReturnValue({ upsert });
     await enqueueNationalRainJobs({ from } as any, jobs);
-    expect(upsert).toHaveBeenCalledWith(expect.any(Array), { onConflict: "run_key,validtime,zoom,tile_x,tile_y", ignoreDuplicates: true });
+    expect(upsert).toHaveBeenCalledWith(expect.any(Array), { onConflict: "run_key,validtime,zoom,tile_x,tile_y,scan_min_x,scan_min_y,scan_max_x,scan_max_y", ignoreDuplicates: true });
   });
 
   it("claims a bounded batch through the atomic rpc", async () => {
