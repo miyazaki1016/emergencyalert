@@ -51,8 +51,9 @@ async function mapLimit<T>(items: T[], limit: number, fn: (item: T, index: numbe
 
 async function main() {
   const frames = await fetchObservationTargetTimes();
-  const frame = frames[0];
-  if (!frame) throw new Error("No current JMA observation frame");
+  const frameIndex = Math.max(0, Number(process.env.JMA_LOWZOOM_FRAME_INDEX ?? "0"));
+  const frame = frames[frameIndex];
+  if (!frame) throw new Error(`No JMA observation frame at index ${frameIndex}; available=${frames.length}`);
 
   const coarse = new Map<string, PNG>();
   for (const [x,y] of COARSE_TILES) {
@@ -117,6 +118,8 @@ async function main() {
   const result = {
     mode: "JMA_LOW_ZOOM_MAX_RANK_PROOF",
     frame,
+    frameIndex,
+    availableFrames: frames.length,
     coarseZoom: COARSE_ZOOM,
     detailZoom: DETAIL_ZOOM,
     coarseTiles: COARSE_TILES.length,
