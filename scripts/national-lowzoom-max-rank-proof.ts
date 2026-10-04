@@ -54,6 +54,19 @@ async function mapLimit<T>(items: T[], limit: number, fn: (item: T, index: numbe
   }));
 }
 
+async function fetchTile(frame: { basetime: string; validtime: string }, zoom: number, x: number, y: number, kind: "coarse" | "detail") {
+  const attempts = Math.max(1, Number(process.env.JMA_LOWZOOM_FETCH_ATTEMPTS ?? "3"));
+  let lastStatus = 0;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    const r = await fetch(buildJmaRainTileUrl(frame, zoom, x, y));
+    if (r.ok) return PNG.sync.read(Buffer.from(await r.arrayBuffer()));
+    lastStatus = r.status;
+    if (r.status === 404) break;
+    if (attempt < attempts) await new Promise(resolve => setTimeout(resolve, 250 * attempt));
+  }
+  throw new Error(`${kind} fetch failed z${zoom} ${x}/${y}: ${lastStatus} after ${attempts} attempt(s)`);
+}
+
 async function main() {
   const frames = await fetchObservationTargetTimes();
   const frameIndex = Math.max(0, Number(process.env.JMA_LOWZOOM_FRAME_INDEX ?? "0"));
@@ -62,9 +75,7 @@ async function main() {
 
   const coarse = new Map<string, PNG>();
   for (const [x,y] of COARSE_TILES) {
-    const r = await fetch(buildJmaRainTileUrl(frame, COARSE_ZOOM, x, y));
-    if (!r.ok) throw new Error(`coarse fetch failed ${x}/${y}: ${r.status}`);
-    coarse.set(`${x}:${y}`, PNG.sync.read(Buffer.from(await r.arrayBuffer())));
+    coarse.set(`${x}:${y}`, await fetchTile(frame, COARSE_ZOOM, x, y, "coarse"));
   }
 
   const detailTiles: Array<[number,number]> = [];
@@ -80,9 +91,7 @@ async function main() {
   const missedExamples: unknown[] = [];
 
   await mapLimit(detailTiles, Number(process.env.JMA_LOWZOOM_CONCURRENCY ?? "8"), async ([tx,ty]) => {
-    const r = await fetch(buildJmaRainTileUrl(frame, DETAIL_ZOOM, tx, ty));
-    if (!r.ok) throw new Error(`detail fetch failed ${tx}/${ty}: ${r.status}`);
-    const png = PNG.sync.read(Buffer.from(await r.arrayBuffer()));
+    const png = await fetchTile(frame, DETAIL_ZOOM, tx, ty, "detail");
     for (let py=0; py<png.height; py++) for (let px=0; px<png.width; px++) {
       const d = pixelRank(png,px,py);
       if (d.status === "UNKNOWN_PIXEL") detailUnknownPixels++;
