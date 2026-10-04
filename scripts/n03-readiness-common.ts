@@ -10,7 +10,7 @@ export const STRESS_TILES: Record<string, { x: number; y: number }> = {
 // Final-stage z10 representatives. These stay inside the same z8 parent area but
 // choose a child that actually intersects the representative prefecture geometry.
 export const FINAL_STAGE_STRESS_TILES: Record<string, { x: number; y: number }> = {
-  "01": { x: 912, y: 376 }, "42": { x: 880, y: 412 }, "03": { x: 912, y: 388 }, "47": { x: 873, y: 435 },
+  "01": { x: 912, y: 376 }, "42": { x: 880, y: 412 }, "03": { x: 912, y: 388 }, "47": { x: 875, y: 434 },
 };
 export function tileFootprint(x: number, y: number): HeavyRainPolygon[] {
   const coordinate = (x: number, y: number): [number, number] => [x / 256 * 360 - 180, Math.atan(Math.sinh(Math.PI - 2 * Math.PI * y / 256)) * 180 / Math.PI];
