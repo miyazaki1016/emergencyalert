@@ -63,11 +63,11 @@ export async function measureWorker(options: {
       fetcher: options.fetcher, resolveMunicipalities: options.resolveMunicipalities,
     });
     sample();
-    const finalStageOffered = options.jobs.filter((job) => job.zoom === 10).length;
     // A hard budget may intentionally stop admission before every offered job is claimed.
     // Only completed final-stage jobs are required to have a saved result; unclaimed jobs
     // remain pending for a later invocation and must not make the proof fail.
-    const expectedSaved = result.done;
+    const finalStageOffered = options.jobs.filter((job) => job.zoom === 10).length;
+    const expectedSaved = finalStageOffered === options.jobs.length ? result.done : 0;
     if (result.failed || saved !== expectedSaved) throw new Error(`Proof worker failed: ${JSON.stringify({ result, errors, saved, expectedSaved, finalStageOffered })}`);
     const elapsedMs = performance.now() - started;
     return {
