@@ -17,15 +17,18 @@ jobs:
           node-version: 22
       - run: npm install
       - run: npx vitest run scripts/national-lowzoom-max-rank-proof.test.ts
-      - name: Compare z8 descendants with z4 parents across available observation frames
+      - name: Compare every staged pruning boundary on one observation frame
         env:
           JMA_LOWZOOM_CONCURRENCY: 8
         run: |
           set -o pipefail
           : > /tmp/jma-lowzoom-max-rank.jsonl
-          for frame_index in 0 1 2; do
-            echo "checking observation frame index ${frame_index}" >&2
-            JMA_LOWZOOM_FRAME_INDEX="${frame_index}" npx tsx scripts/national-lowzoom-max-rank-proof.ts | tee -a /tmp/jma-lowzoom-max-rank.jsonl
+          for zoom_pair in "4 6" "6 8" "8 10"; do
+            set -- ${zoom_pair}
+            parent_zoom="$1"
+            detail_zoom="$2"
+            echo "checking z${parent_zoom}->z${detail_zoom} on observation frame 0" >&2
+            JMA_LOWZOOM_FRAME_INDEX=0 JMA_LOWZOOM_PARENT_ZOOM="${parent_zoom}" JMA_LOWZOOM_DETAIL_ZOOM="${detail_zoom}" npx tsx scripts/national-lowzoom-max-rank-proof.ts | tee -a /tmp/jma-lowzoom-max-rank.jsonl
           done
       - uses: actions/upload-artifact@v4
         if: always()
