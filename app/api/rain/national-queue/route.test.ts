@@ -99,7 +99,7 @@ describe("national rain queue proof route", () => {
   });
 
 
-  test("does not partially enqueue when a later forecast frame fails", async () => {
+  test("enqueues only usable forecast frames when a later frame is not ready", async () => {
     process.env.NATIONAL_RAIN_WORKER_SECRET = "proof-secret";
     const later = { basetime: "20260930000000", validtime: "20260930001000" };
     fetchObs.mockResolvedValue([current]);
@@ -112,12 +112,29 @@ describe("national rain queue proof route", () => {
       if (fetchCalls === 13) return new Response("unavailable", { status: 503 });
       return new Response(new Uint8Array([1]), { status: 200 });
     }));
-    scanTile.mockImplementation(() => [{ key: `candidate-${fetchCalls}`, refineX: 30, refineY: 40 }]);
+    scanTile.mockImplementation(() => {
+      // Observation has no current strong rain. The first forecast is usable
+      // and contributes one candidate; the later unavailable frame must
+      // contribute nothing.
+      if (fetchCalls <= 6) return [];
+      return [{ key: `candidate-${fetchCalls}`, refineX: 30, refineY: 40 }];
+    });
 
     const response = await POST(request("Bearer proof-secret"));
-    expect(response.status).toBe(503);
-    expect(enqueue).not.toHaveBeenCalled();
-    expect(createClient).not.toHaveBeenCalled();
+    expect(response.status).toBe(200);
+    expect(createClient).toHaveBeenCalledTimes(1);
+    expect(enqueue).toHaveBeenCalledTimes(1);
+    const jobs = enqueue.mock.calls[0][1];
+    expect(jobs).toHaveLength(1);
+    expect(jobs[0]).toMatchObject({
+      runKey: `${forecast.basetime}:${forecast.validtime}`,
+      validtime: forecast.validtime,
+      zoom: 6,
+      tileX: 30,
+      tileY: 40,
+    });
+    expect(jobs.some((job: any) => job.validtime === later.validtime)).toBe(false);
+    expect((await response.json()).requestedRefinementTiles).toBe(1);
   });
 
   test("does not enqueue when any coarse JMA tile fetch fails", async () => {
