@@ -13,6 +13,10 @@ export type ClaimedNationalRainJob = {
   zoom: number;
   tile_x: number;
   tile_y: number;
+  scan_min_x?: number;
+  scan_min_y?: number;
+  scan_max_x?: number;
+  scan_max_y?: number;
 };
 
 export type NationalRainWorkerResult = {
@@ -50,7 +54,12 @@ export async function processNationalRainRefinementJobs(
       if (!response.ok) throw new Error(`JMA tile fetch failed: ${response.status}`);
       const buffer = Buffer.from(await response.arrayBuffer());
       PNG.sync.read(buffer);
-      const strongCandidates = scanHeavyRainTile(buffer, job.zoom, job.tile_x, job.tile_y, 1);
+      const strongCandidates = scanHeavyRainTile(buffer, job.zoom, job.tile_x, job.tile_y, 1, {
+        minX: job.scan_min_x ?? 0,
+        minY: job.scan_min_y ?? 0,
+        maxX: job.scan_max_x ?? 255,
+        maxY: job.scan_max_y ?? 255,
+      });
       const strongPixelCount = strongCandidates.length;
       result.strongPixels += strongPixelCount;
 
