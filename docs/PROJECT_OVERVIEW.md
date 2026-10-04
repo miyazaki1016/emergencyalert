@@ -1734,3 +1734,246 @@ CI #529に `scripts/jma-404-reproduction-proof.ts` を追加済み。
 - `8b21137` — JMA透明タイル存在結果を総覧へ記録。
 - `3d04f5a` — 404再現・URL座標取得proofをCIへ追加。現在PR head。
 
+
+
+## 新・最優先チェックポイント — 2026-10-04 18時台（PR #59 / source-of-truth reconciliation）
+
+> **この節は、2026-09-30の「新チャット引き継ぎ用・最優先チェックポイント」より新しく、全国強雨系についてはこちらを優先する。**
+>
+> **未来のソラを信用するな。実装済み・CIで実証済み・実測仮説・未解決を混ぜない。**
+
+### 現在位置
+
+- Repo: `miyazaki1016/emergencyalert`
+- PR: #59 `Add nationwide heavy-rain scan proof`
+- Branch: `feat/national-heavy-rain-preview`
+- この総覧更新直前のbranch HEAD: `afda5748d8bab95a0cd683321f6432fd76d7e271`
+- PRはOPEN / 未merge。
+- Production DB migration / cron / Vault / Storage mutation / watch-rain/Push接続 / intentional Production deploy は未実施。
+- 全国強雨系は引き続き **Preview/proof**。ユーザー通知のProduction経路には接続しない。
+- Atomicity gate: **CLOSED**。
+- Throughput/scheduler gate: **OPEN**。
+- Production readiness: **NO**。
+
+### JMA公式仕様と、アメくる実測を分離する
+
+気象庁公式情報として、高解像度降水ナウキャストは日本域を対象とし、250m〜1km解像度、5分毎、最大1時間先の解析・予測情報として提供される。
+
+一方、JMA Web PNGタイルのzoom別ファイル存在条件、`targetTimes_N2.json` 掲載と各PNG公開完了の厳密な同期、低zoomの集約演算、404の意味は、EmergencyAlertが公開仕様として保証された契約だと扱ってはならない。
+
+したがって以下を区別する。
+
+- **JMA公式仕様**: 公式資料に明記されたプロダクト意味・時間範囲・解像度等。
+- **live evidence**: CI/proofが特定時点の公開PNGで観測した挙動。
+- **application contract**: 不完全な公開状態でも安全側に倒すEmergencyAlert側の契約。
+
+404 / fetch error / unpublished tile は引き続き `NO_DATA/unavailable` であり、`NO_RAIN` ではない。
+
+### CI #529以後の404実測 — 古い「透明z10は常に200」を契約化しない
+
+CI #529では、サンプルしたz10についてopaque側・transparent側とも各100/100 HTTP 200となるフレームが観測された。一方、その後のlive proofでは、transparent coarse block由来のz10が100/100 HTTP 404となるフレームも観測された。
+
+また全国z8総当たりでは多数の404が継続して再現している一方、強雨候補から選んだ高zoomタイルは取得できるケースが多い。
+
+結論:
+
+- 「透明だから404」「透明でも必ず200」のどちらも恒久契約にしない。
+- 404の一般原因解明を本体開発の前提にしない。
+- **必要な候補タイルが取得できるかをその時点で確認し、取得不能は不明のまま扱う。**
+- 404を雨なしへ変換しない。
+
+### 現在の全国強雨パイプライン実装
+
+現在のapplication codeは、全国z4粗走査から候補だけを段階的に絞る実装へ進んでいる。
+
+```text
+forecast targetTimes
+  -> z4 nationwide coarse scan
+  -> >=30 mm/h coarse candidates
+  -> z6 jobs
+  -> z8 jobs
+  -> z10 jobs
+  -> exact raster footprint
+  -> N03 municipality resolution
+  -> proof result storage
+```
+
+実装箇所:
+
+- `app/api/rain/national-queue/route.ts`
+  - 観測z4を走査し、現在すでに強雨のcoarse candidateを除外。
+  - 未来予報z4の>=30候補から最初のz6 jobを作る。
+- `lib/weather/rain/nationalRainQueue.ts`
+  - `NationalRainRefinementStage = 6 | 8 | 10`
+  - coarse candidateのworld-pixel rectangleから次段tileを導出。
+- `lib/weather/rain/nationalRainWorker.ts`
+  - z6成功 -> 強雨candidateからz8をenqueue。
+  - z8成功 -> 強雨candidateからz10をenqueue。
+  - z10成功 -> footprint + municipalityを保存。
+- 中間段階z6/z8ではfinal resultを保存しない。最終z10だけが `national_rain_refinement_results` を保存する。
+
+### 重要: staged refinementは「実装済み」だが、まだ正しさを閉じていない
+
+現在のworkerはz6/z8 jobで取得した **256x256 tile全体** を `scanHeavyRainTile(..., stride=1)` で走査する。
+
+しかし、そのjobを作った親candidateが占めるのはその子tile内の一部分である場合がある。tile全体を走査すると、親candidate footprint外にある>=30 pixelまで拾い、次段へ新しい枝を広げる可能性がある。
+
+これは現在の最重要 correctness defect の一つ。
+
+必要な修正方向:
+
+1. 各jobに「親candidateから継承した許可footprint/window」を持たせる、または同等のboundsを再構成する。
+2. z6/z8走査では、その許可範囲内だけをcandidateとして次段へ進める。
+3. 同一tileに複数親candidateが入る場合は許可範囲のunionを正確に保持する。
+4. 親範囲外の強雨を偶然発見してbranchを拡張しないことをテストする。
+5. 最終z10 footprintも、選択されたbranchの意味を越えて拡張しないことを確認する。
+
+したがって現時点では **z4→z6→z8→z10の機構は存在するが、candidate-footprint preservation gateはOPEN**。
+
+### 低zoom pruningは依然として「実測仮説」
+
+これまでのlive proofでは、利用可能な比較範囲で `child >=30 => parent >=30` の反例は見つかっておらず、z4 max-rank相当の挙動が繰り返し観測されている。
+
+ただし、これはJMA公開仕様として保証された不変条件ではない。
+
+したがって:
+
+- `z4 <30 => descendantに>=30は絶対存在しない` を気象庁保証の契約として書かない。
+- z6/z8でも同様に、段階pruningの安全性を「証明済み」と扱わない。
+- counterexample-seeking proofを継続する。
+- 取得不能な中間tileを「30未満」とみなしてpruneしない。
+
+### z8は必須可用性を仮定しない
+
+CI #529以後、全国z8総当たりでは多数の404が実測されている。候補限定z8が取得できるケースは多いが、それを永久保証とはしない。
+
+現workerは現在 z6 -> z8 -> z10 を固定経路としているため、選択されたz8が取得不能ならそのjobはfailureとなり、z10へ進まない。
+
+Production-ready設計では、少なくとも次を決めてproofする必要がある。
+
+- intermediate tile unavailable時にbranchを安全にpending/retryする契約。
+- または、親candidate footprintから直接z10へ展開できる安全なfallback。
+- fallbackは「404だから雨なし」という解釈を絶対に含めない。
+
+**z8 fallback gate: OPEN.**
+
+### targetTimes掲載 != 必要z4 PNG公開完了
+
+2026-10-04 CI #557では、`targetTimes_N2.json` から得た未来validtimeについて必要z4 tileがHTTP 404となり、旧proofが停止した。
+
+この実物から、application側は次の契約へ変更した。
+
+> **forecast frameは、全国走査に必要な6枚のz4 tileがすべて取得できた時だけusable。**
+
+現在の `app/api/rain/national-queue/route.ts`:
+- forecast frameのz4走査が失敗した場合、そのframeを「未準備」としてskipする。
+- その失敗をNO_RAINには変換しない。
+- 他のusable forecast frameは処理を継続する。
+- 観測/current frameの取得失敗は引き続きroute全体をfailさせる。
+
+`scripts/national-forecast-z4-screening-proof.ts` も同じ意味へ変更し、unavailable frame/tileを明示記録してskipする。
+
+ただし **CI #559はRED**。理由は実装ではなく、旧unit testが「後続forecast frameが503ならroute全体503・enqueueゼロ」を期待したままだから。
+
+CI #559:
+- National rain proof #263: SUCCESS
+- JMA low-zoom max-rank proof #51: SUCCESS
+- N03 national prefecture index proof #183: SUCCESS
+- All47 ownership proof #57: SUCCESS
+- Main CI #559: FAILURE
+- test result: 38 files / 190 tests pass, 1 test fail
+- failing test: `app/api/rain/national-queue/route.test.ts` 「does not partially enqueue when a later forecast frame fails」
+- old expectation: HTTP 503
+- new implementation: unavailable later forecast is skipped and HTTP 200
+
+次の修正は単なる `503 -> 200` 書換えではなく、テストで以下を保証する。
+
+1. usable forecast frameのjobsだけenqueueされる。
+2. unavailable forecast frame由来jobは1件も混入しない。
+3. unavailableをNO_RAIN扱いしていない。
+4. current observation coarse fetch failureは引き続きfail-closed。
+
+**CI green gate: OPEN until this contract test is updated and actual CI passes.**
+
+### throughput harnessの保存契約
+
+`scripts/national-rain-throughput-harness.ts` はhard deadlineで全offered jobをclaimしない場合を許容する方向へ更新された。
+
+正しい意味:
+- unclaimed jobはqueueにPENDINGとして残り、今回の失敗ではない。
+- claimed後にdeadlineで実行しないjobはdeferして戻す。
+- z6/z8は中間段階なのでfinal result保存0が正常。
+- z10は完了したfinal-stage jobについてresult保存が必要。
+
+ただし現harnessの `expectedSaved` は「入力jobsが全部z10なら `result.done`、それ以外なら0」というhomogeneous batch前提の簡略実装である。mixed-stage batchを測るproofへ拡張する場合は不十分。
+
+**mixed-stage accounting: NOT PROVEN / future fix before relying on mixed-stage throughput evidence.**
+
+### application workerのdeadline安全性は未統合
+
+`lib/weather/rain/nationalRainWorker.ts` は `budgetMs` とclaim前deadline確認を持つが、すでに開始したJMA fetch / municipality resolution / DB save / finish RPCをAbortSignalでdeadline cancelする実装にはなっていない。
+
+`app/api/rain/national-worker/route.ts` も従来の `createSupabaseN03AdministrativeAreaLoader()` + `processNationalRainRefinementJobs()` を使用している。
+
+したがって以前proofで成立した:
+- partitioned 32 MiB loader
+- region-local ownership/gather
+- in-flight AbortSignal cancellation
+- explicit final DB-RPC reserve
+- queue-aware dispatcher
+
+は、**実application workerへ統合済みとは書かない**。
+
+### 市区町村と町丁目
+
+現在の実装済み行政名解決はN03による市区町村レベル。
+
+ユーザーが求める最終表示例:
+
+> 東京都江東区塩浜付近で、30mm/h以上の強い雨が予想されています
+
+のような町丁目/字レベルは **未実装**。
+
+設計方向:
+1. z10で強雨footprintを確定。
+2. N03で市区町村を絞る。
+3. その市区町村に必要な町丁・字等境界だけをload。
+4. exact footprintとintersection。
+5. 境界付近や複数候補は「○○付近」等でfalse precisionを避ける。
+
+町丁目dataset/API/licensing/update contractは実装前に公的原典で再確認する。雨の検出ロジックと地名付与は分離する。
+
+### Productionへ進む前の優先順位 — 2026-10-04版
+
+古い「全国z8大量処理を前提にschedulerを先に詰める」順序へ戻らない。
+
+現在の優先順位:
+
+1. CI #559の旧contract testを新しいframe-readiness契約へ更新し、CI greenを取り戻す。
+2. staged refinementの **parent candidate footprint外へbranchが広がる問題** を修正。
+3. z6/z8 pruningのcounterexample proofを継続し、未証明を未証明のまま扱う。
+4. intermediate unavailable時のretry/direct-z10等の安全なfallback契約を決める。
+5. liveで本当に z4 -> z6 -> z8 -> z10 が最後まで進むproofを取る。
+6. その実コードパスでN03/worker throughput・deadline・memoryを再測定。
+7. application workerへbounded partition loader / deadline cancellation / final RPC reserveを統合。
+8. 町丁目境界による地名精密化は、全国強雨検出のcorrectnessが固まってから実装する。
+9. その後にscheduler cadence / Production migration / Push接続を判断する。
+
+### 現時点の判定
+
+- 全国z4候補抽出: **IMPLEMENTED / empirical safety evidence exists**
+- forecast frame readiness: **IMPLEMENTED, CI contract test pending**
+- z4 -> z6 -> z8 -> z10 staged queue: **IMPLEMENTED**
+- parent candidate footprint preservation: **DEFECT / OPEN**
+- low-zoom max-rank invariant: **EMPIRICAL ONLY / NOT A JMA CONTRACT**
+- intermediate 404 fallback: **OPEN**
+- final z10 municipality result: **IMPLEMENTED in proof worker**
+- N03 municipality: **IMPLEMENTED**
+- 町丁目/字: **NOT IMPLEMENTED**
+- application worker in-flight deadline cancellation: **NOT IMPLEMENTED**
+- Production scheduler: **NOT ACCEPTED**
+- Push/watch integration: **NOT CONNECTED**
+- PR #59 merge: **NO**
+- Production readiness: **NO**
+
+> **いまの本丸は「全国を力ずくで読むこと」ではない。z4で見つけた候補の意味を壊さず、必要な高zoomだけを安全に追跡し、取得できないものを“雨なし”に変えないこと。**
