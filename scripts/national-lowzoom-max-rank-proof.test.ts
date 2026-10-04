@@ -7,4 +7,10 @@ describe("low zoom parent mapping", () => {
     expect(parentAddress(223,95,255,255)).toEqual({tileX:13,tileY:5,pixelX:255,pixelY:255});
     expect(parentAddress(224,96,0,0)).toEqual({tileX:14,tileY:6,pixelX:0,pixelY:0});
   });
+
+  it("maps the first and last z8 descendant pixels to the same z4 parent pixel", () => {
+    expect(parentAddress(208, 96, 0, 0)).toEqual({ tileX: 13, tileY: 6, pixelX: 0, pixelY: 0 });
+    expect(parentAddress(208, 96, 15, 15)).toEqual({ tileX: 13, tileY: 6, pixelX: 0, pixelY: 0 });
+    expect(parentAddress(208, 96, 16, 0)).toEqual({ tileX: 13, tileY: 6, pixelX: 1, pixelY: 0 });
+  });
 });
