@@ -25,32 +25,41 @@ async function main(){
   const frames=await fetchForecastTargetTimes();
   if(!frames.length) throw new Error("No forecast frames");
   const rows=[];
-  let totalHeavy=0,totalRefine=0;
+  let totalHeavy=0,totalRefine=0,unavailableFrames=0;
   for(const frame of frames){
-    const candidates=(await Promise.all(TILES.map(async([x,y])=>{
+    const parts=await Promise.all(TILES.map(async([x,y])=>{
       const r=await fetch(buildJmaRainTileUrl(frame,Z,x,y),{cache:"no-store"});
-      if(!r.ok) throw new Error(`z4 fetch failed ${frame.validtime} ${x}/${y}: ${r.status}`);
-      return scan(Buffer.from(await r.arrayBuffer()),x,y);
-    }))).flat();
+      if(!r.ok) return {ok:false as const,x,y,status:r.status};
+      return {ok:true as const,candidates:scan(Buffer.from(await r.arrayBuffer()),x,y)};
+    }));
+    const unavailable=parts.filter((part)=>!part.ok);
+    if(unavailable.length){
+      unavailableFrames++;
+      rows.push({basetime:frame.basetime,validtime:frame.validtime,available:false,unavailableTiles:unavailable.map((part)=>({x:part.x,y:part.y,status:part.status}))});
+      continue;
+    }
+    const candidates=parts.flatMap((part)=>part.ok?part.candidates:[]);
     const refine=new Set(candidates.map(c=>{
       const j=refinementJobFromCoarseCandidate(c,frame,Z,DETAIL_Z);
       return `${j.tileX}:${j.tileY}`;
     }));
     const counts=Object.fromEntries(["30_TO_50","50_TO_80","GTE_80"].map(k=>[k,candidates.filter(c=>c.cls===k).length]));
     totalHeavy+=candidates.length; totalRefine+=refine.size;
-    rows.push({basetime:frame.basetime,validtime:frame.validtime,heavyParentPixels:candidates.length,refinementTiles:refine.size,counts});
+    rows.push({basetime:frame.basetime,validtime:frame.validtime,available:true,heavyParentPixels:candidates.length,refinementTiles:refine.size,counts});
   }
   const naive=frames.length*TILES.length*256; // 6 coarse tiles x 256 z8 descendant tiles each
   console.log(JSON.stringify({
     mode:"FORECAST_Z4_SCREENING_DISCOVERY",
     frames:frames.length,
+    availableFrames:frames.length-unavailableFrames,
+    unavailableFrames,
     rows,
     totalHeavyParentPixels:totalHeavy,
     totalRefinementTiles:totalRefine,
     naiveAllZ8Tiles:naive,
     avoidedZ8Tiles:naive-totalRefine,
     reductionRate:naive?1-totalRefine/naive:0,
-    note:"Discovery only: counts z4>=30 candidates and the exact z8 tiles they map to. Safety still requires exhaustive parent/descendant validation on forecast frames."
+    note:"Discovery only: a forecast frame is usable only when every required z4 tile is available. Unavailable/404 tiles are recorded and the frame is skipped; they are never interpreted as no rain. Counts z4>=30 candidates and the exact z8 tiles they map to. Safety still requires exhaustive parent/descendant validation on usable forecast frames."
   }));
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});
