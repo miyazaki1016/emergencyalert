@@ -46,7 +46,7 @@ describe("processNationalRainRefinementJobs", () => {
     expect(resolveMunicipalities).not.toHaveBeenCalled();
     expect(upsert).toHaveBeenCalledWith(
       expect.arrayContaining([expect.objectContaining({ zoom: 8, status: "PENDING" })]),
-      expect.objectContaining({ onConflict: "run_key,validtime,zoom,tile_x,tile_y" }),
+      expect.objectContaining({ onConflict: "run_key,validtime,zoom,tile_x,tile_y,scan_min_x,scan_min_y,scan_max_x,scan_max_y" }),
     );
   });
 
