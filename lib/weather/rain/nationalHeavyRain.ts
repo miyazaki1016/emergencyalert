@@ -22,11 +22,13 @@ export function heavyRainLevel(intensityClass: RainIntensityClass | null): Heavy
   return null;
 }
 
-export function scanHeavyRainTile(buffer: Buffer, zoom: number, tileX: number, tileY: number, stride = 2): HeavyRainCandidate[] {
+export function scanHeavyRainTile(buffer: Buffer, zoom: number, tileX: number, tileY: number, stride = 2, scanWindow?: { minX: number; minY: number; maxX: number; maxY: number }): HeavyRainCandidate[] {
   const png = PNG.sync.read(buffer);
   const found: HeavyRainCandidate[] = [];
-  for (let py = 0; py < png.height; py += stride) {
-    for (let px = 0; px < png.width; px += stride) {
+  const minX = Math.max(0, scanWindow?.minX ?? 0), minY = Math.max(0, scanWindow?.minY ?? 0);
+  const maxX = Math.min(png.width - 1, scanWindow?.maxX ?? png.width - 1), maxY = Math.min(png.height - 1, scanWindow?.maxY ?? png.height - 1);
+  for (let py = minY; py <= maxY; py += stride) {
+    for (let px = minX; px <= maxX; px += stride) {
       const i = (py * png.width + px) * 4;
       const intensityClass = classifyRainPixel({ r: png.data[i], g: png.data[i + 1], b: png.data[i + 2], a: png.data[i + 3] }).intensityClass;
       const level = heavyRainLevel(intensityClass);
