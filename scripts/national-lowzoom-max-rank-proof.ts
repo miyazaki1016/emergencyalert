@@ -84,7 +84,10 @@ async function main() {
     for (let dy=0; dy<SCALE; dy++) for (let dx=0; dx<SCALE; dx++) detailTiles.push([startX+dx,startY+dy]);
   }
 
-  const parents = new Map<string, ParentStats>();
+  const parentCount = COARSE_TILES.length * 256 * 256;
+  const maxDetailRanks = new Uint8Array(parentCount);
+  const parentHeavyCounts = new Uint32Array(parentCount);
+  const coarseTileIndex = new Map(COARSE_TILES.map(([x,y], index) => [`${x}:${y}`, index]));
   let detailHeavyPixels = 0;
   let missedHeavyPixels = 0;
   let detailUnknownPixels = 0;
@@ -96,11 +99,12 @@ async function main() {
       const d = pixelRank(png,px,py);
       if (d.status === "UNKNOWN_PIXEL") detailUnknownPixels++;
       const p = parentAddress(tx,ty,px,py);
-      const key = `${p.tileX}:${p.tileY}:${p.pixelX}:${p.pixelY}`;
-      const row = parents.get(key) ?? { maxDetailRank: 0, detailHeavyPixels: 0 };
-      row.maxDetailRank = Math.max(row.maxDetailRank,d.rank);
+      const tileIndex = coarseTileIndex.get(`${p.tileX}:${p.tileY}`);
+      if (tileIndex === undefined) throw new Error(`parent outside coarse coverage ${p.tileX}:${p.tileY}:${p.pixelX}:${p.pixelY}`);
+      const parentIndex = tileIndex * 256 * 256 + p.pixelY * 256 + p.pixelX;
+      if (d.rank > maxDetailRanks[parentIndex]) maxDetailRanks[parentIndex] = d.rank;
       if (d.rank >= HEAVY_RANK) {
-        row.detailHeavyPixels++;
+        parentHeavyCounts[parentIndex]++;
         detailHeavyPixels++;
         const cpng = coarse.get(`${p.tileX}:${p.tileY}`);
         if (!cpng) throw new Error(`parent outside coarse coverage ${key}`);
@@ -110,25 +114,28 @@ async function main() {
           if (missedExamples.length < 20) missedExamples.push({ detailTile:[tx,ty], detailPixel:[px,py], detail:d, parent:p, coarse:c });
         }
       }
-      parents.set(key,row);
+
     }
   });
 
   let comparedParents=0, coarseBelowDetailMax=0, exactMaxMatches=0, criticalParentMisses=0, coarseUnknownParents=0;
   const rankPairs: Record<string,number> = {};
-  for (const [key,row] of parents) {
-    const [tx,ty,px,py] = key.split(":").map(Number);
+  for (let tileIndex=0; tileIndex<COARSE_TILES.length; tileIndex++) {
+    const [tx,ty] = COARSE_TILES[tileIndex];
     const cpng = coarse.get(`${tx}:${ty}`)!;
-    const c = pixelRank(cpng,px,py);
-    comparedParents++;
-    if (c.status === "UNKNOWN_PIXEL") coarseUnknownParents++;
-    if (c.rank === row.maxDetailRank) exactMaxMatches++;
-    if (c.rank < row.maxDetailRank) coarseBelowDetailMax++;
-    if (row.maxDetailRank >= HEAVY_RANK && c.rank < HEAVY_RANK) criticalParentMisses++;
-    const pair = `${row.maxDetailRank}->${c.rank}`;
-    rankPairs[pair] = (rankPairs[pair] ?? 0) + 1;
+    for (let py=0; py<256; py++) for (let px=0; px<256; px++) {
+      const parentIndex = tileIndex * 256 * 256 + py * 256 + px;
+      const maxDetailRank = maxDetailRanks[parentIndex];
+      const c = pixelRank(cpng,px,py);
+      comparedParents++;
+      if (c.status === "UNKNOWN_PIXEL") coarseUnknownParents++;
+      if (c.rank === maxDetailRank) exactMaxMatches++;
+      if (c.rank < maxDetailRank) coarseBelowDetailMax++;
+      if (maxDetailRank >= HEAVY_RANK && c.rank < HEAVY_RANK) criticalParentMisses++;
+      const pair = `${maxDetailRank}->${c.rank}`;
+      rankPairs[pair] = (rankPairs[pair] ?? 0) + 1;
+    }
   }
-
   const result = {
     mode: "JMA_LOW_ZOOM_MAX_RANK_PROOF",
     frame,
