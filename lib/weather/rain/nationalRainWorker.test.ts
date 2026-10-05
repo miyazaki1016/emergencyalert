@@ -366,3 +366,53 @@ test("defers a claimed job when the worker is aborted during JMA fetch", async (
   expect(rpc).toHaveBeenCalledWith("defer_national_rain_refinement_job", { p_id: 7 });
   expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", expect.anything());
 });
+
+
+test("keeps a deadline job reclaimable when defer finalization is ambiguous", async () => {
+  const { client, rpc, upsert } = clientFor(job);
+  rpc.mockImplementation(async (name: string) => {
+    if (name === "claim_national_rain_refinement_jobs") return { data: [job], error: null };
+    if (name === "defer_national_rain_refinement_job") throw new Error("defer response lost");
+    throw new Error(`unexpected RPC ${name}`);
+  });
+  const controller = new AbortController();
+  const fetcher = vi.fn(async () => {
+    controller.abort();
+    throw new DOMException("aborted", "AbortError");
+  });
+
+  const result = await processNationalRainRefinementJobs(client, {
+    limit: 1,
+    signal: controller.signal,
+    fetcher: fetcher as any,
+  });
+
+  expect(result.claimed).toBe(1);
+  expect(result.done).toBe(0);
+  expect(result.failed).toBe(0);
+  expect(result.deferred).toBe(0);
+  expect(upsert).not.toHaveBeenCalled();
+  expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", expect.anything());
+});
+
+test("keeps a failed job reclaimable when failure finalization is ambiguous", async () => {
+  const { client, rpc } = clientFor(job);
+  rpc.mockImplementation(async (name: string, args: Record<string, unknown>) => {
+    if (name === "claim_national_rain_refinement_jobs") return { data: [job], error: null };
+    if (name === "finish_national_rain_refinement_job" && args.p_success === false) {
+      throw new Error("failure finalization response lost");
+    }
+    throw new Error(`unexpected RPC ${name}`);
+  });
+  const fetcher = vi.fn().mockResolvedValue(new Response("unavailable", { status: 503 }));
+
+  const result = await processNationalRainRefinementJobs(client, { limit: 1, fetcher: fetcher as any });
+
+  expect(result.claimed).toBe(1);
+  expect(result.done).toBe(0);
+  expect(result.failed).toBe(0);
+  expect(result.deferred).toBe(0);
+  expect(rpc).toHaveBeenCalledWith("finish_national_rain_refinement_job", {
+    p_id: 7, p_success: false, p_error: "JMA tile fetch failed: 503",
+  });
+});
