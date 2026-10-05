@@ -29,7 +29,7 @@ export function createSupabaseN03AdministrativeAreaLoader(
 ): N03AdministrativeAreaLoader {
   const loading = new Map<string, Promise<AdministrativeArea[]>>();
 
-  const loadOne = ({ code, name }: { code: string; name: string }) => {
+  const loadOne = ({ code, name }: { code: string; name: string }, signal?: AbortSignal) => {
     const cached = cache.get(code);
     if (cached) return Promise.resolve(cached);
 
@@ -37,15 +37,19 @@ export function createSupabaseN03AdministrativeAreaLoader(
     if (existing) return existing;
 
     const promise = (async () => {
+      signal?.throwIfAborted();
       const path = nationalRainN03ObjectPath(code);
-      const { data, error } = await supabase.storage.from(NATIONAL_RAIN_N03_BUCKET).download(path);
+      const { data, error } = await supabase.storage.from(NATIONAL_RAIN_N03_BUCKET).download(path, {}, { signal });
       if (error || !data) {
         throw new Error(`N03 prepared data download failed: ${code} ${error?.message ?? "missing data"}`);
       }
 
+      signal?.throwIfAborted();
       let parsed: unknown;
       try {
-        parsed = JSON.parse(await data.text());
+        const text = await data.text();
+        signal?.throwIfAborted();
+        parsed = JSON.parse(text);
       } catch {
         throw new Error(`N03 prepared data is not valid JSON: ${code}`);
       }
@@ -58,6 +62,7 @@ export function createSupabaseN03AdministrativeAreaLoader(
       if (areas.some((area) => area.prefecture !== name)) {
         throw new Error(`N03 prepared data prefecture mismatch: ${code}`);
       }
+      signal?.throwIfAborted();
       cache.set(code, areas);
       return areas;
     })();
@@ -69,8 +74,10 @@ export function createSupabaseN03AdministrativeAreaLoader(
     return promise;
   };
 
-  return async (prefectures) => {
-    await Promise.all(prefectures.map(loadOne));
+  return async (prefectures, signal) => {
+    signal?.throwIfAborted();
+    await Promise.all(prefectures.map((prefecture) => loadOne(prefecture, signal)));
+    signal?.throwIfAborted();
     return prefectures.flatMap(({ code }) => cache.get(code) ?? []);
   };
 }
