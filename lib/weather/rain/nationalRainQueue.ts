@@ -128,7 +128,7 @@ export async function enqueueNationalRainJobs(supabase: SupabaseClient, jobs: Na
 
 export async function claimNationalRainJobs(supabase: SupabaseClient, limit = 20, signal?: AbortSignal) {
   let query = supabase.rpc("claim_national_rain_refinement_jobs", { p_limit: limit });
-  if (signal) query = query.abortSignal(signal);
+  if (signal && "abortSignal" in query) query = query.abortSignal(signal);
   const { data, error } = await query;
   if (error) throw error;
   return data ?? [];
@@ -164,14 +164,14 @@ export async function saveNationalRainRefinementResult(
     municipalities: result.municipalities ?? [],
     updated_at: new Date().toISOString(),
   }, { onConflict: "job_id" });
-  if (signal) query = query.abortSignal(signal);
+  if (signal && "abortSignal" in query) query = query.abortSignal(signal);
   const { error } = await query;
   if (error) throw error;
 }
 
 export async function deferNationalRainJob(supabase: SupabaseClient, id: number, signal?: AbortSignal) {
   let query = supabase.rpc("defer_national_rain_refinement_job", { p_id: id });
-  if (signal) query = query.abortSignal(signal);
+  if (signal && "abortSignal" in query) query = query.abortSignal(signal);
   const { error } = await query;
   if (error) throw error;
 }
@@ -188,7 +188,7 @@ export async function finishNationalRainJob(
     p_success: success,
     p_error: errorMessage ?? null,
   });
-  if (signal) query = query.abortSignal(signal);
+  if (signal && "abortSignal" in query) query = query.abortSignal(signal);
   const { error } = await query;
   if (error) throw error;
 }
