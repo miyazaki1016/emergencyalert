@@ -290,7 +290,28 @@ test("does not claim another batch after the execution budget is exhausted", asy
 });
 
 
-test("aborts in-flight JMA fetch and defers the claimed job", async () => {
+test("does not claim when the worker is already aborted", async () => {
+  const { client, rpc, upsert } = clientFor(job);
+  const controller = new AbortController();
+  controller.abort();
+  const fetcher = vi.fn();
+
+  const result = await processNationalRainRefinementJobs(client, {
+    limit: 1,
+    signal: controller.signal,
+    fetcher: fetcher as any,
+  });
+
+  expect(result.claimed).toBe(0);
+  expect(result.done).toBe(0);
+  expect(result.failed).toBe(0);
+  expect(result.deferred).toBe(0);
+  expect(fetcher).not.toHaveBeenCalled();
+  expect(upsert).not.toHaveBeenCalled();
+  expect(rpc).not.toHaveBeenCalled();
+});
+
+test("defers a claimed job when the worker is aborted during JMA fetch", async () => {
   const { client, rpc, upsert } = clientFor(job);
   const controller = new AbortController();
   const fetcher = vi.fn(async (_url: string, init?: RequestInit) => {
@@ -305,10 +326,12 @@ test("aborts in-flight JMA fetch and defers the claimed job", async () => {
     fetcher: fetcher as any,
   });
 
+  expect(result.claimed).toBe(1);
   expect(result.done).toBe(0);
   expect(result.failed).toBe(0);
-  expect(result.deferred).toBe(0);
-  expect(fetcher).not.toHaveBeenCalled();
+  expect(result.deferred).toBe(1);
+  expect(fetcher).toHaveBeenCalledTimes(1);
   expect(upsert).not.toHaveBeenCalled();
+  expect(rpc).toHaveBeenCalledWith("defer_national_rain_refinement_job", { p_id: 7 });
   expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", expect.anything());
 });
