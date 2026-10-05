@@ -126,8 +126,10 @@ export async function enqueueNationalRainJobs(supabase: SupabaseClient, jobs: Na
   return { count: jobs.length };
 }
 
-export async function claimNationalRainJobs(supabase: SupabaseClient, limit = 20) {
-  const { data, error } = await supabase.rpc("claim_national_rain_refinement_jobs", { p_limit: limit });
+export async function claimNationalRainJobs(supabase: SupabaseClient, limit = 20, signal?: AbortSignal) {
+  let query = supabase.rpc("claim_national_rain_refinement_jobs", { p_limit: limit });
+  if (signal) query = query.abortSignal(signal);
+  const { data, error } = await query;
   if (error) throw error;
   return data ?? [];
 }
@@ -147,8 +149,9 @@ export async function saveNationalRainRefinementResult(
     footprint?: unknown[];
     municipalities?: unknown[];
   },
+  signal?: AbortSignal,
 ) {
-  const { error } = await supabase.from("national_rain_refinement_results").upsert({
+  let query = supabase.from("national_rain_refinement_results").upsert({
     job_id: result.jobId,
     run_key: result.runKey,
     basetime: result.basetime,
@@ -161,11 +164,15 @@ export async function saveNationalRainRefinementResult(
     municipalities: result.municipalities ?? [],
     updated_at: new Date().toISOString(),
   }, { onConflict: "job_id" });
+  if (signal) query = query.abortSignal(signal);
+  const { error } = await query;
   if (error) throw error;
 }
 
-export async function deferNationalRainJob(supabase: SupabaseClient, id: number) {
-  const { error } = await supabase.rpc("defer_national_rain_refinement_job", { p_id: id });
+export async function deferNationalRainJob(supabase: SupabaseClient, id: number, signal?: AbortSignal) {
+  let query = supabase.rpc("defer_national_rain_refinement_job", { p_id: id });
+  if (signal) query = query.abortSignal(signal);
+  const { error } = await query;
   if (error) throw error;
 }
 
@@ -174,12 +181,15 @@ export async function finishNationalRainJob(
   id: number,
   success: boolean,
   errorMessage?: string,
+  signal?: AbortSignal,
 ) {
-  const { error } = await supabase.rpc("finish_national_rain_refinement_job", {
+  let query = supabase.rpc("finish_national_rain_refinement_job", {
     p_id: id,
     p_success: success,
     p_error: errorMessage ?? null,
   });
+  if (signal) query = query.abortSignal(signal);
+  const { error } = await query;
   if (error) throw error;
 }
 
