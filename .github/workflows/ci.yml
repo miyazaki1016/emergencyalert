@@ -141,6 +141,9 @@ jobs:
           path: /tmp/national-rain-*-throughput.log
       - name: Benchmark fixed N03 intersection
         run: npx tsx scripts/n03-administrative-area-benchmark.ts
+      - name: Measure Koto census town boundary TopoJSON
+        timeout-minutes: 2
+        run: npx tsx scripts/census-town-boundary-topojson-proof.ts | tee /tmp/census-town-boundary-topojson.json
       - name: Measure live N03 detail phases
         run: |
           curl --fail --location --retry 3 "https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-2026/N03-20260101_13_GML.zip" -o /tmp/n03-tokyo.zip
