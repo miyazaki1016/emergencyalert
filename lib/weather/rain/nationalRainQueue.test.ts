@@ -80,6 +80,17 @@ describe("national rain queue", () => {
     expect(upsert).toHaveBeenCalledWith(expect.any(Array), { onConflict: "run_key,validtime,zoom,tile_x,tile_y,scan_min_x,scan_min_y,scan_max_x,scan_max_y", ignoreDuplicates: true });
   });
 
+  it("passes an abort signal to the claim rpc builder", async () => {
+    const signal = new AbortController().signal;
+    const abortSignal = vi.fn().mockResolvedValue({ data: [{ id: 1 }], error: null });
+    const rpc = vi.fn().mockReturnValue({ abortSignal });
+
+    const result = await claimNationalRainJobs({ rpc } as any, 1, signal);
+
+    expect(abortSignal).toHaveBeenCalledWith(signal);
+    expect(result).toEqual([{ id: 1 }]);
+  });
+
   it("claims a bounded batch through the atomic rpc", async () => {
     const rpc = vi.fn().mockResolvedValue({ data: [{ id: 1 }], error: null });
     const result = await claimNationalRainJobs({ rpc } as any, 12);
