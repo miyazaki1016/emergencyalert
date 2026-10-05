@@ -24,6 +24,7 @@ function clientFor(job: Record<string, unknown>) {
   const rpc = vi.fn(async (name: string, args: Record<string, unknown>) => {
     if (name === "claim_national_rain_refinement_jobs") return { data: [job], error: null };
     if (name === "finish_national_rain_refinement_job") return { data: null, error: null };
+    if (name === "defer_national_rain_refinement_job") return { data: null, error: null };
     throw new Error(`unexpected RPC ${name}`);
   });
   const upsert = vi.fn().mockResolvedValue({ error: null });
@@ -203,12 +204,12 @@ test("leaves unclaimed work pending when the budget expires between small batche
   });
 
   expect(result.claimed).toBe(1);
-  expect(result.done).toBe(1);
+  expect(result.done).toBe(0);
   expect(result.failed).toBe(0);
-  expect(result.deferred).toBe(0);
+  expect(result.deferred).toBe(1);
   expect(fetcher).toHaveBeenCalledTimes(1);
   expect(claims).toBe(1);
-  expect(rpc).not.toHaveBeenCalledWith("defer_national_rain_refinement_job", expect.anything());
+  expect(rpc).toHaveBeenCalledWith("defer_national_rain_refinement_job", { p_id: 7 });
   expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", expect.objectContaining({ p_id: 8 }));
 });
 
@@ -285,4 +286,28 @@ test("does not claim another batch after the execution budget is exhausted", asy
   expect(result.claimed).toBe(4);
   expect(result.done).toBe(4);
   expect(claims).toBe(1);
+});
+
+
+test("aborts in-flight JMA fetch and defers the claimed job", async () => {
+  const { client, rpc, upsert } = clientFor(job);
+  const controller = new AbortController();
+  const fetcher = vi.fn(async (_url: string, init?: RequestInit) => {
+    expect(init?.signal).toBeDefined();
+    controller.abort();
+    throw new DOMException("aborted", "AbortError");
+  });
+
+  const result = await processNationalRainRefinementJobs(client, {
+    limit: 1,
+    signal: controller.signal,
+    fetcher: fetcher as any,
+  });
+
+  expect(result.done).toBe(0);
+  expect(result.failed).toBe(0);
+  expect(result.deferred).toBe(0);
+  expect(fetcher).not.toHaveBeenCalled();
+  expect(upsert).not.toHaveBeenCalled();
+  expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", expect.anything());
 });
