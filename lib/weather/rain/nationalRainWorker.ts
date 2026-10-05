@@ -120,7 +120,7 @@ export async function processNationalRainRefinementJobs(
       result.done += 1;
     } catch (error) {
       if (deadlineReached() || (error instanceof Error && error.message === "NATIONAL_RAIN_DEADLINE")) {
-        await deferNationalRainJob(supabase, job.id);
+        await deferNationalRainJob(supabase, job.id, finalSignal);
         result.deferred += 1;
         return;
       }
@@ -144,7 +144,7 @@ export async function processNationalRainRefinementJobs(
     for (const job of jobs) {
       if (deadlineReached()) {
         result.deferred += 1;
-        await deferNationalRainJob(supabase, job.id);
+        await deferNationalRainJob(supabase, job.id, finalSignal);
       } else {
         runnable.push(job);
       }
