@@ -90,7 +90,7 @@ export async function processNationalRainRefinementJobs(
           nextZoom,
           job.zoom,
         );
-        await enqueueNationalRainJobs(supabase, nextJobs);
+        await enqueueNationalRainJobs(supabase, nextJobs, finalSignal);
       } else if (job.zoom === 10) {
         const footprint = heavyRainAreaPolygons(strongCandidates, job.zoom);
         const municipalities = options.resolveMunicipalities
