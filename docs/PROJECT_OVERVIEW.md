@@ -2086,3 +2086,80 @@ direct z4 -> z10への変更とCI greenは、Production rolloutの承認では�
 次の優先作業は、direct-z10のexact bounded scan regressionをさらに固定し、実route/workerのretry・deadline・DB migration source-of-truthを確認する。その後に町丁目精密化へ進む。
 
 > **z8の404を力ずくで解決するのではなく、z4で見つけた候補のexact descendantだけをz10で見る。分からないものは分からないままにする。**
+
+
+## 新チャット引き継ぎ用・最終チェックポイント — 2026-10-05 13時台
+
+> **次のチャットはこの節から開始する。全国強雨系について、古いcheckpointと衝突する場合はこちらを優先する。**
+>
+> **第3条：ソラの「入れた」は、実物を見るまで信用するな。**
+
+### 現在位置
+
+- Repo: `miyazaki1016/emergencyalert`
+- PR: #59 / Branch: `feat/national-heavy-rain-preview`
+- PRは未merge。全国強雨系はPreview/proof。
+- Production migration / scheduler / Push・watch_targets接続 / rollout は未承認。
+- Production readiness: **NO**。
+
+### 今回閉じた本流
+
+新規全国強雨jobは `usable z4 nationwide scan -> z4 >=30 candidate -> direct z10 tile + exact scanWindow -> bounded z10 scan -> exact footprint -> N03 municipality -> proof result` を本流とする。新規jobはz6/z8を必須経路にしない。workerに残るz6/z8 branchは既存queue jobとの後方互換用。
+
+z4とz10のzoom差は6なので、一つのz4 pixelは64x64 z10 pixelsに対応する。direct jobはexact descendant rectangleを `scan_min_x/y` / `scan_max_x/y` として持ち、workerはその範囲だけを走査する。
+
+### scanWindow漏れ防止を実worker testで固定
+
+commit `b24ac52c33e2529f3abbc8176075d1c53135bbaa` (`Test bounded z10 worker scan window`) で、256x256のz10 test PNGにscanWindow内 `(20,20)` とwindow外 `(200,200)` の両方へ>=30 mm/h pixelを置き、job windowを `0..63 x 0..63` に限定した。
+
+期待値を `strongPixels = 1`、保存結果も `strong_pixel_count = 1` に固定したため、window外を拾えばtestがfailする。Main CI #590の `npm test` で **SUCCESS**。新direct-z10本流の parent lineage/window preservationは実worker経路で **CLOSED** と扱う。
+
+### 最終CI実物確認
+
+commit `b24ac52c33e2529f3abbc8176075d1c53135bbaa`:
+
+- Main CI #590 — **SUCCESS**
+- National rain proof #294 — **SUCCESS**
+- JMA z4 to z10 screening proof #82 — **SUCCESS**
+- N03 national prefecture index proof #214 — **SUCCESS**
+- All47 ownership proof #88 — **SUCCESS**
+- Main #590は `npm test`、queue/deadline、throughput/stress/cache/replay、queue lifecycle、`npm run build` までSUCCESS。
+
+直前の総覧source-of-truth更新は `c436bf67fb28c4118f9ab677e993954ea197f2f0`。
+
+### 絶対に言い過ぎないこと
+
+direct-z10実装がgreenでも、z4 screening自体をJMA公式保証として証明したわけではない。low-zoom pruningは **EMPIRICAL EVIDENCE ONLY**。selected tile fetch failure / 404はUNKNOWN/unavailableで、NO_RAINではない。`UNKNOWN_PIXEL != NO_RAIN`、`FETCH_ERROR != NO_RAIN`、`NO_DATA != SAFE` を維持する。screening proof #82のzero-counterexampleも実行時点/sampleの証拠であり永久契約ではない。
+
+### 次のチャットで最初にやること
+
+1. branch HEADとPR #59の実物を再確認する。
+2. direct-z10本流に対して古いz6/z8必須前提がtest/workflow/docsに残っていないか検索し、実害のあるstale assumptionだけ整理する。
+3. proof migrationが過去に編集済みmigrationを上書きする形になっていないか確認し、Production適用済みならforward migrationが必要になる点を整理する。
+4. actual application workerのdeadline/retry/DB RPC境界を再確認する。取得不能をdryへ変換しない。
+5. 全国強雨検出correctnessを崩さないことを確認後、町丁目・字等境界による地名精密化へ進む。
+6. scheduler / Production migration / Push接続 / merge / Production deploy は別ゲートとしてオーナー判断まで行わない。
+
+### 町丁目の次期目標
+
+現在はN03市区町村まで。次の表示目標は「東京都江東区塩浜付近で、30mm/h以上の強い雨が予想されています」のような町丁目レベル。ただし地名付与は雨検出と分離し、z10 strong-rain footprint確定後、公的な町丁・字等境界とintersectionする。境界曖昧時は「付近」等でfalse precisionを避ける。
+
+### 現時点の判定
+
+- 全国z4 coarse scan: **IMPLEMENTED**
+- forecast frame readiness: **IMPLEMENTED**
+- direct z4 -> z10 bounded queue: **IMPLEMENTED / CI VERIFIED**
+- z10 exact scanWindow: **IMPLEMENTED / REGRESSION TEST VERIFIED**
+- parent lineage/window preservation on new path: **CLOSED**
+- z6/z8 mandatory refinement: **REMOVED FROM NEW MAIN PATH**
+- z6/z8 worker code: **BACKWARD COMPATIBILITY**
+- z4 pruning universal safety: **NOT PROVEN / NOT A JMA CONTRACT**
+- 404 cause: **NOT REQUIRED TO BE SOLVED; fail closed**
+- N03 municipality resolution: **IMPLEMENTED in proof path**
+- 町丁目/字: **NOT IMPLEMENTED**
+- Production scheduler: **NOT ACCEPTED**
+- Push/watch integration: **NOT CONNECTED**
+- PR #59 merge: **NO**
+- Production readiness: **NO**
+
+> **次のソラへ：全国z8総当たりへ戻るな。新本流はz4候補からexact descendantをdirect z10で見る。proofのgreenをJMA公式保証へ昇格させるな。分からないものを雨なしにするな。**
