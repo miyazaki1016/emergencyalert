@@ -285,8 +285,11 @@ test("does not claim another batch after the execution budget is exhausted", asy
   });
 
   expect(result.claimed).toBe(4);
-  expect(result.done).toBe(4);
+  expect(result.done).toBe(0);
+  expect(result.failed).toBe(0);
+  expect(result.deferred).toBe(4);
   expect(claims).toBe(1);
+  expect(rpc).toHaveBeenCalledTimes(5);
 });
 
 
