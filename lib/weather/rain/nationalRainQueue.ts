@@ -15,23 +15,19 @@ export function refinementJobFromCoarseCandidate(
   candidate: { tileX: number; tileY: number; pixelX: number; pixelY: number },
   frame: { basetime: string; validtime: string },
   coarseZoom = 4,
-  refinementZoom = 10,
+  refinementZoom: NationalRainRefinementStage = 10,
 ): NationalRainQueueJob {
-  const scale = 2 ** (refinementZoom - coarseZoom);
-  if (!Number.isInteger(scale) || scale < 1 || scale > 256 || 256 % scale !== 0) {
-    throw new Error("Unsupported national rain refinement zoom ratio");
-  }
-  const coarsePixelsPerRefinementTile = 256 / scale;
-  const tileX = candidate.tileX * scale + Math.floor(candidate.pixelX / coarsePixelsPerRefinementTile);
-  const tileY = candidate.tileY * scale + Math.floor(candidate.pixelY / coarsePixelsPerRefinementTile);
+  const [tile] = childTilesForCandidate(candidate, coarseZoom, refinementZoom);
+  if (!tile) throw new Error("Candidate did not map to a refinement tile");
   return {
     runKey: `${frame.basetime}:${frame.validtime}`,
     basetime: frame.basetime,
     validtime: frame.validtime,
     zoom: refinementZoom,
-    tileX,
-    tileY,
+    tileX: tile.tileX,
+    tileY: tile.tileY,
     priority: 0,
+    scanWindow: tile.scanWindow,
   };
 }
 
