@@ -54,6 +54,7 @@ export async function processNationalRainRefinementJobs(
   const timeoutMs = Math.max(1, workDeadline - now());
   const timeoutSignal = AbortSignal.timeout(timeoutMs);
   const signal = options.signal ? AbortSignal.any([options.signal, timeoutSignal]) : timeoutSignal;
+  const finalSignal = AbortSignal.timeout(Math.max(1, deadline - now()));
   const deadlineReached = () => signal.aborted || now() >= workDeadline;
   const checkDeadline = () => {
     if (deadlineReached()) throw new Error("NATIONAL_RAIN_DEADLINE");
