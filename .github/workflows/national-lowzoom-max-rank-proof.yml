@@ -20,6 +20,7 @@ jobs:
       - name: Compare direct z4 to z10 screening on one observation frame
         env:
           JMA_LOWZOOM_CONCURRENCY: 8
+          JMA_LOWZOOM_SAMPLE_PARENTS: 64
         run: |
           set -o pipefail
           : > /tmp/jma-lowzoom-max-rank.jsonl
