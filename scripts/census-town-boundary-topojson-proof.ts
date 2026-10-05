@@ -5,13 +5,17 @@ import type { HeavyRainPolygon } from "../lib/weather/rain/nationalHeavyRain";
 function decodeArc(topology: any, arcIndex: number): number[][] {
   const index = arcIndex >= 0 ? arcIndex : ~arcIndex;
   const encoded = topology.arcs[index] as number[][];
-  let x = 0, y = 0;
-  const points = encoded.map(([dx, dy]) => {
-    x += dx; y += dy;
-    const scale = topology.transform?.scale ?? [1, 1];
-    const translate = topology.transform?.translate ?? [0, 0];
-    return [x * scale[0] + translate[0], y * scale[1] + translate[1]];
-  });
+  const points = topology.transform
+    ? (() => {
+        let x = 0, y = 0;
+        const [sx, sy] = topology.transform.scale;
+        const [tx, ty] = topology.transform.translate;
+        return encoded.map(([dx, dy]) => {
+          x += dx; y += dy;
+          return [x * sx + tx, y * sy + ty];
+        });
+      })()
+    : encoded.map(([x, y]) => [x, y]);
   return arcIndex >= 0 ? points : points.reverse();
 }
 
