@@ -9,7 +9,25 @@ describe("national rain queue", () => {
       { tileX: 13, tileY: 6, pixelX: 255, pixelY: 0 },
       { basetime: "2026-09-29T10:00:00Z", validtime: "2026-09-29T10:05:00Z" },
     );
-    expect(job).toMatchObject({ zoom: 10, tileX: 895, tileY: 384 });
+    expect(job).toMatchObject({ zoom: 10, tileX: 895, tileY: 384, scanWindow: { minX: 192, minY: 0, maxX: 255, maxY: 63 } });
+  });
+
+  it("maps a zoom-4 candidate directly to the exact bounded zoom-10 window", () => {
+    const frame = { basetime: "20260929100000", validtime: "20260929100500" };
+    const jobs = stagedRefinementJobsFromCoarseCandidates(
+      [{ tileX: 13, tileY: 6, pixelX: 0, pixelY: 0 }],
+      frame,
+      10,
+      4,
+    );
+    expect(jobs).toEqual([
+      expect.objectContaining({
+        zoom: 10,
+        tileX: 832,
+        tileY: 384,
+        scanWindow: { minX: 0, minY: 0, maxX: 63, maxY: 63 },
+      }),
+    ]);
   });
 
   it("expands a candidate through staged refinement without scanning unrelated tiles", () => {
