@@ -59,6 +59,8 @@ export async function processNationalRainRefinementJobs(
     if (deadlineReached()) throw new Error("NATIONAL_RAIN_DEADLINE");
   };
 
+  if (signal.aborted) return result;
+
   const processJob = async (job: ClaimedNationalRainJob) => {
     try {
       checkDeadline();
