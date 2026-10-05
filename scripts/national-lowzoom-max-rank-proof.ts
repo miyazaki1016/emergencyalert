@@ -107,7 +107,7 @@ async function main() {
         parentHeavyCounts[parentIndex]++;
         detailHeavyPixels++;
         const cpng = coarse.get(`${p.tileX}:${p.tileY}`);
-        if (!cpng) throw new Error(`parent outside coarse coverage ${key}`);
+        if (!cpng) throw new Error(`parent outside coarse coverage ${p.tileX}:${p.tileY}:${p.pixelX}:${p.pixelY}`);
         const c = pixelRank(cpng,p.pixelX,p.pixelY);
         if (c.rank < HEAVY_RANK) {
           missedHeavyPixels++;
