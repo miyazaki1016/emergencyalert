@@ -136,7 +136,7 @@ export async function processNationalRainRefinementJobs(
 
   while (result.claimed < limit && now() + admissionMs < workDeadline && !signal.aborted) {
     const batchSize = Math.min(concurrency, limit - result.claimed);
-    const jobs = (await claimNationalRainJobs(supabase, batchSize)) as ClaimedNationalRainJob[];
+    const jobs = (await claimNationalRainJobs(supabase, batchSize, signal)) as ClaimedNationalRainJob[];
     if (jobs.length === 0) break;
     result.claimed += jobs.length;
 
