@@ -18,6 +18,7 @@ const RANK: Record<RainIntensityClass, number> = {
   "20_TO_30": 5, "30_TO_50": 6, "50_TO_80": 7, GTE_80: 8,
 };
 const HEAVY_RANK = RANK["30_TO_50"];
+const SAMPLE_PARENTS = Math.max(0, Number(process.env.JMA_LOWZOOM_SAMPLE_PARENTS ?? "0"));
 
 type ParentStats = {
   maxDetailRank: number;
@@ -83,6 +84,16 @@ async function main() {
     const startX = cx * SCALE, startY = cy * SCALE;
     for (let dy=0; dy<SCALE; dy++) for (let dx=0; dx<SCALE; dx++) detailTiles.push([startX+dx,startY+dy]);
   }
+  // A direct z4->z10 exhaustive scan is intentionally not a permanent CI job.
+  // Select detail tiles deterministically across the full Japan tile footprint.
+  // Missing selected tiles still fail the proof; they are never interpreted as dry.
+  const allDetailTileCount = detailTiles.length;
+  if (SAMPLE_PARENTS > 0 && detailTiles.length > SAMPLE_PARENTS) {
+    const sampled = Array.from({ length: SAMPLE_PARENTS }, (_, i) =>
+      detailTiles[Math.floor(i * detailTiles.length / SAMPLE_PARENTS)]
+    );
+    detailTiles.splice(0, detailTiles.length, ...sampled);
+  }
 
   const parentCount = COARSE_TILES.length * 256 * 256;
   const maxDetailRanks = new Uint8Array(parentCount);
@@ -145,6 +156,8 @@ async function main() {
     detailZoom: DETAIL_ZOOM,
     coarseTiles: COARSE_TILES.length,
     detailTiles: detailTiles.length,
+    allDetailTileCount,
+    sampling: SAMPLE_PARENTS > 0 ? { method: "deterministic-even-tile", requested: SAMPLE_PARENTS } : null,
     comparedParents,
     detailHeavyPixels,
     missedHeavyPixels,
@@ -158,7 +171,7 @@ async function main() {
     missedExamples,
     screeningSafeFor30mmInThisFrame: missedHeavyPixels === 0 && criticalParentMisses === 0,
     maxPoolingConfirmed: coarseBelowDetailMax === 0,
-    limitation: "Selected live observation frame only. A zero-miss result is evidence for this frame and zoom pair, not a universal JMA contract. Missing required tiles fail the proof rather than being treated as dry.",
+    limitation: "Selected live observation frame and sampled detail tiles only when sampling is enabled. A zero-miss result is empirical evidence for this frame/sample, not a universal JMA contract. Missing required selected tiles fail the proof rather than being treated as dry.",
   };
   console.log(JSON.stringify(result));
   if (missedHeavyPixels > 0 || criticalParentMisses > 0) process.exitCode = 2;
