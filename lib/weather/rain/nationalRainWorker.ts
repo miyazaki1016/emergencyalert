@@ -111,7 +111,11 @@ export async function processNationalRainRefinementJobs(
       } else {
         throw new Error(`Unsupported national rain refinement zoom: ${job.zoom}`);
       }
-      await finishNationalRainJob(supabase, job.id, true);
+      try {
+        await finishNationalRainJob(supabase, job.id, true);
+      } catch {
+        return;
+      }
       result.done += 1;
     } catch (error) {
       if (deadlineReached() || (error instanceof Error && error.message === "NATIONAL_RAIN_DEADLINE")) {
