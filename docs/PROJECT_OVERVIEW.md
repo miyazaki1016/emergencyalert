@@ -1977,3 +1977,112 @@ CI #559:
 - Production readiness: **NO**
 
 > **いまの本丸は「全国を力ずくで読むこと」ではない。z4で見つけた候補の意味を壊さず、必要な高zoomだけを安全に追跡し、取得できないものを“雨なし”に変えないこと。**
+
+
+## 新・最優先チェックポイント — 2026-10-05（direct z4 -> z10 / CI #588）
+
+> **この節は全国強雨系の最新source-of-truth。2026-10-04節の staged z4 -> z6 -> z8 -> z10 記述よりこちらを優先する。**
+>
+> **実装済み、CI実証、実測仮説、未解決を混ぜない。**
+
+### 本流は direct z4 -> z10 bounded refinement へ変更済み
+
+新しくenqueueされる全国強雨jobは、z4 coarse candidateから **直接z10** へ進む。
+z6/z8は新規本流の必須段階ではない。
+
+```text
+forecast targetTimes
+  -> usable z4 nationwide coarse scan
+  -> >=30 mm/h coarse candidates
+  -> direct z10 job + exact 64x64 scanWindow
+  -> exact raster footprint
+  -> N03 municipality resolution
+  -> proof result storage
+```
+
+z4 -> z10ではzoom差が6なので、一つのz4 world pixelは64x64 z10 pixelsに対応する。
+tile境界が整列するため、その64x64 descendant windowは一つのz10 tile内に収まる。
+jobはtile全体ではなく親candidateから継承した `scanWindow` を保持する。
+
+これにより、2026-10-04節でOPENだった「中間tile全体を走査して親candidate footprint外へbranchを広げる」問題は、新規direct-z10本流では回避される。bounded lineage/windowのqueue identityとworker bounded scanはCIで検証済み。
+
+`nationalRainWorker.ts` のz6/z8処理は、既存queue jobとの後方互換のため残っている。**残っていることを本流がstaged refinementである根拠にしない。**
+
+### direct z4 -> z10切替の実物確認
+
+主な実装commit:
+- `f147a80cd9863a1321e2617c3fa5fa151e2bb011` — direct z4 -> z10 jobへexact scanWindowを付与。
+- `3ee6f09bb2e1bf08e9f5ed22a5e9c2388134d741` — direct bounded mapping regression test。
+- `688f93d1a71e89c77bb602f2eb89393cf24a9228` — `/api/rain/national-queue` の新規jobをz10へ直接enqueue。
+- `34fc06f1586c9f1f3c2e2a6457a89810322b4935` — route contract testsをdirect z10へ更新。
+
+CI #585で Main CI / National rain / N03 / All47 がSUCCESSし、新規queueがdirect z10へ入る実装を確認した。
+
+### low-zoom proofを永久timeout型からbounded実測へ変更
+
+旧workflowは z4->z6, z6->z8, z8->z10 を順に大規模比較し、特にz8->z10で30分timeoutを繰り返した。
+これは「反例を発見した」証拠ではなく、永久CIとして計算量が不適切だった証拠である。
+
+現在は新本流に合わせて **direct z4 -> z10** を検証対象とし、全国z10全走査ではなく決定論的bounded sampleを使う。
+
+主なcommit:
+- `f031819499aa5847ede91978fcaf03ae7928ca3d` — workflowの対象をdirect z4 -> z10へ変更。
+- `351f7cf8b6e8e00c18b485a9236be3fcb7faa99b` — proof本体をbounded deterministic sample対応。
+- `b6d5497b45cb1ec776eb4e6d3928c62309cc67b0` — CI sample数を64に固定。
+
+JMA z4 to z10 screening proof #80 はSUCCESS。
+選択したdetail tileのfetch failureはproof failureであり、dryには変換しない。
+
+**重要:** このproofのzero-missは、その観測frame・選択sampleに対する実測証拠である。
+`z4 <30 => z10 descendantに>=30は存在しない` をJMA公開仕様・普遍契約として昇格させない。
+
+### 最新CI checkpoint
+
+commit `b6d5497b45cb1ec776eb4e6d3928c62309cc67b0` で実物確認済み:
+
+- Main CI #588 — **SUCCESS**
+- JMA z4 to z10 screening proof #80 — **SUCCESS**
+- National rain proof #292 — **SUCCESS**
+- N03 national prefecture index proof #212 — **SUCCESS**
+- All47 ownership proof #86 — **SUCCESS**
+- Main CIの `npm test` / queue lifecycle / throughput・stress系 / `npm run build` までSUCCESS。
+
+したがって旧「lowzoom proof timeout中」「CI green gate OPEN」「新規本流はz6/z8必須」という状態は解消済み。
+
+### 404 / missing-data契約は変えない
+
+direct z10化は404を説明したり、404を雨なしへ読み替えたりする変更ではない。
+
+- 必要なz4 frame tileが未準備なら、そのforecast frameはunavailableとして扱う。
+- 選択された必要z10 tileを取得できなければfail/incompleteとして扱う。
+- `404 != NO_RAIN`
+- `FETCH_ERROR != NO_RAIN`
+- `NO_DATA != SAFE`
+
+CI #529のz10 100/100取得結果も、全時刻・全座標への恒久保証にはしない。
+
+### 市区町村 / 町丁目
+
+最終z10 footprintからN03市区町村を解決するproof workerは実装済み。
+町丁目・字レベル（例: 「東京都江東区塩浜付近」）はまだ未実装。
+雨域確定と地名付与は分離し、町丁・字等境界はz10強雨footprint確定後にintersectionする方向を維持する。
+
+### Production gate
+
+direct z4 -> z10への変更とCI greenは、Production rolloutの承認ではない。
+
+- 全国強雨系: **Preview/proof**
+- low-zoom screening: **EMPIRICAL ONLY / NOT A JMA CONTRACT**
+- direct z4 -> z10 bounded refinement: **IMPLEMENTED / CI VERIFIED**
+- parent lineage/window preservation: **CLOSED for the new direct-z10 path**
+- z6/z8 worker branches: **BACKWARD COMPATIBILITY**
+- N03 municipality: **IMPLEMENTED in proof path**
+- 町丁目/字: **NOT IMPLEMENTED**
+- Production scheduler/cadence: **NOT ACCEPTED**
+- Push/watch integration: **NOT CONNECTED**
+- PR #59 merge: **NO**
+- Production readiness: **NO**
+
+次の優先作業は、direct-z10のexact bounded scan regressionをさらに固定し、実route/workerのretry・deadline・DB migration source-of-truthを確認する。その後に町丁目精密化へ進む。
+
+> **z8の404を力ずくで解決するのではなく、z4で見つけた候補のexact descendantだけをz10で見る。分からないものは分からないままにする。**
