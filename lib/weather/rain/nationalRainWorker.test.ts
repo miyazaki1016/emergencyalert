@@ -118,6 +118,34 @@ describe("processNationalRainRefinementJobs", () => {
     });
   });
 
+  test("does not reverse an ambiguous successful finalization into failure", async () => {
+    const { client, rpc, upsert } = clientFor(job);
+    rpc.mockImplementation(async (name: string, args: Record<string, unknown>) => {
+      if (name === "claim_national_rain_refinement_jobs") return { data: [job], error: null };
+      if (name === "finish_national_rain_refinement_job" && args.p_success === true) {
+        throw new Error("success finalization response lost");
+      }
+      if (name === "finish_national_rain_refinement_job") return { data: null, error: null };
+      if (name === "defer_national_rain_refinement_job") return { data: null, error: null };
+      throw new Error(`unexpected RPC ${name}`);
+    });
+    const fetcher = vi.fn().mockResolvedValue(new Response(new Uint8Array(pngBuffer()), { status: 200 }));
+
+    const result = await processNationalRainRefinementJobs(client, { limit: 1, fetcher: fetcher as any });
+
+    expect(result.claimed).toBe(1);
+    expect(result.done).toBe(0);
+    expect(result.failed).toBe(0);
+    expect(result.deferred).toBe(0);
+    expect(upsert).toHaveBeenCalledTimes(1);
+    expect(rpc).toHaveBeenCalledWith("finish_national_rain_refinement_job", {
+      p_id: 7, p_success: true, p_error: null,
+    });
+    expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", {
+      p_id: 7, p_success: false, p_error: expect.anything(),
+    });
+  });
+
   test("fails closed when municipality resolution fails", async () => {
     const { client, rpc, upsert } = clientFor(job);
     const fetcher = vi.fn().mockResolvedValue(new Response(new Uint8Array(pngBuffer()), { status: 200 }));
