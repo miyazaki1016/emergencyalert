@@ -129,6 +129,7 @@ export async function processNationalRainRefinementJobs(
         job.id,
         false,
         error instanceof Error ? error.message : String(error),
+        finalSignal,
       );
       result.failed += 1;
     }
