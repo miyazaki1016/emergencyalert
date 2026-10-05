@@ -117,11 +117,13 @@ export function queueRows(jobs: NationalRainQueueJob[]) {
   }));
 }
 
-export async function enqueueNationalRainJobs(supabase: SupabaseClient, jobs: NationalRainQueueJob[]) {
+export async function enqueueNationalRainJobs(supabase: SupabaseClient, jobs: NationalRainQueueJob[], signal?: AbortSignal) {
   if (jobs.length === 0) return { count: 0 };
-  const { error } = await supabase
+  let query = supabase
     .from("national_rain_refinement_jobs")
     .upsert(queueRows(jobs), { onConflict: "run_key,validtime,zoom,tile_x,tile_y,scan_min_x,scan_min_y,scan_max_x,scan_max_y", ignoreDuplicates: true });
+  if (signal && "abortSignal" in query) query = query.abortSignal(signal);
+  const { error } = await query;
   if (error) throw error;
   return { count: jobs.length };
 }
