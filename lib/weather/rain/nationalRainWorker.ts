@@ -120,17 +120,25 @@ export async function processNationalRainRefinementJobs(
       result.done += 1;
     } catch (error) {
       if (deadlineReached() || (error instanceof Error && error.message === "NATIONAL_RAIN_DEADLINE")) {
-        await deferNationalRainJob(supabase, job.id, finalSignal);
+        try {
+          await deferNationalRainJob(supabase, job.id, finalSignal);
+        } catch {
+          return;
+        }
         result.deferred += 1;
         return;
       }
-      await finishNationalRainJob(
-        supabase,
-        job.id,
-        false,
-        error instanceof Error ? error.message : String(error),
-        finalSignal,
-      );
+      try {
+        await finishNationalRainJob(
+          supabase,
+          job.id,
+          false,
+          error instanceof Error ? error.message : String(error),
+          finalSignal,
+        );
+      } catch {
+        return;
+      }
       result.failed += 1;
     }
   };
@@ -144,8 +152,12 @@ export async function processNationalRainRefinementJobs(
     const runnable: ClaimedNationalRainJob[] = [];
     for (const job of jobs) {
       if (deadlineReached()) {
-        result.deferred += 1;
-        await deferNationalRainJob(supabase, job.id, finalSignal);
+        try {
+          await deferNationalRainJob(supabase, job.id, finalSignal);
+          result.deferred += 1;
+        } catch {
+          // Leave PROCESSING for the stale-lease reclaim path.
+        }
       } else {
         runnable.push(job);
       }
