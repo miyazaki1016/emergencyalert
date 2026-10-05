@@ -1,4 +1,4 @@
-name: JMA low-zoom max-rank proof
+name: JMA z4 to z10 screening proof
 on:
   workflow_dispatch:
   pull_request:
@@ -17,13 +17,13 @@ jobs:
           node-version: 22
       - run: npm install
       - run: npx vitest run scripts/national-lowzoom-max-rank-proof.test.ts
-      - name: Compare every staged pruning boundary on one observation frame
+      - name: Compare direct z4 to z10 screening on one observation frame
         env:
           JMA_LOWZOOM_CONCURRENCY: 8
         run: |
           set -o pipefail
           : > /tmp/jma-lowzoom-max-rank.jsonl
-          for zoom_pair in "4 6" "6 8" "8 10"; do
+          for zoom_pair in "4 10"; do
             set -- ${zoom_pair}
             parent_zoom="$1"
             detail_zoom="$2"
