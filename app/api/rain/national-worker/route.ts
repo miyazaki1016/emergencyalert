@@ -24,8 +24,8 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = createNationalRainQueueClient();
     const loadAdministrativeAreas = createSupabaseN03AdministrativeAreaLoader(supabase);
-    const resolveMunicipalities = (footprint: Parameters<typeof resolveNationalRainMunicipalities>[0]) =>
-      resolveNationalRainMunicipalities(footprint, loadAdministrativeAreas);
+    const resolveMunicipalities = (footprint: Parameters<typeof resolveNationalRainMunicipalities>[0], signal?: AbortSignal) =>
+      resolveNationalRainMunicipalities(footprint, loadAdministrativeAreas, undefined, signal);
     const result = await processNationalRainRefinementJobs(supabase, {
       limit,
       resolveMunicipalities,
