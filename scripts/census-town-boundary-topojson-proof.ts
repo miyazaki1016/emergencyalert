@@ -93,12 +93,6 @@ async function main() {
       matches: affectedAdministrativeAreas([tinyRainAt(probe.lon, probe.lat)], shiohamaAreas).map((candidate) => candidate.code),
     };
   });
-  for (const row of intersectionProof) {
-    if (row.matches.length !== 1 || row.matches[0] !== row.probe.keyCode) {
-      throw new Error(`Town intersection proof mismatch for ${row.probe.name}: ${JSON.stringify(row.matches)}`);
-    }
-  }
-  
   const arcPointCount = (topology.arcs ?? []).reduce(
     (sum: number, arc: any[]) => sum + (Array.isArray(arc) ? arc.length : 0),
     0,
@@ -124,6 +118,11 @@ async function main() {
       properties: g.properties,
     })),
   }, null, 2));
+  for (const row of intersectionProof) {
+    if (row.matches.length !== 1 || row.matches[0] !== row.probe.keyCode) {
+      throw new Error(`Town intersection proof mismatch for ${row.probe.name}: ${JSON.stringify(row.matches)}`);
+    }
+  }
   
 }
 
