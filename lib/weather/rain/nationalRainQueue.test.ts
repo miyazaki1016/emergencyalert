@@ -108,8 +108,9 @@ it("finish calls atomic queue completion RPC", async () => {
     p_success: false,
     p_error: "network",
   });
+});
 
-  it("passes an abort signal to the enqueue upsert builder", async () => {
+it("passes an abort signal to the enqueue upsert builder", async () => {
     const signal = new AbortController().signal;
     const abortSignal = vi.fn().mockResolvedValue({ error: null });
     const upsert = vi.fn().mockReturnValue({ abortSignal });
@@ -118,7 +119,5 @@ it("finish calls atomic queue completion RPC", async () => {
     const result = await enqueueNationalRainJobs({ from } as any, jobs, signal);
 
     expect(abortSignal).toHaveBeenCalledWith(signal);
-    expect(result).toEqual({ count: 1 });
-  });
-
+  expect(result).toEqual({ count: 1 });
 });
