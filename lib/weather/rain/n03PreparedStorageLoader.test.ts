@@ -108,6 +108,20 @@ describe("createSupabaseN03AdministrativeAreaLoader", () => {
       .rejects.toThrow("N03 prepared data has invalid area shape: 13");
   });
 
+  it("passes the worker abort signal to the storage download", async () => {
+    const signal = new AbortController().signal;
+    const download = vi.fn().mockResolvedValue({
+      data: new Blob([JSON.stringify([area("13111", "東京都")])], { type: "application/json" }),
+      error: null,
+    });
+    const storage = { storage: { from: vi.fn(() => ({ download })) } };
+    const loader = createSupabaseN03AdministrativeAreaLoader(storage as any);
+
+    await loader([{ code: "13", name: "東京都", bbox: [0, 0, 0, 0] }], signal);
+
+    expect(download).toHaveBeenCalledWith("20260101/13.areas.json", {}, { signal });
+  });
+
   it("uses the exact dataset date/prefecture object path", () => {
     expect(nationalRainN03ObjectPath("13")).toBe("20260101/13.areas.json");
     expect(() => nationalRainN03ObjectPath("1")).toThrow("Invalid N03 prefecture code");
