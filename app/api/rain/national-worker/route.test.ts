@@ -65,8 +65,9 @@ describe("national rain worker route", () => {
     });
     const workerOptions = processJobs.mock.calls[0][1];
     const footprint = [{ type: "Polygon", coordinates: [] }];
-    await workerOptions.resolveMunicipalities(footprint);
-    expect(resolveMunicipalities).toHaveBeenCalledWith(footprint, "loader");
+    const signal = new AbortController().signal;
+    await workerOptions.resolveMunicipalities(footprint, signal);
+    expect(resolveMunicipalities).toHaveBeenCalledWith(footprint, "loader", undefined, signal);
     expect(await response.json()).toMatchObject({
       mode: "NATIONAL_RAIN_REFINEMENT_WORKER_PROOF",
       claimed: 50,
