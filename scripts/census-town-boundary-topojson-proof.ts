@@ -75,10 +75,24 @@ async function main() {
     lon: Number(g.properties?.X_CODE),
     lat: Number(g.properties?.Y_CODE),
   })).filter((p: any) => Number.isFinite(p.lon) && Number.isFinite(p.lat));
-  const intersectionProof = probes.map((probe: any) => ({
-    probe,
-    matches: affectedAdministrativeAreas([tinyRainAt(probe.lon, probe.lat)], shiohamaAreas).map((area) => area.code),
-  }));
+  const boundsOf = (area: AdministrativeArea) => {
+    const polygons = area.geometry.type === "Polygon" ? [area.geometry.coordinates as number[][][]] : area.geometry.coordinates as number[][][][];
+    const points = polygons.flatMap((polygon) => polygon.flat());
+    return {
+      west: Math.min(...points.map(([x]) => x)),
+      south: Math.min(...points.map(([, y]) => y)),
+      east: Math.max(...points.map(([x]) => x)),
+      north: Math.max(...points.map(([, y]) => y)),
+    };
+  };
+  const intersectionProof = probes.map((probe: any) => {
+    const area = shiohamaAreas.find((candidate) => candidate.code === probe.keyCode);
+    return {
+      probe,
+      decodedBounds: area ? boundsOf(area) : null,
+      matches: affectedAdministrativeAreas([tinyRainAt(probe.lon, probe.lat)], shiohamaAreas).map((candidate) => candidate.code),
+    };
+  });
   for (const row of intersectionProof) {
     if (row.matches.length !== 1 || row.matches[0] !== row.probe.keyCode) {
       throw new Error(`Town intersection proof mismatch for ${row.probe.name}: ${JSON.stringify(row.matches)}`);
@@ -101,6 +115,7 @@ async function main() {
     geometries: geometries.length,
     arcs: topology.arcs?.length ?? 0,
     encodedArcPoints: arcPointCount,
+    transform: topology.transform ?? null,
     intersectionProof,
     shiohama: shiohama.map((g: any) => ({
       keyCode: keyOf(g),
