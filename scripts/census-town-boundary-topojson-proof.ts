@@ -118,6 +118,7 @@ async function main() {
       properties: g.properties,
     })),
   }, null, 2));
+  // Keep this assertion after diagnostic output so CI preserves decoded bounds on failure.
   for (const row of intersectionProof) {
     if (row.matches.length !== 1 || row.matches[0] !== row.probe.keyCode) {
       throw new Error(`Town intersection proof mismatch for ${row.probe.name}: ${JSON.stringify(row.matches)}`);
