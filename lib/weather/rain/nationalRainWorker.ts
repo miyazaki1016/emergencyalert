@@ -108,7 +108,7 @@ export async function processNationalRainRefinementJobs(
           strongPixelCount,
           footprint,
           municipalities,
-        });
+        }, finalSignal);
       } else {
         throw new Error(`Unsupported national rain refinement zoom: ${job.zoom}`);
       }
