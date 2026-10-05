@@ -8,6 +8,18 @@ function pngBuffer() {
   return PNG.sync.write(png);
 }
 
+
+function boundedWindowPngBuffer() {
+  const png = new PNG({ width: 256, height: 256 });
+  // Inside the inherited z4->z10 window.
+  let i = (20 * 256 + 20) * 4;
+  png.data[i] = 255; png.data[i + 1] = 40; png.data[i + 2] = 0; png.data[i + 3] = 255;
+  // Strong rain outside the inherited window must not leak into the result.
+  i = (200 * 256 + 200) * 4;
+  png.data[i] = 255; png.data[i + 1] = 40; png.data[i + 2] = 0; png.data[i + 3] = 255;
+  return PNG.sync.write(png);
+}
+
 function clientFor(job: Record<string, unknown>) {
   const rpc = vi.fn(async (name: string, args: Record<string, unknown>) => {
     if (name === "claim_national_rain_refinement_jobs") return { data: [job], error: null };
@@ -47,6 +59,34 @@ describe("processNationalRainRefinementJobs", () => {
     expect(upsert).toHaveBeenCalledWith(
       expect.arrayContaining([expect.objectContaining({ zoom: 8, status: "PENDING" })]),
       expect.objectContaining({ onConflict: "run_key,validtime,zoom,tile_x,tile_y,scan_min_x,scan_min_y,scan_max_x,scan_max_y" }),
+    );
+  });
+
+  test("scans only the inherited z10 window and ignores strong pixels outside it", async () => {
+    const boundedJob = {
+      ...job,
+      scan_min_x: 0,
+      scan_min_y: 0,
+      scan_max_x: 63,
+      scan_max_y: 63,
+    };
+    const { client, upsert } = clientFor(boundedJob);
+    const fetcher = vi.fn().mockResolvedValue(
+      new Response(new Uint8Array(boundedWindowPngBuffer()), { status: 200 }),
+    );
+    const resolveMunicipalities = vi.fn().mockResolvedValue([]);
+
+    const result = await processNationalRainRefinementJobs(client, {
+      limit: 1,
+      fetcher: fetcher as any,
+      resolveMunicipalities,
+    });
+
+    expect(result.done).toBe(1);
+    expect(result.strongPixels).toBe(1);
+    expect(upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ strong_pixel_count: 1 }),
+      expect.objectContaining({ onConflict: "job_id" }),
     );
   });
 
