@@ -94,7 +94,7 @@ describe("national rain queue proof route", () => {
     expect(enqueue).toHaveBeenCalledTimes(1);
     const jobs = enqueue.mock.calls[0][1];
     expect(jobs).toHaveLength(1);
-    expect(jobs[0]).toMatchObject({ zoom: 6, tileX: 30, tileY: 40 });
+    expect(jobs[0]).toMatchObject({ zoom: 10, tileX: 30, tileY: 40 });
     expect((await response.json()).requestedRefinementTiles).toBe(1);
   });
 
@@ -129,7 +129,7 @@ describe("national rain queue proof route", () => {
     expect(jobs[0]).toMatchObject({
       runKey: `${forecast.basetime}:${forecast.validtime}`,
       validtime: forecast.validtime,
-      zoom: 6,
+      zoom: 10,
       tileX: 30,
       tileY: 40,
     });
