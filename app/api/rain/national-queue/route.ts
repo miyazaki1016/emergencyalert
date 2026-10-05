@@ -35,7 +35,7 @@ async function scanFrame(frame: { basetime: string; validtime: string }) {
 }
 
 function uniqueJobs(candidates: HeavyRainCandidate[], frame: { basetime: string; validtime: string }) {
-  return stagedRefinementJobsFromCoarseCandidates(candidates, frame, 6);
+  return stagedRefinementJobsFromCoarseCandidates(candidates, frame, 10);
 }
 
 export async function POST(request: NextRequest) {
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         .filter((candidate) => !currentStrong.has(candidateKey(candidate)));
       const jobs = uniqueJobs(candidates, forecast);
       allJobs.push(...jobs);
-      frames.push({ validTime: forecast.validtime, coarseCandidates: candidates.length, refinementZoom: 6, refinementTiles: jobs.length });
+      frames.push({ validTime: forecast.validtime, coarseCandidates: candidates.length, refinementZoom: 10, refinementTiles: jobs.length });
     }
 
     const supabase = createNationalRainQueueClient();
