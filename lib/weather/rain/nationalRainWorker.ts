@@ -113,7 +113,7 @@ export async function processNationalRainRefinementJobs(
         throw new Error(`Unsupported national rain refinement zoom: ${job.zoom}`);
       }
       try {
-        await finishNationalRainJob(supabase, job.id, true);
+        await finishNationalRainJob(supabase, job.id, true, undefined, finalSignal);
       } catch {
         return;
       }
