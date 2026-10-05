@@ -9,18 +9,24 @@ import {
 
 export type N03AdministrativeAreaLoader = (
   prefectures: N03PrefectureIndexEntry[],
+  signal?: AbortSignal,
 ) => Promise<AdministrativeArea[]>;
 
 export async function resolveNationalRainMunicipalities(
   footprint: HeavyRainPolygon[],
   loadAdministrativeAreas: N03AdministrativeAreaLoader,
   prefectureIndex: N03PrefectureIndexEntry[] = N03_PREFECTURE_INDEX_2026,
+  signal?: AbortSignal,
 ): Promise<NationalRainMunicipality[]> {
   if (footprint.length === 0) return [];
 
   const prefectures = prefecturesForRainPolygons(footprint, prefectureIndex);
   if (prefectures.length === 0) return [];
 
-  const areas = await loadAdministrativeAreas(prefectures);
-  return municipalitiesForNationalRainFootprint(footprint, areas);
+  signal?.throwIfAborted();
+  const areas = await loadAdministrativeAreas(prefectures, signal);
+  signal?.throwIfAborted();
+  const municipalities = municipalitiesForNationalRainFootprint(footprint, areas);
+  signal?.throwIfAborted();
+  return municipalities;
 }
