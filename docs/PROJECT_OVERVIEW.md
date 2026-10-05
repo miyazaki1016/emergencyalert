@@ -2163,3 +2163,71 @@ direct-z10実装がgreenでも、z4 screening自体をJMA公式保証として�
 - Production readiness: **NO**
 
 > **次のソラへ：全国z8総当たりへ戻るな。新本流はz4候補からexact descendantをdirect z10で見る。proofのgreenをJMA公式保証へ昇格させるな。分からないものを雨なしにするな。**
+
+
+## 最新source-of-truth追記 — 2026-10-05 19時台 / worker deadline gate CLOSED
+
+> **全国強雨workerの時間境界については、この節を上の古い「application worker deadline未統合」記述より優先する。**
+>
+> **Production rollout承認ではない。PR #59は未merge、Production migration / scheduler / Push接続は未承認のまま。**
+
+### N03 municipality resolverまでwork deadlineを貫通
+
+workerのprocessing用 AbortSignal を、z10 municipality解決からN03 Storage downloadまで通した。
+
+主なcommit:
+- `5de66bf5fb59a89fbe81e4dd65eaafab4d4df176` — N03 resolverへAbortSignalを追加。
+- `9d1ccc1d4fcdc8327e47ff2cef9c1856f74b8ba1` — prepared N03 Storage downloadへsignalを渡し、download/text/parse/cache境界でabort確認。
+- `8257de5961e24157145e958f28e2267b166027a5` — workerからmunicipality resolverへprocessing signalを渡す。
+- `2bee0a21f30c8ce72cdc9927edde81a88d3687b9` — route closureからN03 resolverへsignalを中継。
+- `85df542860d0763a890a51addb5d9425998707c6` — Storage downloadへのsignal伝播test。
+- `8647f984a4780368847bf38b6577cc652ddd8990` — municipality resolution中abort時にresultを保存せずjobをdeferするworker test。
+- `5806adcfcdcbc71bf414964c2bdbe6d077f7990e` — routeが同一AbortSignalをN03 resolverへ渡すcontract test。
+
+既存のqueue DB境界も、claim / result save / success finish / failure finish / defer / legacy z6-z8 enqueueまでAbortSignal対応済み。processing signalとfinalization signalは分離し、work deadline後もfinal reserve内でdefer/finalizeできる。成功finalizationやcleanup RPCの応答が曖昧な場合は逆方向のfinishを打たずPROCESSINGを残し、5分stale lease reclaimへ委ねる。
+
+### CI実物確認
+
+HEAD `5806adcfcdcbc71bf414964c2bdbe6d077f7990e` の Main CI #621 attempt 2 は **SUCCESS**。
+
+- `npm test`: SUCCESS
+- live/read-only N03・worker計測群: SUCCESS
+- queue lifecycle: SUCCESS
+- `npm run build`: SUCCESS
+- buildでSupabase Storage `.download(path, {}, { signal })` の型も通過
+
+attempt 1はlive N03外部取得の接続timeoutで停止したが、同一HEADをコード変更なしでrerunしたattempt 2は完走した。したがってattempt 1をsignal実装の回帰とは扱わない。
+
+### 同期処理はnon-preemptive。ただし実データ実測でbounded
+
+AbortSignalはnetwork待ちを止められるが、`Blob.text()`後の `JSON.parse()` やgeometry intersectionの同期CPU区間を途中でpreemptするものではない。signal checkはそれらの前後に置き、deadline超過後の成功保存を防ぐ。
+
+CI #621 attempt 2の実測:
+- live N03 selected 6 prefectures: 422 administrative areas
+- cold: read/parse 約1229ms、intersection 約242ms
+- prepared cache: read/parse 約1099ms、intersection 約244ms
+- prepared N03 6県合計: 87,201,287 bytes / 約83.16 MiB
+- 最大サンプル北海道: 41,606,326 bytes
+- fixed intersection benchmark: 700 areas x 450 rain polygons、current median 約6.25ms
+- worker budget 45s、route maxDuration 60sでplatform margin 15s
+
+この実測から、現在のprepared N03市区町村解決について同期区間はworker budgetに対して十分小さいと判断する。ただし「任意サイズの将来データでも永久に安全」という保証にはしない。prepared datasetのサイズ・構造が大きく変わる場合は再計測する。
+
+### worker deadline gate判定
+
+- queue DB async boundary: **CI VERIFIED**
+- JMA fetch processing deadline: **CI VERIFIED**
+- N03 Storage async boundary: **CI VERIFIED**
+- municipality resolver signal propagation: **CI VERIFIED**
+- deadline中resolver abort -> no result save + defer: **REGRESSION TEST VERIFIED**
+- sync parse/intersection: **NON-PREEMPTIVE / MEASURED BOUNDED FOR CURRENT PREPARED DATA**
+- overall application worker time-boundary gate: **CLOSED FOR CURRENT PREVIEW/PROOF ARCHITECTURE**
+- Production scheduler/cadence: **NOT ACCEPTED**
+- PR #59 merge: **NO**
+- Production readiness: **NO**
+
+### 次の作業
+
+worker安全ゲートは閉じた。次は町丁目・字等による地名精密化へ進める。ただし実装前に、公的な町丁・字等境界dataset/APIの原典、ライセンス、更新契約、全国カバレッジを確認する。雨検出本体と地名付与は分離し、z10 exact strong-rain footprint確定後に地名境界をintersectionする。境界曖昧時は「付近」でfalse precisionを避ける。
+
+> **未来のソラへ：worker deadline gateは閉じたがProduction gateは閉じていない。PR #59を勝手にmergeするな。Production migration / scheduler / Pushを勝手に接続するな。次は町丁目データの公的原典確認から。**
