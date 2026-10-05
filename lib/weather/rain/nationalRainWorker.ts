@@ -33,7 +33,7 @@ export async function processNationalRainRefinementJobs(
     limit?: number;
     concurrency?: number;
     fetcher?: typeof fetch;
-    resolveMunicipalities?: (footprint: ReturnType<typeof heavyRainAreaPolygons>) => Promise<NationalRainMunicipality[]>;
+    resolveMunicipalities?: (footprint: ReturnType<typeof heavyRainAreaPolygons>, signal?: AbortSignal) => Promise<NationalRainMunicipality[]>;
     budgetMs?: number;
     now?: () => number;
     signal?: AbortSignal;
@@ -94,7 +94,7 @@ export async function processNationalRainRefinementJobs(
       } else if (job.zoom === 10) {
         const footprint = heavyRainAreaPolygons(strongCandidates, job.zoom);
         const municipalities = options.resolveMunicipalities
-          ? await options.resolveMunicipalities(footprint)
+          ? await options.resolveMunicipalities(footprint, signal)
           : [];
         checkDeadline();
         await saveNationalRainRefinementResult(supabase, {
