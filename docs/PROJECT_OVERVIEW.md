@@ -2231,3 +2231,114 @@ CI #621 attempt 2の実測:
 worker安全ゲートは閉じた。次は町丁目・字等による地名精密化へ進める。ただし実装前に、公的な町丁・字等境界dataset/APIの原典、ライセンス、更新契約、全国カバレッジを確認する。雨検出本体と地名付与は分離し、z10 exact strong-rain footprint確定後に地名境界をintersectionする。境界曖昧時は「付近」でfalse precisionを避ける。
 
 > **未来のソラへ：worker deadline gateは閉じたがProduction gateは閉じていない。PR #59を勝手にmergeするな。Production migration / scheduler / Pushを勝手に接続するな。次は町丁目データの公的原典確認から。**
+
+
+## 新チャット引き継ぎ用・最新総覧 — 2026-10-05 19時台
+
+> **ここをアメくる全国強雨系の最新開始点とする。上の古いcheckpointと矛盾する場合はこの節を優先する。**
+>
+> **第3条：ソラの「入れた」は、実物を見るまで信用するな。未来のソラを信用するな。**
+
+### 現在地
+
+- Repo: `miyazaki1016/emergencyalert`
+- Branch: `feat/national-heavy-rain-preview`
+- PR: #59 — **未merge**
+- 最新総覧更新直前commit: `5efddef430b177f04faf70a5567e6a15649f5e51`
+- 全国強雨系: **Preview / proof**
+- Production readiness: **NO**
+- Productionの全国強雨queue migration / proof cron: **未適用**
+- Production scheduler / Push / watch接続: **未承認・未接続**
+
+### 確定した本流
+
+`usable z4 nationwide scan -> z4 >=30 candidate -> direct z10 tile + exact scanWindow -> bounded z10 scan -> exact strong-rain footprint -> N03 municipality -> proof result`
+
+新規jobではz6/z8を必須経路にしない。残るz6/z8 worker branchは後方互換用。
+
+direct z4 -> z10のexact descendant window、workerのscanWindow限定走査、parent lineage preservationは実装・回帰test・CIで確認済み。
+
+### fail-closed契約
+
+- required z4 frame tile unavailable -> frame unavailable
+- selected required z10 tile unavailable -> fail/incomplete
+- `404 != NO_RAIN`
+- `FETCH_ERROR != NO_RAIN`
+- `UNKNOWN_PIXEL != NO_RAIN`
+- `NO_DATA != SAFE`
+
+z4 screeningの安全性は実測証拠であり、JMA公式の普遍契約ではない。proofで反例ゼロでも永久保証へ昇格させない。
+
+### worker安全ゲート
+
+worker budget 45s、route maxDuration 60s、platform margin 15s。
+
+processing AbortSignalはJMA fetchだけでなく、municipality resolver -> prepared N03 Storage downloadまで貫通。queue DB操作もclaim / save / finish / defer / legacy enqueueまで時間境界を持つ。processing signalとfinalization signalは分離する。
+
+成功finishやcleanup RPCが曖昧な場合は逆方向の状態変更を行わずPROCESSINGを残し、stale lease reclaimへ委ねる。
+
+Main CI #621 attempt 2 / HEAD `5806adcfcdcbc71bf414964c2bdbe6d077f7990e`:
+- npm test: **SUCCESS**
+- N03/worker実測: **SUCCESS**
+- queue lifecycle: **SUCCESS**
+- npm run build: **SUCCESS**
+- failed steps: **なし**
+
+同期JSON parse / geometry intersection自体はpreemptiveではないが、現prepared N03実データで実測しworker budgetに対してboundedと判断済み。将来datasetサイズ・構造が大きく変われば再計測する。
+
+**overall application worker time-boundary gate: CLOSED FOR CURRENT PREVIEW/PROOF ARCHITECTURE.**
+
+### Production実物確認済み事項
+
+Production Supabaseには既存watch/push/diagnostic系migrationは存在するが、全国強雨用 `national_rain_refinement_jobs` / results tableは存在せず、`20260929_create_national_rain_refinement_jobs.sql` と `20260930_create_national_rain_proof_cron.sql` は未適用。
+
+したがって現在この全国強雨proofのためのProduction forward-repair migrationは不要。**未適用migrationを勝手に適用しない。**
+
+### 次の本丸：町丁目・字
+
+現在の地名解決はN03市区町村まで。次の目標は、z10 exact strong-rain footprint確定後に町丁・字等境界をintersectionし、例えば:
+
+> 東京都江東区塩浜付近で、30mm/h以上の強い雨が予想されています
+
+の粒度まで上げること。
+
+実装前ゲート:
+1. 公的な町丁・字等境界dataset/APIの原典を確認。
+2. ライセンス・利用条件を確認。
+3. 全国カバレッジと欠損時契約を確認。
+4. 更新頻度・版管理を確認。
+5. データ量、分割単位、worker memory/time境界を測る。
+6. 雨検出と地名付与を分離する。
+7. 境界・複数候補・欠損時はfalse precisionを避け、「付近」または市区町村fallbackを使う。
+
+**町丁目データ未確認のまま実装を始めない。**
+
+### 現時点の判定
+
+- nationwide z4 coarse scan: **IMPLEMENTED**
+- forecast frame readiness: **IMPLEMENTED**
+- direct z4 -> z10 bounded queue: **IMPLEMENTED / CI VERIFIED**
+- exact z10 scanWindow: **IMPLEMENTED / REGRESSION TEST VERIFIED**
+- parent lineage/window preservation: **CLOSED**
+- z6/z8 mandatory path: **REMOVED**
+- z6/z8 legacy branches: **BACKWARD COMPATIBILITY**
+- z4 pruning universal safety: **NOT PROVEN / NOT A JMA CONTRACT**
+- missing-data behavior: **FAIL CLOSED**
+- queue/DB deadline boundary: **CI VERIFIED**
+- N03 Storage/resolver deadline boundary: **CI VERIFIED**
+- sync N03 parse/intersection: **MEASURED BOUNDED FOR CURRENT DATA**
+- application worker safety gate: **CLOSED FOR PREVIEW/PROOF**
+- N03 municipality resolution: **IMPLEMENTED**
+- town/chome/aza resolution: **NOT IMPLEMENTED**
+- Production scheduler: **NOT ACCEPTED**
+- Push/watch integration: **NOT CONNECTED**
+- PR #59 merge: **NO**
+- Production readiness: **NO**
+
+### 次回開始手順
+
+次回はworker deadline調査へ戻らない。最初にbranch/PR/最新CIの実物だけ再確認し、その後 **町丁目・字等の公的データ原典調査**から開始する。
+
+Production migration、scheduler、Push接続、PR #59 merge、Production deployは、町丁目作業とは別ゲート。オーナーの明示承認なしに進めない。
+
+> **次のソラへ：全国z8総当たりへ戻るな。worker deadline gateを再オープンするな（新しい反証が出た場合を除く）。次は町丁目データの原典・ライセンス・全国性を実物確認する。Productionは触るな。**
