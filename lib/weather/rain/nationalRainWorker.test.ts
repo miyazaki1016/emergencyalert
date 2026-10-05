@@ -416,3 +416,32 @@ test("keeps a failed job reclaimable when failure finalization is ambiguous", as
     p_id: 7, p_success: false, p_error: "JMA tile fetch failed: 503",
   });
 });
+
+
+test("defers a claimed job when municipality resolution is aborted", async () => {
+  const { client, rpc, upsert } = clientFor(job);
+  const controller = new AbortController();
+  const fetcher = vi.fn().mockResolvedValue(new Response(new Uint8Array(pngBuffer()), { status: 200 }));
+  const resolveMunicipalities = vi.fn(async (_footprint, signal?: AbortSignal) => {
+    expect(signal).toBeDefined();
+    controller.abort();
+    signal?.throwIfAborted();
+    return [];
+  });
+
+  const result = await processNationalRainRefinementJobs(client, {
+    limit: 1,
+    signal: controller.signal,
+    fetcher: fetcher as any,
+    resolveMunicipalities,
+  });
+
+  expect(result.claimed).toBe(1);
+  expect(result.done).toBe(0);
+  expect(result.failed).toBe(0);
+  expect(result.deferred).toBe(1);
+  expect(resolveMunicipalities).toHaveBeenCalledTimes(1);
+  expect(upsert).not.toHaveBeenCalled();
+  expect(rpc).toHaveBeenCalledWith("defer_national_rain_refinement_job", { p_id: 7 });
+  expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", expect.anything());
+});
