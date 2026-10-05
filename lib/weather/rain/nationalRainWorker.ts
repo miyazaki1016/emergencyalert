@@ -36,6 +36,9 @@ export async function processNationalRainRefinementJobs(
     resolveMunicipalities?: (footprint: ReturnType<typeof heavyRainAreaPolygons>) => Promise<NationalRainMunicipality[]>;
     budgetMs?: number;
     now?: () => number;
+    signal?: AbortSignal;
+    admissionMs?: number;
+    finalReserveMs?: number;
   } = {},
 ): Promise<NationalRainWorkerResult> {
   const fetcher = options.fetcher ?? fetch;
@@ -45,14 +48,27 @@ export async function processNationalRainRefinementJobs(
   const limit = Math.max(1, options.limit ?? 10);
   const concurrency = Math.max(1, Math.min(options.concurrency ?? 4, limit));
   const result: NationalRainWorkerResult = { claimed: 0, done: 0, failed: 0, strongPixels: 0, deferred: 0 };
+  const finalReserveMs = Math.max(0, options.finalReserveMs ?? 3_000);
+  const admissionMs = Math.max(0, options.admissionMs ?? 20_000);
+  const workDeadline = deadline - finalReserveMs;
+  const timeoutMs = Math.max(1, workDeadline - now());
+  const timeoutSignal = AbortSignal.timeout(timeoutMs);
+  const signal = options.signal ? AbortSignal.any([options.signal, timeoutSignal]) : timeoutSignal;
+  const deadlineReached = () => signal.aborted || now() >= workDeadline;
+  const checkDeadline = () => {
+    if (deadlineReached()) throw new Error("NATIONAL_RAIN_DEADLINE");
+  };
 
   const processJob = async (job: ClaimedNationalRainJob) => {
     try {
+      checkDeadline();
       const response = await fetcher(
         buildJmaRainTileUrl({ basetime: job.basetime, validtime: job.validtime }, job.zoom, job.tile_x, job.tile_y),
+        { signal },
       );
       if (!response.ok) throw new Error(`JMA tile fetch failed: ${response.status}`);
       const buffer = Buffer.from(await response.arrayBuffer());
+      checkDeadline();
       PNG.sync.read(buffer);
       const strongCandidates = scanHeavyRainTile(buffer, job.zoom, job.tile_x, job.tile_y, 1, {
         minX: job.scan_min_x ?? 0,
@@ -77,6 +93,7 @@ export async function processNationalRainRefinementJobs(
         const municipalities = options.resolveMunicipalities
           ? await options.resolveMunicipalities(footprint)
           : [];
+        checkDeadline();
         await saveNationalRainRefinementResult(supabase, {
           jobId: job.id,
           runKey: job.run_key,
@@ -95,6 +112,11 @@ export async function processNationalRainRefinementJobs(
       await finishNationalRainJob(supabase, job.id, true);
       result.done += 1;
     } catch (error) {
+      if (deadlineReached() || (error instanceof Error && error.message === "NATIONAL_RAIN_DEADLINE")) {
+        await deferNationalRainJob(supabase, job.id);
+        result.deferred += 1;
+        return;
+      }
       await finishNationalRainJob(
         supabase,
         job.id,
@@ -105,7 +127,7 @@ export async function processNationalRainRefinementJobs(
     }
   };
 
-  while (result.claimed < limit && now() < deadline) {
+  while (result.claimed < limit && now() + admissionMs + finalReserveMs < deadline && !signal.aborted) {
     const batchSize = Math.min(concurrency, limit - result.claimed);
     const jobs = (await claimNationalRainJobs(supabase, batchSize)) as ClaimedNationalRainJob[];
     if (jobs.length === 0) break;
@@ -113,7 +135,7 @@ export async function processNationalRainRefinementJobs(
 
     const runnable: ClaimedNationalRainJob[] = [];
     for (const job of jobs) {
-      if (now() >= deadline) {
+      if (now() + admissionMs + finalReserveMs >= deadline || signal.aborted) {
         result.deferred += 1;
         await deferNationalRainJob(supabase, job.id);
       } else {
