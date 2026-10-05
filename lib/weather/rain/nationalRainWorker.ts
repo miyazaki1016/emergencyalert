@@ -129,7 +129,7 @@ export async function processNationalRainRefinementJobs(
     }
   };
 
-  while (result.claimed < limit && now() + admissionMs + finalReserveMs < deadline && !signal.aborted) {
+  while (result.claimed < limit && now() + admissionMs < workDeadline && !signal.aborted) {
     const batchSize = Math.min(concurrency, limit - result.claimed);
     const jobs = (await claimNationalRainJobs(supabase, batchSize)) as ClaimedNationalRainJob[];
     if (jobs.length === 0) break;
@@ -137,7 +137,7 @@ export async function processNationalRainRefinementJobs(
 
     const runnable: ClaimedNationalRainJob[] = [];
     for (const job of jobs) {
-      if (now() + admissionMs + finalReserveMs >= deadline || signal.aborted) {
+      if (deadlineReached()) {
         result.deferred += 1;
         await deferNationalRainJob(supabase, job.id);
       } else {
