@@ -262,6 +262,7 @@ test("does not claim another batch after the execution budget is exhausted", asy
       return { data: claims === 1 ? firstBatch : [{ ...job, id: 99 }], error: null };
     }
     if (name === "finish_national_rain_refinement_job") return { data: null, error: null };
+    if (name === "defer_national_rain_refinement_job") return { data: null, error: null };
     throw new Error(`unexpected RPC ${name}`);
   });
   const upsert = vi.fn().mockResolvedValue({ error: null });
