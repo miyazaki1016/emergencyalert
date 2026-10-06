@@ -201,3 +201,44 @@ export function createNationalRainQueueClient() {
   if (!url || !serviceRoleKey) throw new Error("Supabase service-role environment is required");
   return createClient(url, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
 }
+
+
+export async function getLastCompletedNationalRainBasetime(
+  supabase: SupabaseClient,
+  signal?: AbortSignal,
+): Promise<string | null> {
+  let query = supabase
+    .from("national_rain_scan_cycles")
+    .select("basetime")
+    .eq("status", "COMPLETED")
+    .order("basetime", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (signal && "abortSignal" in query) query = query.abortSignal(signal);
+  const { data, error } = await query;
+  if (error) throw error;
+  return data?.basetime ? String(data.basetime).replace(/[-:TZ.]/g, "").slice(0, 14) : null;
+}
+
+export async function saveNationalRainCycleState(
+  supabase: SupabaseClient,
+  state: {
+    basetime: string;
+    requiredFrames: number;
+    usableFrames: number;
+    completed: boolean;
+  },
+  signal?: AbortSignal,
+) {
+  let query = supabase.from("national_rain_scan_cycles").upsert({
+    basetime: state.basetime,
+    status: state.completed ? "COMPLETED" : "INCOMPLETE",
+    required_frames: state.requiredFrames,
+    usable_frames: state.usableFrames,
+    completed_at: state.completed ? new Date().toISOString() : null,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "basetime" });
+  if (signal && "abortSignal" in query) query = query.abortSignal(signal);
+  const { error } = await query;
+  if (error) throw error;
+}
