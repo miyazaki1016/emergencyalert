@@ -6,9 +6,12 @@ import { candidateKey, scanHeavyRainTile, type HeavyRainCandidate } from "@/lib/
 import {
   createNationalRainQueueClient,
   enqueueNationalRainJobs,
+  getLastCompletedNationalRainBasetime,
+  saveNationalRainCycleState,
   stagedRefinementJobsFromCoarseCandidates,
   type NationalRainQueueJob,
 } from "@/lib/weather/rain/nationalRainQueue";
+import { decideNationalRainCycle, latestForecastBasetime } from "@/lib/weather/rain/nationalRainCycle";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -42,24 +45,79 @@ export async function POST(request: NextRequest) {
   if (!isAuthorized(request)) return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
 
   try {
-    const [observations, forecasts] = await Promise.all([
-      fetchObservationTargetTimes(),
-      fetchForecastTargetTimes(),
-    ]);
+    const forecasts = await fetchForecastTargetTimes();
+    const cycleBasetime = latestForecastBasetime(forecasts);
+    const cycleForecasts = forecasts.filter((frame) => frame.basetime === cycleBasetime);
+    const supabase = createNationalRainQueueClient();
+    const lastCompletedBasetime = await getLastCompletedNationalRainBasetime(supabase);
+    const decision = decideNationalRainCycle(cycleForecasts, { lastCompletedBasetime });
+
+    if (decision.action === "SKIP") {
+      return NextResponse.json({
+        mode: "NATIONAL_RAIN_QUEUE_PROOF",
+        checkedAt: new Date().toISOString(),
+        cycleBasetime,
+        cycleAction: decision.action,
+        cycleReason: decision.reason,
+        requestedRefinementTiles: 0,
+        frames: [],
+        note: "Proof queue only. This basetime was already completed, so the nationwide scan was skipped.",
+      });
+    }
+
+    const observations = await fetchObservationTargetTimes();
     const current = observations[0];
     if (!current) throw new Error("observation unavailable");
 
     const currentStrong = new Set((await scanFrame(current)).map(candidateKey));
     const frames = [];
     const allJobs: NationalRainQueueJob[] = [];
+    let usableFrames = 0;
 
-    // Scan every required forecast before touching the queue. If any JMA frame
-    // fails, the request fails closed with zero queue writes.
-    for (const forecast of forecasts) {
+    for (const forecast of cycleForecasts) {
       let scanned: HeavyRainCandidate[];
       try {
         scanned = await scanFrame(forecast);
       } catch (error) {
+        // targetTimes can lead tile publication briefly. A frame is usable only
+        // after every required z4 tile exists; unavailable is never "no rain".
+        console.warn("[national-rain-queue] forecast frame not ready", forecast.validtime, error);
+        continue;
+      }
+      usableFrames += 1;
+      const candidates = scanned
+        .filter((candidate) => !currentStrong.has(candidateKey(candidate)));
+      const jobs = uniqueJobs(candidates, forecast);
+      allJobs.push(...jobs);
+      frames.push({ validTime: forecast.validtime, coarseCandidates: candidates.length, refinementZoom: 10, refinementTiles: jobs.length });
+    }
+
+    await enqueueNationalRainJobs(supabase, allJobs);
+    const requiredFrames = cycleForecasts.length;
+    const completed = requiredFrames > 0 && usableFrames === requiredFrames;
+    await saveNationalRainCycleState(supabase, {
+      basetime: cycleBasetime,
+      requiredFrames,
+      usableFrames,
+      completed,
+    });
+    const requestedRefinementTiles = allJobs.length;
+
+    return NextResponse.json({
+      mode: "NATIONAL_RAIN_QUEUE_PROOF",
+      checkedAt: new Date().toISOString(),
+      currentValidTime: current.validtime,
+      cycleBasetime,
+      cycleAction: decision.action,
+      cycleReason: decision.reason,
+      cycleCompleted: completed,
+      requiredFrames,
+      usableFrames,
+      requestedRefinementTiles,
+      frames,
+      note: "Proof queue only. It does not publish alerts or affect watch targets/push notifications.",
+    });
+  } catch (error) {
         // targetTimes can lead tile publication briefly. A frame is usable only
         // after every required z4 tile exists; unavailable is never "no rain".
         console.warn("[national-rain-queue] forecast frame not ready", forecast.validtime, error);
