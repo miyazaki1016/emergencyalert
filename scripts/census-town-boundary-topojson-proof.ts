@@ -97,6 +97,30 @@ async function main() {
       matches: affectedAdministrativeAreas([tinyRainAt(probe.lon, probe.lat)], shiohamaAreas).map((candidate) => candidate.code),
     };
   });
+  const pointsOf = (area: AdministrativeArea) => {
+    const polygons = area.geometry.type === "Polygon" ? [area.geometry.coordinates as number[][][]] : area.geometry.coordinates as number[][][][];
+    return polygons.flatMap((polygon) => polygon.flat());
+  };
+  const first = shiohamaAreas.find((area) => area.code === "13108019001");
+  const second = shiohamaAreas.find((area) => area.code === "13108019002");
+  if (!first || !second) throw new Error("Expected both Shiohama town geometries");
+  let closest: { a: number[]; b: number[]; distance2: number } | null = null;
+  for (const a of pointsOf(first)) for (const b of pointsOf(second)) {
+    const distance2 = (a[0]-b[0]) ** 2 + (a[1]-b[1]) ** 2;
+    if (!closest || distance2 < closest.distance2) closest = { a, b, distance2 };
+  }
+  if (!closest) throw new Error("Could not find Shiohama boundary candidates");
+  const boundaryProbe = {
+    lon: (closest.a[0] + closest.b[0]) / 2,
+    lat: (closest.a[1] + closest.b[1]) / 2,
+    vertexDistance: Math.sqrt(closest.distance2),
+  };
+  const boundaryMatches = affectedAdministrativeAreas(
+    [tinyRainAt(boundaryProbe.lon, boundaryProbe.lat, Math.max(0.00005, boundaryProbe.vertexDistance / 2 + 0.00001))],
+    shiohamaAreas,
+  ).map((area) => area.code).sort();
+  const boundaryProof = { probe: boundaryProbe, matches: boundaryMatches };
+
   const arcPointCount = (topology.arcs ?? []).reduce(
     (sum: number, arc: any[]) => sum + (Array.isArray(arc) ? arc.length : 0),
     0,
@@ -115,6 +139,7 @@ async function main() {
     encodedArcPoints: arcPointCount,
     transform: topology.transform ?? null,
     intersectionProof,
+    boundaryProof,
     shiohama: shiohama.map((g: any) => ({
       keyCode: keyOf(g),
       name: nameOf(g),
@@ -123,6 +148,9 @@ async function main() {
     })),
   }, null, 2));
   // Keep this assertion after diagnostic output so CI preserves decoded bounds on failure.
+  if (boundaryProof.matches.join(",") !== "13108019001,13108019002") {
+    throw new Error(`Town boundary ambiguity proof mismatch: ${JSON.stringify(boundaryProof.matches)}`);
+  }
   for (const row of intersectionProof) {
     if (row.matches.length !== 1 || row.matches[0] !== row.probe.keyCode) {
       throw new Error(`Town intersection proof mismatch for ${row.probe.name}: ${JSON.stringify(row.matches)}`);
