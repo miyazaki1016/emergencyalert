@@ -62,14 +62,14 @@ jobs:
           name: jma-404-url-evidence
           path: /tmp/jma-404-url-evidence.json
           if-no-files-found: warn
-      - name: Recheck reproduced JMA 404s after 2.5 minutes
+      - name: Track reproduced JMA 404s for 10 minutes
         if: always()
         timeout-minutes: 8
         run: |
           set -o pipefail
           if [ -f /tmp/jma-404-url-evidence.json ]; then
             JMA_404_INPUT=/tmp/jma-404-url-evidence.json \
-            JMA_404_RETRY_DELAY_MS=150000 \
+            JMA_404_RETRY_SCHEDULE_MS=150000,300000,450000,600000 \
             JMA_404_RETRY_SAMPLE_PER_FRAME=120 \
             npx tsx scripts/jma-404-delayed-retry-proof.ts | tee /tmp/jma-404-delayed-retry.json
           else
