@@ -118,31 +118,6 @@ export async function POST(request: NextRequest) {
       note: "Proof queue only. It does not publish alerts or affect watch targets/push notifications.",
     });
   } catch (error) {
-        // targetTimes can lead tile publication briefly. A frame is usable only
-        // after every required z4 tile exists; unavailable is never "no rain".
-        console.warn("[national-rain-queue] forecast frame not ready", forecast.validtime, error);
-        continue;
-      }
-      const candidates = scanned
-        .filter((candidate) => !currentStrong.has(candidateKey(candidate)));
-      const jobs = uniqueJobs(candidates, forecast);
-      allJobs.push(...jobs);
-      frames.push({ validTime: forecast.validtime, coarseCandidates: candidates.length, refinementZoom: 10, refinementTiles: jobs.length });
-    }
-
-    const supabase = createNationalRainQueueClient();
-    await enqueueNationalRainJobs(supabase, allJobs);
-    const requestedRefinementTiles = allJobs.length;
-
-    return NextResponse.json({
-      mode: "NATIONAL_RAIN_QUEUE_PROOF",
-      checkedAt: new Date().toISOString(),
-      currentValidTime: current.validtime,
-      requestedRefinementTiles,
-      frames,
-      note: "Proof queue only. It does not publish alerts or affect watch targets/push notifications.",
-    });
-  } catch (error) {
     console.error("[national-rain-queue]", error);
     return NextResponse.json({ error: "NATIONAL_RAIN_QUEUE_FAILED" }, { status: 503 });
   }
