@@ -11,7 +11,7 @@ import {
   stagedRefinementJobsFromCoarseCandidates,
   type NationalRainQueueJob,
 } from "@/lib/weather/rain/nationalRainQueue";
-import { decideNationalRainCycle, latestForecastBasetime } from "@/lib/weather/rain/nationalRainCycle";
+import { decideNationalRainCycle, latestForecastBasetime } from "../../../../lib/weather/rain/nationalRainCycle";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
