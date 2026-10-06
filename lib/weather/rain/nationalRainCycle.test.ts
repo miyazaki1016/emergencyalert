@@ -3,6 +3,7 @@ import {
   completedBasetimeAfterScan,
   decideNationalRainCycle,
   latestForecastBasetime,
+  shouldRetainUnresolvedRetry,
 } from "./nationalRainCycle";
 
 const frames = [
@@ -48,6 +49,24 @@ describe("national rain basetime cycle contract", () => {
       basetime: "20261006030000",
       reason: "RETRY_INCOMPLETE",
     });
+  });
+
+  test("drops an older unresolved retry once a newer candidate basetime exists", () => {
+    expect(shouldRetainUnresolvedRetry({
+      retryBasetime: "20261006030000",
+      latestCandidateBasetime: "20261006030500",
+    })).toBe(false);
+  });
+
+  test("keeps an unresolved retry until a newer candidate basetime exists", () => {
+    expect(shouldRetainUnresolvedRetry({
+      retryBasetime: "20261006030000",
+      latestCandidateBasetime: "20261006030000",
+    })).toBe(true);
+    expect(shouldRetainUnresolvedRetry({
+      retryBasetime: "20261006030000",
+      latestCandidateBasetime: null,
+    })).toBe(true);
   });
 
   test("marks the basetime completed only after all required frames are usable", () => {
