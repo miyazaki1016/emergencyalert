@@ -62,6 +62,26 @@ jobs:
           name: jma-404-url-evidence
           path: /tmp/jma-404-url-evidence.json
           if-no-files-found: warn
+      - name: Recheck reproduced JMA 404s after 2.5 minutes
+        if: always()
+        timeout-minutes: 8
+        run: |
+          set -o pipefail
+          if [ -f /tmp/jma-404-url-evidence.json ]; then
+            JMA_404_INPUT=/tmp/jma-404-url-evidence.json \
+            JMA_404_RETRY_DELAY_MS=150000 \
+            JMA_404_RETRY_SAMPLE_PER_FRAME=120 \
+            npx tsx scripts/jma-404-delayed-retry-proof.ts | tee /tmp/jma-404-delayed-retry.json
+          else
+            echo '{"mode":"JMA_404_DELAYED_RETRY_PROOF","skipped":true,"reason":"404 evidence missing"}' | tee /tmp/jma-404-delayed-retry.json
+          fi
+      - name: Retain delayed JMA 404 retry evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jma-404-delayed-retry-evidence
+          path: /tmp/jma-404-delayed-retry.json
+          if-no-files-found: warn
       - run: npx tsx scripts/national-rain-budget-proof.ts
       - name: Measure read-only live national rain throughput
         timeout-minutes: 10
