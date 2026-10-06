@@ -214,7 +214,8 @@ export async function getLastCompletedNationalRainBasetime(
     .order("basetime", { ascending: false })
     .limit(1)
     .maybeSingle();
-  const abortableQuery = query as typeof query & { abortSignal?: (signal: AbortSignal) => typeof query };\n  if (signal && typeof abortableQuery.abortSignal === "function") query = abortableQuery.abortSignal(signal);
+  const abortableQuery = query as typeof query & { abortSignal?: (signal: AbortSignal) => typeof query };
+  if (signal && typeof abortableQuery.abortSignal === "function") query = abortableQuery.abortSignal(signal);
   const { data, error } = await query;
   if (error) throw error;
   return data?.basetime ? String(data.basetime).replace(/[-:TZ.]/g, "").slice(0, 14) : null;
