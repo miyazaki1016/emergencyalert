@@ -140,8 +140,10 @@ jobs:
           name: national-rain-throughput-evidence
           path: /tmp/national-rain-*-throughput.log
       - name: Benchmark fixed N03 intersection
+        if: always()
         run: npx tsx scripts/n03-administrative-area-benchmark.ts
       - name: Measure Koto census town boundary TopoJSON
+        if: always()
         timeout-minutes: 2
         run: |
           set -o pipefail
