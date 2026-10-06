@@ -1,12 +1,14 @@
 import { NextRequest } from "next/server";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-const { fetchObs, fetchForecast, scanTile, createClient, enqueue, stagedMapJobs } = vi.hoisted(() => ({
+const { fetchObs, fetchForecast, scanTile, createClient, enqueue, getLastCompleted, saveCycle, stagedMapJobs } = vi.hoisted(() => ({
   fetchObs: vi.fn(),
   fetchForecast: vi.fn(),
   scanTile: vi.fn(),
   createClient: vi.fn(() => ({ marker: "client" })),
   enqueue: vi.fn().mockResolvedValue({ count: 0 }),
+  getLastCompleted: vi.fn().mockResolvedValue(null),
+  saveCycle: vi.fn().mockResolvedValue(undefined),
   stagedMapJobs: vi.fn((candidates: any[], frame: any, childZoom: number) => {
     const seen = new Set<string>();
     return candidates.flatMap((candidate: any) => {
@@ -42,6 +44,8 @@ vi.mock("@/lib/weather/rain/nationalHeavyRain", () => ({
 vi.mock("@/lib/weather/rain/nationalRainQueue", () => ({
   createNationalRainQueueClient: createClient,
   enqueueNationalRainJobs: enqueue,
+  getLastCompletedNationalRainBasetime: getLastCompleted,
+  saveNationalRainCycleState: saveCycle,
   stagedRefinementJobsFromCoarseCandidates: stagedMapJobs,
 }));
 
@@ -61,6 +65,7 @@ describe("national rain queue proof route", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.clearAllMocks();
+    getLastCompleted.mockResolvedValue(null);
     delete process.env.NATIONAL_RAIN_WORKER_SECRET;
   });
 
@@ -69,6 +74,25 @@ describe("national rain queue proof route", () => {
     expect(response.status).toBe(401);
     expect(fetchObs).not.toHaveBeenCalled();
     expect(enqueue).not.toHaveBeenCalled();
+  });
+
+
+  test("skips the nationwide scan when the latest basetime is already completed", async () => {
+    process.env.NATIONAL_RAIN_WORKER_SECRET = "proof-secret";
+    fetchForecast.mockResolvedValue([forecast]);
+    getLastCompleted.mockResolvedValue(forecast.basetime);
+
+    const response = await POST(request("Bearer proof-secret"));
+    expect(response.status).toBe(200);
+    expect(fetchObs).not.toHaveBeenCalled();
+    expect(scanTile).not.toHaveBeenCalled();
+    expect(enqueue).not.toHaveBeenCalled();
+    expect(saveCycle).not.toHaveBeenCalled();
+    expect(await response.json()).toMatchObject({
+      cycleAction: "SKIP",
+      cycleReason: "ALREADY_COMPLETED",
+      requestedRefinementTiles: 0,
+    });
   });
 
   test("excludes current strong rain and deduplicates refinement tiles", async () => {
@@ -96,6 +120,12 @@ describe("national rain queue proof route", () => {
     expect(jobs).toHaveLength(1);
     expect(jobs[0]).toMatchObject({ zoom: 10, tileX: 30, tileY: 40 });
     expect((await response.json()).requestedRefinementTiles).toBe(1);
+    expect(saveCycle).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+      basetime: forecast.basetime,
+      requiredFrames: 1,
+      usableFrames: 1,
+      completed: true,
+    }));
   });
 
 
@@ -134,7 +164,15 @@ describe("national rain queue proof route", () => {
       tileY: 40,
     });
     expect(jobs.some((job: any) => job.validtime === later.validtime)).toBe(false);
-    expect((await response.json()).requestedRefinementTiles).toBe(1);
+    const body = await response.json();
+    expect(body.requestedRefinementTiles).toBe(1);
+    expect(body.cycleCompleted).toBe(false);
+    expect(saveCycle).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+      basetime: forecast.basetime,
+      requiredFrames: 2,
+      usableFrames: 1,
+      completed: false,
+    }));
   });
 
   test("does not enqueue when any coarse JMA tile fetch fails", async () => {
