@@ -44,3 +44,14 @@ export function completedBasetimeAfterScan(input: {
   }
   return input.usableFrames === input.requiredFrames ? input.basetime : null;
 }
+
+
+export function shouldRetainUnresolvedRetry(input: {
+  retryBasetime: string;
+  latestCandidateBasetime?: string | null;
+}): boolean {
+  if (!/^\d{14}$/.test(input.retryBasetime)) throw new Error("invalid retryBasetime");
+  if (!input.latestCandidateBasetime) return true;
+  if (!/^\d{14}$/.test(input.latestCandidateBasetime)) throw new Error("invalid latestCandidateBasetime");
+  return input.latestCandidateBasetime <= input.retryBasetime;
+}
