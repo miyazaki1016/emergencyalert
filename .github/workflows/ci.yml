@@ -64,7 +64,7 @@ jobs:
           if-no-files-found: warn
       - name: Track reproduced JMA 404s for 10 minutes
         if: always()
-        timeout-minutes: 8
+        timeout-minutes: 15
         run: |
           set -o pipefail
           if [ -f /tmp/jma-404-url-evidence.json ]; then
