@@ -2342,3 +2342,112 @@ Production Supabaseには既存watch/push/diagnostic系migrationは存在する�
 Production migration、scheduler、Push接続、PR #59 merge、Production deployは、町丁目作業とは別ゲート。オーナーの明示承認なしに進めない。
 
 > **次のソラへ：全国z8総当たりへ戻るな。worker deadline gateを再オープンするな（新しい反証が出た場合を除く）。次は町丁目データの原典・ライセンス・全国性を実物確認する。Productionは触るな。**
+
+
+## 新チャット引き継ぎ用・最新総覧 — 2026-10-07 01時台
+
+> **ここを全国強雨系の最新開始点とする。上の古いcheckpointと矛盾する場合はこの節を優先する。**
+>
+> **Production rollout承認ではない。PR #59 / Production migration / scheduler / Push / watch接続は引き続き別ゲート。**
+
+### 現在地
+
+- Repo: `miyazaki1016/emergencyalert`
+- Branch: `feat/national-heavy-rain-preview`
+- PR #59: **OPEN / 未merge**
+- この更新直前HEAD: `f43a64d471feaad1af206c383d1db794b95835b3`
+- 2026-10-05 19時台総覧commit `7f66086d...` から **30 commits進行**
+- Production readiness: **NO**
+- Production全国強雨queue / proof cron / scan-cycle migration: **未承認・未適用のまま扱う**
+
+### 町丁目・字 proof の進展
+
+国勢調査系の公的町丁・字等境界を使うproofを追加し、江東区塩浜で実データintersectionを確認した。
+
+確認済み:
+- 江東区データ: 約207 KB / 174 geometry
+- parse: 約2.60 ms
+- heap増分: 約3.6 MB
+- 塩浜一丁目 / 二丁目の共有境界では両候補になり得る
+- 単一候補なら町丁目名を使える
+- 複数候補・境界曖昧時は false precision を避け **「付近」fallback** とする
+
+CI proofはgreen実績あり。ただし、これは地名精密化proofでありProduction接続承認ではない。
+
+### 全国scan cycle / baseTime 契約
+
+全国scanを単純な固定間隔の重複実行にしないため、JMAの完了したbaseTimeを単位にcycle stateを持つproofを追加した。
+
+追加済み:
+- national rain baseTime cycle contract + tests
+- proof state / persistence migration `20261006_create_national_rain_scan_cycles.sql`
+- completed baseTime gating
+- older unresolved retryを新しいcycleでsupersedeする契約
+
+狙いは「同じ完成cycleを何度も全国走査しない」「古い未解決retryが新しい情報を邪魔しない」こと。
+
+**このmigrationはbranch上のproof資産であり、Production適用承認ではない。**
+
+### JMA 404 の最新理解
+
+404を雨なし扱いしない原則は維持する。
+
+これまでに確認した重要点:
+- z9が404でも、その配下z10が200になる例があるため、zoom親子のavailabilityを単純継承しない。
+- dry tile省略説は既存proofで否定的。404原因を「雨がないから」と解釈しない。
+- delayed retry proofを追加し、2.5分だけでなく最大10分の回復観測を行う形へ拡張した。
+- older unresolved retryは新しいcycleが来た場合にsupersede可能な契約へ進めた。
+
+したがって現契約は引き続き:
+`404 != NO_RAIN` / `FETCH_ERROR != NO_RAIN` / `UNKNOWN_PIXEL != NO_RAIN` / `NO_DATA != SAFE`。
+
+### 公的水害データの2026-10-07再確認
+
+今後の水害layerに使う公的sourceについて最新公開状況を再確認した。
+
+- 国土数値情報「洪水浸水想定区域」: **2025年度版が最新**。2026年5月に追加データ公開・更新。
+- 国土数値情報「雨水出水（内水）浸水想定区域」: **2025年度版が最新**。2026年5月更新。GeoJSONも提供、CC BY 4.0。
+- 国土数値情報「多段階浸水想定」: **2025年度版が最新**。高頻度〜中頻度の降雨規模別浸水想定を扱える。
+- ハザードマップポータル: **2026-09-15** に洪水想定区域を多数追加し、内水も3市町村追加。2026-07-13には指定避難所を地理院地図側で確認可能になった。
+
+設計上の扱いは既存のABSOLUTE LIFE-SAFETY RULEを変更しない。これらはSTATIC_HAZARD / official risk-support dataであり、現在の冠水深や現在浸水中という事実へ変換しない。
+
+### 最新CI実物確認
+
+HEAD `f43a64d4...`:
+- National rain proof #357: **SUCCESS**
+- JMA z4 to z10 screening proof #145: **SUCCESS**
+- N03 national prefecture index proof #277: **SUCCESS**
+- All47 ownership proof #151: **SUCCESS**
+- Main CI #653: **FAILURE**
+
+Main CIの失敗点は `npm run build` のTypeScript error:
+`lib/weather/rain/nationalRainQueue.ts:217` で `query.abortSignal` が `unknown` 型として扱われる。
+
+これは現在の最優先コードゲート。proof群がgreenでもbranch HEAD全体はCI-greenではない。
+
+### 現時点の判定
+
+- z4 nationwide screening -> direct z10 exact refinement: **IMPLEMENTED / proof継続**
+- z4 pruning universal guarantee: **NOT PROVEN / NOT JMA CONTRACT**
+- town/chome/aza boundary proof: **CI VERIFIED / PROOF**
+- ambiguous town boundary fallback: **PROVEN / 「付近」**
+- municipality N03 resolution: **IMPLEMENTED**
+- scan cycle / completed baseTime gating: **IMPLEMENTED ON BRANCH / PROOF**
+- delayed 404 retry observation: **IMPLEMENTED / PROOF**
+- missing-data behavior: **FAIL CLOSED**
+- current HEAD Main CI: **RED — TypeScript build error**
+- PR #59 merge: **NO**
+- Production scheduler: **NOT ACCEPTED**
+- Push/watch integration: **NOT CONNECTED**
+- Production readiness: **NO**
+
+### 次の一手
+
+1. まずMain CI #653のTypeScript build errorを修正し、HEADをCI-greenへ戻す。
+2. 修正後、cycle/baseTime契約のtestsとbuildを実物確認する。
+3. 404 delayed-retry proofの結果を「回復する/しない」の単純断定ではなく、cycle freshnessとsupersede契約へ反映する。
+4. 町丁目proofを雨検出本体と分離したまま、resolver契約へ昇格させる条件を整理する。
+5. 水害layerは洪水・内水・多段階浸水想定をSTATIC_HAZARDとして取り込み、観測/予測/危険度/静的ハザードを混同しないschemaから進める。
+
+> **未来のソラへ：まず赤いMain CIを直せ。proof greenをbranch greenと取り違えるな。Productionは触るな。404を雨なしにするな。町丁目の境界曖昧時は「付近」。水害ハザードを現在浸水の事実に変換するな。**
