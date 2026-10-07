@@ -14,7 +14,7 @@ export type PartitionIndex = {
 const sha256 = (body: string | Buffer) => createHash("sha256").update(body).digest("hex");
 
 type Part = { id: number; areaOrder: number; polygonOrder: number; geometry: { type: "Polygon"; coordinates: number[][][] } };
-type Dataset = { code: string; index: PartitionIndex; indexSha256: string };
+export type N03PartitionDataset = { code: string; index: PartitionIndex; indexSha256: string };
 const overlaps = (a: number[], b: number[]) => a[0] <= b[2] && a[2] >= b[0] && a[1] <= b[3] && a[3] >= b[1];
 function bounds(rings: number[][][]) {
   const bbox = [Infinity, Infinity, -Infinity, -Infinity];
@@ -31,7 +31,7 @@ function bounds(rings: number[][][]) {
 }
 
 export function createN03BoundedPartitionResolver(options: {
-  datasets: Dataset[];
+  datasets: N03PartitionDataset[];
   read: (code: string, file: string, signal?: AbortSignal) => Promise<Buffer>;
   maxWeight?: number;
   signal?: AbortSignal;
