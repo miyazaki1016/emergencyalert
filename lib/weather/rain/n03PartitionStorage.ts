@@ -8,10 +8,10 @@ export const NATIONAL_RAIN_N03_PARTITION_PREFIX =
   `${N03_DATASET_DATE}/${NATIONAL_RAIN_N03_PARTITION_FORMAT}`;
 
 function assertPrefectureCode(code: string) {
-  if (!/^\\d{2}$/.test(code)) throw new Error("Invalid N03 prefecture code");
+  if (!/^\d{2}$/.test(code)) throw new Error("Invalid N03 prefecture code");
 }
 function assertChunkFile(file: string) {
-  if (!/^chunk-\\d{4}\\.json$/.test(file)) throw new Error("Invalid N03 partition chunk file");
+  if (!/^chunk-\d{4}\.json$/.test(file)) throw new Error("Invalid N03 partition chunk file");
 }
 
 export function nationalRainN03PartitionManifestPath(code: string) {
