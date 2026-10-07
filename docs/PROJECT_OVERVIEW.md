@@ -2462,3 +2462,14 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - ユーザー向け降雨確定は `1_TO_5` 以上、または LT_1 の時間継続・周辺空間継続などを組み合わせる候補を比較してから決める。単一地点・単一ピクセルだけで閾値を固定しない。
 - この日常通知閾値の調整は、全国の **30 mm/h 以上の強雨検出・危険雨スクリーニングとは別レイヤー** とし、強雨側の検出感度を落とさない。
 - 今回事例は「データが誤り」と断定せず、**データ上の微弱降水と人間が受け取る自然言語表現の不一致**として扱う。
+
+
+### 2026-10-07 CI #656 / JMA 404 delayed-retry 確定結果
+
+- Main CI #656 は success。npm test / build / 全国雨関連 proof を含む verify job が完走した。
+- 再現した JMA forecast tile 404 から 204 URL を追跡し、同一 URL を **2分30秒 / 5分 / 7分30秒 / 10分** で再取得した。
+- 結果は全チェックポイントで **404→200 回復 0/204**。10分後も 204/204 が 404 のままだった。
+- この1 run だけから「404 は絶対に回復しない」と一般化しない。CI 自身の limitation の通り、異なる気象・公開状況で反復観測を続ける。
+- 運用意味は従来どおり：**404 != NO_RAIN / 404 = NO_DATA（取得不能）**。公開遅延と決め打ちしない。NO_DATA を安全・無降雨へ変換しない。
+- 4段階 retry schedule `150000,300000,450000,600000 ms` は実際に完走している。
+- 次工程は Production rollout ではなく、Proof で成立している **z4 全国 screening → candidate-only z10 refinement → 地点名化** を Preview 本線へ段階統合すること。既存の fail-closed / cycle freshness / supersede / deadline / ownership 条件を壊さない。
