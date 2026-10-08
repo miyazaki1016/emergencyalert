@@ -2473,3 +2473,16 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - 運用意味は従来どおり：**404 != NO_RAIN / 404 = NO_DATA（取得不能）**。公開遅延と決め打ちしない。NO_DATA を安全・無降雨へ変換しない。
 - 4段階 retry schedule `150000,300000,450000,600000 ms` は実際に完走している。
 - 次工程は Production rollout ではなく、Proof で成立している **z4 全国 screening → candidate-only z10 refinement → 地点名化** を Preview 本線へ段階統合すること。既存の fail-closed / cycle freshness / supersede / deadline / ownership 条件を壊さない。
+
+
+### 2026-10-09 N03分割データ導入再開 — GitHub実物・Supabase実物照合
+
+- 作業起点は2026-10-07 20:34 JSTのコミット `d996cdabe1`（Export N03 partition dataset contract）。N03 bounded resolverとversioned Storage契約は既にライブラリ化済み。
+- EmergencyAlert Supabase（project `yqyevipvkdwmhcaxywes`）の `storage.objects` を読み取り専用確認：`national-rain-n03` bucketに従来形式 `20260101/XX.areas.json` が47件。新形式 `20260101/polygon-parts-v1/...` は0件、manifestは0件。**分割実データは未配置**。
+- Preview branch `feat/national-heavy-rain-preview` にオフライン専用の `scripts/n03-partition-package.ts` を追加（`b81038eee2`）、都道府県コード正規表現を修正（`42a2b3b11c`）、`scripts/n03-partition-package.test.ts` を追加（`eed2a808ea`）。対象は**パッケージ生成契約とテストのみ**。Supabaseへのupload機能、worker切替、Production反映は未実施。
+- パッケージ処理は `partitionAreas` からversioned chunkとmanifestをメモリ上に構築し、32MiB超過・oversized chunk・異なる都道府県のareaを拒否。manifestはchunkのアップロードと照合を完了するまで公開してはいけない。
+- 2026-10-09確認時点、HEAD `eed2a808ea` のMain CI / N03 national prefecture index proof / All47 ownership proofは**実行中**。National rain proofとJMA z4→z10 screening proofは**SUCCESS**。補助workflow `n03-administrative-area-proof` と `national-forecast-lowzoom-proof` は**FAILURE（原因未特定）**。Main CI greenとは断定しない。
+- 次工程：新規テストとbuildのCI結果を確認→必要なら修正→47都道府県のオフライン分割生成・検証とサイズ計測→専用Preview Storage環境の有無・アクセス境界を確認→**明示的なPreview専用**配置・検証→fail-closed worker接続。共有Storageへの書込や既存47ファイルの上書きを勝手に行わない。
+- **Production scheduler / migration / Push / watch / PR #59 merge は引き続き禁止**。404 / FETCH_ERROR / UNKNOWN / NO_DATA を無降雨や安全へ変換しない。町丁目境界は曖昧なら「付近」。静的水害ハザードを現在浸水の事実に変換しない。
+
+> 未来のソラへ：最後のコミット日時だけで完成と誤認するな。Storageに新分割データはまだない。新しいオフラインパッケージはCI確定前。PreviewとProductionのデータ境界を確認するまではアップロード禁止。
