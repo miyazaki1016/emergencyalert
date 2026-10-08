@@ -10,8 +10,8 @@ const digest = (data: string) => createHash("sha256").update(data).digest("hex")
 
 /** Builds upload-ready, versioned objects entirely in memory; caller owns persistence. */
 export function packageN03Prefecture(code: string, areas: AdministrativeArea[], targetBytes = 1024 * 1024) {
-  if (!/^\\d{2}$/.test(code) || !areas.length) throw new Error("Invalid or empty prefecture");
-  if (areas.some(area => !/^\\d{5}$/.test(area.code) || !area.code.startsWith(code))) {
+  if (!/^\d{2}$/.test(code) || !areas.length) throw new Error("Invalid or empty prefecture");
+  if (areas.some(area => !/^\d{5}$/.test(area.code) || !area.code.startsWith(code))) {
     throw new Error("N03 area belongs to another prefecture");
   }
   const { index, files } = partitionAreas(areas, targetBytes);
