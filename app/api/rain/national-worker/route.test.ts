@@ -117,4 +117,28 @@ describe("national rain worker route", () => {
     expect(resolver.resolve).toHaveBeenCalledWith(footprint, undefined);
   });
 
+  test("fails closed when a selected partition manifest is missing instead of falling back to whole-prefecture data", async () => {
+    process.env.NATIONAL_RAIN_WORKER_SECRET = "proof-secret";
+    process.env.NATIONAL_RAIN_N03_PARTITIONS_ENABLED = "true";
+    const footprint = [{ type: "Polygon", coordinates: [] }];
+    processJobs.mockImplementation(async (_client: unknown, options: { resolveMunicipalities: (footprint: typeof footprint) => Promise<unknown> }) => {
+      await options.resolveMunicipalities(footprint);
+      return { claimed: 1, done: 1, failed: 0, strongPixels: 1, deferred: 0 };
+    });
+
+    const response = await POST(request("Bearer proof-secret"));
+    const storage = createPartitionStorage.mock.results[0].value;
+    storage.loadManifest.mockRejectedValue(new Error("missing partition manifest"));
+
+    // Invoke the worker a second time after configuring the selected manifest to fail.
+    processJobs.mockImplementationOnce(async (_client: unknown, options: { resolveMunicipalities: (footprint: typeof footprint) => Promise<unknown> }) => {
+      await options.resolveMunicipalities(footprint);
+      return { claimed: 1, done: 1, failed: 0, strongPixels: 1, deferred: 0 };
+    });
+    const failedResponse = await POST(request("Bearer proof-secret"));
+
+    expect(failedResponse.status).toBe(503);
+    expect(createLoader).not.toHaveBeenCalled();
+  });
+
 });
