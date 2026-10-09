@@ -2,7 +2,7 @@
 """Offline N03 oversized-polygon geometric clipping proof. Requires shapely>=2,<3.
 No Storage calls; produces aggregate diagnostics only, never geometry output.
 """
-import json, math, sys
+import json, math, sys, shutil
 from pathlib import Path
 from shapely.geometry import Polygon, box
 from shapely.ops import unary_union
@@ -22,7 +22,11 @@ def components(geom):
         return [p for sub in geom.geoms for p in components(sub)]
     return []
 
-def main(root):
+def main(root, output=None):
+    if output:
+        output.mkdir(parents=True, exist_ok=True)
+        for pref in range(1,48):
+            shutil.copyfile(root/f"{pref:02}.areas.json", output/f"{pref:02}.areas.json")
     oversized=[]
     for pref in range(1,48):
         for area in json.loads((root/f"{pref:02}.areas.json").read_text()):
@@ -30,6 +34,7 @@ def main(root):
                 if encoded_bytes(rings)>LIMIT:
                     oversized.append((f"{pref:02}",area["code"],idx,rings))
     results=[]
+    replacements={}
     for pref,code,idx,rings in oversized:
         poly=Polygon(rings[0],rings[1:])
         if not poly.is_valid:
@@ -53,8 +58,20 @@ def main(root):
             best={"divisions":divisions,"fragments":len(fragments),"maxFragmentBytes":max(sizes),"totalFragmentBytes":sum(sizes),"symmetricDifferenceArea":symmetric}
             if max(sizes)<LIMIT: break
         results.append({"pref":pref,"code":code,"polygonOrder":idx,"status":"CLIPPED" if best["maxFragmentBytes"]<LIMIT else "STILL_OVERSIZED",**best})
+        if output and best["maxFragmentBytes"]<LIMIT:
+            replacements[(pref,code,idx)]=[[list(p.exterior.coords)]+[list(r.coords) for r in p.interiors] for p in fragments]
+    if output:
+        for pref in sorted({p for p,_,_ in replacements}):
+            source=json.loads((root/f"{pref}.areas.json").read_text())
+            for area in source:
+                original=polygon_parts(area)
+                rewritten=[]
+                for i,rings in enumerate(original):
+                    rewritten.extend(replacements.get((pref,area["code"],i),[rings]))
+                area["geometry"]={"type":"MultiPolygon","coordinates":rewritten}
+            (output/f"{pref}.areas.json").write_text(json.dumps(source,separators=(",",":"),ensure_ascii=False))
     print(json.dumps({"mode":"N03_OVERSIZED_SHAPELY_RECTANGLE_CLIP_PROOF","thresholdBytes":LIMIT,"oversizedCount":len(oversized),"results":results,"limitations":["Polygon area equivalence is not proof of JS rain-boundary predicate equivalence","Polygon boundaries may acquire tile edges and change touching-only matches","Offline proof only: no production data format or Storage writes"],"decision":"EXPERIMENT_ONLY_NOT_ADOPTED"}))
     if any(x["status"]!="CLIPPED" for x in results): sys.exit(1)
 if __name__=="__main__":
-    if len(sys.argv)!=2: sys.exit("Usage: python scripts/n03-oversized-clip-proof.py <prepared-dir>")
-    main(Path(sys.argv[1]))
+    if len(sys.argv) not in (2,3): sys.exit("Usage: python scripts/n03-oversized-clip-proof.py <prepared-dir> [experimental-output-dir]")
+    main(Path(sys.argv[1]),Path(sys.argv[2]) if len(sys.argv)==3 else None)
