@@ -16,8 +16,18 @@ export function packageN03Prefecture(code: string, areas: AdministrativeArea[], 
   }
   const { index, files } = partitionAreas(areas, targetBytes);
   if (index.datasetDate !== N03_DATASET_DATE) throw new Error("Unexpected dataset date");
-  if (index.chunks.some(chunk => chunk.oversized || chunk.bytes > 32 * 1048576)) {
-    throw new Error("Oversized N03 partition: refusing to package");
+  const oversized = index.chunks.filter(chunk => chunk.oversized || chunk.bytes > 32 * 1048576);
+  if (oversized.length) {
+    const sample = oversized.slice(0, 5).map(chunk => {
+      const parts = index.parts.filter(part => part.chunk === chunk.file);
+      const areaCodes = [...new Set(parts.map(part => index.areas[part.areaOrder]?.code).filter(Boolean))];
+      return { file: chunk.file, bytes: chunk.bytes, targetBytes, partCount: chunk.partCount,
+        areaCodes: areaCodes.slice(0, 8), singlePolygon: chunk.partCount === 1 };
+    });
+    // Diagnostics contain only chunk sizes and municipality codes, never raw geometry.
+    throw new Error(`Oversized N03 partition in prefecture ${code}: ${JSON.stringify({
+      oversizedCount: oversized.length, totalChunks: index.chunks.length, sample,
+    })}`);
   }
   const indexSha256 = digest(JSON.stringify(index));
   // Validate manifest structure before emitting any object.
