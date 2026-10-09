@@ -9,6 +9,7 @@ on:
       - "scripts/n03-hokkaido-target-comparison.ts"
       - "scripts/n03-all47-polygon-inventory.ts"
       - "scripts/n03-oversized-clip-proof.py"
+      - "scripts/n03-clipped-js-equivalence.ts"
       - "scripts/n03-partition-package.ts"
       - "scripts/prepare-n03-storage-data.ts"
   workflow_dispatch:
@@ -36,6 +37,9 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check "shapely==2.1.2"
           python scripts/n03-oversized-clip-proof.py /tmp/n03-real-prepared /tmp/n03-real-clipped | tee /tmp/n03-oversized-clip-proof.json
+      - name: Compare canonical JS rain matches before and after clipping
+        timeout-minutes: 15
+        run: npx tsx scripts/n03-clipped-js-equivalence.ts /tmp/n03-real-prepared /tmp/n03-real-clipped | tee /tmp/n03-clipped-js-equivalence.json
       - name: Measure Hokkaido z8 bbox packing baseline (no Storage or geometry upload)
         run: npx tsx scripts/n03-hokkaido-z8-feasibility.ts /tmp/n03-real-prepared/01.areas.json | tee /tmp/n03-hokkaido-z8-feasibility.json
       - name: Compare Hokkaido 1 to 4 MiB polygon packing and exact municipality matches
@@ -57,6 +61,7 @@ jobs:
           path: |
             /tmp/n03-all47-polygon-inventory.json
             /tmp/n03-oversized-clip-proof.json
+            /tmp/n03-clipped-js-equivalence.json
             /tmp/n03-hokkaido-z8-feasibility.json
             /tmp/n03-hokkaido-target-comparison.json
             /tmp/n03-real-conversion.json
