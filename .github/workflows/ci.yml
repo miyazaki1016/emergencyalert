@@ -203,7 +203,7 @@ jobs:
 
           do $lease_fence$
           declare
-            job_id bigint;
+            v_job_id bigint;
             token_a uuid;
             token_b uuid;
             outcome text;
@@ -211,23 +211,23 @@ jobs:
             stored_status text;
             child_count integer;
           begin
-            select id, lease_token into job_id, token_a
+            select id, lease_token into v_job_id, token_a
             from public.claim_national_rain_refinement_jobs(1)
             where run_key = 'ci-race';
             if job_id is null or token_a is null then raise exception 'worker A did not receive a lease identity'; end if;
 
             update public.national_rain_refinement_jobs
             set claimed_at = now() - interval '6 minutes'
-            where id = job_id;
+            where id = v_job_id;
 
             select lease_token into token_b
             from public.claim_national_rain_refinement_jobs(1)
-            where id = job_id;
+            where id = v_job_id;
             if token_b is null or token_b = token_a then raise exception 'reclaim did not rotate lease identity'; end if;
 
             outcome := public.complete_national_rain_refinement_job(
-              job_id, token_a,
-              jsonb_build_object('job_id', job_id, 'run_key', 'ci-race', 'basetime', '2026-09-29T10:00:00Z',
+              v_job_id, token_a,
+              jsonb_build_object('job_id', v_job_id, 'run_key', 'ci-race', 'basetime', '2026-09-29T10:00:00Z',
                 'validtime', '2026-09-29T10:05:00Z', 'zoom', 10, 'tile_x', 400, 'tile_y', 200,
                 'strong_pixel_count', 1, 'municipalities', jsonb_build_array(jsonb_build_object('owner', 'A'))),
               jsonb_build_array(jsonb_build_object('run_key', 'stale-child', 'basetime', '2026-09-29T10:00:00Z',
@@ -241,8 +241,8 @@ jobs:
             if outcome <> 'STALE_LEASE' then raise exception 'stale defer was not rejected: %', outcome; end if;
 
             outcome := public.complete_national_rain_refinement_job(
-              job_id, token_b,
-              jsonb_build_object('job_id', job_id, 'run_key', 'ci-race', 'basetime', '2026-09-29T10:00:00Z',
+              v_job_id, token_b,
+              jsonb_build_object('job_id', v_job_id, 'run_key', 'ci-race', 'basetime', '2026-09-29T10:00:00Z',
                 'validtime', '2026-09-29T10:05:00Z', 'zoom', 10, 'tile_x', 400, 'tile_y', 200,
                 'strong_pixel_count', 2, 'municipalities', jsonb_build_array(jsonb_build_object('owner', 'B'))),
               '[]'::jsonb
@@ -250,8 +250,8 @@ jobs:
             if outcome <> 'OK' then raise exception 'current owner B could not complete: %', outcome; end if;
 
             select municipalities->0->>'owner' into stored_owner
-            from public.national_rain_refinement_results where job_id = job_id;
-            select status into stored_status from public.national_rain_refinement_jobs where id = job_id;
+            from public.national_rain_refinement_results r where r.job_id = v_job_id;
+            select status into stored_status from public.national_rain_refinement_jobs where id = v_job_id;
             select count(*) into child_count from public.national_rain_refinement_jobs where run_key = 'stale-child';
             if stored_owner <> 'B' then raise exception 'stale A overwrote B result; stored owner=%', stored_owner; end if;
             if stored_status <> 'DONE' then raise exception 'current owner job status expected DONE, got %', stored_status; end if;
