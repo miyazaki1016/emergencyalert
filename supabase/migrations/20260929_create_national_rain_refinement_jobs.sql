@@ -24,6 +24,11 @@ create table if not exists public.national_rain_refinement_jobs (
   unique (run_key, validtime, zoom, tile_x, tile_y, scan_min_x, scan_min_y, scan_max_x, scan_max_y)
 );
 
+alter table public.national_rain_refinement_jobs add column if not exists lease_token uuid;
+-- Remove legacy ID-only mutation RPCs so no caller can bypass lease fencing.
+drop function if exists public.finish_national_rain_refinement_job(bigint, boolean, text);
+drop function if exists public.defer_national_rain_refinement_job(bigint);
+
 create table if not exists public.national_rain_refinement_results (
   job_id bigint primary key references public.national_rain_refinement_jobs(id) on delete cascade,
   run_key text not null,
