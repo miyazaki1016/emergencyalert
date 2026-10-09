@@ -9,7 +9,8 @@ import { JAPAN_PREFECTURES } from "../lib/weather/rain/japanPrefectures";
 import type { AdministrativeArea } from "../lib/weather/rain/administrativeAreas";
 import { packageN03Prefecture } from "./n03-partition-package";
 
-export function packageAllLocal(inputDir: string, outputDir: string) {
+export function packageAllLocal(inputDir: string, outputDir: string, targetBytes = 1024 * 1024) {
+  if (![1048576, 1572864, 2097152, 4194304].includes(targetBytes)) throw new Error("Unsupported experimental target bytes");
   const input = resolve(inputDir);
   const output = resolve(outputDir);
   if (input === output || output.startsWith(input + sep) || input.startsWith(output + sep)) {
@@ -46,7 +47,7 @@ export function packageAllLocal(inputDir: string, outputDir: string) {
       !area.geometry || !["Polygon", "MultiPolygon"].includes(area.geometry.type))) {
       throw new Error(`Invalid prepared N03 input: ${code}`);
     }
-    const dataset = packageN03Prefecture(code, raw as AdministrativeArea[]);
+    const dataset = packageN03Prefecture(code, raw as AdministrativeArea[], targetBytes);
     for (const [path, body] of dataset.objects) {
       const full = join(output, path);
       mkdirSync(full.slice(0, full.lastIndexOf(sep)), { recursive: true });
@@ -63,11 +64,12 @@ export function packageAllLocal(inputDir: string, outputDir: string) {
     // Manifest is written last, after all chunks for this prefecture pass readback.
     writeFileSync(manifest, dataset.manifestBody, { flag: "wx" });
   }
-  return { prefectures: JAPAN_PREFECTURES.length, chunks, manifests: JAPAN_PREFECTURES.length, verifiedBytes, output };
+  return { prefectures: JAPAN_PREFECTURES.length, chunks, manifests: JAPAN_PREFECTURES.length, verifiedBytes, targetBytes, output };
 }
 
 if (process.argv[1]?.endsWith("n03-package-all-local.ts")) {
-  const [input, output] = process.argv.slice(2);
+  const [input, output, targetMiB] = process.argv.slice(2);
   if (!input || !output) throw new Error("Usage: npx tsx scripts/n03-package-all-local.ts <input-dir> <empty-output-dir>");
-  console.log(JSON.stringify(packageAllLocal(input, output)));
+  const targetBytes = targetMiB === undefined ? 1048576 : Number(targetMiB) * 1048576;
+  console.log(JSON.stringify(packageAllLocal(input, output, targetBytes)));
 }
