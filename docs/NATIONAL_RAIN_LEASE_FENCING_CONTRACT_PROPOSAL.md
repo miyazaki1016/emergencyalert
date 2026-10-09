@@ -64,3 +64,26 @@ Before implementation, review the token type, expiry semantics, result transacti
 After approval, implement on a feature branch and run unit tests plus the isolated DB concurrency proof. Keep rollout disabled until those pass. Production schema/migration, queue activation, Storage provisioning, alerts, deployment and PR merge each remain separately gated and require explicit authorization.
 
 **Current decision: BLOCKED.** This is a contract proposal only; no schema, runtime, queue, Storage or Production state was changed.
+
+
+## 8. Exact current call-site audit
+
+Source review at PR head `9c712b3378b9ccfbcb859fc2799f2472d0e6d1a1` confirms the issue is not limited to the RPC signatures:
+
+- `lib/weather/rain/nationalRainQueue.ts::claimNationalRainJobs` returns rows without a lease identity because the claim RPC currently returns the queue table row as-is.
+- `saveNationalRainRefinementResult` performs a direct table upsert keyed only by `job_id`; this bypasses any future fencing unless replaced by the ownership-checking RPC.
+- `finishNationalRainJob` and `deferNationalRainJob` pass only `p_id` to their RPCs.
+- `lib/weather/rain/nationalRainWorker.ts::processNationalRainRefinementJobs` saves a z10 result **before** it calls finish. If the finish later discovers that the lease is stale, the already-written result may have overwritten the newer attempt's data. Fencing finish alone therefore does not solve the race.
+- The deadline path calls defer by ID only, including for jobs claimed but not started.
+- The CI step “Prove national rain queue lifecycle” applies the proof migration in a disposable Postgres service and exercises claim/finish/defer, but currently does not simulate lease expiry/reclaim or stale result writes.
+
+### Required call-site changes after contract approval
+
+1. Extend `ClaimedNationalRainJob` with the returned lease identity and carry it unchanged for the entire invocation.
+2. Replace direct result-table upsert with the atomic fenced result RPC (or a single fenced complete-with-result RPC). Do not leave a service-role direct-table write path that bypasses the ownership predicate.
+3. Pass the same identity to finish and defer. Treat `STALE_LEASE` as a stale result to discard, not as a generic success/failure to retry with the current token.
+4. Ensure a job claimed but not started is deferred with that exact identity; if a concurrent reclaim has already rotated it, the defer must be rejected safely.
+5. Add a disposable-Postgres integration proof to CI that forces A's lease expired, claims it as B, then verifies A's result/finish/defer are rejected and B's result/finish succeed. Assert the persisted result is still B's, not merely that a function returned without error.
+6. Review enqueue behavior separately: enqueuing child jobs is idempotent under the unique key and does not complete the parent. A stale parent must not mark itself done; whether child enqueue itself must be ownership-conditional should be decided explicitly to avoid stale attempts expanding the queue after reclaim.
+
+This audit is based on source and the existing CI workflow; it is **not** a live race reproduction. The exact files above remain unchanged. No migration, runtime code, CI workflow, DB, or Production state was modified by this follow-up.
