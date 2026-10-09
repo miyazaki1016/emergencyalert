@@ -2734,3 +2734,12 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - `b5ad4439`: テストコード内の文字列リテラル化された改行を実際の改行に修正。
 - `30417d5d`: resolver比較stepを `set -o pipefail` 付きにし、今後のテスト失敗をCIが確実に検出するよう修正。
 - 修正後のCI再実行結果は未確認。以前の57ケース成功は境界/穴追加前の版の結果であり、追加テスト成功とはみなさない。Production/Storage/merge変更なし。
+
+
+### 2026-10-09 resolver境界・穴プローブ修正後CI成功（Actions 37923575397）
+
+- `a246ebee` でresolver比較ログの制約説明を実際のケース構成に合わせた後、CI全体が成功。
+- 実chunk resolver比較：**97ケース・不一致0件**、SHA検証付きメモリ内chunk読込量332,541,782 bytes。1自治体あたり、全域/中央/外側の3矩形に加え、外周頂点2点と穴リング頂点1点（穴がある場合）のサンプル矩形を検証。
+- 元データ対切断後データのcanonical JS直接比較も **19自治体・446ケース・不一致0件**（外周/切断後頂点213件、穴5件を含む）。
+- 全国47都道府県のローカル実験パッケージ化と読戻しSHA検証も成功：47 manifests、351 chunks、472,804,611 verifiedBytes、目標chunk 1,572,864 bytes。
+- **採用判断は引き続き `EXPERIMENT_ONLY_NOT_ADOPTED`**。頂点プローブはサンプルであり、全境界・全穴・格子境界接触の網羅的同値性は未証明。chunk読込はメモリ内で、Supabase Storage HTTP、worker同時実行、45秒制約の性能証明ではない。Production/Storage/merge変更なし。
