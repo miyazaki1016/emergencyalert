@@ -2520,3 +2520,10 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - `scripts/n03-package-all-local.test.ts` を追加（`ac5cfe61`）。47都道府県の**合成fixture**からmanifest/chunkをローカル生成するテスト、元ファイル非破壊・出力先再利用拒否、47番欠損と都道府県名不一致時に**出力ディレクトリ作成前に停止**するテストを追加。
 - **注意：合成fixtureテストは実N03データの全47変換・性能・精度の証明ではない**。実データの入力取得、実サイズ/ハッシュ検証、Preview専用Storageの境界確認は未完了。
 - 直前HEAD `e759c1cc` のMain CIは確認時点で実行中。新テストのCI結果は未確定。N03 index / National rain / z4→z10 proofは成功、補助workflow2件は失敗継続。Production変更なし。
+
+
+### 2026-10-09 N03ローカル分割の書込後照合強化
+
+- `scripts/n03-package-all-local.ts` の各chunkについて、ローカル書込後に再読込しSHA-256を計算して、書込前bodyのSHA-256と一致するか照合する処理を追加（`e8a7896b`）。不一致なら例外停止。manifestは当該都道府県のchunk照合完了後にのみ出力。結果に `verifiedBytes` を追加。
+- **これはローカルディスク書込の一致確認**であり、Supabase Storageへのアップロード後照合やmanifest/chunkの全国実データ検証ではない。47都道府県の実ファイルは未取得・未変換。
+- 直前HEAD `3746e6a9` のMain CIは確認時点で実行中。今回の変更のCIは未確認。Production/Push/watchは未変更。
