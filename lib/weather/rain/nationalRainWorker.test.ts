@@ -23,8 +23,9 @@ function boundedWindowPngBuffer() {
 function clientFor(job: Record<string, unknown>) {
   const rpc = vi.fn(async (name: string, args: Record<string, unknown>) => {
     if (name === "claim_national_rain_refinement_jobs") return { data: [job], error: null };
-    if (name === "finish_national_rain_refinement_job") return { data: null, error: null };
-    if (name === "defer_national_rain_refinement_job") return { data: null, error: null };
+    if (name === "complete_national_rain_refinement_job") return { data: "OK", error: null };
+    if (name === "finish_national_rain_refinement_job") return { data: "OK", error: null };
+    if (name === "defer_national_rain_refinement_job") return { data: "OK", error: null };
     throw new Error(`unexpected RPC ${name}`);
   });
   const upsert = vi.fn().mockResolvedValue({ error: null });
@@ -34,6 +35,7 @@ function clientFor(job: Record<string, unknown>) {
 
 const job = {
   id: 7,
+  lease_token: "lease-7",
   run_key: "run-1",
   basetime: "20260929100000",
   validtime: "20260929100500",
@@ -114,7 +116,7 @@ describe("processNationalRainRefinementJobs", () => {
     expect(resolveMunicipalities).toHaveBeenCalledTimes(1);
     expect(resolveMunicipalities.mock.calls[0][0].length).toBeGreaterThan(0);
     expect(rpc).toHaveBeenCalledWith("finish_national_rain_refinement_job", {
-      p_id: 7, p_success: true, p_error: null,
+      p_id: 7, p_lease_token: "lease-7", p_success: true, p_error: null,
     });
   });
 
@@ -142,7 +144,7 @@ describe("processNationalRainRefinementJobs", () => {
       p_id: 7, p_success: true, p_error: null,
     });
     expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", {
-      p_id: 7, p_success: false, p_error: expect.anything(),
+      p_id: 7, p_lease_token: "lease-7", p_success: false, p_error: expect.anything(),
     });
   });
 
@@ -237,7 +239,7 @@ test("leaves unclaimed work pending when the budget expires between small batche
   expect(result.deferred).toBe(1);
   expect(fetcher).toHaveBeenCalledTimes(1);
   expect(claims).toBe(1);
-  expect(rpc).toHaveBeenCalledWith("defer_national_rain_refinement_job", { p_id: 7 });
+  expect(rpc).toHaveBeenCalledWith("defer_national_rain_refinement_job", { p_id: 7, p_lease_token: "lease-7" });
   expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", expect.objectContaining({ p_id: 8 }));
 });
 
