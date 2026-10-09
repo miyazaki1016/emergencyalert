@@ -2621,3 +2621,14 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - `scripts/n03-hokkaido-target-comparison.ts`（`d4d5f228`）を追加。公式N03北海道194市区町村について、現行Polygon単位のpackを目標1/1.5/2/4MiBで比較。chunk数、最大容量、超過数、総量、index量、8雨域で元データとの市区町村コード順序完全一致、局所IO量と処理時間を計測する。
 - Workflow `3bc563dc` で従来の全国変換（1MiBで失敗が既知）の**前**に実行、JSONログを保存。実測未確認のため成功とは扱わない。
 - これは**z8/z9/z10の正確なクリッピングの実装ではない**。その設計と境界一致の証明は未着手。可変目標サイズの実験結果はProduction採用を意味しない。Production/Storage/PR mergeの変更なし。
+
+
+### 2026-10-09 北海道pack容量比較・実測確定（Actions run 37886638926）
+
+- 公式北海道N03・8固定矩形の比較ステップは成功、元N03との市区町村コード配列は全4条件で8/8一致。**これは限定8ケースであり網羅的な正しさの証明ではない**。
+- 1MiB：46 chunks、最大1,328,374 bytes、超過1、総42,440,260 bytes。
+- 1.5MiB：30 chunks、最大1,572,781 bytes、超過0、総42,440,244 bytes。
+- 2MiB：22 chunks、最大2,096,712 bytes、超過0、総42,440,236 bytes。
+- 4MiB：11 chunks、最大4,194,058 bytes、超過0、総42,440,225 bytes。
+- 局所矩形の読み込み量は大きなchunkで増える傾向。例query0：1MiB 5,972,022 bytes、1.5MiB 8,869,436、2MiB 11,960,688、4MiB 16,265,187。ローカル実行時間はHTTP/worker時間ではない。
+- 現行の全47変換は目標1MiB固定なので北海道code01698単一Polygon超過で引き続き失敗。**1.5MiBへの変更はまだ採用しない**。全国全件での上限/一致検証、Storage読込/45秒worker測定、正確なクリッピング比較を行ってから決定。Production/Storage/merge変更なし。
