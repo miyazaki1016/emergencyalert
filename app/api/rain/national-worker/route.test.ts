@@ -1,11 +1,14 @@
 import { NextRequest } from "next/server";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-const { processJobs, createClient, createLoader, resolveMunicipalities } = vi.hoisted(() => ({
+const { processJobs, createClient, createLoader, resolveMunicipalities, createPartitionStorage, createPartitionResolver, selectPrefectures } = vi.hoisted(() => ({
   processJobs: vi.fn(),
   createClient: vi.fn(() => ({ marker: "client" })),
   createLoader: vi.fn(() => "loader"),
   resolveMunicipalities: vi.fn(),
+  createPartitionStorage: vi.fn(() => ({ loadManifest: vi.fn(async (code: string) => ({ code, indexSha256: "a".repeat(64), index: {} }), readChunk: vi.fn() })),
+  createPartitionResolver: vi.fn(() => ({ registerDataset: vi.fn(), resolve: vi.fn(async () => [{ code: "13111", prefecture: "東京都", municipality: "大田区" }]) })),
+  selectPrefectures: vi.fn(() => [{ code: "13", name: "東京都", bbox: [136, 20, 154, 36] }]),
 }));
 
 vi.mock("@/lib/weather/rain/nationalRainQueue", () => ({
@@ -14,6 +17,18 @@ vi.mock("@/lib/weather/rain/nationalRainQueue", () => ({
 
 vi.mock("@/lib/weather/rain/n03PreparedStorageLoader", () => ({
   createSupabaseN03AdministrativeAreaLoader: createLoader,
+}));
+
+vi.mock("@/lib/weather/rain/n03PartitionStorage", () => ({
+  createSupabaseN03PartitionStorage: createPartitionStorage,
+}));
+
+vi.mock("@/lib/weather/rain/n03BoundedPartitionResolver", () => ({
+  createN03BoundedPartitionResolver: createPartitionResolver,
+}));
+
+vi.mock("@/lib/weather/rain/n03Prefectures", () => ({
+  prefecturesForRainPolygons: selectPrefectures,
 }));
 
 vi.mock("@/lib/weather/rain/nationalRainMunicipalityResolver", () => ({
@@ -37,6 +52,7 @@ describe("national rain worker route", () => {
   afterEach(() => {
     vi.clearAllMocks();
     delete process.env.NATIONAL_RAIN_WORKER_SECRET;
+    delete process.env.NATIONAL_RAIN_N03_PARTITIONS_ENABLED;
   });
 
   test("rejects requests when worker secret is not configured", async () => {
@@ -76,4 +92,25 @@ describe("national rain worker route", () => {
       strongPixels: 12,
     });
   });
+
+  test("uses partitioned resolver only with explicit opt-in", async () => {
+    process.env.NATIONAL_RAIN_WORKER_SECRET = "proof-secret";
+    process.env.NATIONAL_RAIN_N03_PARTITIONS_ENABLED = "true";
+    processJobs.mockResolvedValue({ claimed: 1, done: 1, failed: 0, strongPixels: 1, deferred: 0 });
+    const response = await POST(request("Bearer proof-secret"));
+    expect(response.status).toBe(200);
+    expect(createPartitionStorage).toHaveBeenCalledWith({ marker: "client" });
+    expect(createPartitionResolver).toHaveBeenCalledWith(expect.objectContaining({ datasets: [], read: expect.any(Function) }));
+    expect(createLoader).not.toHaveBeenCalled();
+    const workerOptions = processJobs.mock.calls[0][1];
+    const footprint = [{ type: "Polygon", coordinates: [] }];
+    await workerOptions.resolveMunicipalities(footprint);
+    expect(selectPrefectures).toHaveBeenCalledWith(footprint, expect.any(Array));
+    const storage = createPartitionStorage.mock.results[0].value;
+    expect(storage.loadManifest).toHaveBeenCalledWith("13", undefined);
+    const resolver = createPartitionResolver.mock.results[0].value;
+    expect(resolver.registerDataset).toHaveBeenCalledWith(expect.objectContaining({ code: "13" }));
+    expect(resolver.resolve).toHaveBeenCalledWith(footprint, undefined);
+  });
+
 });
