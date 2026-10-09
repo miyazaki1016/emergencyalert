@@ -23,6 +23,7 @@ function boundedWindowPngBuffer() {
 function clientFor(job: Record<string, unknown>) {
   const rpc = vi.fn(async (name: string, args: Record<string, unknown>) => {
     if (name === "claim_national_rain_refinement_jobs") return { data: [job], error: null };
+    if (name === "complete_national_rain_refinement_job") return { data: "OK", error: null };
     if (name === "finish_national_rain_refinement_job") return { data: "OK", error: null };
     if (name === "defer_national_rain_refinement_job") return { data: "OK", error: null };
     throw new Error(`unexpected RPC ${name}`);
@@ -121,8 +122,7 @@ describe("processNationalRainRefinementJobs", () => {
       if (name === "claim_national_rain_refinement_jobs") return { data: [job], error: null };
       if (name === "complete_national_rain_refinement_job") throw new Error("completion response lost after commit");
       if (name === "finish_national_rain_refinement_job" && args.p_success === false) return { data: "STALE_LEASE", error: null };
-      if (name === "complete_national_rain_refinement_job") return { data: "OK", error: null };
-    if (name === "finish_national_rain_refinement_job") return { data: "OK", error: null };
+      if (name === "finish_national_rain_refinement_job") return { data: "OK", error: null };
       if (name === "defer_national_rain_refinement_job") return { data: "OK", error: null };
       throw new Error(`unexpected RPC ${name}`);
     });
