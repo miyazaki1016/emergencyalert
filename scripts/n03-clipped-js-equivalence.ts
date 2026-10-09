@@ -27,7 +27,7 @@ for(let p=1;p<=47;p++){
   }
  }
 }
-let queries=0,mismatches=0;const samples:unknown[]=[];
+let queries=0,mismatches=0;const samples:unknown[]=[];let boundaryCases=0,holeCases=0;
 for(const [pref,codes] of targets){
  const before=(JSON.parse(readFileSync(join(originalDir,pref+".areas.json"),"utf8")) as AdministrativeArea[]).filter(a=>codes.has(a.code));
  const after=(JSON.parse(readFileSync(join(clippedDir,pref+".areas.json"),"utf8")) as AdministrativeArea[]).filter(a=>codes.has(a.code));
@@ -39,6 +39,27 @@ for(const [pref,codes] of targets){
    const cx=w+dx*x,cy=s+dy*y;
    cases.push(rectangle(cx-dx*.005,cy-dy*.005,cx+dx*.005,cy+dy*.005));
   }
+  // Adversarial probes: zero-margin rectangles at source boundary vertices,
+  // clipped fragment vertices, and interior rings (holes). This is a sampled
+  // regression probe, not an exhaustive topology equivalence proof.
+  const sourcePolys=area.geometry.type==="Polygon"?[area.geometry.coordinates as number[][][]]:area.geometry.coordinates as number[][][][];
+  const clippedArea=after.find(a=>a.code===area.code)!;
+  const clippedPolys=clippedArea.geometry.type==="Polygon"?[clippedArea.geometry.coordinates as number[][][]]:clippedArea.geometry.coordinates as number[][][][];
+  const tiny=Math.max(Math.min(dx,dy)*1e-7,1e-9);
+  for(const polys of [sourcePolys,clippedPolys]){
+   const candidates=polys.filter(p=>p[0]?.length>1000).slice(0,2);
+   for(const poly of candidates){
+    const ring=poly[0];
+    for(const k of [0,Math.floor(ring.length/3),Math.floor(ring.length*2/3)]){
+     const [x,y]=ring[k];cases.push(rectangle(x-tiny,y-tiny,x+tiny,y+tiny));boundaryCases++;
+    }
+   }
+  }
+  for(const poly of sourcePolys.filter(p=>p.length>1).slice(0,2)){
+   for(const ring of poly.slice(1,3)){
+    const [x,y]=ring[0];cases.push(rectangle(x-tiny,y-tiny,x+tiny,y+tiny));holeCases++;
+   }
+  }
   for(let i=0;i<cases.length;i++){
    const expected=affectedAdministrativeAreas(cases[i],[area]).length>0;
    const actual=affectedAdministrativeAreas(cases[i],after.filter(a=>a.code===area.code)).length>0;
@@ -47,5 +68,5 @@ for(const [pref,codes] of targets){
   }
  }
 }
-console.log(JSON.stringify({mode:"N03_CLIPPED_JS_MUNICIPALITY_EQUIVALENCE",municipalities:[...targets.values()].reduce((n,x)=>n+x.size,0),queries,mismatches,samples,limitations:["Fixed bbox-relative rectangles only; not exhaustive","Does not exercise partition resolver or chunk IO","Clipping-grid boundary-touching and holes need additional adversarial cases"],decision:"EXPERIMENT_ONLY_NOT_ADOPTED"}));
+console.log(JSON.stringify({mode:"N03_CLIPPED_JS_MUNICIPALITY_EQUIVALENCE",municipalities:[...targets.values()].reduce((n,x)=>n+x.size,0),queries,boundaryCases,holeCases,mismatches,samples,limitations:["Fixed bbox-relative rectangles only; not exhaustive","Does not exercise partition resolver or chunk IO","Boundary and hole probes are sampled only; exact clipping-grid contact and topology remain unproven"],decision:"EXPERIMENT_ONLY_NOT_ADOPTED"}));
 if(mismatches)process.exitCode=1;
