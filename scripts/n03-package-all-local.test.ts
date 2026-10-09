@@ -1,6 +1,7 @@
 import { afterEach, expect, test } from "vitest";
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
+import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { JAPAN_PREFECTURES } from "../lib/weather/rain/japanPrefectures";
 import { packageAllLocal } from "./n03-package-all-local";
@@ -29,9 +30,16 @@ test("packages all 47 local fixtures without touching source data", () => {
   expect(result.prefectures).toBe(47);
   expect(result.manifests).toBe(47);
   expect(result.chunks).toBeGreaterThanOrEqual(47);
+  expect(result.verifiedBytes).toBeGreaterThan(0);
   const manifest = JSON.parse(readFileSync(join(output, "20260101/polygon-parts-v1/13/manifest.json"), "utf8"));
   expect(manifest.code).toBe("13");
   expect(manifest.indexSha256).toMatch(/^[a-f0-9]{64}$/);
+  expect(createHash("sha256").update(JSON.stringify(manifest.index)).digest("hex")).toBe(manifest.indexSha256);
+  for (const chunk of manifest.index.chunks) {
+    const bytes = readFileSync(join(output, `20260101/polygon-parts-v1/13/${manifest.indexSha256}/${chunk.file}`));
+    expect(createHash("sha256").update(bytes).digest("hex")).toBe(chunk.sha256);
+    expect(bytes.byteLength).toBe(chunk.bytes);
+  }
   expect(existsSync(join(input, "13.areas.json"))).toBe(true);
   expect(() => packageAllLocal(input, output)).toThrow("must not already exist");
 });
