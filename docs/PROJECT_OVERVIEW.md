@@ -2565,3 +2565,12 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - 新Proof初回 `6925a2f9` の GitHub Actions run `37882648061` は **failure**。job `113665578474` のログで `npm ci` が `EUSAGE`（リポジトリにpackage-lock.json/npm-shrinkwrap.jsonがない）で停止したことを確認。**公式N03ダウンロード・分割変換ステップはともに skipped** であり、変換不能という結論は出せない。
 - 既存CIと同じ `npm install` に変更（`c5910e71`）。この修正後の新Proofの完走・性能・分割サイズは**未確認**。
 - 実用性の評価にはファイルサイズの分布（最大、平均、p95）、都道府県ごとのchunk数・総容量増分、実際の空間選択で取得するchunk数/bytes、HTTP遅延、45秒以内のワーカー処理、完全一致判定が必要。**変換成功だけでは採用判定しない**。
+
+
+### 2026-10-09 実N03変換の最初の本質的失敗（方式採用を保留）
+
+- 実物変換CI run `37882847453`（`c5910e71`）のjob `113666215731` を確認。**npm install 成功、公式N03の47都道府県の取得とprepared化も成功**。次の47件分割変換は **failure**。
+- 直接の例外は `scripts/n03-partition-package.ts:20` の `Oversized N03 partition: refusing to package`。現在の `partitionAreas(..., 1MiB)` が `oversized` フラグまたは32MiB上限に抵触するchunkを生成した。これは初回のnpm ci失敗とは異なり、**実データを用いた変換処理で確認された実際の不適合**。
+- このログだけでは該当都道府県・chunk・超過bytesを特定できない。未計測のファイルサイズ分布、総容量、45秒ワーカー実用性、正確性について成功を主張しない。
+- **現行方式は採用保留**。次は超過chunkの都道府県・サイズ・ポリゴン数・単独巨大ポリゴンかどうかをread-onlyローカル診断で特定する。上限チェックの削除や巨大chunkの黙認はしない。修正案を比較して再試験する。
+- 後続run `37882865406` は確認時点でin_progress。Production/Supabase Storage/Push/PR merge変更なし。
