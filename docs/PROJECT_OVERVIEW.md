@@ -2727,3 +2727,10 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - 制約：元データの巨大Polygonあたり3矩形のみ、chunkはメモリ内で読み込み（Storage通信ではない）、穴・切断線接触は未網羅。
 - 次の追加試験として `d3a67493` でresolver比較に外周頂点2点と穴1点（存在する場合）の小矩形プローブを追加。CI結果待ち。
 - この結果は限定された実験ケースでの一致であり、網羅的な同値性や本番適用の承認ではない。Production/Storage/merge変更なし。
+
+### 2026-10-09 resolver境界テストCIの構文エラーを修正
+
+- Actions run **37922558146** では従来446件比較は成功した一方、新resolver境界テストはTypeScriptの構文エラーで実行されていなかった。stepが `tee` を使い、pipefailなしだったためworkflow全体の成功表示がエラーを隠していた。
+- `b5ad4439`: テストコード内の文字列リテラル化された改行を実際の改行に修正。
+- `30417d5d`: resolver比較stepを `set -o pipefail` 付きにし、今後のテスト失敗をCIが確実に検出するよう修正。
+- 修正後のCI再実行結果は未確認。以前の57ケース成功は境界/穴追加前の版の結果であり、追加テスト成功とはみなさない。Production/Storage/merge変更なし。
