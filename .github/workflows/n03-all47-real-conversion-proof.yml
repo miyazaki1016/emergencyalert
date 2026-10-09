@@ -43,7 +43,7 @@ jobs:
         run: npx tsx scripts/n03-clipped-js-equivalence.ts /tmp/n03-real-prepared /tmp/n03-real-clipped | tee /tmp/n03-clipped-js-equivalence.json
       - name: Compare actual clipped chunk resolver with canonical source municipality matches
         timeout-minutes: 15
-        run: npx tsx scripts/n03-clipped-resolver-equivalence.ts /tmp/n03-real-prepared /tmp/n03-real-clipped | tee /tmp/n03-clipped-resolver-equivalence.json
+        run: set -o pipefail; npx tsx scripts/n03-clipped-resolver-equivalence.ts /tmp/n03-real-prepared /tmp/n03-real-clipped | tee /tmp/n03-clipped-resolver-equivalence.json
       - name: Measure Hokkaido z8 bbox packing baseline (no Storage or geometry upload)
         run: npx tsx scripts/n03-hokkaido-z8-feasibility.ts /tmp/n03-real-prepared/01.areas.json | tee /tmp/n03-hokkaido-z8-feasibility.json
       - name: Compare Hokkaido 1 to 4 MiB polygon packing and exact municipality matches
