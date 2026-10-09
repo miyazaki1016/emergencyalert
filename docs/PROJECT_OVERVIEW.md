@@ -2645,3 +2645,10 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 
 - run 37887122723 は失敗。ログに `n03-package-all-local.ts /tmp/n03-real-prepared /tmp/n03-real-partitions` とあり、**1.5引数が欠落**していた。従って既定1MiBで実行され、北海道code01698の単一Polygon 1,328,374 bytesで従来通り停止。全国1.5MiB方式の失敗を意味しない。
 - `dc3dbd90` でworkflowコマンドへ明示的に `1.5` を追加。次のCI実行で実コマンドと47件結果を必ず再確認する。Production/Storage/merge変更なし。
+
+
+### 2026-10-09 全国1.5MiB検証・岩手県で阻害（run 37887740341）
+
+- 修正後CIは実際に `n03-package-all-local.ts ... 1.5` で実行されたが、全国変換は**失敗**。北海道を通過し岩手県（03）で単一Polygon超過3件：03203=4,333,892 bytes、03211=2,593,220 bytes、03202=3,026,048 bytes（target 1,572,864 bytes）。
+- **北海道で成立した1.5MiBを全国へそのまま適用する案は不成立。** 目標サイズを増やすだけでは全国の巨大Polygonに対応できない。各単体Polygonの幾何学的切断、もしくは正しさを保持する別の部分分割を要する。
+- 今回のCIでは全国47都道府県の完走、全県の最大Polygon、判定一致率、HTTP/worker性能は未測定。Production/Storage/merge変更なし。
