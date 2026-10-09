@@ -3,6 +3,7 @@
 // Input files: <input-dir>/01.areas.json ... 47.areas.json
 // This script never connects to Supabase or publishes manifests.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join, resolve, sep } from "node:path";
 import { JAPAN_PREFECTURES } from "../lib/weather/rain/japanPrefectures";
 import type { AdministrativeArea } from "../lib/weather/rain/administrativeAreas";
@@ -28,18 +29,25 @@ export function packageAllLocal(inputDir: string, outputDir: string) {
   if (prepared.length !== 47) throw new Error("Expected 47 prefectures");
   mkdirSync(output, { recursive: false });
   let chunks = 0;
+  let verifiedBytes = 0;
   for (const dataset of prepared) {
     for (const [path, body] of dataset.objects) {
       const full = join(output, path);
       mkdirSync(full.slice(0, full.lastIndexOf(sep)), { recursive: true });
       writeFileSync(full, body, { flag: "wx" });
+      const actual = readFileSync(full);
+      const expectedHash = createHash("sha256").update(body).digest("hex");
+      const actualHash = createHash("sha256").update(actual).digest("hex");
+      if (actualHash !== expectedHash) throw new Error(`Chunk readback mismatch: ${path}`);
+      verifiedBytes += actual.byteLength;
       chunks++;
     }
     const manifest = join(output, dataset.manifestPath);
     mkdirSync(manifest.slice(0, manifest.lastIndexOf(sep)), { recursive: true });
+    // Manifest is written last, after all chunks for this prefecture pass readback.
     writeFileSync(manifest, dataset.manifestBody, { flag: "wx" });
   }
-  return { prefectures: prepared.length, chunks, manifests: prepared.length, output };
+  return { prefectures: prepared.length, chunks, manifests: prepared.length, verifiedBytes, output };
 }
 
 if (process.argv[1]?.endsWith("n03-package-all-local.ts")) {
