@@ -36,7 +36,7 @@ jobs:
         run: |
           set -euo pipefail
           /usr/bin/time -v -o /tmp/n03-real-time.txt \
-            npx tsx scripts/n03-package-all-local.ts /tmp/n03-real-prepared /tmp/n03-real-partitions \
+            npx tsx scripts/n03-package-all-local.ts /tmp/n03-real-prepared /tmp/n03-real-partitions 1.5 \
             | tee /tmp/n03-real-conversion.json
           cat /tmp/n03-real-time.txt
           node -e 'const fs=require("fs");const x=JSON.parse(fs.readFileSync("/tmp/n03-real-conversion.json","utf8"));if(x.prefectures!==47||x.manifests!==47||x.chunks<47||x.verifiedBytes<=0)process.exit(1)'
