@@ -2720,3 +2720,10 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - `b93a5eef`: 巨大Polygonを含む19自治体を起点に各3矩形の雨域を作り、**元公式N03全自治体への既存JS判定**と、**切断後全自治体を1.5MiB chunk化しSHA検証付き `resolvePartitionedFootprint` で読み込んだ判定**の自治体コード配列を比較する実験用スクリプト。
 - `984727b7`: CIに追加。差異が1件でもあれば失敗。ローカルメモリchunk読み込みでありStorage HTTPの検証ではない。結果未確認。
 - 依然として穴・切断線接触・実Storage/worker性能・全雨域網羅は未証明。Production/Storage/merge変更なし。
+
+### 2026-10-09 実chunk resolver比較CI成功・境界追加試験を投入
+
+- GitHub Actions **37905499723** 成功。元公式47都道府県データのcanonical JS判定と、切断後データを `partitionAreas` で分割し、`resolvePartitionedFootprint` がSHA検証付きで読み込んだ結果を比較：**57ケース、不一致0件**。resolverが読み込んだchunkの累計は258,104,373 bytes。
+- 制約：元データの巨大Polygonあたり3矩形のみ、chunkはメモリ内で読み込み（Storage通信ではない）、穴・切断線接触は未網羅。
+- 次の追加試験として `d3a67493` でresolver比較に外周頂点2点と穴1点（存在する場合）の小矩形プローブを追加。CI結果待ち。
+- この結果は限定された実験ケースでの一致であり、網羅的な同値性や本番適用の承認ではない。Production/Storage/merge変更なし。
