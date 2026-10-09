@@ -16,21 +16,22 @@ export function packageAllLocal(inputDir: string, outputDir: string) {
     throw new Error("Input and output directories must not overlap");
   }
   if (existsSync(output)) throw new Error("Output directory must not already exist");
-  // Validate every input before creating any output file.
-  const prepared = JAPAN_PREFECTURES.map(({ code, name }) => {
+  // Preflight all 47 inputs before writing, but do not retain all geometry in memory.
+  for (const { code } of JAPAN_PREFECTURES) {
+    if (!existsSync(join(input, `${code}.areas.json`))) throw new Error(`Missing prepared N03 input: ${code}`);
+  }
+  if (JAPAN_PREFECTURES.length !== 47) throw new Error("Expected 47 prefectures");
+  mkdirSync(output, { recursive: false });
+  let chunks = 0;
+  let verifiedBytes = 0;
+  for (const { code, name } of JAPAN_PREFECTURES) {
     const raw = JSON.parse(readFileSync(join(input, `${code}.areas.json`), "utf8")) as unknown;
     if (!Array.isArray(raw) || raw.length === 0 || raw.some(area =>
       !area || typeof area !== "object" || area.prefecture !== name ||
       !area.geometry || !["Polygon", "MultiPolygon"].includes(area.geometry.type))) {
       throw new Error(`Invalid prepared N03 input: ${code}`);
     }
-    return { code, ...packageN03Prefecture(code, raw as AdministrativeArea[]) };
-  });
-  if (prepared.length !== 47) throw new Error("Expected 47 prefectures");
-  mkdirSync(output, { recursive: false });
-  let chunks = 0;
-  let verifiedBytes = 0;
-  for (const dataset of prepared) {
+    const dataset = packageN03Prefecture(code, raw as AdministrativeArea[]);
     for (const [path, body] of dataset.objects) {
       const full = join(output, path);
       mkdirSync(full.slice(0, full.lastIndexOf(sep)), { recursive: true });
@@ -47,7 +48,7 @@ export function packageAllLocal(inputDir: string, outputDir: string) {
     // Manifest is written last, after all chunks for this prefecture pass readback.
     writeFileSync(manifest, dataset.manifestBody, { flag: "wx" });
   }
-  return { prefectures: prepared.length, chunks, manifests: prepared.length, verifiedBytes, output };
+  return { prefectures: JAPAN_PREFECTURES.length, chunks, manifests: JAPAN_PREFECTURES.length, verifiedBytes, output };
 }
 
 if (process.argv[1]?.endsWith("n03-package-all-local.ts")) {
