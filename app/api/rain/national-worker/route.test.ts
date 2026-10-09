@@ -27,6 +27,10 @@ vi.mock("@/lib/weather/rain/n03BoundedPartitionResolver", () => ({
   createN03BoundedPartitionResolver: createPartitionResolver,
 }));
 
+vi.mock("@/lib/weather/rain/n03PrefectureIndex2026", () => ({
+  N03_PREFECTURE_INDEX_2026: [],
+}));
+
 vi.mock("@/lib/weather/rain/n03Prefectures", () => ({
   prefecturesForRainPolygons: selectPrefectures,
 }));
