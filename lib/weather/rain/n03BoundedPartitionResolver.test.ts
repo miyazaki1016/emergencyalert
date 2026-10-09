@@ -38,3 +38,29 @@ test('owned chunk resolvers read each chunk once and gather original area order'
  expect(new Set(reads).size).toBe(index.chunks.length);expect(reads.length).toBe(index.chunks.length);
  expect(new Set(results.map(m=>m.code))).toEqual(new Set(['01202']));
 });
+
+
+test("registers only selected prefectures dynamically while retaining one invocation cache", async () => {
+  const one = partitionAreas(areas);
+  const three = partitionAreas([{ ...areas[0], code: "03202", prefecture: "岩手県", municipality: "宮古市" }]);
+  const reads: string[] = [];
+  const resolver = createN03BoundedPartitionResolver({
+    datasets: [{ code: "01", index: one.index, indexSha256: sha256(JSON.stringify(one.index)) }],
+    read: async (code, file) => {
+      reads.push(`${code}/${file}`);
+      return Buffer.from((code === "01" ? one.files : three.files).get(file)!);
+    },
+  });
+
+  resolver.registerDataset({ code: "03", index: three.index, indexSha256: sha256(JSON.stringify(three.index)) });
+  const result = await resolver.resolve(rain);
+  expect(result.map(area => area.code)).toEqual(["01202", "03202"]);
+  expect(reads).toHaveLength(2);
+  expect(resolver.cache.stats.weight).toBeGreaterThan(0);
+
+  expect(() => resolver.registerDataset({
+    code: "03",
+    index: { ...three.index, parts: [] },
+    indexSha256: sha256(JSON.stringify(three.index)),
+  })).toThrow("dataset identity changed");
+});
