@@ -137,24 +137,31 @@ export async function claimNationalRainJobs(supabase: SupabaseClient, limit = 20
 }
 
 
-export async function saveNationalRainRefinementResult(
+export type NationalRainLeaseOutcome = "OK" | "STALE_LEASE";
+
+export async function completeNationalRainJob(
   supabase: SupabaseClient,
-  result: {
-    jobId: number;
-    runKey: string;
-    basetime: string;
-    validtime: string;
-    zoom: number;
-    tileX: number;
-    tileY: number;
-    strongPixelCount: number;
-    footprint?: unknown[];
-    municipalities?: unknown[];
+  id: number,
+  leaseToken: string,
+  completion: {
+    result?: {
+      runKey: string;
+      basetime: string;
+      validtime: string;
+      zoom: number;
+      tileX: number;
+      tileY: number;
+      strongPixelCount: number;
+      footprint?: unknown[];
+      municipalities?: unknown[];
+    };
+    children?: NationalRainQueueJob[];
   },
   signal?: AbortSignal,
-) {
-  let query = supabase.from("national_rain_refinement_results").upsert({
-    job_id: result.jobId,
+): Promise<NationalRainLeaseOutcome> {
+  const result = completion.result;
+  const p_result = result ? {
+    job_id: id,
     run_key: result.runKey,
     basetime: result.basetime,
     validtime: result.validtime,
@@ -164,35 +171,59 @@ export async function saveNationalRainRefinementResult(
     strong_pixel_count: result.strongPixelCount,
     footprint: result.footprint ?? [],
     municipalities: result.municipalities ?? [],
-    updated_at: new Date().toISOString(),
-  }, { onConflict: "job_id" });
+  } : null;
+  let query = supabase.rpc("complete_national_rain_refinement_job", {
+    p_id: id,
+    p_lease_token: leaseToken,
+    p_result,
+    p_children: queueRows(completion.children ?? []).map(({ status: _status, ...row }) => row),
+  });
   if (signal && "abortSignal" in query) query = query.abortSignal(signal);
-  const { error } = await query;
+  const { data, error } = await query;
   if (error) throw error;
+  if (data === "STALE_LEASE") return "STALE_LEASE";
+  if (data !== "OK") throw new Error("Unexpected national rain completion outcome");
+  return "OK";
 }
 
-export async function deferNationalRainJob(supabase: SupabaseClient, id: number, signal?: AbortSignal) {
-  let query = supabase.rpc("defer_national_rain_refinement_job", { p_id: id });
+export async function deferNationalRainJob(
+  supabase: SupabaseClient,
+  id: number,
+  leaseToken: string,
+  signal?: AbortSignal,
+): Promise<NationalRainLeaseOutcome> {
+  let query = supabase.rpc("defer_national_rain_refinement_job", {
+    p_id: id,
+    p_lease_token: leaseToken,
+  });
   if (signal && "abortSignal" in query) query = query.abortSignal(signal);
-  const { error } = await query;
+  const { data, error } = await query;
   if (error) throw error;
+  if (data === "STALE_LEASE") return "STALE_LEASE";
+  if (data !== "OK") throw new Error("Unexpected national rain defer outcome");
+  return "OK";
 }
 
 export async function finishNationalRainJob(
   supabase: SupabaseClient,
   id: number,
+  leaseToken: string,
   success: boolean,
   errorMessage?: string,
   signal?: AbortSignal,
-) {
+): Promise<NationalRainLeaseOutcome> {
   let query = supabase.rpc("finish_national_rain_refinement_job", {
     p_id: id,
+    p_lease_token: leaseToken,
     p_success: success,
     p_error: errorMessage ?? null,
   });
   if (signal && "abortSignal" in query) query = query.abortSignal(signal);
-  const { error } = await query;
+  const { data, error } = await query;
   if (error) throw error;
+  if (data === "STALE_LEASE") return "STALE_LEASE";
+  if (data !== "OK") throw new Error("Unexpected national rain finish outcome");
+  return "OK";
 }
 
 export function createNationalRainQueueClient() {
