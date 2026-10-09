@@ -38,7 +38,7 @@ async function main(){
    }
   }
  }
- console.log(JSON.stringify({mode:"N03_CLIPPED_PARTITION_RESOLVER_EQUIVALENCE",queries,mismatches,loadedBytes,samples,limitations:["Only three rectangle probes per oversized source Polygon","In-memory chunks with SHA validation; not remote Storage","Not exhaustive for holes or exact clipping-grid contact"],decision:"EXPERIMENT_ONLY_NOT_ADOPTED"}));
+ console.log(JSON.stringify({mode:"N03_CLIPPED_PARTITION_RESOLVER_EQUIVALENCE",queries,mismatches,loadedBytes,samples,limitations:["Per oversized source Polygon: three bbox probes plus two sampled exterior-vertex probes and, when present, one sampled hole-vertex probe","In-memory chunks with SHA validation; not remote Storage","Boundary and hole probes are sampled only; exact clipping-grid contact and exhaustive topology remain unproven"],decision:"EXPERIMENT_ONLY_NOT_ADOPTED"}));
  if(mismatches)process.exitCode=1;
 }
 main().catch(e=>{console.error(e);process.exitCode=1});
