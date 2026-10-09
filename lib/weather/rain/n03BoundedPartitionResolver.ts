@@ -40,16 +40,22 @@ export function createN03BoundedPartitionResolver(options: {
   // Retain encoded bytes only: exact cache accounting, no persistent decoded
   // geometry. Synchronous per-chunk consumption admits one JS decode at a time.
   const cache = new BoundedChunkCache<Buffer>(options.maxWeight ?? 32 * 1048576);
-  const codes = new Set<string>();
-  const prepared = [...options.datasets].sort((a, b) => a.code.localeCompare(b.code)).map(dataset => {
+  const prepared = new Map<string, { code: string; index: PartitionIndex; indexSha256: string; chunks: Map<string, PartitionIndex["chunks"][number]> }>();
+
+  function registerDataset(dataset: N03PartitionDataset) {
     const { code, index, indexSha256 } = dataset;
-    if (!/^\d{2}$/.test(code) || codes.has(code)) throw new Error("Duplicate/invalid prefecture identity"); codes.add(code);
+    if (!/^\\d{2}$/.test(code)) throw new Error("Duplicate/invalid prefecture identity");
+    const existing = prepared.get(code);
+    if (existing) {
+      if (existing.indexSha256 !== indexSha256) throw new Error("N03 partition dataset identity changed during invocation");
+      return;
+    }
     if (sha256(JSON.stringify(index)) !== indexSha256 || index.format !== "N03_POLYGON_PART_DESIGN_V1" || index.datasetDate !== N03_DATASET_DATE) throw new Error("Invalid partition manifest identity");
     const chunks = new Map(index.chunks.map(c => [c.file, c]));
     if (!index.areas.length || chunks.size !== index.chunks.length) throw new Error("Incomplete partition manifest");
     const areaCodes = new Set<string>();
     index.areas.forEach((area, i) => {
-      if (area.order !== i || !/^\d{5}$/.test(area.code) || !area.code.startsWith(code) || areaCodes.has(area.code) || !area.prefecture || !area.municipality) throw new Error("Invalid partition area identity");
+      if (area.order !== i || !/^\\d{5}$/.test(area.code) || !area.code.startsWith(code) || areaCodes.has(area.code) || !area.prefecture || !area.municipality) throw new Error("Invalid partition area identity");
       areaCodes.add(area.code);
     });
     const ordinals = index.areas.map(() => new Set<number>());
@@ -59,11 +65,13 @@ export function createN03BoundedPartitionResolver(options: {
     });
     for (const set of ordinals) if (!set.size || [...set].some(p => p >= set.size)) throw new Error("Missing polygon ordinal");
     for (const chunk of chunks.values()) {
-      if (!/^chunk-\d{4}\.json$/.test(chunk.file) || !Number.isSafeInteger(chunk.bytes) || chunk.bytes < 2 || !/^[a-f0-9]{64}$/.test(chunk.sha256) || index.parts.filter(p => p.chunk === chunk.file).length !== chunk.partCount) throw new Error("Invalid partition chunk identity");
+      if (!/^chunk-\\d{4}\\.json$/.test(chunk.file) || !Number.isSafeInteger(chunk.bytes) || chunk.bytes < 2 || !/^[a-f0-9]{64}$/.test(chunk.sha256) || index.parts.filter(p => p.chunk === chunk.file).length !== chunk.partCount) throw new Error("Invalid partition chunk identity");
       if (chunk.bytes > cache.maxWeight) throw new Error("Oversized chunk exceeds configured admission");
     }
-    return { ...dataset, chunks };
-  });
+    prepared.set(code, { ...dataset, chunks });
+  }
+
+  options.datasets.forEach(registerDataset);
   const metrics = { transfers: 0, transferBytes: 0, selectedBytes: 0, resolutions: 0, decodes: 0, activeDecodes: 0, peakActiveDecodes: 0 };
 
   async function resolve(rain: HeavyRainPolygon[], signal?: AbortSignal): Promise<NationalRainMunicipality[]> {
@@ -72,7 +80,7 @@ export function createN03BoundedPartitionResolver(options: {
     metrics.resolutions++;
     const rainBounds = rain.map(p => bounds(p.coordinates));
     const results: NationalRainMunicipality[] = [];
-    for (const dataset of prepared) {
+    for (const dataset of [...prepared.values()].sort((a, b) => a.code.localeCompare(b.code))) {
       const { code, index, indexSha256, chunks } = dataset;
       const selected = index.parts.filter(p => (!options.owns || options.owns(code,p.chunk)) && rainBounds.some(b => overlaps(p.bbox, b)));
       const selectedIds = new Set(selected.map(p => p.id));
@@ -109,5 +117,5 @@ export function createN03BoundedPartitionResolver(options: {
     }
     return results;
   }
-  return { resolve, cache, metrics };
+  return { resolve, registerDataset, cache, metrics };
 }
