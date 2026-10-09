@@ -23,8 +23,6 @@ function boundedWindowPngBuffer() {
 function clientFor(job: Record<string, unknown>) {
   const rpc = vi.fn(async (name: string, args: Record<string, unknown>) => {
     if (name === "claim_national_rain_refinement_jobs") return { data: [job], error: null };
-    if (name === "complete_national_rain_refinement_job") return { data: "OK", error: null };
-    if (name === "complete_national_rain_refinement_job") return { data: "OK", error: null };
     if (name === "finish_national_rain_refinement_job") return { data: "OK", error: null };
     if (name === "defer_national_rain_refinement_job") return { data: "OK", error: null };
     throw new Error(`unexpected RPC ${name}`);
@@ -48,7 +46,7 @@ const job = {
 describe("processNationalRainRefinementJobs", () => {
   test("queues only the next zoom for a strong intermediate tile", async () => {
     const intermediate = { ...job, zoom: 6, tile_x: 55, tile_y: 24 };
-    const { client, upsert } = clientFor(intermediate);
+    const { client, rpc, upsert } = clientFor(intermediate);
     const fetcher = vi.fn().mockResolvedValue(new Response(new Uint8Array(pngBuffer()), { status: 200 }));
     const resolveMunicipalities = vi.fn();
 
@@ -74,7 +72,7 @@ describe("processNationalRainRefinementJobs", () => {
       scan_max_x: 63,
       scan_max_y: 63,
     };
-    const { client, upsert } = clientFor(boundedJob);
+    const { client, rpc, upsert } = clientFor(boundedJob);
     const fetcher = vi.fn().mockResolvedValue(
       new Response(new Uint8Array(boundedWindowPngBuffer()), { status: 200 }),
     );
@@ -117,7 +115,7 @@ describe("processNationalRainRefinementJobs", () => {
     expect(rpc).toHaveBeenCalledWith("complete_national_rain_refinement_job", expect.objectContaining({ p_id: 7, p_lease_token: "lease-7", p_result: expect.any(Object) }));
   });
 
-  test("does not reverse an ambiguous successful finalization into failure", async () => {
+  test("does not reverse an ambiguous successful completion into failure", async () => {
     const { client, rpc, upsert } = clientFor(job);
     rpc.mockImplementation(async (name: string, args: Record<string, unknown>) => {
       if (name === "claim_national_rain_refinement_jobs") return { data: [job], error: null };
