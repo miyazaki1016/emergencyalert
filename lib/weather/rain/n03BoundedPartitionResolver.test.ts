@@ -61,6 +61,6 @@ test("registers only selected prefectures dynamically while retaining one invoca
   expect(() => resolver.registerDataset({
     code: "03",
     index: { ...three.index, parts: [] },
-    indexSha256: sha256(JSON.stringify(three.index)),
+    indexSha256: sha256(JSON.stringify({ ...three.index, parts: [] })),
   })).toThrow("dataset identity changed");
 });
