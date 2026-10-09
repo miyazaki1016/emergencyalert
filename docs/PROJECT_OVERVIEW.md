@@ -2703,3 +2703,8 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - 実測：巨大Polygon対象 **19自治体・228矩形ケース・不一致0件**。既存JS `affectedAdministrativeAreas` を元N03とShapely切断後の双方に適用。比較ステップ成功。
 - 同一CIで全国47パッケージ化とchunk readbackも再成功：351 chunks、47 manifests、472,804,611 verifiedBytes、1.5MiB目標。
 - **判定の完全一致は未証明**：固定矩形228件のみ。切断境界接触、穴、極小雨域、実パーティションresolver経由の一致は次の検証課題。Storage/Production/merge変更なし。
+
+### 2026-10-09 境界・穴の追加プローブ（結果未確認）
+
+- `d85201a1`: 既存228件の矩形比較に、元Polygonと切断後Polygonの外周頂点付近（極小矩形）および元Polygonの穴リング頂点付近を加える。対象19自治体について元・切断後の既存JS判定を比較し、差異があればCI失敗。
+- 追加件数と不一致件数をログに出す。**実行結果未確認**。境界接触と穴はサンプルのみで、数学的な完全一致を主張しない。Production/Storage/merge変更なし。
