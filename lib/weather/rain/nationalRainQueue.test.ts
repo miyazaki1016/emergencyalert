@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { childTilesForCandidate, claimNationalRainJobs, enqueueNationalRainJobs, finishNationalRainJob, queueRows, refinementJobFromCoarseCandidate, stagedRefinementJobsFromCoarseCandidates } from "./nationalRainQueue";
+import { childTilesForCandidate, claimNationalRainJobs, completeNationalRainJob, enqueueNationalRainJobs, finishNationalRainJob, queueRows, refinementJobFromCoarseCandidate, stagedRefinementJobsFromCoarseCandidates } from "./nationalRainQueue";
 
 const jobs = [{ runKey: "run-1", basetime: "2026-09-29T10:00:00Z", validtime: "2026-09-29T10:05:00Z", zoom: 8, tileX: 221, tileY: 100, priority: 2 }];
 
@@ -82,7 +82,7 @@ describe("national rain queue", () => {
 
   it("passes an abort signal to the claim rpc builder", async () => {
     const signal = new AbortController().signal;
-    const abortSignal = vi.fn().mockResolvedValue({ data: [{ id: 1 }], error: null });
+    const abortSignal = vi.fn().mockResolvedValue({ data: [{ id: 1, lease_token: "lease-a" }], error: null });
     const rpc = vi.fn().mockReturnValue({ abortSignal });
 
     const result = await claimNationalRainJobs({ rpc } as any, 1, signal);
@@ -100,14 +100,36 @@ describe("national rain queue", () => {
 });
 
 
-it("finish calls atomic queue completion RPC", async () => {
-  const rpc = vi.fn().mockResolvedValue({ error: null });
-  await finishNationalRainJob({ rpc } as any, 42, false, "network");
+it("finish fences mutations with the claimed lease token", async () => {
+  const rpc = vi.fn().mockResolvedValue({ data: "OK", error: null });
+  await finishNationalRainJob({ rpc } as any, 42, "lease-a", false, "network");
   expect(rpc).toHaveBeenCalledWith("finish_national_rain_refinement_job", {
     p_id: 42,
+    p_lease_token: "lease-a",
     p_success: false,
     p_error: "network",
   });
+});
+
+it("atomically completes with result or child jobs and surfaces stale ownership", async () => {
+  const rpc = vi.fn()
+    .mockResolvedValueOnce({ data: "OK", error: null })
+    .mockResolvedValueOnce({ data: "STALE_LEASE", error: null });
+  const client = { rpc } as any;
+  const result = await completeNationalRainJob(client, 42, "lease-a", {
+    result: {
+      runKey: "run-1", basetime: "2026-09-29T10:00:00Z", validtime: "2026-09-29T10:05:00Z",
+      zoom: 10, tileX: 2, tileY: 3, strongPixelCount: 1, municipalities: [{ code: "13101" }],
+    },
+  });
+  expect(result).toBe("OK");
+  expect(rpc).toHaveBeenCalledWith("complete_national_rain_refinement_job", expect.objectContaining({
+    p_id: 42,
+    p_lease_token: "lease-a",
+    p_result: expect.objectContaining({ job_id: 42, strong_pixel_count: 1 }),
+    p_children: [],
+  }));
+  expect(await completeNationalRainJob(client, 42, "lease-a", {})).toBe("STALE_LEASE");
 });
 
 it("passes an abort signal to the enqueue upsert builder", async () => {
