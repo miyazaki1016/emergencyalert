@@ -1,0 +1,51 @@
+name: N03 administrative area proof
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/n03-administrative-area-proof.yml"
+      - "lib/weather/rain/administrativeAreas.ts"
+      - "lib/weather/rain/n03AdministrativeAreas.ts"
+      - "lib/weather/rain/n03AdministrativeAreas.test.ts"
+      - "lib/weather/rain/n03Prefectures.ts"
+      - "lib/weather/rain/n03PrefectureIndex2026.ts"
+      - "scripts/n03-tokyo-proof.ts"
+      - "scripts/n03-tokyo-live-rain-proof.ts"
+      - "scripts/n03-selected-prefectures-proof.ts"
+      - "scripts/n03-administrative-area-benchmark.ts"
+
+jobs:
+  prove-tokyo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Download official 2026 Tokyo N03 data
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 "https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-2026/N03-20260101_13_GML.zip" -o /tmp/n03-tokyo.zip
+          rm -rf /tmp/n03-tokyo
+          mkdir -p /tmp/n03-tokyo
+          unzip -q /tmp/n03-tokyo.zip -d /tmp/n03-tokyo
+      - name: Prove Ota City exists in official data
+        run: |
+          grep -R -q "大田区" /tmp/n03-tokyo
+          grep -R -q "13111" /tmp/n03-tokyo
+      - name: Generate Tokyo prefecture index from official geometry
+        run: |
+          npx tsx scripts/n03-prefecture-index.ts /tmp/n03-tokyo/N03-20260101_13.geojson | tee /tmp/n03-prefecture-index.json
+          grep -q '"code":"13"' /tmp/n03-prefecture-index.json
+          grep -q '"name":"東京都"' /tmp/n03-prefecture-index.json
+      - name: Parse official GeoJSON and prove real Ota geometry intersection
+        run: npx tsx scripts/n03-tokyo-proof.ts /tmp/n03-tokyo/N03-20260101_13.geojson
+      - name: Benchmark fixed administrative intersection\n        run: npx tsx scripts/n03-administrative-area-benchmark.ts\n      - name: Scan live JMA and select prefectures
+        run: npx tsx scripts/n03-tokyo-live-rain-proof.ts /tmp/n03-tokyo/N03-20260101_13.geojson | tee /tmp/n03-live.json
+      - name: Intersect live rain with selected prefecture detail N03
+        run: |
+          node -e 'const fs=require("fs");const x=JSON.parse(fs.readFileSync("/tmp/n03-live.json","utf8"));process.stdout.write(JSON.stringify(x.selectedDetailInput));' > /tmp/n03-selected-input.json
+          npx tsx scripts/n03-selected-prefectures-proof.ts < /tmp/n03-selected-input.json

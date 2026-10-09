@@ -1,0 +1,21 @@
+name: National rain proof
+
+on:
+  pull_request:
+    paths:
+      - "scripts/national-rain-proof.ts"
+      - "lib/weather/rain/nationalHeavyRain.ts"
+      - ".github/workflows/national-rain-proof.yml"
+
+jobs:
+  live-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Run live JMA nationwide proof
+        run: npx tsx scripts/national-rain-proof.ts

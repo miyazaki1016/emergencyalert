@@ -8,6 +8,20 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: emergencyalert_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d emergencyalert_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -15,4 +29,278 @@ jobs:
           node-version: 22
       - run: npm install
       - run: npm test
+      - name: Scan all forecast frames at z4
+        run: |
+          set -o pipefail
+          npx tsx scripts/national-forecast-z4-screening-proof.ts | tee /tmp/forecast-z4-screening.json
+      - name: Validate forecast z4 screening against available z8 descendants
+        timeout-minutes: 15
+        env:
+          JMA_FORECAST_LOWZOOM_CONCURRENCY: 8
+        run: |
+          set -o pipefail
+          npx tsx scripts/national-forecast-lowzoom-validation.ts | tee /tmp/forecast-lowzoom-validation.json
+      - name: Probe candidate refinement zoom availability across all forecast frames
+        timeout-minutes: 10
+        run: |
+          set -o pipefail
+          npx tsx scripts/national-forecast-refinement-zoom-proof.ts | tee /tmp/forecast-refinement-zoom.json
+      - name: Probe whether JMA omits empty high-zoom forecast tiles
+        timeout-minutes: 5
+        run: |
+          set -o pipefail
+          JMA_TILE_EXISTENCE_SAMPLE=100 npx tsx scripts/jma-sparse-tile-existence-proof.ts | tee /tmp/jma-sparse-tile-existence.json
+      - name: Reproduce live JMA forecast 404s and capture coordinates
+        timeout-minutes: 10
+        run: |
+          set -o pipefail
+          JMA_404_OUTPUT=/tmp/jma-404-url-evidence.json npx tsx scripts/jma-404-reproduction-proof.ts | tee /tmp/jma-404-reproduction.json
+      - name: Retain reproduced JMA 404 URL evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jma-404-url-evidence
+          path: /tmp/jma-404-url-evidence.json
+          if-no-files-found: warn
+      - name: Track reproduced JMA 404s for 10 minutes
+        if: always()
+        timeout-minutes: 15
+        run: |
+          set -o pipefail
+          if [ -f /tmp/jma-404-url-evidence.json ]; then
+            JMA_404_INPUT=/tmp/jma-404-url-evidence.json \
+            JMA_404_RETRY_SCHEDULE_MS=150000,300000,450000,600000 \
+            JMA_404_RETRY_SAMPLE_PER_FRAME=120 \
+            npx tsx scripts/jma-404-delayed-retry-proof.ts | tee /tmp/jma-404-delayed-retry.json
+          else
+            echo '{"mode":"JMA_404_DELAYED_RETRY_PROOF","skipped":true,"reason":"404 evidence missing"}' | tee /tmp/jma-404-delayed-retry.json
+          fi
+      - name: Retain delayed JMA 404 retry evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jma-404-delayed-retry-evidence
+          path: /tmp/jma-404-delayed-retry.json
+          if-no-files-found: warn
+      - run: npx tsx scripts/national-rain-budget-proof.ts
+      - name: Measure read-only live national rain throughput
+        timeout-minutes: 10
+        run: |
+          set -o pipefail
+          N03_CACHE_DIR=/tmp/national-rain-throughput-cache npx tsx scripts/national-rain-live-throughput-proof.ts | tee /tmp/national-rain-live-throughput.log
+      - name: Measure bounded worker with real N03 and synthetic strong-rain stress
+        timeout-minutes: 15
+        run: |
+          set -o pipefail
+          for scenario in dense fragmented; do
+            for concurrency in 1 4; do
+              N03_CACHE_DIR=/tmp/national-rain-throughput-cache npx tsx scripts/national-rain-stress-throughput-proof.ts "$scenario" "$concurrency" | tee -a /tmp/national-rain-stress-throughput.log
+            done
+          done
+          N03_CACHE_DIR=/tmp/national-rain-throughput-cache npx tsx scripts/national-rain-stress-throughput-proof.ts hokkaido 4 | tee -a /tmp/national-rain-stress-throughput.log
+      - name: Prove exact Hokkaido polygon partition design locally
+        timeout-minutes: 5
+        run: |
+          set -o pipefail
+          npx tsx scripts/n03-hokkaido-partition-design-proof.ts prepare-prepared /tmp/n03-partition-design /tmp/national-rain-throughput-cache/01.areas.json | tee /tmp/national-rain-partition-throughput.log
+          for mode in full partitioned compare worker-1 worker-4; do
+            npx tsx scripts/n03-hokkaido-partition-design-proof.ts "$mode" /tmp/n03-partition-design | tee -a /tmp/national-rain-partition-throughput.log
+          done
+      - name: Compare representative exact N03 partitions
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          root=/tmp/n03-readiness-data
+          mkdir -p "$root"
+          for code in 01 42 03 47; do
+            if [ -f "/tmp/national-rain-throughput-cache/$code.areas.json" ]; then
+              cp "/tmp/national-rain-throughput-cache/$code.areas.json" "$root/$code.areas.json"
+            else
+              npx tsx scripts/prepare-n03-storage-data.ts "$root" "$code"
+            fi
+            npx tsx scripts/n03-representative-readiness-proof.ts prepare "$root" "$code" | tee -a /tmp/national-rain-readiness-representatives-throughput.log
+            for mode in whole uncached partition compare; do
+              npx tsx scripts/n03-representative-readiness-proof.ts "$mode" "$root" "$code" | tee -a /tmp/national-rain-readiness-representatives-throughput.log
+            done
+          done
+      - name: Measure read-only HTTP sensitivity with actual worker
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          for args in '01 whole nominal 4 50' '01 cached nominal 4 50' '01 cached nominal 1 50' '42 cached nominal 4 32' '03 cached nominal 4 32' '47 cached nominal 4 32' '01 cached constrained 4 32' '01,42,03,47 cached nominal 4 16'; do
+            npx tsx scripts/n03-http-worker-readiness-proof.ts worker /tmp/n03-readiness-data $args | tee -a /tmp/national-rain-readiness-http-throughput.log
+          done
+      - name: Prove bounded cache under sustained actual worker calls
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          npx tsx scripts/n03-sustained-worker-readiness-proof.ts /tmp/n03-readiness-data 12 | tee /tmp/national-rain-readiness-sustained-throughput.log
+      - name: Compare separate worker invocations and scheduler replay
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          for args in 'national 0 2' 'regional 0 2' 'regional 3000 2' 'regional 0 4'; do
+            npx tsx scripts/n03-parallel-invocation-readiness-proof.ts /tmp/n03-readiness-data $args | tee -a /tmp/national-rain-readiness-parallel-throughput.log
+          done
+          npx tsx scripts/national-rain-readiness-scheduler-proof.ts /tmp/national-rain-readiness-parallel-throughput.log | tee /tmp/national-rain-readiness-scheduler-throughput.log
+      - name: Verify queue-aware and deadline proof candidates
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          npx tsx scripts/national-queue-aware-proof.ts | tee /tmp/national-rain-queue-aware-throughput.log
+          N03_PROOF_HARD_DEADLINE=1 N03_PROOF_CONCURRENCY=2 N03_PROOF_OFFERED=100 npx tsx scripts/n03-parallel-invocation-readiness-proof.ts /tmp/n03-readiness-data regional 0 2 | tee /tmp/national-rain-deadline-throughput.log
+          npx tsx scripts/national-queue-aware-proof.ts /tmp/national-rain-deadline-throughput.log | tee /tmp/national-rain-deadline-scheduler-throughput.log
+          N03_PROOF_HARD_DEADLINE=1 N03_PROOF_CONCURRENCY=2 N03_PROOF_OFFERED=100 npx tsx scripts/n03-parallel-invocation-readiness-proof.ts /tmp/n03-readiness-data owned-chunks 0 2 | tee /tmp/national-rain-owned-chunks-throughput.log
+          N03_PROOF_HARD_DEADLINE=1 npx tsx scripts/n03-http-worker-readiness-proof.ts worker /tmp/n03-readiness-data 03 cached constrained 2 100 | tee /tmp/national-rain-deadline-constrained-throughput.log
+          N03_PROOF_HARD_DEADLINE=1 N03_PROOF_COLD_ONLY=1 npx tsx scripts/n03-http-worker-readiness-proof.ts worker /tmp/n03-readiness-data 03 cached deadlineTail 2 100 | tee /tmp/national-rain-deadline-tail-throughput.log
+      - name: Retain nationwide throughput evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: national-rain-throughput-evidence
+          path: /tmp/national-rain-*-throughput.log
+      - name: Benchmark fixed N03 intersection
+        if: always()
+        run: npx tsx scripts/n03-administrative-area-benchmark.ts
+      - name: Measure Koto census town boundary TopoJSON
+        if: always()
+        timeout-minutes: 2
+        run: |
+          set -o pipefail
+          npx tsx scripts/census-town-boundary-topojson-proof.ts | tee /tmp/census-town-boundary-topojson.json
+      - name: Measure live N03 detail phases
+        run: |
+          curl --fail --location --retry 3 "https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-2026/N03-20260101_13_GML.zip" -o /tmp/n03-tokyo.zip
+          rm -rf /tmp/n03-tokyo
+          mkdir -p /tmp/n03-tokyo
+          unzip -q /tmp/n03-tokyo.zip -d /tmp/n03-tokyo
+          npx tsx scripts/n03-tokyo-live-rain-proof.ts /tmp/n03-tokyo/N03-20260101_13.geojson > /tmp/n03-live.json
+          node -e 'const fs=require("fs");const x=JSON.parse(fs.readFileSync("/tmp/n03-live.json","utf8"));process.stdout.write(JSON.stringify(x.selectedDetailInput));' > /tmp/n03-selected-input.json
+          N03_CACHE_DIR=/tmp/n03-cache npx tsx scripts/n03-selected-prefectures-proof.ts < /tmp/n03-selected-input.json | tee /tmp/n03-first.json
+          N03_CACHE_DIR=/tmp/n03-cache npx tsx scripts/n03-selected-prefectures-proof.ts < /tmp/n03-selected-input.json | tee /tmp/n03-cached.json
+          node -e 'const fs=require("fs");const a=JSON.parse(fs.readFileSync("/tmp/n03-first.json","utf8"));const b=JSON.parse(fs.readFileSync("/tmp/n03-cached.json","utf8"));if(b.cacheHits!==b.loadedPrefectures.length)throw new Error("expected all N03 prefectures from cache");if(b.preparedCacheHits!==b.loadedPrefectures.length)throw new Error("expected all prepared N03 areas from cache");if(JSON.stringify(a.affectedAreas)!==JSON.stringify(b.affectedAreas))throw new Error("cached N03 result mismatch");'
+          node -e 'const fs=require("fs"),path=require("path");const root="/tmp/n03-cache";const rows=fs.readdirSync(root).filter(n=>n.endsWith(".areas.json")).sort().map(name=>({prefectureCode:name.slice(0,2),bytes:fs.statSync(path.join(root,name)).size}));const totalBytes=rows.reduce((sum,row)=>sum+row.bytes,0);console.log(JSON.stringify({preparedN03Sizes:rows,totalBytes,totalMiB:Math.round(totalBytes/1048576*100)/100}));'
+      - name: Verify reproducible N03 prepared-data generator
+        run: |
+          rm -rf /tmp/n03-prepared-check
+          npx tsx scripts/prepare-n03-storage-data.ts /tmp/n03-prepared-check 13
+          node -e 'const fs=require("fs");const m=JSON.parse(fs.readFileSync("/tmp/n03-prepared-check/manifest.json","utf8"));if(m.dataset!=="N03-20260101")throw new Error("unexpected dataset");if(m.files.length!==1||m.files[0].code!=="13")throw new Error("unexpected prepared prefecture");if(!fs.existsSync("/tmp/n03-prepared-check/13.areas.json"))throw new Error("prepared Tokyo file missing");if(m.files[0].bytes<=0||m.files[0].areas<=0)throw new Error("prepared Tokyo file empty");if(!/^[a-f0-9]{64}$/.test(m.files[0].sha256))throw new Error("prepared Tokyo hash missing");'
+      - name: Prove national rain queue lease fencing and lifecycle
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -U postgres -d emergencyalert_test -v ON_ERROR_STOP=1 <<'SQL'
+          create role anon nologin;
+          create role authenticated nologin;
+          create role service_role nologin;
+          SQL
+          psql -h 127.0.0.1 -U postgres -d emergencyalert_test -v ON_ERROR_STOP=1 -f supabase/migrations/20260929_create_national_rain_refinement_jobs.sql
+          psql -h 127.0.0.1 -U postgres -d emergencyalert_test -v ON_ERROR_STOP=1 <<'SQL'
+          insert into public.national_rain_refinement_jobs
+            (run_key, basetime, validtime, zoom, tile_x, tile_y, priority)
+          values
+            ('ci-race', '2026-09-29T10:00:00Z', '2026-09-29T10:05:00Z', 10, 400, 200, 1000);
+
+          do $lease_fence$
+          declare
+            v_job_id bigint;
+            token_a uuid;
+            token_b uuid;
+            outcome text;
+            stored_owner text;
+            stored_status text;
+            child_count integer;
+          begin
+            select id, lease_token into v_job_id, token_a
+            from public.claim_national_rain_refinement_jobs(1)
+            where run_key = 'ci-race';
+            if v_job_id is null or token_a is null then raise exception 'worker A did not receive a lease identity'; end if;
+
+            update public.national_rain_refinement_jobs
+            set claimed_at = now() - interval '6 minutes'
+            where id = v_job_id;
+
+            select lease_token into token_b
+            from public.claim_national_rain_refinement_jobs(1)
+            where id = v_job_id;
+            if token_b is null or token_b = token_a then raise exception 'reclaim did not rotate lease identity'; end if;
+
+            outcome := public.complete_national_rain_refinement_job(
+              v_job_id, token_a,
+              jsonb_build_object('job_id', v_job_id, 'run_key', 'ci-race', 'basetime', '2026-09-29T10:00:00Z',
+                'validtime', '2026-09-29T10:05:00Z', 'zoom', 10, 'tile_x', 400, 'tile_y', 200,
+                'strong_pixel_count', 1, 'municipalities', jsonb_build_array(jsonb_build_object('owner', 'A'))),
+              jsonb_build_array(jsonb_build_object('run_key', 'stale-child', 'basetime', '2026-09-29T10:00:00Z',
+                'validtime', '2026-09-29T10:06:00Z', 'zoom', 8, 'tile_x', 1, 'tile_y', 1))
+            );
+            if outcome <> 'STALE_LEASE' then raise exception 'stale result completion was not rejected: %', outcome; end if;
+
+            outcome := public.finish_national_rain_refinement_job(v_job_id, token_a, false, 'stale A');
+            if outcome <> 'STALE_LEASE' then raise exception 'stale finish was not rejected: %', outcome; end if;
+            outcome := public.defer_national_rain_refinement_job(v_job_id, token_a);
+            if outcome <> 'STALE_LEASE' then raise exception 'stale defer was not rejected: %', outcome; end if;
+
+            outcome := public.complete_national_rain_refinement_job(
+              v_job_id, token_b,
+              jsonb_build_object('job_id', v_job_id, 'run_key', 'ci-race', 'basetime', '2026-09-29T10:00:00Z',
+                'validtime', '2026-09-29T10:05:00Z', 'zoom', 10, 'tile_x', 400, 'tile_y', 200,
+                'strong_pixel_count', 2, 'municipalities', jsonb_build_array(jsonb_build_object('owner', 'B'))),
+              '[]'::jsonb
+            );
+            if outcome <> 'OK' then raise exception 'current owner B could not complete: %', outcome; end if;
+
+            select municipalities->0->>'owner' into stored_owner
+            from public.national_rain_refinement_results r where r.job_id = v_job_id;
+            select status into stored_status from public.national_rain_refinement_jobs where id = v_job_id;
+            select count(*) into child_count from public.national_rain_refinement_jobs where run_key = 'stale-child';
+            if stored_owner <> 'B' then raise exception 'stale A overwrote B result; stored owner=%', stored_owner; end if;
+            if stored_status <> 'DONE' then raise exception 'current owner job status expected DONE, got %', stored_status; end if;
+            if child_count <> 0 then raise exception 'stale A expanded the queue'; end if;
+          end $lease_fence$;
+
+          insert into public.national_rain_refinement_jobs
+            (run_key, basetime, validtime, zoom, tile_x, tile_y, priority)
+          values ('ci-stage', '2026-09-29T10:00:00Z', '2026-09-29T10:07:00Z', 6, 401, 201, 999);
+
+          do $stage_completion$
+          declare
+            parent_id bigint;
+            parent_token uuid;
+            outcome text;
+            child_count integer;
+          begin
+            select id, lease_token into parent_id, parent_token
+            from public.claim_national_rain_refinement_jobs(1)
+            where run_key = 'ci-stage';
+            if parent_id is null or parent_token is null then raise exception 'stage job not claimed'; end if;
+            outcome := public.complete_national_rain_refinement_job(
+              parent_id, parent_token, null,
+              jsonb_build_array(jsonb_build_object('run_key', 'ci-stage-child', 'basetime', '2026-09-29T10:00:00Z',
+                'validtime', '2026-09-29T10:08:00Z', 'zoom', 8, 'tile_x', 402, 'tile_y', 202,
+                'priority', 1, 'scan_min_x', 10, 'scan_min_y', 11, 'scan_max_x', 20, 'scan_max_y', 21))
+            );
+            if outcome <> 'OK' then raise exception 'valid stage completion failed: %', outcome; end if;
+            select count(*) into child_count from public.national_rain_refinement_jobs
+            where run_key = 'ci-stage-child' and status = 'PENDING' and scan_min_x = 10 and scan_max_y = 21;
+            if child_count <> 1 then raise exception 'current stage did not enqueue its bounded child'; end if;
+          end $stage_completion$;
+
+          insert into public.national_rain_refinement_jobs
+            (run_key, basetime, validtime, zoom, tile_x, tile_y, status, attempts, claimed_at, lease_token)
+          values ('ci-fail', '2026-09-29T10:00:00Z', '2026-09-29T10:20:00Z', 8, 224, 100, 'PROCESSING', 5, now(), gen_random_uuid());
+
+          do $failure$
+          declare
+            failed_id bigint;
+            failed_token uuid;
+            failed_status text;
+            outcome text;
+          begin
+            select id, lease_token into failed_id, failed_token from public.national_rain_refinement_jobs where run_key = 'ci-fail';
+            outcome := public.finish_national_rain_refinement_job(failed_id, failed_token, false, 'synthetic failure');
+            if outcome <> 'OK' then raise exception 'current lease failure finalization failed: %', outcome; end if;
+            select status into failed_status from public.national_rain_refinement_jobs where id = failed_id;
+            if failed_status <> 'FAILED' then raise exception 'expected FAILED after max attempts, got %', failed_status; end if;
+          end $failure$;
+          SQL
       - run: npm run build

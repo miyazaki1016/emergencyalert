@@ -1,0 +1,38 @@
+name: JMA z4 to z10 screening proof
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/national-lowzoom-max-rank-proof.ts'
+      - 'scripts/national-lowzoom-max-rank-proof.test.ts'
+      - '.github/workflows/national-lowzoom-max-rank-proof.yml'
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npx vitest run scripts/national-lowzoom-max-rank-proof.test.ts
+      - name: Compare direct z4 to z10 screening on one observation frame
+        env:
+          JMA_LOWZOOM_CONCURRENCY: 8
+          JMA_LOWZOOM_SAMPLE_PARENTS: 64
+        run: |
+          set -o pipefail
+          : > /tmp/jma-lowzoom-max-rank.jsonl
+          for zoom_pair in "4 10"; do
+            set -- ${zoom_pair}
+            parent_zoom="$1"
+            detail_zoom="$2"
+            echo "checking z${parent_zoom}->z${detail_zoom} on observation frame 0" >&2
+            JMA_LOWZOOM_FRAME_INDEX=0 JMA_LOWZOOM_PARENT_ZOOM="${parent_zoom}" JMA_LOWZOOM_DETAIL_ZOOM="${detail_zoom}" npx tsx scripts/national-lowzoom-max-rank-proof.ts | tee -a /tmp/jma-lowzoom-max-rank.jsonl
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jma-lowzoom-max-rank-evidence
+          path: /tmp/jma-lowzoom-max-rank.jsonl
