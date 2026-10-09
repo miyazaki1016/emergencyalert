@@ -2714,3 +2714,9 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - GitHub Actions全ステップ成功。元N03と切断後N03の既存JS雨域判定：**19自治体・446ケース・不一致0件**。内訳：従来228ケース、外周/切断後頂点付近213ケース、穴付近5ケース。
 - 同一CIで47都道府県、351 chunks、47 manifests、472,804,611 verifiedBytesの実験用パッケージ化再成功。
 - **制約**：穴・境界はサンプルのみ。実パーティションresolverのchunk読込による判定一致はまだ未確認。これらを解消するまで本番採用不可。Production/Storage/merge変更なし。
+
+### 2026-10-09 実chunk resolverによる市区町村一致検証をCI追加（結果待ち）
+
+- `b93a5eef`: 巨大Polygonを含む19自治体を起点に各3矩形の雨域を作り、**元公式N03全自治体への既存JS判定**と、**切断後全自治体を1.5MiB chunk化しSHA検証付き `resolvePartitionedFootprint` で読み込んだ判定**の自治体コード配列を比較する実験用スクリプト。
+- `984727b7`: CIに追加。差異が1件でもあれば失敗。ローカルメモリchunk読み込みでありStorage HTTPの検証ではない。結果未確認。
+- 依然として穴・切断線接触・実Storage/worker性能・全雨域網羅は未証明。Production/Storage/merge変更なし。
