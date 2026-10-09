@@ -2574,3 +2574,11 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - このログだけでは該当都道府県・chunk・超過bytesを特定できない。未計測のファイルサイズ分布、総容量、45秒ワーカー実用性、正確性について成功を主張しない。
 - **現行方式は採用保留**。次は超過chunkの都道府県・サイズ・ポリゴン数・単独巨大ポリゴンかどうかをread-onlyローカル診断で特定する。上限チェックの削除や巨大chunkの黙認はしない。修正案を比較して再試験する。
 - 後続run `37882865406` は確認時点でin_progress。Production/Supabase Storage/Push/PR merge変更なし。
+
+
+### 2026-10-09 北海道の単独巨大ポリゴンを実測特定
+
+- GitHub Actions run `37883472529`（commit `21903afc`）のjob `113668157458` で、47都道府県の公式N03準備は成功、分割変換は北海道（code 01）で停止。
+- 診断ログ: `oversizedCount=1`, `totalChunks=46`, `chunk-0041.json`, `bytes=1328374`, `targetBytes=1048576`, `partCount=1`, `areaCodes=[\"01698\"]`, `singlePolygon=true`。
+- **根本原因:** 現行 `partitionAreas` はポリゴン単位でchunkを詰めるが、単独ポリゴンが1MiBを超える場合は分割不能。上限の撤廃ではなく、同一ポリゴンの正確な分割（境界上の交点・穴・MultiPolygon等）と元データとの一致検証を設計する。
+- 北海道で停止したため残り46都府県の可否は未確認。分割後の実際の読み込み量・45秒以内の性能も未確認。採用・本番適用は保留。
