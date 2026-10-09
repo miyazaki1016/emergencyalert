@@ -2549,3 +2549,12 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - `scripts/n03-package-all-local.ts` に事前検査時の各都道府県入力SHA-256記録を追加（`92f76f22`）。変換直前にファイルを再読込して同じSHA-256であることを確認し、事前検査後に入力が変更された場合は例外停止する。
 - 入力全47件のgeometryをメモリ保持せず、保持するのは47個のハッシュ。途中で失敗した際の部分出力は**公開禁止**。変換中のファイル改変が読み取り間に発生する競合を完全に防ぐものではなく、必要なら不変の入力スナップショットから実行する。
 - **実N03データの取得・変換・性能計測は未実施**。変更後のCI結果は未確定。GitHub Actionsに多数の実行待ちがあり、補助workflow2件の失敗も継続。CI成功と断定しない。Production/Push/watch変更なし。
+
+
+### 2026-10-09 実データ変換の可否を最優先 — All47実物CI Proof
+
+- Supabase既存Storageに47件あることと個別サイズを読み取り専用で確認したが、connector経由でファイル本文を安全に取得する経路はまだない。Supabase Storageからの取得・アップロードは行わない。
+- 既存 `scripts/prepare-n03-storage-data.ts` は国土数値情報の公式N03都道府県別アーカイブを取得してprepared `XX.areas.json` を生成できる。この既存生成器を使う**独立した実物変換CI** `.github/workflows/n03-all47-real-conversion-proof.yml` を追加（`6925a2f9`）。
+- このProofはGitHub Actions上で公式N03全47件を取得→prepared形式に変換→`n03-package-all-local.ts` で全47件を分割→chunk SHA-256 readback→manifest件数/bytesを確認。経過時間・最大RSSを `/usr/bin/time -v` で計測し、**ログだけ**artifactとして保存する。地理データ本体はartifactに含めず、Supabaseには接続しない。
+- **重要：ワークフロー追加と実データ変換成功は別。2026-10-09追記時点では新Proofの実行完了を確認していない。** GitHub Actionsの結果がsuccessなら「公式N03アーカイブ→全47分割」の可否が実証できるが、既存Supabase47オブジェクトとのバイト単位同一性やPreview Storage適用はまだ別検証。
+- 失敗時は取得・変換・ハッシュ・時間/メモリのどこで失敗したかをログで切り分ける。Production/Push/watch/PR mergeは変更しない。
