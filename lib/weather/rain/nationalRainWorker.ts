@@ -2,11 +2,12 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { PNG } from "pngjs";
 import { buildJmaRainTileUrl } from "../providers/jma/tileUrl";
 import { heavyRainAreaPolygons, scanHeavyRainTile } from "./nationalHeavyRain";
-import { claimNationalRainJobs, deferNationalRainJob, enqueueNationalRainJobs, finishNationalRainJob, saveNationalRainRefinementResult, stagedRefinementJobsFromCoarseCandidates } from "./nationalRainQueue";
+import { claimNationalRainJobs, completeNationalRainJob, deferNationalRainJob, finishNationalRainJob, stagedRefinementJobsFromCoarseCandidates } from "./nationalRainQueue";
 import type { NationalRainMunicipality } from "./nationalRainMunicipalities";
 
 export type ClaimedNationalRainJob = {
   id: number;
+  lease_token: string;
   run_key: string;
   basetime: string;
   validtime: string;
@@ -82,64 +83,66 @@ export async function processNationalRainRefinementJobs(
       const strongPixelCount = strongCandidates.length;
       result.strongPixels += strongPixelCount;
 
+      let completion: Parameters<typeof completeNationalRainJob>[3] = {};
       if (job.zoom === 6 || job.zoom === 8) {
         const nextZoom = job.zoom === 6 ? 8 : 10;
-        const nextJobs = stagedRefinementJobsFromCoarseCandidates(
-          strongCandidates,
-          { basetime: job.basetime, validtime: job.validtime },
-          nextZoom,
-          job.zoom,
-        );
-        await enqueueNationalRainJobs(supabase, nextJobs, finalSignal);
+        completion = {
+          children: stagedRefinementJobsFromCoarseCandidates(
+            strongCandidates,
+            { basetime: job.basetime, validtime: job.validtime },
+            nextZoom,
+            job.zoom,
+          ),
+        };
       } else if (job.zoom === 10) {
         const footprint = heavyRainAreaPolygons(strongCandidates, job.zoom);
         const municipalities = options.resolveMunicipalities
           ? await options.resolveMunicipalities(footprint, signal)
           : [];
         checkDeadline();
-        await saveNationalRainRefinementResult(supabase, {
-          jobId: job.id,
-          runKey: job.run_key,
-          basetime: job.basetime,
-          validtime: job.validtime,
-          zoom: job.zoom,
-          tileX: job.tile_x,
-          tileY: job.tile_y,
-          strongPixelCount,
-          footprint,
-          municipalities,
-        }, finalSignal);
+        completion = {
+          result: {
+            runKey: job.run_key,
+            basetime: job.basetime,
+            validtime: job.validtime,
+            zoom: job.zoom,
+            tileX: job.tile_x,
+            tileY: job.tile_y,
+            strongPixelCount,
+            footprint,
+            municipalities,
+          },
+        };
       } else {
         throw new Error(`Unsupported national rain refinement zoom: ${job.zoom}`);
       }
-      try {
-        await finishNationalRainJob(supabase, job.id, true, undefined, finalSignal);
-      } catch {
-        return;
-      }
+
+      const outcome = await completeNationalRainJob(supabase, job.id, job.lease_token, completion, finalSignal);
+      if (outcome === "STALE_LEASE") return;
       result.done += 1;
     } catch (error) {
       if (deadlineReached() || (error instanceof Error && error.message === "NATIONAL_RAIN_DEADLINE")) {
         try {
-          await deferNationalRainJob(supabase, job.id, finalSignal);
+          const outcome = await deferNationalRainJob(supabase, job.id, job.lease_token, finalSignal);
+          if (outcome === "OK") result.deferred += 1;
         } catch {
-          return;
+          // Keep the row reclaimable via lease expiry if defer's outcome is ambiguous.
         }
-        result.deferred += 1;
         return;
       }
       try {
-        await finishNationalRainJob(
+        const outcome = await finishNationalRainJob(
           supabase,
           job.id,
+          job.lease_token,
           false,
           error instanceof Error ? error.message : String(error),
           finalSignal,
         );
+        if (outcome === "OK") result.failed += 1;
       } catch {
-        return;
+        // Do not retry with another lease identity. The row remains safely fenced.
       }
-      result.failed += 1;
     }
   };
 
@@ -147,14 +150,17 @@ export async function processNationalRainRefinementJobs(
     const batchSize = Math.min(concurrency, limit - result.claimed);
     const jobs = (await claimNationalRainJobs(supabase, batchSize, signal)) as ClaimedNationalRainJob[];
     if (jobs.length === 0) break;
+    if (jobs.some((job) => typeof job.lease_token !== "string" || job.lease_token.length === 0)) {
+      throw new Error("Queue claim RPC returned a job without its lease identity");
+    }
     result.claimed += jobs.length;
 
     const runnable: ClaimedNationalRainJob[] = [];
     for (const job of jobs) {
       if (deadlineReached()) {
         try {
-          await deferNationalRainJob(supabase, job.id, finalSignal);
-          result.deferred += 1;
+          const outcome = await deferNationalRainJob(supabase, job.id, job.lease_token, finalSignal);
+          if (outcome === "OK") result.deferred += 1;
         } catch {
           // Leave PROCESSING for the stale-lease reclaim path.
         }
