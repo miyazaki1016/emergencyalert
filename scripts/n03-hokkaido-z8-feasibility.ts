@@ -3,7 +3,8 @@
 import { readFileSync } from "node:fs";
 import type { AdministrativeArea } from "../lib/weather/rain/administrativeAreas";
 
-const Z = 8, N = 2 ** Z;
+const DEFAULT_ZOOMS = [8, 9, 10] as const;
+let Z = 8, N = 2 ** Z;
 const clamp = (v: number) => Math.max(0, Math.min(N - 1, v));
 function tileX(lon: number) { return clamp(Math.floor((lon + 180) / 360 * N)); }
 function tileY(lat: number) {
@@ -23,7 +24,9 @@ function percentile(values: number[], fraction: number) {
   const sorted = [...values].sort((a, b) => a - b);
   return sorted[Math.ceil(fraction * sorted.length) - 1];
 }
-export function analyzeZ8Hokkaido(areas: AdministrativeArea[]) {
+export function analyzeZ8Hokkaido(areas: AdministrativeArea[], zoom = 8) {
+  if (![8,9,10].includes(zoom)) throw new Error("Only z8/z9/z10 supported");
+  Z=zoom; N=2 ** Z;
   const tileBytes = new Map<string, number>(), tileParts = new Map<string, number>();
   let sourcePolygonBytes = 0, polygonParts = 0, largestPolygonBytes = 0, tileReferences = 0;
   let largestPolygon: { code: string; bytes: number; tileReferences: number } | undefined;
@@ -48,7 +51,7 @@ export function analyzeZ8Hokkaido(areas: AdministrativeArea[]) {
   const values=[...tileBytes.values()];
   const totalDuplicatedBytes=values.reduce((sum,value)=>sum+value,0);
   const largestTiles=[...tileBytes].sort((a,b)=>b[1]-a[1]).slice(0,10).map(([tile,bytes])=>({tile,bytes,polygonReferences:tileParts.get(tile)}));
-  return { mode:"N03_HOKKAIDO_Z8_BBOX_DUPLICATION_BASELINE", z:Z, municipalities:areas.length,
+  return { mode:"N03_HOKKAIDO_TILE_BBOX_DUPLICATION_BASELINE", z:Z, municipalities:areas.length,
     polygonParts, occupiedTiles:tileBytes.size, tileReferences, sourcePolygonBytes,
     totalDuplicatedBytes, duplicationFactor:sourcePolygonBytes?totalDuplicatedBytes/sourcePolygonBytes:0,
     tileBytes:{median:percentile(values,0.5),p95:percentile(values,0.95),max:Math.max(0,...values)},
@@ -62,5 +65,5 @@ if (process.argv[1]?.endsWith("n03-hokkaido-z8-feasibility.ts")) {
   const path=process.argv[2];
   if (!path) throw new Error("Usage: npx tsx scripts/n03-hokkaido-z8-feasibility.ts <01.areas.json>");
   const areas=JSON.parse(readFileSync(path,"utf8")) as AdministrativeArea[];
-  console.log(JSON.stringify(analyzeZ8Hokkaido(areas)));
+  for (const zoom of DEFAULT_ZOOMS) console.log(JSON.stringify(analyzeZ8Hokkaido(areas, zoom)));
 }
