@@ -2632,3 +2632,10 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - 4MiB：11 chunks、最大4,194,058 bytes、超過0、総42,440,225 bytes。
 - 局所矩形の読み込み量は大きなchunkで増える傾向。例query0：1MiB 5,972,022 bytes、1.5MiB 8,869,436、2MiB 11,960,688、4MiB 16,265,187。ローカル実行時間はHTTP/worker時間ではない。
 - 現行の全47変換は目標1MiB固定なので北海道code01698単一Polygon超過で引き続き失敗。**1.5MiBへの変更はまだ採用しない**。全国全件での上限/一致検証、Storage読込/45秒worker測定、正確なクリッピング比較を行ってから決定。Production/Storage/merge変更なし。
+
+
+### 2026-10-09 全国47の1.5MiBローカル検証へ（結果未確認）
+
+- `a760e5a8` でオフライン変換スクリプトに明示的な実験用targetMiB引数を追加。既定1MiBは維持し、1/1.5/2/4MiB以外を拒否。
+- `261a364a` でCIの全47変換ステップのみ1.5MiB指定に変更。47都道府県の入力SHA事前固定、全chunkのローカル読戻しSHA照合、manifest後書き、Storage非接続は維持。
+- **CI実測はまだ未確認。** 全47成功、精度保証、HTTP/worker 45秒以内、本番採用とはみなさない。Production/Storage/PR merge変更なし。
