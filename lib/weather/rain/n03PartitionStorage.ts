@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { createHash } from "node:crypto";
 import { N03_DATASET_DATE } from "./n03Dataset";
 import type { N03PartitionDataset, PartitionIndex } from "./n03BoundedPartitionResolver";
 
@@ -66,6 +67,10 @@ export function createSupabaseN03PartitionStorage(
         }
         if (!value || value.code !== code || !/^[a-f0-9]{64}$/.test(value.indexSha256) || !value.index) {
           throw new Error(`N03 partition manifest identity mismatch: ${code}`);
+        }
+        const actualIndexSha256 = createHash("sha256").update(JSON.stringify(value.index)).digest("hex");
+        if (actualIndexSha256 !== value.indexSha256) {
+          throw new Error(`N03 partition manifest index hash mismatch: ${code}`);
         }
         return { code, index: value.index, indexSha256: value.indexSha256 };
       })();
