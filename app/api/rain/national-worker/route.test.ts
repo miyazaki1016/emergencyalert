@@ -6,7 +6,7 @@ const { processJobs, createClient, createLoader, resolveMunicipalities, createPa
   createClient: vi.fn(() => ({ marker: "client" })),
   createLoader: vi.fn(() => "loader"),
   resolveMunicipalities: vi.fn(),
-  createPartitionStorage: vi.fn(() => ({ loadManifest: vi.fn(async (code: string) => ({ code, indexSha256: "a".repeat(64), index: {} }), readChunk: vi.fn() })),
+  createPartitionStorage: vi.fn(() => ({ loadManifest: vi.fn(async (code: string) => ({ code, indexSha256: "a".repeat(64), index: {} })), readChunk: vi.fn() })),
   createPartitionResolver: vi.fn(() => ({ registerDataset: vi.fn(), resolve: vi.fn(async () => [{ code: "13111", prefecture: "東京都", municipality: "大田区" }]) })),
   selectPrefectures: vi.fn(() => [{ code: "13", name: "東京都", bbox: [136, 20, 154, 36] }]),
 }));
