@@ -7,6 +7,7 @@ on:
       - "scripts/n03-package-all-local.ts"
       - "scripts/n03-hokkaido-z8-feasibility.ts"
       - "scripts/n03-hokkaido-target-comparison.ts"
+      - "scripts/n03-all47-polygon-inventory.ts"
       - "scripts/n03-partition-package.ts"
       - "scripts/prepare-n03-storage-data.ts"
   workflow_dispatch:
@@ -27,6 +28,8 @@ jobs:
       - name: Prepare all 47 from official N03 archives (no Supabase access)
         timeout-minutes: 35
         run: npx tsx scripts/prepare-n03-storage-data.ts /tmp/n03-real-prepared
+      - name: Inventory indivisible polygons in all 47 before packaging
+        run: npx tsx scripts/n03-all47-polygon-inventory.ts /tmp/n03-real-prepared | tee /tmp/n03-all47-polygon-inventory.json
       - name: Measure Hokkaido z8 bbox packing baseline (no Storage or geometry upload)
         run: npx tsx scripts/n03-hokkaido-z8-feasibility.ts /tmp/n03-real-prepared/01.areas.json | tee /tmp/n03-hokkaido-z8-feasibility.json
       - name: Compare Hokkaido 1 to 4 MiB polygon packing and exact municipality matches
@@ -46,6 +49,7 @@ jobs:
         with:
           name: n03-all47-real-conversion-logs
           path: |
+            /tmp/n03-all47-polygon-inventory.json
             /tmp/n03-hokkaido-z8-feasibility.json
             /tmp/n03-hokkaido-target-comparison.json
             /tmp/n03-real-conversion.json
