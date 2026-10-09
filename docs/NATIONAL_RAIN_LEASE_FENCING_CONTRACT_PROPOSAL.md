@@ -1,6 +1,6 @@
 # National rain queue lease-fencing contract proposal
 
-Status: **design only — not implemented, not approved for migration, not Production-ready**.
+Status: **implemented on the PR #59 proof branch; isolated PostgreSQL CI verification pending; not Production-ready**.
 Related blocker: `docs/NATIONAL_RAIN_READINESS_PROOF.md`, section “2026-10-10 Queue lease fencing audit”.
 PR #59 remains an experiment. This document does not authorize a canonical schema change, migration application, Storage writes, deployment, or merge.
 
@@ -25,7 +25,7 @@ A random token is simpler to compare; a monotonic generation is easier to audit.
 - `finish_national_rain_refinement_job(p_id, p_lease_token, p_success, p_error)` changes state only when id, PROCESSING status and current identity all match.
 - `defer_national_rain_refinement_job(p_id, p_lease_token)` likewise changes availability/state only when id, PROCESSING status and current identity all match.
 
-The token/generation field and RPC signature changes would require a reviewed migration/contract change. This proposal intentionally does not edit the proof migration or application code.
+The proof-branch implementation uses a UUID lease token and changed RPC signatures. The migration remains proof-only and must not be applied to Production; any canonical migration requires separate review and authorization.
 
 ## 4. Stale-lease semantics
 
@@ -63,7 +63,7 @@ Before implementation, review the token type, expiry semantics, result transacti
 
 After approval, implement on a feature branch and run unit tests plus the isolated DB concurrency proof. Keep rollout disabled until those pass. Production schema/migration, queue activation, Storage provisioning, alerts, deployment and PR merge each remain separately gated and require explicit authorization.
 
-**Current decision: BLOCKED.** This is a contract proposal only; no schema, runtime, queue, Storage or Production state was changed.
+**Current rollout decision: BLOCKED.** The proof migration, worker code, and isolated-Postgres CI contract have been changed on PR #59's feature branch only. No Production schema, queue activation, Storage, deployment, or merge was performed.
 
 
 ## 8. Exact current call-site audit
@@ -86,4 +86,15 @@ Source review at PR head `9c712b3378b9ccfbcb859fc2799f2472d0e6d1a1` confirms the
 5. Add a disposable-Postgres integration proof to CI that forces A's lease expired, claims it as B, then verifies A's result/finish/defer are rejected and B's result/finish succeed. Assert the persisted result is still B's, not merely that a function returned without error.
 6. Review enqueue behavior separately: enqueuing child jobs is idempotent under the unique key and does not complete the parent. A stale parent must not mark itself done; whether child enqueue itself must be ownership-conditional should be decided explicitly to avoid stale attempts expanding the queue after reclaim.
 
-This audit is based on source and the existing CI workflow; it is **not** a live race reproduction. The exact files above remain unchanged. No migration, runtime code, CI workflow, DB, or Production state was modified by this follow-up.
+This was the pre-implementation source audit. The follow-up now implements the proposed fencing contract on the proof branch; its isolated PostgreSQL CI test is the required race reproduction. No Production database or Storage state was modified.
+
+
+## 9. Proof-branch implementation (2026-10-10)
+
+- The claim RPC now rotates and returns a database-generated lease_token for every claim/reclaim.
+- The completion RPC checks id + PROCESSING + lease_token and atomically completes the parent, persists an optional z10 result, and/or enqueues bounded child jobs. A stale owner cannot persist results or expand the queue.
+- Finish and defer require the same lease token and return STALE_LEASE when it no longer owns the row. Legacy ID-only overloads are dropped in the proof migration.
+- The worker carries the returned token through every mutation and no longer writes the result table directly. Ambiguous completion responses are not converted into a second mutation using a different identity.
+- The disposable-Postgres CI proof covers A claim → expiry → B reclaim, token rotation, rejection of A's result/finish/defer, persistence of B's result, rejection of stale child enqueue, and atomic child enqueue for a current owner.
+- Verification status at this commit: CI workflows have been created but remain queued; do not treat the proof as passing until the run for the latest PR head completes successfully.
+- The migration and runtime changes are isolated to the unmerged PR proof branch. Production remains untouched and rollout remains blocked.
