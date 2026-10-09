@@ -16,11 +16,14 @@ export function packageAllLocal(inputDir: string, outputDir: string) {
     throw new Error("Input and output directories must not overlap");
   }
   if (existsSync(output)) throw new Error("Output directory must not already exist");
-  // Preflight all 47 inputs before writing, but do not retain all geometry in memory.
+  // Preflight all 47 inputs and pin each input digest without retaining geometry.
+  const inputHashes = new Map<string, string>();
   for (const { code, name } of JAPAN_PREFECTURES) {
     const file = join(input, `${code}.areas.json`);
     if (!existsSync(file)) throw new Error(`Missing prepared N03 input: ${code}`);
-    const raw = JSON.parse(readFileSync(file, "utf8")) as unknown;
+    const source = readFileSync(file);
+    inputHashes.set(code, createHash("sha256").update(source).digest("hex"));
+    const raw = JSON.parse(source.toString("utf8")) as unknown;
     if (!Array.isArray(raw) || raw.length === 0 || raw.some(area =>
       !area || typeof area !== "object" || area.prefecture !== name ||
       typeof area.code !== "string" || !/^\d{5}$/.test(area.code) || !area.code.startsWith(code) ||
@@ -33,7 +36,11 @@ export function packageAllLocal(inputDir: string, outputDir: string) {
   let chunks = 0;
   let verifiedBytes = 0;
   for (const { code, name } of JAPAN_PREFECTURES) {
-    const raw = JSON.parse(readFileSync(join(input, `${code}.areas.json`), "utf8")) as unknown;
+    const source = readFileSync(join(input, `${code}.areas.json`));
+    if (createHash("sha256").update(source).digest("hex") !== inputHashes.get(code)) {
+      throw new Error(`Prepared N03 input changed after preflight: ${code}`);
+    }
+    const raw = JSON.parse(source.toString("utf8")) as unknown;
     if (!Array.isArray(raw) || raw.length === 0 || raw.some(area =>
       !area || typeof area !== "object" || area.prefecture !== name ||
       !area.geometry || !["Polygon", "MultiPolygon"].includes(area.geometry.type))) {
