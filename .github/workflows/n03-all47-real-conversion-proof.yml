@@ -6,6 +6,7 @@ on:
       - ".github/workflows/n03-all47-real-conversion-proof.yml"
       - "scripts/n03-package-all-local.ts"
       - "scripts/n03-hokkaido-z8-feasibility.ts"
+      - "scripts/n03-hokkaido-target-comparison.ts"
       - "scripts/n03-partition-package.ts"
       - "scripts/prepare-n03-storage-data.ts"
   workflow_dispatch:
@@ -28,6 +29,8 @@ jobs:
         run: npx tsx scripts/prepare-n03-storage-data.ts /tmp/n03-real-prepared
       - name: Measure Hokkaido z8 bbox packing baseline (no Storage or geometry upload)
         run: npx tsx scripts/n03-hokkaido-z8-feasibility.ts /tmp/n03-real-prepared/01.areas.json | tee /tmp/n03-hokkaido-z8-feasibility.json
+      - name: Compare Hokkaido 1 to 4 MiB polygon packing and exact municipality matches
+        run: npx tsx scripts/n03-hokkaido-target-comparison.ts /tmp/n03-real-prepared/01.areas.json | tee /tmp/n03-hokkaido-target-comparison.json
       - name: Convert all 47 into local partition files and verify readback
         timeout-minutes: 15
         run: |
@@ -44,6 +47,7 @@ jobs:
           name: n03-all47-real-conversion-logs
           path: |
             /tmp/n03-hokkaido-z8-feasibility.json
+            /tmp/n03-hokkaido-target-comparison.json
             /tmp/n03-real-conversion.json
             /tmp/n03-real-time.txt
           if-no-files-found: warn
