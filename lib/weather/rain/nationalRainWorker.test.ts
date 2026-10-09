@@ -59,10 +59,10 @@ describe("processNationalRainRefinementJobs", () => {
 
     expect(result.done).toBe(1);
     expect(resolveMunicipalities).not.toHaveBeenCalled();
-    expect(upsert).toHaveBeenCalledWith(
-      expect.arrayContaining([expect.objectContaining({ zoom: 8, status: "PENDING" })]),
-      expect.objectContaining({ onConflict: "run_key,validtime,zoom,tile_x,tile_y,scan_min_x,scan_min_y,scan_max_x,scan_max_y" }),
-    );
+    expect(rpc).toHaveBeenCalledWith("complete_national_rain_refinement_job", expect.objectContaining({
+      p_id: 7, p_lease_token: "lease-7", p_result: null,
+      p_children: expect.arrayContaining([expect.objectContaining({ zoom: 8, status: "PENDING" })]),
+    }));
   });
 
   test("scans only the inherited z10 window and ignores strong pixels outside it", async () => {
@@ -87,10 +87,9 @@ describe("processNationalRainRefinementJobs", () => {
 
     expect(result.done).toBe(1);
     expect(result.strongPixels).toBe(1);
-    expect(upsert).toHaveBeenCalledWith(
-      expect.objectContaining({ strong_pixel_count: 1 }),
-      expect.objectContaining({ onConflict: "job_id" }),
-    );
+    expect(rpc).toHaveBeenCalledWith("complete_national_rain_refinement_job", expect.objectContaining({
+      p_id: 7, p_lease_token: "lease-7", p_result: expect.objectContaining({ strong_pixel_count: 1 }),
+    }));
   });
 
   test("marks a valid JMA tile done", async () => {
@@ -109,26 +108,22 @@ describe("processNationalRainRefinementJobs", () => {
     expect(result.claimed).toBe(1);
     expect(result.done).toBe(1);
     expect(result.failed).toBe(0);
-    expect(upsert).toHaveBeenCalledWith(
-      expect.objectContaining({ municipalities }),
-      expect.objectContaining({ onConflict: "job_id" }),
-    );
+    expect(rpc).toHaveBeenCalledWith("complete_national_rain_refinement_job", expect.objectContaining({
+      p_id: 7, p_lease_token: "lease-7", p_result: expect.objectContaining({ municipalities }), p_children: [],
+    }));
     expect(resolveMunicipalities).toHaveBeenCalledTimes(1);
     expect(resolveMunicipalities.mock.calls[0][0].length).toBeGreaterThan(0);
-    expect(rpc).toHaveBeenCalledWith("finish_national_rain_refinement_job", {
-      p_id: 7, p_lease_token: "lease-7", p_success: true, p_error: null,
-    });
+    expect(rpc).toHaveBeenCalledWith("complete_national_rain_refinement_job", expect.objectContaining({ p_id: 7, p_lease_token: "lease-7", p_result: expect.any(Object) }));
   });
 
   test("does not reverse an ambiguous successful finalization into failure", async () => {
     const { client, rpc, upsert } = clientFor(job);
     rpc.mockImplementation(async (name: string, args: Record<string, unknown>) => {
       if (name === "claim_national_rain_refinement_jobs") return { data: [job], error: null };
-      if (name === "finish_national_rain_refinement_job" && args.p_success === true) {
-        throw new Error("success finalization response lost");
-      }
-      if (name === "finish_national_rain_refinement_job") return { data: null, error: null };
-      if (name === "defer_national_rain_refinement_job") return { data: null, error: null };
+      if (name === "complete_national_rain_refinement_job") throw new Error("completion response lost after commit");
+      if (name === "finish_national_rain_refinement_job" && args.p_success === false) return { data: "STALE_LEASE", error: null };
+      if (name === "finish_national_rain_refinement_job") return { data: "OK", error: null };
+      if (name === "defer_national_rain_refinement_job") return { data: "OK", error: null };
       throw new Error(`unexpected RPC ${name}`);
     });
     const fetcher = vi.fn().mockResolvedValue(new Response(new Uint8Array(pngBuffer()), { status: 200 }));
@@ -139,13 +134,9 @@ describe("processNationalRainRefinementJobs", () => {
     expect(result.done).toBe(0);
     expect(result.failed).toBe(0);
     expect(result.deferred).toBe(0);
-    expect(upsert).toHaveBeenCalledTimes(1);
-    expect(rpc).toHaveBeenCalledWith("finish_national_rain_refinement_job", {
-      p_id: 7, p_success: true, p_error: null,
-    });
-    expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", {
-      p_id: 7, p_lease_token: "lease-7", p_success: false, p_error: expect.anything(),
-    });
+    expect(upsert).not.toHaveBeenCalled();
+    expect(rpc).toHaveBeenCalledWith("complete_national_rain_refinement_job", expect.objectContaining({ p_id: 7, p_lease_token: "lease-7" }));
+    expect(rpc).toHaveBeenCalledWith("finish_national_rain_refinement_job", expect.objectContaining({ p_id: 7, p_lease_token: "lease-7", p_success: false }));
   });
 
   test("fails closed when municipality resolution fails", async () => {
@@ -162,11 +153,9 @@ describe("processNationalRainRefinementJobs", () => {
     expect(result.done).toBe(0);
     expect(result.failed).toBe(1);
     expect(upsert).not.toHaveBeenCalled();
-    expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", {
-      p_id: 7, p_success: true, p_error: null,
-    });
+    expect(rpc).not.toHaveBeenCalledWith("complete_national_rain_refinement_job", expect.objectContaining({ p_id: 7 }));
     expect(rpc).toHaveBeenCalledWith("finish_national_rain_refinement_job", {
-      p_id: 7, p_success: false, p_error: "N03 prepared data unavailable",
+      p_id: 7, p_lease_token: "lease-7", p_success: false, p_error: "N03 prepared data unavailable",
     });
   });
 
@@ -180,7 +169,7 @@ describe("processNationalRainRefinementJobs", () => {
     expect(result.done).toBe(0);
     expect(result.failed).toBe(1);
     expect(rpc).toHaveBeenCalledWith("finish_national_rain_refinement_job", {
-      p_id: 7, p_success: false, p_error: "JMA tile fetch failed: 503",
+      p_id: 7, p_lease_token: "lease-7", p_success: false, p_error: "JMA tile fetch failed: 503",
     });
   });
 });
@@ -188,7 +177,13 @@ describe("processNationalRainRefinementJobs", () => {
 
   test("does not mark done when result persistence fails", async () => {
     const { client, rpc, upsert } = clientFor(job);
-    upsert.mockResolvedValueOnce({ error: new Error("result db unavailable") });
+    rpc.mockImplementation(async (name: string, args: Record<string, unknown>) => {
+      if (name === "claim_national_rain_refinement_jobs") return { data: [job], error: null };
+      if (name === "complete_national_rain_refinement_job") throw new Error("result db unavailable");
+      if (name === "finish_national_rain_refinement_job" && args.p_success === false) return { data: "OK", error: null };
+      if (name === "defer_national_rain_refinement_job") return { data: "OK", error: null };
+      throw new Error(`unexpected RPC ${name}`);
+    });
     const fetcher = vi.fn().mockResolvedValue(new Response(new Uint8Array(pngBuffer()), { status: 200 }));
 
     const result = await processNationalRainRefinementJobs(client, { limit: 1, fetcher: fetcher as any });
@@ -196,10 +191,10 @@ describe("processNationalRainRefinementJobs", () => {
     expect(result.done).toBe(0);
     expect(result.failed).toBe(1);
     expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", {
-      p_id: 7, p_success: true, p_error: null,
+      p_id: 7, p_lease_token: "lease-7", p_success: true, p_error: null,
     });
     expect(rpc).toHaveBeenCalledWith("finish_national_rain_refinement_job", {
-      p_id: 7, p_success: false, p_error: "result db unavailable",
+      p_id: 7, p_lease_token: "lease-7", p_success: false, p_error: "result db unavailable",
     });
   });
 
@@ -212,7 +207,7 @@ test("leaves unclaimed work pending when the budget expires between small batche
       claims += 1;
       return { data: claims === 1 ? [job] : [second], error: null };
     }
-    if (name === "finish_national_rain_refinement_job") return { data: null, error: null };
+    if (name === "finish_national_rain_refinement_job") return { data: "OK", error: null };
     if (name === "defer_national_rain_refinement_job") return { data: null, error: null };
     throw new Error(`unexpected RPC ${name}`);
   });
@@ -365,7 +360,7 @@ test("defers a claimed job when the worker is aborted during JMA fetch", async (
   expect(result.deferred).toBe(1);
   expect(fetcher).toHaveBeenCalledTimes(1);
   expect(upsert).not.toHaveBeenCalled();
-  expect(rpc).toHaveBeenCalledWith("defer_national_rain_refinement_job", { p_id: 7 });
+  expect(rpc).toHaveBeenCalledWith("defer_national_rain_refinement_job", { p_id: 7, p_lease_token: "lease-7" });
   expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", expect.anything());
 });
 
@@ -415,7 +410,7 @@ test("keeps a failed job reclaimable when failure finalization is ambiguous", as
   expect(result.failed).toBe(0);
   expect(result.deferred).toBe(0);
   expect(rpc).toHaveBeenCalledWith("finish_national_rain_refinement_job", {
-    p_id: 7, p_success: false, p_error: "JMA tile fetch failed: 503",
+    p_id: 7, p_lease_token: "lease-7", p_success: false, p_error: "JMA tile fetch failed: 503",
   });
 });
 
@@ -444,6 +439,6 @@ test("defers a claimed job when municipality resolution is aborted", async () =>
   expect(result.deferred).toBe(1);
   expect(resolveMunicipalities).toHaveBeenCalledTimes(1);
   expect(upsert).not.toHaveBeenCalled();
-  expect(rpc).toHaveBeenCalledWith("defer_national_rain_refinement_job", { p_id: 7 });
+  expect(rpc).toHaveBeenCalledWith("defer_national_rain_refinement_job", { p_id: 7, p_lease_token: "lease-7" });
   expect(rpc).not.toHaveBeenCalledWith("finish_national_rain_refinement_job", expect.anything());
 });
