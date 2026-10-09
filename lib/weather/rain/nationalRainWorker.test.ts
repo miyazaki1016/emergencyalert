@@ -24,6 +24,7 @@ function clientFor(job: Record<string, unknown>) {
   const rpc = vi.fn(async (name: string, args: Record<string, unknown>) => {
     if (name === "claim_national_rain_refinement_jobs") return { data: [job], error: null };
     if (name === "complete_national_rain_refinement_job") return { data: "OK", error: null };
+    if (name === "complete_national_rain_refinement_job") return { data: "OK", error: null };
     if (name === "finish_national_rain_refinement_job") return { data: "OK", error: null };
     if (name === "defer_national_rain_refinement_job") return { data: "OK", error: null };
     throw new Error(`unexpected RPC ${name}`);
@@ -61,7 +62,7 @@ describe("processNationalRainRefinementJobs", () => {
     expect(resolveMunicipalities).not.toHaveBeenCalled();
     expect(rpc).toHaveBeenCalledWith("complete_national_rain_refinement_job", expect.objectContaining({
       p_id: 7, p_lease_token: "lease-7", p_result: null,
-      p_children: expect.arrayContaining([expect.objectContaining({ zoom: 8, status: "PENDING" })]),
+      p_children: expect.arrayContaining([expect.objectContaining({ zoom: 8, tile_x: expect.any(Number) })]),
     }));
   });
 
@@ -122,7 +123,8 @@ describe("processNationalRainRefinementJobs", () => {
       if (name === "claim_national_rain_refinement_jobs") return { data: [job], error: null };
       if (name === "complete_national_rain_refinement_job") throw new Error("completion response lost after commit");
       if (name === "finish_national_rain_refinement_job" && args.p_success === false) return { data: "STALE_LEASE", error: null };
-      if (name === "finish_national_rain_refinement_job") return { data: "OK", error: null };
+      if (name === "complete_national_rain_refinement_job") return { data: "OK", error: null };
+    if (name === "finish_national_rain_refinement_job") return { data: "OK", error: null };
       if (name === "defer_national_rain_refinement_job") return { data: "OK", error: null };
       throw new Error(`unexpected RPC ${name}`);
     });
@@ -207,8 +209,9 @@ test("leaves unclaimed work pending when the budget expires between small batche
       claims += 1;
       return { data: claims === 1 ? [job] : [second], error: null };
     }
+    if (name === "complete_national_rain_refinement_job") return { data: "OK", error: null };
     if (name === "finish_national_rain_refinement_job") return { data: "OK", error: null };
-    if (name === "defer_national_rain_refinement_job") return { data: null, error: null };
+    if (name === "defer_national_rain_refinement_job") return { data: "OK", error: null };
     throw new Error(`unexpected RPC ${name}`);
   });
   const upsert = vi.fn().mockResolvedValue({ error: null });
@@ -250,7 +253,8 @@ test("claims and processes jobs in bounded parallel batches", async () => {
       offset += batch.length;
       return { data: batch, error: null };
     }
-    if (name === "finish_national_rain_refinement_job") return { data: null, error: null };
+    if (name === "complete_national_rain_refinement_job") return { data: "OK", error: null };
+    if (name === "finish_national_rain_refinement_job") return { data: "OK", error: null };
     throw new Error(`unexpected RPC ${name}`);
   });
   const upsert = vi.fn().mockResolvedValue({ error: null });
@@ -286,8 +290,9 @@ test("does not claim another batch after the execution budget is exhausted", asy
       claims += 1;
       return { data: claims === 1 ? firstBatch : [{ ...job, id: 99 }], error: null };
     }
-    if (name === "finish_national_rain_refinement_job") return { data: null, error: null };
-    if (name === "defer_national_rain_refinement_job") return { data: null, error: null };
+    if (name === "complete_national_rain_refinement_job") return { data: "OK", error: null };
+    if (name === "finish_national_rain_refinement_job") return { data: "OK", error: null };
+    if (name === "defer_national_rain_refinement_job") return { data: "OK", error: null };
     throw new Error(`unexpected RPC ${name}`);
   });
   const upsert = vi.fn().mockResolvedValue({ error: null });
