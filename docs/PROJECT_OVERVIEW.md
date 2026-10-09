@@ -2527,3 +2527,10 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - `scripts/n03-package-all-local.ts` の各chunkについて、ローカル書込後に再読込しSHA-256を計算して、書込前bodyのSHA-256と一致するか照合する処理を追加（`e8a7896b`）。不一致なら例外停止。manifestは当該都道府県のchunk照合完了後にのみ出力。結果に `verifiedBytes` を追加。
 - **これはローカルディスク書込の一致確認**であり、Supabase Storageへのアップロード後照合やmanifest/chunkの全国実データ検証ではない。47都道府県の実ファイルは未取得・未変換。
 - 直前HEAD `3746e6a9` のMain CIは確認時点で実行中。今回の変更のCIは未確認。Production/Push/watchは未変更。
+
+
+### 2026-10-09 N03分割ローカル検証 — manifest/chunkハッシュのテスト拡充
+
+- `scripts/n03-package-all-local.test.ts` を強化（`43011657`）。47都道府県の合成fixture出力で `verifiedBytes>0` を確認し、東京都のmanifest内indexのSHA-256と `indexSha256` の一致、chunkファイルのSHA-256・byte数とindex宣言値の一致を確認する。
+- **テスト追加コミットのCI結果はまだ未確定**。合成データでの検証であり、実N03全国47件の出力確認ではない。
+- 残課題は47件の既存preparedデータを安全に読み取り専用で取得する手段、実データでのオフライン変換、全chunk照合、Preview Storage分離と配置順序の証明。Productionへの書込は行わない。
