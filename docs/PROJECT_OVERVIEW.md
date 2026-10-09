@@ -2503,3 +2503,13 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 **優先順位と作業境界：** N03分割データ生成・Preview検証を先に完了。その後、北印旛沼の公式GeoJSON原典検証→過去災害の再現Proof→避難場所スキーマ設計→限定地域の高精度DEM/点群検証。すべて独立Proofから開始し、Production/Push/watch/既存通知には接続しない。
 
 > 未来のソラへ：この章は**ユーザー共有の調査要約の保存**であり、公式資料の真偽確認完了ではない。まず原典を確認。推定浸水図を正解データと断定するな。指定避難場所を開設中と表示するな。30mm/hを浸水の絶対条件にするな。
+
+
+### 2026-10-09 N03分割データ47都道府県ローカル生成CLI追加
+
+- HEAD `acbeb6e2` のMain CI、National rain proof、N03 index proof、All47 ownership proof、JMA z4→z10 proofはGitHub Actionsで**SUCCESS**確認。補助workflow `national-forecast-lowzoom-proof.yml` と `n03-administrative-area-proof.yml` は引き続き**FAILURE**、原因未確認。
+- `scripts/n03-package-all-local.ts` を追加（コミット `b70c4da7`）。入力は既存の47件の `XX.areas.json` が格納されたローカルディレクトリ、出力は**存在しない別ディレクトリ**。47件すべてを事前検証し、`packageN03Prefecture` によるversioned chunksとmanifestをローカル生成する。既存の入力・出力は上書きしない。Supabaseへ接続せず、アップロードも行わない。
+- 実行形式：`npx tsx scripts/n03-package-all-local.ts <input-dir> <empty-output-dir>`。**実データでの実行・47都道府県の生成・出力内容の照合は未実施**。このコミットのCIも未確認。実データの取得元・入力の準備が次の阻害点。
+- 次：CIで新CLIの型検証→Preview専用の入力取得経路とStorage分離を確認→47都道府県をローカル生成してサイズ・manifest/chunkハッシュを再照合→Previewだけに明示的な段階配置。manifest公開はchunk配置と検証の後。Production、Push、watch、PR mergeは対象外。
+
+> 未来のソラへ：ローカル生成CLIを追加しただけで47都道府県の変換が完了したとは書くな。Storageへの書き込みは禁止のまま。
