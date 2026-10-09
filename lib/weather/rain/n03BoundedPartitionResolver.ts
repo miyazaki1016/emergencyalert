@@ -44,7 +44,7 @@ export function createN03BoundedPartitionResolver(options: {
 
   function registerDataset(dataset: N03PartitionDataset) {
     const { code, index, indexSha256 } = dataset;
-    if (!/^\\d{2}$/.test(code)) throw new Error("Duplicate/invalid prefecture identity");
+    if (!/^\d{2}$/.test(code)) throw new Error("Duplicate/invalid prefecture identity");
     const existing = prepared.get(code);
     if (existing) {
       if (existing.indexSha256 !== indexSha256) throw new Error("N03 partition dataset identity changed during invocation");
@@ -55,7 +55,7 @@ export function createN03BoundedPartitionResolver(options: {
     if (!index.areas.length || chunks.size !== index.chunks.length) throw new Error("Incomplete partition manifest");
     const areaCodes = new Set<string>();
     index.areas.forEach((area, i) => {
-      if (area.order !== i || !/^\\d{5}$/.test(area.code) || !area.code.startsWith(code) || areaCodes.has(area.code) || !area.prefecture || !area.municipality) throw new Error("Invalid partition area identity");
+      if (area.order !== i || !/^\d{5}$/.test(area.code) || !area.code.startsWith(code) || areaCodes.has(area.code) || !area.prefecture || !area.municipality) throw new Error("Invalid partition area identity");
       areaCodes.add(area.code);
     });
     const ordinals = index.areas.map(() => new Set<number>());
@@ -65,7 +65,7 @@ export function createN03BoundedPartitionResolver(options: {
     });
     for (const set of ordinals) if (!set.size || [...set].some(p => p >= set.size)) throw new Error("Missing polygon ordinal");
     for (const chunk of chunks.values()) {
-      if (!/^chunk-\\d{4}\\.json$/.test(chunk.file) || !Number.isSafeInteger(chunk.bytes) || chunk.bytes < 2 || !/^[a-f0-9]{64}$/.test(chunk.sha256) || index.parts.filter(p => p.chunk === chunk.file).length !== chunk.partCount) throw new Error("Invalid partition chunk identity");
+      if (!/^chunk-\d{4}\.json$/.test(chunk.file) || !Number.isSafeInteger(chunk.bytes) || chunk.bytes < 2 || !/^[a-f0-9]{64}$/.test(chunk.sha256) || index.parts.filter(p => p.chunk === chunk.file).length !== chunk.partCount) throw new Error("Invalid partition chunk identity");
       if (chunk.bytes > cache.maxWeight) throw new Error("Oversized chunk exceeds configured admission");
     }
     prepared.set(code, { ...dataset, chunks });
