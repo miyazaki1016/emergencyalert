@@ -2697,3 +2697,9 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - `06e9da75`: 全国47元N03から巨大Polygonを持つ自治体を抽出し、元データと切断後データを**同じ既存JS判定関数** `affectedAdministrativeAreas` で比較。各対象自治体にbbox相対の矩形12ケース（全域・外側・中央・3×3の局所）を実行し、コード単位の差異があればCI失敗。
 - `12d060e7`: 切断後・パック前のCIステップに追加。差異の件数と少数のコードのみログ化。まだ実行結果未確認。
 - 制約：固定矩形のみで網羅性なし。穴・切断線への接触・分割チャンク経由の判定一致は未検証。Production/Storage/merge変更なし。
+
+### 2026-10-09 JS切断前後判定比較CI成功（Actions 37903833789）
+
+- 実測：巨大Polygon対象 **19自治体・228矩形ケース・不一致0件**。既存JS `affectedAdministrativeAreas` を元N03とShapely切断後の双方に適用。比較ステップ成功。
+- 同一CIで全国47パッケージ化とchunk readbackも再成功：351 chunks、47 manifests、472,804,611 verifiedBytes、1.5MiB目標。
+- **判定の完全一致は未証明**：固定矩形228件のみ。切断境界接触、穴、極小雨域、実パーティションresolver経由の一致は次の検証課題。Storage/Production/merge変更なし。
