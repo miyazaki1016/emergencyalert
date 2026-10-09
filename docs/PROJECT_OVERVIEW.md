@@ -2513,3 +2513,10 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - 次：CIで新CLIの型検証→Preview専用の入力取得経路とStorage分離を確認→47都道府県をローカル生成してサイズ・manifest/chunkハッシュを再照合→Previewだけに明示的な段階配置。manifest公開はchunk配置と検証の後。Production、Push、watch、PR mergeは対象外。
 
 > 未来のソラへ：ローカル生成CLIを追加しただけで47都道府県の変換が完了したとは書くな。Storageへの書き込みは禁止のまま。
+
+
+### 2026-10-09 N03 47都道府県ローカル変換の回帰テスト追加
+
+- `scripts/n03-package-all-local.test.ts` を追加（`ac5cfe61`）。47都道府県の**合成fixture**からmanifest/chunkをローカル生成するテスト、元ファイル非破壊・出力先再利用拒否、47番欠損と都道府県名不一致時に**出力ディレクトリ作成前に停止**するテストを追加。
+- **注意：合成fixtureテストは実N03データの全47変換・性能・精度の証明ではない**。実データの入力取得、実サイズ/ハッシュ検証、Preview専用Storageの境界確認は未完了。
+- 直前HEAD `e759c1cc` のMain CIは確認時点で実行中。新テストのCI結果は未確定。N03 index / National rain / z4→z10 proofは成功、補助workflow2件は失敗継続。Production変更なし。
