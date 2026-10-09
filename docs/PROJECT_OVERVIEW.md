@@ -2639,3 +2639,9 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - `a760e5a8` でオフライン変換スクリプトに明示的な実験用targetMiB引数を追加。既定1MiBは維持し、1/1.5/2/4MiB以外を拒否。
 - `261a364a` でCIの全47変換ステップのみ1.5MiB指定に変更。47都道府県の入力SHA事前固定、全chunkのローカル読戻しSHA照合、manifest後書き、Storage非接続は維持。
 - **CI実測はまだ未確認。** 全47成功、精度保証、HTTP/worker 45秒以内、本番採用とはみなさない。Production/Storage/PR merge変更なし。
+
+
+### 2026-10-09 全国1.5MiB CI阻害の修正
+
+- run 37887122723 は失敗。ログに `n03-package-all-local.ts /tmp/n03-real-prepared /tmp/n03-real-partitions` とあり、**1.5引数が欠落**していた。従って既定1MiBで実行され、北海道code01698の単一Polygon 1,328,374 bytesで従来通り停止。全国1.5MiB方式の失敗を意味しない。
+- `dc3dbd90` でworkflowコマンドへ明示的に `1.5` を追加。次のCI実行で実コマンドと47件結果を必ず再確認する。Production/Storage/merge変更なし。
