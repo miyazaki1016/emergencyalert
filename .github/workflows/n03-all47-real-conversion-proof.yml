@@ -1,0 +1,45 @@
+name: N03 all47 real conversion proof
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/n03-all47-real-conversion-proof.yml"
+      - "scripts/n03-package-all-local.ts"
+      - "scripts/n03-partition-package.ts"
+      - "scripts/prepare-n03-storage-data.ts"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  convert-real-n03:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Prepare all 47 from official N03 archives (no Supabase access)
+        timeout-minutes: 35
+        run: npx tsx scripts/prepare-n03-storage-data.ts /tmp/n03-real-prepared
+      - name: Convert all 47 into local partition files and verify readback
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v -o /tmp/n03-real-time.txt \
+            npx tsx scripts/n03-package-all-local.ts /tmp/n03-real-prepared /tmp/n03-real-partitions \
+            | tee /tmp/n03-real-conversion.json
+          cat /tmp/n03-real-time.txt
+          node -e 'const fs=require("fs");const x=JSON.parse(fs.readFileSync("/tmp/n03-real-conversion.json","utf8"));if(x.prefectures!==47||x.manifests!==47||x.chunks<47||x.verifiedBytes<=0)process.exit(1)'
+      - name: Retain small proof logs only, never upload geometry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: n03-all47-real-conversion-logs
+          path: |
+            /tmp/n03-real-conversion.json
+            /tmp/n03-real-time.txt
+          if-no-files-found: warn
