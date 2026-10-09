@@ -17,8 +17,16 @@ export function packageAllLocal(inputDir: string, outputDir: string) {
   }
   if (existsSync(output)) throw new Error("Output directory must not already exist");
   // Preflight all 47 inputs before writing, but do not retain all geometry in memory.
-  for (const { code } of JAPAN_PREFECTURES) {
-    if (!existsSync(join(input, `${code}.areas.json`))) throw new Error(`Missing prepared N03 input: ${code}`);
+  for (const { code, name } of JAPAN_PREFECTURES) {
+    const file = join(input, `${code}.areas.json`);
+    if (!existsSync(file)) throw new Error(`Missing prepared N03 input: ${code}`);
+    const raw = JSON.parse(readFileSync(file, "utf8")) as unknown;
+    if (!Array.isArray(raw) || raw.length === 0 || raw.some(area =>
+      !area || typeof area !== "object" || area.prefecture !== name ||
+      typeof area.code !== "string" || !/^\\d{5}$/.test(area.code) || !area.code.startsWith(code) ||
+      !area.geometry || !["Polygon", "MultiPolygon"].includes(area.geometry.type))) {
+      throw new Error(`Invalid prepared N03 input: ${code}`);
+    }
   }
   if (JAPAN_PREFECTURES.length !== 47) throw new Error("Expected 47 prefectures");
   mkdirSync(output, { recursive: false });
