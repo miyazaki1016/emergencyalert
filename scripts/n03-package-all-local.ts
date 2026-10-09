@@ -23,7 +23,7 @@ export function packageAllLocal(inputDir: string, outputDir: string) {
     const raw = JSON.parse(readFileSync(file, "utf8")) as unknown;
     if (!Array.isArray(raw) || raw.length === 0 || raw.some(area =>
       !area || typeof area !== "object" || area.prefecture !== name ||
-      typeof area.code !== "string" || !/^\\d{5}$/.test(area.code) || !area.code.startsWith(code) ||
+      typeof area.code !== "string" || !/^\d{5}$/.test(area.code) || !area.code.startsWith(code) ||
       !area.geometry || !["Polygon", "MultiPolygon"].includes(area.geometry.type))) {
       throw new Error(`Invalid prepared N03 input: ${code}`);
     }
