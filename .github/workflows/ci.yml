@@ -185,7 +185,7 @@ jobs:
           rm -rf /tmp/n03-prepared-check
           npx tsx scripts/prepare-n03-storage-data.ts /tmp/n03-prepared-check 13
           node -e 'const fs=require("fs");const m=JSON.parse(fs.readFileSync("/tmp/n03-prepared-check/manifest.json","utf8"));if(m.dataset!=="N03-20260101")throw new Error("unexpected dataset");if(m.files.length!==1||m.files[0].code!=="13")throw new Error("unexpected prepared prefecture");if(!fs.existsSync("/tmp/n03-prepared-check/13.areas.json"))throw new Error("prepared Tokyo file missing");if(m.files[0].bytes<=0||m.files[0].areas<=0)throw new Error("prepared Tokyo file empty");if(!/^[a-f0-9]{64}$/.test(m.files[0].sha256))throw new Error("prepared Tokyo hash missing");'
-      - name: Prove national rain queue lifecycle
+      - name: Prove national rain queue lease fencing and lifecycle
         env:
           PGPASSWORD: postgres
         run: |
@@ -199,91 +199,108 @@ jobs:
           insert into public.national_rain_refinement_jobs
             (run_key, basetime, validtime, zoom, tile_x, tile_y, priority)
           values
-            ('ci-run', '2026-09-29T10:00:00Z', '2026-09-29T10:05:00Z', 8, 221, 100, 2),
-            ('ci-run', '2026-09-29T10:00:00Z', '2026-09-29T10:10:00Z', 8, 222, 100, 1);
+            ('ci-race', '2026-09-29T10:00:00Z', '2026-09-29T10:05:00Z', 10, 400, 200, 1000);
 
-          do $queue$
+          do $lease_fence$
           declare
-            claimed_count integer;
-            first_id bigint;
-            remaining_count integer;
+            job_id bigint;
+            token_a uuid;
+            token_b uuid;
+            outcome text;
+            stored_owner text;
+            stored_status text;
+            child_count integer;
           begin
-            select count(*), min(id) into claimed_count, first_id
-            from public.claim_national_rain_refinement_jobs(1);
-            if claimed_count <> 1 then raise exception 'expected one claimed job, got %', claimed_count; end if;
+            select id, lease_token into job_id, token_a
+            from public.claim_national_rain_refinement_jobs(1)
+            where run_key = 'ci-race';
+            if job_id is null or token_a is null then raise exception 'worker A did not receive a lease identity'; end if;
 
-            perform public.finish_national_rain_refinement_job(first_id, true, null);
+            update public.national_rain_refinement_jobs
+            set claimed_at = now() - interval '6 minutes'
+            where id = job_id;
 
-            select count(*) into remaining_count
-            from public.claim_national_rain_refinement_jobs(20);
-            if remaining_count <> 1 then raise exception 'expected one remaining job, got %', remaining_count; end if;
+            select lease_token into token_b
+            from public.claim_national_rain_refinement_jobs(1)
+            where id = job_id;
+            if token_b is null or token_b = token_a then raise exception 'reclaim did not rotate lease identity'; end if;
 
-            select count(*) into remaining_count
-            from public.claim_national_rain_refinement_jobs(20);
-            if remaining_count <> 0 then raise exception 'expected no re-claim of processing/done jobs, got %', remaining_count; end if;
-          end $queue$;
+            outcome := public.complete_national_rain_refinement_job(
+              job_id, token_a,
+              jsonb_build_object('job_id', job_id, 'run_key', 'ci-race', 'basetime', '2026-09-29T10:00:00Z',
+                'validtime', '2026-09-29T10:05:00Z', 'zoom', 10, 'tile_x', 400, 'tile_y', 200,
+                'strong_pixel_count', 1, 'municipalities', jsonb_build_array(jsonb_build_object('owner', 'A'))),
+              jsonb_build_array(jsonb_build_object('run_key', 'stale-child', 'basetime', '2026-09-29T10:00:00Z',
+                'validtime', '2026-09-29T10:06:00Z', 'zoom', 8, 'tile_x', 1, 'tile_y', 1))
+            );
+            if outcome <> 'STALE_LEASE' then raise exception 'stale result completion was not rejected: %', outcome; end if;
+
+            outcome := public.finish_national_rain_refinement_job(job_id, token_a, false, 'stale A');
+            if outcome <> 'STALE_LEASE' then raise exception 'stale finish was not rejected: %', outcome; end if;
+            outcome := public.defer_national_rain_refinement_job(job_id, token_a);
+            if outcome <> 'STALE_LEASE' then raise exception 'stale defer was not rejected: %', outcome; end if;
+
+            outcome := public.complete_national_rain_refinement_job(
+              job_id, token_b,
+              jsonb_build_object('job_id', job_id, 'run_key', 'ci-race', 'basetime', '2026-09-29T10:00:00Z',
+                'validtime', '2026-09-29T10:05:00Z', 'zoom', 10, 'tile_x', 400, 'tile_y', 200,
+                'strong_pixel_count', 2, 'municipalities', jsonb_build_array(jsonb_build_object('owner', 'B'))),
+              '[]'::jsonb
+            );
+            if outcome <> 'OK' then raise exception 'current owner B could not complete: %', outcome; end if;
+
+            select municipalities->0->>'owner' into stored_owner
+            from public.national_rain_refinement_results where job_id = job_id;
+            select status into stored_status from public.national_rain_refinement_jobs where id = job_id;
+            select count(*) into child_count from public.national_rain_refinement_jobs where run_key = 'stale-child';
+            if stored_owner <> 'B' then raise exception 'stale A overwrote B result; stored owner=%', stored_owner; end if;
+            if stored_status <> 'DONE' then raise exception 'current owner job status expected DONE, got %', stored_status; end if;
+            if child_count <> 0 then raise exception 'stale A expanded the queue'; end if;
+          end $lease_fence$;
 
           insert into public.national_rain_refinement_jobs
             (run_key, basetime, validtime, zoom, tile_x, tile_y, priority)
-          values
-            ('ci-defer', '2026-09-29T10:00:00Z', '2026-09-29T10:12:00Z', 8, 225, 100, 3);
+          values ('ci-stage', '2026-09-29T10:00:00Z', '2026-09-29T10:07:00Z', 6, 401, 201, 999);
 
-          do $queue$
+          do $stage_completion$
           declare
-            defer_id bigint;
-            before_attempts integer;
-            after_attempts integer;
-            defer_status text;
+            parent_id bigint;
+            parent_token uuid;
+            outcome text;
+            child_count integer;
           begin
-            select id into defer_id
+            select id, lease_token into parent_id, parent_token
             from public.claim_national_rain_refinement_jobs(1)
-            where run_key = 'ci-defer';
-            if defer_id is null then raise exception 'expected defer job to be claimed'; end if;
-
-            select attempts into before_attempts
-            from public.national_rain_refinement_jobs where id = defer_id;
-            if before_attempts <> 1 then raise exception 'expected claimed defer attempts=1, got %', before_attempts; end if;
-
-            perform public.defer_national_rain_refinement_job(defer_id);
-
-            select attempts, status into after_attempts, defer_status
-            from public.national_rain_refinement_jobs where id = defer_id;
-            if after_attempts <> 0 then raise exception 'defer must restore attempt count, got %', after_attempts; end if;
-            if defer_status <> 'PENDING' then raise exception 'defer must return PENDING, got %', defer_status; end if;
-          end $queue$;
+            where run_key = 'ci-stage';
+            if parent_id is null or parent_token is null then raise exception 'stage job not claimed'; end if;
+            outcome := public.complete_national_rain_refinement_job(
+              parent_id, parent_token, null,
+              jsonb_build_array(jsonb_build_object('run_key', 'ci-stage-child', 'basetime', '2026-09-29T10:00:00Z',
+                'validtime', '2026-09-29T10:08:00Z', 'zoom', 8, 'tile_x', 402, 'tile_y', 202,
+                'priority', 1, 'scan_min_x', 10, 'scan_min_y', 11, 'scan_max_x', 20, 'scan_max_y', 21))
+            );
+            if outcome <> 'OK' then raise exception 'valid stage completion failed: %', outcome; end if;
+            select count(*) into child_count from public.national_rain_refinement_jobs
+            where run_key = 'ci-stage-child' and status = 'PENDING' and scan_min_x = 10 and scan_max_y = 21;
+            if child_count <> 1 then raise exception 'current stage did not enqueue its bounded child'; end if;
+          end $stage_completion$;
 
           insert into public.national_rain_refinement_jobs
-            (run_key, basetime, validtime, zoom, tile_x, tile_y, status, attempts, claimed_at)
-          values
-            ('ci-stale', '2026-09-29T10:00:00Z', '2026-09-29T10:15:00Z', 8, 223, 100, 'PROCESSING', 1, now() - interval '6 minutes'),
-            ('ci-fail', '2026-09-29T10:00:00Z', '2026-09-29T10:20:00Z', 8, 224, 100, 'PROCESSING', 5, now());
+            (run_key, basetime, validtime, zoom, tile_x, tile_y, status, attempts, claimed_at, lease_token)
+          values ('ci-fail', '2026-09-29T10:00:00Z', '2026-09-29T10:20:00Z', 8, 224, 100, 'PROCESSING', 5, now(), gen_random_uuid());
 
-          do $queue$
+          do $failure$
           declare
-            stale_id bigint;
-            stale_attempts integer;
             failed_id bigint;
+            failed_token uuid;
             failed_status text;
-            reclaimed_count integer;
+            outcome text;
           begin
-            select id into stale_id from public.national_rain_refinement_jobs where run_key = 'ci-stale';
-            select count(*) into reclaimed_count
-            from public.claim_national_rain_refinement_jobs(20)
-            where id = stale_id;
-            if reclaimed_count <> 1 then raise exception 'expected stale processing job to be reclaimed'; end if;
-
-            select attempts into stale_attempts from public.national_rain_refinement_jobs where id = stale_id;
-            if stale_attempts <> 2 then raise exception 'expected stale job attempts=2, got %', stale_attempts; end if;
-
-            select id into failed_id from public.national_rain_refinement_jobs where run_key = 'ci-fail';
-            perform public.finish_national_rain_refinement_job(failed_id, false, 'synthetic failure');
+            select id, lease_token into failed_id, failed_token from public.national_rain_refinement_jobs where run_key = 'ci-fail';
+            outcome := public.finish_national_rain_refinement_job(failed_id, failed_token, false, 'synthetic failure');
+            if outcome <> 'OK' then raise exception 'current lease failure finalization failed: %', outcome; end if;
             select status into failed_status from public.national_rain_refinement_jobs where id = failed_id;
             if failed_status <> 'FAILED' then raise exception 'expected FAILED after max attempts, got %', failed_status; end if;
-
-            select count(*) into reclaimed_count
-            from public.claim_national_rain_refinement_jobs(100)
-            where id = failed_id;
-            if reclaimed_count <> 0 then raise exception 'FAILED job must not be reclaimed'; end if;
-          end $queue$;
+          end $failure$;
           SQL
       - run: npm run build
