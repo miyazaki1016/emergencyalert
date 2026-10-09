@@ -16,6 +16,7 @@ create table if not exists public.national_rain_refinement_jobs (
   attempts integer not null default 0 check (attempts >= 0),
   available_at timestamptz not null default now(),
   claimed_at timestamptz,
+  lease_token uuid,
   completed_at timestamptz,
   last_error text,
   created_at timestamptz not null default now(),
@@ -76,6 +77,7 @@ begin
   set status = 'PROCESSING',
       attempts = j.attempts + 1,
       claimed_at = now(),
+      lease_token = gen_random_uuid(),
       updated_at = now()
   from picked
   where j.id = picked.id
@@ -83,56 +85,116 @@ begin
 end;
 $$;
 
-create or replace function public.finish_national_rain_refinement_job(
+-- Atomically validates ownership, persists the optional z10 result, enqueues child
+-- jobs, and completes the current stage. Stale owners cannot write results or fan out.
+create or replace function public.complete_national_rain_refinement_job(
   p_id bigint,
-  p_success boolean,
-  p_error text default null
+  p_lease_token uuid,
+  p_result jsonb default null,
+  p_children jsonb default '[]'::jsonb
 )
-returns void
+returns text
 language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  affected integer;
 begin
   update public.national_rain_refinement_jobs
-  set status = case
-        when p_success then 'DONE'
-        when attempts >= 5 then 'FAILED'
-        else 'PENDING'
-      end,
+  set status = 'DONE', completed_at = now(), lease_token = null,
+      claimed_at = null, last_error = null, updated_at = now()
+  where id = p_id and status = 'PROCESSING' and lease_token = p_lease_token;
+  get diagnostics affected = row_count;
+  if affected = 0 then return 'STALE_LEASE'; end if;
+
+  if p_result is not null then
+    insert into public.national_rain_refinement_results (
+      job_id, run_key, basetime, validtime, zoom, tile_x, tile_y,
+      strong_pixel_count, footprint, municipalities, updated_at
+    ) values (
+      (p_result->>'job_id')::bigint, p_result->>'run_key',
+      (p_result->>'basetime')::timestamptz, (p_result->>'validtime')::timestamptz,
+      (p_result->>'zoom')::integer, (p_result->>'tile_x')::integer, (p_result->>'tile_y')::integer,
+      coalesce((p_result->>'strong_pixel_count')::integer, 0),
+      coalesce(p_result->'footprint', '[]'::jsonb),
+      coalesce(p_result->'municipalities', '[]'::jsonb), now()
+    )
+    on conflict (job_id) do update set
+      run_key = excluded.run_key, basetime = excluded.basetime, validtime = excluded.validtime,
+      zoom = excluded.zoom, tile_x = excluded.tile_x, tile_y = excluded.tile_y,
+      strong_pixel_count = excluded.strong_pixel_count, footprint = excluded.footprint,
+      municipalities = excluded.municipalities, updated_at = now();
+  end if;
+
+  insert into public.national_rain_refinement_jobs (
+    run_key, basetime, validtime, zoom, tile_x, tile_y, priority,
+    scan_min_x, scan_min_y, scan_max_x, scan_max_y, status
+  )
+  select x.run_key, x.basetime, x.validtime, x.zoom, x.tile_x, x.tile_y, coalesce(x.priority, 0),
+    coalesce(x.scan_min_x, 0), coalesce(x.scan_min_y, 0),
+    coalesce(x.scan_max_x, 255), coalesce(x.scan_max_y, 255), 'PENDING'
+  from jsonb_to_recordset(coalesce(p_children, '[]'::jsonb)) as x(
+    run_key text, basetime timestamptz, validtime timestamptz,
+    zoom integer, tile_x integer, tile_y integer, priority integer,
+    scan_min_x integer, scan_min_y integer, scan_max_x integer, scan_max_y integer
+  )
+  on conflict (run_key, validtime, zoom, tile_x, tile_y, scan_min_x, scan_min_y, scan_max_x, scan_max_y)
+  do nothing;
+  return 'OK';
+end;
+$$;
+
+create or replace function public.finish_national_rain_refinement_job(
+  p_id bigint, p_lease_token uuid, p_success boolean, p_error text default null
+)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare affected integer;
+begin
+  update public.national_rain_refinement_jobs
+  set status = case when p_success then 'DONE' when attempts >= 5 then 'FAILED' else 'PENDING' end,
       completed_at = case when p_success or attempts >= 5 then now() else null end,
       available_at = case when p_success or attempts >= 5 then available_at else now() + interval '1 minute' end,
       last_error = case when p_success then null else left(coalesce(p_error, 'unknown_error'), 2000) end,
-      updated_at = now()
-  where id = p_id
-    and status = 'PROCESSING';
+      lease_token = null, claimed_at = null, updated_at = now()
+  where id = p_id and status = 'PROCESSING' and lease_token = p_lease_token;
+  get diagnostics affected = row_count;
+  if affected = 0 then return 'STALE_LEASE'; end if;
+  return 'OK';
+end;
+$$;
+
+create or replace function public.defer_national_rain_refinement_job(p_id bigint, p_lease_token uuid)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare affected integer;
+begin
+  update public.national_rain_refinement_jobs
+  set status = 'PENDING', attempts = greatest(attempts - 1, 0),
+      claimed_at = null, lease_token = null, available_at = now(),
+      last_error = null, updated_at = now()
+  where id = p_id and status = 'PROCESSING' and lease_token = p_lease_token;
+  get diagnostics affected = row_count;
+  if affected = 0 then return 'STALE_LEASE'; end if;
+  return 'OK';
 end;
 $$;
 
 revoke all on function public.claim_national_rain_refinement_jobs(integer) from public, anon, authenticated;
-revoke all on function public.finish_national_rain_refinement_job(bigint, boolean, text) from public, anon, authenticated;
+revoke all on function public.complete_national_rain_refinement_job(bigint, uuid, jsonb, jsonb) from public, anon, authenticated;
+revoke all on function public.finish_national_rain_refinement_job(bigint, uuid, boolean, text) from public, anon, authenticated;
+revoke all on function public.defer_national_rain_refinement_job(bigint, uuid) from public, anon, authenticated;
 grant execute on function public.claim_national_rain_refinement_jobs(integer) to service_role;
-grant execute on function public.finish_national_rain_refinement_job(bigint, boolean, text) to service_role;
+grant execute on function public.complete_national_rain_refinement_job(bigint, uuid, jsonb, jsonb) to service_role;
+grant execute on function public.finish_national_rain_refinement_job(bigint, uuid, boolean, text) to service_role;
+grant execute on function public.defer_national_rain_refinement_job(bigint, uuid) to service_role;
 
-
-create or replace function public.defer_national_rain_refinement_job(p_id bigint)
-returns void
-language plpgsql
-security definer
-set search_path = public
-as $$
-begin
-  update public.national_rain_refinement_jobs
-  set status = 'PENDING',
-      attempts = greatest(attempts - 1, 0),
-      claimed_at = null,
-      available_at = now(),
-      last_error = null,
-      updated_at = now()
-  where id = p_id
-    and status = 'PROCESSING';
-end;
-$$;
-
-revoke all on function public.defer_national_rain_refinement_job(bigint) from public, anon, authenticated;
-grant execute on function public.defer_national_rain_refinement_job(bigint) to service_role;
+-- The completion RPC is the only supported write path for persisted results.
+revoke insert, update, delete on public.national_rain_refinement_results from service_role;
