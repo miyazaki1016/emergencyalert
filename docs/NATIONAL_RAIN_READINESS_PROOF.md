@@ -311,3 +311,18 @@ Proof and decision materials are complete; final scheduler sizing, real IO,
 all47 regional ownership, production loader integration, runtime deadline and
 severe-load drain remain uncompleted. All Production changes, merge and deploy
 remain unexecuted. Atomicity gate and throughput gate remain separate.
+
+
+### 2026-10-10 Queue lease fencing audit — BLOCKER CONFIRMED
+
+Read-only source audit of the proof migration and queue client found a stale-worker race. This is a design finding, not a live DB test; the proof migration remains unapplied.
+
+- `claim_national_rain_refinement_jobs` can reclaim a PROCESSING job once `claimed_at` is at least five minutes old, and increments `attempts` while replacing `claimed_at`.
+- `finish_national_rain_refinement_job` and `defer_national_rain_refinement_job` accept only `p_id` and update any row still marked PROCESSING. They do not prove that the caller owns the current claim.
+- `saveNationalRainRefinementResult` upserts by `job_id`; it likewise has no claim identity condition.
+
+Therefore, if worker A runs past the lease, worker B reclaims the same job, and A returns late, A can still finish/defer the row or overwrite B's result. The five-minute lease is a reclamation timeout, not a fencing mechanism. Client-side AbortSignal/time budgeting alone cannot close this database race.
+
+**Required before any worker/queue rollout:** design a per-claim fencing identity generated atomically on every claim (for example a monotonically increasing claim generation or unguessable lease token); return it from the claim RPC; require the current identity for result persistence, finish and defer; and make stale-identity operations affect zero rows / return an explicit stale-lease result. Result persistence must be conditional on the same current identity, ideally in one DB transaction/RPC with ownership validation. Tests must cover A claimed → expiry → B reclaimed → A save/finish/defer rejected → B succeeds, plus concurrent reclaim and timeout boundaries.
+
+This cannot be repaired by adding only an application-side unit test or changing TypeScript function signatures: the database RPC contract and result write must enforce fencing atomically. Do not apply or edit the proof migration for Production, do not alter canonical schema, and do not connect this queue to alerts. Keep the rollout gate closed until the contract is reviewed and an isolated DB concurrency test demonstrates stale-worker rejection.
