@@ -2558,3 +2558,10 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - このProofはGitHub Actions上で公式N03全47件を取得→prepared形式に変換→`n03-package-all-local.ts` で全47件を分割→chunk SHA-256 readback→manifest件数/bytesを確認。経過時間・最大RSSを `/usr/bin/time -v` で計測し、**ログだけ**artifactとして保存する。地理データ本体はartifactに含めず、Supabaseには接続しない。
 - **重要：ワークフロー追加と実データ変換成功は別。2026-10-09追記時点では新Proofの実行完了を確認していない。** GitHub Actionsの結果がsuccessなら「公式N03アーカイブ→全47分割」の可否が実証できるが、既存Supabase47オブジェクトとのバイト単位同一性やPreview Storage適用はまだ別検証。
 - 失敗時は取得・変換・ハッシュ・時間/メモリのどこで失敗したかをログで切り分ける。Production/Push/watch/PR mergeは変更しない。
+
+
+### 2026-10-09 実物変換CIの初回失敗の切り分け
+
+- 新Proof初回 `6925a2f9` の GitHub Actions run `37882648061` は **failure**。job `113665578474` のログで `npm ci` が `EUSAGE`（リポジトリにpackage-lock.json/npm-shrinkwrap.jsonがない）で停止したことを確認。**公式N03ダウンロード・分割変換ステップはともに skipped** であり、変換不能という結論は出せない。
+- 既存CIと同じ `npm install` に変更（`c5910e71`）。この修正後の新Proofの完走・性能・分割サイズは**未確認**。
+- 実用性の評価にはファイルサイズの分布（最大、平均、p95）、都道府県ごとのchunk数・総容量増分、実際の空間選択で取得するchunk数/bytes、HTTP遅延、45秒以内のワーカー処理、完全一致判定が必要。**変換成功だけでは採用判定しない**。
