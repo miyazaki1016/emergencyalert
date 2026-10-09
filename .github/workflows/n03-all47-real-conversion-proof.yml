@@ -31,7 +31,7 @@ jobs:
         run: npx tsx scripts/n03-hokkaido-z8-feasibility.ts /tmp/n03-real-prepared/01.areas.json | tee /tmp/n03-hokkaido-z8-feasibility.json
       - name: Compare Hokkaido 1 to 4 MiB polygon packing and exact municipality matches
         run: npx tsx scripts/n03-hokkaido-target-comparison.ts /tmp/n03-real-prepared/01.areas.json | tee /tmp/n03-hokkaido-target-comparison.json
-      - name: Convert all 47 into local partition files and verify readback
+      - name: Convert all 47 into local partition files at experimental 1.5 MiB and verify readback
         timeout-minutes: 15
         run: |
           set -euo pipefail
