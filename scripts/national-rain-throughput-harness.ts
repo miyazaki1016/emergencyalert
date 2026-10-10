@@ -32,10 +32,21 @@ export async function measureWorker(options: {
         }
         return { data: batch, error: null };
       }
+      if (name === "complete_national_rain_refinement_job") {
+        if (args.p_result && typeof args.p_result === "object") {
+          const row = args.p_result as { municipalities?: unknown[] };
+          serializedBytes += Buffer.byteLength(JSON.stringify(args.p_result));
+          saved++; municipalityHits += row.municipalities?.length ?? 0;
+        }
+        enqueuedRefinementJobs += Array.isArray(args.p_children) ? args.p_children.length : 0;
+        sample();
+        if (--active === 0) batches[batches.length - 1].elapsedMs = performance.now() - batchStarted;
+        return { data: "OK", error: null };
+      }
       if (name === "finish_national_rain_refinement_job" || name === "defer_national_rain_refinement_job") {
         if (args.p_success === false) errors.push(String(args.p_error));
         if (--active === 0) batches[batches.length - 1].elapsedMs = performance.now() - batchStarted;
-        return { data: null, error: null };
+        return { data: "OK", error: null };
       }
       throw new Error(`Unexpected RPC ${name}`);
     },
