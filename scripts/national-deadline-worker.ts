@@ -3,11 +3,12 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { PNG } from "pngjs";
 import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
 import { heavyRainAreaPolygons, scanHeavyRainTile } from "../lib/weather/rain/nationalHeavyRain";
-import { claimNationalRainJobs, deferNationalRainJob, finishNationalRainJob, saveNationalRainRefinementResult } from "../lib/weather/rain/nationalRainQueue";
+import { claimNationalRainJobs, completeNationalRainJob, deferNationalRainJob, finishNationalRainJob } from "../lib/weather/rain/nationalRainQueue";
 import type { NationalRainMunicipality } from "../lib/weather/rain/nationalRainMunicipalities";
 
 export type ClaimedNationalRainJob = {
   id: number;
+  lease_token: string;
   run_key: string;
   basetime: string;
   validtime: string;
@@ -68,27 +69,23 @@ export async function processDeadlineProofJobs(
         : [];
       check();
       result.strongPixels += strongPixelCount;
-      await saveNationalRainRefinementResult(supabase, {
-        jobId: job.id,
-        runKey: job.run_key,
-        basetime: job.basetime,
-        validtime: job.validtime,
-        zoom: job.zoom,
-        tileX: job.tile_x,
-        tileY: job.tile_y,
-        strongPixelCount,
-        footprint,
-        municipalities,
+      const outcome = await completeNationalRainJob(supabase, job.id, job.lease_token, {
+        result: {
+          runKey: job.run_key, basetime: job.basetime, validtime: job.validtime,
+          zoom: job.zoom, tileX: job.tile_x, tileY: job.tile_y,
+          strongPixelCount, footprint, municipalities,
+        },
       });
-      await finishNationalRainJob(supabase, job.id, true);
+      if (outcome === "STALE_LEASE") return;
       result.done += 1;
     } catch (error) {
       if (signal.aborted || now() >= deadline-finalReserve || (error instanceof Error && error.message === "PROOF_DEADLINE")) {
-        await deferNationalRainJob(supabase,job.id); result.deferred++; return;
+        const outcome = await deferNationalRainJob(supabase, job.id, job.lease_token); if (outcome === "OK") result.deferred++; return;
       }
       await finishNationalRainJob(
         supabase,
         job.id,
+        job.lease_token,
         false,
         error instanceof Error ? error.message : String(error),
       );
@@ -100,13 +97,14 @@ export async function processDeadlineProofJobs(
     const batchSize = Math.min(concurrency, limit - result.claimed);
     const jobs = (await claimNationalRainJobs(supabase, batchSize)) as ClaimedNationalRainJob[];
     if (jobs.length === 0) break;
+    if (jobs.some((job) => typeof job.lease_token !== "string" || job.lease_token.length === 0)) throw new Error("Proof worker claim missing lease identity");
     result.claimed += jobs.length;
 
     const runnable: ClaimedNationalRainJob[] = [];
     for (const job of jobs) {
       if (now() + admission + finalReserve >= deadline || signal.aborted) {
         result.deferred += 1;
-        await deferNationalRainJob(supabase, job.id);
+        await deferNationalRainJob(supabase, job.id, job.lease_token);
       } else {
         runnable.push(job);
       }
