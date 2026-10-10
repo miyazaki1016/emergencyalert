@@ -88,7 +88,7 @@ describe("national rain queue", () => {
     const result = await claimNationalRainJobs({ rpc } as any, 1, signal);
 
     expect(abortSignal).toHaveBeenCalledWith(signal);
-    expect(result).toEqual([{ id: 1 }]);
+    expect(result).toEqual([{ id: 1, lease_token: "lease-a" }]);
   });
 
   it("claims a bounded batch through the atomic rpc", async () => {
