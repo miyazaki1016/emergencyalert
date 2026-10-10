@@ -15,10 +15,10 @@ test('aborted invocation leaves queue unclaimed',async()=>{
 test('in-flight timeout defers claimed work without publishing a result',async()=>{
  const controller=new AbortController();let claims=0,defers=0,finishes=0;
  const client={rpc:async(name:string)=>{
-  if(name==='claim_national_rain_refinement_jobs')return {data:claims++?[]:[{id:1,run_key:'p',basetime:'20260930060000',validtime:'20260930060500',zoom:8,tile_x:228,tile_y:97}],error:null};
+  if(name==='claim_national_rain_refinement_jobs')return {data:claims++?[]:[{id:1,lease_token:'lease-1',run_key:'p',basetime:'20260930060000',validtime:'20260930060500',zoom:8,tile_x:228,tile_y:97}],error:null};
   if(name==='defer_national_rain_refinement_job')defers++;
   if(name==='finish_national_rain_refinement_job')finishes++;
-  return {data:null,error:null};
+  return {data:name==='defer_national_rain_refinement_job'||name==='finish_national_rain_refinement_job'?'OK':null,error:null};
  },from:()=>{throw new Error('must not publish')}} as unknown as SupabaseClient;
  const r=await processDeadlineProofJobs(client,{signal:controller.signal,fetcher:async()=>{controller.abort();throw new Error('aborted')}});
  expect(r.deferred).toBe(1);expect(defers).toBe(1);expect(finishes).toBe(0);expect(r.done).toBe(0);
