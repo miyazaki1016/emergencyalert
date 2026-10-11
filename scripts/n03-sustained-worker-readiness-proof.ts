@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { performance } from "node:perf_hooks";
 import { createBoundedPartitionResolver } from "./n03-bounded-partition-loader";
-import { datasets, REPRESENTATIVES, STRESS_TILES } from "./n03-readiness-common";
+import { datasets, FINAL_STAGE_STRESS_TILES, REPRESENTATIVES } from "./n03-readiness-common";
 import { densePng } from "./n03-http-worker-readiness-proof";
 import { measureWorker } from "./national-rain-throughput-harness";
 
@@ -21,6 +21,8 @@ async function main() {
       const jobs = pending.map(j => ({ id: j.id, lease_token: `00000000-0000-4000-8000-${String(j.id).padStart(12, "0")}`, run_key: `sustained-${j.id}`, basetime: "20260930060000", validtime: "20260930060500", zoom: 10, tile_x: STRESS_TILES[j.code].x, tile_y: STRESS_TILES[j.code].y }));
       const measured = await measureWorker({ jobs, concurrency: 4, fetcher: async () => new Response(new Uint8Array(body)), resolveMunicipalities: resolver.resolve });
       if (measured.result.done !== jobs.length) throw new Error("Sustained proof could not finish bounded local batch");
+      if (measured.result.strongPixels === 0 || measured.municipalityHits === 0) throw new Error("Sustained proof did not exercise heavy-rain municipality intersection");
+      if (resolver.metrics.decodes === 0 || resolver.metrics.transfers === 0 || resolver.metrics.transferBytes === 0 || resolver.cache.stats.loads === 0) throw new Error("Sustained proof did not exercise partition decode/cache transfer");
       queue.splice(0, measured.result.done); processed += measured.result.done; invocationCount++;
       if (resolver.cache.stats.weight > resolver.cache.maxWeight || resolver.cache.stats.activeLoads !== 0) throw new Error("Cache retention/admission invariant failed");
     }
@@ -28,6 +30,8 @@ async function main() {
     rows.push({ cycle: cycle + 1, submitted, processed, remaining: queue.length, oldestAgeSeconds: queue.length ? (cycle * 300000 + elapsedMs - queue[0].created) / 1000 : 0, elapsedMs, invocationCount, rssMiB: process.memoryUsage().rss / 1048576, processPeakRssMiB: process.resourceUsage().maxRSS / 1024, cacheWeight: resolver.cache.stats.weight, evictions: resolver.cache.stats.evictions, transferBytes: resolver.metrics.transferBytes });
     console.error(JSON.stringify({ mode: "SUSTAINED_PROGRESS", ...rows.at(-1) }));
   }
+  if (processed !== submitted || queue.length !== 0) throw new Error("Sustained proof left jobs unprocessed");
+  if (resolver.metrics.resolutions !== processed || resolver.metrics.decodes === 0 || resolver.metrics.transfers === 0 || resolver.metrics.transferBytes === 0 || resolver.cache.stats.loads === 0) throw new Error("Sustained proof final cache/resolver assertions failed");
   const firstWindow = rows.slice(0, 3), lastWindow = rows.slice(-3);
   console.log(JSON.stringify({ mode: "SUSTAINED_ACTUAL_WORKER_LOCAL_QUEUE_PROOF", submitted, processed, remaining: queue.length, invocationCount, cycles, limit: 16, concurrency: 4, wallElapsedMs: performance.now() - allStarted, cache: resolver.cache.stats, metrics: resolver.metrics, processMaxRssMiB: process.resourceUsage().maxRSS / 1024, firstWindowMaxRssMiB: Math.max(...firstWindow.map(r => r.rssMiB)), lastWindowMaxRssMiB: Math.max(...lastWindow.map(r => r.rssMiB)), rows, limitations: ["Actual back-to-back worker calls and local continuously replenished queue", "Accelerated cycles with virtual 5-minute arrival timestamps; not 1-hour wall-clock proof", "Filesystem IO; no HTTP/JMA/DB latency", "One retained invocation-scoped cache intentionally reused for worst retention stress", "Finite RSS observation and bounded references do not guarantee V8 RSS ceiling"], capacityAccepted: false }));
 }
