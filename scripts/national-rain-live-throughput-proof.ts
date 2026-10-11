@@ -43,7 +43,7 @@ async function main() {
     counts.push({ frame, requestedTiles: jobs.size });
     for (const j of jobs.values()) {
       if (selected.length >= 4) break;
-      selected.push({ id: selected.length + 1, run_key: j.runKey, basetime:j.basetime, validtime:j.validtime, zoom:j.zoom, tile_x:j.tileX, tile_y:j.tileY });
+      selected.push({ id: selected.length + 1, lease_token: `00000000-0000-4000-8000-${String(selected.length + 1).padStart(12, "0")}`, run_key: j.runKey, basetime:j.basetime, validtime:j.validtime, zoom:j.zoom, tile_x:j.tileX, tile_y:j.tileY });
     }
   }
   const discoveryMs = performance.now() - discoveryStarted;
