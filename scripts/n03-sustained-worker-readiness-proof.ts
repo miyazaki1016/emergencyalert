@@ -18,7 +18,7 @@ async function main() {
     const started = performance.now();
     for (let call = 0; call < 4 && queue.length; call++) {
       const pending = queue.slice(0, 16);
-      const jobs = pending.map(j => ({ id: j.id, run_key: `sustained-${j.id}`, basetime: "20260930060000", validtime: "20260930060500", zoom: 8, tile_x: STRESS_TILES[j.code].x, tile_y: STRESS_TILES[j.code].y }));
+      const jobs = pending.map(j => ({ id: j.id, lease_token: `00000000-0000-4000-8000-${String(j.id).padStart(12, "0")}`, run_key: `sustained-${j.id}`, basetime: "20260930060000", validtime: "20260930060500", zoom: 8, tile_x: STRESS_TILES[j.code].x, tile_y: STRESS_TILES[j.code].y }));
       const measured = await measureWorker({ jobs, concurrency: 4, fetcher: async () => new Response(new Uint8Array(body)), resolveMunicipalities: resolver.resolve });
       if (measured.result.done !== jobs.length) throw new Error("Sustained proof could not finish bounded local batch");
       queue.splice(0, measured.result.done); processed += measured.result.done; invocationCount++;
