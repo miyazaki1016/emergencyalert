@@ -30,7 +30,7 @@ async function main() {
   mkdirSync(root,{recursive:true});
   prepareProofN03(root,prefs.map(p=>p.code));
   const loader = localPreparedLoader(root);
-  const jobs = Array.from({length:50},(_,i)=>({id:i+1,run_key:`synthetic-${i}`,basetime:"20260930060000",validtime:"20260930060500",zoom:10,tile_x:tile.x,tile_y:tile.y}));
+  const jobs = Array.from({length:50},(_,i)=>({id:i+1,lease_token:`00000000-0000-4000-8000-${String(i+1).padStart(12,"0")}`,run_key:`synthetic-${i}`,basetime:"20260930060000",validtime:"20260930060500",zoom:10,tile_x:tile.x,tile_y:tile.y}));
   const resolveMunicipalities = (rain: Parameters<typeof resolveNationalRainMunicipalities>[0]) => resolveNationalRainMunicipalities(rain,loader.load);
   const measured = await measureWorker({ jobs,concurrency,fetcher:async()=>new Response(new Uint8Array(body)),resolveMunicipalities });
   if (!measured.municipalityHits) throw new Error("Stress proof must exercise positive exact N03 municipality intersection");
