@@ -2743,3 +2743,97 @@ Main CIの失敗点は `npm run build` のTypeScript error:
 - 元データ対切断後データのcanonical JS直接比較も **19自治体・446ケース・不一致0件**（外周/切断後頂点213件、穴5件を含む）。
 - 全国47都道府県のローカル実験パッケージ化と読戻しSHA検証も成功：47 manifests、351 chunks、472,804,611 verifiedBytes、目標chunk 1,572,864 bytes。
 - **採用判断は引き続き `EXPERIMENT_ONLY_NOT_ADOPTED`**。頂点プローブはサンプルであり、全境界・全穴・格子境界接触の網羅的同値性は未証明。chunk読込はメモリ内で、Supabase Storage HTTP、worker同時実行、45秒制約の性能証明ではない。Production/Storage/merge変更なし。
+
+## 最新source-of-truth追記 — 2026-10-12 / PR #59 依存監査・全国大雨readiness
+
+> **この節を全国大雨系の最新開始点とする。** 過去の検証記録は履歴として残すが、CIの状態・本番準備状況はこの節とGitHubの最新実物で再確認する。
+>
+> **PR #59は未merge。Production変更・Storage書込・デプロイは行わない。**
+
+### 現在地
+
+- Repository: `miyazaki1016/emergencyalert`
+- Branch: `feat/national-heavy-rain-preview`
+- PR: #59 — [全国大雨タイル判定・処理能力検証](https://github.com/miyazaki1016/emergencyalert/pull/59)
+- この総覧更新の基準コミット: `f64d775e590ca5da046deb0d0d6f7a321589be1d`
+- Production readiness: **NO**
+- Merge / Production migration / scheduler / Push・watch接続 / deploy: **未承認**
+
+### 今回の変更
+
+#### 1. CIで依存パッケージ監査レポートを保存
+
+Commit: `66be567b6bcd9a2ce7e17b3ff38126d5134abae9`
+
+`.github/workflows/ci.yml` に、CI終了時にも `npm audit --json` を実行し、監査JSONを `npm-dependency-audit-report` artifactとして保存するステップを追加した。概要とパッケージ別の深刻度・直接/間接依存・影響範囲・修正可能性をログに残す。監査ステップ自体では脆弱性検出だけを理由にCI全体を失敗させない。
+
+**状態：** ワークフローへの実装はコミット済み。監査JSON artifactの実生成・内容確認は、当該CI run完了後に行う。
+
+#### 2. readiness文書に本番前の未解決事項を追記
+
+Commit: `f64d775e590ca5da046deb0d0d6f7a321589be1d`
+
+`docs/NATIONAL_RAIN_READINESS_PROOF.md` に、リーストークンによる古いworkerの更新拒否、監査レポート未保存だった問題、lockfile不在、Vercel設定未確定、実環境のDB/Storage・メモリ・実行時間計測が未完であることを記録した。
+
+### 最新CI確認（commit `f64d775e...`）
+
+確認時点のPR-triggered workflow状況：
+
+| Workflow | 状態 |
+|---|---|
+| JMA z4 to z10 screening proof | **SUCCESS** |
+| National rain proof | **SUCCESS** |
+| N03 national prefecture index proof | **SUCCESS** |
+| N03 all47 real conversion proof | **SUCCESS** |
+| CI | **IN PROGRESS** |
+| All47 ownership proof | **IN PROGRESS** |
+
+CIとAll47 ownership proofは最終状態がまだ確定していない。途中状態をbranch全体の成功と扱わない。CI完了後に監査artifactを確認し、依存パッケージ別の実際の検出内容を記録する。
+
+### 依存関係の課題
+
+以前のCI installログでは脆弱性5件（Moderate 2、High 1、Critical 2）が報告された。ただし当時はパッケージ別レポートを保存していなかったため、対象・影響範囲・修正可否は未確定。
+
+- リポジトリに追跡対象の `package-lock.json` がなく、CIの `npm install` は依存解決の再現性に課題がある。
+- リポジトリに `vercel.json` がないため、Vercelの実際のランタイム制限をソースだけから確定できない。
+- `npm audit fix --force` による一括更新は行わない。
+- audit artifactを確認してから、互換性を保った個別修正とlockfile導入方法を検討する。
+
+### リースフェンシングと処理能力の証拠の範囲
+
+検証ブランチでは、job claimごとにlease tokenを更新し、完了・終了・延期に現在のtokenを要求する契約を隔離されたPostgreSQL CIで検証している。古いtokenは `STALE_LEASE` となり、古い結果の保存・後続job追加を拒否する。
+
+ただし、これはbranch上の契約とCI DBでの検証である。Production migrationは未適用であり、本番DBの同時実行・遅延測定ではない。
+
+以前の合成・ローカル持続処理proofでは576/576 jobs完了、queue残0、転送約24.18 MB、peak RSS約420.4 MiBだったが、最終判定は `capacityAccepted: false`。ローカルHTTP/合成データの結果であり、Production容量の証明ではない。
+
+実測として未完了のもの：
+
+- Supabase DB queue RPCの実遅延・競合
+- Supabase Storageの実ダウンロード時間・転送量
+- Vercel実ランタイムのピークメモリ・実行時間
+- 全国規模の滞留queueを消化する時間
+- 実通信・実環境での長時間運転
+
+### 次の作業順
+
+1. commit `f64d775e...` のCIとAll47 ownership proofの最終結果を確認する。
+2. `npm-dependency-audit-report` artifactを取得し、脆弱性をパッケージ単位で分類する。
+3. lockfile不在と依存解決再現性の修正案を、互換性テスト込みで検討する。
+4. 実Supabase/Storage/Vercel環境で測れる経路を確立し、実遅延・メモリ・実行時間を計測する。
+5. 証拠が揃ってから本番準備ゲートを再評価する。
+
+### 現時点の判定
+
+- CI audit report workflow: **IMPLEMENTED / ARTIFACT CONTENT NOT YET VERIFIED**
+- lease-token fencing: **BRANCH CONTRACT / ISOLATED CI DB VERIFIED**
+- synthetic/local sustained proof: **COMPLETED, capacityAccepted=false**
+- dependency vulnerabilities: **5 reported previously / package-level triage pending**
+- committed lockfile: **ABSENT**
+- Vercel runtime limits from repo config: **NOT ESTABLISHED**
+- live Supabase/Storage/Vercel capacity: **NOT VERIFIED**
+- PR #59 merge: **NO**
+- Production readiness: **NO**
+
+> **次のソラへ：まずCIを最後まで確認し、audit artifactの実物を読む。合成データの成功を本番容量の証明にしない。Production・Storage・scheduler・Push/watch・merge・deployは承認なしに変更しない。**
+
