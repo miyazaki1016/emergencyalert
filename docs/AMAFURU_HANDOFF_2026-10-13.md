@@ -79,3 +79,23 @@ Readiness文書の2026-10-12追記とproof branchのソース契約によると�
 - N03実験分割の本番採用
 - 依存脆弱性の修正とlockfile導入
 - Production readiness / merge / deploy
+
+
+## 2026-10-13 追補 — CI #784 の依存監査artifact実読
+
+CI run `38310431611`（commit `c0ba2f55485e8551c9982824b9caf75b8fb5ad06`）が生成した `npm-dependency-audit-report` artifact ID `11774227824` を実際にダウンロードし、`npm-audit-report.json` を解析した。これは監査artifact生成時点の結果であり、CI本体はまだ実行中。
+
+- 集計: Critical 2 / High 1 / Moderate 2 / Total 5。依存ツリー176件（prod 31 / dev 107 / optional 92）。
+- `vitest`: Critical、直接依存。現行range `^3.2.0`、報告range `0.0.95 - 4.1.10`。監査が提示する修正候補は `vitest@5.0.4` で、major update。
+- `tinypool`: Critical、間接依存。修正候補はVitest 5系への更新経由。
+- `postcss`: High、間接依存、複数advisory。報告された影響rangeは `<=8.5.22`。auditの修正候補は `next@16.4.0` 経由で、major update。
+- `next`: Moderate、直接依存、現行range `^15.5.0`。audit候補 `next@16.4.0` はmajor update。
+- `@vitest/mocker`: Moderate、間接依存。修正候補はVitest 5系への更新経由。
+
+前の本文に記載したVitest候補 `5.0.3` は古い監査結果。**このartifact時点の候補は `5.0.4`** として扱う。いずれも候補であり、互換性検証済みの修正ではない。npm公式説明でも `npm audit fix --force` は依存範囲外やmajor更新を許可するため、実行しない。urlnpm audit documentationhttps://docs.npmjs.com/cli/npm-audit/
+
+### 次の依存作業
+1. 現行main/featureのCI実行結果を確定し、監査artifactの結果とbuild/testを別々に記録する。
+2. package manager / Node version / deploy環境を確定し、`package-lock.json` を正規のnpm installで生成・追跡して、CIを `npm ci` に移行する案を検証する。
+3. lockfile導入後の固定ツリーでauditを再実行し、Next 15系の範囲内で解消できるPostCSS修正と、Vitestのmajor更新を分離して検討する。無関係なメジャー更新をまとめて実施しない。
+4. 変更ごとにtest/build/auditとPR CIを確認。Production設定変更、merge、deployは引き続き行わない。
