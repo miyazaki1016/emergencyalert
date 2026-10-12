@@ -2837,3 +2837,19 @@ CIとAll47 ownership proofは最終状態がまだ確定していない。途中
 
 > **次のソラへ：まずCIを最後まで確認し、audit artifactの実物を読む。合成データの成功を本番容量の証明にしない。Production・Storage・scheduler・Push/watch・merge・deployは承認なしに変更しない。**
 
+## 最新source-of-truth追記 — 2026-10-13 / CI #782 完了
+
+> 2026-10-13にGitHub Actionsの実物を再照会。開始点の引き継ぎは `docs/AMAFURU_HANDOFF_2026-10-13.md` を参照する。ここを現在のCI状態の追記として扱う。
+
+- Repository: `miyazaki1016/emergencyalert`
+- Branch: `feat/national-heavy-rain-preview`
+- PR #59: OPEN / 未merge
+- 確認したCI commit: `b8598105b1a5d03828355844efa838db15b35c89`
+- CI #782 / run `38191403174`: **completed / success**。npm test、z4全国フレーム走査、z4→z8子孫検証、候補zoom可用性、空タイル調査、実JMA 404再現、10分遅延再取得、予算・throughput、bounded worker、N03分割/readback、HTTP感度、cache、scheduler replay、queue lease fencing、npm buildがすべて成功。
+- 同コミットの関連proofも成功: JMA z4→z10 #274 / `38191403150`; National rain #486 / `38191403068`; N03 national prefecture index #406 / `38191403123`; All47 ownership #280 / `38191403134`; N03 all47 real conversion #98 / `38191403168`.
+- **解釈制限**: CI成功は定義されたスクリプトと条件下の検証成功であり、Production acceptanceや全国の全強雨検出保証ではない。z4スクリーニングの見逃し率、404原因の全面解明、実Storage HTTP、Production runtimeのmemory/deadline、全国backlog drainは別ゲート。
+- N03実験: 47都道府県、47 manifests、351 chunks、SHA/readback verifiedBytes 472,804,611。19巨大Polygonを含む自治体のcanonical JS判定比較446ケースで不一致0、partition resolver比較97ケースで不一致0。限定サンプル/ローカル・メモリ内chunkの結果であり、採用状態は `EXPERIMENT_ONLY_NOT_ADOPTED`。Production Storage・merge変更なし。
+- CI #782の `npm-dependency-audit-report` artifactを実際に展開して確認: **Critical 2 / High 1 / Moderate 2 / Total 5**。主な依存は `vitest`（Critical、直接）、`tinypool`（Critical、間接）、`postcss`（High、間接）、`next`（Moderate、直接）、`@vitest/mocker`（Moderate、間接）。監査の修正候補はNext/Vitestのメジャー更新を含むため、自動適用しない。`npm audit fix --force`は禁止。lockfile未追跡・Vercel設定未確定も継続課題。
+- Queue lease fencing: proof branchではclaimごとのUUID tokenとcomplete/finish/deferのtoken検証があり、隔離PostgreSQL proofが成功。ただしProduction migrationは未適用であり、実環境IO/競合/遅延の証明ではない。
+- 次の優先順: (1) z4→z10検証値と404証拠を測定条件付きで総覧化、(2) lockfile導入と互換性を守った依存更新計画、(3) 実Storage/runtime負荷の別ゲート設計。Production migration / Storage書込 / scheduler / Push・watch接続 / deploy / PR mergeは明示承認まで実施しない。
+
