@@ -326,3 +326,23 @@ Therefore, if worker A runs past the lease, worker B reclaims the same job, and 
 **Required before any worker/queue rollout:** design a per-claim fencing identity generated atomically on every claim (for example a monotonically increasing claim generation or unguessable lease token); return it from the claim RPC; require the current identity for result persistence, finish and defer; and make stale-identity operations affect zero rows / return an explicit stale-lease result. Result persistence must be conditional on the same current identity, ideally in one DB transaction/RPC with ownership validation. Tests must cover A claimed → expiry → B reclaimed → A save/finish/defer rejected → B succeeds, plus concurrent reclaim and timeout boundaries.
 
 This cannot be repaired by adding only an application-side unit test or changing TypeScript function signatures: the database RPC contract and result write must enforce fencing atomically. Do not apply or edit the proof migration for Production, do not alter canonical schema, and do not connect this queue to alerts. Keep the rollout gate closed until the contract is reviewed and an isolated DB concurrency test demonstrates stale-worker rejection.
+
+
+### 2026-10-12 Follow-up audit — source-level fencing present; runtime gates remain open
+
+The earlier 2026-10-10 source-audit note correctly identified the stale-owner failure mode, but its statement that the fencing implementation was still required is superseded by the current proof branch source:
+
+- The proof migration adds a UUID `lease_token`; each claim rotates it.
+- `complete_national_rain_refinement_job` validates the current token before marking the job done, persisting a result, or enqueuing children in the same transaction.
+- `finish_national_rain_refinement_job` and `defer_national_rain_refinement_job` require the same current token and return `STALE_LEASE` when it no longer matches.
+- The CI workflow includes an isolated PostgreSQL proof that reclaims a job from A to B, rejects A's stale complete/finish/defer calls, and verifies B's result survives and A's child job is not inserted.
+
+This closes the **source-contract gap on the proof branch**, not Production acceptance. The proof migration remains unapplied to Production; the CI sequence is a controlled integration test, not a live Production concurrency/latency test. Keep merge/deploy and all alert integration gated.
+
+#### Dependency audit observability
+
+The 2026-10-11 CI install log reported 5 dependency advisories (2 moderate, 1 high, 2 critical), but did not retain the package-level JSON report. Commit `66be567b6bcd9a2ce7e17b3ff38126d5134abae9` adds a non-blocking `npm audit --json` step and uploads its report as a CI artifact, so the next run can identify affected packages and available fixes without applying potentially breaking updates. That workflow change still needs its own CI result.
+
+The proof branch has no tracked `package-lock.json` and no tracked `vercel.json`. CI currently uses `npm install`, so transitive resolution is not pinned by a committed lockfile. Vercel runtime settings therefore cannot be confirmed from repository config alone; the project-settings/API access issue remains unresolved. Do not run `npm audit fix --force` or infer runtime limits from absent config.
+
+**Current decision:** source-level lease fencing is present and covered by an isolated CI database proof; dependency findings, reproducible dependency resolution, real Storage/DB IO, target-runtime memory/deadline measurements, and nationwide backlog drain remain open. Production gate stays closed.
