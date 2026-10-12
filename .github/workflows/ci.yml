@@ -28,6 +28,22 @@ jobs:
         with:
           node-version: 22
       - run: npm install
+      - name: Capture dependency audit report
+        if: always()
+        run: |
+          set +e
+          npm audit --json > /tmp/npm-audit-report.json
+          audit_status=$?
+          echo "npm audit exit status: $audit_status"
+          node -e 'const fs=require("fs");const p="/tmp/npm-audit-report.json";if(!fs.existsSync(p)){console.log("No npm audit JSON report was produced");process.exit(0)}const r=JSON.parse(fs.readFileSync(p,"utf8"));console.log(JSON.stringify({auditReportVersion:r.auditReportVersion,metadata:r.metadata?.vulnerabilities,packages:Object.keys(r.vulnerabilities||{}).map(name=>({name,severity:r.vulnerabilities[name].severity,isDirect:r.vulnerabilities[name].isDirect,range:r.vulnerabilities[name].range,fixAvailable:r.vulnerabilities[name].fixAvailable}))},null,2));'
+          exit 0
+      - name: Retain dependency audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-dependency-audit-report
+          path: /tmp/npm-audit-report.json
+          if-no-files-found: warn
       - run: npm test
       - name: Scan all forecast frames at z4
         run: |
