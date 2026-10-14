@@ -2859,7 +2859,7 @@ CIとAll47 ownership proofは最終状態がまだ確定していない。途中
 
 CI run `38310431611` / commit `c0ba2f55485e8551c9982824b9caf75b8fb5ad06` から取得した監査artifact `npm-audit-report.json` の実測値: **Critical 2 / High 1 / Moderate 2 / Total 5**。依存ツリー176件（prod 31 / dev 107 / optional 92）。検出対象は `vitest`（Critical/direct）、`tinypool`（Critical/transitive）、`postcss`（High/transitive）、`next`（Moderate/direct）、`@vitest/mocker`（Moderate/transitive）。このartifactの修正候補は `vitest@5.0.4` と `next@16.4.0` で、どちらもmajor updateを伴うため、互換性を確認せず一括適用しない。本文の旧Vitest候補 `5.0.3` はこのartifactについては superseded。
 
-現状の `package.json` はNext `^15.5.0`、Vitest `^3.2.0`。追跡対象の `package-lock.json` がないため、現在の `npm install` によるCI依存解決は固定されていない。次はlockfileを正規生成・追跡し、CIを `npm ci` に切り替える検証を行う。その後、互換範囲内の修正とmajor updateを分け、test/build/auditで評価する。**`npm audit fix --force` は実行しない。** 監査artifactは生成時点でCI本体はまだ実行中であり、脆弱性修正済み・Production readyとは扱わない。urlnpm audit documentationhttps://docs.npmjs.com/cli/npm-audit/
+現状の `package.json` はNext `^15.5.0`、Vitest `^3.2.0`。追跡対象の `package-lock.json` がないため、現在の `npm install` によるCI依存解決は固定されていない。次はlockfileを正規生成・追跡し、CIを `npm ci` に切り替える検証を行う。その後、互換範囲内の修正とmajor updateを分け、test/build/auditで評価する。**`npm audit fix --force` は実行しない。** 監査artifactは生成時点でCI本体はまだ実行中であり、脆弱性修正済み・Production readyとは扱わない。[npm audit documentation](https://docs.npmjs.com/cli/npm-audit/)
 
 
 ## 最新追補 — 2026-10-15 / CI #785 external TopoJSON transport failure
