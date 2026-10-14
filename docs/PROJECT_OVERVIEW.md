@@ -2860,3 +2860,10 @@ CIとAll47 ownership proofは最終状態がまだ確定していない。途中
 CI run `38310431611` / commit `c0ba2f55485e8551c9982824b9caf75b8fb5ad06` から取得した監査artifact `npm-audit-report.json` の実測値: **Critical 2 / High 1 / Moderate 2 / Total 5**。依存ツリー176件（prod 31 / dev 107 / optional 92）。検出対象は `vitest`（Critical/direct）、`tinypool`（Critical/transitive）、`postcss`（High/transitive）、`next`（Moderate/direct）、`@vitest/mocker`（Moderate/transitive）。このartifactの修正候補は `vitest@5.0.4` と `next@16.4.0` で、どちらもmajor updateを伴うため、互換性を確認せず一括適用しない。本文の旧Vitest候補 `5.0.3` はこのartifactについては superseded。
 
 現状の `package.json` はNext `^15.5.0`、Vitest `^3.2.0`。追跡対象の `package-lock.json` がないため、現在の `npm install` によるCI依存解決は固定されていない。次はlockfileを正規生成・追跡し、CIを `npm ci` に切り替える検証を行う。その後、互換範囲内の修正とmajor updateを分け、test/build/auditで評価する。**`npm audit fix --force` は実行しない。** 監査artifactは生成時点でCI本体はまだ実行中であり、脆弱性修正済み・Production readyとは扱わない。urlnpm audit documentationhttps://docs.npmjs.com/cli/npm-audit/
+
+
+## 最新追補 — 2026-10-15 / CI #785 external TopoJSON transport failure
+
+HEAD `3027d4107d2a971bd2e090eddb1754fbb89003b8` のCI #785（run `38310839807`）は **FAILURE**。同HEADの5つの独立proof workflowは全て **SUCCESS**（JMA #277、National #489、N03 index #409、All47 ownership #283、N03 conversion #101）。CI job logから、失敗ステップは江東区町丁目TopoJSON外部取得の `TypeError: fetch failed` / `read ECONNRESET`。その前のN03 intersection benchmarkは成功したが、後続のN03 detail / DB queue lifecycle / `npm run build` は **SKIPPED**。従ってCI全体・build成功と記録してはいけない。
+
+限定修正 `ea84f8d48a3c3d101f4759aa3cf4aed104745d4a` は、`scripts/census-town-boundary-topojson-proof.ts` の外部HTTP取得に最大3回、各15秒timeout、短い待機付きの再試行を加えた。対象はtransport failureおよび429/5xxのみ。404、3回失敗、解析失敗、町丁目境界の不一致はfailのまま。外部依存を無条件skipせず、観測した失敗を修正する。修正後CIの最終結果を待つ。詳細は `docs/AMAFURU_HANDOFF_2026-10-13.md`。**Production readiness NO / PR未merge / 本番操作なし**。
