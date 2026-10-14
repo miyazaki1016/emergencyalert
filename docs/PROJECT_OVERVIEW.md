@@ -2873,3 +2873,10 @@ HEAD `3027d4107d2a971bd2e090eddb1754fbb89003b8` のCI #785（run `38310839807`�
 - PR #59 の HEAD `9947e580448f2000ea490f706f41add33a753b4f` に対し CI #789、National rain proof #493、JMA z4→z10 proof #281、N03 prefecture index #413、N03 all47 real conversion #105、All47 ownership #287 はすべて成功を確認。通信再試行を含む現行検証経路は緑。ただし、全国ワーカーの実運用性能や安全性の立証とは区別する。
 - 次のコミットで CI に `npm-resolved-package-lock` artifact 保存を追加。`npm install` が実際に解決した package-lock.json を後から確認するための**証跡のみ**。リポジトリに lockfile は未導入、`npm ci` への切替・依存更新は未実施。artifact の取得・整合性・セキュリティ修正の判断は後続のゲート。
 - Preview の実ワーカー統合、DB/Storage 書込み、scheduler/Push 有効化、Production merge/deploy は行っていない。低ズームによる取りこぼし・404の不明扱い・期限切れジョブの安全停止・負荷再生は引き続き未解決ゲート。
+
+
+### 2026-10-15: CI #791 lockfile/audit artifact 実体確認
+- CI #791 (`38648228428`) の `npm-resolved-package-lock` artifact ID `11932944071` を取得・ZIP内 `package-lock.json` をJSON解析。lockfileVersion=3、packages=177、next=15.5.28、vitest=3.2.7、postcss=8.4.31、tinypool=1.1.1、@vitest/mocker=3.2.7。これはCI実行時の依存解決証跡であり、固定・採用の承認ではない。
+- 同実行の `npm-dependency-audit-report` artifact ID `11932504472` を取得・JSON解析。脆弱性5件（critical 2: vitest/tinypool、high 1: postcss、moderate 2: next/@vitest/mocker）。監査提案は vitest 5.0.4、next 16.4.1 とも major upgrade。**自動の強制更新禁止**。互換性テスト・別変更単位で対処する。
+- CI #791 は確認時点で実行中（JMA 404の10分追跡）、それまでのstepに失敗なし。5つの独立proof workflowは全成功。CI全体の成功は未確定。
+- 次のゲート: CI最終結果、重大依存脆弱性の解消計画、lockfile導入時のnpm ci検証、Preview実ワーカーのdeadline/RSS/queue fairness/unknown扱いの統合証拠。Productionは未変更。
