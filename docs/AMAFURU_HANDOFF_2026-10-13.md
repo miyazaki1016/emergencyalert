@@ -99,3 +99,11 @@ CI run `38310431611`（commit `c0ba2f55485e8551c9982824b9caf75b8fb5ad06`）が�
 2. package manager / Node version / deploy環境を確定し、`package-lock.json` を正規のnpm installで生成・追跡して、CIを `npm ci` に移行する案を検証する。
 3. lockfile導入後の固定ツリーでauditを再実行し、Next 15系の範囲内で解消できるPostCSS修正と、Vitestのmajor更新を分離して検討する。無関係なメジャー更新をまとめて実施しない。
 4. 変更ごとにtest/build/auditとPR CIを確認。Production設定変更、merge、deployは引き続き行わない。
+
+
+## 2026-10-15 追補 — CI #785 failure の切り分けと限定修正
+
+- HEAD `3027d4107d2a971bd2e090eddb1754fbb89003b8` のCI #785（run `38310839807`）は **failure**。一方、同HEADの5つの独立proof workflow（JMA #277、National #489、N03 index #409、All47 #283、N03 conversion #101）は **success**。
+- CI #785の失敗ステップは `Measure Koto census town boundary TopoJSON`。job logに `TypeError: fetch failed`、原因 `read ECONNRESET`（外部TopoJSON取得のTLS read）が記録されている。直前のN03 intersection benchmarkは成功（700 areas / 450 rain polygons / 60 matches）。以降のN03 detail / queue lifecycle / npm buildはスキップされており、**build成功とは判定しない**。
+- 外部データ取得の一時的ネットワーク障害への耐性として `scripts/census-town-boundary-topojson-proof.ts` のfetchに最大3回の限定再試行、各15秒timeout、1秒→2秒の待機、HTTP 429/5xxの一時失敗判定を追加（commit `ea84f8d48a3c3d101f4759aa3cf4aed104745d4a`）。404等の恒久エラー、3回目の失敗、JSON解析・境界検証の不一致は引き続き失敗とする。**検証をskip/green化する変更ではない。**
+- 新commitのCI結果はまだ未確定。再実行でKoto step、N03 detail、queue fencing、npm buildまで通るか確認すること。Production gateは引き続き CLOSED。
