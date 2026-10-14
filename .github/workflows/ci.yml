@@ -28,6 +28,16 @@ jobs:
         with:
           node-version: 22
       - run: npm install
+      # Retain the exact dependency resolution for reproducibility review.
+      # This is evidence only: do not switch to npm ci until the lockfile
+      # is committed and validated on a separate PR.
+      - name: Retain generated npm lockfile
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-resolved-package-lock
+          path: package-lock.json
+          if-no-files-found: warn
       - name: Capture dependency audit report
         if: always()
         run: |
