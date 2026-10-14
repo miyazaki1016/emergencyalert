@@ -92,7 +92,7 @@ CI run `38310431611`（commit `c0ba2f55485e8551c9982824b9caf75b8fb5ad06`）が�
 - `next`: Moderate、直接依存、現行range `^15.5.0`。audit候補 `next@16.4.0` はmajor update。
 - `@vitest/mocker`: Moderate、間接依存。修正候補はVitest 5系への更新経由。
 
-前の本文に記載したVitest候補 `5.0.3` は古い監査結果。**このartifact時点の候補は `5.0.4`** として扱う。いずれも候補であり、互換性検証済みの修正ではない。npm公式説明でも `npm audit fix --force` は依存範囲外やmajor更新を許可するため、実行しない。urlnpm audit documentationhttps://docs.npmjs.com/cli/npm-audit/
+前の本文に記載したVitest候補 `5.0.3` は古い監査結果。**このartifact時点の候補は `5.0.4`** として扱う。いずれも候補であり、互換性検証済みの修正ではない。npm公式説明でも `npm audit fix --force` は依存範囲外やmajor更新を許可するため、実行しない。[npm audit documentation](https://docs.npmjs.com/cli/npm-audit/)
 
 ### 次の依存作業
 1. 現行main/featureのCI実行結果を確定し、監査artifactの結果とbuild/testを別々に記録する。
