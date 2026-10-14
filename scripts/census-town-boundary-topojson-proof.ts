@@ -44,9 +44,30 @@ async function main() {
   
   const before = process.memoryUsage().heapUsed;
   const fetchStart = performance.now();
-  const response = await fetch(url, { signal: AbortSignal.timeout(15_000) });
-  if (!response.ok) throw new Error(`TopoJSON fetch failed: HTTP ${response.status} ${response.statusText}`);
-  const source = await response.text();
+  // The external town-boundary host can reset an otherwise valid CI request.
+  // Retry only transport failures / transient HTTP statuses; never turn a
+  // missing or invalid boundary dataset into a passing proof.
+  let source: string | undefined;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const response = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+      if (!response.ok) {
+        if (![429, 500, 502, 503, 504].includes(response.status)) {
+          throw new Error(`TopoJSON fetch failed: HTTP ${response.status} ${response.statusText}`);
+        }
+        if (attempt === 3) throw new Error(`TopoJSON fetch failed after 3 attempts: HTTP ${response.status}`);
+        console.error(`Transient TopoJSON HTTP ${response.status}; retry ${attempt}/3`);
+      } else {
+        source = await response.text();
+        break;
+      }
+    } catch (error) {
+      if (attempt === 3 || (error instanceof Error && error.message.startsWith("TopoJSON fetch failed: HTTP "))) throw error;
+      console.error(`Transient TopoJSON fetch error; retry ${attempt}/3:`, error);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+  }
+  if (source === undefined) throw new Error("TopoJSON fetch exhausted retries");
   const fetchMs = performance.now() - fetchStart;
   const readHeap = process.memoryUsage().heapUsed;
   
