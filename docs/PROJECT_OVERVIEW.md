@@ -2867,3 +2867,9 @@ CI run `38310431611` / commit `c0ba2f55485e8551c9982824b9caf75b8fb5ad06` から�
 HEAD `3027d4107d2a971bd2e090eddb1754fbb89003b8` のCI #785（run `38310839807`）は **FAILURE**。同HEADの5つの独立proof workflowは全て **SUCCESS**（JMA #277、National #489、N03 index #409、All47 ownership #283、N03 conversion #101）。CI job logから、失敗ステップは江東区町丁目TopoJSON外部取得の `TypeError: fetch failed` / `read ECONNRESET`。その前のN03 intersection benchmarkは成功したが、後続のN03 detail / DB queue lifecycle / `npm run build` は **SKIPPED**。従ってCI全体・build成功と記録してはいけない。
 
 限定修正 `ea84f8d48a3c3d101f4759aa3cf4aed104745d4a` は、`scripts/census-town-boundary-topojson-proof.ts` の外部HTTP取得に最大3回、各15秒timeout、短い待機付きの再試行を加えた。対象はtransport failureおよび429/5xxのみ。404、3回失敗、解析失敗、町丁目境界の不一致はfailのまま。外部依存を無条件skipせず、観測した失敗を修正する。修正後CIの最終結果を待つ。詳細は `docs/AMAFURU_HANDOFF_2026-10-13.md`。**Production readiness NO / PR未merge / 本番操作なし**。
+
+
+### 2026-10-15: CI全件成功と依存解決の証跡保存（Previewのみ）
+- PR #59 の HEAD `9947e580448f2000ea490f706f41add33a753b4f` に対し CI #789、National rain proof #493、JMA z4→z10 proof #281、N03 prefecture index #413、N03 all47 real conversion #105、All47 ownership #287 はすべて成功を確認。通信再試行を含む現行検証経路は緑。ただし、全国ワーカーの実運用性能や安全性の立証とは区別する。
+- 次のコミットで CI に `npm-resolved-package-lock` artifact 保存を追加。`npm install` が実際に解決した package-lock.json を後から確認するための**証跡のみ**。リポジトリに lockfile は未導入、`npm ci` への切替・依存更新は未実施。artifact の取得・整合性・セキュリティ修正の判断は後続のゲート。
+- Preview の実ワーカー統合、DB/Storage 書込み、scheduler/Push 有効化、Production merge/deploy は行っていない。低ズームによる取りこぼし・404の不明扱い・期限切れジョブの安全停止・負荷再生は引き続き未解決ゲート。
