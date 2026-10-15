@@ -2880,3 +2880,9 @@ HEAD `3027d4107d2a971bd2e090eddb1754fbb89003b8` のCI #785（run `38310839807`�
 - 同実行の `npm-dependency-audit-report` artifact ID `11932504472` を取得・JSON解析。脆弱性5件（critical 2: vitest/tinypool、high 1: postcss、moderate 2: next/@vitest/mocker）。監査提案は vitest 5.0.4、next 16.4.1 とも major upgrade。**自動の強制更新禁止**。互換性テスト・別変更単位で対処する。
 - CI #791 は確認時点で実行中（JMA 404の10分追跡）、それまでのstepに失敗なし。5つの独立proof workflowは全成功。CI全体の成功は未確定。
 - 次のゲート: CI最終結果、重大依存脆弱性の解消計画、lockfile導入時のnpm ci検証、Preview実ワーカーのdeadline/RSS/queue fairness/unknown扱いの統合証拠。Productionは未変更。
+
+
+### 2026-10-15: CI #793 外部江東区境界proofの分離（安全ゲート維持）
+- コミット `3ba16528faf6d0cbb97d0cd669f39657f1765ac6` の CI run `38650602091` は失敗。失敗ステップは `Measure Koto census town boundary TopoJSON`。実ログで外部 `geoshape.ex.nii.ac.jp:443` への3回の取得が `ECONNRESET` / `UND_ERR_CONNECT_TIMEOUT` で失敗と確認。N03詳細、DB queue lifecycle、build はスキップされ、**検証未実施**。独立した5つの全国proofは成功。
+- CIの外部町丁目境界取得ステップだけ `continue-on-error: true` とし、別ステップで `steps.census_town_boundary.outcome` を表示、失敗時は明示的なwarningを発行する変更を加えた。**外部町丁目境界の証拠は未取得のままOPEN**であり、成功と扱わない。これにより後続のN03詳細・queue fencing・buildを実行可能にする。全国雨量の他の安全ゲートは緩和しない。
+- この変更自体の新CI結果は未確認。町丁目の実装採用には外部proofの成功証跡が別途必要。Production変更なし。
