@@ -188,12 +188,23 @@ jobs:
       - name: Benchmark fixed N03 intersection
         if: always()
         run: npx tsx scripts/n03-administrative-area-benchmark.ts
+      # This remote research endpoint is not a prerequisite for the core
+      # national-rain safety checks. Preserve failure evidence without
+      # skipping N03, queue-fencing, and production build verification.
       - name: Measure Koto census town boundary TopoJSON
-        if: always()
+        id: census_town_boundary
+        continue-on-error: true
         timeout-minutes: 2
         run: |
           set -o pipefail
           npx tsx scripts/census-town-boundary-topojson-proof.ts | tee /tmp/census-town-boundary-topojson.json
+      - name: Report Koto boundary proof availability
+        if: always()
+        run: |
+          echo "Koto census TopoJSON proof outcome: ${{ steps.census_town_boundary.outcome }}"
+          if [ "${{ steps.census_town_boundary.outcome }}" != "success" ]; then
+            echo "::warning::External census boundary proof unavailable; this evidence remains OPEN, not passed."
+          fi
       - name: Measure live N03 detail phases
         run: |
           curl --fail --location --retry 3 "https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-2026/N03-20260101_13_GML.zip" -o /tmp/n03-tokyo.zip
