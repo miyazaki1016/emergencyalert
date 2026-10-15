@@ -2897,3 +2897,9 @@ HEAD `3027d4107d2a971bd2e090eddb1754fbb89003b8` のCI #785（run `38310839807`�
 - **欠損・不整合:** 対象地域の境界がない、manifestが欠落、ハッシュ不一致、版不整合、読み出し失敗なら**UNKNOWN/判定不能**。町丁目への雨なし・安全の断定を禁止し、隣接区域への推測的な代替判定もしない。必要なら上位自治体単位の別途検証済み情報のみ提供する。
 - **運用監視:** 保存済み版・地域別充足率・最終検証日時・読込失敗率を可視化し、更新失敗を通知。検証用外部TopoJSON取得のCI失敗は本番の町丁目データ欠損とは別問題として扱う。
 - **現状:** 現行Preview workerはN03市区町村境界のStorageローダー／実験的partition resolverを持つが、**全国町丁目境界の事前投入・完全性検証・本番版切替は未実装**。本節は採用設計であり、実装済み・データ配備済みの宣言ではない。Production readinessは引き続きNO。
+
+
+### 2026-10-15: PR #59 CI #795 全工程成功（境界proof含む）
+- HEAD `d42f58263723262aa1149518013d130bb11b81fd` の CI run `38675157254` は **completed/success**。`npm test`、JMA z4 screening・404観測、全国throughput証跡、N03 intersection benchmark、外部江東区町丁目TopoJSON proof、live N03 detail phases、N03 prepared-data generator、queue lease fencing/lifecycle、`npm run build` がすべて **success**。今回の外部町丁目proofはwarning回避による見かけ上の緑ではなく、当該ステップ自身が成功したことをjobs/stepsで確認した。
+- 同HEADの独立proof 5本（JMA z4→z10、全国雨量、N03都道府県索引、N03全国47都道府県変換、all47 ownership）も **completed/success**。
+- **範囲限定:** このCI成功はPreviewの検証成功を意味する。全国町丁目データの事前配置・完全性ゲート・本番用版切替は未実装。N03 partitionの実データ本番配備、実運用ワーカーの期限/RSS/queue公平性/スループット立証、依存脆弱性対応もOPEN。Production readiness **NO**、PR未merge、本番変更なし。
