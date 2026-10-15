@@ -2910,3 +2910,10 @@ HEAD `3027d4107d2a971bd2e090eddb1754fbb89003b8` のCI #785（run `38310839807`�
 - `lib/weather/rain/n03PartitionStorage.ts` は県manifestのJSON/identity/SHA-256検証と、版ハッシュを含むchunk pathを使用。`n03BoundedPartitionResolver.ts` は選択chunkのサイズ/SHA-256検証と32MiB encoded cacheを持つ。欠損・破損は例外でfail closed。
 - **未達ゲート:** (1) 本番用Storageへの47県分の実体・manifest配置と読出し照合、(2) 全国coverage・版のatomic公開/ロールバック、(3) 実ワーカーでのdeadline/RSS/公平性・キュー処理能力、(4) 全国町丁目の別データセット整備、(5) 通常モードの県単位無制限メモリcacheを含む資源上限の確認。これらを完了せず `NATIONAL_RAIN_N03_PARTITIONS_ENABLED` を本番で有効化しない。
 - 本項は**ソース照合と残課題の明文化のみ**。Storage書込・Production設定変更・PR mergeなし。
+
+
+### 2026-10-15: N03 LRU回帰テスト結果と外部JMA 503の切り分け
+- PR #59 HEAD `dec128ae47be9749d1057f540160e767d815edac` のCI `38688011787` は **failure**。ただし `npm test` は **46ファイル / 238テストすべて成功**し、N03 LRU上限・複数県結果欠落防止・異常値拒否のテストは通過。
+- CI失敗は後段の `Validate forecast z4 screening against available z8 descendants` で、JMA実データ取得時に **`detail 226/106 503`** が発生したため。N03のユニットテスト失敗ではない。外部503を「降雨なし」や「安全」とは扱わず、z4→z8の実測検証は **未完了（OPEN）** とする。
+- 同HEADの独立ワークフロー5件（All47 ownership / N03 all47 real conversion / N03 national prefecture index / National rain / JMA z4→z10 screening）は success。ただしCI全体は赤であり、全工程成功とは報告しない。
+- 従来N03県別ローダーのLRUは**県数上限4**であり、バイト数・一時decodeピーク・並行取得時RSSの上限保証ではない。分割chunkの32MiB encoded cacheと混同しない。本番切替は未承認・未実施。
