@@ -108,6 +108,38 @@ describe("createSupabaseN03AdministrativeAreaLoader", () => {
       .rejects.toThrow("N03 prepared data has invalid area shape: 13");
   });
 
+  it("rejects empty prefecture data instead of treating it as no affected municipalities", async () => {
+    const storage = client({ "20260101/13.areas.json": [] });
+    const loader = createSupabaseN03AdministrativeAreaLoader(storage as any);
+    await expect(loader([{ code: "13", name: "東京都", bbox: [0, 0, 0, 0] }]))
+      .rejects.toThrow("N03 prepared data must be a non-empty array: 13");
+  });
+
+  it("rejects a municipality code belonging to a different prefecture", async () => {
+    const storage = client({ "20260101/13.areas.json": [area("14130", "東京都")] });
+    const loader = createSupabaseN03AdministrativeAreaLoader(storage as any);
+    await expect(loader([{ code: "13", name: "東京都", bbox: [0, 0, 0, 0] }]))
+      .rejects.toThrow("N03 prepared data municipality identity mismatch: 13");
+  });
+
+  it("rejects duplicate municipality identities", async () => {
+    const storage = client({ "20260101/13.areas.json": [area("13111", "東京都"), area("13111", "東京都")] });
+    const loader = createSupabaseN03AdministrativeAreaLoader(storage as any);
+    await expect(loader([{ code: "13", name: "東京都", bbox: [0, 0, 0, 0] }]))
+      .rejects.toThrow("N03 prepared data contains duplicate municipality codes: 13");
+  });
+
+  it("does not cache invalid data and retries after a repaired Storage object", async () => {
+    const files: Record<string, AdministrativeArea[]> = { "20260101/13.areas.json": [] };
+    const storage = client(files);
+    const loader = createSupabaseN03AdministrativeAreaLoader(storage as any);
+    const prefectures = [{ code: "13", name: "東京都", bbox: [0, 0, 0, 0] as [number, number, number, number] }];
+    await expect(loader(prefectures)).rejects.toThrow("non-empty array");
+    files["20260101/13.areas.json"] = [area("13111", "東京都")];
+    await expect(loader(prefectures)).resolves.toEqual([area("13111", "東京都")]);
+    expect(storage.download).toHaveBeenCalledTimes(2);
+  });
+
   it("passes the worker abort signal to the storage download", async () => {
     const signal = new AbortController().signal;
     const download = vi.fn().mockResolvedValue({
