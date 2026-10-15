@@ -2903,3 +2903,10 @@ HEAD `3027d4107d2a971bd2e090eddb1754fbb89003b8` のCI #785（run `38310839807`�
 - HEAD `d42f58263723262aa1149518013d130bb11b81fd` の CI run `38675157254` は **completed/success**。`npm test`、JMA z4 screening・404観測、全国throughput証跡、N03 intersection benchmark、外部江東区町丁目TopoJSON proof、live N03 detail phases、N03 prepared-data generator、queue lease fencing/lifecycle、`npm run build` がすべて **success**。今回の外部町丁目proofはwarning回避による見かけ上の緑ではなく、当該ステップ自身が成功したことをjobs/stepsで確認した。
 - 同HEADの独立proof 5本（JMA z4→z10、全国雨量、N03都道府県索引、N03全国47都道府県変換、all47 ownership）も **completed/success**。
 - **範囲限定:** このCI成功はPreviewの検証成功を意味する。全国町丁目データの事前配置・完全性ゲート・本番用版切替は未実装。N03 partitionの実データ本番配備、実運用ワーカーの期限/RSS/queue公平性/スループット立証、依存脆弱性対応もOPEN。Production readiness **NO**、PR未merge、本番変更なし。
+
+
+### 2026-10-15: N03実ワーカー読込経路のコード照合（配備前チェックリスト）
+- `app/api/rain/national-worker/route.ts` を確認。`NATIONAL_RAIN_N03_PARTITIONS_ENABLED=true` の**明示的opt-in**時だけ、雨域→都道府県索引→対象県manifest→対象chunkという経路を使用。通常モードは `createSupabaseN03AdministrativeAreaLoader()` による県別 `YYYYMMDD/NN.areas.json` 読込。いずれも国交省サイトからリクエストごとに取得しない。
+- `lib/weather/rain/n03PartitionStorage.ts` は県manifestのJSON/identity/SHA-256検証と、版ハッシュを含むchunk pathを使用。`n03BoundedPartitionResolver.ts` は選択chunkのサイズ/SHA-256検証と32MiB encoded cacheを持つ。欠損・破損は例外でfail closed。
+- **未達ゲート:** (1) 本番用Storageへの47県分の実体・manifest配置と読出し照合、(2) 全国coverage・版のatomic公開/ロールバック、(3) 実ワーカーでのdeadline/RSS/公平性・キュー処理能力、(4) 全国町丁目の別データセット整備、(5) 通常モードの県単位無制限メモリcacheを含む資源上限の確認。これらを完了せず `NATIONAL_RAIN_N03_PARTITIONS_ENABLED` を本番で有効化しない。
+- 本項は**ソース照合と残課題の明文化のみ**。Storage書込・Production設定変更・PR mergeなし。
