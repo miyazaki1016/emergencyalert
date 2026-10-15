@@ -77,6 +77,16 @@ jobs:
           echo "Live forecast low-zoom proof outcome: ${{ steps.forecast_lowzoom.outcome }}"
           if [ "${{ steps.forecast_lowzoom.outcome }}" != "success" ]; then
             echo "::warning::Live JMA z4/z8 validation unavailable or failed; safety evidence remains OPEN, not passed."
+            {
+              echo "### Live JMA z4/z8 safety evidence: OPEN"
+              echo "The external proof did not complete successfully. Do not infer rain absence or screening safety."
+              echo "Review the failed step and any retained artifact before promotion."
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "### Live JMA z4/z8 proof execution: SUCCESS"
+              echo "Execution succeeded; review JSON fields (including screeningContractConfirmed and completeCoverage) before treating the empirical evidence as sufficient."
+            } >> "$GITHUB_STEP_SUMMARY"
           fi
       - name: Retain live forecast low-zoom evidence
         if: always()
