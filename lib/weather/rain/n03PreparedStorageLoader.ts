@@ -53,7 +53,9 @@ export function createSupabaseN03AdministrativeAreaLoader(
       } catch {
         throw new Error(`N03 prepared data is not valid JSON: ${code}`);
       }
-      if (!Array.isArray(parsed)) throw new Error(`N03 prepared data must be an array: ${code}`);
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        throw new Error(`N03 prepared data must be a non-empty array: ${code}`);
+      }
       if (!parsed.every(isAdministrativeArea)) {
         throw new Error(`N03 prepared data has invalid area shape: ${code}`);
       }
