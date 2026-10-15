@@ -61,8 +61,11 @@ export function createSupabaseN03AdministrativeAreaLoader(
       }
 
       const areas = parsed;
-      if (areas.some((area) => area.prefecture !== name)) {
-        throw new Error(`N03 prepared data prefecture mismatch: ${code}`);
+      if (areas.some((area) => area.prefecture !== name || !/^\d{5}$/.test(area.code) || !area.code.startsWith(code))) {
+        throw new Error(`N03 prepared data prefecture/municipality identity mismatch: ${code}`);
+      }
+      if (new Set(areas.map((area) => area.code)).size !== areas.length) {
+        throw new Error(`N03 prepared data contains duplicate municipality codes: ${code}`);
       }
       signal?.throwIfAborted();
       cache.set(code, areas);
