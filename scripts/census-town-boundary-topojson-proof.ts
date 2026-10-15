@@ -1,4 +1,6 @@
 import { performance } from "node:perf_hooks";
+import { createHash } from "node:crypto";
+import { validatePreparedTownBoundaryDataset } from "../lib/weather/rain/townBoundaryDatasetValidation";
 import { affectedAdministrativeAreas, type AdministrativeArea } from "../lib/weather/rain/administrativeAreas";
 import type { HeavyRainPolygon } from "../lib/weather/rain/nationalHeavyRain";
 
@@ -147,9 +149,41 @@ async function main() {
     0,
   );
   
+  // Read-only real-data smoke proof of the exact offline promotion gate.
+  // This uses only the two selected Shiohama geometries, NOT nationwide coverage.
+  const preparedPath = "2020/13108-shiohama-sample.json";
+  const preparedBytes = new TextEncoder().encode(JSON.stringify({
+    type: "FeatureCollection",
+    features: shiohamaAreas.map((area) => ({
+      type: "Feature",
+      properties: { municipalityCode: "13108", townCode: area.code },
+      geometry: area.geometry,
+    })),
+  }));
+  const preparedManifest = {
+    dataset: "census-2020-shiohama-sample",
+    source: url,
+    license: "research-only-unverified",
+    version: "read-only-proof",
+    expectedMunicipalityCodes: ["13108"],
+    files: [{
+      municipalityCode: "13108",
+      path: preparedPath,
+      bytes: preparedBytes.byteLength,
+      sha256: createHash("sha256").update(preparedBytes).digest("hex"),
+      features: shiohamaAreas.length,
+    }],
+  };
+  // Licensing remains unverified: this proof MUST NOT promote or publish data.
+  const preparedGate = validatePreparedTownBoundaryDataset(
+    preparedManifest, ["13108"], new Map([[preparedPath, preparedBytes]]),
+  );
+
   console.log(JSON.stringify({
     url,
     sourceBytes: Buffer.byteLength(source),
+    preparedGate,
+    preparedGateScope: "Shiohama sample only; license unverified; no national coverage or storage promotion",
     fetchMs,
     parseMs,
     heapDeltaAfterReadBytes: readHeap - before,
