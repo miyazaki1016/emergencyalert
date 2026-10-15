@@ -140,6 +140,31 @@ describe("createSupabaseN03AdministrativeAreaLoader", () => {
     expect(storage.download).toHaveBeenCalledTimes(2);
   });
 
+  it("bounds the legacy cache without losing prefectures from a multi-prefecture response", async () => {
+    const storage = client({
+      "20260101/13.areas.json": [area("13111", "東京都")],
+      "20260101/14.areas.json": [area("14130", "神奈川県")],
+    });
+    const cache = new Map<string, AdministrativeArea[]>();
+    const loader = createSupabaseN03AdministrativeAreaLoader(storage as any, cache, 1);
+    const prefectures = [
+      { code: "13", name: "東京都", bbox: [0, 0, 0, 0] as [number, number, number, number] },
+      { code: "14", name: "神奈川県", bbox: [0, 0, 0, 0] as [number, number, number, number] },
+    ];
+    const result = await loader(prefectures);
+    expect(result.map(({ code }) => code)).toEqual(["13111", "14130"]);
+    expect(cache.size).toBe(1);
+    await loader([prefectures[0]]);
+    expect(storage.download).toHaveBeenCalledTimes(3);
+    expect([...cache.keys()]).toEqual(["13"]);
+  });
+
+  it("rejects invalid cache limits", () => {
+    const storage = client({});
+    expect(() => createSupabaseN03AdministrativeAreaLoader(storage as any, new Map(), 0))
+      .toThrow("Invalid N03 prefecture cache limit");
+  });
+
   it("passes the worker abort signal to the storage download", async () => {
     const signal = new AbortController().signal;
     const download = vi.fn().mockResolvedValue({
