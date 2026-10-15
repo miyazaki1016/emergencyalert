@@ -26,12 +26,20 @@ function isAdministrativeArea(value: unknown): value is AdministrativeArea {
 export function createSupabaseN03AdministrativeAreaLoader(
   supabase: Pick<SupabaseClient, "storage">,
   cache = new Map<string, AdministrativeArea[]>(),
+  maxCachedPrefectures = 4,
 ): N03AdministrativeAreaLoader {
+  if (!Number.isSafeInteger(maxCachedPrefectures) || maxCachedPrefectures < 1) {
+    throw new Error("Invalid N03 prefecture cache limit");
+  }
   const loading = new Map<string, Promise<AdministrativeArea[]>>();
 
   const loadOne = ({ code, name }: { code: string; name: string }, signal?: AbortSignal) => {
     const cached = cache.get(code);
-    if (cached) return Promise.resolve(cached);
+    if (cached) {
+      cache.delete(code);
+      cache.set(code, cached);
+      return Promise.resolve(cached);
+    }
 
     const existing = loading.get(code);
     if (existing) return existing;
@@ -71,7 +79,13 @@ export function createSupabaseN03AdministrativeAreaLoader(
         throw new Error(`N03 prepared data contains duplicate municipality codes: ${code}`);
       }
       signal?.throwIfAborted();
+      cache.delete(code);
       cache.set(code, areas);
+      while (cache.size > maxCachedPrefectures) {
+        const oldest = cache.keys().next().value;
+        if (oldest === undefined) break;
+        cache.delete(oldest);
+      }
       return areas;
     })();
 
@@ -84,8 +98,10 @@ export function createSupabaseN03AdministrativeAreaLoader(
 
   return async (prefectures, signal) => {
     signal?.throwIfAborted();
-    await Promise.all(prefectures.map((prefecture) => loadOne(prefecture, signal)));
+    // Use the resolved values, not the cache: an eviction during a multi-prefecture
+    // request must never silently omit a prefecture from the result.
+    const loaded = await Promise.all(prefectures.map((prefecture) => loadOne(prefecture, signal)));
     signal?.throwIfAborted();
-    return prefectures.flatMap(({ code }) => cache.get(code) ?? []);
+    return loaded.flat();
   };
 }
