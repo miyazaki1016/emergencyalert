@@ -38,7 +38,7 @@ export function validateTownBoundaryManifest(
   }
   const approved = new Set(approvedMunicipalityCodes);
   if (approved.size !== approvedMunicipalityCodes.length ||
-      [...approved].some((code) => !/^\\d{5}$/.test(code))) {
+      [...approved].some((code) => !/^\d{5}$/.test(code))) {
     throw new Error("Invalid independent municipality inventory");
   }
   const declared = new Set(manifest.expectedMunicipalityCodes);
@@ -55,7 +55,7 @@ export function validateTownBoundaryManifest(
         !approved.has(entry.municipalityCode) || seen.has(entry.municipalityCode)) {
       throw new Error("Town boundary missing, extra or duplicate municipality");
     }
-    if (typeof entry.path !== "string" || !/^[a-zA-Z0-9_./-]+\\.json$/.test(entry.path) ||
+    if (typeof entry.path !== "string" || !/^[a-zA-Z0-9_./-]+\.json$/.test(entry.path) ||
         entry.path.startsWith("/") || entry.path.split("/").includes("..") ||
         paths.has(entry.path)) throw new Error("Invalid or duplicate town boundary path");
     if (!Number.isSafeInteger(entry.bytes) || entry.bytes <= 0 ||
