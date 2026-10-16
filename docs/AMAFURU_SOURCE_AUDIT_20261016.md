@@ -471,3 +471,9 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - 検証commit `e746d022179a99daa2d16b2d31542aaa41f95698`、GitHub Actions run `38967793373` success。実JMA画像6フレーム（観測3、予報3）×各1経路をZ6→Z8→Z10まで追跡。各段階で前段の強雨候補から次の4×4窓を生成し、現行scannerとデコード済み画素分類の座標・雨量区分を比較。
 - **全6経路がZ10に到達、18/18段階で一致**。各経路の検出候補数Z6→Z8→Z10：観測 2→4→8、2→3→6、9→1→1、予報 2→4→8、1→6→12、2→4→16。
 - これは**選択した経路での画素解析の同等性**であり、全国全候補を追跡して取りこぼしゼロを証明したものではない。緯度経度・全レコード・行政区域・通知結果の一致、広域豪雨時の全経路性能は未測定。本番変更なし。
+
+## 2026-10-17 行政区域解像度のコード監査
+
+- `lib/weather/rain/administrativeAreas.ts` の `AdministrativeArea` は `code,prefecture,municipality,geometry` のみ。`nationalRainMunicipalities.ts` の返却型 `NationalRainMunicipality` も `code,prefecture,municipality` のみで、町丁目・地区名のフィールドはない。
+- `nationalRainMunicipalityResolver.ts` はN03の行政区域ポリゴンとZ10雨域ポリゴンの交差を自治体単位で解決する。`national-worker/route.ts` の通常/partition両経路も `resolveMunicipalities` を利用。**現行全国豪雨proofの出力から塩浜・木場・東陽の個別該当を判定できるとは言えない**。同じ江東区に属する複数の町名を識別するには、別の町丁目境界データまたは位置指定判定の設計・検証が必要。
+- この確認はコードの静的監査。全国proof workerは通知配信を行わない。行政区域ポリゴン交差ロジック自体の実データ境界精度、町丁目境界の既存別機能の有無は未確定。広域豪雨時の実性能も未測定。
