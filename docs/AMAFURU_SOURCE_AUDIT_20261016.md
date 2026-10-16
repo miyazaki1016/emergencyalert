@@ -534,3 +534,13 @@ PR検索で #1〜#62 の62件（番号欠落なし）を発見。openは #25,#59
 | #62 Z4 stride parity | open Draft, 3 files | 検証専用 | 本番ではない |
 
 次: 全62 PRの個別merged/closed-unmerged状態→全branchのmain比較→旧版・後継の対応→CI/Preview/Vercel Production/Supabase本番の独立照合。これを終えるまで全件仕分け完了とは言わない。
+
+## 2026-10-17 PR全62件のGitHub状態個別照合（完了）
+
+`fetch_pr` でPR #1〜#62を**各件個別に**確認した結果、**56件 merged、1件 closed/unmerged（#21）、5件 open/unmerged（#25,#59,#60,#61,#62）**。これによりPR状態の棚卸しは62/62件完了。旧版・検証・本番稼働の**機能単位の分類は未完了**。
+
+- merged: #1〜#20、#22〜#24、#26〜#58（計56）。これはGitHub merge事実のみで、本番稼働を保証しない。
+- closed/unmerged: **#21** early rain forecast prototype API。類似テーマの **#23はmerged**。両PRの差分・置換関係を追跡し、#21を安易に「旧版確定」とはしない。
+- open/unmerged: #25 live JMA early-rain CI（検証）、#59 nationwide heavy rain（開発＋proof）、#60 Misaki weather contract（Draft文書）、#61 LIVE JAPAN（Draft試作）、#62 Z4 stride parity（Draft検証）。
+- この段階で『本番実装できた』と確定した機能は**0件（未照合）**。実際に本番稼働している機能が0という意味ではない。Vercel Production deployment SHA、DB schema/cron/実通知を調べてから判定。
+- 次: #21 vs #23のdiffと当該ブランチ、全64 branchのmain比較、#59内のN03/町丁目/worker各proof、production/preview証跡。
