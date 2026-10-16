@@ -338,3 +338,11 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - 最新Proofのz10 detail scanは各tileのx/y全画素（109行付近）、親Z4比較も各tileのx/y全画素（137行付近）。**親Z4のx/y偶奇別の分布・stride2での候補回収率は集計していない**。テストファイルは親座標対応を検証するもので、stride2の検証ではない。
 - Proof出力の `sampling.method="deterministic-even-tile"` は**detail tileの決定論的等間隔抽出**（92–95行）を意味し、Z4の偶数画素抽出を検証したものではない。名称の `even` をstride2の証拠と誤読しない。
 - 過去の最大階級一致とzero-missは**全画素比較または選択したdetail tile**に対する実績。実queueのstride2についての直接的な見逃し率・偶奇配置の実測は今回の対象スクリプトにはない。未確認として維持。Production・実装変更なし。
+
+## 2026-10-16 既存テストと実Z4のstride比較有無（対象を限定した結論）
+
+- `lib/weather/rain/nationalHeavyRain.test.ts`（139行）を確認。candidateのクラスタリング・ポリゴン境界・現在雨域除外などのテストで、`scanHeavyRainTile` 自体をimportせず、stride1/stride2の同一PNG比較はない。
+- `app/api/rain/national-queue/route.test.ts`（189行）は `scanHeavyRainTile` をmockで置換。route contractを確認するが、実画像の画素走査・偶奇分布の検証ではない。
+- `scripts/national-forecast-z4-screening-proof.ts`（66行）は実JMA PNGの**全画素**から強雨候補を収集するが、stride2版を併走させず、回収率や偶奇座標を出力しない。
+- `scripts/national-lowzoom-max-rank-proof.ts` はZ4全画素とサンプルZ10を比較し、親子最大階級の検証が目的。stride2実queueとの直接比較はない。
+- **確認したこれら4ファイルには、実JMA Z4画像をstride1とstride2で比較した検証は存在しない。** repository内の全ファイル・過去CI artifactを網羅した検索ではないため「プロジェクト全体に絶対ない」とは断定しない。新しい測定も行っていない。実装・本番変更なし。
