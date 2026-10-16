@@ -77,7 +77,37 @@ async function check(frame:Frame,kind:string) {
       z10WindowPixelChecks:stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).reduce((s,j)=>s+(j.scanWindow!.maxX-j.scanWindow!.minX+1)*(j.scanWindow!.maxY-j.scanWindow!.minY+1),0),
       z10UniqueWindowPixels:(()=>{const seen=new Set<string>();for(const j of stagedRefinementJobsFromCoarseCandidates(candidates,frame,10)){const w=j.scanWindow!;for(let y=w.minY;y<=w.maxY;y++)for(let x=w.minX;x<=w.maxX;x++)seen.add(j.tileX+":"+j.tileY+":"+x+":"+y);}return seen.size;})()});
   }
-  return {kind,validtime:frame.validtime,bench,fetchedTiles:fetched,unavailableTiles:skipped,
+
+  // Isolated decode-parity benchmark: simulate worker's extra PNG.sync.read
+  // before scanHeavyRainTile, versus scanHeavyRainTile alone.
+  const decodeParity=[];
+  for(const stride of [1]){
+    const rounds=8;
+    const twoDecodeMs:number[]=[];
+    const oneDecodeMs:number[]=[];
+    let twoCandidates=0,oneCandidates=0,identical=true;
+    for(let rep=0;rep<rounds;rep++){
+      const run=(doubleDecode:boolean)=>{
+        const started=performance.now();
+        const candidates=sourceTiles.flatMap(t=>{
+          if(doubleDecode)PNG.sync.read(t.buffer);
+          return scanHeavyRainTile(t.buffer,4,t.x,t.y,stride);
+        });
+        return {ms:performance.now()-started,keys:candidates.map(c=>[c.tileX,c.tileY,c.pixelX,c.pixelY,c.intensityClass].join(":")).sort()};
+      };
+      const first=rep%2===0?run(true):run(false);
+      const second=rep%2===0?run(false):run(true);
+      const double=rep%2===0?first:second;
+      const single=rep%2===0?second:first;
+      twoDecodeMs.push(double.ms);oneDecodeMs.push(single.ms);
+      twoCandidates=double.keys.length;oneCandidates=single.keys.length;
+      if(JSON.stringify(double.keys)!==JSON.stringify(single.keys))identical=false;
+    }
+    decodeParity.push({stride,rounds,twoDecodeMeanMs:twoDecodeMs.reduce((a,v)=>a+v,0)/rounds,
+      oneDecodeMeanMs:oneDecodeMs.reduce((a,v)=>a+v,0)/rounds,
+      twoCandidates,oneCandidates,identical});
+  }
+  return {kind,validtime:frame.validtime,bench,decodeParity,fetchedTiles:fetched,unavailableTiles:skipped,
     compressedBytes:bytes,allHeavyPixels:all,stride2HeavyPixels:sampled,
     omittedHeavyPixels:missed,omittedFraction:all?missed/all:null,
     fourConnectedHeavyRegions:components,regionsWithNoStride2Pixel:entirelyMissed,
