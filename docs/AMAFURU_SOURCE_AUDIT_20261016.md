@@ -292,3 +292,10 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - `scripts/national-forecast-z4-screening-proof.ts`: `scan` はx/y全画素を調べ、>=30候補を集計する。実queueのstride2を再現していない。
 - `lib/weather/rain/nationalHeavyRain.test.ts`（139行）は強雨レベル・候補/ポリゴン系テストが中心で、確認した内容にstride2とstride1の検出差を明示する回帰テストなし。`app/api/rain/national-queue/route.test.ts`（189行）は `scanHeavyRainTile` をmock化しており、実PNGのstride挙動を通していない。`nationalRainQueue.test.ts`（146行）は候補からz10 windowへのmappingを検証するが、候補抽出の網羅性を証明しない。
 - **採用理由は未特定**。大量比較の30分timeoutは過去記録にあるが、それをstride2採用の直接原因と断定できるcommitは今回特定できていない。見逃しの実測件数も未測定。次は実装履歴と低zoom proofのstride条件を追う。修正・本番変更なし。
+
+## 2026-10-16 stride=2 導入履歴探索の結果
+
+- GitHub commit searchで `stride`, `coarse`, `scan`, `nationalHeavyRain` を検索したが、該当メッセージのcommitを特定できず。検索結果なしは変更履歴が存在しない証拠ではない。全commitのfile history/blameをまだ網羅していないため**導入commit・理由は未特定**。
+- 既知commit `f147a80cd9863a1321e2617c3fa5fa151e2bb011` は `nationalRainQueue.ts` のdirect-z10/window改修であり、stride=2の導入根拠ではない。
+- `nationalHeavyRain.ts` のデフォルト2とqueue呼び出し側の引数省略はソース上で確定。`nationalHeavyRain.test.ts` は候補/形状系、`national-queue/route.test.ts` はscanをmock化、`nationalRainQueue.test.ts` は座標変換を確認。**現時点ではstride2の正当化・実測見逃し率は証拠なし**。過去のtimeoutと結びつけない。
+- 引き続き事実の棚卸しのみ。Production・実装変更なし。
