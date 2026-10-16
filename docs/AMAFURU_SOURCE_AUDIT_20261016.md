@@ -378,3 +378,10 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - `scripts/national-forecast-lowzoom-validation.ts`：予報Z4親とZ8子の階級・強雨見逃しを検査。Z8を全画素走査し、Z4親も座標対応で読み出す。**Z4 stride2とstride1の候補数比較はない**。
 - `scripts/national-rain-live-throughput-proof.ts`：Z4走査で `scanHeavyRainTile(buffer,4,x,y)` のdefault **stride2を実際に使用**。ただし、このスクリプトのrefinement jobsは**zoom 6**（40行）であり、現行queueのdirect Z10をそのまま再現したものではない。詳細側はstride1。性能・スループット証拠をZ10精度の保証と混同しない。
 - これら追加3スクリプトでもZ4 stride1対stride2の実画像検出差・偶奇分布の出力は確認できず。**direct Z10へ移行した際にstride2を再検証した明示的な記録は、今回確認した範囲では未発見**。ただし全履歴・全artifactの網羅確認ではない。実装・本番変更なし。
+
+## 2026-10-16 stride2採用理由の追加追跡
+
+- 2026-09-30 JST時点の歴史的ソース `lib/weather/rain/nationalHeavyRain.ts`（commit `3fe209...`）を再確認。`scanHeavyRainTile(..., stride = 2)` は25行、二重ループの `py += stride` / `px += stride` は28–29行。**コード内に性能・メモリ・精度上の採用理由コメントはない**。Z8詳細走査では呼出側が明示的にstride1を指定していた。
+- GitHub commit-message search（`stride`, `sampling`, `national heavy rain`, `2 pixel`）を追加実施。`stride` / `2 pixel` の一致commitは0。`sampling` で見つかった `79e727de...` は気象庁GRIB2 sample資料の検証で、Z4 stride2の根拠ではない。**commitメッセージ検索だけではPR #59未mergeの履歴を網羅できず、初出commitや設計理由は特定できない**。
+- 当時のNational rain proof workflowは5分timeout、スクリプト側には45秒のZ8 refinement deadlineと60tile上限がある。これは**詳細取得の処理予算の存在**を示すが、Z4 stride2が速度またはメモリ対策として導入された**直接証拠ではない**。
+- 調査結論：stride2が少なくとも2026-09-30 JSTに存在した事実、Z4粗走査に使われた事実は確定。**導入者・初出commit・採用理由は未確定**。根拠なしに「重いから採用した」と断定しない。コード・本番変更なし。
