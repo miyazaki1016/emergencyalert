@@ -96,10 +96,10 @@ export default function LiveJapanPage() {
         const night = Math.max(0, Math.min(1, (2 - alt) / 18));
         const twilight = Math.max(0, 1 - Math.abs(alt + 1.5) / 12);
         const i = (y * canvas.width + x) * 4;
-        pixels.data[i] = Math.round(12 + twilight * 125);
-        pixels.data[i + 1] = Math.round(29 + twilight * 53);
-        pixels.data[i + 2] = Math.round(66 + twilight * 4);
-        pixels.data[i + 3] = Math.round(night * 125 + twilight * (1 - night) * 72);
+        pixels.data[i] = Math.round(9 + twilight * 150);
+        pixels.data[i + 1] = Math.round(24 + twilight * 65);
+        pixels.data[i + 2] = Math.round(57 + twilight * 2);
+        pixels.data[i + 3] = Math.round(night * 164 + twilight * (1 - night) * 94);
       }
     }
     ctx.putImageData(pixels, 0, 0);
@@ -233,7 +233,7 @@ export default function LiveJapanPage() {
         <div className="live-time-options">{scenes.map(s => <button key={s.key} type="button" className={scene === s.key ? "active" : ""} onClick={() => setScene(s.key)}>{s.label}</button>)}</div>
         <p>{scenes.find(s => s.key === scene)?.caption} <span>・現在は画面演出のみ。時間別の実データは未接続です。</span></p>
       </section>
-      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 06</span></footer>
+      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 07</span></footer>
       <style jsx global>{`
         .live-root{position:relative;isolation:isolate;min-height:100vh;color:#e9f5ff;background:#071423;font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;overflow:hidden}
         .live-ambient{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 60% 32% at 80% 12%,#174d6955,transparent),radial-gradient(ellipse 55% 35% at 15% 55%,#123e5655,transparent)}
@@ -253,7 +253,7 @@ export default function LiveJapanPage() {
         .live-sky-buttons button.active{background:#3b8da5;border-color:#9be8f1;color:white}.live-sky-controls>small{width:100%;color:#9db7c5;font-size:10px}
         .live-stage{max-width:1180px;margin:0 auto;position:relative;height:min(58vw,580px);min-height:390px;border:1px solid #3c7386;border-radius:24px;overflow:hidden;background:#102c40;box-shadow:0 22px 85px #0008, inset 0 0 60px #3eb7ff22}
         .live-map{height:100%;width:100%;background:#092235}
-        .live-map-tiles{filter:sepia(.38) saturate(1.55) hue-rotate(155deg) brightness(calc(.79 + var(--live-daylight, 1) * .16)) contrast(1.06);transition:filter 1.2s ease}
+        .live-map-tiles{filter:saturate(1.05) contrast(1.04);transition:filter 1.2s ease}
         .live-solar-overlay{pointer-events:none!important;image-rendering:auto}
         .live-theater-toggle{position:absolute;z-index:570;right:14px;top:14px;border:1px solid #91d7df;border-radius:24px;background:#092b3bea;color:#e1faff;font-size:12px;font-weight:700;padding:11px 15px;cursor:pointer}
         .live-theater{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-width:none!important;min-height:0!important;margin:0!important;border:0!important;border-radius:0!important;z-index:9999!important}
