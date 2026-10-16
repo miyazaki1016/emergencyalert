@@ -498,3 +498,13 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - main比較: `feat/national-heavy-rain-preview` ahead 533 / behind 5、128 changed files、diverged。`test/z4-stride-parity-20261016` ahead 546 / behind 5、131 files、diverged。`feat/live-japan-experience-prototype` ahead 31 / behind 1、8 files、diverged。`feat/severe-rain-alerts` ahead 0 / behind 55（mainに包含、差分0）。`docs/amafuru-source-audit-20261016` ahead 51 / behind 0、docs 1 file。
 - ahead/behindは**差分の個数ではなく履歴上のcommit数**。多数のaheadは独立した機能が同数存在する意味ではない。branch内容とCI・deployを別途検証する。
 - 次の監査対象：全branch pagination、各PR diffとbase/head、N03全国分割の最新コミット・CI、町丁目データ取得proof、Preview URLと実deployの区別。未確認を完了扱いしない。
+
+## 2026-10-17 PR状態確認（GitHub PR実体）
+
+- #25 open / not Draft / unmerged / 4 changed files (updated 2026-09-24 UTC)
+- #59 open / not Draft / unmerged / 128 changed files (updated 2026-10-16 UTC)
+- #60 open / Draft / unmerged / 2 changed files (updated 2026-10-16 UTC)
+- #61 open / Draft / unmerged / 8 changed files (updated 2026-10-16 UTC)
+- #62 open / Draft / unmerged / 3 changed files (updated 2026-10-16 UTC)
+- PR #59は128ファイルの**累積差分**であり、PR #62の変更ファイルは3件。先のbranch-vs-main 131件と混同しない。
+- branch searchの続きにcursor `NjQ`を渡すと0件/終了を返した。初回64件が全branchかはこのAPIのpagination挙動を踏まえ**暫定**とし、完全性の主張はしない。
