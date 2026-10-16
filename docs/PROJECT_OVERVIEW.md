@@ -589,3 +589,20 @@ The visual north star is **a beautiful, quiet, living Japanese archipelago**, no
 
 > 「昼は季節を感じ、夜は空を見上げたくなる。危険なときは、必要な情報が最優先。」
 > 「何もない日こそ、また開きたくなる。」
+
+
+### Contextual display policy — approved 2026-10-16
+
+**「そのときの日本列島に、一番ふさわしいものだけを見せる。」**
+**「静かなときは美しく。変化したら分かりやすく。危険なときは迷わせない。」**
+
+The map is not a simultaneous layer dump. Apply display priority **per geographic region**, not by blanking the entire country whenever one location is rainy. A major disaster must also be prominent in the nationwide view.
+
+1. **Verified serious hazards and emergency information:** highest priority; suppress decorative seasonal/astronomical markers in the affected area and avoid visual competition. Show factual location, severity, valid time and source. Never hide other urgent hazards just because one is already present.
+2. **Relevant active weather (rain, snow, etc.):** weather takes priority over cherry blossoms, foliage and starry-sky embellishments in the affected area. Do not equate any trivial precipitation anywhere with a national emergency or blank all other regions.
+3. **Calm daytime:** a very small number of source-backed seasonal discoveries, e.g. sakura, autumn foliage, first snow, when seasonally appropriate.
+4. **Calm nighttime:** a few restrained sky discoveries, e.g. moon or notable astronomical events. Do not claim good stargazing visibility without reliable cloud/visibility evidence; astronomical event timing alone is not a weather forecast.
+
+Day/night presentation is derived from the sun's geographic position; near the terminator, transition calmly rather than abruptly. User-controlled exploration and accessible access to less-prominent layers may coexist with this default prioritization, but no design control may conceal critical warnings. Missing weather data is UNKNOWN, not permission to assert a place is calm or clear. No fake live seasonal/sky/weather markers in production.
+
+**Implementation status:** this is an approved UX/product policy, **not** a claim that real weather-driven icon switching is already wired up. Current LIVE JAPAN preview uses calculated solar ambience and optional explicitly labeled fictional demo markers. Integrate verified data and the priority engine in stages, without disrupting MY アメふる.
