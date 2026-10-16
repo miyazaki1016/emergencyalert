@@ -392,3 +392,10 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - 同一観測/予報時刻のJMA Z4全国6タイルのPNGを実際に取得する設計。30mm/h以上の**全画素数**、偶数x・偶数yのみで拾う**stride2画素数**、未抽出画素数、**4近傍連結の強雨域のうちstride2で一画素も拾えない域の数**を比較。取得失敗タイルは欠損として明記し、雨なし扱いしない。取得バイト数・経過時間も出力。
 - `npx tsx scripts/z4-stride-parity-proof.ts`、環境変数 `Z4_FRAME_LIMIT` で観測・予報の各フレーム数指定。**この時点で実行結果はまだない**。利用可能な作業環境はJMAホストのDNS解決ができず、GitHub connectorにも任意workflowをdispatchする操作がない。結果や見逃し数を捏造しない。
 - 実験は**Z4上の強雨域**のstride2取りこぼしを測るもので、Z10実降雨との一致や通知のend-to-end到達率を直接証明するものではない。今後実データ実行が必要。
+
+## 2026-10-16 実JMA Z4 stride2比較をGitHub Actionsで起動
+
+- 検証ブランチ `test/z4-stride-parity-20261016` に独立workflow `.github/workflows/z4-stride-parity-proof.yml` を追加（commit `dc2f6a6...`）。公開JMA画像を取得するread-only実験のみ。Production、DB、通知、Secrets不使用。
+- **Draft PR #62** `test: measure real JMA Z4 stride-2 missed rain regions (read-only)` を作成。baseは`feat/national-heavy-rain-preview`、**未merge・merge禁止**。
+- PR作成により `Z4 stride parity read-only proof` GitHub Actions run **38886593317** が起動、取得時点では**queued（結果未取得）**。一般CI run `38886592968` もqueued。
+- この時点では見逃し画素数・強雨域数は**未測定**。後続で実行ログを確認して、取得成功フレームのみから結論を出す。GitHub PR URL: https://github.com/miyazaki1016/emergencyalert/pull/62
