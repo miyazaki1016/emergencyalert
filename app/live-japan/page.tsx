@@ -198,7 +198,7 @@ export default function LiveJapanPage() {
       <div className="live-ambient" aria-hidden="true" />
       <header className="live-header">
         <div><span className="live-eyebrow">AMAFURU EXPERIMENTAL EXPERIENCE</span><h1>LIVE <em>JAPAN</em><span className="live-dot">.</span></h1><p>暮らしを、少し先回りする。</p></div>
-        <Link className="live-back" href="/">MY アメふる ↗</Link>
+        <Link className="live-back" href="/my">MY アメふる ↗</Link>
       </header>
       <section className="live-intro">
         <span className="live-badge">✦ コンセプト試作 / DEMO</span>
