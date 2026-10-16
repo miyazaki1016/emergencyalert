@@ -65,3 +65,16 @@
 - **弱い雨の持続判定はmainに存在。** mainのテストには「1–5mm/hの雨が30分以内に始まる連続3本の5分フレーム」「単一弱雨では通知しない」「UNKNOWNをまたいで持続扱いしない」「1mm/h未満の霧雨は持続しても通知しない」「30分超の強雨を通知しない」が含まれる。古い `fix/persistent-light-rain-notification` のエンジン・テストとはSHAが異なり、main側に後続変更がある。**テスト名の確認でありテスト実行は未実施。**
 - **降雨通知判定ヘルパーはmainで拡張済み。** `supabase/functions/watch-rain/notificationDecision.ts` は旧 `refactor-watch-notification-decision` の544文字からmain 1143文字に変化。mainには `shouldNotifyForRain`（通知許可、actionable化、未送信リトライ、終了通知）、`nextLastNotifiedAt`（配信成功時更新）、`nextRainEndingNotified`（終了通知後の抑制・降雨連続3回で解除）が存在。旧版とSHAは異なる。
 - **重要な区別:** ここでの「mainに存在」はソースとテスト定義の確認。本番Edge Functionへのデプロイ、外部予報データによる実際の動作、通知の到達率は別検証。
+
+## 2026-10-16 通知までの呼び出し経路（mainソース実読）
+
+1. `supabase/functions/watch-rain/index.ts` は `Deno.serve` のHTTP入口。リクエストヘッダ `x-watch-token` を `WATCH_CRON_TOKEN` と照合し、違えば401。Supabase URL・service role・VAPID private keyの設定が必要。
+2. `watch_targets` から `enabled=true` の対象を **`.limit(100)`** で取得して順次処理。**100件超の対象を1実行で網羅する保証はこのコードにない**。順序・ページング・同時実行安全性は追加設計対象。
+3. 各地点で固定のVercel URL `https://emergencyalert-gilt.vercel.app/api/rain` に `lat` / `lon` を付けてfetch。`app/api/rain/route.ts` は観測・予報から `interpretRainSeries` / `toRainSemanticEvent` を使う。
+4. 判定できない場合は `watch_states` の最終確認日時を更新してUNKNOWNとして継続。判定できる場合は既存 `watch_states` の `rain_streak`, `clear_streak`, `confirmed_weather`, `rain_ending_notified`, `severe_rain_level` 等を参照。
+5. `shouldNotifyForRain` に加え激しい雨への段階的上昇判定を行い、通知対象なら `push_subscriptions` からownerの購読を取得し `web-push` 送信。404/410で失効購読削除、送信成功数・失敗数を計数し `watch_states` をupsert。
+6. `supabase/functions/watch-rain/README.md` は2026-09-24時点の本番v8をbaselineと記すが、**これはリポジトリ文書の主張**。現在の本番関数バージョン、Supabase cronの存在・実行頻度、DBスキーマ、配信結果は実環境照合未実施。
+7. `.github/workflows/watch-rain.yml` はmainで404。**GitHub Actionsから定期起動している証拠はこのパスでは見つからない**。別workflow、Supabase pg_cron、外部schedulerの可能性を確認する必要がある。
+8. **運用上の調査候補:** `.limit(100)` の対象数上限、固定Vercel URL、外部fetch失敗時の扱い、二重実行の排他、push成功とDB記録の間の障害。いずれも直ちに障害と断定せず、実際の負荷・設定・監視と照合する。
+
+> この追補はソースを読み取り専用で調査した結果。秘密値は読み取らず、cron・DB・本番設定は変更していない。
