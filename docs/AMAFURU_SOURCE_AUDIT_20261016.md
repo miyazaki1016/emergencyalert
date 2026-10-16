@@ -258,3 +258,13 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - 過去のCI記録: 2026-10-15 CI #795は全工程成功と総覧に記録。その後のCI run 38688011787はテスト46ファイル238件成功だがJMA外部503で全体失敗。今回CIの現行最終状態を再照会していないので、最新HEADの全工程成功とは断定しない。
 - 既存readiness proofの負荷モデルは軽負荷で完走する一方、1536ジョブ/5分条件で滞留を示す。実Supabase Storage/DB通信、Vercelの実メモリ・deadline、全国負荷の持続消化は未検証。**Production readiness NO**。
 - LIVE・JAPANは新規試作。全国大雨結果との連携は現段階で実装済みと扱わない。ユーザー要望に従い今は連携設計や実装へ進まず、全国検知の実装到達点を優先して棚卸しする。
+
+## 2026-10-16 市区町村特定処理の詳細確認
+
+- `nationalRainMunicipalityResolver.ts`: 雨域ポリゴンが空なら空配列。雨域bboxと47都道府県索引bboxの重なりで候補県を選び、その県のN03行政区域データを読み、雨域との交差を判定する。**都道府県選別はbboxの粗い絞り込み、最終判定は多角形の交差**。
+- `administrativeAreas.ts`: Polygon/MultiPolygonに対応。bboxで粗選別後、辺の交差・包含関係・穴を考慮して雨域と行政区域の交差を判定。雨域と境界が触れるケースも交差判定に含む実装。地図上の交差であって、実地で30mm/hの雨を観測した証明ではない。
+- `nationalRainMunicipalities.ts`: 出力は `code`, `prefecture`, `municipality` の3フィールド。**町丁目名は出力しない**。市区町村の内部コードは5桁を想定。
+- `n03PreparedStorageLoader.ts`: `national-rain-n03` Storage bucketの版付き `YYYYMMDD/NN.areas.json` を都道府県別に読む。非空配列・基本shape・県名一致・5桁コード・コード重複を検査。欠損・読込失敗・形式不一致は例外。県単位LRU最大4県だが、**バイト量/RSSの上限を保証しない**。
+- `national-worker/route.ts`: `NATIONAL_RAIN_N03_PARTITIONS_ENABLED=true` の時のみ分割manifest/chunk読み込みに切り替える。未配備/破損時は自動で旧方式へ戻さない。通常は上記県単位ローダーを使用。
+- 検証の証拠: PR #59総覧は全国47県・N03実験分割の読戻し、巨大Polygon比較446件とchunk resolver比較97件の一致を記録。一方、全国町丁目の本番データセット、実Storage読込、47県の実雨域・境界を使った網羅的精度、実ワーカー負荷は未完了。したがって**市区町村特定はソース実装あり・限定検証済み・本番未完成**。
+- 今回はコードと既存証拠の読取のみ。テスト新規実行、本番Storage/DB変更、PR merge、通知配信なし。
