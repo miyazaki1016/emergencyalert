@@ -45,3 +45,10 @@
 ## 次のソラへ
 
 **「りょ」＝「どんどん進めて」。** 返事だけで止まらず調査を続け、証拠をこの台帳に追記する。未読のものを「全部読んだ」と報告しない。
+
+## 2026-10-16 ソース実読による追補：回収済み・要再調査の区別
+
+- **雨の終了通知ヒステリシス：mainに実コードが存在。** `supabase/functions/watch-rain/index.ts` のblob SHAはmainと `fix/rain-ending-hysteresis` で完全一致（`b4b5992242bb15d27491eeb3be86c56e46e97e7d`）。`lib/weather/rain/watchNotificationDecision.test.ts` も完全一致（`b0c33525e58904ad04cb58ac837ec5e139c51c23`）。`supabase/functions/watch-rain/notificationDecision.ts` には `nextRainEndingNotified` がある。**この2ファイルについてはブランチの成果がmainに存在する**と確認。実運用デプロイ済みかは未検証。
+- **雨の終了通知の別旧ブランチ：差分あり。** `fix/rain-ending-after-confirmed-rain` の `watch-rain/index.ts` はblob SHA `caf4bb74d722cf1522573e85f2cb4fff3c99830b`、mainは `b4b5992242bb15d27491eeb3be86c56e46e97e7d`。旧ブランチは `rain_ending_notified` を `clearStreak>=3` で解除する直接式、mainは `nextRainEndingNotified` に委譲。**違いは確認済みだがmain側が最新の統合形か、全挙動が同等かはテスト追加確認が必要。**
+- **JMA PNGパレットの根拠資料はmainにも存在。** `docs/PNG_PALETTE_EVIDENCE.md` はmain 22,742文字、古い `codex/verify-jma-png-palette-20260923` 13,941文字で、同一ファイルではない。mainの冒頭は「2026-09-23時点で7色検証、20–30 mm/h未解決」という当時の結論であり、**文書の後続追補や現在の判定コードを読まずに『未解決のまま』とは断定しない**。`lib/weather/providers/jma/pngPalette.ts` はmainと古いブランチでSHAが異なる。PNG原本群のファイル所在は古いブランチに確認済み。mainに原本が存在するかは未確認。
+- 以上は**ファイル単位の照合結果**。全ブランチ全ソース読了、CI実行、本番確認の宣言ではない。
