@@ -55,6 +55,8 @@ export default function LiveJapanPage() {
   const markersRef = useRef<any[]>([]);
   const skyLayerRef = useRef<any>(null);
   const [showSamples, setShowSamples] = useState(false);
+  const [theater, setTheater] = useState(false);
+  const theaterRef = useRef<HTMLDivElement>(null);
   const sampleVisibilityRef = useRef(false);
   const skyModeRef = useRef<SkyTime>("live");
   const [skyMode, setSkyMode] = useState<SkyTime>("live");
@@ -110,6 +112,22 @@ export default function LiveJapanPage() {
     const daylight = Math.max(0, Math.min(1, (japanAltitude + 7) / 20));
     map.getContainer().style.setProperty("--live-daylight", String(daylight));
   };
+  const toggleTheater = async () => {
+    if (!theater) {
+      const el = theaterRef.current;
+      if (!el) return;
+      try { if (el.requestFullscreen) { await el.requestFullscreen(); el.dataset.nativeFullscreen = "yes"; } } catch { /* iOS Safari may not support element fullscreen */ }
+      setTheater(true);
+      window.setTimeout(() => mapRef.current?.invalidateSize(), 120);
+    } else {
+      if (document.fullscreenElement) {
+        try { await document.exitFullscreen(); } catch { /* continue to normal mode */ }
+      }
+      if (theaterRef.current) theaterRef.current.dataset.nativeFullscreen = "no";
+      setTheater(false);
+      window.setTimeout(() => mapRef.current?.invalidateSize(), 120);
+    }
+  };
   const toggleSamples = () => {
     const next = !sampleVisibilityRef.current;
     sampleVisibilityRef.current = next;
@@ -124,6 +142,20 @@ export default function LiveJapanPage() {
   };
   const detailLevel = zoomLevel <= 5 ? "全国の気配" : zoomLevel <= 7 ? "地方・都道府県の気配" : "市区町村周辺の気配";
 
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      if (!document.fullscreenElement && theaterRef.current && !theaterRef.current.contains(document.activeElement)) {
+        // Esc exits native fullscreen; keep app state in sync.
+      }
+      if (!document.fullscreenElement && theaterRef.current?.dataset.nativeFullscreen === "yes") {
+        theaterRef.current.dataset.nativeFullscreen = "no";
+        setTheater(false);
+      }
+      window.setTimeout(() => mapRef.current?.invalidateSize(), 120);
+    };
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
+  }, []);
   useEffect(() => {
     if (!mapEl.current || mapRef.current) return;
     let disposed = false;
@@ -178,8 +210,9 @@ export default function LiveJapanPage() {
         <div className="live-sky-buttons">{skyChoices.map(choice => <button key={choice.key} type="button" className={skyMode === choice.key ? "active" : ""} onClick={() => changeSky(choice.key)}>{choice.label}</button>)}</div>
         <small>{skyMode === "live" ? "現在の太陽位置（約2分ごとに更新）" : "今日の日本時間での時刻プレビュー"} · 天気情報ではありません</small>
       </section>
-      <section className="live-stage" aria-label="日本列島のインタラクティブ地図">
+      <section ref={theaterRef} className={theater ? "live-stage live-theater" : "live-stage"} aria-label="日本列島のインタラクティブ地図">
         <div className="live-map" ref={mapEl} />
+        <button type="button" className="live-theater-toggle" onClick={toggleTheater} aria-pressed={theater}>{theater ? "✕ 通常表示へ" : "⛶ シアターモード"}</button>
         <button type="button" className="live-sample-toggle" onClick={toggleSamples} aria-pressed={showSamples}>{showSamples ? "✦ サンプルを隠す" : "✦ サンプルを表示"}</button>
         <div className="live-stage-top"><span className="live-live-dot" /> JAPAN / EXPLORE <span className="live-stage-right">地図を動かして探索</span></div>
         <button type="button" className="live-reset" onClick={goNationwide} disabled={!mapReady}>🌏 全国へ戻る</button>
@@ -200,7 +233,7 @@ export default function LiveJapanPage() {
         <div className="live-time-options">{scenes.map(s => <button key={s.key} type="button" className={scene === s.key ? "active" : ""} onClick={() => setScene(s.key)}>{s.label}</button>)}</div>
         <p>{scenes.find(s => s.key === scene)?.caption} <span>・現在は画面演出のみ。時間別の実データは未接続です。</span></p>
       </section>
-      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 04</span></footer>
+      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 05</span></footer>
       <style jsx global>{`
         .live-root{position:relative;isolation:isolate;min-height:100vh;color:#e9f5ff;background:#071423;font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;overflow:hidden}
         .live-ambient{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 60% 32% at 80% 12%,#174d6955,transparent),radial-gradient(ellipse 55% 35% at 15% 55%,#123e5655,transparent)}
@@ -222,6 +255,11 @@ export default function LiveJapanPage() {
         .live-map{height:100%;width:100%;background:#092235}
         .live-map-tiles{filter:grayscale(1) invert(1) hue-rotate(155deg) saturate(.85) brightness(calc(.68 + var(--live-daylight, 1) * .9)) contrast(calc(1.3 - var(--live-daylight, 1) * .24));transition:filter 1.2s ease}
         .live-solar-overlay{pointer-events:none!important;image-rendering:auto}
+        .live-theater-toggle{position:absolute;z-index:570;right:14px;top:14px;border:1px solid #91d7df;border-radius:24px;background:#092b3bea;color:#e1faff;font-size:12px;font-weight:700;padding:11px 15px;cursor:pointer}
+        .live-theater{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-width:none!important;min-height:0!important;margin:0!important;border:0!important;border-radius:0!important;z-index:9999!important}
+        .live-theater:fullscreen{position:relative!important;width:100%!important;height:100%!important}
+        .live-theater .live-stage-top,.live-theater .live-reset,.live-theater .live-scale,.live-theater .live-demo-label,.live-theater .live-sample-toggle{display:none}
+        .live-theater .live-theater-toggle{top:20px;right:20px;opacity:.78}
         .live-sample-toggle{position:absolute;z-index:560;right:14px;top:115px;border:1px solid #6d9cb0;border-radius:20px;background:#092334e8;color:#d9f2fb;font-size:11px;padding:9px 12px;cursor:pointer}
         .live-stage-top{position:absolute;z-index:500;top:22px;left:24px;right:24px;pointer-events:none;letter-spacing:.2em;font-size:10px;font-weight:800;color:#d1f9ff;text-shadow:0 2px 10px #000}
         .live-live-dot{display:inline-block;background:#69edc5;width:8px;height:8px;border-radius:50%;box-shadow:0 0 14px #69edc5;margin-right:8px}
