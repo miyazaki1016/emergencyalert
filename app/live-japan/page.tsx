@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { regionalDemoSignals, resolveRegionalSignals } from "./priority";
+import { runLifecycleScenario } from "./lifecycle-scenario";
 
 type Scene = "past" | "now" | "ahead";
 type SkyTime = "live" | "morning" | "noon" | "evening" | "night";
@@ -58,6 +59,7 @@ export default function LiveJapanPage() {
   const priorityMarkersRef = useRef<any[]>([]);
   const [priorityDemo, setPriorityDemo] = useState(false);
   const [mapMenuOpen, setMapMenuOpen] = useState(false);
+  const [lifecycleResults, setLifecycleResults] = useState<ReturnType<typeof runLifecycleScenario> | null>(null);
   const priorityDemoRef = useRef(false);
   const [showSamples, setShowSamples] = useState(false);
   const [theater, setTheater] = useState(false);
@@ -264,6 +266,8 @@ export default function LiveJapanPage() {
             <strong>地図の表示</strong>
             <button type="button" onClick={togglePriorityDemo} aria-pressed={priorityDemo}>🧪 優先表示デモ {priorityDemo ? "ON" : "OFF"}</button>
             <button type="button" onClick={toggleSamples} aria-pressed={showSamples}>✦ 従来のサンプル {showSamples ? "ON" : "OFF"}</button>
+            <button type="button" onClick={() => setLifecycleResults(runLifecycleScenario())}>🚨 警報の更新・取消テストを実行</button>
+            {lifecycleResults && <div className="live-lifecycle-results" role="status"><strong>{lifecycleResults.every(x => x.passed) ? "✓ 全6ケース合格" : "⚠ 不一致あり"}</strong>{lifecycleResults.map((x,i) => <div key={i}>{x.passed ? "✓" : "✕"} {x.label}</div>)}<small>架空データの内部判定結果です。実際の警報は取得していません。</small></div>}
             <small>デモはすべて架空の情報です。実際の気象・災害情報は未接続。</small>
           </div>}
         </div>}
@@ -286,7 +290,7 @@ export default function LiveJapanPage() {
         <div className="live-time-options">{scenes.map(s => <button key={s.key} type="button" className={scene === s.key ? "active" : ""} onClick={() => setScene(s.key)}>{s.label}</button>)}</div>
         <p>{scenes.find(s => s.key === scene)?.caption} <span>・現在は画面演出のみ。時間別の実データは未接続です。</span></p>
       </section>
-      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 13</span></footer>
+      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 14</span></footer>
       <style jsx global>{`
         .live-root{position:relative;isolation:isolate;min-height:100vh;color:#e9f5ff;background:#071423;font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;overflow:hidden}
         .live-ambient{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 60% 32% at 80% 12%,#174d6955,transparent),radial-gradient(ellipse 55% 35% at 15% 55%,#123e5655,transparent)}
@@ -315,6 +319,7 @@ export default function LiveJapanPage() {
         .live-map-menu-panel button{border:1px solid #558896;border-radius:12px;background:#163d50;color:#e8fff7;text-align:left;padding:10px;font-size:12px}
         .live-map-menu-panel button[aria-pressed="true"]{border-color:#a0e3d0;background:#215f68}
         .live-map-menu-panel small{font-size:10px;line-height:1.5;color:#b5d3d9}
+        .live-lifecycle-results{display:flex;flex-direction:column;gap:5px;max-height:185px;overflow-y:auto;border-top:1px solid #507887;padding-top:9px;font-size:11px}
         .live-priority-badge{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#0a2837e8;border:2px solid #d7f5f0;box-shadow:0 0 15px #41b9e788;font-size:21px}
         .live-theater .live-map-menu{display:none}
         .live-theater-toggle{position:absolute;z-index:570;right:14px;top:14px;border:1px solid #91d7df;border-radius:24px;background:#092b3bea;color:#e1faff;font-size:12px;font-weight:700;padding:11px 15px;cursor:pointer}
