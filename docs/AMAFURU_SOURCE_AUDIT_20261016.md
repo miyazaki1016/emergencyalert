@@ -97,3 +97,18 @@
 - **ユーザーから「実際に監視地点の通知はスマホに届いてるよ」と明示報告あり。** よって「スマホ通知の到達実績なし／未確認」という扱いは修正する。**ユーザー実機での到達実績あり**（端末・日付・通知種別・頻度・全ケース網羅は未採取）。
 - cron実行・DB状態更新（本番の読み取り結果）と、スマホ通知到達（ユーザー実機報告）を**異なる根拠として併記**する。すべての通知分岐・全監視地点の配送保証、mainと本番v29の一致を意味しない。
 - 既に通知が届いている運用を壊さないことが最優先。mainとの差分は、現行通知の再現条件を保持しながら評価する。ユーザー承認なく本番Edge Functionを変更しない。
+
+## 2026-10-16 本番v29 ↔ main：行単位の正確な差分
+
+Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main（64行）を行単位で照合。**異なる行は4行**。その他の行は完全一致。
+
+| 論点 | 本番v29 | main | 考えられる影響 |
+|---|---|---|---|
+| import | `nextLastNotifiedAt, shouldNotifyForRain` | `nextRainEndingNotified` 追加 | 新しい終了通知状態管理を使うかどうか |
+| `rainEnding` | `RAIN_ENDING`・前回非終了・未通知 | 上記に加え `previous.confirmed_weather==="RAINING"` 必須 | **本番では未確定の雨に対して終了通知を送る可能性**。mainは確定雨に限定 |
+| `shouldNotifyForRain` 呼び出し | `initialRaining, rainEnding` | `rainEnding:rainEnding||confirmedAndEnding` | `initialRaining` は**本番ヘルパーの型定義・判定式にも存在しない**ため、この引数自体はヘルパー内で無視される（他のコードでの使用は別）。mainは「雨確定と終了が同時」の通知判定を明示的に通す |
+| `endingNotified` | `clearStreak>=3` でfalseに解除、ほかは通知済みを保持 | `nextRainEndingNotified` を使用、`rainStreak>=3` でfalseに解除 | **終了通知抑制フラグの解除タイミングが異なる**。新しい雨エピソード開始時の再通知に影響する可能性 |
+
+本番 `notificationDecision.ts` はmainにある `nextRainEndingNotified` 関数がないだけで、**既存の `shouldNotifyForRain` と `nextLastNotifiedAt` の行は一致**。本番版874文字、main1143文字。
+
+**結論:** mainと本番の差は限定的で、特に雨の終了通知・抑制フラグに集中している。ただし**4行だけだから安全に即デプロイできるとは言えない**。ユーザー実機で通知到達済みの本番v29を保全し、既存シナリオと変更シナリオを比較した後、明示承認を得てから反映を検討する。現時点でデプロイなし。
