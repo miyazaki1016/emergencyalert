@@ -483,3 +483,10 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - `docs/PROJECT_OVERVIEW.md` の2026-09-24実機引継ぎ記録では、`watch_targets` が保存地点の正本で、label・latitude/longitude・display address/name・enabled・notifications_enabledを保持。GPS地点と住所検索（江東区塩浜2-9-8の実機登録例）の登録、`watch-rain` cronによる5分ごとの地点別評価を記録。
 - したがって既存の**緯度経度による登録地点判定**を全国豪雨proofの出力につなぐ設計余地がある。町丁目名一覧の生成を必須とする理由はない。一方で「塩浜・木場・東陽をそれぞれ網羅する」要件には、各地点の登録有無や町丁目の面全体をカバーする別問題がある。**地点判定と町丁目全域判定は別**。
 - 現段階では全国豪雨proofから既存watcher/Pushへの接続は確認されていない。既存の通知仕様・座標照合の実装詳細・実機挙動は追加監査が必要。静的文書から接続済みと推定しない。
+
+## 2026-10-17 町丁目ポリゴン既存proofの再発見（重要訂正）
+
+- 既存commit `93c506e` は `scripts/census-town-boundary-topojson-proof.ts` による**国勢調査2020小地域TopoJSON**の実取得・展開・照合proof。取得先 `https://geoshape.ex.nii.ac.jp/ka/topojson/2020/13/r2ka13108.topojson`（江東区）。N03そのものではなく別の町丁目境界ソース。HTTP429/5xxや接続リセットへの最大3回再試行、TopoJSONの差分arc・反転arc・transformの展開が実装されている。
+- `S_NAME`で塩浜を抽出し、`KEY_CODE`の **13108019001（塩浜一丁目）** と **13108019002（塩浜二丁目）** の両ポリゴンを実際に取得。代表座標付近の微小雨域は各丁目に一意に一致、境界付近の微小雨域は**両丁目に一致**することをassertする実装。これは『塩浜一丁目と二丁目が引っかかる』という過去の検証そのもの。表示名の丸め方は別設計。
+- `townBoundaryManifest.ts` / `townBoundaryDatasetValidation.ts` / `townBoundaryGeometry.ts` にデータ出所・ライセンス・市区町村カバレッジ・ファイルbyte数・SHA256・feature数・geometry整合性の**fail-closedオフライン検証ゲート**がある。proofでは塩浜2件だけのFeatureCollectionをメモリで構築し検証、全国整備やStorageへの昇格はしていない。`license: research-only-unverified` と明記され、再配布/本番利用の権利は未確認。
+- **訂正**：前回『町丁目ポリゴンが見つからない』『市区町村しかできていない』という説明は全国豪雨workerの現行接続先に限定すべきだった。既存の町丁目ポリゴン取得・交差proofは実装済み。全国豪雨workerへの接続・全国データの配備は別途確認が必要。
