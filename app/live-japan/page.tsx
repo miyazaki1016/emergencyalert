@@ -54,6 +54,8 @@ export default function LiveJapanPage() {
   const mapRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
   const skyLayerRef = useRef<any>(null);
+  const [showSamples, setShowSamples] = useState(false);
+  const sampleVisibilityRef = useRef(false);
   const skyModeRef = useRef<SkyTime>("live");
   const [skyMode, setSkyMode] = useState<SkyTime>("live");
   const [scene, setScene] = useState<Scene>("now");
@@ -70,22 +72,55 @@ export default function LiveJapanPage() {
   const changeSky = (mode: SkyTime) => { skyModeRef.current = mode; setSkyMode(mode); renderSky(); };
   const renderSky = () => {
     const map = mapRef.current;
-    if (!map || !skyLayerRef.current) return;
-    const layer = skyLayerRef.current;
-    layer.clearLayers();
+    const L = (window as any).L;
+    if (!map || !L || !skyLayerRef.current) return;
+    skyLayerRef.current.clearLayers();
     const sun = sunPosition(skyDate(skyModeRef.current));
-    // Subtle night and twilight shading, limited to Japan's vicinity.
-    // At most 420 noninteractive rectangles; no invented cloud or city light data.
-    for (let lat = 24; lat < 47; lat += 1.5) {
-      for (let lon = 122; lon < 154; lon += 1.5) {
-        const altitude = solarAltitude(lat + 0.75, lon + 0.75, sun);
-        const opacity = altitude > 2 ? 0 : altitude > -7 ? (2 - altitude) / 9 * 0.19 : altitude > -18 ? 0.19 + (-7 - altitude) / 11 * 0.19 : 0.38;
-        if (opacity < 0.015) continue;
-        // Rectangle edges are intentionally softened through low opacity.
-        const L = (window as any).L;
-        if (L) L.rectangle([[lat, lon], [lat + 1.5, lon + 1.5]], { stroke: false, fillColor: "#020b26", fillOpacity: opacity, interactive: false }).addTo(layer);
+    // A smooth, geographically anchored solar shading raster. Canvas is only
+    // an intermediate rendering surface; it is never weather information.
+    const canvas = document.createElement("canvas");
+    canvas.width = 360; canvas.height = 260;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const pixels = ctx.createImageData(canvas.width, canvas.height);
+    // Extend beyond Japan so the edge of the raster is outside the usual view.
+    const north = 55, south = 18, west = 113, east = 160;
+    for (let y = 0; y < canvas.height; y++) {
+      const lat = north - (y + 0.5) / canvas.height * (north - south);
+      for (let x = 0; x < canvas.width; x++) {
+        const lon = west + (x + 0.5) / canvas.width * (east - west);
+        const alt = solarAltitude(lat, lon, sun);
+        // Full night ~70% navy tint; golden twilight at the terminator.
+        const night = Math.max(0, Math.min(1, (4 - alt) / 15));
+        const twilight = Math.max(0, 1 - Math.abs(alt + 1.5) / 9);
+        const i = (y * canvas.width + x) * 4;
+        pixels.data[i] = Math.round(6 + twilight * 95);
+        pixels.data[i + 1] = Math.round(15 + twilight * 36);
+        pixels.data[i + 2] = Math.round(43 + twilight * 4);
+        pixels.data[i + 3] = Math.round(night * 198 + twilight * (1 - night) * 60);
       }
     }
+    ctx.putImageData(pixels, 0, 0);
+    L.imageOverlay(canvas.toDataURL("image/png"), [[south, west], [north, east]], {
+      interactive: false, opacity: 1, className: "live-solar-overlay",
+    }).addTo(skyLayerRef.current);
+    // In addition to the geographic shadow, brighten the underlying daytime
+    // cartography so day and night are visibly distinct on small phones.
+    const japanAltitude = solarAltitude(36, 138, sun);
+    const daylight = Math.max(0, Math.min(1, (japanAltitude + 7) / 20));
+    map.getContainer().style.setProperty("--live-daylight", String(daylight));
+  };
+  const toggleSamples = () => {
+    const next = !sampleVisibilityRef.current;
+    sampleVisibilityRef.current = next;
+    setShowSamples(next);
+    const map = mapRef.current;
+    if (!map) return;
+    markersRef.current.forEach(marker => {
+      if (next && !map.hasLayer(marker)) marker.addTo(map);
+      if (!next && map.hasLayer(marker)) map.removeLayer(marker);
+    });
+    if (!next) setSelected(null);
   };
   const detailLevel = zoomLevel <= 5 ? "全国の気配" : zoomLevel <= 7 ? "地方・都道府県の気配" : "市区町村周辺の気配";
 
@@ -115,7 +150,8 @@ export default function LiveJapanPage() {
           html: '<span class="live-pulse live-' + point.kind + '"><span>' + point.icon + '</span></span>',
           iconSize: [48, 48], iconAnchor: [24, 24],
         });
-        const marker = L.marker([point.lat, point.lon], { icon }).addTo(map);
+        const marker = L.marker([point.lat, point.lon], { icon });
+        if (sampleVisibilityRef.current) marker.addTo(map);
         marker.on("click", () => { setSelected(point); goTo(point.lat, point.lon, 8, point.name); });
         markersRef.current.push(marker);
       });
@@ -144,11 +180,12 @@ export default function LiveJapanPage() {
       </section>
       <section className="live-stage" aria-label="日本列島のインタラクティブ地図">
         <div className="live-map" ref={mapEl} />
+        <button type="button" className="live-sample-toggle" onClick={toggleSamples} aria-pressed={showSamples}>{showSamples ? "✦ サンプルを隠す" : "✦ サンプルを表示"}</button>
         <div className="live-stage-top"><span className="live-live-dot" /> JAPAN / EXPLORE <span className="live-stage-right">地図を動かして探索</span></div>
         <button type="button" className="live-reset" onClick={goNationwide} disabled={!mapReady}>🌏 全国へ戻る</button>
         <div className="live-scale" aria-live="polite">{focusName} · {detailLevel} <span>ZOOM {zoomLevel}</span></div>
         {!mapReady && <div className="live-loading">日本列島を準備しています…</div>}
-        <div className="live-demo-label">● 地図上の光は演出用サンプルです。実際の気象・災害情報ではありません。</div>
+        <div className="live-demo-label">{showSamples ? "● 地図上の光は演出用サンプルです。実際の気象・災害情報ではありません。" : "☀ 昼夜の陰影は太陽位置の計算による演出です。気象・災害情報は未表示です。"}</div>
         {selected && <aside className="live-detail"><button onClick={() => setSelected(null)} aria-label="閉じる">×</button><span className="live-eyebrow">SAMPLE STORY</span><h3>{selected.icon} {selected.name}</h3><p>{selected.text}</p><small>このカードはデザイン確認用です。実データ接続後、出典・観測時刻・予報の区別を表示します。</small></aside>}
       </section>
       <section className="live-journey" aria-label="日本を旅する">
@@ -163,7 +200,7 @@ export default function LiveJapanPage() {
         <div className="live-time-options">{scenes.map(s => <button key={s.key} type="button" className={scene === s.key ? "active" : ""} onClick={() => setScene(s.key)}>{s.label}</button>)}</div>
         <p>{scenes.find(s => s.key === scene)?.caption} <span>・現在は画面演出のみ。時間別の実データは未接続です。</span></p>
       </section>
-      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 02</span></footer>
+      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 04</span></footer>
       <style jsx global>{`
         .live-root{position:relative;isolation:isolate;min-height:100vh;color:#e9f5ff;background:#071423;font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;overflow:hidden}
         .live-ambient{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 60% 32% at 80% 12%,#174d6955,transparent),radial-gradient(ellipse 55% 35% at 15% 55%,#123e5655,transparent)}
@@ -183,7 +220,9 @@ export default function LiveJapanPage() {
         .live-sky-buttons button.active{background:#3b8da5;border-color:#9be8f1;color:white}.live-sky-controls>small{width:100%;color:#9db7c5;font-size:10px}
         .live-stage{max-width:1180px;margin:0 auto;position:relative;height:min(58vw,580px);min-height:390px;border:1px solid #3c7386;border-radius:24px;overflow:hidden;background:#102c40;box-shadow:0 22px 85px #0008, inset 0 0 60px #3eb7ff22}
         .live-map{height:100%;width:100%;background:#092235}
-        .live-map-tiles{filter:grayscale(1) invert(1) hue-rotate(155deg) saturate(.85) brightness(.65) contrast(1.3)}
+        .live-map-tiles{filter:grayscale(1) invert(1) hue-rotate(155deg) saturate(.85) brightness(calc(.68 + var(--live-daylight, 1) * .9)) contrast(calc(1.3 - var(--live-daylight, 1) * .24));transition:filter 1.2s ease}
+        .live-solar-overlay{pointer-events:none!important;image-rendering:auto}
+        .live-sample-toggle{position:absolute;z-index:560;right:14px;top:115px;border:1px solid #6d9cb0;border-radius:20px;background:#092334e8;color:#d9f2fb;font-size:11px;padding:9px 12px;cursor:pointer}
         .live-stage-top{position:absolute;z-index:500;top:22px;left:24px;right:24px;pointer-events:none;letter-spacing:.2em;font-size:10px;font-weight:800;color:#d1f9ff;text-shadow:0 2px 10px #000}
         .live-live-dot{display:inline-block;background:#69edc5;width:8px;height:8px;border-radius:50%;box-shadow:0 0 14px #69edc5;margin-right:8px}
         .live-stage-right{float:right;letter-spacing:.05em;font-weight:400}
@@ -213,7 +252,7 @@ export default function LiveJapanPage() {
         .live-timeline p{font-size:12px;color:#d6e8ef}.live-timeline p span{color:#86a5b5}
         .live-footer{max-width:1180px;margin:auto;padding:30px 32px 45px;display:flex;justify-content:space-between;gap:15px;color:#8ca8b9;font-size:11px}
         .live-root .leaflet-control-attribution{background:#0c2332d9;color:#c8dbe3}.live-root .leaflet-control-attribution a{color:#a8e8fa}
-        @media(max-width:650px){.live-header{padding:24px 18px}.live-intro{padding:0 20px}.live-stage{margin:0 10px;min-height:460px;border-radius:18px}.live-stage-right{display:none}.live-timeline{margin:14px 10px 0;padding:18px}.live-footer{padding:24px 20px;flex-direction:column}.live-demo-label{font-size:10px}.live-intro h2{font-size:36px}.live-sky-controls{margin:0 10px 12px;padding:14px}.live-sky-buttons{width:100%}.live-sky-buttons button{flex:1;padding:7px 5px}.live-journey{margin:14px 10px 0;padding:18px}.live-destinations{grid-template-columns:repeat(2,minmax(0,1fr))}.live-feed{grid-template-columns:1fr}.live-reset{right:12px;top:55px}.live-scale{top:112px}}
+        @media(max-width:650px){.live-header{padding:24px 18px}.live-intro{padding:0 20px}.live-stage{margin:0 10px;min-height:460px;border-radius:18px}.live-stage-right{display:none}.live-timeline{margin:14px 10px 0;padding:18px}.live-footer{padding:24px 20px;flex-direction:column}.live-demo-label{font-size:10px}.live-intro h2{font-size:36px}.live-sky-controls{margin:0 10px 12px;padding:14px}.live-sky-buttons{width:100%}.live-sky-buttons button{flex:1;padding:7px 5px}.live-journey{margin:14px 10px 0;padding:18px}.live-destinations{grid-template-columns:repeat(2,minmax(0,1fr))}.live-feed{grid-template-columns:1fr}.live-reset{right:12px;top:55px}.live-scale{top:112px}.live-sample-toggle{top:107px;right:12px;font-size:10px;padding:7px 9px}}
         @media(prefers-reduced-motion:reduce){.live-pulse{animation:none}}
       `}</style>
     </main>
