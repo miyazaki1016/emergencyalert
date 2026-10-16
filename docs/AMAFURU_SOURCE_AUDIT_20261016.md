@@ -52,3 +52,9 @@
 - **雨の終了通知の別旧ブランチ：差分あり。** `fix/rain-ending-after-confirmed-rain` の `watch-rain/index.ts` はblob SHA `caf4bb74d722cf1522573e85f2cb4fff3c99830b`、mainは `b4b5992242bb15d27491eeb3be86c56e46e97e7d`。旧ブランチは `rain_ending_notified` を `clearStreak>=3` で解除する直接式、mainは `nextRainEndingNotified` に委譲。**違いは確認済みだがmain側が最新の統合形か、全挙動が同等かはテスト追加確認が必要。**
 - **JMA PNGパレットの根拠資料はmainにも存在。** `docs/PNG_PALETTE_EVIDENCE.md` はmain 22,742文字、古い `codex/verify-jma-png-palette-20260923` 13,941文字で、同一ファイルではない。mainの冒頭は「2026-09-23時点で7色検証、20–30 mm/h未解決」という当時の結論であり、**文書の後続追補や現在の判定コードを読まずに『未解決のまま』とは断定しない**。`lib/weather/providers/jma/pngPalette.ts` はmainと古いブランチでSHAが異なる。PNG原本群のファイル所在は古いブランチに確認済み。mainに原本が存在するかは未確認。
 - 以上は**ファイル単位の照合結果**。全ブランチ全ソース読了、CI実行、本番確認の宣言ではない。
+
+## 2026-10-16 追加ソース照合：地図と全国Worker
+
+- **雨雲レーダーの地図重畳はmainに存在。** `app/page.tsx` のblob SHAがmainと `feat/rain-radar-layer` で完全一致（`5ef6d72018573e6e4410fcf039c02d1d3f128eba`）。Leaflet、JMA `targetTimes_N1.json`、`hrpns` タイルURL、`syncRadarLayer` を実読。**当該ファイルのブランチ成果はmainに回収済み**。本番画面・外部JMAタイルの実表示は未検証。
+- **地図地点ピッカーはmainに後続変更がある。** `feat/visual-map-picker` の `app/page.tsx` blob `ba6f82fc394675ce4047455c11a9091d313bfff1`、mainは `5ef6d72018573e6e4410fcf039c02d1d3f128eba`。一方 `app/layout.tsx` は両方 `4250b5aa9ecaa8ad47bdfcbf51027fb366a7800d` で一致。mainにLeafletと地図表示は存在するが、地点登録操作の完全同等性は別途確認。
+- **全国Workerはmainに存在しない。** `app/api/rain/national-worker/route.ts` はmainで404（ファイル不在）、`feat/national-heavy-rain-preview` には存在（blob `35e8195837cd53c51d7de08566232510a822930c`）。`processNationalRainRefinementJobs` とN03ローダー接続があり、レスポンスは `NATIONAL_RAIN_REFINEMENT_WORKER_PROOF`。**これはmain未回収のproof実装であり、本番機能とは呼ばない。**
