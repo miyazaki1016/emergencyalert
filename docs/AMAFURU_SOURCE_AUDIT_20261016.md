@@ -399,3 +399,9 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - **Draft PR #62** `test: measure real JMA Z4 stride-2 missed rain regions (read-only)` を作成。baseは`feat/national-heavy-rain-preview`、**未merge・merge禁止**。
 - PR作成により `Z4 stride parity read-only proof` GitHub Actions run **38886593317** が起動、取得時点では**queued（結果未取得）**。一般CI run `38886592968` もqueued。
 - この時点では見逃し画素数・強雨域数は**未測定**。後続で実行ログを確認して、取得成功フレームのみから結論を出す。GitHub PR URL: https://github.com/miyazaki1016/emergencyalert/pull/62
+
+## 2026-10-16 Z4 stride実測CI初回障害と再実行
+
+- Draft PR #62初回 run `38886593317` は**failure**。job `116925716827` のログで、JMA検証に入る前の `npm ci` が **package-lock.json不在（EUSAGE）** により失敗したことを確認。**気象庁画像比較が失敗したのではなく未実行**。
+- 検証ブランチのworkflowのみ `npm ci`→`npm install` に修正（commit `5548b96aa64f6b6903dcf32da32af008da771e56`）。本番コード・DB変更なし。
+- 再実行 `Z4 stride parity read-only proof` run `38886827359` を確認。取得時点では**in_progress**、job `116926492144` の `npm install` 実行中。結果はまだない。成功・漏れ有無を先取りしない。
