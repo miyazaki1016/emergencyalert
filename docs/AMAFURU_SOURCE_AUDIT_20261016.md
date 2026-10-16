@@ -346,3 +346,11 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - `scripts/national-forecast-z4-screening-proof.ts`（66行）は実JMA PNGの**全画素**から強雨候補を収集するが、stride2版を併走させず、回収率や偶奇座標を出力しない。
 - `scripts/national-lowzoom-max-rank-proof.ts` はZ4全画素とサンプルZ10を比較し、親子最大階級の検証が目的。stride2実queueとの直接比較はない。
 - **確認したこれら4ファイルには、実JMA Z4画像をstride1とstride2で比較した検証は存在しない。** repository内の全ファイル・過去CI artifactを網羅した検索ではないため「プロジェクト全体に絶対ない」とは断定しない。新しい測定も行っていない。実装・本番変更なし。
+
+## 2026-10-16 CI #80実ログの追加確認（重要な解釈制限）
+
+- GitHub Actions `JMA z4 to z10 screening proof` run **#80**, run id `37259067426`, job `111602219364` をAPIで直接取得。2026-10-05実行、workflow/jobはSUCCESS、証拠artifact `jma-lowzoom-max-rank-evidence` id `11324062021` が存在。
+- **実ログの出力では** `sampling={method:deterministic-even-tile,requested:64}`, `comparedParents=393216`, `detailHeavyPixels=0`, `missedHeavyPixels=0`, `criticalParentMisses=0`, `exactMaxMatches=388401`, `exactMaxMatchRate≈0.9877548`。サンプル対象のz10 detail側には**強雨画素が0**だったので、当該runのzero-missは「強雨が存在するサンプルで検出漏れがない」ことの実証にはならない。成功の価値は取得/対応/判定コードの実行成功として扱う。
+- `comparedParents=393216` は全国Z4親画素の走査数であり、z10側の全393216親画素について詳細検証したという意味ではない。z10は64 detail tilesに限定。
+- 同runのログにstride2やZ4偶奇位置別の比較は見当たらない。別run #292 National rain proofもSUCCESSだが、当該jobログのキーワード検索ではstride/parity比較の出力なし。ログ検索は全履歴の網羅ではない。
+- 2026-09-30の**z4→z8実観測6,078強雨画素を含む実証**と、2026-10-05の**z4→z10 64-tile sample（強雨0）**は別の証拠。混同しない。実装・本番変更なし。
