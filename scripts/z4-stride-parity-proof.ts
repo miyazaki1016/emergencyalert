@@ -73,7 +73,9 @@ async function check(frame:Frame,kind:string) {
       candidateCount:candidates.length,
       z10JobsInMemory:stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).length,
       z10DistinctTiles:new Set(stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).map(j=>j.tileX+":"+j.tileY)).size,
-      z10RepeatedTileJobs:stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).length-new Set(stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).map(j=>j.tileX+":"+j.tileY)).size});
+      z10RepeatedTileJobs:stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).length-new Set(stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).map(j=>j.tileX+":"+j.tileY)).size,
+      z10WindowPixelChecks:stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).reduce((s,j)=>s+(j.scanWindow!.maxX-j.scanWindow!.minX+1)*(j.scanWindow!.maxY-j.scanWindow!.minY+1),0),
+      z10UniqueWindowPixels:(()=>{const seen=new Set<string>();for(const j of stagedRefinementJobsFromCoarseCandidates(candidates,frame,10)){const w=j.scanWindow!;for(let y=w.minY;y<=w.maxY;y++)for(let x=w.minX;x<=w.maxX;x++)seen.add(j.tileX+":"+j.tileY+":"+x+":"+y);}return seen.size;})()});
   }
   return {kind,validtime:frame.validtime,bench,fetchedTiles:fetched,unavailableTiles:skipped,
     compressedBytes:bytes,allHeavyPixels:all,stride2HeavyPixels:sampled,
