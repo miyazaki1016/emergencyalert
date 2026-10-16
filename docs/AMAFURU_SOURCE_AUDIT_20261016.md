@@ -385,3 +385,10 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - GitHub commit-message search（`stride`, `sampling`, `national heavy rain`, `2 pixel`）を追加実施。`stride` / `2 pixel` の一致commitは0。`sampling` で見つかった `79e727de...` は気象庁GRIB2 sample資料の検証で、Z4 stride2の根拠ではない。**commitメッセージ検索だけではPR #59未mergeの履歴を網羅できず、初出commitや設計理由は特定できない**。
 - 当時のNational rain proof workflowは5分timeout、スクリプト側には45秒のZ8 refinement deadlineと60tile上限がある。これは**詳細取得の処理予算の存在**を示すが、Z4 stride2が速度またはメモリ対策として導入された**直接証拠ではない**。
 - 調査結論：stride2が少なくとも2026-09-30 JSTに存在した事実、Z4粗走査に使われた事実は確定。**導入者・初出commit・採用理由は未確定**。根拠なしに「重いから採用した」と断定しない。コード・本番変更なし。
+
+## 2026-10-16 Z4 stride2実データ比較の独立検証を準備
+
+- PR #59作業ブランチを基点に**別ブランチ** `test/z4-stride-parity-20261016` を作り、read-only実験 `scripts/z4-stride-parity-proof.ts` を追加（commit `946db1ee4830b668e2813d4bf30946382b622d3d`）。PR #59本体、本番DB、配信処理は未変更。
+- 同一観測/予報時刻のJMA Z4全国6タイルのPNGを実際に取得する設計。30mm/h以上の**全画素数**、偶数x・偶数yのみで拾う**stride2画素数**、未抽出画素数、**4近傍連結の強雨域のうちstride2で一画素も拾えない域の数**を比較。取得失敗タイルは欠損として明記し、雨なし扱いしない。取得バイト数・経過時間も出力。
+- `npx tsx scripts/z4-stride-parity-proof.ts`、環境変数 `Z4_FRAME_LIMIT` で観測・予報の各フレーム数指定。**この時点で実行結果はまだない**。利用可能な作業環境はJMAホストのDNS解決ができず、GitHub connectorにも任意workflowをdispatchする操作がない。結果や見逃し数を捏造しない。
+- 実験は**Z4上の強雨域**のstride2取りこぼしを測るもので、Z10実降雨との一致や通知のend-to-end到達率を直接証明するものではない。今後実データ実行が必要。
