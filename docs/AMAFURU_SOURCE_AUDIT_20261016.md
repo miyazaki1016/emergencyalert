@@ -370,3 +370,11 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - #101のログ `refinedStrongPixels=2072,2680,...` は**Z4 stride2で選ばれたZ8 tile内の強雨画素数**。Z4全候補の検出率、Z4親子画素最大階級一致、Z10直接精査の成功件数ではない。**この古い実験はZ4 stride2を実際に使っていたが、stride1との比較実験ではなかった**。
 - 現在のPR #59本流はZ4候補から**exact 64×64 window付きZ10 jobへ直接進む**ため、古いZ8「代表中心タイルを全走査」実験の強雨数を現在のZ10詳細検出保証に転用しない。
 - 以上は実ファイルとCIログの突合結果。stride2の初出理由と漏れ率は未確認のまま。コード・Production変更なし。
+
+## 2026-10-16 direct Z10移行後の関連検証を追加確認
+
+- PR #59の古いcommit `3fe209...` から現行ブランチまでの変更ファイル一覧（429 commits）を参照し、Z4/Z10関連の追加スクリプトを抽出。
+- `scripts/national-forecast-refinement-zoom-proof.ts`：予報Z4の**全画素**で>=30mm/h候補を拾い、Z5–Z10の子tile取得可否を検査。説明に「完全なZ4走査」と明記。**stride2の比較や検出率の証明ではない**。
+- `scripts/national-forecast-lowzoom-validation.ts`：予報Z4親とZ8子の階級・強雨見逃しを検査。Z8を全画素走査し、Z4親も座標対応で読み出す。**Z4 stride2とstride1の候補数比較はない**。
+- `scripts/national-rain-live-throughput-proof.ts`：Z4走査で `scanHeavyRainTile(buffer,4,x,y)` のdefault **stride2を実際に使用**。ただし、このスクリプトのrefinement jobsは**zoom 6**（40行）であり、現行queueのdirect Z10をそのまま再現したものではない。詳細側はstride1。性能・スループット証拠をZ10精度の保証と混同しない。
+- これら追加3スクリプトでもZ4 stride1対stride2の実画像検出差・偶奇分布の出力は確認できず。**direct Z10へ移行した際にstride2を再検証した明示的な記録は、今回確認した範囲では未発見**。ただし全履歴・全artifactの網羅確認ではない。実装・本番変更なし。
