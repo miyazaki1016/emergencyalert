@@ -81,14 +81,17 @@ export default function LiveJapanPage() {
     // A smooth, geographically anchored solar shading raster. Canvas is only
     // an intermediate rendering surface; it is never weather information.
     const canvas = document.createElement("canvas");
-    canvas.width = 360; canvas.height = 260;
+    canvas.width = 1024; canvas.height = 512;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const pixels = ctx.createImageData(canvas.width, canvas.height);
     // Extend beyond Japan so the edge of the raster is outside the usual view.
-    const north = 55, south = 18, west = 113, east = 160;
+    // Cover the full Web Mercator world so zooming and theater mode never expose rectangular overlay edges.
+    const north = 85.05112878, south = -85.05112878, west = -180, east = 180;
     for (let y = 0; y < canvas.height; y++) {
-      const lat = north - (y + 0.5) / canvas.height * (north - south);
+      // ImageOverlay uses Web Mercator: sample latitude by inverse Mercator, not linear degrees.
+      const mercatorY = Math.PI * (1 - 2 * (y + 0.5) / canvas.height);
+      const lat = Math.atan(Math.sinh(mercatorY)) * 180 / Math.PI;
       for (let x = 0; x < canvas.width; x++) {
         const lon = west + (x + 0.5) / canvas.width * (east - west);
         const alt = solarAltitude(lat, lon, sun);
@@ -125,7 +128,7 @@ export default function LiveJapanPage() {
       if (!el) return;
       try { if (el.requestFullscreen) { await el.requestFullscreen(); el.dataset.nativeFullscreen = "yes"; } } catch { /* iOS Safari may not support element fullscreen */ }
       setTheater(true);
-      window.setTimeout(() => mapRef.current?.invalidateSize(), 120);
+      window.setTimeout(() => { const map = mapRef.current; if (map) { map.invalidateSize(); map.fitBounds([[24, 123], [46, 146]], { padding: [18, 18], animate: false }); } }, 180);
     } else {
       if (document.fullscreenElement) {
         try { await document.exitFullscreen(); } catch { /* continue to normal mode */ }
@@ -240,7 +243,7 @@ export default function LiveJapanPage() {
         <div className="live-time-options">{scenes.map(s => <button key={s.key} type="button" className={scene === s.key ? "active" : ""} onClick={() => setScene(s.key)}>{s.label}</button>)}</div>
         <p>{scenes.find(s => s.key === scene)?.caption} <span>・現在は画面演出のみ。時間別の実データは未接続です。</span></p>
       </section>
-      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 08</span></footer>
+      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 09</span></footer>
       <style jsx global>{`
         .live-root{position:relative;isolation:isolate;min-height:100vh;color:#e9f5ff;background:#071423;font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;overflow:hidden}
         .live-ambient{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 60% 32% at 80% 12%,#174d6955,transparent),radial-gradient(ellipse 55% 35% at 15% 55%,#123e5655,transparent)}
