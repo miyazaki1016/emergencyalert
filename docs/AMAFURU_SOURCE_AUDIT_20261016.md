@@ -285,3 +285,10 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - 旧z8→z10大量比較は30分timeoutを反復したため、bounded deterministic sample proofへ変更、当時のCI成功記録あり。タイムアウトを現行direct-z10の失敗と混同しない。
 - **残るソース上の照合事項**: `nationalHeavyRain.ts` の `scanHeavyRainTile` はデフォルト `stride=2`。実queueの `scanFrame` はデフォルトで呼ぶ一方、`scripts/national-forecast-z4-screening-proof.ts` の `scan` は全画素走査。親最大階級の検証と**親画素を全件列挙しているか**は別の性質。stride2の採用理由、候補抜けの評価、他proofの走査条件を今後ソースとテストで確認。原因・実被害は未確定。
 - この記録は先の静的リスク記述を補足・訂正するもので、Production変更・実装修正・mergeはなし。
+
+## 2026-10-16 Z4 stride=2 のテスト照合（静的確認）
+
+- PR #59 `nationalHeavyRain.ts`: `scanHeavyRainTile(..., stride=2)` がデフォルト。`national-queue/route.ts` の `scanFrame` はstride指定なしで呼び、Z4画素のx/yを2ずつ進める。最大階級の親子一致というJMA画像の性質とは独立した**サンプリングの問題**。
+- `scripts/national-forecast-z4-screening-proof.ts`: `scan` はx/y全画素を調べ、>=30候補を集計する。実queueのstride2を再現していない。
+- `lib/weather/rain/nationalHeavyRain.test.ts`（139行）は強雨レベル・候補/ポリゴン系テストが中心で、確認した内容にstride2とstride1の検出差を明示する回帰テストなし。`app/api/rain/national-queue/route.test.ts`（189行）は `scanHeavyRainTile` をmock化しており、実PNGのstride挙動を通していない。`nationalRainQueue.test.ts`（146行）は候補からz10 windowへのmappingを検証するが、候補抽出の網羅性を証明しない。
+- **採用理由は未特定**。大量比較の30分timeoutは過去記録にあるが、それをstride2採用の直接原因と断定できるcommitは今回特定できていない。見逃しの実測件数も未測定。次は実装履歴と低zoom proofのstride条件を追う。修正・本番変更なし。
