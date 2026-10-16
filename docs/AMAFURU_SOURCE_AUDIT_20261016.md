@@ -490,3 +490,11 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - `S_NAME`で塩浜を抽出し、`KEY_CODE`の **13108019001（塩浜一丁目）** と **13108019002（塩浜二丁目）** の両ポリゴンを実際に取得。代表座標付近の微小雨域は各丁目に一意に一致、境界付近の微小雨域は**両丁目に一致**することをassertする実装。これは『塩浜一丁目と二丁目が引っかかる』という過去の検証そのもの。表示名の丸め方は別設計。
 - `townBoundaryManifest.ts` / `townBoundaryDatasetValidation.ts` / `townBoundaryGeometry.ts` にデータ出所・ライセンス・市区町村カバレッジ・ファイルbyte数・SHA256・feature数・geometry整合性の**fail-closedオフライン検証ゲート**がある。proofでは塩浜2件だけのFeatureCollectionをメモリで構築し検証、全国整備やStorageへの昇格はしていない。`license: research-only-unverified` と明記され、再配布/本番利用の権利は未確認。
 - **訂正**：前回『町丁目ポリゴンが見つからない』『市区町村しかできていない』という説明は全国豪雨workerの現行接続先に限定すべきだった。既存の町丁目ポリゴン取得・交差proofは実装済み。全国豪雨workerへの接続・全国データの配備は別途確認が必要。
+
+## 2026-10-17 PR・ブランチ横断棚卸し（第一巡）
+
+- GitHub open PR検索で #25（JMA早期雨データCI）、#59（全国強雨proof）、#60（美咲連携契約案）、#61（LIVE JAPAN試作）、#62（Z4 stride実測）の5件を確認。open PRが全ての未統合成果ではない。
+- branch search初回ページで64ブランチ、cursorあり（**全件ではない**）。`feat/national-heavy-rain-preview`, `test/z4-stride-parity-20261016`, `feat/live-japan-experience-prototype`, `feat/severe-rain-alerts`, 各種watch/push/early-rain branches等が存在。未調査ブランチもある。
+- main比較: `feat/national-heavy-rain-preview` ahead 533 / behind 5、128 changed files、diverged。`test/z4-stride-parity-20261016` ahead 546 / behind 5、131 files、diverged。`feat/live-japan-experience-prototype` ahead 31 / behind 1、8 files、diverged。`feat/severe-rain-alerts` ahead 0 / behind 55（mainに包含、差分0）。`docs/amafuru-source-audit-20261016` ahead 51 / behind 0、docs 1 file。
+- ahead/behindは**差分の個数ではなく履歴上のcommit数**。多数のaheadは独立した機能が同数存在する意味ではない。branch内容とCI・deployを別途検証する。
+- 次の監査対象：全branch pagination、各PR diffとbase/head、N03全国分割の最新コミット・CI、町丁目データ取得proof、Preview URLと実deployの区別。未確認を完了扱いしない。
