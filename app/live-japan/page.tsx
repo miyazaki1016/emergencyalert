@@ -4,6 +4,39 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 type Scene = "past" | "now" | "ahead";
+type SkyTime = "live" | "morning" | "noon" | "evening" | "night";
+const skyChoices: { key: SkyTime; label: string; hour?: number }[] = [
+  { key: "live", label: "● 現在" }, { key: "morning", label: "朝", hour: 6 },
+  { key: "noon", label: "昼", hour: 12 }, { key: "evening", label: "夕", hour: 18 },
+  { key: "night", label: "夜", hour: 23 },
+];
+// Astronomical day/night ambience only. No meteorological data is inferred.
+// UTC Julian day -> solar declination and subsolar longitude (approximate).
+function sunPosition(date: Date) {
+  const jd = date.getTime() / 86400000 + 2440587.5;
+  const n = jd - 2451545.0;
+  const meanLong = (280.46 + 0.9856474 * n) * Math.PI / 180;
+  const meanAnomaly = (357.528 + 0.9856003 * n) * Math.PI / 180;
+  const ecliptic = meanLong + (1.915 * Math.sin(meanAnomaly) + 0.020 * Math.sin(2 * meanAnomaly)) * Math.PI / 180;
+  const obliquity = (23.439 - 0.0000004 * n) * Math.PI / 180;
+  const rightAscension = Math.atan2(Math.cos(obliquity) * Math.sin(ecliptic), Math.cos(ecliptic));
+  const declination = Math.asin(Math.sin(obliquity) * Math.sin(ecliptic));
+  const gmst = (280.46061837 + 360.98564736629 * (jd - 2451545)) * Math.PI / 180;
+  const longitude = Math.atan2(Math.sin(rightAscension - gmst), Math.cos(rightAscension - gmst));
+  return { declination, longitude };
+}
+function solarAltitude(lat: number, lon: number, sun: ReturnType<typeof sunPosition>) {
+  const r = Math.PI / 180;
+  return Math.asin(Math.sin(lat * r) * Math.sin(sun.declination) + Math.cos(lat * r) * Math.cos(sun.declination) * Math.cos(lon * r - sun.longitude)) / r;
+}
+function skyDate(mode: SkyTime) {
+  const now = new Date();
+  const hour = skyChoices.find(c => c.key === mode)?.hour;
+  if (hour === undefined) return now;
+  // Preview at the chosen Japan local hour on today's Japan calendar date.
+  const jst = new Date(now.getTime() + 9 * 3600000);
+  return new Date(Date.UTC(jst.getUTCFullYear(), jst.getUTCMonth(), jst.getUTCDate(), hour - 9));
+}
 const scenes: { key: Scene; label: string; caption: string }[] = [
   { key: "past", label: "これまで", caption: "過去の変化をたどる" },
   { key: "now", label: "いま", caption: "日本の今を見つめる" },
@@ -20,6 +53,9 @@ export default function LiveJapanPage() {
   const mapEl = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
+  const skyLayerRef = useRef<any>(null);
+  const skyModeRef = useRef<SkyTime>("live");
+  const [skyMode, setSkyMode] = useState<SkyTime>("live");
   const [scene, setScene] = useState<Scene>("now");
   const [selected, setSelected] = useState<(typeof sample)[number] | null>(null);
   const [mapReady, setMapReady] = useState(false);
@@ -31,6 +67,26 @@ export default function LiveJapanPage() {
     setFocusName(name);
   };
   const goNationwide = () => { setSelected(null); goTo(37.3, 137.5, 5, "日本全国"); };
+  const changeSky = (mode: SkyTime) => { skyModeRef.current = mode; setSkyMode(mode); renderSky(); };
+  const renderSky = () => {
+    const map = mapRef.current;
+    if (!map || !skyLayerRef.current) return;
+    const layer = skyLayerRef.current;
+    layer.clearLayers();
+    const sun = sunPosition(skyDate(skyModeRef.current));
+    // Subtle night and twilight shading, limited to Japan's vicinity.
+    // At most 420 noninteractive rectangles; no invented cloud or city light data.
+    for (let lat = 24; lat < 47; lat += 1.5) {
+      for (let lon = 122; lon < 154; lon += 1.5) {
+        const altitude = solarAltitude(lat + 0.75, lon + 0.75, sun);
+        const opacity = altitude > 2 ? 0 : altitude > -7 ? (2 - altitude) / 9 * 0.19 : altitude > -18 ? 0.19 + (-7 - altitude) / 11 * 0.19 : 0.38;
+        if (opacity < 0.015) continue;
+        // Rectangle edges are intentionally softened through low opacity.
+        const L = (window as any).L;
+        if (L) L.rectangle([[lat, lon], [lat + 1.5, lon + 1.5]], { stroke: false, fillColor: "#020b26", fillOpacity: opacity, interactive: false }).addTo(layer);
+      }
+    }
+  };
   const detailLevel = zoomLevel <= 5 ? "全国の気配" : zoomLevel <= 7 ? "地方・都道府県の気配" : "市区町村周辺の気配";
 
   useEffect(() => {
@@ -39,6 +95,7 @@ export default function LiveJapanPage() {
     (async () => {
       const L = await import("leaflet");
       if (disposed || !mapEl.current) return;
+      (window as any).L = L;
       const map = L.map(mapEl.current, { center: [37.3, 137.5], zoom: 5, minZoom: 4, maxZoom: 9, zoomControl: false, scrollWheelZoom: false });
       mapRef.current = map;
       map.on("zoomend", () => setZoomLevel(map.getZoom()));
@@ -48,6 +105,10 @@ export default function LiveJapanPage() {
         className: "live-map-tiles",
       }).addTo(map);
       L.control.zoom({ position: "bottomright" }).addTo(map);
+      skyLayerRef.current = L.layerGroup().addTo(map);
+      renderSky();
+      const skyTimer = window.setInterval(() => { if (skyModeRef.current === "live") renderSky(); }, 120000);
+      map.on("unload", () => window.clearInterval(skyTimer));
       sample.forEach((point) => {
         const icon = L.divIcon({
           className: "live-pin",
@@ -61,7 +122,7 @@ export default function LiveJapanPage() {
       setMapReady(true);
       setTimeout(() => { if (!disposed) map.invalidateSize(); }, 100);
     })();
-    return () => { disposed = true; mapRef.current?.remove(); mapRef.current = null; markersRef.current = []; };
+    return () => { disposed = true; mapRef.current?.remove(); mapRef.current = null; skyLayerRef.current = null; markersRef.current = []; };
   }, []);
 
   return (
@@ -75,6 +136,11 @@ export default function LiveJapanPage() {
         <span className="live-badge">✦ コンセプト試作 / DEMO</span>
         <h2>日本の今と、<br /><strong>少し先の未来。</strong></h2>
         <p>いつもの景色に、変化の気配が灯る。<br />日本列島を眺めながら、気になる場所を見つけよう。</p>
+      </section>
+      <section className="live-sky-controls" aria-label="昼と夜の表示">
+        <div><span>☀︎ SKY / DAY & NIGHT</span><p>太陽の位置から計算した、日本列島の昼と夜。</p></div>
+        <div className="live-sky-buttons">{skyChoices.map(choice => <button key={choice.key} type="button" className={skyMode === choice.key ? "active" : ""} onClick={() => changeSky(choice.key)}>{choice.label}</button>)}</div>
+        <small>{skyMode === "live" ? "現在の太陽位置（約2分ごとに更新）" : "今日の日本時間での時刻プレビュー"} · 天気情報ではありません</small>
       </section>
       <section className="live-stage" aria-label="日本列島のインタラクティブ地図">
         <div className="live-map" ref={mapEl} />
@@ -111,6 +177,10 @@ export default function LiveJapanPage() {
         .live-intro h2{font-size:clamp(32px,5vw,62px);line-height:1.25;font-weight:500;letter-spacing:.04em;margin:18px 0 10px}
         .live-intro h2 strong{font-weight:800;background:linear-gradient(90deg,#c2f8fa,#a5c9ff);color:transparent;background-clip:text}
         .live-intro p{color:#b4c8d4;font-size:13px;line-height:1.9}
+        .live-sky-controls{max-width:1180px;margin:0 auto 14px;padding:17px 22px;border:1px solid #ffffff2b;border-radius:16px;background:#102b3b;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+        .live-sky-controls>div:first-child span{font-size:11px;font-weight:800;letter-spacing:.15em;color:#a2e8f3}.live-sky-controls p{font-size:12px;color:#bdd2de;margin:5px 0 0}
+        .live-sky-buttons{display:flex;gap:5px;flex-wrap:wrap}.live-sky-buttons button{min-height:39px;padding:7px 13px;border-radius:20px;border:1px solid #557888;background:#0a2131;color:#d7eaf3;cursor:pointer;font-size:12px}
+        .live-sky-buttons button.active{background:#3b8da5;border-color:#9be8f1;color:white}.live-sky-controls>small{width:100%;color:#9db7c5;font-size:10px}
         .live-stage{max-width:1180px;margin:0 auto;position:relative;height:min(58vw,580px);min-height:390px;border:1px solid #3c7386;border-radius:24px;overflow:hidden;background:#102c40;box-shadow:0 22px 85px #0008, inset 0 0 60px #3eb7ff22}
         .live-map{height:100%;width:100%;background:#092235}
         .live-map-tiles{filter:grayscale(1) invert(1) hue-rotate(155deg) saturate(.85) brightness(.65) contrast(1.3)}
@@ -143,7 +213,7 @@ export default function LiveJapanPage() {
         .live-timeline p{font-size:12px;color:#d6e8ef}.live-timeline p span{color:#86a5b5}
         .live-footer{max-width:1180px;margin:auto;padding:30px 32px 45px;display:flex;justify-content:space-between;gap:15px;color:#8ca8b9;font-size:11px}
         .live-root .leaflet-control-attribution{background:#0c2332d9;color:#c8dbe3}.live-root .leaflet-control-attribution a{color:#a8e8fa}
-        @media(max-width:650px){.live-header{padding:24px 18px}.live-intro{padding:0 20px}.live-stage{margin:0 10px;min-height:460px;border-radius:18px}.live-stage-right{display:none}.live-timeline{margin:14px 10px 0;padding:18px}.live-footer{padding:24px 20px;flex-direction:column}.live-demo-label{font-size:10px}.live-intro h2{font-size:36px}.live-journey{margin:14px 10px 0;padding:18px}.live-destinations{grid-template-columns:repeat(2,minmax(0,1fr))}.live-feed{grid-template-columns:1fr}.live-reset{right:12px;top:55px}.live-scale{top:112px}}
+        @media(max-width:650px){.live-header{padding:24px 18px}.live-intro{padding:0 20px}.live-stage{margin:0 10px;min-height:460px;border-radius:18px}.live-stage-right{display:none}.live-timeline{margin:14px 10px 0;padding:18px}.live-footer{padding:24px 20px;flex-direction:column}.live-demo-label{font-size:10px}.live-intro h2{font-size:36px}.live-sky-controls{margin:0 10px 12px;padding:14px}.live-sky-buttons{width:100%}.live-sky-buttons button{flex:1;padding:7px 5px}.live-journey{margin:14px 10px 0;padding:18px}.live-destinations{grid-template-columns:repeat(2,minmax(0,1fr))}.live-feed{grid-template-columns:1fr}.live-reset{right:12px;top:55px}.live-scale{top:112px}}
         @media(prefers-reduced-motion:reduce){.live-pulse{animation:none}}
       `}</style>
     </main>
