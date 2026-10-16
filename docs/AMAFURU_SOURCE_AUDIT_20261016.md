@@ -306,3 +306,9 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - direct-z10移行commit `f147a80cd9863a1321e2617c3fa5fa151e2bb011` の同ファイルも `stride=2` を保持し、`scanWindow` が追加されている。現在のPR #59でも `stride=2` は継続。
 - これで導入時期の上限は絞れたが、9/30以前の初出commit・設計理由は未確定。旧Z8→Z10比較timeout（10/05以前の課題）をstride2導入理由と断定できない。
 - 性能・メモリ・検出漏れについての評価は別途必要。ソース/テスト監査のみ、本番・実装変更なし。
+
+## 2026-10-16 stride初出の境界確認（追加）
+
+- 2026-09-30時点のPR #59 commit `3fe209ffdb91ee09e4caf780c3fe7b5fb2b63ae8` では `lib/weather/rain/nationalHeavyRain.ts` が存在し `stride=2`。このファイルは現行mainにも、2026-09-30 main側commit `6e55b1854c2fc72e7a9b0961b8d97c1fb512c19d` にも存在しない（GitHub Contents API 404）。**PR #59の未merge側にある実装**である。
+- mainと上記PR HEADの比較はPR側104 commits ahead、5 behind。したがってmain側commitを古い実装履歴として遡っても、このファイルの初出を直接追えない。PR branchの初期commit群が調査対象。
+- 初出commitとstride=2の設計理由はまだ未特定。古いソースの存在確認と、理由の確証は分けて記録する。実装/本番変更なし。
