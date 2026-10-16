@@ -9,6 +9,8 @@ import { fetchForecastTargetTimes } from "../lib/weather/providers/jma/targetTim
 import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
 import { classifyRainPixel } from "../lib/weather/providers/jma/classifyPixel";
 import { performance } from "node:perf_hooks";
+import { scanHeavyRainTile } from "../lib/weather/rain/nationalHeavyRain";
+import { stagedRefinementJobsFromCoarseCandidates } from "../lib/weather/rain/nationalRainQueue";
 
 const TILES = [[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;
 const HEAVY = new Set(["30_TO_50","50_TO_80","GTE_80"]);
@@ -18,10 +20,12 @@ type Frame = {basetime:string;validtime:string};
 async function check(frame:Frame,kind:string) {
   const mask = new Map<string,Uint8Array>();
   let fetched=0, skipped=0, bytes=0;
+  const sourceTiles: Array<{x:number;y:number;buffer:Buffer}>=[];
   for(const [tx,ty] of TILES){
     const response=await fetch(buildJmaRainTileUrl(frame,4,tx,ty),{cache:"no-store"});
     if(!response.ok){skipped++;continue;}
     const raw=Buffer.from(await response.arrayBuffer());bytes+=raw.length;
+    sourceTiles.push({x:tx,y:ty,buffer:raw});
     const png=PNG.sync.read(raw);
     if(png.width!==256||png.height!==256)throw Error("Unexpected PNG dimensions");
     const m=new Uint8Array(256*256);
@@ -53,7 +57,23 @@ async function check(frame:Frame,kind:string) {
       if(!touched)entirelyMissed++;
     }
   }
-  return {kind,validtime:frame.validtime,fetchedTiles:fetched,unavailableTiles:skipped,
+  const bench=[];
+  for(const stride of [2,1]){
+    const timings:number[]=[];let candidates=[] as ReturnType<typeof scanHeavyRainTile>;
+    const memBefore=process.memoryUsage();
+    for(let rep=0;rep<8;rep++){
+      const start=performance.now();
+      candidates=sourceTiles.flatMap(t=>scanHeavyRainTile(t.buffer,4,t.x,t.y,stride));
+      timings.push(performance.now()-start);
+    }
+    const memAfter=process.memoryUsage();
+    bench.push({stride,meanScanMs:timings.reduce((a,v)=>a+v,0)/timings.length,
+      minScanMs:Math.min(...timings),maxScanMs:Math.max(...timings),
+      rssDeltaBytes:memAfter.rss-memBefore.rss,heapDeltaBytes:memAfter.heapUsed-memBefore.heapUsed,
+      candidateCount:candidates.length,
+      z10JobsInMemory:stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).length});
+  }
+  return {kind,validtime:frame.validtime,bench,fetchedTiles:fetched,unavailableTiles:skipped,
     compressedBytes:bytes,allHeavyPixels:all,stride2HeavyPixels:sampled,
     omittedHeavyPixels:missed,omittedFraction:all?missed/all:null,
     fourConnectedHeavyRegions:components,regionsWithNoStride2Pixel:entirelyMissed,
