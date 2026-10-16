@@ -318,3 +318,10 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - `3fe209ffdb91ee09e4caf780c3fe7b5fb2b63ae8` のGitHub commit metadataは `2026-09-29T17:56:04Z`（JST **2026-09-30 02:56**）、message `Test rain boundary edge cases`。差分は `nationalHeavyRain.test.ts` のポリゴン境界テスト追加のみ。**stride=2の導入commitではない**が、この時点の `nationalHeavyRain.ts` にすでにstride=2がある。
 - `f147a80cd9863a1321e2617c3fa5fa151e2bb011` は2026-10-05のqueue mapping変更で、変更ファイルは `nationalRainQueue.ts`。こちらもstride導入commitではない。
 - Connectorのcommit検索はPR #59側の古いcommitメッセージを十分に拾えておらず、比較APIも初期104 commitのSHA一覧を返さないため、**最初にstride=2を書いたcommitをまだ断定できない**。次はPR側のコミット一覧またはfile blame取得が必要。設計理由の推測で結論を埋めない。
+
+## 2026-10-16 PR履歴取得制約とZ4→Z10候補の伝播確認
+
+- GitHub connectorでPR branch全コミットのfile history/blame一覧を取得する専用actionは見つからず、`search_commits` はbranchの初期コミットを十分に返さない。作業コンテナからGitHubへ直接gitアクセスもDNS解決失敗。**stride初出commit・理由の確証は引き続き保留**。証拠のない性能最適化説は採用しない。
+- 一方、`lib/weather/rain/nationalRainQueue.ts` 36–100行を直接確認。`childTilesForCandidate` は**渡された各Z4候補画素だけ**についてz10の正確な64×64画素windowを生成し、`stagedRefinementJobsFromCoarseCandidates` は候補ごとにwindow付きjobを作る。周辺の未候補Z4画素まで自動拡張する仕組みではない。
+- したがって `scanFrame` がstride2で読み飛ばしたZ4画素について、**その画素自身を親とするz10 jobはこの経路からは生成されない**ことはコードから確定。ただし当該画素が実際に30mm/h以上か、他の通知経路で検出されるか、実運用の漏れがあるかは未検証。Z4画像の2×2画素複製などの性質も未確認。
+- この発見はソース経路の監査結果であり、修正や本番反映の承認ではない。
