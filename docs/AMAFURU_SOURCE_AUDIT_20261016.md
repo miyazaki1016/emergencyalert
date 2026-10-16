@@ -299,3 +299,10 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - 既知commit `f147a80cd9863a1321e2617c3fa5fa151e2bb011` は `nationalRainQueue.ts` のdirect-z10/window改修であり、stride=2の導入根拠ではない。
 - `nationalHeavyRain.ts` のデフォルト2とqueue呼び出し側の引数省略はソース上で確定。`nationalHeavyRain.test.ts` は候補/形状系、`national-queue/route.test.ts` はscanをmock化、`nationalRainQueue.test.ts` は座標変換を確認。**現時点ではstride2の正当化・実測見逃し率は証拠なし**。過去のtimeoutと結びつけない。
 - 引き続き事実の棚卸しのみ。Production・実装変更なし。
+
+## 2026-10-16 stride=2 の履歴：古い実ファイルを直接照合
+
+- PR #59 の2026-09-30時点HEAD `3fe209ffdb91ee09e4caf780c3fe7b5fb2b63ae8` にある `lib/weather/rain/nationalHeavyRain.ts` を実際に取得。すでに関数宣言が `scanHeavyRainTile(buffer, zoom, tileX, tileY, stride = 2)` であり、x/yとも `+=stride`。**stride2は少なくとも2026-09-30時点で存在**し、10/05 direct-z10変更時の新規導入ではない。
+- direct-z10移行commit `f147a80cd9863a1321e2617c3fa5fa151e2bb011` の同ファイルも `stride=2` を保持し、`scanWindow` が追加されている。現在のPR #59でも `stride=2` は継続。
+- これで導入時期の上限は絞れたが、9/30以前の初出commit・設計理由は未確定。旧Z8→Z10比較timeout（10/05以前の課題）をstride2導入理由と断定できない。
+- 性能・メモリ・検出漏れについての評価は別途必要。ソース/テスト監査のみ、本番・実装変更なし。
