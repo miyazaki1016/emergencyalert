@@ -508,3 +508,29 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - #62 open / Draft / unmerged / 3 changed files (updated 2026-10-16 UTC)
 - PR #59は128ファイルの**累積差分**であり、PR #62の変更ファイルは3件。先のbranch-vs-main 131件と混同しない。
 - branch searchの続きにcursor `NjQ`を渡すと0件/終了を返した。初回64件が全branchかはこのAPIのpagination挙動を踏まえ**暫定**とし、完全性の主張はしない。
+
+## 2026-10-17 全件仕分け基準とPR一次インベントリ
+
+用途と到達段階を**別軸**で分類する。用途: 現行機能／旧版・後継に包含／開発途中／検証専用／文書・構想。段階: branchのみ／PR open／main merged／Preview検証／Production deployment検証／Production挙動検証。**merged ≠ Production**。本番デプロイSHAと実挙動の証跡がなければ「本番未確認」。
+
+PR検索で #1〜#62 の62件（番号欠落なし）を発見。openは #25,#59,#60,#61,#62 の5件。残る57件を一括mergedと断定せず個別照合する。
+
+| PR | 実体確認 | 暫定用途 | 段階・未確認 |
+|---|---|---|---|
+| #1 JMA PNG帯域 | merged 9/23 | 検証＋修正 | main統合、本番未確認 |
+| #2 PWA | merged 9/23 | 現行候補 | main統合、本番未確認 |
+| #8 Web Push | merged 9/24 | 現行候補 | main統合、本番通知未確認 |
+| #16 watch-rain source | merged 9/24 | 運用整備 | main統合、本番cron未確認 |
+| #20 early-rain provider | merged 9/24 | 初期版候補 | main統合、後継照合待ち |
+| #23 early-rain prototype API | merged 9/24 | prototype | main統合、本番利用未確認 |
+| #25 live JMA early-rain CI | open | 検証専用 | CI確認待ち |
+| #38 severe-rain alert | merged 9/27 | 現行候補 | main統合、全国#59とは別 |
+| #51 overview | merged 9/28 | 文書 | main統合 |
+| #56 radar map overlay | merged 9/28 | 現行候補 | main統合、本番未確認 |
+| #58 rain-ending dedupe | merged 9/28 | 現行候補 | main統合、本番未確認 |
+| #59 nationwide rain | open, 128 files | 開発途中＋検証 | 本番未承認 |
+| #60 Misaki contract | open Draft, 2 files | 文書・構想 | 実装未完 |
+| #61 LIVE JAPAN | open Draft, 8 files | 試作 | 本番未確認 |
+| #62 Z4 stride parity | open Draft, 3 files | 検証専用 | 本番ではない |
+
+次: 全62 PRの個別merged/closed-unmerged状態→全branchのmain比較→旧版・後継の対応→CI/Preview/Vercel Production/Supabase本番の独立照合。これを終えるまで全件仕分け完了とは言わない。
