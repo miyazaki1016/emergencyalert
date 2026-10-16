@@ -291,7 +291,7 @@ export default function LiveJapanPage() {
         <div className="live-time-options">{scenes.map(s => <button key={s.key} type="button" className={scene === s.key ? "active" : ""} onClick={() => setScene(s.key)}>{s.label}</button>)}</div>
         <p>{scenes.find(s => s.key === scene)?.caption} <span>・現在は画面演出のみ。時間別の実データは未接続です。</span></p>
       </section>
-      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 15</span></footer>
+      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 16</span></footer>
       <style jsx global>{`
         .live-root{position:relative;isolation:isolate;min-height:100vh;color:#e9f5ff;background:#071423;font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;overflow:hidden}
         .live-ambient{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 60% 32% at 80% 12%,#174d6955,transparent),radial-gradient(ellipse 55% 35% at 15% 55%,#123e5655,transparent)}
@@ -315,7 +315,7 @@ export default function LiveJapanPage() {
         .live-solar-overlay{pointer-events:none!important;image-rendering:auto}
 .live-map-menu{position:absolute;z-index:570;right:14px;top:62px;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
         .live-map-menu-trigger{border:1px solid #8fd0be;border-radius:22px;background:#092b3bea;color:#e8fff7;font-size:12px;padding:10px 15px;cursor:pointer}
-        .live-map-menu-panel{display:flex;flex-direction:column;gap:9px;width:min(250px,calc(100vw - 65px));border:1px solid #6baab7;border-radius:17px;padding:13px;background:#092735f5;color:#e8fff7;box-shadow:0 12px 35px #001a2d99}
+        .live-map-menu-panel{display:flex;flex-direction:column;gap:9px;width:min(250px,calc(100vw - 65px));max-height:min(420px,calc(100dvh - 170px));overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border:1px solid #6baab7;border-radius:17px;padding:13px;background:#092735f5;color:#e8fff7;box-shadow:0 12px 35px #001a2d99}
         .live-map-menu-panel strong{font-size:13px}
         .live-map-menu-panel button{border:1px solid #558896;border-radius:12px;background:#163d50;color:#e8fff7;text-align:left;padding:10px;font-size:12px}
         .live-map-menu-panel button[aria-pressed="true"]{border-color:#a0e3d0;background:#215f68}
