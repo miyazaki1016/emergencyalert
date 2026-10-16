@@ -1,0 +1,29 @@
+name: Z4 stride parity read-only proof
+
+on:
+  pull_request:
+    paths:
+      - "scripts/z4-stride-parity-proof.ts"
+      - "scripts/z4-stride-performance-proof.ts"
+      - ".github/workflows/z4-stride-parity-proof.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install
+      - name: Compare real JMA z4 stride 1 vs stride 2
+        env:
+          Z4_FRAME_LIMIT: "3"
+        run: npx tsx scripts/z4-stride-parity-proof.ts
+      - name: Benchmark full Z4 scan vs stride 2 time and memory
+        run: npx tsx scripts/z4-stride-performance-proof.ts
