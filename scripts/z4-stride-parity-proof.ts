@@ -107,7 +107,35 @@ async function check(frame:Frame,kind:string) {
       oneDecodeMeanMs:oneDecodeMs.reduce((a,v)=>a+v,0)/rounds,
       twoCandidates,oneCandidates,identical});
   }
-  return {kind,validtime:frame.validtime,bench,decodeParity,fetchedTiles:fetched,unavailableTiles:skipped,
+
+  // Stage-realistic read-only samples: derive Z6 jobs from full-resolution
+  // Z4 candidates, then fetch actual Z6 PNGs (capped to avoid load on JMA).
+  const z6Sample=[];
+  const z4Candidates=sourceTiles.flatMap(t=>scanHeavyRainTile(t.buffer,4,t.x,t.y,1));
+  const z6Jobs=stagedRefinementJobsFromCoarseCandidates(z4Candidates,frame,6,4);
+  const sampleLimit=Math.max(0,Math.min(6,Number(process.env.Z6_SAMPLE_LIMIT??"3")));
+  for(const job of z6Jobs.slice(0,sampleLimit)){
+    const response=await fetch(buildJmaRainTileUrl(frame,6,job.tileX,job.tileY),{cache:"no-store"});
+    if(!response.ok){z6Sample.push({tileX:job.tileX,tileY:job.tileY,httpStatus:response.status});continue;}
+    const buffer=Buffer.from(await response.arrayBuffer());
+    const window=job.scanWindow!;
+    const results=[];
+    for(const doubleDecode of [true,false]){
+      const timings:number[]=[];let keys:string[]=[];
+      for(let rep=0;rep<8;rep++){
+        const started=performance.now();
+        if(doubleDecode)PNG.sync.read(buffer);
+        const candidates=scanHeavyRainTile(buffer,6,job.tileX,job.tileY,1,window);
+        timings.push(performance.now()-started);
+        keys=candidates.map(c=>[c.pixelX,c.pixelY,c.intensityClass].join(":")).sort();
+      }
+      results.push({doubleDecode,meanMs:timings.reduce((a,v)=>a+v,0)/timings.length,keys});
+    }
+    z6Sample.push({tileX:job.tileX,tileY:job.tileY,window,
+      twoDecodeMeanMs:results[0].meanMs,oneDecodeMeanMs:results[1].meanMs,
+      detected:results[0].keys.length,identical:JSON.stringify(results[0].keys)===JSON.stringify(results[1].keys)});
+  }
+  return {kind,validtime:frame.validtime,bench,decodeParity,z6Sample,z6TotalJobs:z6Jobs.length,fetchedTiles:fetched,unavailableTiles:skipped,
     compressedBytes:bytes,allHeavyPixels:all,stride2HeavyPixels:sampled,
     omittedHeavyPixels:missed,omittedFraction:all?missed/all:null,
     fourConnectedHeavyRegions:components,regionsWithNoStride2Pixel:entirelyMissed,
