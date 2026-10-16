@@ -606,3 +606,18 @@ The map is not a simultaneous layer dump. Apply display priority **per geographi
 Day/night presentation is derived from the sun's geographic position; near the terminator, transition calmly rather than abruptly. User-controlled exploration and accessible access to less-prominent layers may coexist with this default prioritization, but no design control may conceal critical warnings. Missing weather data is UNKNOWN, not permission to assert a place is calm or clear. No fake live seasonal/sky/weather markers in production.
 
 **Implementation status:** this is an approved UX/product policy, **not** a claim that real weather-driven icon switching is already wired up. Current LIVE JAPAN preview uses calculated solar ambience and optional explicitly labeled fictional demo markers. Integrate verified data and the priority engine in stages, without disrupting MY アメふる.
+
+
+### Emergency alert cancellation and correction lifecycle — field observation 2026-10-16
+
+**Observed example (user-supplied screenshot, not independently verified against JMA archive):** On 2026-10-16, the user's phone received an emergency earthquake warning initially associated in conversation with the Kuril Islands. At approximately 12:49 JST, the phone displayed a notification from 気象庁 stating **「緊急地震速報（取消） 先程（１２：４０）の緊急地震速報を取消します。（気象庁）」**. NHK had reportedly not yet received seismic-intensity information. The actual cause of cancellation, quake parameters, and any separate tsunami notices were **not confirmed**; do not infer a false alarm mechanism or general safety from this one screenshot.
+
+**Product requirement:** LIVE JAPAN must model disaster notices as an **event lifecycle**, not fire-and-forget map pins:
+- Received / announced → updated or corrected → cancelled or expired / ended, with original notice identifier, issue time, revision timestamps, issuer, affected area, source link, and status history.
+- A cancellation must **immediately stop presenting that particular alert as active**, while temporarily retaining an unambiguous explanatory notice such as **「12:40の緊急地震速報は気象庁により取り消されました」** with source/time; do not merely make the marker vanish without explanation.
+- Handle out-of-order or repeated messages idempotently, and preserve source provenance and auditability. Cancellation is not the same as "the area is safe."
+- **Independent alerts remain independent:** cancellation of one earthquake early warning must not automatically clear observed earthquakes, tsunami advisories/warnings, or other active hazards.
+- Treat stale, missing, delayed, or uncertain source data explicitly as unknown. Never display demo alerts as real alerts.
+- Design and test fixtures for announce → revision → cancel, announce → expire, multiple concurrent alerts, out-of-order cancellation, and source outages **before** enabling real emergency notifications.
+
+**Implementation status:** requirement recorded only; LIVE JAPAN preview does not yet ingest real earthquake alerts or cancellation messages. Do not imply the observed cancellation is currently handled by the application.
