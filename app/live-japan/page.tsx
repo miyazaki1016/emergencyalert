@@ -94,12 +94,19 @@ export default function LiveJapanPage() {
         const alt = solarAltitude(lat, lon, sun);
         // Full night ~70% navy tint; golden twilight at the terminator.
         const night = Math.max(0, Math.min(1, (2 - alt) / 18));
+        // Separate warm sunset and cooler sunrise: the local solar altitude
+        // locates the twilight band; solar hour angle determines morning/evening.
         const twilight = Math.max(0, 1 - Math.abs(alt + 1.5) / 12);
+        const hourAngle = Math.sin((lon * Math.PI / 180) - sun.longitude);
+        const sunset = Math.max(0, Math.min(1, (hourAngle + 0.04) / 0.16));
+        const glow = Math.pow(twilight, 1.7);
+        const duskGlow = glow * sunset;
+        const dawnGlow = glow * (1 - sunset);
         const i = (y * canvas.width + x) * 4;
-        pixels.data[i] = Math.round(9 + twilight * 150);
-        pixels.data[i + 1] = Math.round(24 + twilight * 65);
-        pixels.data[i + 2] = Math.round(57 + twilight * 2);
-        pixels.data[i + 3] = Math.round(night * 164 + twilight * (1 - night) * 94);
+        pixels.data[i] = Math.round(9 + duskGlow * 205 + dawnGlow * 95);
+        pixels.data[i + 1] = Math.round(24 + duskGlow * 93 + dawnGlow * 68);
+        pixels.data[i + 2] = Math.round(57 + duskGlow * 14 + dawnGlow * 74);
+        pixels.data[i + 3] = Math.round(night * 164 + glow * (1 - night) * 125);
       }
     }
     ctx.putImageData(pixels, 0, 0);
@@ -233,7 +240,7 @@ export default function LiveJapanPage() {
         <div className="live-time-options">{scenes.map(s => <button key={s.key} type="button" className={scene === s.key ? "active" : ""} onClick={() => setScene(s.key)}>{s.label}</button>)}</div>
         <p>{scenes.find(s => s.key === scene)?.caption} <span>・現在は画面演出のみ。時間別の実データは未接続です。</span></p>
       </section>
-      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 07</span></footer>
+      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 08</span></footer>
       <style jsx global>{`
         .live-root{position:relative;isolation:isolate;min-height:100vh;color:#e9f5ff;background:#071423;font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;overflow:hidden}
         .live-ambient{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 60% 32% at 80% 12%,#174d6955,transparent),radial-gradient(ellipse 55% 35% at 15% 55%,#123e5655,transparent)}
