@@ -57,6 +57,7 @@ export default function LiveJapanPage() {
   const skyLayerRef = useRef<any>(null);
   const priorityMarkersRef = useRef<any[]>([]);
   const [priorityDemo, setPriorityDemo] = useState(false);
+  const [mapMenuOpen, setMapMenuOpen] = useState(false);
   const priorityDemoRef = useRef(false);
   const [showSamples, setShowSamples] = useState(false);
   const [theater, setTheater] = useState(false);
@@ -257,8 +258,15 @@ export default function LiveJapanPage() {
       <section ref={theaterRef} className={theater ? "live-stage live-theater" : "live-stage"} aria-label="日本列島のインタラクティブ地図">
         <div className="live-map" ref={mapEl} />
         <button type="button" className="live-theater-toggle" onClick={toggleTheater} aria-pressed={theater}>{theater ? "✕ 通常表示へ" : "⛶ シアターモード"}</button>
-        <button type="button" className="live-priority-toggle" onClick={togglePriorityDemo} aria-pressed={priorityDemo}>{priorityDemo ? "🧪 優先表示デモを終了" : "🧪 優先表示デモ"}</button>
-        <button type="button" className="live-sample-toggle" onClick={toggleSamples} aria-pressed={showSamples}>{showSamples ? "✦ サンプルを隠す" : "✦ サンプルを表示"}</button>
+        {!theater && <div className="live-map-menu">
+          <button type="button" className="live-map-menu-trigger" aria-expanded={mapMenuOpen} aria-controls="live-map-menu-panel" onClick={() => setMapMenuOpen(open => !open)}>☷ 表示設定 {priorityDemo || showSamples ? "●" : ""}</button>
+          {mapMenuOpen && <div id="live-map-menu-panel" className="live-map-menu-panel">
+            <strong>地図の表示</strong>
+            <button type="button" onClick={togglePriorityDemo} aria-pressed={priorityDemo}>🧪 優先表示デモ {priorityDemo ? "ON" : "OFF"}</button>
+            <button type="button" onClick={toggleSamples} aria-pressed={showSamples}>✦ 従来のサンプル {showSamples ? "ON" : "OFF"}</button>
+            <small>デモはすべて架空の情報です。実際の気象・災害情報は未接続。</small>
+          </div>}
+        </div>}
         <div className="live-stage-top"><span className="live-live-dot" /> JAPAN / EXPLORE <span className="live-stage-right">地図を動かして探索</span></div>
         <button type="button" className="live-reset" onClick={goNationwide} disabled={!mapReady}>🌏 全国へ戻る</button>
         <div className="live-scale" aria-live="polite">{focusName} · {detailLevel} <span>ZOOM {zoomLevel}</span></div>
@@ -278,7 +286,7 @@ export default function LiveJapanPage() {
         <div className="live-time-options">{scenes.map(s => <button key={s.key} type="button" className={scene === s.key ? "active" : ""} onClick={() => setScene(s.key)}>{s.label}</button>)}</div>
         <p>{scenes.find(s => s.key === scene)?.caption} <span>・現在は画面演出のみ。時間別の実データは未接続です。</span></p>
       </section>
-      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 12</span></footer>
+      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 13</span></footer>
       <style jsx global>{`
         .live-root{position:relative;isolation:isolate;min-height:100vh;color:#e9f5ff;background:#071423;font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;overflow:hidden}
         .live-ambient{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 60% 32% at 80% 12%,#174d6955,transparent),radial-gradient(ellipse 55% 35% at 15% 55%,#123e5655,transparent)}
@@ -300,9 +308,15 @@ export default function LiveJapanPage() {
         .live-map{height:100%;width:100%;background:#092235}
         .live-map-tiles{filter:saturate(1.05) contrast(1.04);transition:filter 1.2s ease}
         .live-solar-overlay{pointer-events:none!important;image-rendering:auto}
-        .live-priority-toggle{position:absolute;z-index:570;right:14px;top:62px;border:1px solid #8fd0be;border-radius:22px;background:#092b3bea;color:#e8fff7;font-size:11px;padding:9px 12px;cursor:pointer}
+.live-map-menu{position:absolute;z-index:570;right:14px;top:62px;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+        .live-map-menu-trigger{border:1px solid #8fd0be;border-radius:22px;background:#092b3bea;color:#e8fff7;font-size:12px;padding:10px 15px;cursor:pointer}
+        .live-map-menu-panel{display:flex;flex-direction:column;gap:9px;width:min(250px,calc(100vw - 65px));border:1px solid #6baab7;border-radius:17px;padding:13px;background:#092735f5;color:#e8fff7;box-shadow:0 12px 35px #001a2d99}
+        .live-map-menu-panel strong{font-size:13px}
+        .live-map-menu-panel button{border:1px solid #558896;border-radius:12px;background:#163d50;color:#e8fff7;text-align:left;padding:10px;font-size:12px}
+        .live-map-menu-panel button[aria-pressed="true"]{border-color:#a0e3d0;background:#215f68}
+        .live-map-menu-panel small{font-size:10px;line-height:1.5;color:#b5d3d9}
         .live-priority-badge{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#0a2837e8;border:2px solid #d7f5f0;box-shadow:0 0 15px #41b9e788;font-size:21px}
-        .live-theater .live-priority-toggle{display:none}
+        .live-theater .live-map-menu{display:none}
         .live-theater-toggle{position:absolute;z-index:570;right:14px;top:14px;border:1px solid #91d7df;border-radius:24px;background:#092b3bea;color:#e1faff;font-size:12px;font-weight:700;padding:11px 15px;cursor:pointer}
         .live-theater{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-width:none!important;min-height:0!important;margin:0!important;border:0!important;border-radius:0!important;z-index:9999!important}
         .live-theater:fullscreen{position:relative!important;width:100%!important;height:100%!important}
