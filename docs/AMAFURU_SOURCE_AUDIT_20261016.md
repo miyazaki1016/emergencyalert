@@ -249,3 +249,12 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - 前回の `national-preview` proof APIが失敗時に空扱いするのに対し、**queue APIは欠測フレームを未完了扱い**に改善されている。API別に品質扱いが異なるため、同一仕様と決めつけない。
 
 **残る調査:** ブランチ上のqueue/workerテストの網羅範囲、readiness proofの証拠と未達条件、LIVE・JAPAN UI接続、全国の未来表示時刻と地震等の表示契約。今回は実行・本番変更・mergeなし。
+
+## 2026-10-16 全国大雨検知の現在地（追加確認）
+
+- PR #59の `nationalRainWorker.ts` は、強雨候補をズーム6→8→10に細分化し、ズーム10で雨域ポリゴンを作成する。`nationalRainMunicipalities.ts` はそのポリゴンと行政区域の交差から **都道府県・市区町村・行政コード**を返す。全国の町丁目確定ではない。
+- `nationalRainQueue.ts` は時刻・タイル・画素窓を単位としてジョブを登録し、claim時のlease tokenを完了・延期RPCへ渡す。`national-worker/route.ts` は認証付きの**proof worker**で、レスポンスに通知や登録地点pushを行わないことを明記する。
+- 本番DBには全国専用のテーブル・RPC・cronがない（同日のSELECT照合）。従って『検出→詳細化→市区町村候補の算出』は**ブランチ上の実装・検証段階**であり、全国本番サービス完成ではない。
+- 過去のCI記録: 2026-10-15 CI #795は全工程成功と総覧に記録。その後のCI run 38688011787はテスト46ファイル238件成功だがJMA外部503で全体失敗。今回CIの現行最終状態を再照会していないので、最新HEADの全工程成功とは断定しない。
+- 既存readiness proofの負荷モデルは軽負荷で完走する一方、1536ジョブ/5分条件で滞留を示す。実Supabase Storage/DB通信、Vercelの実メモリ・deadline、全国負荷の持続消化は未検証。**Production readiness NO**。
+- LIVE・JAPANは新規試作。全国大雨結果との連携は現段階で実装済みと扱わない。ユーザー要望に従い今は連携設計や実装へ進まず、全国検知の実装到達点を優先して棚卸しする。
