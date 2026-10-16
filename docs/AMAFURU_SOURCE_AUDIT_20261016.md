@@ -128,3 +128,20 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 **既存テストのカバー範囲:** mainの `lib/weather/rain/watchNotificationDecision.test.ts` には「終了通知後の乾燥中は抑制を保持」「連続3回の降雨で再武装」「終了通知が届いたら抑制セット」の3件がある。**テストコード存在の確認のみ、実行は未実施。** 本番v29の旧式とのA/B自動比較は今後の検証候補。
 
 **運用上の優先度:** 誤った終了通知・新しい雨エピソードでの再通知の有無をユーザー実機で確認する際も、現在到達しているPushを保護。いきなりmainを本番デプロイしない。
+
+## 2026-10-16 既存通知テストの棚卸しと不足ケース
+
+`package.json` の `npm test` は `vitest run`。main `lib/weather/rain/watchNotificationDecision.test.ts` を全件実読（**実行は未実施**）。
+
+**存在するテスト:** `shouldNotifyForRain` 11ケース（actionable遷移、未送信再試行、送信済み重複防止、地点通知OFF、INFO、エピソード更新、UNKNOWNを挟むケースなど）、`nextLastNotifiedAt` 3ケース、`nextRainEndingNotified` 3ケース。合計**17個の `it`**。
+
+**現状の不足（このファイルのテストに存在しない）:**
+1. `index.ts` の `rainEnding` 判定で `confirmed_weather=UNKNOWN/DRY/RAINING` の各組み合わせを比較する統合テスト。
+2. `rainConfirmed && RAIN_ENDING` が同時成立したとき、通知判断・本文・イベント種別が整合するかのテスト。
+3. 本番v29とmainを同一入力にかける**差分回帰テスト**。特に終了通知後の乾燥3回→再降雨3回→終了という複数サイクル。
+4. `push_subscriptions` 0件・送信失敗・部分成功・404/410削除・`notification_deliveries` 記録失敗などのDB/Push連携テスト。
+5. cronの二重起動・途中失敗・100件上限・地点追加削除・外部雨API失敗時の状態維持を含む運用テスト。
+
+**注意:** これは**当該テストファイル**にないケースの指摘。リポジトリの別ファイルに存在する可能性は全テスト横断調査で確認する。現行本番でユーザーが実機Push到達を確認している事実は維持し、既存通知の挙動を壊さないようにする。
+
+**推奨順:** (A) 読み取り専用の本番ログ確認、(B) 既存テスト横断探索、(C) 本番v29を基準にしたオフラインの差分テスト追加、(D) 実行結果レビュー、(E) 別途承認後に限り本番更新を検討。
