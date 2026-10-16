@@ -556,3 +556,36 @@ from Push work, require CI to pass before merge, and verify the resulting
 Production deployment afterward.
 
 > targetTimes の値を読んでいるだけでは足りない。URLまで同じフレーム情報を運ぶ。
+
+
+## LIVE JAPAN — everyday sky, seasonal discovery, and safety (decision 2026-10-16)
+
+**North star:** 「暮らしを、少し先回りする。」
+**Additional experience principle:** 「危険を知らせるだけでなく、自然を楽しむきっかけも届ける。」
+LIVE JAPAN should be worth opening on ordinary peaceful days, not only during emergencies.
+The visual north star is **a beautiful, quiet, living Japanese archipelago**, not a crowded warning dashboard.
+
+### Product boundaries
+
+- **LIVE JAPAN (national front door):** Show noteworthy changes across Japan. Only hazards meeting **phenomenon-specific, evidence-backed display thresholds** receive prominent danger markers. The ongoing >=30 mm/h heavy-rain detection is one candidate layer, not the whole product. Other future layers may include official severe weather, earthquakes, tsunami, volcanic alerts, heat and snow. Define thresholds, recency and authority per phenomenon; do not invent one universal risk scale.
+- **MY アメふる (personal view):** Focus on the user's registered places and changes that matter to those places, including earlier/lower-threshold lifestyle signals and quiet proactive notices. Reuse the same verified facts/event pipeline where possible; do not rebuild the meteorology for each UI.
+- **Priority:** Verified urgent hazards always take precedence over decorative/seasonal/astronomical information. A missing feed is UNKNOWN, never proof of safety.
+
+### The ordinary-day experience — calm, not empty
+
+1. **Day/night transition is a core map behavior.** Let the map subtly change with the actual solar day/night boundary; optional city-light ambience at night. Use astronomical calculation rather than fictional current weather. Keep overlays restrained and ensure map legibility and hazard contrast.
+2. **Seasonal signs are sparse, meaningful discoveries:** cherry blossoms, autumn leaves, first snow and similar changes. Prefer a small curated set (roughly 1–3, not dozens) of grounded items. Clearly distinguish observed, announced, predicted, or unknown.
+3. **A small 'today in Japan' sentence** can make a quiet day feel alive, but only if it can be supported by available data. Never manufacture current events.
+4. **Astronomy is a light supporting layer, not a pivot into a dedicated astronomy app.** Moon phase/full moon, prominent meteor showers or widely notable sky events may appear as subtle occasional notes. A future optional starry-sky discovery can connect cloud forecast and night viewing conditions, but deep telescope tools and a full astronomy mode are out of scope for the core experience.
+5. **Visual restraint:** No constant swarm of icons, aggressive pulsing or competing overlays. Calm by default, meaningful highlight when appropriate, and stronger emphasis only for verified hazards. Prefer one or a few discoveries over an exhaustive event catalog.
+
+### Map exploration and integrity
+
+- Smooth tap-to-zoom on grounded events, discovery feed → region, saved-place → MY view, and an always-available return-to-Japan control.
+- Geographic zoom must never imply finer meteorological resolution than the underlying source provides.
+- The existing LIVE JAPAN 01/02 prototype uses **explicitly labeled sample lights and sample feed**, not live hazards, seasonal facts or astronomical forecasts.
+- Planned implementation order: **(1) real day/night ambience; (2) sparse, source-backed everyday discoveries; (3) verified multi-hazard national layers; (4) optional light sky-event notes**. Each item requires appropriate data/source validation before real-time claims.
+- Keep the experimental LIVE JAPAN branch/PR separate from production until review and explicit approval. Preserve the existing MY アメふる production behavior.
+
+> 「昼は季節を感じ、夜は空を見上げたくなる。危険なときは、必要な情報が最優先。」
+> 「何もない日こそ、また開きたくなる。」
