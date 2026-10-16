@@ -163,7 +163,33 @@ async function check(frame:Frame,kind:string) {
     z6Sample.push({tileX:job.tileX,tileY:job.tileY,totalWindowsForTile:jobs.length,windows,allWindowParity});
   }
   const z6DistinctTiles=groups.size;
-  return {kind,validtime:frame.validtime,bench,decodeParity,z6Sample,z6TotalJobs:z6Jobs.length,z6DistinctTiles,fetchedTiles:fetched,unavailableTiles:skipped,
+
+  // Bounded, real Z6 -> Z8 -> Z10 chain, with no DB writes.
+  const stageChain=[];
+  let parents=z6Jobs.slice(0,1);
+  for(const zoom of [6,8,10] as const){
+    if(!parents.length){stageChain.push({zoom,reason:"NO_PARENT_CANDIDATES"});break;}
+    const job=parents[0];
+    const response=await fetch(buildJmaRainTileUrl(frame,zoom,job.tileX,job.tileY),{cache:"no-store"});
+    if(!response.ok){stageChain.push({zoom,httpStatus:response.status});break;}
+    const buffer=Buffer.from(await response.arrayBuffer());
+    const original=scanHeavyRainTile(buffer,zoom,job.tileX,job.tileY,1,job.scanWindow);
+    const decoded=PNG.sync.read(buffer);
+    const sharedKeys:string[]=[];
+    const w=job.scanWindow!;
+    for(let y=w.minY;y<=w.maxY;y++)for(let x=w.minX;x<=w.maxX;x++){
+      const i=(y*decoded.width+x)*4;
+      const intensity=classifyRainPixel({r:decoded.data[i],g:decoded.data[i+1],b:decoded.data[i+2],a:decoded.data[i+3]}).intensityClass;
+      if(intensity&&HEAVY.has(intensity))sharedKeys.push(x+":"+y+":"+intensity);
+    }
+    const originalKeys=original.map(c=>c.pixelX+":"+c.pixelY+":"+c.intensityClass);
+    stageChain.push({zoom,tileX:job.tileX,tileY:job.tileY,window:w,
+      candidates:original.length,identical:JSON.stringify(sharedKeys)===JSON.stringify(originalKeys)});
+    if(zoom===10)break;
+    parents=stagedRefinementJobsFromCoarseCandidates(original,frame,zoom===6?8:10,zoom);
+  }
+
+  return {kind,validtime:frame.validtime,bench,decodeParity,z6Sample,z6TotalJobs:z6Jobs.length,z6DistinctTiles,stageChain,fetchedTiles:fetched,unavailableTiles:skipped,
     compressedBytes:bytes,allHeavyPixels:all,stride2HeavyPixels:sampled,
     omittedHeavyPixels:missed,omittedFraction:all?missed/all:null,
     fourConnectedHeavyRegions:components,regionsWithNoStride2Pixel:entirelyMissed,
