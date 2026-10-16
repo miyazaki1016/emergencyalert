@@ -331,3 +331,10 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - `scripts/national-forecast-z4-screening-proof.ts` を実読込。PNGの `py=0..height-1`, `px=0..width-1` を**全画素**走査し、30mm/h以上の親候補数とz8候補tile数を数える発見用Proof。出力note自体も「usable forecast frameでのparent/descendant exhaustive validationは別途必要」と明記。**実queueのstride2の妥当性を検証するProofではない**。
 - `docs/PROJECT_OVERVIEW.md` にはlive JMA z4→z8最大階級一致Proof、bounded z4→z10 Proof成功が記録されている。ただし今回確認した記述と上記スクリプトからは、**Z4強雨画素が必ず2×2に複製される／stride2で全強雨域を拾える**という直接の実測結果は見つからない。既存Proofの価値は維持しつつ、未検証命題を混同しない。
 - 現時点でZ4実画像の偶奇位置別強雨分布を測定したわけではない。stride2が実際に取りこぼすか、どの程度かは**未測定**。コード変更なし、調査のみ。
+
+## 2026-10-16 Z4偶奇画素と公式lowzoom Proof実装の照合
+
+- 正式なCI Proofの実ファイルをcommit `351f7cf8b6e8e00c18b485a9236be3fcb7faa99b` から特定：`scripts/national-lowzoom-max-rank-proof.ts`。関連workflowは `.github/workflows/national-lowzoom-max-rank-proof.yml`（commit `f031819...`）、`JMA_LOWZOOM_SAMPLE_PARENTS=64` 設定は `b6d5497...`。
+- 最新Proofのz10 detail scanは各tileのx/y全画素（109行付近）、親Z4比較も各tileのx/y全画素（137行付近）。**親Z4のx/y偶奇別の分布・stride2での候補回収率は集計していない**。テストファイルは親座標対応を検証するもので、stride2の検証ではない。
+- Proof出力の `sampling.method="deterministic-even-tile"` は**detail tileの決定論的等間隔抽出**（92–95行）を意味し、Z4の偶数画素抽出を検証したものではない。名称の `even` をstride2の証拠と誤読しない。
+- 過去の最大階級一致とzero-missは**全画素比較または選択したdetail tile**に対する実績。実queueのstride2についての直接的な見逃し率・偶奇配置の実測は今回の対象スクリプトにはない。未確認として維持。Production・実装変更なし。
