@@ -23,6 +23,15 @@ export default function LiveJapanPage() {
   const [scene, setScene] = useState<Scene>("now");
   const [selected, setSelected] = useState<(typeof sample)[number] | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(5);
+  const [focusName, setFocusName] = useState("日本全国");
+  const goTo = (lat: number, lon: number, zoom: number, name: string) => {
+    if (!mapRef.current) return;
+    mapRef.current.flyTo([lat, lon], zoom, { duration: 1.2 });
+    setFocusName(name);
+  };
+  const goNationwide = () => { setSelected(null); goTo(37.3, 137.5, 5, "日本全国"); };
+  const detailLevel = zoomLevel <= 5 ? "全国の気配" : zoomLevel <= 7 ? "地方・都道府県の気配" : "市区町村周辺の気配";
 
   useEffect(() => {
     if (!mapEl.current || mapRef.current) return;
@@ -32,6 +41,7 @@ export default function LiveJapanPage() {
       if (disposed || !mapEl.current) return;
       const map = L.map(mapEl.current, { center: [37.3, 137.5], zoom: 5, minZoom: 4, maxZoom: 9, zoomControl: false, scrollWheelZoom: false });
       mapRef.current = map;
+      map.on("zoomend", () => setZoomLevel(map.getZoom()));
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19,
@@ -45,7 +55,7 @@ export default function LiveJapanPage() {
           iconSize: [48, 48], iconAnchor: [24, 24],
         });
         const marker = L.marker([point.lat, point.lon], { icon }).addTo(map);
-        marker.on("click", () => setSelected(point));
+        marker.on("click", () => { setSelected(point); goTo(point.lat, point.lon, 8, point.name); });
         markersRef.current.push(marker);
       });
       setMapReady(true);
@@ -69,16 +79,25 @@ export default function LiveJapanPage() {
       <section className="live-stage" aria-label="日本列島のインタラクティブ地図">
         <div className="live-map" ref={mapEl} />
         <div className="live-stage-top"><span className="live-live-dot" /> JAPAN / EXPLORE <span className="live-stage-right">地図を動かして探索</span></div>
+        <button type="button" className="live-reset" onClick={goNationwide} disabled={!mapReady}>🌏 全国へ戻る</button>
+        <div className="live-scale" aria-live="polite">{focusName} · {detailLevel} <span>ZOOM {zoomLevel}</span></div>
         {!mapReady && <div className="live-loading">日本列島を準備しています…</div>}
         <div className="live-demo-label">● 地図上の光は演出用サンプルです。実際の気象・災害情報ではありません。</div>
         {selected && <aside className="live-detail"><button onClick={() => setSelected(null)} aria-label="閉じる">×</button><span className="live-eyebrow">SAMPLE STORY</span><h3>{selected.icon} {selected.name}</h3><p>{selected.text}</p><small>このカードはデザイン確認用です。実データ接続後、出典・観測時刻・予報の区別を表示します。</small></aside>}
+      </section>
+      <section className="live-journey" aria-label="日本を旅する">
+        <div className="live-journey-head"><span>✦ EXPLORE JAPAN</span><strong>気になる場所へ、ひとっ飛び。</strong></div>
+        <div className="live-destinations">{sample.map(point => <button key={point.name} type="button" onClick={() => { setSelected(point); goTo(point.lat, point.lon, 8, point.name); }}>{point.icon} {point.name} <span>↗</span></button>)}</div>
+        <div className="live-feed-title">DISCOVER / 全国の出来事 <small>※ 架空の操作確認用サンプル</small></div>
+        <div className="live-feed">{sample.map(point => <button type="button" key={point.name} onClick={() => { setSelected(point); goTo(point.lat, point.lon, 8, point.name); }}><span className="live-feed-icon">{point.icon}</span><span><strong>{point.name}</strong><small>{point.text}（デモ）</small></span><b>↗</b></button>)}</div>
+        <p className="live-journey-note">登録地点や「全国で最も雨が強い場所」へのジャンプは実データ接続後に追加。拡大率はデータ精度を保証しません。</p>
       </section>
       <section className="live-timeline" aria-label="時間を選択">
         <div className="live-timeline-heading"><span>TIME JOURNEY</span><span>過去 ─ いま ─ これから</span></div>
         <div className="live-time-options">{scenes.map(s => <button key={s.key} type="button" className={scene === s.key ? "active" : ""} onClick={() => setScene(s.key)}>{s.label}</button>)}</div>
         <p>{scenes.find(s => s.key === scene)?.caption} <span>・現在は画面演出のみ。時間別の実データは未接続です。</span></p>
       </section>
-      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 01</span></footer>
+      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 02</span></footer>
       <style jsx global>{`
         .live-root{position:relative;isolation:isolate;min-height:100vh;color:#e9f5ff;background:#071423;font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;overflow:hidden}
         .live-ambient{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 60% 32% at 80% 12%,#174d6955,transparent),radial-gradient(ellipse 55% 35% at 15% 55%,#123e5655,transparent)}
@@ -99,6 +118,16 @@ export default function LiveJapanPage() {
         .live-live-dot{display:inline-block;background:#69edc5;width:8px;height:8px;border-radius:50%;box-shadow:0 0 14px #69edc5;margin-right:8px}
         .live-stage-right{float:right;letter-spacing:.05em;font-weight:400}
         .live-demo-label{position:absolute;z-index:500;bottom:16px;left:18px;right:95px;pointer-events:none;background:#071a29dc;padding:10px 14px;border-radius:10px;color:#e0f2fa;font-size:11px;line-height:1.6}
+        .live-reset{position:absolute;z-index:550;right:15px;top:58px;background:#0b2636e8;color:#d8f9ff;border:1px solid #77c8dc;border-radius:24px;padding:12px 16px;cursor:pointer;font-weight:700;font-size:12px}
+        .live-reset:disabled{opacity:.5}.live-scale{position:absolute;z-index:500;top:110px;left:17px;padding:9px 12px;border-radius:9px;background:#071b2bdf;color:#d1eff7;font-size:11px;pointer-events:none}.live-scale span{opacity:.6;font-size:9px;margin-left:6px}
+        .live-journey{max-width:1180px;box-sizing:border-box;margin:20px auto 0;padding:24px 28px;border:1px solid #ffffff24;border-radius:20px;background:#0c2335b8}
+        .live-journey-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.live-journey-head span,.live-feed-title{font-size:11px;letter-spacing:.14em;color:#95d9e6}.live-journey-head strong{font-size:16px}
+        .live-destinations{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0 28px}
+        .live-destinations button{min-height:56px;border:1px solid #4e8499;border-radius:12px;background:#18415a;color:#ecfaff;font-size:14px;cursor:pointer;text-align:left;padding:12px}.live-destinations button span{float:right;color:#9fe9f1}
+        .live-feed-title{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.live-feed-title small{color:#c7d6dc;letter-spacing:0}
+        .live-feed{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+        .live-feed button{display:flex;align-items:center;gap:13px;min-width:0;min-height:68px;text-align:left;background:#071a2b;border:1px solid #35596b;color:#e9f6fc;border-radius:12px;padding:12px;cursor:pointer}
+        .live-feed-icon{font-size:25px}.live-feed button>span:nth-child(2){display:grid;gap:4px;min-width:0}.live-feed strong{font-size:13px}.live-feed small{font-size:11px;color:#aac4d1}.live-feed b{margin-left:auto;color:#9ed9e9}.live-journey-note{font-size:11px;color:#a9c1cf;line-height:1.8;margin:18px 0 0}
         .live-pin{background:transparent;border:0}
         .live-pulse{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#3abbe744;color:white;border:1px solid #a9eeffb3;box-shadow:0 0 0 9px #3abbe716,0 0 28px #39c7ffbb;animation:livebreathe 2.7s ease-in-out infinite;font-size:21px}
         .live-heat{background:#f6a34955;border-color:#ffdb9d;box-shadow:0 0 0 9px #ffac271c,0 0 28px #ffae51bb}
@@ -114,7 +143,7 @@ export default function LiveJapanPage() {
         .live-timeline p{font-size:12px;color:#d6e8ef}.live-timeline p span{color:#86a5b5}
         .live-footer{max-width:1180px;margin:auto;padding:30px 32px 45px;display:flex;justify-content:space-between;gap:15px;color:#8ca8b9;font-size:11px}
         .live-root .leaflet-control-attribution{background:#0c2332d9;color:#c8dbe3}.live-root .leaflet-control-attribution a{color:#a8e8fa}
-        @media(max-width:650px){.live-header{padding:24px 18px}.live-intro{padding:0 20px}.live-stage{margin:0 10px;min-height:460px;border-radius:18px}.live-stage-right{display:none}.live-timeline{margin:14px 10px 0;padding:18px}.live-footer{padding:24px 20px;flex-direction:column}.live-demo-label{font-size:10px}.live-intro h2{font-size:36px}}
+        @media(max-width:650px){.live-header{padding:24px 18px}.live-intro{padding:0 20px}.live-stage{margin:0 10px;min-height:460px;border-radius:18px}.live-stage-right{display:none}.live-timeline{margin:14px 10px 0;padding:18px}.live-footer{padding:24px 20px;flex-direction:column}.live-demo-label{font-size:10px}.live-intro h2{font-size:36px}.live-journey{margin:14px 10px 0;padding:18px}.live-destinations{grid-template-columns:repeat(2,minmax(0,1fr))}.live-feed{grid-template-columns:1fr}.live-reset{right:12px;top:55px}.live-scale{top:112px}}
         @media(prefers-reduced-motion:reduce){.live-pulse{animation:none}}
       `}</style>
     </main>
