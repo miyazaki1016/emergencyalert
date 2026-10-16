@@ -7,7 +7,7 @@ type Scene = "past" | "now" | "ahead";
 type SkyTime = "live" | "morning" | "noon" | "evening" | "night";
 const skyChoices: { key: SkyTime; label: string; hour?: number }[] = [
   { key: "live", label: "● 現在" }, { key: "morning", label: "朝", hour: 6 },
-  { key: "noon", label: "昼", hour: 12 }, { key: "evening", label: "夕", hour: 18 },
+  { key: "noon", label: "昼", hour: 12 }, { key: "evening", label: "夕", hour: 17 },
   { key: "night", label: "夜", hour: 23 },
 ];
 // Astronomical day/night ambience only. No meteorological data is inferred.
@@ -128,7 +128,7 @@ export default function LiveJapanPage() {
       if (!el) return;
       try { if (el.requestFullscreen) { await el.requestFullscreen(); el.dataset.nativeFullscreen = "yes"; } } catch { /* iOS Safari may not support element fullscreen */ }
       setTheater(true);
-      window.setTimeout(() => { const map = mapRef.current; if (map) { map.invalidateSize(); map.fitBounds([[24, 123], [46, 146]], { padding: [18, 18], animate: false }); } }, 180);
+      window.setTimeout(() => { const map = mapRef.current; if (map) { map.invalidateSize(); if (window.innerWidth < 760) map.setView([37.1, 137.2], 5, { animate: false }); else map.fitBounds([[24, 123], [46, 146]], { padding: [36, 36], animate: false }); } }, 180);
     } else {
       if (document.fullscreenElement) {
         try { await document.exitFullscreen(); } catch { /* continue to normal mode */ }
@@ -218,7 +218,7 @@ export default function LiveJapanPage() {
       <section className="live-sky-controls" aria-label="昼と夜の表示">
         <div><span>☀︎ SKY / DAY & NIGHT</span><p>太陽の位置から計算した、日本列島の昼と夜。</p></div>
         <div className="live-sky-buttons">{skyChoices.map(choice => <button key={choice.key} type="button" className={skyMode === choice.key ? "active" : ""} onClick={() => changeSky(choice.key)}>{choice.label}</button>)}</div>
-        <small>{skyMode === "live" ? "現在の太陽位置（約2分ごとに更新）" : "今日の日本時間での時刻プレビュー"} · 天気情報ではありません</small>
+        <small>{skyMode === "live" ? "現在の太陽位置（約2分ごとに更新）" : "今日の日本時間での時刻プレビュー（夕＝17時）"} · 天気情報ではありません</small>
       </section>
       <section ref={theaterRef} className={theater ? "live-stage live-theater" : "live-stage"} aria-label="日本列島のインタラクティブ地図">
         <div className="live-map" ref={mapEl} />
@@ -243,7 +243,7 @@ export default function LiveJapanPage() {
         <div className="live-time-options">{scenes.map(s => <button key={s.key} type="button" className={scene === s.key ? "active" : ""} onClick={() => setScene(s.key)}>{s.label}</button>)}</div>
         <p>{scenes.find(s => s.key === scene)?.caption} <span>・現在は画面演出のみ。時間別の実データは未接続です。</span></p>
       </section>
-      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 09</span></footer>
+      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 10</span></footer>
       <style jsx global>{`
         .live-root{position:relative;isolation:isolate;min-height:100vh;color:#e9f5ff;background:#071423;font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;overflow:hidden}
         .live-ambient{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 60% 32% at 80% 12%,#174d6955,transparent),radial-gradient(ellipse 55% 35% at 15% 55%,#123e5655,transparent)}
