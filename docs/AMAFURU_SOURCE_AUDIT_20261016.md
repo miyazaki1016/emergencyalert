@@ -325,3 +325,9 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - 一方、`lib/weather/rain/nationalRainQueue.ts` 36–100行を直接確認。`childTilesForCandidate` は**渡された各Z4候補画素だけ**についてz10の正確な64×64画素windowを生成し、`stagedRefinementJobsFromCoarseCandidates` は候補ごとにwindow付きjobを作る。周辺の未候補Z4画素まで自動拡張する仕組みではない。
 - したがって `scanFrame` がstride2で読み飛ばしたZ4画素について、**その画素自身を親とするz10 jobはこの経路からは生成されない**ことはコードから確定。ただし当該画素が実際に30mm/h以上か、他の通知経路で検出されるか、実運用の漏れがあるかは未検証。Z4画像の2×2画素複製などの性質も未確認。
 - この発見はソース経路の監査結果であり、修正や本番反映の承認ではない。
+
+## 2026-10-16 Z4画素配置に関する過去Proofの適用範囲
+
+- `scripts/national-forecast-z4-screening-proof.ts` を実読込。PNGの `py=0..height-1`, `px=0..width-1` を**全画素**走査し、30mm/h以上の親候補数とz8候補tile数を数える発見用Proof。出力note自体も「usable forecast frameでのparent/descendant exhaustive validationは別途必要」と明記。**実queueのstride2の妥当性を検証するProofではない**。
+- `docs/PROJECT_OVERVIEW.md` にはlive JMA z4→z8最大階級一致Proof、bounded z4→z10 Proof成功が記録されている。ただし今回確認した記述と上記スクリプトからは、**Z4強雨画素が必ず2×2に複製される／stride2で全強雨域を拾える**という直接の実測結果は見つからない。既存Proofの価値は維持しつつ、未検証命題を混同しない。
+- 現時点でZ4実画像の偶奇位置別強雨分布を測定したわけではない。stride2が実際に取りこぼすか、どの程度かは**未測定**。コード変更なし、調査のみ。
