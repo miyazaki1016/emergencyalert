@@ -71,7 +71,9 @@ async function check(frame:Frame,kind:string) {
       minScanMs:Math.min(...timings),maxScanMs:Math.max(...timings),
       rssDeltaBytes:memAfter.rss-memBefore.rss,heapDeltaBytes:memAfter.heapUsed-memBefore.heapUsed,
       candidateCount:candidates.length,
-      z10JobsInMemory:stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).length});
+      z10JobsInMemory:stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).length,
+      z10DistinctTiles:new Set(stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).map(j=>j.tileX+":"+j.tileY)).size,
+      z10RepeatedTileJobs:stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).length-new Set(stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).map(j=>j.tileX+":"+j.tileY)).size});
   }
   return {kind,validtime:frame.validtime,bench,fetchedTiles:fetched,unavailableTiles:skipped,
     compressedBytes:bytes,allHeavyPixels:all,stride2HeavyPixels:sampled,
