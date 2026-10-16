@@ -277,3 +277,11 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - JMA z4→z10の異なる解像度での強雨一致・低ズーム取りこぼしは既存proofでも**未解決ゲート**。粗い画素と詳細画素の強度が一致するとは保証できず、z4が弱雨でもz10に30mm/h以上の小雨域が存在し得る。逆にz4候補がz10で消える可能性もある。数値評価・網羅的実データ検証は未実施。
 - 欠測時の扱い: 現況6タイルのいずれかがHTTP失敗するとAPI全体503。予測の6タイルのいずれかが失敗するとその予測時刻は `usableFrames` に入らず、cycle `INCOMPLETE`。欠測を雨なしにしない点は良いが、再試行・未完了のままの時間遅延は別ゲート。
 - 結論: 現時点の『全国の30mm/h以上を漏れなく探せる』は**未証明**。①z4低解像度の感度、②stride2の標本抜け、③現況強雨の同一画素除外、④JMAタイル欠測/遅延、⑤詳細化ジョブ滞留を独立した見逃し・遅延候補として管理。今回は原因候補の静的洗い出しのみで、実発生を断定しない。
+
+## 2026-10-16 過去の実証と現行ソースの照合・訂正
+
+- PR #59 `docs/PROJECT_OVERVIEW.md` に記録された2026-09-30 live JMA observation proof: z4全国6タイル配下のz8 1,536タイル、z4親393,216画素、z8強雨6,078画素、**強雨見逃し0、親の最大雨量階級一致100%（当該1 frame）**。この検証成果を未実証扱いしない。ただしz4→z10全時刻・全地域の普遍保証ではない。
+- 2026-10-05以降の新規queue本流は `national-queue/route.ts` の `stagedRefinementJobsFromCoarseCandidates(candidates,frame,10)` により **direct z4→z10**。`nationalRainWorker.ts` のz6/z8分岐は旧job互換。前節の『z6→z8→z10精査』という本流説明を訂正する。
+- 旧z8→z10大量比較は30分timeoutを反復したため、bounded deterministic sample proofへ変更、当時のCI成功記録あり。タイムアウトを現行direct-z10の失敗と混同しない。
+- **残るソース上の照合事項**: `nationalHeavyRain.ts` の `scanHeavyRainTile` はデフォルト `stride=2`。実queueの `scanFrame` はデフォルトで呼ぶ一方、`scripts/national-forecast-z4-screening-proof.ts` の `scan` は全画素走査。親最大階級の検証と**親画素を全件列挙しているか**は別の性質。stride2の採用理由、候補抜けの評価、他proofの走査条件を今後ソースとテストで確認。原因・実被害は未確定。
+- この記録は先の静的リスク記述を補足・訂正するもので、Production変更・実装修正・mergeはなし。
