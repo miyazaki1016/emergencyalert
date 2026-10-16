@@ -112,3 +112,19 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 本番 `notificationDecision.ts` はmainにある `nextRainEndingNotified` 関数がないだけで、**既存の `shouldNotifyForRain` と `nextLastNotifiedAt` の行は一致**。本番版874文字、main1143文字。
 
 **結論:** mainと本番の差は限定的で、特に雨の終了通知・抑制フラグに集中している。ただし**4行だけだから安全に即デプロイできるとは言えない**。ユーザー実機で通知到達済みの本番v29を保全し、既存シナリオと変更シナリオを比較した後、明示承認を得てから反映を検討する。現時点でデプロイなし。
+
+## 2026-10-16 終了通知の具体的シナリオ（コードからの静的判定）
+
+| 状態・入力（他の通知理由なし、通知ON、購読・送信成功を仮定） | 本番v29 | main |
+|---|---|---|
+| `confirmed_weather=UNKNOWN`, 前回イベント非終了、`rain_ending_notified=false`, 今回 `RAIN_ENDING` | 終了通知を試みる | 終了通知を試みない（確定雨が必要）。ただし同時 `rainConfirmed` の場合は例外 |
+| `confirmed_weather=RAINING`, 前回イベント非終了、未通知、今回 `RAIN_ENDING` | 終了通知を試みる | 終了通知を試みる |
+| 終了通知済み、`NO_RAIN` 3回連続 | `rain_ending_notified=false` に解除 | `rain_ending_notified=true` を保持 |
+| 終了通知済み、`RAIN` 3回連続 | `rain_ending_notified=true` を保持 | `rain_ending_notified=false` に解除 |
+| `rainStreak` が今回3に達し、`rainConfirmed=true` かつ今回 `RAIN_ENDING` | `rainEnding` 条件が偽でも `confirmedAndEnding` を本文生成に利用。ただし通知の決定には渡さず、他の通知理由がなければ送信しない | `confirmedAndEnding` を通知決定に渡すので送信を試みる |
+
+**注意:** 上表はmainと実デプロイv29のコード分岐を手動評価したもので、端末にPushを送信するテストは実施していない。 `shouldNotifyForRain` の `becameActionable` / `retryPending` や `severeEscalation` が真なら、表の「試みない」でも別の理由で送信しうる。通知OFF・購読なし・Push失敗なら到達しない。
+
+**既存テストのカバー範囲:** mainの `lib/weather/rain/watchNotificationDecision.test.ts` には「終了通知後の乾燥中は抑制を保持」「連続3回の降雨で再武装」「終了通知が届いたら抑制セット」の3件がある。**テストコード存在の確認のみ、実行は未実施。** 本番v29の旧式とのA/B自動比較は今後の検証候補。
+
+**運用上の優先度:** 誤った終了通知・新しい雨エピソードでの再通知の有無をユーザー実機で確認する際も、現在到達しているPushを保護。いきなりmainを本番デプロイしない。
