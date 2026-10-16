@@ -208,3 +208,13 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 8. **精度上の論点**: ズーム10・単一ピクセルの点判定で近傍通過・地上降雨・画素境界・パレット変換を区別できるか未検証。観測フレームの`validTime`と5分cronの連続回数が、必ずしも独立した3観測時刻を意味するかも未確認（同じ観測フレームを複数回読んだ可能性）。`rain_streak`を3回増やす際にsourceValidAtの変化を要求する処理はworker内に見当たらない。
 
 **未確認／次の調査**: `pngPalette.ts`の強度色境界と試験、`watch-rain`の通知本文と`shouldNotifyForRain`の具体条件、productionのイベント時系列（プライバシー保護した集計のみ）、PR #59全国処理との強度分類共通化。**修正・本番適用なし。**
+
+## 2026-10-16 追加洗い出し：色パレット／通知条件の実装確認
+
+- `lib/weather/providers/jma/pngPalette.ts`: JMA hrpns PNGの**8色だけ**をRGBA完全一致（alpha=255含む）で分類：`LT_1`, `1_TO_5`, `5_TO_10`, `10_TO_20`, `20_TO_30`, `30_TO_50`, `50_TO_80`, `GTE_80`。透明alpha=0は別関数で`NO_RAIN`、未知の非透明色は`UNKNOWN_PIXEL`。30mm/h以上の境界は`30_TO_50`から。実データと凡例の根拠は`docs/PNG_PALETTE_EVIDENCE.md`。
+- `classifyPixel.test.ts`: 5件（透明2、30〜50色、20〜30色、未知色）。`pngPalette.test.ts`: 8色の表引き、未対応色、保存された実PNGの色検証。**テストの存在を確認、今回の実行は未実施**。
+- `supabase/functions/watch-rain/notificationDecision.ts`: 通知条件は (a) `rainEnding` true、(b) urgencyがINFO→LIFESTYLE_ACTIONへ変化、(c) actionableかつ`lastNotifiedAt`なし。すべて通知設定ONが前提。`nextLastNotifiedAt`は成功配信で時刻更新、actionable未配信時は前回時刻維持、それ以外でnullへ。
+- `watch-rain/index.ts` main: `RAIN_ENDING`は通常`INFO`なので(b)(c)ではなく(a)から通知される。通知文は「雨、もうすぐ止みそうだよ」。本番v29ではmainと異なり`rainEnding`の`confirmed_weather=RAINING`制約がない（先述）。`confirmedAndEnding`は`rainStreak>=3`とENDINGが同時に成立した場合の別経路。
+- **実装上の重要点**: `RAIN_ENDING`の成立は現況`RAIN`画素＋予報の3連続`NO_RAIN`。これは**現在降雨と将来終了のレーダー解釈**であって、地上で実際に降ったことの証明ではない。終了通知の誤認原因候補は「近傍雨域の単一画素判定」「同一観測フレームを5分cronで再カウント」「本番v29の終了通知条件」であり、特定通知の原因は未確定。
+- **注意**: `severeFrame`は30mm/h以上の未来フレームを別経路で判定し、`severeEscalation`が真なら優先通知。これはLIVE・JAPAN全国表示ではなく、**登録地点workerの通知**処理。
+- 次はPR #59全国workerの入力・強度分類・時間軸を対照し、共通化できる部分と未実装部分を棚卸しする。設計改善案の実装には進まない。
