@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { regionalDemoSignals, resolveRegionalSignals } from "./priority";
 
 type Scene = "past" | "now" | "ahead";
 type SkyTime = "live" | "morning" | "noon" | "evening" | "night";
@@ -54,6 +55,9 @@ export default function LiveJapanPage() {
   const mapRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
   const skyLayerRef = useRef<any>(null);
+  const priorityMarkersRef = useRef<any[]>([]);
+  const [priorityDemo, setPriorityDemo] = useState(false);
+  const priorityDemoRef = useRef(false);
   const [showSamples, setShowSamples] = useState(false);
   const [theater, setTheater] = useState(false);
   const theaterRef = useRef<HTMLDivElement>(null);
@@ -123,6 +127,33 @@ export default function LiveJapanPage() {
     const japanAltitude = solarAltitude(36, 138, sun);
     const daylight = Math.max(0, Math.min(1, (japanAltitude + 7) / 20));
     map.getContainer().style.setProperty("--live-daylight", String(daylight));
+    refreshPriorityMarkers(sun);
+  };
+  const refreshPriorityMarkers = (sun = sunPosition(skyDate(skyModeRef.current))) => {
+    const map = mapRef.current;
+    const L = (window as any).L;
+    if (!map || !L) return;
+    priorityMarkersRef.current.forEach(marker => map.removeLayer(marker));
+    priorityMarkersRef.current = [];
+    if (!priorityDemoRef.current) return;
+    const result = resolveRegionalSignals(regionalDemoSignals, (lat, lon) => solarAltitude(lat, lon, sun) < -6);
+    for (const signal of result.visible) {
+      const icon = L.divIcon({
+        className: "live-priority-pin",
+        html: '<span class="live-priority-badge" title="架空のデモ">' + signal.icon + '</span>',
+        iconSize: [38, 38], iconAnchor: [19, 19],
+      });
+      const marker = L.marker([signal.lat, signal.lon], { icon, title: signal.label + "（架空のデモ）" });
+      marker.bindPopup("<strong>架空の表示テスト</strong><br>" + signal.label + "<br>実際の気象・災害情報ではありません。");
+      marker.addTo(map);
+      priorityMarkersRef.current.push(marker);
+    }
+  };
+  const togglePriorityDemo = () => {
+    priorityDemoRef.current = !priorityDemoRef.current;
+    setPriorityDemo(priorityDemoRef.current);
+    if (priorityDemoRef.current && sampleVisibilityRef.current) toggleSamples();
+    refreshPriorityMarkers();
   };
   const toggleTheater = async () => {
     if (!theater) {
@@ -151,6 +182,7 @@ export default function LiveJapanPage() {
       if (!next && map.hasLayer(marker)) map.removeLayer(marker);
     });
     if (!next) setSelected(null);
+    if (next && priorityDemoRef.current) { priorityDemoRef.current = false; setPriorityDemo(false); refreshPriorityMarkers(); }
   };
   const detailLevel = zoomLevel <= 5 ? "全国の気配" : zoomLevel <= 7 ? "地方・都道府県の気配" : "市区町村周辺の気配";
 
@@ -225,12 +257,13 @@ export default function LiveJapanPage() {
       <section ref={theaterRef} className={theater ? "live-stage live-theater" : "live-stage"} aria-label="日本列島のインタラクティブ地図">
         <div className="live-map" ref={mapEl} />
         <button type="button" className="live-theater-toggle" onClick={toggleTheater} aria-pressed={theater}>{theater ? "✕ 通常表示へ" : "⛶ シアターモード"}</button>
+        <button type="button" className="live-priority-toggle" onClick={togglePriorityDemo} aria-pressed={priorityDemo}>{priorityDemo ? "🧪 優先表示デモを終了" : "🧪 優先表示デモ"}</button>
         <button type="button" className="live-sample-toggle" onClick={toggleSamples} aria-pressed={showSamples}>{showSamples ? "✦ サンプルを隠す" : "✦ サンプルを表示"}</button>
         <div className="live-stage-top"><span className="live-live-dot" /> JAPAN / EXPLORE <span className="live-stage-right">地図を動かして探索</span></div>
         <button type="button" className="live-reset" onClick={goNationwide} disabled={!mapReady}>🌏 全国へ戻る</button>
         <div className="live-scale" aria-live="polite">{focusName} · {detailLevel} <span>ZOOM {zoomLevel}</span></div>
         {!mapReady && <div className="live-loading">日本列島を準備しています…</div>}
-        <div className="live-demo-label">{showSamples ? "● 地図上の光は演出用サンプルです。実際の気象・災害情報ではありません。" : "☀ 昼夜の陰影は太陽位置の計算による演出です。気象・災害情報は未表示です。"}</div>
+        <div className="live-demo-label">{priorityDemo ? "🧪 架空の地域別優先表示テスト中。実際の警報・天気・季節情報ではありません。" : showSamples ? "● 地図上の光は演出用サンプルです。実際の気象・災害情報ではありません。" : "☀ 昼夜の陰影は太陽位置の計算による演出です。気象・災害情報は未表示です。"}</div>
         {selected && <aside className="live-detail"><button onClick={() => setSelected(null)} aria-label="閉じる">×</button><span className="live-eyebrow">SAMPLE STORY</span><h3>{selected.icon} {selected.name}</h3><p>{selected.text}</p><small>このカードはデザイン確認用です。実データ接続後、出典・観測時刻・予報の区別を表示します。</small></aside>}
       </section>
       <section className="live-journey" aria-label="日本を旅する">
@@ -245,7 +278,7 @@ export default function LiveJapanPage() {
         <div className="live-time-options">{scenes.map(s => <button key={s.key} type="button" className={scene === s.key ? "active" : ""} onClick={() => setScene(s.key)}>{s.label}</button>)}</div>
         <p>{scenes.find(s => s.key === scene)?.caption} <span>・現在は画面演出のみ。時間別の実データは未接続です。</span></p>
       </section>
-      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 11</span></footer>
+      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 12</span></footer>
       <style jsx global>{`
         .live-root{position:relative;isolation:isolate;min-height:100vh;color:#e9f5ff;background:#071423;font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;overflow:hidden}
         .live-ambient{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 60% 32% at 80% 12%,#174d6955,transparent),radial-gradient(ellipse 55% 35% at 15% 55%,#123e5655,transparent)}
@@ -267,6 +300,9 @@ export default function LiveJapanPage() {
         .live-map{height:100%;width:100%;background:#092235}
         .live-map-tiles{filter:saturate(1.05) contrast(1.04);transition:filter 1.2s ease}
         .live-solar-overlay{pointer-events:none!important;image-rendering:auto}
+        .live-priority-toggle{position:absolute;z-index:570;right:14px;top:62px;border:1px solid #8fd0be;border-radius:22px;background:#092b3bea;color:#e8fff7;font-size:11px;padding:9px 12px;cursor:pointer}
+        .live-priority-badge{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#0a2837e8;border:2px solid #d7f5f0;box-shadow:0 0 15px #41b9e788;font-size:21px}
+        .live-theater .live-priority-toggle{display:none}
         .live-theater-toggle{position:absolute;z-index:570;right:14px;top:14px;border:1px solid #91d7df;border-radius:24px;background:#092b3bea;color:#e1faff;font-size:12px;font-weight:700;padding:11px 15px;cursor:pointer}
         .live-theater{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-width:none!important;min-height:0!important;margin:0!important;border:0!important;border-radius:0!important;z-index:9999!important}
         .live-theater:fullscreen{position:relative!important;width:100%!important;height:100%!important}
