@@ -144,7 +144,23 @@ async function check(frame:Frame,kind:string) {
       windows.push({window,twoDecodeMeanMs:results[0].meanMs,oneDecodeMeanMs:results[1].meanMs,
         detected:results[0].keys.length,identical:JSON.stringify(results[0].keys)===JSON.stringify(results[1].keys)});
     }
-    z6Sample.push({tileX:job.tileX,tileY:job.tileY,totalWindowsForTile:jobs.length,windows});
+    // Decode once and verify that every original window retains the same pixels.
+    const decoded=PNG.sync.read(buffer);
+    const sharedWindowKeys=(w:NonNullable<typeof job.scanWindow>)=>{
+      const keys:string[]=[];
+      for(let y=w.minY;y<=w.maxY;y++)for(let x=w.minX;x<=w.maxX;x++){
+        const i=(y*decoded.width+x)*4;
+        const intensity=classifyRainPixel({r:decoded.data[i],g:decoded.data[i+1],b:decoded.data[i+2],a:decoded.data[i+3]}).intensityClass;
+        if(intensity&&HEAVY.has(intensity))keys.push(x+":"+y+":"+intensity);
+      }
+      return keys;
+    };
+    const allWindowParity=jobs.every(j=>{
+      const expected=scanHeavyRainTile(buffer,6,j.tileX,j.tileY,1,j.scanWindow)
+        .map(c=>c.pixelX+":"+c.pixelY+":"+c.intensityClass);
+      return JSON.stringify(sharedWindowKeys(j.scanWindow!))===JSON.stringify(expected);
+    });
+    z6Sample.push({tileX:job.tileX,tileY:job.tileY,totalWindowsForTile:jobs.length,windows,allWindowParity});
   }
   const z6DistinctTiles=groups.size;
   return {kind,validtime:frame.validtime,bench,decodeParity,z6Sample,z6TotalJobs:z6Jobs.length,z6DistinctTiles,fetchedTiles:fetched,unavailableTiles:skipped,
