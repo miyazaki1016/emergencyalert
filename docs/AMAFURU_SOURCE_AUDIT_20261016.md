@@ -78,3 +78,16 @@
 8. **運用上の調査候補:** `.limit(100)` の対象数上限、固定Vercel URL、外部fetch失敗時の扱い、二重実行の排他、push成功とDB記録の間の障害。いずれも直ちに障害と断定せず、実際の負荷・設定・監視と照合する。
 
 > この追補はソースを読み取り専用で調査した結果。秘密値は読み取らず、cron・DB・本番設定は変更していない。
+
+## 2026-10-16 本番Supabase照合：**重要なソース乖離を発見**
+
+**確認対象:** Supabase `EmergencyAlert` プロジェクト（ID `yqyevipvkdwmhcaxywes`）。`misaki` プロジェクトとは別。読み取り専用で確認。
+
+- **実スケジューラ確認済み:** `cron.job` の `watch-rain-every-5-minutes` は `*/5 * * * *` で `active=true`。VaultからURLとtokenを参照し、`net.http_post` でEdge Function `watch-rain` を呼び出す。秘密値は取得・記録していない。
+- **cronの実行履歴:** 過去24時間 `cron.job_run_details` で `succeeded` 288件、最終開始 `2026-10-16 08:00:00 UTC`。**cron succeededはHTTP先の業務処理・Push到達成功を保証しない。** 別途 `net._http_response` やEdge logs等を確認する。
+- **DB状態:** `enabled=true` の監視地点3件、push購読1件、`watch_states` 3件。直近20分以内の `last_checked_at` が3件、最新 `2026-10-16 08:00:07 UTC`。現状の3件はmainの `.limit(100)` 上限以下だが、将来の拡張リスクは残る。
+- **実デプロイ済みEdge Function:** `watch-rain` は `ACTIVE`、**version 29**、`verify_jwt=false`。READMEの「deployed v8」は2026-09-24時点の古いbaselineであり、**現行バージョンではない**。
+- **最重要：本番のコードとmainが一致しない。** Supabase `get_edge_function` の実ファイルには `nextRainEndingNotified` のimportがなく、`endingNotified=clearStreak>=3?false:...` という古い式が残る。mainは `nextRainEndingNotified({previousRainEndingNotified,rainStreak,endingDelivered})` に変更済み。さらに本番 `shouldNotifyForRain` 呼び出しは `initialRaining` を渡し、本番の `notificationDecision.ts` は874文字、mainは1143文字。**mainの修正が本番に反映されたとは言えない。** 機能差・事故リスクをテストで評価し、ユーザー承認なしにデプロイしない。
+- 本番でも `watch_targets.limit(100)` と固定のVercel雨API URLを確認。cron実行自体と監視地点の状態更新は動作している形跡があるが、Push通知成功はまだ未証明。
+
+**次の優先事項:** 本番v29とmainの正確な差分（特に終了通知・初回雨通知）を整理し、Edge FunctionログとHTTP応答を調査。**現行本番の挙動を壊さず、GitHubを原本とする差分是正計画を別途提示する。**
