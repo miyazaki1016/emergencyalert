@@ -312,3 +312,9 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - 2026-09-30時点のPR #59 commit `3fe209ffdb91ee09e4caf780c3fe7b5fb2b63ae8` では `lib/weather/rain/nationalHeavyRain.ts` が存在し `stride=2`。このファイルは現行mainにも、2026-09-30 main側commit `6e55b1854c2fc72e7a9b0961b8d97c1fb512c19d` にも存在しない（GitHub Contents API 404）。**PR #59の未merge側にある実装**である。
 - mainと上記PR HEADの比較はPR側104 commits ahead、5 behind。したがってmain側commitを古い実装履歴として遡っても、このファイルの初出を直接追えない。PR branchの初期commit群が調査対象。
 - 初出commitとstride=2の設計理由はまだ未特定。古いソースの存在確認と、理由の確証は分けて記録する。実装/本番変更なし。
+
+## 2026-10-16 初期PR commitの日時確認と追跡限界
+
+- `3fe209ffdb91ee09e4caf780c3fe7b5fb2b63ae8` のGitHub commit metadataは `2026-09-29T17:56:04Z`（JST **2026-09-30 02:56**）、message `Test rain boundary edge cases`。差分は `nationalHeavyRain.test.ts` のポリゴン境界テスト追加のみ。**stride=2の導入commitではない**が、この時点の `nationalHeavyRain.ts` にすでにstride=2がある。
+- `f147a80cd9863a1321e2617c3fa5fa151e2bb011` は2026-10-05のqueue mapping変更で、変更ファイルは `nationalRainQueue.ts`。こちらもstride導入commitではない。
+- Connectorのcommit検索はPR #59側の古いcommitメッセージを十分に拾えておらず、比較APIも初期104 commitのSHA一覧を返さないため、**最初にstride=2を書いたcommitをまだ断定できない**。次はPR側のコミット一覧またはfile blame取得が必要。設計理由の推測で結論を埋めない。
