@@ -354,3 +354,10 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - `comparedParents=393216` は全国Z4親画素の走査数であり、z10側の全393216親画素について詳細検証したという意味ではない。z10は64 detail tilesに限定。
 - 同runのログにstride2やZ4偶奇位置別の比較は見当たらない。別run #292 National rain proofもSUCCESSだが、当該jobログのキーワード検索ではstride/parity比較の出力なし。ログ検索は全履歴の網羅ではない。
 - 2026-09-30の**z4→z8実観測6,078強雨画素を含む実証**と、2026-10-05の**z4→z10 64-tile sample（強雨0）**は別の証拠。混同しない。実装・本番変更なし。
+
+## 2026-10-16 2026-09-30早朝の旧National rain CI実ログ
+
+- PR #59 commit `3fe209ffdb91ee09e4caf780c3fe7b5fb2b63ae8` に対応する `National rain proof` **#101**（run id `36608455911`、job id `109543437527`）の実ログを取得。SUCCESS。実行はUTC 2026-09-29 17:57（JST 2026-09-30 02:57）。
+- ログに複数の予報時刻の `refinedStrongPixels` として **2072, 2680, 2609, 2752, 2683** 等の非ゼロ値、`refinedTiles` や `rainTracks` の出力がある。**旧National rain proofは強雨ゼロの空検証だけではなく、実データ上の強雨域を処理していた**。ただしこの実験の対象ズーム・取得地域・判定の意味は別途スクリプト確認が必要。
+- 同jobログには `stride` の明示記録やZ4偶奇別の回収率は見当たらない。`refinedStrongPixels` は「全Z4強雨を漏れなく検出した件数」と同義ではなく、stride2の妥当性の証明ではない。
+- 先に確認した2026-10-05 Z4→Z10 proof #80のdetail強雨0とは**異なる検証**。成功ログの意味を混同しない。実装・本番変更なし。
