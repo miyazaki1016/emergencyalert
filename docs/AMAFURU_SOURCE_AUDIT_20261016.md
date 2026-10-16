@@ -58,3 +58,10 @@
 - **雨雲レーダーの地図重畳はmainに存在。** `app/page.tsx` のblob SHAがmainと `feat/rain-radar-layer` で完全一致（`5ef6d72018573e6e4410fcf039c02d1d3f128eba`）。Leaflet、JMA `targetTimes_N1.json`、`hrpns` タイルURL、`syncRadarLayer` を実読。**当該ファイルのブランチ成果はmainに回収済み**。本番画面・外部JMAタイルの実表示は未検証。
 - **地図地点ピッカーはmainに後続変更がある。** `feat/visual-map-picker` の `app/page.tsx` blob `ba6f82fc394675ce4047455c11a9091d313bfff1`、mainは `5ef6d72018573e6e4410fcf039c02d1d3f128eba`。一方 `app/layout.tsx` は両方 `4250b5aa9ecaa8ad47bdfcbf51027fb366a7800d` で一致。mainにLeafletと地図表示は存在するが、地点登録操作の完全同等性は別途確認。
 - **全国Workerはmainに存在しない。** `app/api/rain/national-worker/route.ts` はmainで404（ファイル不在）、`feat/national-heavy-rain-preview` には存在（blob `35e8195837cd53c51d7de08566232510a822930c`）。`processNationalRainRefinementJobs` とN03ローダー接続があり、レスポンスは `NATIONAL_RAIN_REFINEMENT_WORKER_PROOF`。**これはmain未回収のproof実装であり、本番機能とは呼ばない。**
+
+## 2026-10-16 追加ソース照合：降雨判定エンジン・通知判定
+
+- **予報のDRY境界修正はmainに回収済み。** `fix/dry-forecast-boundary` とmainの `lib/weather/rain/RainInterpretationEngine.ts` はblob `2626e02fef9aa5515c63bba051375c70de7d7137` で一致。対応テストもblob `4308c02a0a8b21761a571c320047d9171d3fd246` で一致。
+- **弱い雨の持続判定はmainに存在。** mainのテストには「1–5mm/hの雨が30分以内に始まる連続3本の5分フレーム」「単一弱雨では通知しない」「UNKNOWNをまたいで持続扱いしない」「1mm/h未満の霧雨は持続しても通知しない」「30分超の強雨を通知しない」が含まれる。古い `fix/persistent-light-rain-notification` のエンジン・テストとはSHAが異なり、main側に後続変更がある。**テスト名の確認でありテスト実行は未実施。**
+- **降雨通知判定ヘルパーはmainで拡張済み。** `supabase/functions/watch-rain/notificationDecision.ts` は旧 `refactor-watch-notification-decision` の544文字からmain 1143文字に変化。mainには `shouldNotifyForRain`（通知許可、actionable化、未送信リトライ、終了通知）、`nextLastNotifiedAt`（配信成功時更新）、`nextRainEndingNotified`（終了通知後の抑制・降雨連続3回で解除）が存在。旧版とSHAは異なる。
+- **重要な区別:** ここでの「mainに存在」はソースとテスト定義の確認。本番Edge Functionへのデプロイ、外部予報データによる実際の動作、通知の到達率は別検証。
