@@ -1,0 +1,1298 @@
+{
+  "commit": "ba9a0b0360ab9cf30a1431f4ce8fb3a2b0a2576e",
+  "ciNumber": 496,
+  "runId": 36678958392,
+  "runUrl": "https://github.com/miyazaki1016/emergencyalert/actions/runs/36678958392",
+  "status": "success",
+  "artifactId": 11080733870,
+  "adoption": "NOT_PRODUCTION_READY",
+  "measurements": [
+    {
+      "mode": "READ_ONLY_LIVE_THROUGHPUT_PROOF",
+      "counts": [
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930063500",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 0
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930064000",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 1
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930064500",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 3
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930065000",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 4
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930065500",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 2
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930070000",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 2
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930070500",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 0
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930071000",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 0
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930071500",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 2
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930072000",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 3
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930072500",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 3
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930073000",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 3
+        }
+      ],
+      "requestedTiles": 23,
+      "discoveryMs": 11161.654202,
+      "phase": "COLD_PREPARED",
+      "rows": [
+        {
+          "job": {
+            "id": 1,
+            "run_key": "20260930063000:20260930064000",
+            "basetime": "20260930063000",
+            "validtime": "20260930064000",
+            "zoom": 8,
+            "tile_x": 221,
+            "tile_y": 107
+          },
+          "strongPixels": 18,
+          "prefectures": [
+            "46",
+            "47"
+          ]
+        },
+        {
+          "job": {
+            "id": 2,
+            "run_key": "20260930063000:20260930064500",
+            "basetime": "20260930063000",
+            "validtime": "20260930064500",
+            "zoom": 8,
+            "tile_x": 227,
+            "tile_y": 92
+          },
+          "strongPixels": 74,
+          "prefectures": [
+            "01"
+          ]
+        },
+        {
+          "job": {
+            "id": 3,
+            "run_key": "20260930063000:20260930064500",
+            "basetime": "20260930063000",
+            "validtime": "20260930064500",
+            "zoom": 8,
+            "tile_x": 221,
+            "tile_y": 107
+          },
+          "strongPixels": 24,
+          "prefectures": [
+            "46",
+            "47"
+          ]
+        },
+        {
+          "job": {
+            "id": 4,
+            "run_key": "20260930063000:20260930064500",
+            "basetime": "20260930063000",
+            "validtime": "20260930064500",
+            "zoom": 8,
+            "tile_x": 227,
+            "tile_y": 104
+          },
+          "strongPixels": 15,
+          "prefectures": [
+            "13"
+          ]
+        }
+      ],
+      "downloads": {
+        "13": 1,
+        "46": 1,
+        "47": 1,
+        "01": 1
+      },
+      "result": {
+        "claimed": 4,
+        "done": 4,
+        "failed": 0,
+        "strongPixels": 131,
+        "deferred": 0
+      },
+      "elapsedMs": 1034.6765240000022,
+      "concurrency": 4,
+      "budgetMs": 45000,
+      "pending": 0,
+      "municipalityHits": 0,
+      "serializedBytes": 2090,
+      "batches": [
+        {
+          "jobs": 4,
+          "elapsedMs": 1034.440627
+        }
+      ],
+      "maxBatchMs": 1034.440627,
+      "peakRssMiB": 507.21484375,
+      "processMaxRssMiB": 727.484375,
+      "capacityExtrapolationAllowed": false,
+      "limitations": [
+        "Local queue/result RPCs; no DB network latency",
+        "CI Node process is not Vercel runtime",
+        "Sample workload is not a nationwide worst-case bound"
+      ],
+      "evidence": "LIVE_STRONG_PIXELS",
+      "n03Source": "Local prepared files through production Storage-loader code; NOT live private Storage HTTP"
+    },
+    {
+      "mode": "READ_ONLY_LIVE_THROUGHPUT_PROOF",
+      "counts": [
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930063500",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 0
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930064000",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 1
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930064500",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 3
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930065000",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 4
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930065500",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 2
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930070000",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 2
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930070500",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 0
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930071000",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 0
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930071500",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 2
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930072000",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 3
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930072500",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 3
+        },
+        {
+          "frame": {
+            "basetime": "20260930063000",
+            "validtime": "20260930073000",
+            "elements": [
+              "hrpns",
+              "hrpns_nd"
+            ]
+          },
+          "requestedTiles": 3
+        }
+      ],
+      "requestedTiles": 23,
+      "discoveryMs": 11161.654202,
+      "phase": "WARM_PREPARED",
+      "rows": [
+        {
+          "job": {
+            "id": 1,
+            "run_key": "20260930063000:20260930064000",
+            "basetime": "20260930063000",
+            "validtime": "20260930064000",
+            "zoom": 8,
+            "tile_x": 221,
+            "tile_y": 107
+          },
+          "strongPixels": 18,
+          "prefectures": [
+            "46",
+            "47"
+          ]
+        },
+        {
+          "job": {
+            "id": 2,
+            "run_key": "20260930063000:20260930064500",
+            "basetime": "20260930063000",
+            "validtime": "20260930064500",
+            "zoom": 8,
+            "tile_x": 227,
+            "tile_y": 92
+          },
+          "strongPixels": 74,
+          "prefectures": [
+            "01"
+          ]
+        },
+        {
+          "job": {
+            "id": 3,
+            "run_key": "20260930063000:20260930064500",
+            "basetime": "20260930063000",
+            "validtime": "20260930064500",
+            "zoom": 8,
+            "tile_x": 221,
+            "tile_y": 107
+          },
+          "strongPixels": 24,
+          "prefectures": [
+            "46",
+            "47"
+          ]
+        },
+        {
+          "job": {
+            "id": 4,
+            "run_key": "20260930063000:20260930064500",
+            "basetime": "20260930063000",
+            "validtime": "20260930064500",
+            "zoom": 8,
+            "tile_x": 227,
+            "tile_y": 104
+          },
+          "strongPixels": 15,
+          "prefectures": [
+            "13"
+          ]
+        }
+      ],
+      "downloads": {
+        "13": 1,
+        "46": 1,
+        "47": 1,
+        "01": 1
+      },
+      "result": {
+        "claimed": 4,
+        "done": 4,
+        "failed": 0,
+        "strongPixels": 131,
+        "deferred": 0
+      },
+      "elapsedMs": 96.6349360000022,
+      "concurrency": 4,
+      "budgetMs": 45000,
+      "pending": 0,
+      "municipalityHits": 0,
+      "serializedBytes": 2090,
+      "batches": [
+        {
+          "jobs": 4,
+          "elapsedMs": 96.44884499999898
+        }
+      ],
+      "maxBatchMs": 96.44884499999898,
+      "peakRssMiB": 503.328125,
+      "processMaxRssMiB": 727.484375,
+      "capacityExtrapolationAllowed": false,
+      "limitations": [
+        "Local queue/result RPCs; no DB network latency",
+        "CI Node process is not Vercel runtime",
+        "Sample workload is not a nationwide worst-case bound"
+      ],
+      "evidence": "LIVE_STRONG_PIXELS",
+      "n03Source": "Local prepared files through production Storage-loader code; NOT live private Storage HTTP"
+    },
+    {
+      "mode": "SYNTHETIC_STRESS_NOT_METEOROLOGICAL_EVIDENCE",
+      "scenario": "dense",
+      "tile": {
+        "x": 227,
+        "y": 100
+      },
+      "jobsOffered": 50,
+      "prefectures": [
+        "08",
+        "09",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14"
+      ],
+      "downloads": {
+        "10": 1,
+        "11": 1,
+        "12": 1,
+        "13": 1,
+        "14": 1,
+        "08": 1,
+        "09": 1
+      },
+      "result": {
+        "claimed": 50,
+        "done": 50,
+        "failed": 0,
+        "strongPixels": 3276800,
+        "deferred": 0
+      },
+      "elapsedMs": 7356.320554,
+      "concurrency": 1,
+      "budgetMs": 45000,
+      "pending": 0,
+      "municipalityHits": 12900,
+      "serializedBytes": 927731,
+      "batches": [
+        {
+          "jobs": 1,
+          "elapsedMs": 529.6192469999987
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 150.05284100000063
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 148.27732000000105
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 145.77140800000052
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 138.3023430000012
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 139.423635000001
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 134.20383399999992
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 135.2205900000008
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 179.29437400000097
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 134.90575499999977
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 137.42234400000052
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 137.77141099999972
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 139.65631600000052
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 132.15396599999985
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 135.651742
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 136.96894799999973
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 133.76633500000025
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 135.6444109999993
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 141.09088200000042
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 140.7917039999993
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 137.47183899999982
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 145.60085000000072
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 133.98862999999983
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 129.5700199999992
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 132.790121
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 134.92999099999906
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 136.8561690000006
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 133.60634299999947
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 136.09688800000004
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 131.08128100000067
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 132.56264799999917
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 136.3685829999995
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 128.09230000000025
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 146.55267599999934
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 147.02403699999923
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 140.38040900000124
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 137.58508399999846
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 229.38589599999978
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 128.45474599999943
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 132.36535100000037
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 133.7295890000005
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 131.37449500000002
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 132.87008100000094
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 126.65313699999933
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 129.59624500000064
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 126.17964199999915
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 139.5866909999986
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 139.68092799999977
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 139.03219400000125
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 139.1650950000003
+        }
+      ],
+      "maxBatchMs": 529.6192469999987,
+      "peakRssMiB": 652.9140625,
+      "processMaxRssMiB": 664.9140625,
+      "capacityExtrapolationAllowed": false,
+      "limitations": [
+        "Local queue/result RPCs; no DB network latency",
+        "CI Node process is not Vercel runtime",
+        "Sample workload is not a nationwide worst-case bound",
+        "Synthetic PNG and local Storage IO; excludes JMA/Storage HTTP latency",
+        "Repeated tile geometry; nationwide diverse-prefecture memory remains unproven"
+      ],
+      "n03Source": "Real 20260101 N03 geometry via local prepared Storage adapter",
+      "schedulerDecision": "NOT_PRODUCTION_READY"
+    },
+    {
+      "mode": "SYNTHETIC_STRESS_NOT_METEOROLOGICAL_EVIDENCE",
+      "scenario": "dense",
+      "tile": {
+        "x": 227,
+        "y": 100
+      },
+      "jobsOffered": 50,
+      "prefectures": [
+        "08",
+        "09",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14"
+      ],
+      "downloads": {
+        "10": 1,
+        "11": 1,
+        "12": 1,
+        "13": 1,
+        "14": 1,
+        "08": 1,
+        "09": 1
+      },
+      "result": {
+        "claimed": 50,
+        "done": 50,
+        "failed": 0,
+        "strongPixels": 3276800,
+        "deferred": 0
+      },
+      "elapsedMs": 7789.225492,
+      "concurrency": 4,
+      "budgetMs": 45000,
+      "pending": 0,
+      "municipalityHits": 12900,
+      "serializedBytes": 927731,
+      "batches": [
+        {
+          "jobs": 4,
+          "elapsedMs": 943.6952200000001
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 610.2795840000001
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 682.3920810000002
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 548.8395329999998
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 624.9147160000002
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 549.6954890000002
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 545.7989770000004
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 563.620097
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 560.5551879999994
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 594.0885509999998
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 624.1836130000002
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 650.7418950000001
+        },
+        {
+          "jobs": 2,
+          "elapsedMs": 289.3845630000005
+        }
+      ],
+      "maxBatchMs": 943.6952200000001,
+      "peakRssMiB": 713.26171875,
+      "processMaxRssMiB": 761.0390625,
+      "capacityExtrapolationAllowed": false,
+      "limitations": [
+        "Local queue/result RPCs; no DB network latency",
+        "CI Node process is not Vercel runtime",
+        "Sample workload is not a nationwide worst-case bound",
+        "Synthetic PNG and local Storage IO; excludes JMA/Storage HTTP latency",
+        "Repeated tile geometry; nationwide diverse-prefecture memory remains unproven"
+      ],
+      "n03Source": "Real 20260101 N03 geometry via local prepared Storage adapter",
+      "schedulerDecision": "NOT_PRODUCTION_READY"
+    },
+    {
+      "mode": "SYNTHETIC_STRESS_NOT_METEOROLOGICAL_EVIDENCE",
+      "scenario": "fragmented",
+      "tile": {
+        "x": 227,
+        "y": 100
+      },
+      "jobsOffered": 50,
+      "prefectures": [
+        "08",
+        "11",
+        "12",
+        "13"
+      ],
+      "downloads": {
+        "11": 1,
+        "12": 1,
+        "13": 1,
+        "08": 1
+      },
+      "result": {
+        "claimed": 50,
+        "done": 50,
+        "failed": 0,
+        "strongPixels": 102400,
+        "deferred": 0
+      },
+      "elapsedMs": 2933.070573,
+      "concurrency": 1,
+      "budgetMs": 45000,
+      "pending": 0,
+      "municipalityHits": 1200,
+      "serializedBytes": 22993181,
+      "batches": [
+        {
+          "jobs": 1,
+          "elapsedMs": 409.059335
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 91.96635300000003
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 83.41839900000002
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 89.56652999999994
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 54.085128000000054
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 49.72262100000012
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 48.72023800000011
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 51.944996000000174
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 51.00407600000017
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 50.155079000000114
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 49.8262279999999
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 65.39879700000006
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 51.55630999999994
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 48.438613999999916
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 48.23014799999987
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 48.18968700000005
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 49.76515600000016
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 47.618887000000086
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 70.41897999999992
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 57.8804869999999
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 50.92577800000004
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 47.424477000000024
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 43.79665099999988
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 46.27368499999989
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 44.69252899999992
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 46.11091899999997
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 47.32657500000005
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 45.16514200000029
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 45.77099700000008
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 46.6991280000002
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 47.11649699999998
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 45.28522299999986
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 47.00605099999984
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 46.48216999999977
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 45.7348920000004
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 46.03386300000011
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 47.14058400000022
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 47.12505999999985
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 48.070838000000094
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 47.76805699999977
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 48.112141000000065
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 47.510361999999986
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 46.54093899999998
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 47.77214699999968
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 45.717735999999604
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 44.87308099999973
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 48.07614599999988
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 48.9873120000002
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 58.03275799999983
+        },
+        {
+          "jobs": 1,
+          "elapsedMs": 46.744846999999936
+        }
+      ],
+      "maxBatchMs": 409.059335,
+      "peakRssMiB": 398.53515625,
+      "processMaxRssMiB": 398.53515625,
+      "capacityExtrapolationAllowed": false,
+      "limitations": [
+        "Local queue/result RPCs; no DB network latency",
+        "CI Node process is not Vercel runtime",
+        "Sample workload is not a nationwide worst-case bound",
+        "Synthetic PNG and local Storage IO; excludes JMA/Storage HTTP latency",
+        "Repeated tile geometry; nationwide diverse-prefecture memory remains unproven"
+      ],
+      "n03Source": "Real 20260101 N03 geometry via local prepared Storage adapter",
+      "schedulerDecision": "NOT_PRODUCTION_READY"
+    },
+    {
+      "mode": "SYNTHETIC_STRESS_NOT_METEOROLOGICAL_EVIDENCE",
+      "scenario": "fragmented",
+      "tile": {
+        "x": 227,
+        "y": 100
+      },
+      "jobsOffered": 50,
+      "prefectures": [
+        "08",
+        "11",
+        "12",
+        "13"
+      ],
+      "downloads": {
+        "11": 1,
+        "12": 1,
+        "13": 1,
+        "08": 1
+      },
+      "result": {
+        "claimed": 50,
+        "done": 50,
+        "failed": 0,
+        "strongPixels": 102400,
+        "deferred": 0
+      },
+      "elapsedMs": 2822.289195,
+      "concurrency": 4,
+      "budgetMs": 45000,
+      "pending": 0,
+      "municipalityHits": 1200,
+      "serializedBytes": 22993181,
+      "batches": [
+        {
+          "jobs": 4,
+          "elapsedMs": 588.7845560000001
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 207.53753100000006
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 194.53404199999989
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 188.2495039999999
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 186.585282
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 188.47205899999994
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 190.4638970000001
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 191.546562
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 191.57655599999998
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 191.18343600000026
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 198.96145500000011
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 201.86768200000006
+        },
+        {
+          "jobs": 2,
+          "elapsedMs": 101.63574000000017
+        }
+      ],
+      "maxBatchMs": 588.7845560000001,
+      "peakRssMiB": 540.94921875,
+      "processMaxRssMiB": 540.94921875,
+      "capacityExtrapolationAllowed": false,
+      "limitations": [
+        "Local queue/result RPCs; no DB network latency",
+        "CI Node process is not Vercel runtime",
+        "Sample workload is not a nationwide worst-case bound",
+        "Synthetic PNG and local Storage IO; excludes JMA/Storage HTTP latency",
+        "Repeated tile geometry; nationwide diverse-prefecture memory remains unproven"
+      ],
+      "n03Source": "Real 20260101 N03 geometry via local prepared Storage adapter",
+      "schedulerDecision": "NOT_PRODUCTION_READY"
+    },
+    {
+      "mode": "SYNTHETIC_STRESS_NOT_METEOROLOGICAL_EVIDENCE",
+      "scenario": "hokkaido",
+      "tile": {
+        "x": 228,
+        "y": 94
+      },
+      "jobsOffered": 50,
+      "prefectures": [
+        "01"
+      ],
+      "downloads": {
+        "01": 1
+      },
+      "result": {
+        "claimed": 50,
+        "done": 50,
+        "failed": 0,
+        "strongPixels": 3276800,
+        "deferred": 0
+      },
+      "elapsedMs": 7048.685987,
+      "concurrency": 4,
+      "budgetMs": 45000,
+      "pending": 0,
+      "municipalityHits": 2200,
+      "serializedBytes": 173481,
+      "batches": [
+        {
+          "jobs": 4,
+          "elapsedMs": 1041.9188530000001
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 522.6994829999999
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 503.3447950000002
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 507.2194919999997
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 493.9039429999998
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 521.9061859999997
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 524.3485149999997
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 524.0481499999996
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 520.7459140000001
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 501.2558399999998
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 506.86515899999995
+        },
+        {
+          "jobs": 4,
+          "elapsedMs": 569.492432
+        },
+        {
+          "jobs": 2,
+          "elapsedMs": 310.1485330000005
+        }
+      ],
+      "maxBatchMs": 1041.9188530000001,
+      "peakRssMiB": 1017.12109375,
+      "processMaxRssMiB": 1017.12109375,
+      "capacityExtrapolationAllowed": false,
+      "limitations": [
+        "Local queue/result RPCs; no DB network latency",
+        "CI Node process is not Vercel runtime",
+        "Sample workload is not a nationwide worst-case bound",
+        "Synthetic PNG and local Storage IO; excludes JMA/Storage HTTP latency",
+        "Repeated tile geometry; nationwide diverse-prefecture memory remains unproven"
+      ],
+      "n03Source": "Real 20260101 N03 geometry via local prepared Storage adapter",
+      "schedulerDecision": "NOT_PRODUCTION_READY"
+    }
+  ]
+}
