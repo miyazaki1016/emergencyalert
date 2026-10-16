@@ -218,3 +218,17 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - **実装上の重要点**: `RAIN_ENDING`の成立は現況`RAIN`画素＋予報の3連続`NO_RAIN`。これは**現在降雨と将来終了のレーダー解釈**であって、地上で実際に降ったことの証明ではない。終了通知の誤認原因候補は「近傍雨域の単一画素判定」「同一観測フレームを5分cronで再カウント」「本番v29の終了通知条件」であり、特定通知の原因は未確定。
 - **注意**: `severeFrame`は30mm/h以上の未来フレームを別経路で判定し、`severeEscalation`が真なら優先通知。これはLIVE・JAPAN全国表示ではなく、**登録地点workerの通知**処理。
 - 次はPR #59全国workerの入力・強度分類・時間軸を対照し、共通化できる部分と未実装部分を棚卸しする。設計改善案の実装には進まない。
+
+## 2026-10-16 PR #59 全国30mm/h以上の未来予測処理：第一回ソース棚卸し
+
+**対象:** `feat/national-heavy-rain-preview`（OPEN PR #59）、mainとの差分比較。比較時点で**ahead 533 / behind 5**、多数の全国用API・worker・地理データ・テスト・proof・3件のDB migration。**未merge／本番稼働とは区別**。
+
+- **判定共通性は一部すでに実装済み**: `lib/weather/rain/nationalHeavyRain.ts` は登録地点と同じ `lib/weather/providers/jma/classifyPixel.ts` を直接import。したがってRGBA→雨強度8クラスは現時点ですでに**共通の実装**。30mm/h以上は`heavyRainLevel`で `30_TO_50`=`HEAVY`、`50_TO_80`=`VERY_HEAVY`、`GTE_80`=`TORRENTIAL`。
+- **違い**: 登録地点はズーム10の1ピクセル＋時系列を `RainInterpretationEngine` で解釈。全国はPNG全体を走査（`scanHeavyRainTile`）、強いピクセルを抽出して位置・形状・市区町村へ集約。全国側は雨量の色分類は共有しているが、登録地点の `RainInterpretationEngine` にある弱雨持続・降り始め・終了等の**時系列意味判定は再利用していない**。これは機能目的の違いであり、即不具合とは断定しない。
+- **未来予測は既にプロトタイプ実装あり**: `app/api/rain/national-preview/route.ts` はJMA観測N1と未来予測N2を取得し、ズーム4の日本周辺6タイルで、**現況で30mm/h未満・予測で30mm/h以上**の画素を時刻別に抽出する。応答は `baseTime` / `validTime`、強度別counts、候補上限200を返す。**Proof endpointのみで全国Pushはしない**。
+- **全国本処理の段階的詳細化**: `nationalRainWorker.ts` はキューjobをlease token付きでclaim、JMA PNGを取得、zoom6→8→10へ候補領域を絞って細分化、zoom10では強雨画素のポリゴン化・自治体解決を行い結果を保存。deadline / defer / stale leaseへの対処あり。ここで使う `scanHeavyRainTile` も同じ色判定関数。
+- **時間軸**: `nationalRainCycle.ts` は最新予測`basetime`を使って新規サイクル／未完了再試行／完了済みskipを判定。処理完了は必要フレーム数が揃うことが条件。**予測の全時間帯がUIで見えるか、実際に全国で完走できるかはこの調査だけでは未確認**。
+- **要注意の具体点**: `national-preview/route.ts` の`scanFrame`はタイル取得失敗時に空配列を返すため、欠測と雨なしの区別が応答countsに現れない可能性がある（コード上の事実）。登録地点は取得失敗を`FETCH_ERROR`として保持。全国proofと登録地点で欠測意味論の扱いに差がある。実際の影響は要検証。
+- **現段階の結論**: 「雨量の色判定をこれから共通化」は不正確。**色判定はすでに共通**。未整理なのは予測時間・欠測品質・雨域追跡・通知/表示に渡す共通結果契約、および全国workerの本番準備状況。次は全国queue/worker API、テスト・proofと本番DB適用有無を対照する。
+
+今回も読み取りとdocs-only更新だけ。本番コード・DB・pushには変更なし。
