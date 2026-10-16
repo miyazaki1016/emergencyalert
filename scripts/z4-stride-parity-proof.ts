@@ -108,34 +108,46 @@ async function check(frame:Frame,kind:string) {
       twoCandidates,oneCandidates,identical});
   }
 
-  // Stage-realistic read-only samples: derive Z6 jobs from full-resolution
-  // Z4 candidates, then fetch actual Z6 PNGs (capped to avoid load on JMA).
+  // Sample distinct Z6 tiles, not merely the first several windows of one tile.
+  // Fetch each distinct image once and evaluate up to three of its original
+  // windows; retain each window's detection result independently.
   const z6Sample=[];
   const z4Candidates=sourceTiles.flatMap(t=>scanHeavyRainTile(t.buffer,4,t.x,t.y,1));
   const z6Jobs=stagedRefinementJobsFromCoarseCandidates(z4Candidates,frame,6,4);
+  const groups=new Map<string,typeof z6Jobs>();
+  for(const job of z6Jobs){
+    const key=job.tileX+":"+job.tileY;
+    if(!groups.has(key))groups.set(key,[]);
+    groups.get(key)!.push(job);
+  }
   const sampleLimit=Math.max(0,Math.min(6,Number(process.env.Z6_SAMPLE_LIMIT??"3")));
-  for(const job of z6Jobs.slice(0,sampleLimit)){
+  for(const jobs of [...groups.values()].slice(0,sampleLimit)){
+    const job=jobs[0];
     const response=await fetch(buildJmaRainTileUrl(frame,6,job.tileX,job.tileY),{cache:"no-store"});
     if(!response.ok){z6Sample.push({tileX:job.tileX,tileY:job.tileY,httpStatus:response.status});continue;}
     const buffer=Buffer.from(await response.arrayBuffer());
-    const window=job.scanWindow!;
-    const results=[];
-    for(const doubleDecode of [true,false]){
-      const timings:number[]=[];let keys:string[]=[];
-      for(let rep=0;rep<8;rep++){
-        const started=performance.now();
-        if(doubleDecode)PNG.sync.read(buffer);
-        const candidates=scanHeavyRainTile(buffer,6,job.tileX,job.tileY,1,window);
-        timings.push(performance.now()-started);
-        keys=candidates.map(c=>[c.pixelX,c.pixelY,c.intensityClass].join(":")).sort();
+    const windows=[];
+    for(const selected of jobs.slice(0,3)){
+      const window=selected.scanWindow!;
+      const results=[];
+      for(const doubleDecode of [true,false]){
+        const timings:number[]=[];let keys:string[]=[];
+        for(let rep=0;rep<8;rep++){
+          const started=performance.now();
+          if(doubleDecode)PNG.sync.read(buffer);
+          const candidates=scanHeavyRainTile(buffer,6,selected.tileX,selected.tileY,1,window);
+          timings.push(performance.now()-started);
+          keys=candidates.map(c=>[c.pixelX,c.pixelY,c.intensityClass].join(":")).sort();
+        }
+        results.push({doubleDecode,meanMs:timings.reduce((a,v)=>a+v,0)/timings.length,keys});
       }
-      results.push({doubleDecode,meanMs:timings.reduce((a,v)=>a+v,0)/timings.length,keys});
+      windows.push({window,twoDecodeMeanMs:results[0].meanMs,oneDecodeMeanMs:results[1].meanMs,
+        detected:results[0].keys.length,identical:JSON.stringify(results[0].keys)===JSON.stringify(results[1].keys)});
     }
-    z6Sample.push({tileX:job.tileX,tileY:job.tileY,window,
-      twoDecodeMeanMs:results[0].meanMs,oneDecodeMeanMs:results[1].meanMs,
-      detected:results[0].keys.length,identical:JSON.stringify(results[0].keys)===JSON.stringify(results[1].keys)});
+    z6Sample.push({tileX:job.tileX,tileY:job.tileY,totalWindowsForTile:jobs.length,windows});
   }
-  return {kind,validtime:frame.validtime,bench,decodeParity,z6Sample,z6TotalJobs:z6Jobs.length,fetchedTiles:fetched,unavailableTiles:skipped,
+  const z6DistinctTiles=groups.size;
+  return {kind,validtime:frame.validtime,bench,decodeParity,z6Sample,z6TotalJobs:z6Jobs.length,z6DistinctTiles,fetchedTiles:fetched,unavailableTiles:skipped,
     compressedBytes:bytes,allHeavyPixels:all,stride2HeavyPixels:sampled,
     omittedHeavyPixels:missed,omittedFraction:all?missed/all:null,
     fourConnectedHeavyRegions:components,regionsWithNoStride2Pixel:entirelyMissed,
