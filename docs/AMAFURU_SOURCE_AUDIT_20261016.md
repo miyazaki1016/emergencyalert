@@ -361,3 +361,12 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - ログに複数の予報時刻の `refinedStrongPixels` として **2072, 2680, 2609, 2752, 2683** 等の非ゼロ値、`refinedTiles` や `rainTracks` の出力がある。**旧National rain proofは強雨ゼロの空検証だけではなく、実データ上の強雨域を処理していた**。ただしこの実験の対象ズーム・取得地域・判定の意味は別途スクリプト確認が必要。
 - 同jobログには `stride` の明示記録やZ4偶奇別の回収率は見当たらない。`refinedStrongPixels` は「全Z4強雨を漏れなく検出した件数」と同義ではなく、stride2の妥当性の証明ではない。
 - 先に確認した2026-10-05 Z4→Z10 proof #80のdetail強雨0とは**異なる検証**。成功ログの意味を混同しない。実装・本番変更なし。
+
+## 2026-10-16 旧National rain proof #101の実装との突合（確定）
+
+- 2026-09-30 JSTのCI #101で実行されたworkflow `.github/workflows/national-rain-proof.yml` は `npx tsx scripts/national-rain-proof.ts` を実行（commit `3fe209ff...` の歴史的ファイルを取得して照合）。
+- 当時のスクリプト `scripts/national-rain-proof.ts` は **Z4（全国6タイル）を `scanHeavyRainTile(buffer,4,x,y)`、つまりdefault stride2で粗検出**（7–9, 13–25行）。現在観測と将来予報フレームから候補を得る。
+- Z4の予報候補をクラスタリングして代表中心から**Z8のtileを選択**（35–60, 105–113行）。tile境界に近いと隣接tileを含める。予算は45秒、Z8 60タイル。Z8画像は `scanHeavyRainTile(...,8,...,1)` **stride1の全画素走査**（62–84行）。
+- #101のログ `refinedStrongPixels=2072,2680,...` は**Z4 stride2で選ばれたZ8 tile内の強雨画素数**。Z4全候補の検出率、Z4親子画素最大階級一致、Z10直接精査の成功件数ではない。**この古い実験はZ4 stride2を実際に使っていたが、stride1との比較実験ではなかった**。
+- 現在のPR #59本流はZ4候補から**exact 64×64 window付きZ10 jobへ直接進む**ため、古いZ8「代表中心タイルを全走査」実験の強雨数を現在のZ10詳細検出保証に転用しない。
+- 以上は実ファイルとCIログの突合結果。stride2の初出理由と漏れ率は未確認のまま。コード・Production変更なし。
