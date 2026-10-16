@@ -264,6 +264,7 @@ export default function LiveJapanPage() {
           <button type="button" className="live-map-menu-trigger" aria-expanded={mapMenuOpen} aria-controls="live-map-menu-panel" onClick={() => setMapMenuOpen(open => !open)}>☷ 表示設定 {priorityDemo || showSamples ? "●" : ""}</button>
           {mapMenuOpen && <div id="live-map-menu-panel" className="live-map-menu-panel">
             <strong>地図の表示</strong>
+            <button type="button" onClick={() => { goNationwide(); setMapMenuOpen(false); }} disabled={!mapReady}>🌏 全国へ戻る</button>
             <button type="button" onClick={togglePriorityDemo} aria-pressed={priorityDemo}>🧪 優先表示デモ {priorityDemo ? "ON" : "OFF"}</button>
             <button type="button" onClick={toggleSamples} aria-pressed={showSamples}>✦ 従来のサンプル {showSamples ? "ON" : "OFF"}</button>
             <button type="button" onClick={() => setLifecycleResults(runLifecycleScenario())}>🚨 警報の更新・取消テストを実行</button>
@@ -272,7 +273,7 @@ export default function LiveJapanPage() {
           </div>}
         </div>}
         <div className="live-stage-top"><span className="live-live-dot" /> JAPAN / EXPLORE <span className="live-stage-right">地図を動かして探索</span></div>
-        <button type="button" className="live-reset" onClick={goNationwide} disabled={!mapReady}>🌏 全国へ戻る</button>
+        
         <div className="live-scale" aria-live="polite">{focusName} · {detailLevel} <span>ZOOM {zoomLevel}</span></div>
         {!mapReady && <div className="live-loading">日本列島を準備しています…</div>}
         <div className="live-demo-label">{priorityDemo ? "🧪 架空の地域別優先表示テスト中。実際の警報・天気・季節情報ではありません。" : showSamples ? "● 地図上の光は演出用サンプルです。実際の気象・災害情報ではありません。" : "☀ 昼夜の陰影は太陽位置の計算による演出です。気象・災害情報は未表示です。"}</div>
@@ -290,7 +291,7 @@ export default function LiveJapanPage() {
         <div className="live-time-options">{scenes.map(s => <button key={s.key} type="button" className={scene === s.key ? "active" : ""} onClick={() => setScene(s.key)}>{s.label}</button>)}</div>
         <p>{scenes.find(s => s.key === scene)?.caption} <span>・現在は画面演出のみ。時間別の実データは未接続です。</span></p>
       </section>
-      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 14</span></footer>
+      <footer className="live-footer"><span>知りたい情報が、向こうからやってくる。</span><span>AMAFURU · LIVE JAPAN / PREVIEW 15</span></footer>
       <style jsx global>{`
         .live-root{position:relative;isolation:isolate;min-height:100vh;color:#e9f5ff;background:#071423;font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;overflow:hidden}
         .live-ambient{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 60% 32% at 80% 12%,#174d6955,transparent),radial-gradient(ellipse 55% 35% at 15% 55%,#123e5655,transparent)}
