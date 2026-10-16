@@ -477,3 +477,9 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - `lib/weather/rain/administrativeAreas.ts` の `AdministrativeArea` は `code,prefecture,municipality,geometry` のみ。`nationalRainMunicipalities.ts` の返却型 `NationalRainMunicipality` も `code,prefecture,municipality` のみで、町丁目・地区名のフィールドはない。
 - `nationalRainMunicipalityResolver.ts` はN03の行政区域ポリゴンとZ10雨域ポリゴンの交差を自治体単位で解決する。`national-worker/route.ts` の通常/partition両経路も `resolveMunicipalities` を利用。**現行全国豪雨proofの出力から塩浜・木場・東陽の個別該当を判定できるとは言えない**。同じ江東区に属する複数の町名を識別するには、別の町丁目境界データまたは位置指定判定の設計・検証が必要。
 - この確認はコードの静的監査。全国proof workerは通知配信を行わない。行政区域ポリゴン交差ロジック自体の実データ境界精度、町丁目境界の既存別機能の有無は未確定。広域豪雨時の実性能も未測定。
+
+## 2026-10-17 既存登録地点との接続可能性（資料確認）
+
+- `docs/PROJECT_OVERVIEW.md` の2026-09-24実機引継ぎ記録では、`watch_targets` が保存地点の正本で、label・latitude/longitude・display address/name・enabled・notifications_enabledを保持。GPS地点と住所検索（江東区塩浜2-9-8の実機登録例）の登録、`watch-rain` cronによる5分ごとの地点別評価を記録。
+- したがって既存の**緯度経度による登録地点判定**を全国豪雨proofの出力につなぐ設計余地がある。町丁目名一覧の生成を必須とする理由はない。一方で「塩浜・木場・東陽をそれぞれ網羅する」要件には、各地点の登録有無や町丁目の面全体をカバーする別問題がある。**地点判定と町丁目全域判定は別**。
+- 現段階では全国豪雨proofから既存watcher/Pushへの接続は確認されていない。既存の通知仕様・座標照合の実装詳細・実機挙動は追加監査が必要。静的文書から接続済みと推定しない。
