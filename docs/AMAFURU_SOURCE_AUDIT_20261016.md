@@ -232,3 +232,20 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - **現段階の結論**: 「雨量の色判定をこれから共通化」は不正確。**色判定はすでに共通**。未整理なのは予測時間・欠測品質・雨域追跡・通知/表示に渡す共通結果契約、および全国workerの本番準備状況。次は全国queue/worker API、テスト・proofと本番DB適用有無を対照する。
 
 今回も読み取りとdocs-only更新だけ。本番コード・DB・pushには変更なし。
+
+## 2026-10-16 PR #59 全国queue/worker API・本番DB照合（read-only）
+
+**ブランチコード:**
+- `app/api/rain/national-queue/route.ts`: `POST`、`NATIONAL_RAIN_WORKER_SECRET` bearer認証必須。JMA最新予測basetimeごとにz4の6タイルを走査、現況30mm/h以上と同じ画素を除外、候補から詳細化jobを作成、`national_rain_scan_cycles`へ必要フレーム数と利用可能フレーム数を記録。タイル欠損時は該当予報フレームを未完了として扱い、雨なしにはしない。
+- `app/api/rain/national-worker/route.ts`: 同認証必須、`POST`。上限50ジョブ/呼び出し、N03行政区域データを使う市区町村解決。 `NATIONAL_RAIN_N03_PARTITIONS_ENABLED=true`時だけ分割済みデータを使用し、データ不足時に旧方式へ自動フォールバックしない。
+- `nationalRainWorker.ts`: lease tokenによるジョブ所有権・期限・延期、z6→z8→z10の細分化、強雨ポリゴンと自治体情報の保存を実装。これはコードの確認であり実運用の成功を意味しない。
+- ブランチmigration 3本：`20260929_create_national_rain_refinement_jobs.sql`（queue/results/RPC）、`20260930_create_national_rain_proof_cron.sql`（5分ごとscan＋worker2系統）、`20261006_create_national_rain_scan_cycles.sql`（予報basetime完了状態）。いずれもコメントでProduction適用前の明示的レビューを要求。登録地点のwatch-rain/pushとは分離。
+
+**本番Supabase EmergencyAlert `yqyevipvkdwmhcaxywes`（2026-10-16、SELECTのみ）:**
+- `information_schema.tables` の `public.national_rain%` **0件**。
+- `cron.job` の名前 `%national%` **0件**。
+- `information_schema.routines` の `public.%national_rain%` **0件**。
+- **結論: PR #59全国処理の必要テーブル・RPC・スケジュールは現本番DBに存在せず、全国queue/workerは本番DB基盤として未適用。** プロトタイプのAPIソースが存在することと、本番で全国処理が稼働することを区別する。
+- 前回の `national-preview` proof APIが失敗時に空扱いするのに対し、**queue APIは欠測フレームを未完了扱い**に改善されている。API別に品質扱いが異なるため、同一仕様と決めつけない。
+
+**残る調査:** ブランチ上のqueue/workerテストの網羅範囲、readiness proofの証拠と未達条件、LIVE・JAPAN UI接続、全国の未来表示時刻と地震等の表示契約。今回は実行・本番変更・mergeなし。
