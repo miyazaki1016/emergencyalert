@@ -193,3 +193,18 @@ Supabaseから取得した本番 `watch-rain/index.ts`（64行）とGitHub main�
 - 時刻の新しさ・予測有効範囲・欠測・表示の更新遅延を画面に明示。予測データの提供時間幅と粒度は、実際のJMAデータ仕様とPR #59の既存実装を照合して決める。
 - 将来の大雨を可視化する機能と、全国へプッシュ通知を配信する機能は別。**全国一斉Pushは今回の要望に含まない**。
 - 現時点は要件記録のみ。既存本番Push、LIVE・JAPANの現行実装、本番DBは変更しない。
+
+## 2026-10-16 洗い出し再開：登録地点の雨判定から終了通知まで（main静的追跡）
+
+**確認したソース:** `app/api/rain/route.ts`、`JmaPublicImageProvider.ts`、`targetTimes.ts`、`observationTargetTimes.ts`、`webMercator.ts`、`classifyPixel.ts`、`RainInterpretationEngine.ts`、`canPublishRainInterpretation.ts`、`toRainSemanticEvent.ts`、`supabase/functions/watch-rain/index.ts`。実行テストではなくソース追跡。
+
+1. **取得**: 登録緯度経度→ズーム10のWebMercatorタイル・**単一ピクセル**に変換。JMA `targetTimes_N1.json` の最新観測1フレームと `targetTimes_N2.json` の予報時系列から `hrpns` PNG同一ピクセルRGBAを読み取る。取得エラーは `FETCH_ERROR`。
+2. **雨の有無**: `classifyRainPixel` は透明（alpha=0）→`NO_RAIN`、既知パレットの有色ピクセル→`RAIN`＋強度区分、未知色→`UNKNOWN_PIXEL`。**RAIN判定そのものには5mm/h下限なし**。レーダー画素であり現地地上の実測雨量ではない。
+3. **予報解釈**: 現況`RAIN`なら予報中の3連続`NO_RAIN`から`ENDING`、または`EASING`／`RAINING`。現況`NO_RAIN`なら5mm/h以上の将来雨フレーム、または1〜5mm/hが5分刻み3連続のフレームで、30分以内なら`ACTIONABLE_RAIN`、それ以外は`RAIN_AHEAD`等。現況の時刻鮮度は-5〜15分。
+4. **公開可否**: `canPublishRainInterpretation` は`ENDING`時、終了時刻から3連続`NO_RAIN`が使用可能であることを確認。ただし**現況の雨が地上で実際に降ったことを独立検証する仕組みではない**。
+5. **イベント化**: `ENDING`→`RAIN_ENDING`、`ACTIONABLE_RAIN`→`ACTIONABLE_RAIN_APPROACHING`（`LIFESTYLE_ACTION`）。`ENDING`は`INFO`。公開可否を満たした場合のみAPIがイベントを返す。
+6. **通知worker**: 5分毎のcronが登録地点ごとに`/api/rain`取得。現況`RAIN`を3回連続で`rain_streak>=3`、`confirmed_weather=RAINING`とするが、**3回連続レーダー画素RAIN＝現地での地上降雨確証ではない**。`RAIN_ENDING`の通知可否はworkerでさらに決定。
+7. **重要な本番差分**: 本番v29は`RAIN_ENDING`の通知条件に`confirmed_weather=RAINING`が**ない**。mainにはこの条件があるが、`confirmedAndEnding`経路が別にある。既存の`RAIN_ENDING`通知75/120件とユーザーの「近くを雨雲が通過、現地では降らず、終了通知だけ来た」報告と整合する可能性はあるが、**特定の通知の因果関係は未確定**。
+8. **精度上の論点**: ズーム10・単一ピクセルの点判定で近傍通過・地上降雨・画素境界・パレット変換を区別できるか未検証。観測フレームの`validTime`と5分cronの連続回数が、必ずしも独立した3観測時刻を意味するかも未確認（同じ観測フレームを複数回読んだ可能性）。`rain_streak`を3回増やす際にsourceValidAtの変化を要求する処理はworker内に見当たらない。
+
+**未確認／次の調査**: `pngPalette.ts`の強度色境界と試験、`watch-rain`の通知本文と`shouldNotifyForRain`の具体条件、productionのイベント時系列（プライバシー保護した集計のみ）、PR #59全国処理との強度分類共通化。**修正・本番適用なし。**
