@@ -556,3 +556,10 @@ from Push work, require CI to pass before merge, and verify the resulting
 Production deployment afterward.
 
 > targetTimes の値を読んでいるだけでは足りない。URLまで同じフレーム情報を運ぶ。
+
+
+## 2026-10-16 アメふる × 美咲 連携方針（Draft / 未実装）
+
+公式気象・防災情報の取得／地域判定／事実・予報の解釈を美咲側に二重実装しない。アメふるが公式情報の機械可読な事実・予測・欠損・鮮度を提供し、美咲がユーザー位置・キャラクター人格・関係性・通知判断に応じて利用する。両者は独立サービスとして維持する。
+
+**共有契約案・今後の実装ゲート:** [AMAFURU_MISAKI_INTEGRATION_CONTRACT_20261016.md](./AMAFURU_MISAKI_INTEGRATION_CONTRACT_20261016.md)。現在はDraft提案であり、API公開・連携稼働を意味しない。双方の最新main/PRと突き合わせてから正式契約へ昇格させる。明示承認なしの本番変更・DB変更・PR mergeは禁止。
