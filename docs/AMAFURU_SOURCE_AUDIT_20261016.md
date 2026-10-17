@@ -544,3 +544,14 @@ PR検索で #1〜#62 の62件（番号欠落なし）を発見。openは #25,#59
 - open/unmerged: #25 live JMA early-rain CI（検証）、#59 nationwide heavy rain（開発＋proof）、#60 Misaki weather contract（Draft文書）、#61 LIVE JAPAN（Draft試作）、#62 Z4 stride parity（Draft検証）。
 - この段階で『本番実装できた』と確定した機能は**0件（未照合）**。実際に本番稼働している機能が0という意味ではない。Vercel Production deployment SHA、DB schema/cron/実通知を調べてから判定。
 - 次: #21 vs #23のdiffと当該ブランチ、全64 branchのmain比較、#59内のN03/町丁目/worker各proof、production/preview証跡。
+
+## 2026-10-17 旧版・後継の確定例と残存ブランチ
+
+- **PR #21 → PR #23：置換を確認。** #21 closed/unmergedの本文はread-only `/api/rain/early` prototype API。#23 mergedのPR本文が明示的に `Rebased replacement for #21 on the latest main` と記載し、両PRの33行のroute diffも一致。よって #21は**旧提案（後継#23に置換、未マージ）**、#23は**Main統合済みのread-only試作API**。#23の本番利用・デプロイは未確認。
+- **PR #25** はlive JMA smokeの検証専用open PR。ワークフロー、PNG URL member `none/immed`テスト、実データ取得スクリプトが含まれ、既存アプリの通知やDBには触れない。PR内のテスト差分をmainへ統合したと推定しない。
+- main比較で `feat-early-rain-forecast-api` ahead1/behind83、`feat-early-rain-forecast-api-v2` ahead1/behind82、`feat-early-rain-forecast-provider` ahead4/behind84、`test-jma-early-live-smoke` ahead9/behind80。履歴がdivergedした旧branchを「独自未完成機能」とは即断せずPRと差分を照合。
+- `feat/severe-rain-alerts` ahead0/behind55、files0: 現Mainに対して独自差分なし。`feat/pwa-foundation` ahead4/behind105、files4: 旧branchに差分ありでもPR #2 merged、単純に未統合とは断定できない。
+- `feat/national-heavy-rain-preview` ahead533/behind5、files128、`test/z4-stride-parity-20261016` ahead546/behind5、files131。多数のcommitは本番反映の証拠にならない。
+- `feat/live-japan-experience-prototype` ahead31/behind1、files8、`docs/misaki-weather-integration-20261016` ahead2/behind1、files2。いずれもMainとdiverged。
+
+次: 全branch差分とPRの対応、実際の本番デプロイSHAの照合。旧版判定にはPR本文だけでなく後継の差分一致等の根拠を必須とする。
