@@ -555,3 +555,13 @@ PR検索で #1〜#62 の62件（番号欠落なし）を発見。openは #25,#59
 - `feat/live-japan-experience-prototype` ahead31/behind1、files8、`docs/misaki-weather-integration-20261016` ahead2/behind1、files2。いずれもMainとdiverged。
 
 次: 全branch差分とPRの対応、実際の本番デプロイSHAの照合。旧版判定にはPR本文だけでなく後継の差分一致等の根拠を必須とする。
+
+## 2026-10-17 branch/main比較 第2巡（計60/63非mainブランチ）
+
+GitHub branch searchの初回一覧は64件（main含む）。比較対象はmain以外63件。`compare_commits(main...branch)` を今回50件に追加実行し、前回12件と合わせて**非mainの計60件を比較済み**。重複を除いた厳密集計は次巡で行う（未照合候補 `docs/amafuru-source-audit-20261016`, `feat/live-japan-experience-prototype`, `feat/national-heavy-rain-preview`, `test/z4-stride-parity-20261016` など前回比較済みのものもある）。全64件の一覧と全branch結果の最終対応表は未完成。
+
+**Mainに対し独自差分0（ahead0/files0）の確認例:** `design/lighter-blue-result-order`, `design/lighter-rain-blue`, `design/polished-mobile-ui`, `design/restore-visual-contrast`, `design/white-secondary-text`, `docs/update-project-overview-20260928`, `feat/confirmed-rain-facts`, `feat/map-location-picker`, `feat/rain-returning-copy`, `fix/disambiguate-duplicate-notification-labels`, `fix/internal-rain-confirmation-state`, `fix/jma-20-30-palette`, `fix/keep-rain-check-together`, `fix/natural-rain-notifications`, `fix/refresh-alerts-at-tokyo-midnight`, `fix/restore-push-status-on-load`, `fix/restore-rain-ending-decision`, `fix/suppress-rain-confirmed-push`, `feat/severe-rain-alerts`。これらはbranch固有の未統合コードを持たない（旧版か現行機能かは別判定）。`fix-clear-place-form-after-save` は ahead1/behind86 でも files0で、**履歴差分とコード差分は別**。
+
+**Mainとの差分あり・個別PR/後継照合が必要な例:** `feat/japanese-address-geocoder` ahead6/files2、`feat/push-subscription-ui` ahead5/files2、`feat/visual-map-picker` ahead8/files3、`fix/rain-ending-hysteresis` ahead4/files3、`fix/rain-ending-after-confirmed-rain` ahead1/files1、`test-jma-early-live-smoke` ahead9/files4。これらを『未マージ機能』と短絡しない。多くは対応PRが既にmergedされ、履歴がdivergedした可能性がある。
+
+**残作業:** 各branchのchanged filesとmerged PRのdiffを対応付け、後継・現行・検証・残作業を確定。Vercel Production deployment照合前に本番完了判定は行わない。
