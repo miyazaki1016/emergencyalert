@@ -1,6 +1,6 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
-import { nextLastNotifiedAt, nextRainEndingNotified, shouldNotifyForRain } from "./notificationDecision.ts";
+import { nextLastNotifiedAt, nextRainEndingNotified, rainForecastTimeMs, shouldNotifyForRain } from "./notificationDecision.ts";
 
 type RainEvent = { schemaVersion:1; eventType:string; urgency:"INFO"|"LIFESTYLE_ACTION"; suggestedAction:string; startsAt:string|null; actionableAt:string|null; endingAt:string|null; source:string; checkedAt:string; sourceValidAt:string|null; };
 type Rgba = { r:number; g:number; b:number; a:number };
@@ -32,14 +32,14 @@ Deno.serve(async(req:Request)=>{
   const clearStreak=currentStatus==="NO_RAIN"?Math.min(Number(previous?.clear_streak??0)+1,3):0;
   const rainConfirmed=rainStreak>=3&&!previous?.rain_confirmed_notified;
   const severeRank=(v?:string|null)=>v==="GTE_80"?3:v==="50_TO_80"?2:v==="30_TO_50"?1:0;
-  const severeFrame=(rain.forecast??[]).filter(f=>f.validTime&&new Date(f.validTime).getTime()>=Date.now()&&severeRank(f.intensityClass)>0).sort((a,b)=>severeRank(b.intensityClass)-severeRank(a.intensityClass)||new Date(a.validTime!).getTime()-new Date(b.validTime!).getTime())[0];
+  const severeFrame=(rain.forecast??[]).filter(f=>f.validTime&&rainForecastTimeMs(f.validTime)>=Date.now()&&severeRank(f.intensityClass)>0).sort((a,b)=>severeRank(b.intensityClass)-severeRank(a.intensityClass)||rainForecastTimeMs(a.validTime)-rainForecastTimeMs(b.validTime))[0];
   const severeLevel=severeRank(severeFrame?.intensityClass); const previousSevere=Number(previous?.severe_rain_level??0); const severeEscalation=severeLevel>previousSevere;
   const initialRaining=false;
   const rainEnding=rain.event.eventType==="RAIN_ENDING"&&previousEvent?.eventType!=="RAIN_ENDING"&&!previous?.rain_ending_notified&&previous?.confirmed_weather==="RAINING";
   const confirmedAndEnding=rainConfirmed&&rain.event.eventType==="RAIN_ENDING";
   const shouldNotify=Boolean(target.notifications_enabled)&&(severeEscalation||shouldNotifyForRain({notificationsEnabled:true,currentUrgency:rain.event.urgency,previousUrgency:previousEvent?.urgency,lastNotifiedAt:previous?.last_notified_at,rainEnding:rainEnding||confirmedAndEnding}));
   let delivered=0,failed=0;
-  const severeMinutes=severeFrame?.validTime?Math.max(0,Math.round((new Date(severeFrame.validTime).getTime()-Date.now())/60000)):null;
+  const severeMinutes=severeFrame?.validTime?Math.max(0,Math.round((rainForecastTimeMs(severeFrame.validTime)-Date.now())/60000)):null;
   const severeName=severeLevel===3?"猛烈な雨":severeLevel===2?"非常に激しい雨":"激しい雨";
   const severeBody=notificationLabel?`${notificationLabel}：${severeMinutes===0?"まもなく":`約${severeMinutes}分後`}に${severeName}（${severeLevel===3?"80mm/h以上":severeLevel===2?"50〜80mm/h":"30〜50mm/h"}）の予測です。周囲の状況に注意してね`:`${severeMinutes===0?"まもなく":`約${severeMinutes}分後`}に${severeName}の予測です。周囲の状況に注意してね`;
   const returningRain=previous?.confirmed_weather==="RAINING"&&clearStreak>0&&clearStreak<3&&actionable;
