@@ -157,3 +157,25 @@ describe("rain-ending hysteresis", () => {
     })).toBe(true);
   });
 });
+
+
+describe("notification regression characterization (2026-10-18)", () => {
+  it("currently permits an ending notification independently of an earlier approach notification", () => {
+    // Characterization, not desired policy: shouldNotifyForRain has no rain-episode ID
+    // or prior approach-delivery argument.
+    expect(shouldNotifyForRain({
+      notificationsEnabled: true,
+      currentUrgency: "INFO",
+      previousUrgency: "INFO",
+      lastNotifiedAt: null,
+      rainEnding: true,
+    })).toBe(true);
+  });
+
+  it("native Date parsing does not interpret the 14-digit JMA forecast timestamp", () => {
+    // The watch-rain worker currently uses new Date(frame.validTime) for
+    // severe forecast selection. RainInterpretationEngine uses a JMA parser.
+    expect(Number.isNaN(new Date("20261018123000").getTime())).toBe(true);
+    expect(new Date("2026-10-18T12:30:00Z").getTime()).toBe(1792326600000);
+  });
+});
