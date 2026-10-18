@@ -34,3 +34,16 @@ export function nextRainEndingNotified(args: {
   if (args.rainStreak >= 3) return false;
   return args.previousRainEndingNotified;
 }
+
+/** Convert a JMA YYYYMMDDHHmmss timestamp (UTC), or ISO timestamp, to epoch ms.
+ * Invalid timestamps fail closed rather than being treated as future forecasts.
+ */
+export function rainForecastTimeMs(value: string | null | undefined): number {
+  if (!value) return NaN;
+  if (/^\d{14}$/.test(value)) {
+    const iso = `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}T${value.slice(8, 10)}:${value.slice(10, 12)}:${value.slice(12, 14)}Z`;
+    const ms = Date.parse(iso);
+    return Number.isFinite(ms) && new Date(ms).toISOString() === iso.replace("Z", ".000Z") ? ms : NaN;
+  }
+  return /^\d{4}-\d{2}-\d{2}T/.test(value) ? Date.parse(value) : NaN;
+}
