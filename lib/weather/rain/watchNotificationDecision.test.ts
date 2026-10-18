@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nextLastNotifiedAt, nextRainEndingNotified, shouldNotifyForRain } from "../../../supabase/functions/watch-rain/notificationDecision";
+import { nextLastNotifiedAt, nextRainEndingNotified, rainForecastTimeMs, shouldNotifyForRain } from "../../../supabase/functions/watch-rain/notificationDecision";
 
 describe("watch-rain notification decision", () => {
   it("notifies when a target becomes actionable", () => {
@@ -177,5 +177,19 @@ describe("notification regression characterization (2026-10-18)", () => {
     // severe forecast selection. RainInterpretationEngine uses a JMA parser.
     expect(Number.isNaN(new Date("20261018123000").getTime())).toBe(true);
     expect(new Date("2026-10-18T12:30:00Z").getTime()).toBe(1792326600000);
+  });
+});
+
+describe("JMA forecast timestamp parsing", () => {
+  it("accepts valid 14-digit JMA UTC timestamps", () => {
+    expect(rainForecastTimeMs("20261018123000")).toBe(Date.parse("2026-10-18T12:30:00Z"));
+  });
+  it("accepts ISO timestamps used by other providers", () => {
+    expect(rainForecastTimeMs("2026-10-18T12:30:00Z")).toBe(Date.parse("2026-10-18T12:30:00Z"));
+  });
+  it("fails closed on invalid or missing timestamps", () => {
+    expect(Number.isNaN(rainForecastTimeMs("20261318123000"))).toBe(true);
+    expect(Number.isNaN(rainForecastTimeMs("not-a-date"))).toBe(true);
+    expect(Number.isNaN(rainForecastTimeMs(null))).toBe(true);
   });
 });
