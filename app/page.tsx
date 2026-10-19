@@ -125,6 +125,7 @@ export default function Home() {
   const [testPushBusy, setTestPushBusy] = useState(false);
   const [latestAlerts, setLatestAlerts] = useState<NotificationDelivery[]>([]);
   const [weatherFeedback, setWeatherFeedback] = useState<Record<number, string>>({});
+  const [feedbackAvailable, setFeedbackAvailable] = useState(false);
   const [feedbackBusy, setFeedbackBusy] = useState<number | null>(null);
   const [feedbackError, setFeedbackError] = useState("");
   const [historyNotice, setHistoryNotice] = useState("");
@@ -338,7 +339,13 @@ export default function Home() {
         const { data: feedback, error: feedbackError } = await supabase.from("rain_notification_feedback")
           .select("notification_id,actual_weather")
           .in("notification_id", deliveries.map((item) => item.id));
-        if (!feedbackError) setWeatherFeedback(Object.fromEntries((feedback ?? []).map((item) => [item.notification_id, item.actual_weather])));
+        if (feedbackError) {
+          setFeedbackAvailable(false);
+          setWeatherFeedback({});
+        } else {
+          setFeedbackAvailable(true);
+          setWeatherFeedback(Object.fromEntries((feedback ?? []).map((item) => [item.notification_id, item.actual_weather])));
+        }
       }
     } catch {
       setHistoryNotice("通知履歴を読み込めなかったよ。時間をおいて再度確認してね。");
@@ -347,6 +354,10 @@ export default function Home() {
 
   const saveWeatherFeedback = async (notificationId: number, actualWeather: string) => {
     const alert = latestAlerts.find(item => item.id === notificationId);
+    if (!feedbackAvailable) {
+      setFeedbackError("回答の保存機能はまだ利用できないよ。");
+      return;
+    }
     if (!alert || !feedbackOptionsForNotification(alert)?.some(([value]) => value === actualWeather)) {
       setFeedbackError("この通知にはその回答を保存できないよ。");
       return;
@@ -689,6 +700,9 @@ export default function Home() {
                 </div>
               )}
               <div style={{ marginTop: 10, fontSize: 13 }}>{feedbackOptionsForNotification(alert) ? "予測した時間内の実際の天気は？" : "この種類の通知は回答方法を準備中だよ。"}</div>
+              {!feedbackAvailable && feedbackOptionsForNotification(alert) && (
+                <div style={{ marginTop: 4, fontSize: 12, color: "#ffe1a0" }}>回答の保存機能は準備中だよ。履歴と判定根拠は確認できるよ。</div>
+              )}
               {feedbackOptionsForNotification(alert) && (
                 <div style={{ marginTop: 4, fontSize: 12, color: "#dce9fa" }}>
                   「降らなかった」「止まなかった」は予測対象時刻を過ぎてから回答してね。通知時点ですでに降っていた／降っていなかった場合はそのまま回答できるよ。
@@ -696,7 +710,7 @@ export default function Home() {
               )}
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
                 {(feedbackOptionsForNotification(alert) ?? []).map(([value, label]) => (
-                  <button key={value} type="button" disabled={feedbackBusy === alert.id || feedbackTooEarly(value, alert.decision_snapshot?.forecastTargetTime, Date.now())} onClick={() => void saveWeatherFeedback(alert.id, value)}
+                  <button key={value} type="button" disabled={!feedbackAvailable || feedbackBusy === alert.id || feedbackTooEarly(value, alert.decision_snapshot?.forecastTargetTime, Date.now())} onClick={() => void saveWeatherFeedback(alert.id, value)}
                     aria-pressed={weatherFeedback[alert.id] === value}
                     style={{ padding: "7px 10px", borderRadius: 10, color: "#fff", cursor: "pointer", border: weatherFeedback[alert.id] === value ? "2px solid #fff" : "1px solid #789", background: weatherFeedback[alert.id] === value ? "#235f88" : "#28405c" }}>
                     {label}
