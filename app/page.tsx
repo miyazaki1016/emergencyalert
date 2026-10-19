@@ -187,7 +187,7 @@ export default function Home() {
 
               if (radarLayer) map.removeLayer(radarLayer);
               radarLayer = L.tileLayer(radarUrl, {
-                opacity: 0.58,
+                opacity: 0.36,
                 minNativeZoom: 4,
                 maxNativeZoom: nextNativeZoom,
                 maxZoom: 19,
@@ -317,6 +317,13 @@ export default function Home() {
   };
 
   const loadLatestAlerts = async () => {
+    if (!previewCapabilities.databaseConfigured) {
+      setLatestAlerts([]);
+      setWeatherFeedback({});
+      setFeedbackAvailable(false);
+      setHistoryNotice("この検証画面では通知履歴を表示できないよ。接続設定がまだないため、読み込みは行っていないよ。");
+      return;
+    }
     try {
       const supabase = getSupabaseBrowserClient();
       const session = (await supabase.auth.getSession()).data.session;
@@ -711,9 +718,9 @@ export default function Home() {
 
       <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.10)", borderRadius: 20, background: "rgba(24,55,88,.80)", boxShadow: "0 18px 50px rgba(0,0,0,.20)", backdropFilter: "blur(18px)" }}>
           <h2 style={{ marginTop: 0, marginBottom: 6 }}>通知履歴（過去7日間・最新200件）</h2>
-          <p style={{ marginTop: 0, color: "#eef5ff" }}>送信に成功した通知を新しい順に表示しているよ。実際の天気を回答すると、通知の精度改善に役立つよ。</p>
+          <p style={{ marginTop: 0, color: "#eef5ff" }}>{previewCapabilities.databaseConfigured ? "送信に成功した通知を新しい順に表示しているよ。実際の天気を回答すると、通知の精度改善に役立つよ。" : "通知履歴と回答保存は、検証用データベースを接続してから確認できるよ。"}</p>
           {historyNotice && <p role="status" style={{ color: "#ffe1a0" }}>{historyNotice}</p>}
-          {latestAlerts.length === 0 && <p>この期間の通知はまだないよ。</p>}
+          {previewCapabilities.databaseConfigured && latestAlerts.length === 0 && !historyNotice && <p>この期間の通知はまだないよ。</p>}
           {feedbackError && <p role="alert" style={{ color: "#ffb5b5" }}>{feedbackError}</p>}
           {latestAlerts.map((alert) => (
             <div key={alert.id} style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.08)" }}>
