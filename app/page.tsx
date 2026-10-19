@@ -307,7 +307,15 @@ export default function Home() {
     try {
       const supabase = getSupabaseBrowserClient();
       const session = (await supabase.auth.getSession()).data.session;
-      if (!session) return;
+      if (!session) {
+        // Never retain previously fetched notification history in the UI
+        // after a session has expired or the user signed out.
+        setLatestAlerts([]);
+        setWeatherFeedback({});
+        setFeedbackAvailable(false);
+        setHistoryNotice("");
+        return;
+      }
       const start = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
       const baseColumns = "id,target_id,event_type,title,body,delivered_at";
       const initial = await supabase
@@ -336,6 +344,10 @@ export default function Home() {
         decision_snapshot?: NotificationEvidence | null;
       }>).map(item => ({ ...item, decision_snapshot: item.decision_snapshot ?? null }));
       setLatestAlerts(deliveries);
+      if (deliveries.length === 0) {
+        setWeatherFeedback({});
+        setFeedbackAvailable(false);
+      }
       if (deliveries.length > 0) {
         const { data: feedback, error: feedbackError } = await supabase.from("rain_notification_feedback")
           .select("notification_id,actual_weather")
@@ -349,6 +361,9 @@ export default function Home() {
         }
       }
     } catch {
+      setLatestAlerts([]);
+      setWeatherFeedback({});
+      setFeedbackAvailable(false);
       setHistoryNotice("通知履歴を読み込めなかったよ。時間をおいて再度確認してね。");
     }
   };
