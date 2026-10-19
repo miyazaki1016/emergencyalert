@@ -3,6 +3,7 @@ import webpush from "npm:web-push@3.6.7";
 import { nextLastNotifiedAt, nextRainEndingNotified, shouldNotifyForRain } from "./notificationDecision.ts";
 import { assessEndingShadow } from "./endingShadow.ts";
 import { buildNotificationDecisionEvidence } from "./decisionEvidence.ts";
+import { isMissingDecisionSnapshotColumn } from "./deliverySchemaCompat.ts";
 
 type RainEvent = { schemaVersion:1; eventType:string; urgency:"INFO"|"LIFESTYLE_ACTION"; suggestedAction:string; startsAt:string|null; actionableAt:string|null; endingAt:string|null; source:string; checkedAt:string; sourceValidAt:string|null; };
 type Rgba = { r:number; g:number; b:number; a:number };
@@ -63,12 +64,22 @@ Deno.serve(async(req:Request)=>{
     decisionReasons:{severeEscalation,rainEnding,confirmedAndEnding,returningRain,rainConfirmed,
      previousConfirmedWeather:previous?.confirmed_weather??null},
    });
-   const {error:deliveryError}=await db.from("notification_deliveries").insert({
+   const deliveryRecord={
     owner_id:target.owner_id,target_id:target.id,event_type:notificationEventType,
     urgency:notificationUrgency,title:"EmergencyAlert",body,delivered_at:now,
-    delivered_count:delivered,decision_snapshot:decisionSnapshot,
+    delivered_count:delivered,
+   };
+   const {error:deliveryError}=await db.from("notification_deliveries").insert({
+    ...deliveryRecord,decision_snapshot:decisionSnapshot,
    });
-   if(deliveryError) console.error("notification_delivery_record_failed", {targetId:target.id,message:deliveryError.message});
+   if(deliveryError && isMissingDecisionSnapshotColumn(deliveryError)){
+    // Additive migration not applied yet: preserve the delivery history record.
+    const {error:legacyError}=await db.from("notification_deliveries").insert(deliveryRecord);
+    if(legacyError) console.error("notification_delivery_legacy_record_failed",{targetId:target.id,message:legacyError.message});
+    else console.warn("notification_delivery_evidence_not_saved_column_missing",{targetId:target.id});
+   }else if(deliveryError){
+    console.error("notification_delivery_record_failed", {targetId:target.id,message:deliveryError.message});
+   }
   }
   const notifiedAt=nextLastNotifiedAt({delivered,actionable,previousLastNotifiedAt:previous?.last_notified_at,now});
   const endingNotified=nextRainEndingNotified({previousRainEndingNotified:Boolean(previous?.rain_ending_notified),rainStreak,endingDelivered:(rainEnding||confirmedAndEnding)&&delivered>0});
