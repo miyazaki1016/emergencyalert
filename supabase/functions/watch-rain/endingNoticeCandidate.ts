@@ -1,3 +1,4 @@
+// @ts-ignore Deno Edge Functions require the explicit .ts extension; Next checks shared test imports without allowImportingTsExtensions.
 import { assessEndingShadow, type EndingShadowFrame } from "./endingShadow.ts";
 
 /** Pure shadow-only wording candidate. Never used to gate or send actual pushes.
