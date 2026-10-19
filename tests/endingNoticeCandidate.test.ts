@@ -20,6 +20,16 @@ describe("5-to-10 minute rain ending shadow candidate (never sends pushes)", () 
     const result=assess("2026-10-19T11:53:00Z",["NO_RAIN","NO_RAIN","NO_RAIN","RAIN"]);
     expect(result.candidate).toBe("TEMPORARY_ENDING_FORECAST");
   });
+  it("never calls unavailable current pixels 'already dry' or a valid ending candidate", () => {
+    for (const currentStatus of ["NO_DATA", "UNKNOWN", null]) {
+      const result = assessEndingNoticeCandidate({
+        currentStatus, checkedAt: "2026-10-19T11:53:00Z",
+        endingTime: "20261019120000",
+        forecast: forecast(["NO_RAIN","NO_RAIN","NO_RAIN","NO_RAIN"]),
+      });
+      expect(result.candidate).toBe("INSUFFICIENT_FORECAST");
+    }
+  });
   it("does not pretend incomplete future data proves a durable ending", () => {
     expect(assess("2026-10-19T11:53:00Z",["NO_RAIN","NO_RAIN","NO_RAIN"]).candidate)
       .toBe("ENDING_WITH_LIMITED_HORIZON");
