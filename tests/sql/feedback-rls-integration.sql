@@ -134,6 +134,37 @@ BEGIN
   END IF;
 END $$;
 
+-- A visitor without an authenticated session must not read or modify feedback.
+RESET ROLE;
+SET ROLE anon;
+DO $
+DECLARE blocked boolean := false;
+BEGIN
+  BEGIN
+    PERFORM count(*) FROM public.rain_notification_feedback;
+  EXCEPTION WHEN insufficient_privilege THEN blocked := true;
+  END;
+  IF NOT blocked THEN RAISE EXCEPTION 'ANON_FEEDBACK_READ_ACCEPTED'; END IF;
+END $;
+RESET ROLE;
+
+-- An authenticated owner can read their evidence but must not alter delivery
+-- records via the public API. The service worker uses service-role privileges.
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '11111111-1111-4111-8111-111111111111';
+DO $
+DECLARE blocked boolean := false;
+BEGIN
+  IF (SELECT decision_snapshot->>'schemaVersion'
+      FROM public.notification_deliveries WHERE id=1) <> '1' THEN
+    RAISE EXCEPTION 'OWN_EVIDENCE_NOT_READABLE';
+  END IF;
+  BEGIN
+    UPDATE public.notification_deliveries SET decision_snapshot='{}'::jsonb WHERE id=1;
+  EXCEPTION WHEN insufficient_privilege THEN blocked := true;
+  END;
+  IF NOT blocked THEN RAISE EXCEPTION 'CLIENT_CHANGED_DELIVERY_EVIDENCE'; END IF;
+END $;
 RESET ROLE;
 ROLLBACK;
 \echo 'feedback RLS integration checks passed (disposable database)'
