@@ -29,6 +29,7 @@ type NotificationEvidence = {
   sourceValidAt?: string | null;
   source?: string | null;
   eventType?: string | null;
+  forecastTargetTime?: string | null;
   deliveredEventType?: string | null;
   current?: { status?: string | null; rgba?: { r: number; g: number; b: number; a: number } | null };
   forecast?: Array<{ validTime?: string | null; status?: string | null; intensityClass?: string | null; rgba?: { r: number; g: number; b: number; a: number } | null }>;
@@ -672,7 +673,17 @@ export default function Home() {
                   </div>
                 ) : <p>この通知には判定根拠の詳細記録がないよ（旧履歴）。</p>}
               </details>
+              {alert.decision_snapshot?.forecastTargetTime && (
+                <div style={{ marginTop: 7, fontSize: 13, color: "#eef5ff" }}>
+                  予測対象時刻：{formatJmaForecastTime(alert.decision_snapshot.forecastTargetTime)}
+                </div>
+              )}
               <div style={{ marginTop: 10, fontSize: 13 }}>{feedbackOptionsForNotification(alert) ? "予測した時間内の実際の天気は？" : "この種類の通知は回答方法を準備中だよ。"}</div>
+              {feedbackOptionsForNotification(alert) && (
+                <div style={{ marginTop: 4, fontSize: 12, color: "#dce9fa" }}>
+                  「降らなかった」「止まなかった」は予測対象時刻を過ぎてから回答してね。通知時点ですでに降っていた／降っていなかった場合はそのまま回答できるよ。
+                </div>
+              )}
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
                 {(feedbackOptionsForNotification(alert) ?? []).map(([value, label]) => (
                   <button key={value} type="button" disabled={feedbackBusy === alert.id} onClick={() => void saveWeatherFeedback(alert.id, value)}
