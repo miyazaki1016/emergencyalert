@@ -31,6 +31,26 @@ INSERT INTO public.notification_deliveries (id,owner_id,event_type) VALUES
   (3,'22222222-2222-4222-8222-222222222222','RAIN_ENDING'),
   (4,'11111111-1111-4111-8111-111111111111','SEVERE_RAIN_1');
 
+-- Evidence migration must preserve all existing delivered notifications and be idempotent.
+\ir ../../docs/sql/my-rain-notification-evidence.sql
+\ir ../../docs/sql/my-rain-notification-evidence.sql
+DO $
+BEGIN
+  IF (SELECT count(*) FROM public.notification_deliveries) <> 4 THEN
+    RAISE EXCEPTION 'EVIDENCE_MIGRATION_CHANGED_EXISTING_DELIVERIES';
+  END IF;
+  IF EXISTS (SELECT 1 FROM public.notification_deliveries WHERE decision_snapshot IS NOT NULL) THEN
+    RAISE EXCEPTION 'EVIDENCE_MIGRATION_INVENTED_OLD_SNAPSHOTS';
+  END IF;
+END $;
+UPDATE public.notification_deliveries SET decision_snapshot='{"schemaVersion":1,"motion":{"status":"UNKNOWN"}}'::jsonb WHERE id=1;
+DO $
+BEGIN
+  IF (SELECT decision_snapshot->>'schemaVersion' FROM public.notification_deliveries WHERE id=1) <> '1' THEN
+    RAISE EXCEPTION 'EVIDENCE_JSONB_WRITE_FAILED';
+  END IF;
+END $;
+
 \ir ../../docs/sql/my-rain-notification-feedback.sql
 -- Ensure the migration can be rerun without a duplicate policy failure.
 \ir ../../docs/sql/my-rain-notification-feedback.sql
