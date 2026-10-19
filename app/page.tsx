@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "../lib/supabase/browser";
+import { getRainPreviewCapabilities } from "../lib/weather/rain/previewCapabilities";
 import { feedbackTooEarly } from "../lib/weather/rain/feedbackTiming";
 import { persistRainNotificationFeedback } from "../lib/weather/rain/persistNotificationFeedback";
 
@@ -107,6 +108,11 @@ function stateLabel(state: RainInterpretation["state"]): string {
 }
 
 export default function Home() {
+  const previewCapabilities = getRainPreviewCapabilities({
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    supabasePublishableKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+    vapidPublicKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+  });
   const [status, setStatus] = useState("このあとの雨、見てみる？");
   const [data, setData] = useState<RainResponse | null>(null);
   const [busy, setBusy] = useState(false);
@@ -219,7 +225,7 @@ export default function Home() {
   }, [mapPickerOpen]);
 
   const enablePush = async () => {
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
+    if (!previewCapabilities.databaseConfigured) {
       setPushStatus("この検証画面は通知登録用データベースに接続されていないよ。");
       return;
     }
@@ -280,7 +286,7 @@ export default function Home() {
   const restorePushStatus = async () => {
     // A subscription left over from another environment is not proof that
     // this preview can persist it or receive notifications.
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) return;
+    if (!previewCapabilities.databaseConfigured) return;
     if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) return;
     if (Notification.permission !== "granted") return;
     try {
@@ -640,7 +646,7 @@ export default function Home() {
       <p style={{ marginBottom: 4, color: "#eef5ff", fontSize: 13, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase" }}>EmergencyAlert 2026</p>
       <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: "clamp(42px, 12vw, 64px)", lineHeight: 1.05, letterSpacing: "-0.05em" }}>アメくる？</h1>
       <p style={{ marginTop: 0, color: "#e3edf8", fontSize: 18 }}>{status}</p>
-      {!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ? (
+      {!previewCapabilities.databaseConfigured ? (
         <p role="status" style={{ padding: "12px 14px", borderRadius: 12, background: "#553b20", color: "#fff1c9", fontWeight: 700 }}>
           この検証画面では通知履歴・回答保存の接続設定がまだないよ。
           雨の予報の閲覧はできても、見張り登録や回答保存はテストできないよ。
