@@ -7,13 +7,14 @@ describe("notification decision evidence snapshot", () => {
     const snapshot = buildNotificationDecisionEvidence({
       checkedAt: "2026-10-19T12:00:00Z", sourceValidAt: "20261019120000",
       source: "JMA", eventType: "RAIN_ENDING", decisionEventType: "RAIN_ENDING",
-      urgency: "INFO", currentStatus: "RAIN", observationRgba: null, forecast,
+      urgency: "INFO", forecastTargetTime: "20261019121000", currentStatus: "RAIN", observationRgba: null, forecast,
       endingShadow: { status: "RE_RAIN_FORECAST" },
       decisionReasons: {
         severeEscalation: false, rainEnding: true, confirmedAndEnding: false,
         returningRain: false, rainConfirmed: true, previousConfirmedWeather: "RAINING",
       },
     });
+    expect(snapshot.forecastTargetTime).toBe("20261019121000");
     expect(snapshot.forecast[0].intensityClass).toBe("1_TO_5");
     expect(snapshot.decisionReasons.rainEnding).toBe(true);
     expect(snapshot.endingShadow).toEqual({ status: "RE_RAIN_FORECAST" });
