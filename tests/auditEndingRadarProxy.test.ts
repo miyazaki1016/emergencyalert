@@ -131,6 +131,29 @@ describe("ending radar proxy audit (not ground truth)", () => {
     const result = auditEndingRadarProxy([decision("a"), second]);
     expect(result).toMatchObject({ evaluated: 2, duplicateCandidatesSkipped: 0 });
   });
+  it("counts an episode with both 9-minute and 6-minute polls in the earliest lead group only", () => {
+    const nine = { ...decision("a"), checked_at: "2026-10-19T11:51:00Z",
+      diagnostic: { endingNoticeCandidate: {
+        candidate: "ENDING_FORECAST", leadMinutes: 9,
+        ending: { endingTime: "20261019120000" },
+      } } };
+    const six = { ...decision("a"), checked_at: "2026-10-19T11:54:00Z",
+      diagnostic: { endingNoticeCandidate: {
+        candidate: "ENDING_FORECAST", leadMinutes: 6,
+        ending: { endingTime: "20261019120000" },
+      } } };
+    const observations = [
+      obs("a", "2026-10-19T12:00:00Z", "NO_RAIN"),
+      obs("a", "2026-10-19T12:05:00Z", "NO_RAIN"),
+      obs("a", "2026-10-19T12:10:00Z", "NO_RAIN"),
+    ];
+    for (const input of [[nine, six, ...observations], [...observations, six, nine]]) {
+      const report = auditEndingByLeadWindow(input);
+      expect(report.lead7Point5To10.evaluated).toBe(1);
+      expect(report.lead7Point5To10.verifiedDryAtEnding).toBe(1);
+      expect(report.lead5ToUnder7Point5.evaluated).toBe(0);
+    }
+  });
   it("does not evaluate decisions outside a candidate window", () => {
     expect(auditEndingRadarProxy([decision("a", "TOO_EARLY_FOR_5_TO_10_MINUTE_WINDOW")]).evaluated).toBe(0);
   });
