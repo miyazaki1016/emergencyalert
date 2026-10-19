@@ -37,6 +37,16 @@ describe("ending shadow (diagnostic only)", () => {
       forecast: frames(["NO_RAIN", "NO_RAIN"]),
     }).status).toBe("INSUFFICIENT_FORECAST");
   });
+  it("does not skip the start of the ending window or gaps in the forecast", () => {
+    expect(assessEndingShadow({
+      currentStatus: "RAIN", endingTime: "20261019120000",
+      forecast: frames(["NO_RAIN", "NO_RAIN", "NO_RAIN", "NO_RAIN"]).slice(1),
+    }).status).toBe("INSUFFICIENT_FORECAST");
+    expect(assessEndingShadow({
+      currentStatus: "RAIN", endingTime: "20261019120000",
+      forecast: frames(["NO_RAIN", "NO_RAIN", "NO_RAIN", "NO_RAIN"]).filter((_, index) => index !== 1),
+    }).status).toBe("INSUFFICIENT_FORECAST");
+  });
   it("distinguishes already-dry and no ending predictions", () => {
     expect(assessEndingShadow({
       currentStatus: "NO_RAIN", endingTime: "20261019120000", forecast: frames(["NO_RAIN", "NO_RAIN", "NO_RAIN"]),
