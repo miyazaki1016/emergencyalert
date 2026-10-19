@@ -41,7 +41,9 @@ export function assessEndingShadow(input: {
     firstReRainTime: null as string | null, windows,
   };
   if (!input.endingTime) return { ...base, status: "NO_ENDING" };
-  if (input.currentStatus !== "RAIN") return { ...base, status: "NOT_CURRENTLY_RAINING" };
+  if (input.currentStatus === "NO_RAIN") return { ...base, status: "NOT_CURRENTLY_RAINING" };
+  // Missing/unclassified radar is uncertainty, NOT evidence that the place is dry.
+  if (input.currentStatus !== "RAIN") return { ...base, status: "INSUFFICIENT_FORECAST" };
   const endingAt = frameTime(input.endingTime);
   if (endingAt === null) return { ...base, status: "INSUFFICIENT_FORECAST" };
   const after = input.forecast
