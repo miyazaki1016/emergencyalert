@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "../lib/supabase/browser";
 import { feedbackTooEarly } from "../lib/weather/rain/feedbackTiming";
+import { persistRainNotificationFeedback } from "../lib/weather/rain/persistNotificationFeedback";
 
 type RainMessage = { headline: string; detail: string };
 type RainInterpretation = {
@@ -370,15 +371,7 @@ export default function Home() {
     setFeedbackError("");
     try {
       const supabase = getSupabaseBrowserClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("not signed in");
-      const { error } = await supabase.from("rain_notification_feedback").upsert({
-        notification_id: notificationId,
-        owner_id: session.user.id,
-        actual_weather: actualWeather,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: "notification_id" });
-      if (error) throw error;
+      await persistRainNotificationFeedback(supabase, notificationId, actualWeather);
       setWeatherFeedback((previous) => ({ ...previous, [notificationId]: actualWeather }));
     } catch {
       setFeedbackError("回答を保存できなかったよ。時間をおいてもう一度試してね。");
