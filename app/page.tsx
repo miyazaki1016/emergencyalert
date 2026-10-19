@@ -34,7 +34,7 @@ function feedbackOptionsForNotification(alert: NotificationDelivery): readonly W
     ["ALREADY_DRY", "☁️ 降ってない"],
     ["UNKNOWN", "❓ 不明"],
   ];
-  if (alert.event_type === "RAIN_STARTING" || alert.event_type === "RAIN_RETURNING" || alert.event_type === "RAIN_EXPECTED") return [
+  if (alert.event_type === "ACTIONABLE_RAIN_APPROACHING" || alert.event_type === "RAIN_APPROACHING" || alert.event_type === "RAIN_RETURNING") return [
     ["RAINED", "☔ 降った"],
     ["DID_NOT_RAIN", "☁️ 降らなかった"],
     ["ALREADY_RAINING", "🌧️ すでに降ってた"],
