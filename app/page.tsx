@@ -23,7 +23,27 @@ type RainSemanticEvent = {
   checkedAt: string;
   sourceValidAt: string | null;
 };
-type NotificationDelivery = { id: number; target_id: string; event_type: string; title: string; body: string; delivered_at: string; };
+type NotificationEvidence = {
+  schemaVersion?: number;
+  checkedAt?: string | null;
+  sourceValidAt?: string | null;
+  source?: string | null;
+  eventType?: string | null;
+  deliveredEventType?: string | null;
+  current?: { status?: string | null; rgba?: { r: number; g: number; b: number; a: number } | null };
+  forecast?: Array<{ validTime?: string | null; status?: string | null; intensityClass?: string | null; rgba?: { r: number; g: number; b: number; a: number } | null }>;
+  endingShadow?: { status?: string; firstReRainTime?: string | null };
+  decisionReasons?: Record<string, unknown>;
+  motion?: { status: string; reason?: string };
+};
+type NotificationDelivery = { id: number; target_id: string; event_type: string; title: string; body: string; delivered_at: string; decision_snapshot: NotificationEvidence | null; };
+
+function formatJmaForecastTime(value: string | null | undefined): string {
+  if (!value || !/^\\d{14}$/.test(value)) return "時刻不明";
+  const date = new Date(Date.UTC(Number(value.slice(0, 4)), Number(value.slice(4, 6)) - 1, Number(value.slice(6, 8)), Number(value.slice(8, 10)), Number(value.slice(10, 12)), Number(value.slice(12, 14))));
+  return Number.isNaN(date.valueOf()) ? "時刻不明" : date.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
 
 type WeatherFeedbackOption = readonly [string, string];
 
@@ -286,7 +306,7 @@ export default function Home() {
       const start = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
       const { data, error } = await supabase
         .from("notification_deliveries")
-        .select("id,target_id,event_type,title,body,delivered_at")
+        .select("id,target_id,event_type,title,body,delivered_at,decision_snapshot")
         .gte("delivered_at", start.toISOString())
         .order("delivered_at", { ascending: false });
       if (error) throw error;
@@ -609,6 +629,28 @@ export default function Home() {
             <div key={alert.id} style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.08)" }}>
               <div style={{ fontWeight: 700 }}>{alert.body}</div>
               <div style={{ marginTop: 4, fontSize: 13, color: "#eef5ff" }}>{new Date(alert.delivered_at).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} に通知</div>
+              <details style={{ marginTop: 9, fontSize: 13, color: "#eef5ff" }}>
+                <summary style={{ cursor: "pointer" }}>通知した理由・予測の詳細</summary>
+                {alert.decision_snapshot ? (
+                  <div style={{ marginTop: 9, lineHeight: 1.8 }}>
+                    <div>判定時刻：{alert.decision_snapshot.checkedAt ? new Date(alert.decision_snapshot.checkedAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }) : "不明"}</div>
+                    <div>元データ時刻：{alert.decision_snapshot.sourceValidAt ?? "不明"}</div>
+                    <div>現在の雨：{alert.decision_snapshot.current?.status ?? "不明"}</div>
+                    <div>判定イベント：{alert.decision_snapshot.eventType ?? "不明"} / 通知イベント：{alert.decision_snapshot.deliveredEventType ?? alert.event_type}</div>
+                    <div>選定理由：{alert.decision_snapshot.decisionReasons ? Object.entries(alert.decision_snapshot.decisionReasons).filter(([, value]) => value === true).map(([key]) => key).join("・") || "通常判定" : "記録なし"}</div>
+                    <div>雨雲の進行方向：{alert.decision_snapshot.motion?.status === "UNKNOWN" ? "未判定" : "記録なし"}</div>
+                    {alert.decision_snapshot.endingShadow && <div>止み予測の追加検証：{alert.decision_snapshot.endingShadow.status ?? "不明"}</div>}
+                    {Array.isArray(alert.decision_snapshot.forecast) && alert.decision_snapshot.forecast.length > 0 && (
+                      <div style={{ marginTop: 5 }}>
+                        <div>5分刻みの予報（雨量は区分表示）</div>
+                        {alert.decision_snapshot.forecast.map((frame, index) => (
+                          <div key={index}>{formatJmaForecastTime(frame.validTime)}：{frame.status ?? "不明"} / {frame.intensityClass ?? "区分なし"}{frame.rgba ? ` / RGBA(${frame.rgba.r}, ${frame.rgba.g}, ${frame.rgba.b}, ${frame.rgba.a})` : ""}</div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : <p>この通知には判定根拠の詳細記録がないよ（旧履歴）。</p>}
+              </details>
               <div style={{ marginTop: 10, fontSize: 13 }}>{feedbackOptionsForNotification(alert) ? "予測した時間内の実際の天気は？" : "この種類の通知は回答方法を準備中だよ。"}</div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
                 {(feedbackOptionsForNotification(alert) ?? []).map(([value, label]) => (
