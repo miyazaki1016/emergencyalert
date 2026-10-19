@@ -125,6 +125,7 @@ export default function Home() {
   const [weatherFeedback, setWeatherFeedback] = useState<Record<number, string>>({});
   const [feedbackBusy, setFeedbackBusy] = useState<number | null>(null);
   const [feedbackError, setFeedbackError] = useState("");
+  const [historyNotice, setHistoryNotice] = useState("");
   const [mapPickerOpen, setMapPickerOpen] = useState(false);
   const [mapLatitude, setMapLatitude] = useState("35.681236");
   const [mapLongitude, setMapLongitude] = useState("139.767125");
@@ -304,14 +305,32 @@ export default function Home() {
       const session = (await supabase.auth.getSession()).data.session;
       if (!session) return;
       const start = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-      const { data, error } = await supabase
+      const baseColumns = "id,target_id,event_type,title,body,delivered_at";
+      const initial = await supabase
         .from("notification_deliveries")
-        .select("id,target_id,event_type,title,body,delivered_at,decision_snapshot")
+        .select(`${baseColumns},decision_snapshot`)
         .gte("delivered_at", start.toISOString())
         .order("delivered_at", { ascending: false })
         .limit(200);
-      if (error) throw error;
-      const deliveries = (data ?? []) as NotificationDelivery[];
+      // During an additive schema rollout, keep old notification history readable.
+      // Do not mask authorization errors or failures unrelated to the missing new column.
+      const missingSnapshotColumn = initial.error
+        && (initial.error.code === "42703" || initial.error.code === "PGRST204")
+        && (initial.error.message.includes("decision_snapshot") || initial.error.details?.includes("decision_snapshot"));
+      const fallback = missingSnapshotColumn ? await supabase
+        .from("notification_deliveries")
+        .select(baseColumns)
+        .gte("delivered_at", start.toISOString())
+        .order("delivered_at", { ascending: false })
+        .limit(200) : null;
+      const query = fallback ?? initial;
+      if (query.error) throw query.error;
+      setHistoryNotice(missingSnapshotColumn ? "判定根拠の保存機能は準備中だよ。過去の通知履歴は確認できるよ。" : "");
+      const deliveries = ((query.data ?? []) as Array<{
+        id: number; target_id: string; event_type: string;
+        title: string; body: string; delivered_at: string;
+        decision_snapshot?: NotificationEvidence | null;
+      }>).map(item => ({ ...item, decision_snapshot: item.decision_snapshot ?? null }));
       setLatestAlerts(deliveries);
       if (deliveries.length > 0) {
         const { data: feedback, error: feedbackError } = await supabase.from("rain_notification_feedback")
@@ -320,7 +339,7 @@ export default function Home() {
         if (!feedbackError) setWeatherFeedback(Object.fromEntries((feedback ?? []).map((item) => [item.notification_id, item.actual_weather])));
       }
     } catch {
-      // Alerts are supplemental; keep the rest of the app usable.
+      setHistoryNotice("通知履歴を読み込めなかったよ。時間をおいて再度確認してね。");
     }
   };
 
@@ -624,6 +643,7 @@ export default function Home() {
       <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.10)", borderRadius: 20, background: "rgba(24,55,88,.80)", boxShadow: "0 18px 50px rgba(0,0,0,.20)", backdropFilter: "blur(18px)" }}>
           <h2 style={{ marginTop: 0, marginBottom: 6 }}>通知履歴（過去7日間・最新200件）</h2>
           <p style={{ marginTop: 0, color: "#eef5ff" }}>送信に成功した通知を新しい順に表示しているよ。実際の天気を回答すると、通知の精度改善に役立つよ。</p>
+          {historyNotice && <p role="status" style={{ color: "#ffe1a0" }}>{historyNotice}</p>}
           {latestAlerts.length === 0 && <p>この期間の通知はまだないよ。</p>}
           {feedbackError && <p role="alert" style={{ color: "#ffb5b5" }}>{feedbackError}</p>}
           {latestAlerts.map((alert) => (
