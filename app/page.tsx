@@ -219,6 +219,10 @@ export default function Home() {
   }, [mapPickerOpen]);
 
   const enablePush = async () => {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
+      setPushStatus("この検証画面は通知登録用データベースに接続されていないよ。");
+      return;
+    }
     if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
       setPushStatus("この端末では通知を使えないよ。");
       return;
@@ -274,6 +278,9 @@ export default function Home() {
   };
 
   const restorePushStatus = async () => {
+    // A subscription left over from another environment is not proof that
+    // this preview can persist it or receive notifications.
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) return;
     if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) return;
     if (Notification.permission !== "granted") return;
     try {
