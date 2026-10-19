@@ -1,5 +1,7 @@
 -- MYアメふる: user-reported weather for an actually delivered notification.
--- Apply only after reviewing notification_deliveries ownership and primary key types.
+-- Actual notification_deliveries bigint PK and owner_id uuid types verified with read-only metadata on 2026-10-19.
+-- Only known forecast types can receive a feedback answer; users may only answer their own delivered notifications.
+-- Existing anonymous Supabase Auth users use the authenticated database role. Ownership RLS is required.
 create table if not exists public.rain_notification_feedback (
   notification_id bigint primary key references public.notification_deliveries(id) on delete cascade,
   owner_id uuid not null references auth.users(id) on delete cascade,
@@ -18,7 +20,14 @@ create policy "insert feedback for own delivery" on public.rain_notification_fee
   for insert to authenticated with check (
     owner_id = (select auth.uid())
     and exists (select 1 from public.notification_deliveries d
-      where d.id = notification_id and d.owner_id = (select auth.uid()))
+      where d.id = notification_id and d.owner_id = (select auth.uid())
+      and (
+        (d.event_type = 'RAIN_ENDING' and actual_weather in
+          ('STOPPED', 'DID_NOT_STOP', 'ALREADY_DRY', 'UNKNOWN'))
+        or
+        (d.event_type in ('ACTIONABLE_RAIN_APPROACHING', 'RAIN_APPROACHING', 'RAIN_RETURNING')
+          and actual_weather in ('RAINED', 'DID_NOT_RAIN', 'ALREADY_RAINING', 'UNKNOWN'))
+      ))
   );
 drop policy if exists "update own feedback" on public.rain_notification_feedback;
 create policy "update own feedback" on public.rain_notification_feedback
@@ -27,5 +36,12 @@ create policy "update own feedback" on public.rain_notification_feedback
   with check (
     owner_id = (select auth.uid())
     and exists (select 1 from public.notification_deliveries d
-      where d.id = notification_id and d.owner_id = (select auth.uid()))
+      where d.id = notification_id and d.owner_id = (select auth.uid())
+      and (
+        (d.event_type = 'RAIN_ENDING' and actual_weather in
+          ('STOPPED', 'DID_NOT_STOP', 'ALREADY_DRY', 'UNKNOWN'))
+        or
+        (d.event_type in ('ACTIONABLE_RAIN_APPROACHING', 'RAIN_APPROACHING', 'RAIN_RETURNING')
+          and actual_weather in ('RAINED', 'DID_NOT_RAIN', 'ALREADY_RAINING', 'UNKNOWN'))
+      ))
   );
