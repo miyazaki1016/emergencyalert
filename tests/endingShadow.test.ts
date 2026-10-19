@@ -42,6 +42,16 @@ describe("ending shadow: independent 10/15/30 minute horizons, never push gating
     expect(assessEndingShadow({currentStatus: "NO_RAIN",endingTime:"20261019120000",forecast:frames(Array(7).fill("NO_RAIN"))}).status).toBe("NOT_CURRENTLY_RAINING");
     expect(assessEndingShadow({currentStatus: "RAIN",endingTime:null,forecast:[]}).status).toBe("NO_ENDING");
   });
+  it("does not label missing or invalid current radar as dry", () => {
+    for (const currentStatus of [null, "NO_DATA", "UNKNOWN"]) {
+      const result = assessEndingShadow({
+        currentStatus, endingTime: "20261019120000",
+        forecast: frames(Array(7).fill("NO_RAIN")),
+      });
+      expect(result.status).toBe("INSUFFICIENT_FORECAST");
+      expect(result.windows["10"].status).toBe("INSUFFICIENT_FORECAST");
+    }
+  });
   it("does not infer rain returning beyond a short available horizon", () => {
     const result = assess(["NO_RAIN","NO_RAIN","NO_RAIN"]);
     expect(result.windows["10"].status).toBe("CLEAR_FORECAST");
