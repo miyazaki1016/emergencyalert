@@ -16,3 +16,26 @@ jobs:
       - run: npm install
       - run: npm test
       - run: npm run build
+
+  feedback-rls:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: local-test-only
+          POSTGRES_DB: feedback_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify feedback RLS in isolated Postgres
+        env:
+          PGPASSWORD: local-test-only
+        run: psql -h localhost -U postgres -d feedback_test -v ON_ERROR_STOP=1 -f tests/sql/feedback-rls-integration.sql
