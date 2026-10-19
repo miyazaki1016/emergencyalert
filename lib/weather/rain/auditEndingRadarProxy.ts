@@ -5,6 +5,7 @@
 export type RadarAuditRow = {
   target_id: string;
   checked_at: string;
+  source_valid_at?: string | null;
   current_status: string | null;
   diagnostic?: {
     endingNoticeCandidate?: { candidate?: string; ending?: { endingTime?: string | null } };
@@ -27,7 +28,14 @@ function timeFromJma(value: string | null | undefined): number | null {
 const MATCH_TOLERANCE_MS = 2.5 * 60_000;
 function matchObservedStatus(rows: RadarAuditRow[], targetTime: number): "RAIN" | "NO_RAIN" | null {
   const matches = rows
-    .map(row => ({ status: row.current_status, delta: Math.abs(Date.parse(row.checked_at) - targetTime) }))
+    // JMA measurement time is authoritative; the polling time only marks when
+    // the worker retrieved it. A cached radar pixel can be 5-20 minutes old.
+    .map(row => ({
+      status: row.current_status,
+      observationMs: timeFromJma(row.source_valid_at),
+    }))
+    .filter(row => row.observationMs !== null)
+    .map(row => ({ status: row.status, delta: Math.abs(row.observationMs! - targetTime) }))
     .filter(row => Number.isFinite(row.delta) && row.delta <= MATCH_TOLERANCE_MS)
     .sort((a, b) => a.delta - b.delta);
   // Tied observations that disagree are ambiguous, rather than arbitrarily picking one.
