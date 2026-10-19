@@ -8,7 +8,7 @@ export type RadarAuditRow = {
   source_valid_at?: string | null;
   current_status: string | null;
   diagnostic?: {
-    endingNoticeCandidate?: { candidate?: string; ending?: { endingTime?: string | null } };
+    endingNoticeCandidate?: { candidate?: string; leadMinutes?: number | null; ending?: { endingTime?: string | null } };
   } | null;
 };
 export type RadarAuditResult = {
@@ -78,4 +78,20 @@ export function auditEndingRadarProxy(rows: RadarAuditRow[]): RadarAuditResult {
     else totals.unknownRecurrence++;
   }
   return totals;
+}
+
+/** Separate disjoint lead-time cohorts instead of averaging 5- and 10-minute warnings.
+ * Unknown radar comparisons remain in the denominator and are never called a success.
+ */
+export function auditEndingByLeadWindow(rows: RadarAuditRow[]) {
+  const inWindow = (low: number, high: number, includeEnd: boolean) =>
+    rows.filter(row => {
+      const lead = row.diagnostic?.endingNoticeCandidate?.leadMinutes;
+      return typeof lead === "number" && Number.isFinite(lead) &&
+        lead >= low && (includeEnd ? lead <= high : lead < high);
+    });
+  return {
+    lead5ToUnder7Point5: auditEndingRadarProxy(inWindow(5, 7.5, false)),
+    lead7Point5To10: auditEndingRadarProxy(inWindow(7.5, 10, true)),
+  };
 }
