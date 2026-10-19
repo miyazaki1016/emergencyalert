@@ -39,7 +39,7 @@ type NotificationEvidence = {
 type NotificationDelivery = { id: number; target_id: string; event_type: string; title: string; body: string; delivered_at: string; decision_snapshot: NotificationEvidence | null; };
 
 function formatJmaForecastTime(value: string | null | undefined): string {
-  if (!value || !/^\\d{14}$/.test(value)) return "時刻不明";
+  if (!value || !/^\d{14}$/.test(value)) return "時刻不明";
   const date = new Date(Date.UTC(Number(value.slice(0, 4)), Number(value.slice(4, 6)) - 1, Number(value.slice(6, 8)), Number(value.slice(8, 10)), Number(value.slice(10, 12)), Number(value.slice(12, 14))));
   return Number.isNaN(date.valueOf()) ? "時刻不明" : date.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }
