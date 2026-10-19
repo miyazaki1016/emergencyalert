@@ -1,6 +1,6 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
-import { nextLastNotifiedAt, nextRainEndingNotified, rainForecastTimeMs, shouldNotifyForRain } from "./notificationDecision.ts";
+import { nextLastNotifiedAt, nextRainEndingNotified, rainForecastTimeMs, isWithinRainNotificationHorizon, shouldNotifyForRain } from "./notificationDecision.ts";
 
 type RainEvent = { schemaVersion:1; eventType:string; urgency:"INFO"|"LIFESTYLE_ACTION"; suggestedAction:string; startsAt:string|null; actionableAt:string|null; endingAt:string|null; source:string; checkedAt:string; sourceValidAt:string|null; };
 type Rgba = { r:number; g:number; b:number; a:number };
@@ -32,7 +32,7 @@ Deno.serve(async(req:Request)=>{
   const clearStreak=currentStatus==="NO_RAIN"?Math.min(Number(previous?.clear_streak??0)+1,3):0;
   const rainConfirmed=rainStreak>=3&&!previous?.rain_confirmed_notified;
   const severeRank=(v?:string|null)=>v==="GTE_80"?3:v==="50_TO_80"?2:v==="30_TO_50"?1:0;
-  const severeFrame=(rain.forecast??[]).filter(f=>f.validTime&&rainForecastTimeMs(f.validTime)>=Date.now()&&severeRank(f.intensityClass)>0).sort((a,b)=>severeRank(b.intensityClass)-severeRank(a.intensityClass)||rainForecastTimeMs(a.validTime)-rainForecastTimeMs(b.validTime))[0];
+  const severeFrame=(rain.forecast??[]).filter(f=>isWithinRainNotificationHorizon(f.validTime, Date.now())&&severeRank(f.intensityClass)>0).sort((a,b)=>severeRank(b.intensityClass)-severeRank(a.intensityClass)||rainForecastTimeMs(a.validTime)-rainForecastTimeMs(b.validTime))[0];
   const severeLevel=severeRank(severeFrame?.intensityClass); const previousSevere=Number(previous?.severe_rain_level??0); const severeEscalation=severeLevel>previousSevere;
   const initialRaining=false;
   const rainEnding=rain.event.eventType==="RAIN_ENDING"&&previousEvent?.eventType!=="RAIN_ENDING"&&!previous?.rain_ending_notified&&previous?.confirmed_weather==="RAINING";
