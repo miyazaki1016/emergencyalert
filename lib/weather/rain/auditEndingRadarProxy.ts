@@ -13,6 +13,7 @@ export type RadarAuditRow = {
 };
 export type RadarAuditResult = {
   evaluated: number;
+  duplicateCandidatesSkipped: number;
   verifiedDryAtEnding: number;
   stillRainingAtEnding: number;
   reRainWithinTenMinutes: number;
@@ -45,7 +46,7 @@ function matchObservedStatus(rows: RadarAuditRow[], targetTime: number): "RAIN" 
 }
 export function auditEndingRadarProxy(rows: RadarAuditRow[]): RadarAuditResult {
   const totals: RadarAuditResult = {
-    evaluated: 0, verifiedDryAtEnding: 0, stillRainingAtEnding: 0,
+    evaluated: 0, duplicateCandidatesSkipped: 0, verifiedDryAtEnding: 0, stillRainingAtEnding: 0,
     reRainWithinTenMinutes: 0, verifiedNoReRainWithinTenMinutes: 0,
     unknownAtEnding: 0, unknownRecurrence: 0,
   };
@@ -55,11 +56,21 @@ export function auditEndingRadarProxy(rows: RadarAuditRow[]): RadarAuditResult {
     prior.push(row);
     byTarget.set(row.target_id, prior);
   }
-  for (const row of rows) {
+  // Repeated worker polls frequently describe the same predicted ending.
+  // One episode must not count as several independent successes.
+  const seenEpisodes = new Set<string>();
+  const chronologically = [...rows].sort((a, b) => Date.parse(a.checked_at) - Date.parse(b.checked_at));
+  for (const row of chronologically) {
     const candidate = row.diagnostic?.endingNoticeCandidate;
     if (!candidate || !["ENDING_FORECAST", "TEMPORARY_ENDING_FORECAST", "ENDING_WITH_LIMITED_HORIZON", "SHORT_LULL_FORECAST"].includes(candidate.candidate ?? "")) continue;
     const targetMs = timeFromJma(candidate.ending?.endingTime);
     if (targetMs === null) continue;
+    const episodeKey = JSON.stringify([row.target_id, targetMs]);
+    if (seenEpisodes.has(episodeKey)) {
+      totals.duplicateCandidatesSkipped++;
+      continue;
+    }
+    seenEpisodes.add(episodeKey);
     totals.evaluated++;
     const later = (byTarget.get(row.target_id) ?? []).filter(observation => Date.parse(observation.checked_at) > Date.parse(row.checked_at));
     const atEnding = matchObservedStatus(later, targetMs);
