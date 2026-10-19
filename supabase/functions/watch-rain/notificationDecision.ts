@@ -47,3 +47,15 @@ export function rainForecastTimeMs(value: string | null | undefined): number {
   }
   return /^\d{4}-\d{2}-\d{2}T/.test(value) ? Date.parse(value) : NaN;
 }
+
+/** Only forecast events within the MY rain notification horizon are eligible. */
+export function isWithinRainNotificationHorizon(
+  validTime: string | null | undefined,
+  nowMs: number,
+  horizonMinutes = 30,
+): boolean {
+  const timeMs = rainForecastTimeMs(validTime);
+  return Number.isFinite(timeMs) &&
+    timeMs >= nowMs &&
+    timeMs - nowMs <= horizonMinutes * 60_000;
+}
