@@ -100,6 +100,37 @@ describe("ending radar proxy audit (not ground truth)", () => {
       evaluated: 1, stillRainingAtEnding: 1,
     });
   });
+  it("counts repeated polls for one predicted ending as one episode, independent of input order", () => {
+    const first = decision("a");
+    const repeat: RadarAuditRow = {
+      ...decision("a"),
+      checked_at: "2026-10-19T11:55:00Z",
+    };
+    const later = [
+      obs("a", "2026-10-19T12:00:00Z", "NO_RAIN"),
+      obs("a", "2026-10-19T12:05:00Z", "NO_RAIN"),
+      obs("a", "2026-10-19T12:10:00Z", "NO_RAIN"),
+    ];
+    const ordered = auditEndingRadarProxy([first, repeat, ...later]);
+    const reversed = auditEndingRadarProxy([...later, repeat, first]);
+    expect(ordered).toMatchObject({
+      evaluated: 1, duplicateCandidatesSkipped: 1,
+      verifiedDryAtEnding: 1, verifiedNoReRainWithinTenMinutes: 1,
+    });
+    expect(reversed).toEqual(ordered);
+  });
+  it("keeps different ending forecasts on the same target as separate episodes", () => {
+    const second: RadarAuditRow = {
+      ...decision("a"),
+      checked_at: "2026-10-19T12:20:00Z",
+      diagnostic: { endingNoticeCandidate: {
+        candidate: "ENDING_FORECAST",
+        ending: { endingTime: "20261019123000" },
+      } },
+    };
+    const result = auditEndingRadarProxy([decision("a"), second]);
+    expect(result).toMatchObject({ evaluated: 2, duplicateCandidatesSkipped: 0 });
+  });
   it("does not evaluate decisions outside a candidate window", () => {
     expect(auditEndingRadarProxy([decision("a", "TOO_EARLY_FOR_5_TO_10_MINUTE_WINDOW")]).evaluated).toBe(0);
   });
