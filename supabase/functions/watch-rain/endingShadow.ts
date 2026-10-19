@@ -12,6 +12,7 @@ export type EndingShadowAssessment = {
   endingTime: string | null;
   futureFrameCount: number;
   dryFramesFromEnding: number;
+  coverageMinutes: number;
   firstReRainTime: string | null;
 };
 
@@ -31,6 +32,7 @@ export function assessEndingShadow(input: {
     endingTime: input.endingTime ?? null,
     futureFrameCount: 0,
     dryFramesFromEnding: 0,
+    coverageMinutes: 0,
     firstReRainTime: null as string | null,
   };
   if (!input.endingTime) return { ...base, status: "NO_ENDING" };
@@ -47,13 +49,13 @@ export function assessEndingShadow(input: {
   let previousTime: number | null = null;
   for (const frame of after) {
     if (previousTime !== null && frame.time! - previousTime !== 5 * 60_000) {
-      return { ...counts, status: "INSUFFICIENT_FORECAST", dryFramesFromEnding };
+      return { ...counts, status: "INSUFFICIENT_FORECAST", dryFramesFromEnding, coverageMinutes: Math.max(0, dryFramesFromEnding - 1) * 5 };
     }
     previousTime = frame.time!;
     if (frame.status === "RAIN") {
       return {
         ...counts, status: "RE_RAIN_FORECAST",
-        dryFramesFromEnding, firstReRainTime: frame.validTime ?? null,
+        dryFramesFromEnding, coverageMinutes: dryFramesFromEnding * 5, firstReRainTime: frame.validTime ?? null,
       };
     }
     if (frame.status !== "NO_RAIN") {
@@ -61,8 +63,12 @@ export function assessEndingShadow(input: {
     }
     dryFramesFromEnding++;
   }
+  const coverageMinutes = Math.max(0, dryFramesFromEnding - 1) * 5;
+  // A brief lull is not proof of durable cessation. A conservative 30-minute
+  // post-ending horizon is mandatory before reporting a fully clear shadow.
+  if (coverageMinutes < 30) return { ...counts, status: "INSUFFICIENT_FORECAST", dryFramesFromEnding, coverageMinutes };
   return {
     ...counts, status: "CLEAR_THROUGH_AVAILABLE_HORIZON",
-    dryFramesFromEnding,
+    dryFramesFromEnding, coverageMinutes,
   };
 }
