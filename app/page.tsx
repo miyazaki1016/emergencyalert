@@ -25,6 +25,24 @@ type RainSemanticEvent = {
 };
 type NotificationDelivery = { id: number; target_id: string; event_type: string; title: string; body: string; delivered_at: string; };
 
+type WeatherFeedbackOption = readonly [string, string];
+
+function feedbackOptionsForNotification(alert: NotificationDelivery): readonly WeatherFeedbackOption[] | null {
+  if (alert.event_type === "RAIN_ENDING") return [
+    ["STOPPED", "☀️ 止んだ"],
+    ["DID_NOT_STOP", "🌧️ 止まなかった"],
+    ["ALREADY_DRY", "☁️ 降ってない"],
+    ["UNKNOWN", "❓ 不明"],
+  ];
+  if (alert.event_type === "RAIN_STARTING" || alert.event_type === "RAIN_RETURNING" || alert.event_type === "RAIN_EXPECTED") return [
+    ["RAINED", "☔ 降った"],
+    ["DID_NOT_RAIN", "☁️ 降らなかった"],
+    ["ALREADY_RAINING", "🌧️ すでに降ってた"],
+    ["UNKNOWN", "❓ 不明"],
+  ];
+  return null; // Current-rain and severe-rain alerts need a separate evaluation question.
+}
+
 type SavedWatchTarget = {
   id: string;
   label: string;
@@ -591,9 +609,9 @@ export default function Home() {
             <div key={alert.id} style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.08)" }}>
               <div style={{ fontWeight: 700 }}>{alert.body}</div>
               <div style={{ marginTop: 4, fontSize: 13, color: "#eef5ff" }}>{new Date(alert.delivered_at).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} に通知</div>
-              <div style={{ marginTop: 10, fontSize: 13 }}>実際の天気は？</div>
+              <div style={{ marginTop: 10, fontSize: 13 }}>{feedbackOptionsForNotification(alert) ? "予測した時間内の実際の天気は？" : "この種類の通知は回答方法を準備中だよ。"}</div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
-                {([["RAINED", "☔ 降った"], ["DID_NOT_RAIN", "☁️ 降らなかった"], ["INTERMITTENT", "🌦️ 降ったり止んだり"], ["UNKNOWN", "❓ 分からない"]] as const).map(([value, label]) => (
+                {(feedbackOptionsForNotification(alert) ?? []).map(([value, label]) => (
                   <button key={value} type="button" disabled={feedbackBusy === alert.id} onClick={() => void saveWeatherFeedback(alert.id, value)}
                     aria-pressed={weatherFeedback[alert.id] === value}
                     style={{ padding: "7px 10px", borderRadius: 10, color: "#fff", cursor: "pointer", border: weatherFeedback[alert.id] === value ? "2px solid #fff" : "1px solid #789", background: weatherFeedback[alert.id] === value ? "#235f88" : "#28405c" }}>
