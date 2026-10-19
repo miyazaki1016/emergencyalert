@@ -193,3 +193,83 @@ describe("JMA forecast timestamp parsing", () => {
     expect(Number.isNaN(rainForecastTimeMs(null))).toBe(true);
   });
 });
+
+
+describe("rain episode timeline characterization", () => {
+  it("does not send an approach Push for a weak INFO forecast", () => {
+    expect(shouldNotifyForRain({
+      notificationsEnabled: true,
+      currentUrgency: "INFO",
+      previousUrgency: "INFO",
+      lastNotifiedAt: null,
+    })).toBe(false);
+  });
+
+  it("sends an actionable approach once, then suppresses its duplicate", () => {
+    const base = {
+      notificationsEnabled: true,
+      currentUrgency: "LIFESTYLE_ACTION" as const,
+    };
+    expect(shouldNotifyForRain({
+      ...base, previousUrgency: "INFO", lastNotifiedAt: null,
+    })).toBe(true);
+    expect(shouldNotifyForRain({
+      ...base, previousUrgency: "LIFESTYLE_ACTION",
+      lastNotifiedAt: "2026-10-19T03:00:00.000Z",
+    })).toBe(false);
+  });
+
+  it("characterizes ending-only Push after a weak approach was suppressed", () => {
+    const approach = shouldNotifyForRain({
+      notificationsEnabled: true,
+      currentUrgency: "INFO",
+      previousUrgency: "INFO",
+      lastNotifiedAt: null,
+    });
+    const ending = shouldNotifyForRain({
+      notificationsEnabled: true,
+      currentUrgency: "INFO",
+      previousUrgency: "INFO",
+      lastNotifiedAt: null,
+      rainEnding: true,
+    });
+    expect({ approach, ending }).toEqual({ approach: false, ending: true });
+  });
+
+  it("does not notify when the target is OFF even for ending", () => {
+    expect(shouldNotifyForRain({
+      notificationsEnabled: false,
+      currentUrgency: "INFO",
+      previousUrgency: "INFO",
+      lastNotifiedAt: null,
+      rainEnding: true,
+    })).toBe(false);
+  });
+
+  it("rearms the ending latch after three confirmed rainy checks", () => {
+    const afterDry = nextRainEndingNotified({
+      previousRainEndingNotified: true, rainStreak: 0, endingDelivered: false,
+    });
+    const afterTwo = nextRainEndingNotified({
+      previousRainEndingNotified: afterDry, rainStreak: 2, endingDelivered: false,
+    });
+    const afterThree = nextRainEndingNotified({
+      previousRainEndingNotified: afterTwo, rainStreak: 3, endingDelivered: false,
+    });
+    expect([afterDry, afterTwo, afterThree]).toEqual([true, true, false]);
+  });
+
+  it("parses the JMA timestamp at the exact 30-minute boundary", () => {
+    const now = Date.parse("2026-10-19T03:00:00Z");
+    const at30 = rainForecastTimeMs("20261019033000");
+    const at35 = rainForecastTimeMs("20261019033500");
+    expect((at30 - now) / 60000).toBe(30);
+    expect((at35 - now) / 60000).toBe(35);
+    // Worker severeFrame currently has no <=30 minute filter.
+  });
+
+  it("does not turn malformed JMA time into a future forecast", () => {
+    expect(Number.isNaN(rainForecastTimeMs("20260230033000"))).toBe(true);
+    expect(Number.isNaN(rainForecastTimeMs("20261019033099"))).toBe(true);
+  });
+});
