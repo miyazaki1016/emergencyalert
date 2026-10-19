@@ -95,13 +95,31 @@ export function auditEndingRadarProxy(rows: RadarAuditRow[]): RadarAuditResult {
  * Unknown radar comparisons remain in the denominator and are never called a success.
  */
 export function auditEndingByLeadWindow(rows: RadarAuditRow[]) {
+  // Choose the FIRST eligible shadow warning for each weather episode BEFORE
+  // splitting lead groups. Otherwise successive worker polls at 9 and 6 minutes
+  // would put the same rain-ending event in BOTH groups and bias the comparison.
+  const firstEligibleEpisode = new Set<string>();
+  const winnerIndices = new Set<number>();
+  const chronological = rows.map((row, index) => ({ row, index }))
+    .sort((a, b) => Date.parse(a.row.checked_at) - Date.parse(b.row.checked_at));
+  for (const { row, index } of chronological) {
+    const candidate = row.diagnostic?.endingNoticeCandidate;
+    const lead = candidate?.leadMinutes;
+    const target = timeFromJma(candidate?.ending?.endingTime);
+    if (typeof lead !== "number" || !Number.isFinite(lead) ||
+        lead < 5 || lead > 10 || target === null ||
+        !["ENDING_FORECAST", "TEMPORARY_ENDING_FORECAST", "ENDING_WITH_LIMITED_HORIZON", "SHORT_LULL_FORECAST"].includes(candidate?.candidate ?? "")) continue;
+    const key = JSON.stringify([row.target_id, target]);
+    if (firstEligibleEpisode.has(key)) continue;
+    firstEligibleEpisode.add(key);
+    winnerIndices.add(index);
+  }
   const inWindow = (low: number, high: number, includeEnd: boolean) =>
-    rows.map(row => {
+    rows.map((row, index) => {
       const lead = row.diagnostic?.endingNoticeCandidate?.leadMinutes;
-      if (typeof lead === "number" && Number.isFinite(lead) &&
+      if (winnerIndices.has(index) && typeof lead === "number" &&
         lead >= low && (includeEnd ? lead <= high : lead < high)) return row;
-      // A row can still independently serve as a later radar observation,
-      // even if its decision belongs to another lead-time cohort.
+      // Preserve other rows as radar observations, NOT duplicate candidates.
       return { ...row, diagnostic: null };
     });
   return {
