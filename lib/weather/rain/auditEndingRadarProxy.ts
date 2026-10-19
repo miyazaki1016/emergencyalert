@@ -85,10 +85,13 @@ export function auditEndingRadarProxy(rows: RadarAuditRow[]): RadarAuditResult {
  */
 export function auditEndingByLeadWindow(rows: RadarAuditRow[]) {
   const inWindow = (low: number, high: number, includeEnd: boolean) =>
-    rows.filter(row => {
+    rows.map(row => {
       const lead = row.diagnostic?.endingNoticeCandidate?.leadMinutes;
-      return typeof lead === "number" && Number.isFinite(lead) &&
-        lead >= low && (includeEnd ? lead <= high : lead < high);
+      if (typeof lead === "number" && Number.isFinite(lead) &&
+        lead >= low && (includeEnd ? lead <= high : lead < high)) return row;
+      // A row can still independently serve as a later radar observation,
+      // even if its decision belongs to another lead-time cohort.
+      return { ...row, diagnostic: null };
     });
   return {
     lead5ToUnder7Point5: auditEndingRadarProxy(inWindow(5, 7.5, false)),
