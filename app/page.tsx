@@ -382,6 +382,10 @@ export default function Home() {
   };
 
   const saveWeatherFeedback = async (notificationId: number, actualWeather: string) => {
+    if (!previewCapabilities.canAttemptFeedbackSave) {
+      setFeedbackError("この検証画面では回答を保存できないよ。");
+      return;
+    }
     const alert = latestAlerts.find(item => item.id === notificationId);
     if (!feedbackAvailable) {
       setFeedbackError("回答の保存機能はまだ利用できないよ。");
@@ -429,6 +433,10 @@ export default function Home() {
   }, []);
 
   const deleteTarget = async (target: SavedWatchTarget) => {
+    if (!previewCapabilities.canAttemptWatchRegistration) {
+      setPlaceStatus("この検証画面では見張り登録を削除できないよ。");
+      return;
+    }
     if (!window.confirm(`「${target.label}」を削除する？
 この場所の見張り登録も消えるよ。`)) return;
     setTargetsBusy(true);
@@ -449,6 +457,10 @@ export default function Home() {
   };
 
   const toggleTarget = async (target: SavedWatchTarget) => {
+    if (!previewCapabilities.canAttemptWatchRegistration) {
+      setPlaceStatus("この検証画面では見張り設定を変更できないよ。");
+      return;
+    }
     setTargetsBusy(true);
     try {
       const supabase = getSupabaseBrowserClient();
@@ -539,6 +551,9 @@ export default function Home() {
   };
 
   const ensureAnonymousSession = async () => {
+    if (!previewCapabilities.canAttemptWatchRegistration) {
+      throw new Error("Supabase preview config missing");
+    }
     const supabase = getSupabaseBrowserClient();
     const current = await supabase.auth.getSession();
     if (current.error) throw current.error;
@@ -549,6 +564,10 @@ export default function Home() {
   };
 
   const savePlace = async (place: typeof placeResults[number]) => {
+    if (!previewCapabilities.canAttemptWatchRegistration) {
+      setPlaceStatus("この検証画面では見張り登録を保存できないよ。");
+      return;
+    }
     const label = (placeLabels[place.id] ?? "").trim();
     if (!label) return setPlaceStatus("この場所の名前を入れてね。");
     setSavingPlaceId(place.id);
