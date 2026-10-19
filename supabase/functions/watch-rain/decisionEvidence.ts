@@ -16,6 +16,7 @@ export function buildNotificationDecisionEvidence(args: {
   eventType: string;
   decisionEventType: string;
   urgency: string;
+  forecastTargetTime: string | null;
   currentStatus: string | null;
   observationRgba: DecisionEvidenceFrame["rgba"];
   forecast: DecisionEvidenceFrame[];
@@ -37,6 +38,7 @@ export function buildNotificationDecisionEvidence(args: {
     eventType: args.eventType,
     deliveredEventType: args.decisionEventType,
     urgency: args.urgency,
+    forecastTargetTime: args.forecastTargetTime,
     current: { status: args.currentStatus, rgba: args.observationRgba ?? null },
     forecast: args.forecast.map(frame => ({
       validTime: frame.validTime ?? null,
