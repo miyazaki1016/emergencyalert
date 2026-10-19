@@ -42,7 +42,7 @@ export function assessEndingShadow(input: {
     .filter((frame) => frame.time !== null && frame.time >= endingAt)
     .sort((a, b) => a.time! - b.time!);
   const counts = { ...base, futureFrameCount: after.length };
-  if (after.length < 3) return { ...counts, status: "INSUFFICIENT_FORECAST" };
+  if (after.length < 3 || after[0].time !== endingAt) return { ...counts, status: "INSUFFICIENT_FORECAST" };
   let dryFramesFromEnding = 0;
   let previousTime: number | null = null;
   for (const frame of after) {
