@@ -44,7 +44,12 @@ export function assessEndingShadow(input: {
   const counts = { ...base, futureFrameCount: after.length };
   if (after.length < 3) return { ...counts, status: "INSUFFICIENT_FORECAST" };
   let dryFramesFromEnding = 0;
+  let previousTime: number | null = null;
   for (const frame of after) {
+    if (previousTime !== null && frame.time! - previousTime !== 5 * 60_000) {
+      return { ...counts, status: "INSUFFICIENT_FORECAST", dryFramesFromEnding };
+    }
+    previousTime = frame.time!;
     if (frame.status === "RAIN") {
       return {
         ...counts, status: "RE_RAIN_FORECAST",
