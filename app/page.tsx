@@ -308,7 +308,8 @@ export default function Home() {
         .from("notification_deliveries")
         .select("id,target_id,event_type,title,body,delivered_at,decision_snapshot")
         .gte("delivered_at", start.toISOString())
-        .order("delivered_at", { ascending: false });
+        .order("delivered_at", { ascending: false })
+        .limit(200);
       if (error) throw error;
       const deliveries = (data ?? []) as NotificationDelivery[];
       setLatestAlerts(deliveries);
@@ -621,7 +622,7 @@ export default function Home() {
       )}
 
       <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.10)", borderRadius: 20, background: "rgba(24,55,88,.80)", boxShadow: "0 18px 50px rgba(0,0,0,.20)", backdropFilter: "blur(18px)" }}>
-          <h2 style={{ marginTop: 0, marginBottom: 6 }}>通知履歴（過去7日間）</h2>
+          <h2 style={{ marginTop: 0, marginBottom: 6 }}>通知履歴（過去7日間・最新200件）</h2>
           <p style={{ marginTop: 0, color: "#eef5ff" }}>送信に成功した通知を新しい順に表示しているよ。実際の天気を回答すると、通知の精度改善に役立つよ。</p>
           {latestAlerts.length === 0 && <p>この期間の通知はまだないよ。</p>}
           {feedbackError && <p role="alert" style={{ color: "#ffb5b5" }}>{feedbackError}</p>}
