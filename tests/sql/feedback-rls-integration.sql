@@ -137,7 +137,7 @@ END $$;
 -- A visitor without an authenticated session must not read or modify feedback.
 RESET ROLE;
 SET ROLE anon;
-DO $
+DO $guard$
 DECLARE blocked boolean := false;
 BEGIN
   BEGIN
@@ -145,14 +145,14 @@ BEGIN
   EXCEPTION WHEN insufficient_privilege THEN blocked := true;
   END;
   IF NOT blocked THEN RAISE EXCEPTION 'ANON_FEEDBACK_READ_ACCEPTED'; END IF;
-END $;
+END $guard$;
 RESET ROLE;
 
 -- An authenticated owner can read their evidence but must not alter delivery
 -- records via the public API. The service worker uses service-role privileges.
 SET ROLE authenticated;
 SET request.jwt.claim.sub = '11111111-1111-4111-8111-111111111111';
-DO $
+DO $guard$
 DECLARE blocked boolean := false;
 BEGIN
   IF (SELECT decision_snapshot->>'schemaVersion'
@@ -164,7 +164,7 @@ BEGIN
   EXCEPTION WHEN insufficient_privilege THEN blocked := true;
   END;
   IF NOT blocked THEN RAISE EXCEPTION 'CLIENT_CHANGED_DELIVERY_EVIDENCE'; END IF;
-END $;
+END $guard$;
 RESET ROLE;
 ROLLBACK;
 \echo 'feedback RLS integration checks passed (disposable database)'
