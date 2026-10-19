@@ -57,7 +57,7 @@ Deno.serve(async(req:Request)=>{
    const decisionSnapshot=buildNotificationDecisionEvidence({
     checkedAt, sourceValidAt:rain.sourceValidAt??rain.event?.sourceValidAt??null,
     source:rain.source??null, eventType:rain.event.eventType, decisionEventType:notificationEventType,
-    urgency:notificationUrgency, currentStatus, observationRgba:rain.observation?.[0]?.rgba??null,
+    urgency:notificationUrgency, forecastTargetTime:notificationEventType === "RAIN_ENDING" ? rain.event.endingAt : rain.event.actionableAt ?? rain.event.startsAt, currentStatus, observationRgba:rain.observation?.[0]?.rgba??null,
     forecast:rain.forecast??[], endingShadow,
     decisionReasons:{severeEscalation,rainEnding,confirmedAndEnding,returningRain,rainConfirmed,
      previousConfirmedWeather:previous?.confirmed_weather??null},
