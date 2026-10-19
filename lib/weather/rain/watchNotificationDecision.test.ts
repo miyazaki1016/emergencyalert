@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nextLastNotifiedAt, nextRainEndingNotified, rainForecastTimeMs, shouldNotifyForRain } from "../../../supabase/functions/watch-rain/notificationDecision";
+import { nextLastNotifiedAt, nextRainEndingNotified, rainForecastTimeMs, isWithinRainNotificationHorizon, shouldNotifyForRain } from "../../../supabase/functions/watch-rain/notificationDecision";
 
 describe("watch-rain notification decision", () => {
   it("notifies when a target becomes actionable", () => {
@@ -271,5 +271,20 @@ describe("rain episode timeline characterization", () => {
   it("does not turn malformed JMA time into a future forecast", () => {
     expect(Number.isNaN(rainForecastTimeMs("20260230033000"))).toBe(true);
     expect(Number.isNaN(rainForecastTimeMs("20261019033099"))).toBe(true);
+  });
+});
+
+describe("30-minute MY rain eligibility", () => {
+  const now = Date.parse("2026-10-19T03:00:00Z");
+  it("includes forecasts through 30 minutes", () => {
+    expect(isWithinRainNotificationHorizon("20261019033000", now)).toBe(true);
+  });
+  it("excludes later and expired forecasts", () => {
+    expect(isWithinRainNotificationHorizon("20261019033500", now)).toBe(false);
+    expect(isWithinRainNotificationHorizon("20261019025500", now)).toBe(false);
+  });
+  it("rejects missing and invalid timestamps", () => {
+    expect(isWithinRainNotificationHorizon(null, now)).toBe(false);
+    expect(isWithinRainNotificationHorizon("invalid", now)).toBe(false);
   });
 });
