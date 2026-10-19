@@ -18,12 +18,19 @@ describe("ending shadow (diagnostic only)", () => {
       firstReRainTime: "20261019121500",
     });
   });
-  it("records clear through only the known forecast horizon, not a guarantee", () => {
+  it("does not count a 15-minute lull as lasting cessation", () => {
     expect(assessEndingShadow({
       currentStatus: "RAIN",
       endingTime: "20261019120000",
       forecast: frames(["NO_RAIN", "NO_RAIN", "NO_RAIN", "NO_RAIN"]),
-    })).toMatchObject({ status: "CLEAR_THROUGH_AVAILABLE_HORIZON", dryFramesFromEnding: 4 });
+    })).toMatchObject({ status: "INSUFFICIENT_FORECAST", coverageMinutes: 15, dryFramesFromEnding: 4 });
+  });
+  it("requires a complete 30-minute continuous dry horizon (still not observed weather)", () => {
+    expect(assessEndingShadow({
+      currentStatus: "RAIN",
+      endingTime: "20261019120000",
+      forecast: frames(Array(7).fill("NO_RAIN")),
+    })).toMatchObject({ status: "CLEAR_THROUGH_AVAILABLE_HORIZON", coverageMinutes: 30, dryFramesFromEnding: 7 });
   });
   it("rejects insufficient coverage and unknown pixels", () => {
     expect(assessEndingShadow({
