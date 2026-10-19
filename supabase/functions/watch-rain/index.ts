@@ -2,6 +2,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
 import { nextLastNotifiedAt, nextRainEndingNotified, shouldNotifyForRain } from "./notificationDecision.ts";
 import { assessEndingShadow } from "./endingShadow.ts";
+import { buildNotificationDecisionEvidence } from "./decisionEvidence.ts";
 
 type RainEvent = { schemaVersion:1; eventType:string; urgency:"INFO"|"LIFESTYLE_ACTION"; suggestedAction:string; startsAt:string|null; actionableAt:string|null; endingAt:string|null; source:string; checkedAt:string; sourceValidAt:string|null; };
 type Rgba = { r:number; g:number; b:number; a:number };
@@ -52,7 +53,22 @@ Deno.serve(async(req:Request)=>{
    for(const sub of subscriptions??[]){try{await webpush.sendNotification({endpoint:sub.endpoint,keys:{p256dh:sub.p256dh,auth:sub.auth}},payload);delivered++;}catch(err){const statusCode=Number((err as {statusCode?:number})?.statusCode??0);if(statusCode===404||statusCode===410)await db.from("push_subscriptions").delete().eq("id",sub.id);else failed++;}}
   }
   const now=new Date().toISOString();
-  if(delivered>0){await db.from("notification_deliveries").insert({owner_id:target.owner_id,target_id:target.id,event_type:notificationEventType,urgency:notificationUrgency,title:"EmergencyAlert",body,delivered_at:now,delivered_count:delivered});}
+  if(delivered>0){
+   const decisionSnapshot=buildNotificationDecisionEvidence({
+    checkedAt, sourceValidAt:rain.sourceValidAt??rain.event?.sourceValidAt??null,
+    source:rain.source??null, eventType:rain.event.eventType, decisionEventType:notificationEventType,
+    urgency:notificationUrgency, currentStatus, observationRgba:rain.observation?.[0]?.rgba??null,
+    forecast:rain.forecast??[], endingShadow,
+    decisionReasons:{severeEscalation,rainEnding,confirmedAndEnding,returningRain,rainConfirmed,
+     previousConfirmedWeather:previous?.confirmed_weather??null},
+   });
+   const {error:deliveryError}=await db.from("notification_deliveries").insert({
+    owner_id:target.owner_id,target_id:target.id,event_type:notificationEventType,
+    urgency:notificationUrgency,title:"EmergencyAlert",body,delivered_at:now,
+    delivered_count:delivered,decision_snapshot:decisionSnapshot,
+   });
+   if(deliveryError) console.error("notification_delivery_record_failed", {targetId:target.id,message:deliveryError.message});
+  }
   const notifiedAt=nextLastNotifiedAt({delivered,actionable,previousLastNotifiedAt:previous?.last_notified_at,now});
   const endingNotified=nextRainEndingNotified({previousRainEndingNotified:Boolean(previous?.rain_ending_notified),rainStreak,endingDelivered:(rainEnding||confirmedAndEnding)&&delivered>0});
   const rainConfirmedNotified=clearStreak>=3?false:(Boolean(previous?.rain_confirmed_notified)||rainConfirmed);
