@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "../lib/supabase/browser";
+import { feedbackTooEarly } from "../lib/weather/rain/feedbackTiming";
 
 type RainMessage = { headline: string; detail: string };
 type RainInterpretation = {
@@ -345,6 +346,15 @@ export default function Home() {
   };
 
   const saveWeatherFeedback = async (notificationId: number, actualWeather: string) => {
+    const alert = latestAlerts.find(item => item.id === notificationId);
+    if (!alert || !feedbackOptionsForNotification(alert)?.some(([value]) => value === actualWeather)) {
+      setFeedbackError("この通知にはその回答を保存できないよ。");
+      return;
+    }
+    if (feedbackTooEarly(actualWeather, alert.decision_snapshot?.forecastTargetTime, Date.now())) {
+      setFeedbackError("予測時刻がまだ来ていないよ。時刻を過ぎてから回答してね。");
+      return;
+    }
     setFeedbackBusy(notificationId);
     setFeedbackError("");
     try {
@@ -686,7 +696,7 @@ export default function Home() {
               )}
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
                 {(feedbackOptionsForNotification(alert) ?? []).map(([value, label]) => (
-                  <button key={value} type="button" disabled={feedbackBusy === alert.id} onClick={() => void saveWeatherFeedback(alert.id, value)}
+                  <button key={value} type="button" disabled={feedbackBusy === alert.id || feedbackTooEarly(value, alert.decision_snapshot?.forecastTargetTime, Date.now())} onClick={() => void saveWeatherFeedback(alert.id, value)}
                     aria-pressed={weatherFeedback[alert.id] === value}
                     style={{ padding: "7px 10px", borderRadius: 10, color: "#fff", cursor: "pointer", border: weatherFeedback[alert.id] === value ? "2px solid #fff" : "1px solid #789", background: weatherFeedback[alert.id] === value ? "#235f88" : "#28405c" }}>
                     {label}
