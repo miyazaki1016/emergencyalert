@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { auditEndingRadarProxy, type RadarAuditRow } from "../lib/weather/rain/auditEndingRadarProxy";
+import { auditEndingRadarProxy, auditEndingByLeadWindow, type RadarAuditRow } from "../lib/weather/rain/auditEndingRadarProxy";
 const decision = (target_id: string, candidate = "ENDING_FORECAST"): RadarAuditRow => ({
   target_id, checked_at: "2026-10-19T11:53:00Z", current_status: "RAIN",
   diagnostic: { endingNoticeCandidate: { candidate, ending: { endingTime: "20261019120000" } } },
@@ -72,6 +72,33 @@ describe("ending radar proxy audit (not ground truth)", () => {
       current_status: "NO_RAIN",
     };
     expect(auditEndingRadarProxy([decision("a"), missing]).unknownAtEnding).toBe(1);
+  });
+  it("compares disjoint five-versus-ten minute lead groups without discarding radar observations", () => {
+    const early = { ...decision("a"), diagnostic: {
+      endingNoticeCandidate: {
+        candidate: "ENDING_FORECAST", leadMinutes: 5.5,
+        ending: { endingTime: "20261019120000" },
+      },
+    } };
+    const later = { ...decision("b"), diagnostic: {
+      endingNoticeCandidate: {
+        candidate: "ENDING_FORECAST", leadMinutes: 9,
+        ending: { endingTime: "20261019120000" },
+      },
+    } };
+    const groups = auditEndingByLeadWindow([
+      early, later,
+      obs("a", "2026-10-19T12:00:00Z", "NO_RAIN"),
+      obs("a", "2026-10-19T12:05:00Z", "NO_RAIN"),
+      obs("a", "2026-10-19T12:10:00Z", "NO_RAIN"),
+      obs("b", "2026-10-19T12:00:00Z", "RAIN"),
+    ]);
+    expect(groups.lead5ToUnder7Point5).toMatchObject({
+      evaluated: 1, verifiedDryAtEnding: 1, verifiedNoReRainWithinTenMinutes: 1,
+    });
+    expect(groups.lead7Point5To10).toMatchObject({
+      evaluated: 1, stillRainingAtEnding: 1,
+    });
   });
   it("does not evaluate decisions outside a candidate window", () => {
     expect(auditEndingRadarProxy([decision("a", "TOO_EARLY_FOR_5_TO_10_MINUTE_WINDOW")]).evaluated).toBe(0);
