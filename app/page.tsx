@@ -262,20 +262,14 @@ export default function Home() {
       const supabase = getSupabaseBrowserClient();
       const session = (await supabase.auth.getSession()).data.session;
       if (!session) return;
-      const tokyoDate = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
-      const start = new Date(`${tokyoDate}T00:00:00+09:00`);
+      const start = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
       const { data, error } = await supabase
         .from("notification_deliveries")
         .select("id,target_id,event_type,title,body,delivered_at")
         .gte("delivered_at", start.toISOString())
         .order("delivered_at", { ascending: false });
       if (error) throw error;
-      const seen = new Set<string>();
-      setLatestAlerts(((data ?? []) as NotificationDelivery[]).filter((item) => {
-        if (seen.has(item.target_id)) return false;
-        seen.add(item.target_id);
-        return true;
-      }));
+      setLatestAlerts((data ?? []) as NotificationDelivery[]);
     } catch {
       // Alerts are supplemental; keep the rest of the app usable.
     }
@@ -556,18 +550,17 @@ export default function Home() {
         </section>
       )}
 
-      {latestAlerts.length > 0 && (
-        <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.10)", borderRadius: 20, background: "rgba(24,55,88,.80)", boxShadow: "0 18px 50px rgba(0,0,0,.20)", backdropFilter: "blur(18px)" }}>
-          <h2 style={{ marginTop: 0, marginBottom: 6 }}>今日の最新アラート</h2>
-          <p style={{ marginTop: 0, color: "#eef5ff" }}>実際に通知できた内容を、場所ごとに最新1件だけ表示してるよ。</p>
+      <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.10)", borderRadius: 20, background: "rgba(24,55,88,.80)", boxShadow: "0 18px 50px rgba(0,0,0,.20)", backdropFilter: "blur(18px)" }}>
+          <h2 style={{ marginTop: 0, marginBottom: 6 }}>通知履歴（過去7日間）</h2>
+          <p style={{ marginTop: 0, color: "#eef5ff" }}>送信に成功した通知を新しい順に表示しているよ。実際の天気のフィードバック機能は準備中だよ。</p>
+          {latestAlerts.length === 0 && <p>この期間の通知はまだないよ。</p>}
           {latestAlerts.map((alert) => (
             <div key={alert.id} style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.08)" }}>
               <div style={{ fontWeight: 700 }}>{alert.body}</div>
-              <div style={{ marginTop: 4, fontSize: 13, color: "#eef5ff" }}>{new Date(alert.delivered_at).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} に通知</div>
+              <div style={{ marginTop: 4, fontSize: 13, color: "#eef5ff" }}>{new Date(alert.delivered_at).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} に通知</div>
             </div>
           ))}
         </section>
-      )}
 
       <section style={{ marginTop: 40, paddingTop: 28, borderTop: "1px solid rgba(255,255,255,.10)" }}>
         <h2 style={{ marginBottom: 6 }}>通知</h2>
