@@ -33,6 +33,8 @@ node --experimental-strip-types scripts/audit-ending-radar.mjs local-diagnostics
 node --experimental-strip-types scripts/audit-ending-radar.mjs tests/fixtures/ending-radar-sample.json
 ```
 
+同じ地点・同じ雨の終了予測時刻について、**5〜10分前の最初の有効な通知候補だけ**を分析対象にします。9分前と6分前に同じ終了予測が出ても、両方の時間帯に重複計上しません。これは実際の通知を意味しないシャドー候補です。
+
 結果は `lead5ToUnder7Point5` と `lead7Point5To10` に分離し、`evaluated`, `verifiedDryAtEnding`, `stillRainingAtEnding`, `reRainWithinTenMinutes`, `unknownAtEnding`, `unknownRecurrence` を表示します。
 
 **解釈の注意:** `dryFractionAmongMatchedRadar` は *比較可能な観測がある事例だけ* の割合であり、通知全体の的中率ではありません。`evidenceCoverageFraction` と母数を常に併記します。データが0件なら精度は `null` であり、0%でも100%でもありません。レーダーは現地の地上降水を保証しないため、ユーザー回答とは混同しないでください。
