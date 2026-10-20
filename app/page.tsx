@@ -342,6 +342,7 @@ export default function Home() {
         .from("notification_deliveries")
         .select(`${baseColumns},decision_snapshot`)
         .gte("delivered_at", start.toISOString())
+        .gt("delivered_count", 0)
         .order("delivered_at", { ascending: false })
         .limit(200);
       // During an additive schema rollout, keep old notification history readable.
@@ -353,6 +354,7 @@ export default function Home() {
         .from("notification_deliveries")
         .select(baseColumns)
         .gte("delivered_at", start.toISOString())
+        .gt("delivered_count", 0)
         .order("delivered_at", { ascending: false })
         .limit(200) : null;
       const query = fallback ?? initial;
