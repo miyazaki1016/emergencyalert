@@ -187,7 +187,7 @@ export default function Home() {
 
               if (radarLayer) map.removeLayer(radarLayer);
               radarLayer = L.tileLayer(radarUrl, {
-                opacity: 0.36,
+                opacity: 0.44,
                 minNativeZoom: 4,
                 maxNativeZoom: nextNativeZoom,
                 maxZoom: 19,
