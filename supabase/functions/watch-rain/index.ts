@@ -51,37 +51,36 @@ Deno.serve(async(req:Request)=>{
   const body=severeEscalation?severeBody:confirmedAndEnding?(notificationLabel?`${notificationLabel}の雨、もうすぐ止みそうだよ🌥️`:"雨、もうすぐ止みそうだよ🌥️"):initialRaining?(notificationLabel?`${notificationLabel}はいま雨が降ってるよ☔️`:"いま雨が降ってるよ☔️"):rainEnding?(notificationLabel?`${notificationLabel}の雨、もうすぐ止みそうだよ🌥️`:"雨、もうすぐ止みそうだよ🌥️"):returningRain?(notificationLabel?`${notificationLabel}：いったん弱まってるけど、また降りそうだよ☔️`:"いったん弱まってるけど、また降りそうだよ☔️"):(rain.event.suggestedAction==="BRING_LAUNDRY_INSIDE"?(notificationLabel?`${notificationLabel}：もうすぐ雨が来そうだよ☔️ 洗濯物を確認してね`:"もうすぐ雨が来そうだよ☔️ 洗濯物を確認してね"):(notificationLabel?`${notificationLabel}：${rain.event.suggestedAction}`:rain.event.suggestedAction));
   const notificationEventType=severeEscalation?`SEVERE_RAIN_${severeLevel}`:confirmedAndEnding?"RAIN_ENDING":rainEnding?"RAIN_ENDING":returningRain?"RAIN_RETURNING":rain.event.eventType;
   const notificationUrgency=severeEscalation?"DISASTER":rain.event.urgency;
-  if(shouldNotify){const {data:subscriptions}=await db.from("push_subscriptions").select("id,endpoint,p256dh,auth").eq("owner_id",target.owner_id);
-   const payload=JSON.stringify({title:"EmergencyAlert",body,url:"/",data:{targetId:target.id,eventType:notificationEventType}});
-   for(const sub of subscriptions??[]){try{await webpush.sendNotification({endpoint:sub.endpoint,keys:{p256dh:sub.p256dh,auth:sub.auth}},payload);delivered++;}catch(err){const statusCode=Number((err as {statusCode?:number})?.statusCode??0);if(statusCode===404||statusCode===410)await db.from("push_subscriptions").delete().eq("id",sub.id);else failed++;}}
-  }
-  const now=new Date().toISOString();
-  if(delivered>0){
+  if(shouldNotify){
+   // Create a pending history row before sending so Push links never point to an uncreated ID.
    const decisionSnapshot=buildNotificationDecisionEvidence({
-    checkedAt, sourceValidAt:rain.sourceValidAt??rain.event?.sourceValidAt??null,
-    source:rain.source??null, eventType:rain.event.eventType, decisionEventType:notificationEventType,
-    urgency:notificationUrgency, forecastTargetTime:notificationEventType === "RAIN_ENDING" ? rain.event.endingAt : rain.event.actionableAt ?? rain.event.startsAt, currentStatus, observationRgba:rain.observation?.[0]?.rgba??null,
-    forecast:rain.forecast??[], endingShadow,
-    decisionReasons:{severeEscalation,rainEnding,confirmedAndEnding,returningRain,rainConfirmed,
-     previousConfirmedWeather:previous?.confirmed_weather??null},
+    checkedAt,sourceValidAt:rain.sourceValidAt??rain.event?.sourceValidAt??null,
+    source:rain.source??null,eventType:rain.event.eventType,decisionEventType:notificationEventType,
+    urgency:notificationUrgency,forecastTargetTime:notificationEventType==="RAIN_ENDING"?rain.event.endingAt:rain.event.actionableAt??rain.event.startsAt,
+    currentStatus,observationRgba:rain.observation?.[0]?.rgba??null,forecast:rain.forecast??[],endingShadow,
+    decisionReasons:{severeEscalation,rainEnding,confirmedAndEnding,returningRain,rainConfirmed,previousConfirmedWeather:previous?.confirmed_weather??null},
    });
-   const deliveryRecord={
-    owner_id:target.owner_id,target_id:target.id,event_type:notificationEventType,
-    urgency:notificationUrgency,title:"EmergencyAlert",body,delivered_at:now,
-    delivered_count:delivered,
-   };
-   const {error:deliveryError}=await db.from("notification_deliveries").insert({
-    ...deliveryRecord,decision_snapshot:decisionSnapshot,
-   });
-   if(deliveryError && isMissingDecisionSnapshotColumn(deliveryError)){
-    // Additive migration not applied yet: preserve the delivery history record.
-    const {error:legacyError}=await db.from("notification_deliveries").insert(deliveryRecord);
-    if(legacyError) console.error("notification_delivery_legacy_record_failed",{targetId:target.id,message:legacyError.message});
-    else console.warn("notification_delivery_evidence_not_saved_column_missing",{targetId:target.id});
-   }else if(deliveryError){
-    console.error("notification_delivery_record_failed", {targetId:target.id,message:deliveryError.message});
+   const deliveryRecord={owner_id:target.owner_id,target_id:target.id,event_type:notificationEventType,urgency:notificationUrgency,title:"EmergencyAlert",body,delivered_at:new Date().toISOString(),delivered_count:0};
+   let created=await db.from("notification_deliveries").insert({...deliveryRecord,decision_snapshot:decisionSnapshot}).select("id").single();
+   if(created.error&&isMissingDecisionSnapshotColumn(created.error)){
+    created=await db.from("notification_deliveries").insert(deliveryRecord).select("id").single();
+   }
+   if(created.error||!created.data?.id){
+    console.error("notification_pending_record_failed",{targetId:target.id,message:created.error?.message??"missing_id"});
+    failed++;
+   }else{
+    const notificationId=created.data.id;
+    const {data:subscriptions,error:subscriptionsError}=await db.from("push_subscriptions").select("id,endpoint,p256dh,auth").eq("owner_id",target.owner_id);
+    if(subscriptionsError){console.error("push_subscriptions_query_failed",{targetId:target.id,message:subscriptionsError.message});failed++;}
+    else{
+     const payload=JSON.stringify({title:"EmergencyAlert",body,url:"/?notificationId="+encodeURIComponent(String(notificationId)),data:{notificationId,targetId:target.id,eventType:notificationEventType}});
+     for(const sub of subscriptions??[]){try{await webpush.sendNotification({endpoint:sub.endpoint,keys:{p256dh:sub.p256dh,auth:sub.auth}},payload);delivered++;}catch(err){const statusCode=Number((err as {statusCode?:number})?.statusCode??0);if(statusCode===404||statusCode===410)await db.from("push_subscriptions").delete().eq("id",sub.id);else failed++;}}
+    }
+    const {error:finalizeError}=await db.from("notification_deliveries").update({delivered_count:delivered}).eq("id",notificationId).eq("owner_id",target.owner_id);
+    if(finalizeError)console.error("notification_delivery_finalize_failed",{notificationId,message:finalizeError.message});
    }
   }
+  const now=new Date().toISOString();
   const notifiedAt=nextLastNotifiedAt({delivered,actionable,previousLastNotifiedAt:previous?.last_notified_at,now});
   const endingNotified=nextRainEndingNotified({previousRainEndingNotified:Boolean(previous?.rain_ending_notified),rainStreak,endingDelivered:(rainEnding||confirmedAndEnding)&&delivered>0});
   const rainConfirmedNotified=clearStreak>=3?false:(Boolean(previous?.rain_confirmed_notified)||rainConfirmed);
