@@ -388,6 +388,19 @@ export default function Home() {
     }
   };
 
+  // Deep link from a Push notification. IDs are lookup keys, never authorization tokens.
+  const notificationIdFromPush = typeof window === "undefined" ? null : (() => {
+    const raw = new URLSearchParams(window.location.search).get("notificationId");
+    if (!raw || !/^[1-9]\\d{0,14}$/.test(raw)) return null;
+    const id = Number(raw);
+    return Number.isSafeInteger(id) ? id : null;
+  })();
+  useEffect(() => {
+    if (notificationIdFromPush === null || latestAlerts.length === 0) return;
+    const node = document.getElementById(`rain-notification-${notificationIdFromPush}`);
+    if (node) node.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [notificationIdFromPush, latestAlerts]);
+
   const saveWeatherFeedback = async (notificationId: number, actualWeather: string) => {
     if (!previewCapabilities.canAttemptFeedbackSave) {
       setFeedbackError("この検証画面では回答を保存できないよ。");
@@ -723,7 +736,7 @@ export default function Home() {
           {previewCapabilities.databaseConfigured && latestAlerts.length === 0 && !historyNotice && <p>この期間の通知はまだないよ。</p>}
           {feedbackError && <p role="alert" style={{ color: "#ffb5b5" }}>{feedbackError}</p>}
           {latestAlerts.map((alert) => (
-            <div key={alert.id} style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.08)" }}>
+            <div id={`rain-notification-${alert.id}`} key={alert.id} style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.08)", scrollMarginTop: 24, outline: notificationIdFromPush === alert.id ? "2px solid #7dd3fc" : "none", borderRadius: 8 }}>
               <div style={{ fontWeight: 700 }}>{alert.body}</div>
               <div style={{ marginTop: 4, fontSize: 13, color: "#eef5ff" }}>{new Date(alert.delivered_at).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} に通知</div>
               <details style={{ marginTop: 9, fontSize: 13, color: "#eef5ff" }}>
