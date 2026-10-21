@@ -115,7 +115,27 @@ export default function NotificationFeedbackHistory() {
     const interval = window.setInterval(() => void refresh(), 5 * 60 * 1000);
     const onVisible = () => { if (document.visibilityState === "visible") void refresh(); };
     document.addEventListener("visibilitychange", onVisible);
-    return () => { window.clearInterval(interval); document.removeEventListener("visibilitychange", onVisible); };
+
+    // The user may register a watched place (anonymous Supabase sign-in)
+    // without leaving this page. Refresh feedback immediately after sign-in.
+    // Never call Supabase async APIs inside onAuthStateChange itself.
+    let pendingAuthRefresh: ReturnType<typeof setTimeout> | null = null;
+    const { data: { subscription } } = getSupabaseBrowserClient().auth.onAuthStateChange(
+      (event) => {
+        if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_DELETED") return;
+        if (pendingAuthRefresh !== null) window.clearTimeout(pendingAuthRefresh);
+        pendingAuthRefresh = window.setTimeout(() => {
+          pendingAuthRefresh = null;
+          void refresh();
+        }, 0);
+      },
+    );
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisible);
+      if (pendingAuthRefresh !== null) window.clearTimeout(pendingAuthRefresh);
+      subscription.unsubscribe();
+    };
   }, [refresh]);
 
   // Phase 1: links from today's alerts work without changing the Push payload.
