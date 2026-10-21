@@ -41,3 +41,11 @@
 - 複数の見張り地点があるとき、**場所別フィルター**を表示。回答できる件数・未回答件数も選択中の見張り地点について計算する。「今日の最新アラート」からのリンクを開くとフィルターを全件へ戻し、正しい通知が隠れないようにした。
 - `lib/weather/rain/feedbackPhase1.ts` の純粋関数と `tests/feedbackPhase1.test.ts` で、地点IDに基づく表示と絞り込み、削除済み地点、別地点へ紛れ込まないことを自動テスト。
 - 現時点はPR #65内のステージング向けコード。Push/Edge/main/本番DB未変更。API接続とiPhone実機の確認は未完了、公開NO-GOを維持。
+
+## 追補：回答の保存→再読込→変更の実装と模擬テスト（2026-10-21）
+
+- `lib/weather/rain/feedbackPhase1Repository.ts` に通知回答の保存 `savePhase1Feedback` と再読込 `loadPhase1Feedback` を切り出した。UI `app/components/NotificationFeedbackHistory.tsx` は両方を利用する。
+- 保存時はSupabase Authの現在セッションからowner_idを取得し、通知IDを正の安全整数に限定。RLSが本人以外の読書きを拒否する前提を保つ。実際の所有者や送達確認はサーバーRLSの責務。
+- 再読込では表示中の配信通知IDだけを指定し、想定外のID/回答値は表示に採用しない。
+- `tests/feedbackPhase1Repository.test.ts` に**インメモリの模擬Supabase**による回答作成→再読込→回答変更→再読込、未ログイン時の保存拒否、ID不正、別ユーザーの模擬的な分離を追加した。**模擬テストの成功は実際のSupabase Auth/REST HTTPやiPhone実機の成功証明ではない**。
+- 実装・検証が進んでも、本番DBのフィードバックテーブル新設/PRのマージ/本番公開は別の明示承認まで行わない。Issue #64の障害復旧深掘りは再開しない。
