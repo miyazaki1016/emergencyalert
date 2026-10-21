@@ -119,7 +119,7 @@ export default function NotificationFeedbackHistory() {
     // The user may register a watched place (anonymous Supabase sign-in)
     // without leaving this page. Refresh feedback immediately after sign-in.
     // Never call Supabase async APIs inside onAuthStateChange itself.
-    let pendingAuthRefresh: ReturnType<typeof setTimeout> | null = null;
+    let pendingAuthRefresh: number | null = null;
     const { data: { subscription } } = getSupabaseBrowserClient().auth.onAuthStateChange(
       (event) => {
         if (event !== "SIGNED_IN" && event !== "SIGNED_OUT") return;
