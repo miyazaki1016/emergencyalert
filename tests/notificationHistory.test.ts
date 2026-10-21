@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { prioritizeNotification, savedWeatherAnswerLabel, selectFeedbackHistory } from "../lib/weather/rain/notificationHistory";
+import { prioritizeNotification, savedWeatherAnswerLabel, selectFeedbackHistory, parsePushNotificationId } from "../lib/weather/rain/notificationHistory";
 
 describe("notification feedback experience", () => {
   const items = [{ id: 3 }, { id: 2 }, { id: 1 }];
@@ -41,5 +41,17 @@ describe("unanswered notifications filter", () => {
   });
   it("immediately removes newly answered items when no Push is focused", () => {
     expect(selectFeedbackHistory(notifications,{3:"STOPPED",1:"RAINED"},canAnswer,"unanswered",null).items).toEqual([]);
+  });
+});
+
+describe("Push notification ID parsing", () => {
+  it("accepts safe positive integer identifiers", () => {
+    expect(parsePushNotificationId("1")).toBe(1);
+    expect(parsePushNotificationId("123456789")).toBe(123456789);
+  });
+  it("rejects missing, malformed, negative and ambiguous values", () => {
+    for (const value of [null,"","0","-1","001","1.5","1e2","1x"," 1 ","1234567890123456"]) {
+      expect(parsePushNotificationId(value)).toBeNull();
+    }
   });
 });
