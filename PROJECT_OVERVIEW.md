@@ -1,3 +1,5 @@
+> **2026-10-21 クラッシュ・二重通知安全性**: `docs/MY_RAIN_PUSH_CRASH_CONCURRENCY_DESIGN_20261021.md` にDB一意イベントキー/原子的claim/購読先別試行/UNKNOWN保留の設計を保存。 `deliveryAttemptSafety.ts` と8件のオフラインテストは追加したが **稼働workerには未接続**。DB並行試験・故障注入が終わるまで **二重通知防止完成とみなさない / 本番NO-GO**。
+>
 > **2026-10-21 #63 最新安全ゲート**: 通知履歴ID先行作成に伴う本番スキーマ不一致を発見。現行本番の `notification_deliveries_delivered_count_check` は **`delivered_count > 0`**。ブランチworkerは先行履歴を0件でINSERTするため、そのままデプロイするとPush送信停止につながる。**本番はNO-GO**。ステージング用SQL `docs/sql/my-rain-notification-pending.sql` と変更ゲート `docs/MY_RAIN_STAGED_ROLLOUT_GATE_20261020.md` を参照。本番SQL/Edge/Push/mainは未変更。確認日 2026-10-21、DBは読取り専用照合。
 >
 # 🚨🚨🚨 新しいソラへ：開発前に必ずここを読め！ 🚨🚨🚨
