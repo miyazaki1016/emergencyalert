@@ -5,6 +5,7 @@ import { getSupabaseBrowserClient } from "../lib/supabase/browser";
 import { getRainPreviewCapabilities } from "../lib/weather/rain/previewCapabilities";
 import { feedbackTooEarly } from "../lib/weather/rain/feedbackTiming";
 import { persistRainNotificationFeedback } from "../lib/weather/rain/persistNotificationFeedback";
+import { prioritizeNotification, savedWeatherAnswerLabel } from "../lib/weather/rain/notificationHistory";
 
 type RainMessage = { headline: string; detail: string };
 type RainInterpretation = {
@@ -134,6 +135,7 @@ export default function Home() {
   const [weatherFeedback, setWeatherFeedback] = useState<Record<number, string>>({});
   const [feedbackAvailable, setFeedbackAvailable] = useState(false);
   const [feedbackBusy, setFeedbackBusy] = useState<number | null>(null);
+  const [feedbackSavedId, setFeedbackSavedId] = useState<number | null>(null);
   const [feedbackError, setFeedbackError] = useState("");
   const [historyNotice, setHistoryNotice] = useState("");
   const [mapPickerOpen, setMapPickerOpen] = useState(false);
@@ -444,12 +446,15 @@ export default function Home() {
       return;
     }
     setFeedbackBusy(notificationId);
+    setFeedbackSavedId(null);
     setFeedbackError("");
     try {
       const supabase = getSupabaseBrowserClient();
       await persistRainNotificationFeedback(supabase, notificationId, actualWeather);
       setWeatherFeedback((previous) => ({ ...previous, [notificationId]: actualWeather }));
+      setFeedbackSavedId(notificationId);
     } catch {
+      setFeedbackSavedId(null);
       setFeedbackError("回答を保存できなかったよ。時間をおいてもう一度試してね。");
     } finally {
       setFeedbackBusy(null);
@@ -754,13 +759,14 @@ export default function Home() {
       )}
 
       <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.10)", borderRadius: 20, background: "rgba(24,55,88,.80)", boxShadow: "0 18px 50px rgba(0,0,0,.20)", backdropFilter: "blur(18px)" }}>
-          <h2 style={{ marginTop: 0, marginBottom: 6 }}>通知履歴（過去7日間・最新200件）</h2>
+          <h2 style={{ marginTop: 0, marginBottom: 6 }}>通知履歴（最近7日間・最新200件＋指定通知）</h2>
           <p style={{ marginTop: 0, color: "#eef5ff" }}>{previewCapabilities.databaseConfigured ? "送信に成功した通知を新しい順に表示しているよ。実際の天気を回答すると、通知の精度改善に役立つよ。" : "通知履歴と回答保存は、検証用データベースを接続してから確認できるよ。"}</p>
           {historyNotice && <p role="status" style={{ color: "#ffe1a0" }}>{historyNotice}</p>}
           {previewCapabilities.databaseConfigured && latestAlerts.length === 0 && !historyNotice && <p>この期間の通知はまだないよ。</p>}
           {feedbackError && <p role="alert" style={{ color: "#ffb5b5" }}>{feedbackError}</p>}
-          {latestAlerts.map((alert) => (
+          {prioritizeNotification(latestAlerts, notificationIdFromPush).map((alert) => (
             <div id={`rain-notification-${alert.id}`} key={alert.id} style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.08)", scrollMarginTop: 24, outline: notificationIdFromPush === alert.id ? "2px solid #7dd3fc" : "none", borderRadius: 8 }}>
+              {notificationIdFromPush === alert.id && <div role="status" style={{ fontSize: 13, color: "#b8efff", fontWeight: 800, marginBottom: 5 }}>📩 タップした通知はこちら。実際の天気を教えてね。</div>}
               <div style={{ fontWeight: 700 }}>{alert.body}</div>
               <div style={{ marginTop: 4, fontSize: 13, color: "#eef5ff" }}>{new Date(alert.delivered_at).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} に通知</div>
               <details style={{ marginTop: 9, fontSize: 13, color: "#eef5ff" }}>
@@ -797,6 +803,12 @@ export default function Home() {
               {feedbackOptionsForNotification(alert) && (
                 <div style={{ marginTop: 4, fontSize: 12, color: "#dce9fa" }}>
                   「降らなかった」「止まなかった」は予測対象時刻を過ぎてから回答してね。通知時点ですでに降っていた／降っていなかった場合はそのまま回答できるよ。
+                </div>
+              )}
+              {savedWeatherAnswerLabel(weatherFeedback[alert.id], feedbackOptionsForNotification(alert)) && (
+                <div role="status" style={{ marginTop: 6, fontSize: 13, color: "#bbf7d0" }}>
+                  {savedWeatherAnswerLabel(weatherFeedback[alert.id], feedbackOptionsForNotification(alert))}
+                  {feedbackSavedId === alert.id ? " ✓ 保存したよ" : "（変更もできるよ）"}
                 </div>
               )}
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
