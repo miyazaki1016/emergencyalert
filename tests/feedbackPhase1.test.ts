@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel, filterFeedbackByTarget, selectFeedbackHistory } from "../lib/weather/rain/feedbackPhase1";
+import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel, filterFeedbackByTarget, selectFeedbackHistory, compactFeedbackHistory } from "../lib/weather/rain/feedbackPhase1";
 
 describe("phase-one in-app history links", () => {
   it("accepts positive numeric feedback IDs", () => {
@@ -93,5 +93,27 @@ describe("answered, unanswered and selected history views", () => {
     const result = selectFeedbackHistory(items,{},types,"unanswered",null);
     expect(result.unanswered).toBe(3);
     expect(result.visible.map(x=>x.id)).toEqual([5,3,2]);
+  });
+});
+
+describe("short feedback history on iPhone", () => {
+  const rows = Array.from({length:11}, (_,i) => ({id:11-i}));
+  it("shows only two newest cards by default instead of a long list", () => {
+    const selected = compactFeedbackHistory(rows,2,null);
+    expect(selected.items.map(r=>r.id)).toEqual([11,10]);
+    expect(selected.remaining).toBe(9);
+  });
+  it("reveals older cards in batches without reordering anything", () => {
+    expect(compactFeedbackHistory(rows,7,null).items.map(r=>r.id)).toEqual([11,10,9,8,7,6,5]);
+    expect(compactFeedbackHistory(rows,12,null).remaining).toBe(0);
+  });
+  it("never hides a linked notification even when it is older", () => {
+    const selected=compactFeedbackHistory(rows,2,2);
+    expect(selected.items.at(-1)?.id).toBe(2);
+    expect(selected.remaining).toBe(1);
+  });
+  it("handles no notifications and invalid limits", () => {
+    expect(compactFeedbackHistory([],2,null)).toEqual({items:[],remaining:0});
+    expect(compactFeedbackHistory(rows,Number.NaN,null).items).toHaveLength(2);
   });
 });
