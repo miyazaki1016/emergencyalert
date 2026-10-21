@@ -215,7 +215,7 @@ export default function NotificationFeedbackHistory() {
     <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.15)", borderRadius: 20, background: "rgba(24,55,88,.8)" }}>
       <h2 style={{ marginTop: 0, marginBottom: 6 }}>🌧️ 届いた通知の天気を教えてね</h2>
       <p style={{ marginTop: 0, fontSize: 14, color: "#eef5ff" }}>
-        最近の通知を2件ずつではなく、まず2件だけ表示するよ。必要なら続きを開けるよ。実際に見た場所の天気だけを回答してね。
+        直近2件だけ表示しているよ。以前の通知は「もっと見る」から確認できるよ。
         見ていない場所なら「わからない」で大丈夫だよ。
       </p>
       {message && <p role="status" style={{ color: "#ffe1a0" }}>{message}</p>}
