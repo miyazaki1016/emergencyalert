@@ -5,7 +5,7 @@ import { getSupabaseBrowserClient } from "../lib/supabase/browser";
 import { getRainPreviewCapabilities } from "../lib/weather/rain/previewCapabilities";
 import { feedbackTooEarly } from "../lib/weather/rain/feedbackTiming";
 import { persistRainNotificationFeedback } from "../lib/weather/rain/persistNotificationFeedback";
-import { savedWeatherAnswerLabel, selectFeedbackHistory } from "../lib/weather/rain/notificationHistory";
+import { parsePushNotificationId, savedWeatherAnswerLabel, selectFeedbackHistory } from "../lib/weather/rain/notificationHistory";
 
 type RainMessage = { headline: string; detail: string };
 type RainInterpretation = {
@@ -372,8 +372,7 @@ export default function Home() {
       }>).map(item => ({ ...item, decision_snapshot: item.decision_snapshot ?? null }));
       // A notification can be older than seven days or outside the latest 200.
       // Resolve its ID with the current user's RLS-protected session, never by trusting the URL.
-      const rawPushId = new URLSearchParams(window.location.search).get("notificationId");
-      const pushId = rawPushId && /^[1-9]\d{0,14}$/.test(rawPushId) ? Number(rawPushId) : null;
+      const pushId = parsePushNotificationId(new URLSearchParams(window.location.search).get("notificationId"));
       if (pushId !== null && Number.isSafeInteger(pushId) && !deliveries.some(item => item.id === pushId)) {
         const byId = await supabase.from("notification_deliveries")
           .select(`${baseColumns},decision_snapshot`).eq("id", pushId).gt("delivered_count", 0).maybeSingle();
@@ -416,12 +415,8 @@ export default function Home() {
   };
 
   // Deep link from a Push notification. IDs are lookup keys, never authorization tokens.
-  const notificationIdFromPush = typeof window === "undefined" ? null : (() => {
-    const raw = new URLSearchParams(window.location.search).get("notificationId");
-    if (!raw || !/^[1-9]\d{0,14}$/.test(raw)) return null;
-    const id = Number(raw);
-    return Number.isSafeInteger(id) ? id : null;
-  })();
+  const notificationIdFromPush = typeof window === "undefined" ? null :
+    parsePushNotificationId(new URLSearchParams(window.location.search).get("notificationId"));
   useEffect(() => {
     if (notificationIdFromPush === null || latestAlerts.length === 0) return;
     const node = document.getElementById(`rain-notification-${notificationIdFromPush}`);
