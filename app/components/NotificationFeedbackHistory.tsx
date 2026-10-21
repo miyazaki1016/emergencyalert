@@ -166,7 +166,13 @@ export default function NotificationFeedbackHistory() {
   // Phase 1: links from today's alerts work without changing the Push payload.
   useEffect(() => {
     const readHash = () => {
-      setFocusedNotificationId(parseFeedbackHash(window.location.hash));
+      const focused = parseFeedbackHash(window.location.hash);
+      setFocusedNotificationId(focused);
+      if (focused !== null) {
+        // A link from today's alert should work even after choosing a
+        // different location in the history filter.
+        setSelectedTargetId("all");
+      }
     };
     readHash();
     window.addEventListener("hashchange", readHash);
