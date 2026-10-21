@@ -2,6 +2,13 @@
 
 **現在の状態：NO-GO（未公開）**。この文書は操作手順と検証条件。SQLの適用、Edge Functionのデプロイ、Mainマージ、通知条件の変更を**このPRだけで自動実行しない**。
 
+## 2026-10-21 重要な追加ブロッカー: Push ID先行発行
+
+- **本番DBの現行CHECKは `notification_deliveries.delivered_count > 0`。** 読み取り専用の `pg_constraint` 照合で確認。PR #63の先行履歴作成は `delivered_count=0` をINSERTするため、**現行本番DBではINSERTが拒否されPush送信を停止する**。CI成功だけで本番デプロイしないこと。
+- `docs/sql/my-rain-notification-pending.sql` をステージングで検証してから、明示承認のある本番DB段階で先に適用する。`delivered_count >= 0` へ変更し、0を**未配信**、1以上を**成功配信あり**として扱う。配信0を利用者履歴に表示・フィードバック受付しない。
+- 未ログイン時は通知履歴を見せずアカウント案内を表示。匿名ログインの端末/アカウントが異なると同じPush URLでも履歴は引けない。URLのIDは認可トークンではない。
+- **送信成功後のDB更新失敗**では、実際にPushが届いても `delivered_count=0` のままになる。配信成功ログ・未確定レコードの突合、再試行の重複防止、復旧手順が必要。整合性検証と異常ケース試験が済むまで**本番NO-GO**。
+
 ## 現行本番の読み取り専用確認
 - Supabase project: EmergencyAlert（「美咲」の別プロジェクトは対象外）。
 - 2026-10-20 確認：`public.notification_deliveries` に `decision_snapshot` は**ない**。新しい `public.rain_notification_feedback` テーブルも**ない**。
@@ -12,14 +19,14 @@
 
 ### Phase A — 開発・ステージングで確認（本番は無変更）
 1. 最新コミットの **CI全ジョブ緑**。失敗・実行待ちなら停止。
-2. 使い捨て PostgreSQLで `docs/sql/my-rain-notification-evidence.sql` と `docs/sql/my-rain-notification-feedback.sql` の再適用可否と既存通知の非破壊性を確認。
+2. 使い捨て PostgreSQLで `docs/sql/my-rain-notification-evidence.sql`、`docs/sql/my-rain-notification-feedback.sql`、`docs/sql/my-rain-notification-pending.sql` の再適用可否と既存通知の非破壊性を確認。
 3. 隔離されたSupabase検証環境で、ログイン済み利用者A/Bの通知履歴読み取り、回答の新規保存／変更、他人の通知へのアクセス拒否、サインアウトを**実際のHTTPセッション**で確認。Postgresの `SET ROLE` テストだけでは完全な代わりにならない。
 4. iPhone Safari/PWAで、履歴表示、回答、読み込み失敗時の状態、通知をタップしたときの挙動を実機確認。
 5. 既存通知文・通知時刻とシャドー判定結果を区別した試験ログを保存。**新しい終了判定をPush判定に用いない**。
 
 ### Phase B — 本番DB変更（ユーザーの明示承認が必要）
 1. 本番の既存テーブル構造、RLS/GRANTと最新のバックアップ・復旧手順を照合。変更前の `notification_deliveries` 件数と直近の正常Push履歴を記録。
-2. 承認後にまず **追加型の列・フィードバックテーブルだけ**をDBに適用。新規テーブルはRLS有効、権限はauthenticated限定、所有者と通知種類を制約。
+2. 承認後にまず **追加型の列・フィードバックテーブルと、0件保留レコードを許可するCHECK変更だけ**をDBに適用。新規テーブルはRLS有効、権限はauthenticated限定、所有者と通知種類を制約。
 3. schema cache/API露出の反映後、上記検証環境と同じ「A/Bユーザーの権限試験」を本番の安全なテストユーザーで確認。不要な本番ユーザーレコードは作成しない。
 
 ### Phase C — 診断ログのみ先行（別途明示承認）
