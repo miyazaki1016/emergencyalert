@@ -49,3 +49,12 @@
 - 再読込では表示中の配信通知IDだけを指定し、想定外のID/回答値は表示に採用しない。
 - `tests/feedbackPhase1Repository.test.ts` に**インメモリの模擬Supabase**による回答作成→再読込→回答変更→再読込、未ログイン時の保存拒否、ID不正、別ユーザーの模擬的な分離を追加した。**模擬テストの成功は実際のSupabase Auth/REST HTTPやiPhone実機の成功証明ではない**。
 - 実装・検証が進んでも、本番DBのフィードバックテーブル新設/PRのマージ/本番公開は別の明示承認まで行わない。Issue #64の障害復旧深掘りは再開しない。
+
+## 追補：使い捨てPostgreSQL＋PostgREST の実HTTP試験成功（2026-10-21）
+
+- `tests/sql/feedback-phase1-http-setup.sql`: 本番と無関係なPostgres 16に、配信通知（A/B所有者）・本人限定閲覧RLS・第1段階の回答スキーマを準備する。
+- `tests/feedback-phase1-http.mjs`: テスト内で署名した**使い捨てJWT**をHTTPのBearerトークンにして、PostgRESTからA/Bの通知履歴を取得し、回答の新規POST→GET再取得→同じ通知のupsert変更→GET再取得、他人の通知・未対応イベント・不正回答・未認証での保存拒否および他人の回答が見えないことを検証する。
+- `.github/workflows/ci.yml` の `phase1-feedback-http` jobで実行。PostgREST `v12.2.3`＋PostgreSQL `16`を**CIの一時コンテナのみ**で起動し、終了時に廃棄。Supabase本番にも美咲にも接続しない。
+- 最初のHTTP検証時に、模擬 `auth.uid()` がレガシーな `request.jwt.claim.sub` からの取得になっており、実PostgREST v12のJWT claims JSONと不整合を検出。使い捨てDB fixtureで `request.jwt.claims::jsonb ->> 'sub'` を読むよう修正。**製品本番のSQLは変更しない**。
+- コミット **`cdbec051`** の GitHub Actions run **`39570989341`** は **`verify`、`phase1-feedback-rls`、`phase1-feedback-http` 全て success**。今回の成果は模擬Supabaseだけでなく、**本物のPostgREST HTTP要求と実Postgres/RLSでの保存・更新・再読込を検証**できた点。
+- **注意：これはSupabaseマネージドのAuth/REST接続ではない**。本番とは別のSupabaseプロジェクト/開発ブランチの準備と iPhone実機 PWA 操作検証は引き続き未実施。CI緑 ≠ 本番公開可能。本番DB変更、Edge/Push変更、mainのマージは許可されていない。
