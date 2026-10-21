@@ -126,7 +126,7 @@ export default function NotificationFeedbackHistory() {
   // Phase 1: links from today's alerts work without changing the Push payload.
   useEffect(() => {
     const readHash = () => {
-      const match = /^#rain-feedback-([1-9]\\d{0,14})$/.exec(window.location.hash);
+      const match = /^#rain-feedback-([1-9]\d{0,14})$/.exec(window.location.hash);
       const id = match ? Number(match[1]) : null;
       setFocusedNotificationId(id !== null && Number.isSafeInteger(id) ? id : null);
     };
