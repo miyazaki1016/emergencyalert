@@ -39,3 +39,52 @@ jobs:
         env:
           PGPASSWORD: local-test-only
         run: psql -h localhost -U postgres -d phase1_test -v ON_ERROR_STOP=1 -f tests/sql/feedback-phase1-integration.sql
+
+  phase1-feedback-http:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: local-test-only
+          POSTGRES_DB: phase1_http
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize disposable feedback RLS fixture
+        env:
+          PGPASSWORD: local-test-only
+        run: psql -h localhost -U postgres -d phase1_http -v ON_ERROR_STOP=1 -f tests/sql/feedback-phase1-http-setup.sql
+      - name: Start disposable local PostgREST (no Supabase production traffic)
+        env:
+          PHASE1_JWT_SECRET: only-for-disposable-ci-not-a-production-jwt-secret
+        run: |
+          docker run -d --rm --name phase1-postgrest --network host \
+            -e PGRST_DB_URI=postgres://postgres:local-test-only@127.0.0.1:5432/phase1_http \
+            -e PGRST_DB_SCHEMAS=public \
+            -e PGRST_DB_ANON_ROLE=anon \
+            -e PGRST_JWT_SECRET="$PHASE1_JWT_SECRET" \
+            postgrest/postgrest:v12.2.3
+          for i in $(seq 1 30); do
+            if curl -fsS 'http://127.0.0.1:3000/' >/dev/null 2>&1; then exit 0; fi
+            sleep 1
+          done
+          docker logs phase1-postgrest
+          exit 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate create-edit-reload and owner RLS through HTTP
+        env:
+          PHASE1_JWT_SECRET: only-for-disposable-ci-not-a-production-jwt-secret
+        run: node tests/feedback-phase1-http.mjs
+      - name: Remove disposable PostgREST
+        if: always()
+        run: docker rm -f phase1-postgrest || true
