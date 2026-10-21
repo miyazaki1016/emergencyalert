@@ -5,7 +5,7 @@ import { getSupabaseBrowserClient } from "../lib/supabase/browser";
 import { getRainPreviewCapabilities } from "../lib/weather/rain/previewCapabilities";
 import { feedbackTooEarly } from "../lib/weather/rain/feedbackTiming";
 import { persistRainNotificationFeedback } from "../lib/weather/rain/persistNotificationFeedback";
-import { prioritizeNotification, savedWeatherAnswerLabel } from "../lib/weather/rain/notificationHistory";
+import { savedWeatherAnswerLabel, selectFeedbackHistory } from "../lib/weather/rain/notificationHistory";
 
 type RainMessage = { headline: string; detail: string };
 type RainInterpretation = {
@@ -138,6 +138,7 @@ export default function Home() {
   const [feedbackSavedId, setFeedbackSavedId] = useState<number | null>(null);
   const [feedbackError, setFeedbackError] = useState("");
   const [historyNotice, setHistoryNotice] = useState("");
+  const [feedbackHistoryFilter, setFeedbackHistoryFilter] = useState<"all" | "unanswered">("all");
   const [mapPickerOpen, setMapPickerOpen] = useState(false);
   const [mapLatitude, setMapLatitude] = useState("35.681236");
   const [mapLongitude, setMapLongitude] = useState("139.767125");
@@ -426,6 +427,11 @@ export default function Home() {
     const node = document.getElementById(`rain-notification-${notificationIdFromPush}`);
     if (node) node.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [notificationIdFromPush, latestAlerts]);
+
+  const feedbackHistory = selectFeedbackHistory(
+    latestAlerts, weatherFeedback, alert => feedbackOptionsForNotification(alert) !== null,
+    feedbackHistoryFilter, notificationIdFromPush,
+  );
 
   const saveWeatherFeedback = async (notificationId: number, actualWeather: string) => {
     if (!previewCapabilities.canAttemptFeedbackSave) {
@@ -764,7 +770,27 @@ export default function Home() {
           {historyNotice && <p role="status" style={{ color: "#ffe1a0" }}>{historyNotice}</p>}
           {previewCapabilities.databaseConfigured && latestAlerts.length === 0 && !historyNotice && <p>この期間の通知はまだないよ。</p>}
           {feedbackError && <p role="alert" style={{ color: "#ffb5b5" }}>{feedbackError}</p>}
-          {prioritizeNotification(latestAlerts, notificationIdFromPush).map((alert) => (
+          {feedbackAvailable && latestAlerts.length > 0 && (
+            <div style={{ marginTop: 12 }}>
+              <p style={{ fontSize: 14, margin: "0 0 8px", color: "#d8f2ff" }}>
+                回答できる通知：{feedbackHistory.answerable}件 ・ 未回答：{feedbackHistory.unanswered}件
+              </p>
+              <div role="group" aria-label="通知履歴の絞り込み" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {([["all", "すべて"], ["unanswered", "未回答だけ"]] as const).map(([value, label]) => (
+                  <button type="button" key={value} aria-pressed={feedbackHistoryFilter === value}
+                    onClick={() => setFeedbackHistoryFilter(value)}
+                    style={{ borderRadius: 10, padding: "7px 12px", color: "#fff",
+                      border: feedbackHistoryFilter === value ? "2px solid #7dd3fc" : "1px solid #789",
+                      background: feedbackHistoryFilter === value ? "#245a84" : "#28405c", cursor: "pointer" }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {feedbackHistoryFilter === "unanswered" && feedbackHistory.unanswered === 0 &&
+                <p role="status" style={{ fontSize: 13, color: "#bbf7d0" }}>未回答の通知はないよ。協力ありがとう！</p>}
+            </div>
+          )}
+          {feedbackHistory.items.map((alert) => (
             <div id={`rain-notification-${alert.id}`} key={alert.id} style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.08)", scrollMarginTop: 24, outline: notificationIdFromPush === alert.id ? "2px solid #7dd3fc" : "none", borderRadius: 8 }}>
               {notificationIdFromPush === alert.id && <div role="status" style={{ fontSize: 13, color: "#b8efff", fontWeight: 800, marginBottom: 5 }}>📩 タップした通知はこちら。実際の天気を教えてね。</div>}
               <div style={{ fontWeight: 700 }}>{alert.body}</div>
