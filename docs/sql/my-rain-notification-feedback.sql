@@ -21,6 +21,7 @@ create policy "insert feedback for own delivery" on public.rain_notification_fee
     owner_id = (select auth.uid())
     and exists (select 1 from public.notification_deliveries d
       where d.id = notification_id and d.owner_id = (select auth.uid())
+      and d.delivered_count > 0
       and (
         (d.event_type = 'RAIN_ENDING' and actual_weather in
           ('STOPPED', 'DID_NOT_STOP', 'ALREADY_DRY', 'UNKNOWN'))
@@ -37,6 +38,7 @@ create policy "update own feedback" on public.rain_notification_feedback
     owner_id = (select auth.uid())
     and exists (select 1 from public.notification_deliveries d
       where d.id = notification_id and d.owner_id = (select auth.uid())
+      and d.delivered_count > 0
       and (
         (d.event_type = 'RAIN_ENDING' and actual_weather in
           ('STOPPED', 'DID_NOT_STOP', 'ALREADY_DRY', 'UNKNOWN'))
