@@ -25,3 +25,13 @@ export function watchedPlaceLabel(targetId: string, labels: Readonly<Record<stri
   const label = labels[targetId]?.trim();
   return label || "登録地点（名称を確認できないよ）";
 }
+
+/** This is a view filter only; it never changes notification ownership or permissions. */
+export function filterFeedbackByTarget<T extends {target_id:string}>(
+  notifications: readonly T[],
+  selectedTargetId: string,
+): T[] {
+  return selectedTargetId === "all"
+    ? [...notifications]
+    : notifications.filter(row => row.target_id === selectedTargetId);
+}
