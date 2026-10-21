@@ -50,3 +50,11 @@ PushのHTTPレスポンスがタイムアウトすると、先方が受理した
 7. 最終的に本番SQL/Edge/Mainはそれぞれ別の明示承認を取得。安全条件が足りなければ公開しない。
 
 参照: `docs/MY_RAIN_DELIVERY_FINALIZATION_CHECKPOINT_20261021.md`、`docs/MY_RAIN_STAGED_ROLLOUT_GATE_20261020.md`、`docs/AMAFURU_CONCEPT.md` （監査ブランチ）。
+
+## 2026-10-21 隔離PostgreSQLでのDB一意制約プロトタイプ
+
+追加した `docs/sql/my-rain-push-outbox-prototype.sql` は、`rain_push_event_claims` の `UNIQUE(owner_id,target_id,event_key)` と `UNIQUE(notification_id)`、`rain_push_subscription_attempts` の `PRIMARY KEY(event_claim_id,subscription_id)`、両テーブルのRLS有効化と非公開GRANTを準備する**提案用SQL**。既存の本番 `notification_deliveries` に追加適用していない。
+
+`tests/sql/push-claim-integration.sql` は使い捨てPostgreSQL上で、二重イベント/送信先claimの抑止、UNCERTAIN後の再claim拒否、authenticated/anonの読み取り禁止を確認する。GitHub CIの `feedback-rls` jobにこのSQL試験を追加した。
+
+**注意**: 同一トランザクション内で順番にINSERTする試験はDBの一意制約とアクセス制御の証拠であって、**二つの独立コネクションが同時にclaimする負荷テストではない**。また event_keyの生成・サーバーでの所有者照合・原子的claim後の送信プロトコル・worker統合・故障時reconciliation・配信成功件数の正確な集約は未実装。ユニーク制約だけでexactly-once Pushを保証したと解釈しない。実環境の事件IDの意味を決めるまでは、このプロトタイプを本番マイグレーションと扱わない。
