@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
-import { filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
+import { filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, selectFeedbackHistory, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
 import { loadPhase1Feedback, savePhase1Feedback, type WeatherFeedbackAnswer } from "../../lib/weather/rain/feedbackPhase1Repository";
 
 type Delivery = {
@@ -51,7 +51,7 @@ export default function NotificationFeedbackHistory() {
   const [message, setMessage] = useState("通知履歴を読み込み中…");
   const [saving, setSaving] = useState<number | null>(null);
   const [saved, setSaved] = useState<number | null>(null);
-  const [filter, setFilter] = useState<"all" | "unanswered">("all");
+  const [filter, setFilter] = useState<"all" | "unanswered" | "answered">("all");
   const [selectedTargetId, setSelectedTargetId] = useState("all");
   const [focusedNotificationId, setFocusedNotificationId] = useState<number | null>(null);
 
@@ -204,11 +204,9 @@ export default function NotificationFeedbackHistory() {
   };
 
   const selectedNotifications = filterFeedbackByTarget(notifications, selectedTargetId);
-  const answerable = selectedNotifications.filter(n => Boolean(FEEDBACK_OPTIONS[n.event_type]));
-  const unanswered = answerable.filter(n => !answers[n.id]).length;
-  const visible = filter === "all"
-    ? selectedNotifications
-    : answerable.filter(n => !answers[n.id] || n.id === focusedNotificationId);
+  const history = selectFeedbackHistory(selectedNotifications, answers,
+    new Set(Object.keys(FEEDBACK_OPTIONS)), filter, focusedNotificationId);
+  const { visible, unanswered } = history;
   const targetIds = [...new Set(notifications.map(n => n.target_id))];
 
   return (
@@ -239,9 +237,9 @@ export default function NotificationFeedbackHistory() {
               </select>
             </label>
           )}
-          <div style={{ fontSize: 14, marginBottom: 8 }}>回答できる通知：{answerable.length}件／未回答：{unanswered}件</div>
-          <div aria-label="通知履歴の絞り込み" role="group" style={{ display: "flex", gap: 8 }}>
-            {([["all", "すべて"], ["unanswered", "未回答だけ"]] as const).map(([key, label]) => (
+          <div style={{ fontSize: 14, marginBottom: 8 }}>回答できる通知：{history.answerable}件／回答済み：{history.answered}件／未回答：{unanswered}件</div>
+          <div aria-label="通知履歴の絞り込み" role="group" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {([["all", "すべて"], ["unanswered", "未回答だけ"], ["answered", "回答済みだけ"]] as const).map(([key, label]) => (
               <button key={key} type="button" aria-pressed={filter === key}
                 onClick={() => setFilter(key)}
                 style={{ padding: "8px 12px", borderRadius: 10, color: "#fff", cursor: "pointer",
@@ -250,6 +248,7 @@ export default function NotificationFeedbackHistory() {
             ))}
           </div>
           {filter === "unanswered" && unanswered === 0 && <p>未回答の通知はないよ。ありがとう！</p>}
+          {filter === "answered" && history.answered === 0 && <p>回答済みの通知はまだないよ。</p>}
         </>
       )}
       {visible.map(notification => {
