@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "../lib/supabase/browser";
+import { getRainPreviewCapabilities } from "../lib/weather/rain/previewCapabilities";
+import { feedbackTooEarly } from "../lib/weather/rain/feedbackTiming";
+import { persistRainNotificationFeedback } from "../lib/weather/rain/persistNotificationFeedback";
+import { parsePushNotificationId, savedWeatherAnswerLabel, selectFeedbackHistory } from "../lib/weather/rain/notificationHistory";
 
 type RainMessage = { headline: string; detail: string };
 type RainInterpretation = {
@@ -23,7 +27,46 @@ type RainSemanticEvent = {
   checkedAt: string;
   sourceValidAt: string | null;
 };
-type NotificationDelivery = { id: number; target_id: string; event_type: string; title: string; body: string; delivered_at: string; };
+type NotificationEvidence = {
+  schemaVersion?: number;
+  checkedAt?: string | null;
+  sourceValidAt?: string | null;
+  source?: string | null;
+  eventType?: string | null;
+  forecastTargetTime?: string | null;
+  deliveredEventType?: string | null;
+  current?: { status?: string | null; rgba?: { r: number; g: number; b: number; a: number } | null };
+  forecast?: Array<{ validTime?: string | null; status?: string | null; intensityClass?: string | null; rgba?: { r: number; g: number; b: number; a: number } | null }>;
+  endingShadow?: { status?: string; firstReRainTime?: string | null };
+  decisionReasons?: Record<string, unknown>;
+  motion?: { status: string; reason?: string };
+};
+type NotificationDelivery = { id: number; target_id: string; event_type: string; title: string; body: string; delivered_at: string; decision_snapshot: NotificationEvidence | null; };
+
+function formatJmaForecastTime(value: string | null | undefined): string {
+  if (!value || !/^\d{14}$/.test(value)) return "時刻不明";
+  const date = new Date(Date.UTC(Number(value.slice(0, 4)), Number(value.slice(4, 6)) - 1, Number(value.slice(6, 8)), Number(value.slice(8, 10)), Number(value.slice(10, 12)), Number(value.slice(12, 14))));
+  return Number.isNaN(date.valueOf()) ? "時刻不明" : date.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
+
+type WeatherFeedbackOption = readonly [string, string];
+
+function feedbackOptionsForNotification(alert: NotificationDelivery): readonly WeatherFeedbackOption[] | null {
+  if (alert.event_type === "RAIN_ENDING") return [
+    ["STOPPED", "☀️ 止んだ"],
+    ["DID_NOT_STOP", "🌧️ 止まなかった"],
+    ["ALREADY_DRY", "☁️ 降ってない"],
+    ["UNKNOWN", "❓ 不明"],
+  ];
+  if (alert.event_type === "ACTIONABLE_RAIN_APPROACHING" || alert.event_type === "RAIN_APPROACHING" || alert.event_type === "RAIN_RETURNING") return [
+    ["RAINED", "☔ 降った"],
+    ["DID_NOT_RAIN", "☁️ 降らなかった"],
+    ["ALREADY_RAINING", "🌧️ すでに降ってた"],
+    ["UNKNOWN", "❓ 不明"],
+  ];
+  return null; // Current-rain and severe-rain alerts need a separate evaluation question.
+}
 
 type SavedWatchTarget = {
   id: string;
@@ -66,6 +109,11 @@ function stateLabel(state: RainInterpretation["state"]): string {
 }
 
 export default function Home() {
+  const previewCapabilities = getRainPreviewCapabilities({
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    supabasePublishableKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+    vapidPublicKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+  });
   const [status, setStatus] = useState("このあとの雨、見てみる？");
   const [data, setData] = useState<RainResponse | null>(null);
   const [busy, setBusy] = useState(false);
@@ -84,6 +132,13 @@ export default function Home() {
   const [pushEnabled, setPushEnabled] = useState(false);
   const [testPushBusy, setTestPushBusy] = useState(false);
   const [latestAlerts, setLatestAlerts] = useState<NotificationDelivery[]>([]);
+  const [weatherFeedback, setWeatherFeedback] = useState<Record<number, string>>({});
+  const [feedbackAvailable, setFeedbackAvailable] = useState(false);
+  const [feedbackBusy, setFeedbackBusy] = useState<number | null>(null);
+  const [feedbackSavedId, setFeedbackSavedId] = useState<number | null>(null);
+  const [feedbackError, setFeedbackError] = useState("");
+  const [historyNotice, setHistoryNotice] = useState("");
+  const [feedbackHistoryFilter, setFeedbackHistoryFilter] = useState<"all" | "unanswered">("all");
   const [mapPickerOpen, setMapPickerOpen] = useState(false);
   const [mapLatitude, setMapLatitude] = useState("35.681236");
   const [mapLongitude, setMapLongitude] = useState("139.767125");
@@ -135,7 +190,7 @@ export default function Home() {
 
               if (radarLayer) map.removeLayer(radarLayer);
               radarLayer = L.tileLayer(radarUrl, {
-                opacity: 0.58,
+                opacity: 0.44,
                 minNativeZoom: 4,
                 maxNativeZoom: nextNativeZoom,
                 maxZoom: 19,
@@ -173,6 +228,10 @@ export default function Home() {
   }, [mapPickerOpen]);
 
   const enablePush = async () => {
+    if (!previewCapabilities.databaseConfigured) {
+      setPushStatus("この検証画面は通知登録用データベースに接続されていないよ。");
+      return;
+    }
     if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
       setPushStatus("この端末では通知を使えないよ。");
       return;
@@ -228,6 +287,9 @@ export default function Home() {
   };
 
   const restorePushStatus = async () => {
+    // A subscription left over from another environment is not proof that
+    // this preview can persist it or receive notifications.
+    if (!previewCapabilities.databaseConfigured) return;
     if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) return;
     if (Notification.permission !== "granted") return;
     try {
@@ -258,26 +320,145 @@ export default function Home() {
   };
 
   const loadLatestAlerts = async () => {
+    if (!previewCapabilities.databaseConfigured) {
+      setLatestAlerts([]);
+      setWeatherFeedback({});
+      setFeedbackAvailable(false);
+      setHistoryNotice("この検証画面では通知履歴を表示できないよ。接続設定がまだないため、読み込みは行っていないよ。");
+      return;
+    }
     try {
       const supabase = getSupabaseBrowserClient();
       const session = (await supabase.auth.getSession()).data.session;
-      if (!session) return;
-      const tokyoDate = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
-      const start = new Date(`${tokyoDate}T00:00:00+09:00`);
-      const { data, error } = await supabase
+      if (!session) {
+        // Never retain previously fetched notification history in the UI
+        // after a session has expired or the user signed out.
+        setLatestAlerts([]);
+        setWeatherFeedback({});
+        setFeedbackAvailable(false);
+        setHistoryNotice(new URLSearchParams(window.location.search).has("notificationId")
+          ? "通知の履歴を見るには、この通知を受け取ったときのアカウントで利用してね。別の端末やアカウントでは表示できない場合があるよ。見張り登録から確認してね。"
+          : "通知履歴を表示するには、見張る場所を登録したときのアカウントが必要だよ。");
+        return;
+      }
+      const start = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const baseColumns = "id,target_id,event_type,title,body,delivered_at";
+      const initial = await supabase
         .from("notification_deliveries")
-        .select("id,target_id,event_type,title,body,delivered_at")
+        .select(`${baseColumns},decision_snapshot`)
         .gte("delivered_at", start.toISOString())
-        .order("delivered_at", { ascending: false });
-      if (error) throw error;
-      const seen = new Set<string>();
-      setLatestAlerts(((data ?? []) as NotificationDelivery[]).filter((item) => {
-        if (seen.has(item.target_id)) return false;
-        seen.add(item.target_id);
-        return true;
-      }));
+        .gt("delivered_count", 0)
+        .order("delivered_at", { ascending: false })
+        .limit(200);
+      // During an additive schema rollout, keep old notification history readable.
+      // Do not mask authorization errors or failures unrelated to the missing new column.
+      const missingSnapshotColumn = initial.error
+        && (initial.error.code === "42703" || initial.error.code === "PGRST204")
+        && (initial.error.message.includes("decision_snapshot") || initial.error.details?.includes("decision_snapshot"));
+      const fallback = missingSnapshotColumn ? await supabase
+        .from("notification_deliveries")
+        .select(baseColumns)
+        .gte("delivered_at", start.toISOString())
+        .gt("delivered_count", 0)
+        .order("delivered_at", { ascending: false })
+        .limit(200) : null;
+      const query = fallback ?? initial;
+      if (query.error) throw query.error;
+      setHistoryNotice(missingSnapshotColumn ? "判定根拠の保存機能は準備中だよ。過去の通知履歴は確認できるよ。" : "");
+      const deliveries = ((query.data ?? []) as Array<{
+        id: number; target_id: string; event_type: string;
+        title: string; body: string; delivered_at: string;
+        decision_snapshot?: NotificationEvidence | null;
+      }>).map(item => ({ ...item, decision_snapshot: item.decision_snapshot ?? null }));
+      // A notification can be older than seven days or outside the latest 200.
+      // Resolve its ID with the current user's RLS-protected session, never by trusting the URL.
+      const pushId = parsePushNotificationId(new URLSearchParams(window.location.search).get("notificationId"));
+      if (pushId !== null && Number.isSafeInteger(pushId) && !deliveries.some(item => item.id === pushId)) {
+        const byId = await supabase.from("notification_deliveries")
+          .select(`${baseColumns},decision_snapshot`).eq("id", pushId).gt("delivered_count", 0).maybeSingle();
+        const missingIdSnapshot = byId.error
+          && (byId.error.code === "42703" || byId.error.code === "PGRST204")
+          && (byId.error.message.includes("decision_snapshot") || byId.error.details?.includes("decision_snapshot"));
+        const legacyById = missingIdSnapshot ? await supabase.from("notification_deliveries")
+          .select(baseColumns).eq("id", pushId).gt("delivered_count", 0).maybeSingle() : null;
+        const resolved = legacyById ?? byId;
+        if (resolved.error) throw resolved.error;
+        if (resolved.data) {
+          deliveries.unshift({ ...(resolved.data as typeof deliveries[number]), decision_snapshot: (resolved.data as typeof deliveries[number]).decision_snapshot ?? null });
+        } else {
+          setHistoryNotice("この通知の履歴は見つからなかったよ。別のアカウントの通知、送信未完了、または履歴の削除などが考えられるよ。");
+        }
+      }
+      setLatestAlerts(deliveries);
+      if (deliveries.length === 0) {
+        setWeatherFeedback({});
+        setFeedbackAvailable(false);
+      }
+      if (deliveries.length > 0) {
+        const { data: feedback, error: feedbackError } = await supabase.from("rain_notification_feedback")
+          .select("notification_id,actual_weather")
+          .in("notification_id", deliveries.map((item) => item.id));
+        if (feedbackError) {
+          setFeedbackAvailable(false);
+          setWeatherFeedback({});
+        } else {
+          setFeedbackAvailable(true);
+          setWeatherFeedback(Object.fromEntries((feedback ?? []).map((item) => [item.notification_id, item.actual_weather])));
+        }
+      }
     } catch {
-      // Alerts are supplemental; keep the rest of the app usable.
+      setLatestAlerts([]);
+      setWeatherFeedback({});
+      setFeedbackAvailable(false);
+      setHistoryNotice("通知履歴を読み込めなかったよ。時間をおいて再度確認してね。");
+    }
+  };
+
+  // Deep link from a Push notification. IDs are lookup keys, never authorization tokens.
+  const notificationIdFromPush = typeof window === "undefined" ? null :
+    parsePushNotificationId(new URLSearchParams(window.location.search).get("notificationId"));
+  useEffect(() => {
+    if (notificationIdFromPush === null || latestAlerts.length === 0) return;
+    const node = document.getElementById(`rain-notification-${notificationIdFromPush}`);
+    if (node) node.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [notificationIdFromPush, latestAlerts]);
+
+  const feedbackHistory = selectFeedbackHistory(
+    latestAlerts, weatherFeedback, alert => feedbackOptionsForNotification(alert) !== null,
+    feedbackHistoryFilter, notificationIdFromPush,
+  );
+
+  const saveWeatherFeedback = async (notificationId: number, actualWeather: string) => {
+    if (!previewCapabilities.canAttemptFeedbackSave) {
+      setFeedbackError("この検証画面では回答を保存できないよ。");
+      return;
+    }
+    const alert = latestAlerts.find(item => item.id === notificationId);
+    if (!feedbackAvailable) {
+      setFeedbackError("回答の保存機能はまだ利用できないよ。");
+      return;
+    }
+    if (!alert || !feedbackOptionsForNotification(alert)?.some(([value]) => value === actualWeather)) {
+      setFeedbackError("この通知にはその回答を保存できないよ。");
+      return;
+    }
+    if (feedbackTooEarly(actualWeather, alert.decision_snapshot?.forecastTargetTime, Date.now())) {
+      setFeedbackError("予測時刻がまだ来ていないよ。時刻を過ぎてから回答してね。");
+      return;
+    }
+    setFeedbackBusy(notificationId);
+    setFeedbackSavedId(null);
+    setFeedbackError("");
+    try {
+      const supabase = getSupabaseBrowserClient();
+      await persistRainNotificationFeedback(supabase, notificationId, actualWeather);
+      setWeatherFeedback((previous) => ({ ...previous, [notificationId]: actualWeather }));
+      setFeedbackSavedId(notificationId);
+    } catch {
+      setFeedbackSavedId(null);
+      setFeedbackError("回答を保存できなかったよ。時間をおいてもう一度試してね。");
+    } finally {
+      setFeedbackBusy(null);
     }
   };
 
@@ -302,6 +483,10 @@ export default function Home() {
   }, []);
 
   const deleteTarget = async (target: SavedWatchTarget) => {
+    if (!previewCapabilities.canAttemptWatchRegistration) {
+      setPlaceStatus("この検証画面では見張り登録を削除できないよ。");
+      return;
+    }
     if (!window.confirm(`「${target.label}」を削除する？
 この場所の見張り登録も消えるよ。`)) return;
     setTargetsBusy(true);
@@ -322,6 +507,10 @@ export default function Home() {
   };
 
   const toggleTarget = async (target: SavedWatchTarget) => {
+    if (!previewCapabilities.canAttemptWatchRegistration) {
+      setPlaceStatus("この検証画面では見張り設定を変更できないよ。");
+      return;
+    }
     setTargetsBusy(true);
     try {
       const supabase = getSupabaseBrowserClient();
@@ -412,6 +601,9 @@ export default function Home() {
   };
 
   const ensureAnonymousSession = async () => {
+    if (!previewCapabilities.canAttemptWatchRegistration) {
+      throw new Error("Supabase preview config missing");
+    }
     const supabase = getSupabaseBrowserClient();
     const current = await supabase.auth.getSession();
     if (current.error) throw current.error;
@@ -422,6 +614,10 @@ export default function Home() {
   };
 
   const savePlace = async (place: typeof placeResults[number]) => {
+    if (!previewCapabilities.canAttemptWatchRegistration) {
+      setPlaceStatus("この検証画面では見張り登録を保存できないよ。");
+      return;
+    }
     const label = (placeLabels[place.id] ?? "").trim();
     if (!label) return setPlaceStatus("この場所の名前を入れてね。");
     setSavingPlaceId(place.id);
@@ -519,6 +715,13 @@ export default function Home() {
       <p style={{ marginBottom: 4, color: "#eef5ff", fontSize: 13, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase" }}>EmergencyAlert 2026</p>
       <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: "clamp(42px, 12vw, 64px)", lineHeight: 1.05, letterSpacing: "-0.05em" }}>アメくる？</h1>
       <p style={{ marginTop: 0, color: "#e3edf8", fontSize: 18 }}>{status}</p>
+      {!previewCapabilities.databaseConfigured ? (
+        <p role="status" style={{ padding: "12px 14px", borderRadius: 12, background: "#553b20", color: "#fff1c9", fontWeight: 700 }}>
+          この検証画面では通知履歴・回答保存の接続設定がまだないよ。
+          雨の予報の閲覧はできても、見張り登録や回答保存はテストできないよ。
+        </p>
+      ) : null}
+
 
       <button onClick={check} disabled={busy} style={{ width: "100%", padding: "15px 20px", fontSize: 16, cursor: busy ? "default" : "pointer", border: 0, borderRadius: 14, background: "linear-gradient(135deg,#5eb9ff,#6d7cff)", color: "white", fontWeight: 800, boxShadow: "0 12px 30px rgba(56,130,246,.25)" }}>
         {busy ? "確認中…" : data ? "最新情報に更新" : "この場所の雨を確認"}
@@ -556,18 +759,91 @@ export default function Home() {
         </section>
       )}
 
-      {latestAlerts.length > 0 && (
-        <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.10)", borderRadius: 20, background: "rgba(24,55,88,.80)", boxShadow: "0 18px 50px rgba(0,0,0,.20)", backdropFilter: "blur(18px)" }}>
-          <h2 style={{ marginTop: 0, marginBottom: 6 }}>今日の最新アラート</h2>
-          <p style={{ marginTop: 0, color: "#eef5ff" }}>実際に通知できた内容を、場所ごとに最新1件だけ表示してるよ。</p>
-          {latestAlerts.map((alert) => (
-            <div key={alert.id} style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.08)" }}>
+      <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.10)", borderRadius: 20, background: "rgba(24,55,88,.80)", boxShadow: "0 18px 50px rgba(0,0,0,.20)", backdropFilter: "blur(18px)" }}>
+          <h2 style={{ marginTop: 0, marginBottom: 6 }}>通知履歴（最近7日間・最新200件＋指定通知）</h2>
+          <p style={{ marginTop: 0, color: "#eef5ff" }}>{previewCapabilities.databaseConfigured ? "送信に成功した通知を新しい順に表示しているよ。実際の天気を回答すると、通知の精度改善に役立つよ。" : "通知履歴と回答保存は、検証用データベースを接続してから確認できるよ。"}</p>
+          {historyNotice && <p role="status" style={{ color: "#ffe1a0" }}>{historyNotice}</p>}
+          {previewCapabilities.databaseConfigured && latestAlerts.length === 0 && !historyNotice && <p>この期間の通知はまだないよ。</p>}
+          {feedbackError && <p role="alert" style={{ color: "#ffb5b5" }}>{feedbackError}</p>}
+          {feedbackAvailable && latestAlerts.length > 0 && (
+            <div style={{ marginTop: 12 }}>
+              <p style={{ fontSize: 14, margin: "0 0 8px", color: "#d8f2ff" }}>
+                回答できる通知：{feedbackHistory.answerable}件 ・ 未回答：{feedbackHistory.unanswered}件
+              </p>
+              <div role="group" aria-label="通知履歴の絞り込み" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {([["all", "すべて"], ["unanswered", "未回答だけ"]] as const).map(([value, label]) => (
+                  <button type="button" key={value} aria-pressed={feedbackHistoryFilter === value}
+                    onClick={() => setFeedbackHistoryFilter(value)}
+                    style={{ borderRadius: 10, padding: "7px 12px", color: "#fff",
+                      border: feedbackHistoryFilter === value ? "2px solid #7dd3fc" : "1px solid #789",
+                      background: feedbackHistoryFilter === value ? "#245a84" : "#28405c", cursor: "pointer" }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {feedbackHistoryFilter === "unanswered" && feedbackHistory.unanswered === 0 &&
+                <p role="status" style={{ fontSize: 13, color: "#bbf7d0" }}>未回答の通知はないよ。協力ありがとう！</p>}
+            </div>
+          )}
+          {feedbackHistory.items.map((alert) => (
+            <div id={`rain-notification-${alert.id}`} key={alert.id} style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.08)", scrollMarginTop: 24, outline: notificationIdFromPush === alert.id ? "2px solid #7dd3fc" : "none", borderRadius: 8 }}>
+              {notificationIdFromPush === alert.id && <div role="status" style={{ fontSize: 13, color: "#b8efff", fontWeight: 800, marginBottom: 5 }}>📩 タップした通知はこちら。実際の天気を教えてね。</div>}
               <div style={{ fontWeight: 700 }}>{alert.body}</div>
-              <div style={{ marginTop: 4, fontSize: 13, color: "#eef5ff" }}>{new Date(alert.delivered_at).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} に通知</div>
+              <div style={{ marginTop: 4, fontSize: 13, color: "#eef5ff" }}>{new Date(alert.delivered_at).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} に通知</div>
+              <details style={{ marginTop: 9, fontSize: 13, color: "#eef5ff" }}>
+                <summary style={{ cursor: "pointer" }}>通知した理由・予測の詳細</summary>
+                {alert.decision_snapshot ? (
+                  <div style={{ marginTop: 9, lineHeight: 1.8 }}>
+                    <div>判定時刻：{alert.decision_snapshot.checkedAt ? new Date(alert.decision_snapshot.checkedAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }) : "不明"}</div>
+                    <div>元データ時刻：{alert.decision_snapshot.sourceValidAt ?? "不明"}</div>
+                    <div>現在の雨：{alert.decision_snapshot.current?.status ?? "不明"}</div>
+                    <div>判定イベント：{alert.decision_snapshot.eventType ?? "不明"} / 通知イベント：{alert.decision_snapshot.deliveredEventType ?? alert.event_type}</div>
+                    <div>選定理由：{alert.decision_snapshot.decisionReasons ? Object.entries(alert.decision_snapshot.decisionReasons).filter(([, value]) => value === true).map(([key]) => key).join("・") || "通常判定" : "記録なし"}</div>
+                    <div>雨雲の進行方向：{alert.decision_snapshot.motion?.status === "UNKNOWN" ? "未判定" : "記録なし"}</div>
+                    {alert.decision_snapshot.endingShadow && <div>止み予測の追加検証：{alert.decision_snapshot.endingShadow.status ?? "不明"}</div>}
+                    {Array.isArray(alert.decision_snapshot.forecast) && alert.decision_snapshot.forecast.length > 0 && (
+                      <div style={{ marginTop: 5 }}>
+                        <div>5分刻みの予報（雨量は区分表示）</div>
+                        {alert.decision_snapshot.forecast.map((frame, index) => (
+                          <div key={index}>{formatJmaForecastTime(frame.validTime)}：{frame.status ?? "不明"} / {frame.intensityClass ?? "区分なし"}{frame.rgba ? ` / RGBA(${frame.rgba.r}, ${frame.rgba.g}, ${frame.rgba.b}, ${frame.rgba.a})` : ""}</div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : <p>この通知には判定根拠の詳細記録がないよ（旧履歴）。</p>}
+              </details>
+              {alert.decision_snapshot?.forecastTargetTime && (
+                <div style={{ marginTop: 7, fontSize: 13, color: "#eef5ff" }}>
+                  予測対象時刻：{formatJmaForecastTime(alert.decision_snapshot.forecastTargetTime)}
+                </div>
+              )}
+              <div style={{ marginTop: 10, fontSize: 13 }}>{feedbackOptionsForNotification(alert) ? "予測した時間内の実際の天気は？" : "この種類の通知は回答方法を準備中だよ。"}</div>
+              {!feedbackAvailable && feedbackOptionsForNotification(alert) && (
+                <div style={{ marginTop: 4, fontSize: 12, color: "#ffe1a0" }}>回答の保存機能は準備中だよ。履歴と判定根拠は確認できるよ。</div>
+              )}
+              {feedbackOptionsForNotification(alert) && (
+                <div style={{ marginTop: 4, fontSize: 12, color: "#dce9fa" }}>
+                  「降らなかった」「止まなかった」は予測対象時刻を過ぎてから回答してね。通知時点ですでに降っていた／降っていなかった場合はそのまま回答できるよ。
+                </div>
+              )}
+              {savedWeatherAnswerLabel(weatherFeedback[alert.id], feedbackOptionsForNotification(alert)) && (
+                <div role="status" style={{ marginTop: 6, fontSize: 13, color: "#bbf7d0" }}>
+                  {savedWeatherAnswerLabel(weatherFeedback[alert.id], feedbackOptionsForNotification(alert))}
+                  {feedbackSavedId === alert.id ? " ✓ 保存したよ" : "（変更もできるよ）"}
+                </div>
+              )}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
+                {(feedbackOptionsForNotification(alert) ?? []).map(([value, label]) => (
+                  <button key={value} type="button" disabled={!feedbackAvailable || feedbackBusy === alert.id || feedbackTooEarly(value, alert.decision_snapshot?.forecastTargetTime, Date.now())} onClick={() => void saveWeatherFeedback(alert.id, value)}
+                    aria-pressed={weatherFeedback[alert.id] === value}
+                    style={{ padding: "7px 10px", borderRadius: 10, color: "#fff", cursor: "pointer", border: weatherFeedback[alert.id] === value ? "2px solid #fff" : "1px solid #789", background: weatherFeedback[alert.id] === value ? "#235f88" : "#28405c" }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
           ))}
         </section>
-      )}
 
       <section style={{ marginTop: 40, paddingTop: 28, borderTop: "1px solid rgba(255,255,255,.10)" }}>
         <h2 style={{ marginBottom: 6 }}>通知</h2>

@@ -1,0 +1,35 @@
+[
+  {
+    "target_id": "sample-a",
+    "checked_at": "2026-10-19T11:53:00Z",
+    "source_valid_at": "20261019115000",
+    "current_status": "RAIN",
+    "diagnostic": {
+      "endingNoticeCandidate": {
+        "candidate": "ENDING_FORECAST",
+        "leadMinutes": 7,
+        "ending": {
+          "endingTime": "20261019120000"
+        }
+      }
+    }
+  },
+  {
+    "target_id": "sample-a",
+    "checked_at": "2026-10-19T12:00:00Z",
+    "source_valid_at": "20261019120000",
+    "current_status": "NO_RAIN"
+  },
+  {
+    "target_id": "sample-a",
+    "checked_at": "2026-10-19T12:05:00Z",
+    "source_valid_at": "20261019120500",
+    "current_status": "NO_RAIN"
+  },
+  {
+    "target_id": "sample-a",
+    "checked_at": "2026-10-19T12:10:00Z",
+    "source_valid_at": "20261019121000",
+    "current_status": "NO_RAIN"
+  }
+]
