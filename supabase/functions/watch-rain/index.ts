@@ -5,6 +5,7 @@ import { assessEndingShadow } from "./endingShadow.ts";
 import { assessEndingNoticeCandidate } from "./endingNoticeCandidate.ts";
 import { buildNotificationDecisionEvidence } from "./decisionEvidence.ts";
 import { isMissingDecisionSnapshotColumn } from "./deliverySchemaCompat.ts";
+import { finalizeDeliveredCount } from "./deliveryFinalization.ts";
 
 type RainEvent = { schemaVersion:1; eventType:string; urgency:"INFO"|"LIFESTYLE_ACTION"; suggestedAction:string; startsAt:string|null; actionableAt:string|null; endingAt:string|null; source:string; checkedAt:string; sourceValidAt:string|null; };
 type Rgba = { r:number; g:number; b:number; a:number };
@@ -44,6 +45,8 @@ Deno.serve(async(req:Request)=>{
   const confirmedAndEnding=rainConfirmed&&rain.event.eventType==="RAIN_ENDING";
   const shouldNotify=Boolean(target.notifications_enabled)&&(severeEscalation||shouldNotifyForRain({notificationsEnabled:true,currentUrgency:rain.event.urgency,previousUrgency:previousEvent?.urgency,lastNotifiedAt:previous?.last_notified_at,rainEnding:rainEnding||confirmedAndEnding}));
   let delivered=0,failed=0;
+  let deliveryRecorded: boolean | null = null;
+  let unconfirmedDeliveryId: number | null = null;
   const severeMinutes=severeFrame?.validTime?Math.max(0,Math.round((new Date(severeFrame.validTime).getTime()-Date.now())/60000)):null;
   const severeName=severeLevel===3?"猛烈な雨":severeLevel===2?"非常に激しい雨":"激しい雨";
   const severeBody=notificationLabel?`${notificationLabel}：${severeMinutes===0?"まもなく":`約${severeMinutes}分後`}に${severeName}（${severeLevel===3?"80mm/h以上":severeLevel===2?"50〜80mm/h":"30〜50mm/h"}）の予測です。周囲の状況に注意してね`:`${severeMinutes===0?"まもなく":`約${severeMinutes}分後`}に${severeName}の予測です。周囲の状況に注意してね`;
@@ -76,8 +79,32 @@ Deno.serve(async(req:Request)=>{
      const payload=JSON.stringify({title:"EmergencyAlert",body,url:"/?notificationId="+encodeURIComponent(String(notificationId)),data:{notificationId,targetId:target.id,eventType:notificationEventType}});
      for(const sub of subscriptions??[]){try{await webpush.sendNotification({endpoint:sub.endpoint,keys:{p256dh:sub.p256dh,auth:sub.auth}},payload);delivered++;}catch(err){const statusCode=Number((err as {statusCode?:number})?.statusCode??0);if(statusCode===404||statusCode===410)await db.from("push_subscriptions").delete().eq("id",sub.id);else failed++;}}
     }
-    const {error:finalizeError}=await db.from("notification_deliveries").update({delivered_count:delivered}).eq("id",notificationId).eq("owner_id",target.owner_id);
-    if(finalizeError)console.error("notification_delivery_finalize_failed",{notificationId,message:finalizeError.message});
+    if(delivered>0){
+     const finalized=await finalizeDeliveredCount({
+      notificationId,deliveredCount:delivered,
+      write:async()=>{const result=await db.from("notification_deliveries")
+       .update({delivered_count:delivered})
+       .eq("id",notificationId).eq("owner_id",target.owner_id)
+       .select("id,delivered_count");
+       return {error:result.error,data:result.data??null};},
+      read:async()=>{const result=await db.from("notification_deliveries")
+       .select("delivered_count").eq("id",notificationId).eq("owner_id",target.owner_id).maybeSingle();
+       return {error:result.error,data:result.data??null};},
+     });
+     deliveryRecorded=finalized.confirmed;
+     if(!finalized.confirmed){
+      unconfirmedDeliveryId=notificationId;
+      failed++;
+      // Push was already accepted by the provider; never resend to "fix" this.
+      console.error("notification_delivery_unconfirmed_requires_reconciliation",{
+       notificationId,targetId:target.id,deliveredCount:delivered,
+       attempts:finalized.attempts,reason:finalized.reason,
+      });
+     }
+    }else{
+     // A zero-success attempt remains pending/hidden and cannot receive feedback.
+     deliveryRecorded=false;
+    }
    }
   }
   const now=new Date().toISOString();
@@ -87,7 +114,7 @@ Deno.serve(async(req:Request)=>{
   const confirmedWeather=rainStreak>=3?"RAINING":clearStreak>=3?"DRY":(previous?.confirmed_weather??"UNKNOWN");
   const persistedSevere=clearStreak>=3?0:Math.max(previousSevere,severeLevel);
   await db.from("watch_states").upsert({target_id:target.id,last_event:rain.event,last_checked_at:checkedAt,last_notified_at:notifiedAt,rain_ending_notified:endingNotified,clear_streak:clearStreak,rain_streak:rainStreak,rain_confirmed_notified:rainConfirmedNotified,confirmed_weather:confirmedWeather,severe_rain_level:persistedSevere,updated_at:now},{onConflict:"target_id"});
-  results.push({id:target.id,status:rain.event.eventType,initialRaining,rainEnding,shouldNotify,delivered,failed});
+  results.push({id:target.id,status:rain.event.eventType,initialRaining,rainEnding,shouldNotify,delivered,failed,deliveryRecorded,unconfirmedDeliveryId});
  }catch(err){results.push({id:target.id,status:"CHECK_FAILED",error:String((err as Error)?.message??err)});}}
  return Response.json({ok:true,checked:results.length,results});
 });
