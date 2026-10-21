@@ -365,6 +365,26 @@ export default function Home() {
         title: string; body: string; delivered_at: string;
         decision_snapshot?: NotificationEvidence | null;
       }>).map(item => ({ ...item, decision_snapshot: item.decision_snapshot ?? null }));
+      // A notification can be older than seven days or outside the latest 200.
+      // Resolve its ID with the current user's RLS-protected session, never by trusting the URL.
+      const rawPushId = new URLSearchParams(window.location.search).get("notificationId");
+      const pushId = rawPushId && /^[1-9]\\d{0,14}$/.test(rawPushId) ? Number(rawPushId) : null;
+      if (pushId !== null && Number.isSafeInteger(pushId) && !deliveries.some(item => item.id === pushId)) {
+        const byId = await supabase.from("notification_deliveries")
+          .select(`${baseColumns},decision_snapshot`).eq("id", pushId).gt("delivered_count", 0).maybeSingle();
+        const missingIdSnapshot = byId.error
+          && (byId.error.code === "42703" || byId.error.code === "PGRST204")
+          && (byId.error.message.includes("decision_snapshot") || byId.error.details?.includes("decision_snapshot"));
+        const legacyById = missingIdSnapshot ? await supabase.from("notification_deliveries")
+          .select(baseColumns).eq("id", pushId).gt("delivered_count", 0).maybeSingle() : null;
+        const resolved = legacyById ?? byId;
+        if (resolved.error) throw resolved.error;
+        if (resolved.data) {
+          deliveries.unshift({ ...(resolved.data as typeof deliveries[number]), decision_snapshot: (resolved.data as typeof deliveries[number]).decision_snapshot ?? null });
+        } else {
+          setHistoryNotice("この通知の履歴は見つからなかったよ。別のアカウントの通知か、履歴が削除された可能性があるよ。");
+        }
+      }
       setLatestAlerts(deliveries);
       if (deliveries.length === 0) {
         setWeatherFeedback({});
