@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "../lib/supabase/browser";
+import NotificationFeedbackHistory from "./components/NotificationFeedbackHistory";
 
 type RainMessage = { headline: string; detail: string };
 type RainInterpretation = {
@@ -568,6 +569,8 @@ export default function Home() {
           ))}
         </section>
       )}
+
+      <NotificationFeedbackHistory />
 
       <section style={{ marginTop: 40, paddingTop: 28, borderTop: "1px solid rgba(255,255,255,.10)" }}>
         <h2 style={{ marginBottom: 6 }}>通知</h2>
