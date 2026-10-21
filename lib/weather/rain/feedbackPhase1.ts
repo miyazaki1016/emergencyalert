@@ -77,3 +77,15 @@ export function compactFeedbackHistory<T extends { id: number }>(
     remaining: notifications.length - visibleCount,
   };
 }
+
+/** Keep several opened cards available while the user compares recent alerts. */
+export function toggleFeedbackCard(openIds: readonly number[], notificationId: number): number[] {
+  return openIds.includes(notificationId)
+    ? openIds.filter(id => id !== notificationId)
+    : [...openIds, notificationId];
+}
+
+/** Hash-linked notifications should be expanded, without collapsing others. */
+export function revealFeedbackCard(openIds: readonly number[], notificationId: number): number[] {
+  return openIds.includes(notificationId) ? [...openIds] : [...openIds, notificationId];
+}

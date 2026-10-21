@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
-import { compactFeedbackHistory, filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, selectFeedbackHistory, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
+import { compactFeedbackHistory, filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, revealFeedbackCard, selectFeedbackHistory, toggleFeedbackCard, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
 import { loadPhase1Feedback, savePhase1Feedback, type WeatherFeedbackAnswer } from "../../lib/weather/rain/feedbackPhase1Repository";
 
 type Delivery = {
@@ -54,6 +54,7 @@ export default function NotificationFeedbackHistory() {
   const [filter, setFilter] = useState<"all" | "unanswered" | "answered">("all");
   const [selectedTargetId, setSelectedTargetId] = useState("all");
   const [shownCount, setShownCount] = useState(2);
+  const [expandedIds, setExpandedIds] = useState<number[]>([]);
   const [focusedNotificationId, setFocusedNotificationId] = useState<number | null>(null);
 
   const refresh = useCallback(async () => {
@@ -165,6 +166,7 @@ export default function NotificationFeedbackHistory() {
     const readHash = () => {
       const focused = parseFeedbackHash(window.location.hash);
       setFocusedNotificationId(focused);
+      if (focused !== null) setExpandedIds(previous => revealFeedbackCard(previous, focused));
       if (focused !== null) {
         // A link from today's alert should work even after choosing a
         // different location in the history filter.
@@ -215,7 +217,7 @@ export default function NotificationFeedbackHistory() {
     <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.15)", borderRadius: 20, background: "rgba(24,55,88,.8)" }}>
       <h2 style={{ marginTop: 0, marginBottom: 6 }}>🌧️ 届いた通知の天気を教えてね</h2>
       <p style={{ marginTop: 0, fontSize: 14, color: "#eef5ff" }}>
-        直近2件だけ表示しているよ。以前の通知は「もっと見る」から確認できるよ。
+        直近2件を表示しているよ。通知をタップすると回答できるよ。
         見ていない場所なら「わからない」で大丈夫だよ。
       </p>
       {message && <p role="status" style={{ color: "#ffe1a0" }}>{message}</p>}
@@ -256,16 +258,32 @@ export default function NotificationFeedbackHistory() {
       {compactHistory.items.map(notification => {
         const options = FEEDBACK_OPTIONS[notification.event_type] ?? [];
         const selected = options.find(([value]) => value === answers[notification.id]);
+        const expanded = expandedIds.includes(notification.id);
         return (
           <div id={`rain-feedback-${notification.id}`} key={notification.id} style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.15)", scrollMarginTop: 24, outline: focusedNotificationId === notification.id ? "2px solid #7dd3fc" : "none", borderRadius: 8 }}>
             {focusedNotificationId === notification.id && <p style={{ margin: "0 0 5px", fontSize: 13, color: "#b8efff", fontWeight: 700 }}>📩 選んだ通知はこちら</p>}
-            <div style={{ fontSize: 13, marginBottom: 4, color: "#b8efff", fontWeight: 700 }}>
-              📍 見張っていた場所：{watchedPlaceLabel(notification.target_id, targetLabels)}
-            </div>
-            <div style={{ fontWeight: 700 }}>{notification.body}</div>
-            <div style={{ fontSize: 13, color: "#eef5ff" }}>{formatTokyo(notification.delivered_at)} に通知</div>
+            <button type="button"
+              aria-expanded={expanded}
+              aria-controls={`rain-feedback-answer-${notification.id}`}
+              onClick={() => setExpandedIds(previous => toggleFeedbackCard(previous, notification.id))}
+              style={{ width: "100%", border: "none", background: "transparent", padding: "6px 0",
+                color: "#fff", textAlign: "left", cursor: "pointer" }}>
+              <span style={{ display: "block", fontSize: 13, marginBottom: 5, color: "#b8efff", fontWeight: 700 }}>
+                📍 {watchedPlaceLabel(notification.target_id, targetLabels)}
+              </span>
+              <span style={{ display: "block", fontWeight: 700, lineHeight: 1.5 }}>{notification.body}</span>
+              <span style={{ display: "block", fontSize: 13, marginTop: 5, color: "#eef5ff" }}>
+                {formatTokyo(notification.delivered_at)} に通知
+              </span>
+              <span style={{ display: "block", fontSize: 13, marginTop: 6,
+                color: selected ? "#bbf7d0" : "#b8efff" }}>
+                {selected ? `✅ 回答済み：${selected[1]}` : options.length ? "✏️ 未回答" : "通知のみ"}
+                {"　"}{expanded ? "▲ 閉じる" : selected ? "▼ 回答を確認・変更" : "▼ 回答する"}
+              </span>
+            </button>
+            {expanded && <div id={`rain-feedback-answer-${notification.id}`}>
             {selected && <div role="status" style={{ marginTop: 6, color: "#bbf7d0" }}>
-              回答済み：{selected[1]} {saved === notification.id ? "✓ 保存したよ" : "（変更できるよ）"}
+              {saved === notification.id ? "✓ 保存したよ" : "回答内容は変更できるよ"}
             </div>}
             {options.length ? (
               <>
@@ -290,6 +308,7 @@ export default function NotificationFeedbackHistory() {
                 </p>
               </>
             ) : <div style={{ fontSize: 13, marginTop: 8 }}>この種類の通知への回答は、まだ準備中だよ。</div>}
+            </div>}
           </div>
         );
       })}

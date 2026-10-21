@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel, filterFeedbackByTarget, selectFeedbackHistory, compactFeedbackHistory } from "../lib/weather/rain/feedbackPhase1";
+import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel, filterFeedbackByTarget, selectFeedbackHistory, compactFeedbackHistory, toggleFeedbackCard, revealFeedbackCard } from "../lib/weather/rain/feedbackPhase1";
 
 describe("phase-one in-app history links", () => {
   it("accepts positive numeric feedback IDs", () => {
@@ -115,5 +115,23 @@ describe("short feedback history on iPhone", () => {
   it("handles no notifications and invalid limits", () => {
     expect(compactFeedbackHistory([],2,null)).toEqual({items:[],remaining:0});
     expect(compactFeedbackHistory(rows,Number.NaN,null).items).toHaveLength(2);
+  });
+});
+
+describe("tap-to-expand notification feedback cards", () => {
+  it("starts with no opened cards and opens a tapped alert", () => {
+    const opened = toggleFeedbackCard([], 209);
+    expect(opened).toEqual([209]);
+    expect(toggleFeedbackCard(opened, 209)).toEqual([]);
+  });
+  it("opens the specific Push-linked history without closing another card", () => {
+    expect(revealFeedbackCard([210], 209)).toEqual([210, 209]);
+    expect(revealFeedbackCard([209], 209)).toEqual([209]);
+  });
+  it("does not mutate previously opened cards or other items", () => {
+    const previous = [211,210];
+    expect(toggleFeedbackCard(previous,209)).toEqual([211,210,209]);
+    expect(toggleFeedbackCard(previous,211)).toEqual([210]);
+    expect(previous).toEqual([211,210]);
   });
 });
