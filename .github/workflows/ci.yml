@@ -39,3 +39,7 @@ jobs:
         env:
           PGPASSWORD: local-test-only
         run: psql -h localhost -U postgres -d feedback_test -v ON_ERROR_STOP=1 -f tests/sql/feedback-rls-integration.sql
+      - name: Verify unique Push claim prototype in isolated Postgres
+        env:
+          PGPASSWORD: local-test-only
+        run: psql -h localhost -U postgres -d feedback_test -v ON_ERROR_STOP=1 -f tests/sql/push-claim-integration.sql
