@@ -73,7 +73,7 @@ jobs:
             -e PGRST_JWT_SECRET="$PHASE1_JWT_SECRET" \
             postgrest/postgrest:v12.2.3
           for i in $(seq 1 30); do
-            if curl -fsS 'http://127.0.0.1:3000/' >/dev/null 2>&1; then exit 0; fi
+            if curl -sS --max-time 2 'http://127.0.0.1:3000/' >/dev/null 2>&1; then exit 0; fi
             sleep 1
           done
           docker logs phase1-postgrest
