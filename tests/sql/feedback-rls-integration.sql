@@ -15,7 +15,8 @@ GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated;
 CREATE TABLE public.notification_deliveries (
   id bigint PRIMARY KEY,
   owner_id uuid NOT NULL REFERENCES auth.users(id),
-  event_type text NOT NULL
+  event_type text NOT NULL,
+  delivered_count integer NOT NULL DEFAULT 1
 );
 ALTER TABLE public.notification_deliveries ENABLE ROW LEVEL SECURITY;
 CREATE POLICY select_own_deliveries ON public.notification_deliveries
@@ -29,14 +30,16 @@ INSERT INTO public.notification_deliveries (id,owner_id,event_type) VALUES
   (1,'11111111-1111-4111-8111-111111111111','ACTIONABLE_RAIN_APPROACHING'),
   (2,'11111111-1111-4111-8111-111111111111','RAIN_ENDING'),
   (3,'22222222-2222-4222-8222-222222222222','RAIN_ENDING'),
-  (4,'11111111-1111-4111-8111-111111111111','SEVERE_RAIN_1');
+  (4,'11111111-1111-4111-8111-111111111111','SEVERE_RAIN_1'),
+  (5,'11111111-1111-4111-8111-111111111111','RAIN_ENDING');
+UPDATE public.notification_deliveries SET delivered_count=0 WHERE id=5;
 
 -- Evidence migration must preserve all existing delivered notifications and be idempotent.
 \ir ../../docs/sql/my-rain-notification-evidence.sql
 \ir ../../docs/sql/my-rain-notification-evidence.sql
 DO $$
 BEGIN
-  IF (SELECT count(*) FROM public.notification_deliveries) <> 4 THEN
+  IF (SELECT count(*) FROM public.notification_deliveries) <> 5 THEN
     RAISE EXCEPTION 'EVIDENCE_MIGRATION_CHANGED_EXISTING_DELIVERIES';
   END IF;
   IF EXISTS (SELECT 1 FROM public.notification_deliveries WHERE decision_snapshot IS NOT NULL) THEN
@@ -87,6 +90,14 @@ BEGIN
   EXCEPTION WHEN insufficient_privilege OR check_violation THEN blocked := true;
   END;
   IF NOT blocked THEN RAISE EXCEPTION 'CROSS_OWNER_NOTIFICATION_ACCEPTED'; END IF;
+
+  blocked := false;
+  BEGIN
+    INSERT INTO public.rain_notification_feedback(notification_id,owner_id,actual_weather)
+      VALUES (5,auth.uid(),'STOPPED'); -- pending/unconfirmed delivery must never be rateable
+  EXCEPTION WHEN insufficient_privilege OR check_violation THEN blocked := true;
+  END;
+  IF NOT blocked THEN RAISE EXCEPTION 'PENDING_DELIVERY_FEEDBACK_ACCEPTED'; END IF;
 
   blocked := false;
   BEGIN
