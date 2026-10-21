@@ -373,7 +373,7 @@ export default function Home() {
       // A notification can be older than seven days or outside the latest 200.
       // Resolve its ID with the current user's RLS-protected session, never by trusting the URL.
       const rawPushId = new URLSearchParams(window.location.search).get("notificationId");
-      const pushId = rawPushId && /^[1-9]\\d{0,14}$/.test(rawPushId) ? Number(rawPushId) : null;
+      const pushId = rawPushId && /^[1-9]\d{0,14}$/.test(rawPushId) ? Number(rawPushId) : null;
       if (pushId !== null && Number.isSafeInteger(pushId) && !deliveries.some(item => item.id === pushId)) {
         const byId = await supabase.from("notification_deliveries")
           .select(`${baseColumns},decision_snapshot`).eq("id", pushId).gt("delivered_count", 0).maybeSingle();
@@ -418,7 +418,7 @@ export default function Home() {
   // Deep link from a Push notification. IDs are lookup keys, never authorization tokens.
   const notificationIdFromPush = typeof window === "undefined" ? null : (() => {
     const raw = new URLSearchParams(window.location.search).get("notificationId");
-    if (!raw || !/^[1-9]\\d{0,14}$/.test(raw)) return null;
+    if (!raw || !/^[1-9]\d{0,14}$/.test(raw)) return null;
     const id = Number(raw);
     return Number.isSafeInteger(id) ? id : null;
   })();
