@@ -19,3 +19,9 @@ export function negativeFeedbackNeedsWait(
   const deliveredMs = Date.parse(deliveredAt);
   return !Number.isFinite(deliveredMs) || now < deliveredMs + 60 * 60 * 1000;
 }
+
+/** Tie the eyewitness answer to the watched place, not the device's current location. */
+export function watchedPlaceLabel(targetId: string, labels: Readonly<Record<string,string>>): string {
+  const label = labels[targetId]?.trim();
+  return label || "登録地点（名称を確認できないよ）";
+}
