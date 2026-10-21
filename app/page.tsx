@@ -419,6 +419,7 @@ export default function Home() {
     if (current.data.session) return current.data.session;
     const signedIn = await supabase.auth.signInAnonymously();
     if (signedIn.error || !signedIn.data.session) throw signedIn.error ?? new Error("Anonymous sign-in failed");
+    window.dispatchEvent(new Event("amefuru:auth-ready"));
     return signedIn.data.session;
   };
 
