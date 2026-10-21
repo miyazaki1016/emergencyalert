@@ -1,0 +1,48 @@
+# アメふる 開発総覧
+
+> **新チャットは `docs/amafuru-source-audit-20261016` の `docs/AMAFURU_CHAT_HANDOFF_20261021.md` を最初に読む。**
+
+更新: 2026-10-21。基本構想: `docs/AMAFURU_CONCEPT.md`。全ブランチ台帳: `docs/AMAFURU_BRANCH_AUDIT_20261021.md`。
+この総覧は現時点の横断入口。既存のルート `PROJECT_OVERVIEW.md` と `docs/PROJECT_OVERVIEW.md` は異なる文書・版であり削除・統合上書きしない。ブランチごとの版を監査JSONに固定した。
+
+## 現在地
+
+66ブランチ・63 PR。56 merged、1 closed-unmerged（#21）、6 open（#25/#59/#60/#61/#62/#63）。main基準 `024bb57ac04a7830eeea61183baee4f249a65e4c`。全HEADの375 path+blob資産、47 Markdown版を所在確認。本文の全版読了ではない。
+
+| 系統 | 実装・証拠 | 未完成・次のゲート |
+|---|---|---|
+| MY既存機能 | mainに現在地/住所/地図、登録地点、雨API、PWA/Push、通知状態/配信履歴。main HEAD CI run 38869703371 success | 2026-10-21の本番デプロイSHA/Edge/DBとの同一性は未照合。旧監査のv29差分は当時の証拠で現行状態とは断定しない |
+| 通知履歴・検証 #63 | branch `feat/my-rain-notification-history-20261019` HEAD `25f78d40858a51d800df014139545ca92813f4ed`。30ファイルのmain分岐後差分。ID先行作成・直リンク・根拠snapshot・feedback・shadow・offline集計 | 最新CI run 39435320536でverify/test/buildと隔離Postgres RLS job成功。実Supabase HTTP RLS、iPhone、実気象、画像保存/判定範囲は未完。段階公開NO-GO |
+| 全国大雨 #59 | branch `feat/national-heavy-rain-preview`、全国JMA走査・queue/worker・N03/境界・多数proof。HEAD CI run 38831518366と5 proof success | 追加workflowのfailureも存在。proofの安全経路と実routeの統合、全国coverage、実Storage/DB IO、負荷/期限、ライセンスは未完。Production readiness NO |
+| 走査検証 #62 | branch `test/z4-stride-parity-20261016`、baseは#59。HEAD CI 38967793351、proof 38967793373 success | 旧監査に6時刻で274/358強雨画素未抽出と記録。今回ログ再取得前の引用値。全国/通知漏れ数の保証ではない。追加workflow失敗も別管理 |
+| 通知回帰テスト | `test/watch-rain-notification-regression-20261018` HEAD `0e8ed4c4e61f228a404b3d97e93355c3229cfbfb` | HEAD Actions run 0件。追加テストと実行成功を混同しない。JMA日時・複数降雨エピソードの検証継続 |
+| LIVE JAPAN #61 | `feat/live-japan-experience-prototype`、地図UI/デモ/event contract。HEAD CI success | 公式XML取得、永続履歴、全国共通結果接続、実災害表示・通知は未完成 |
+| 美咲契約 #60 | `docs/misaki-weather-integration-20261016`、Draft契約。HEAD CI success | API/認証/正式契約/本番接続未実装。別プロジェクトへ変更しない |
+| JMA live smoke #25 | `test-jma-early-live-smoke`、openの実データ検証提案 | HEAD run 0件。過去run・後継との比較未完。実際に実行したと扱わない |
+
+## システム構成と責務
+
+- Next.js/React/TypeScript: `app/page.tsx`、PWA `public/sw.js`、`app/api/rain/route.ts`、住所API。ブラウザは選択地点・通知許可・表示を担当。
+- 気象: `JmaPublicImageProvider` → `RainInterpretationEngine` → 公開可否gate → semantic event → 表示。元データの観測/予報・baseTime/validTime・鮮度・UNKNOWNを保持。
+- 登録地点worker: `supabase/functions/watch-rain/index.ts` → 雨API → 診断/状態/購読 → web-push → 配信記録。Supabase Auth/DB/RLS/cron/Edgeは別の実環境資産。今回その接続先に操作していない。
+- 全国proof: #59のqueue/cycle/worker、地理データloader、N03/町丁目proof、SQL、CI。mainの登録地点通知と分離されている。
+
+## 優先調査と既知の制限
+
+1. #63に既に実装されたID・履歴・feedbackを再発明しない。まず既存差分をレビューし、隔離環境の前提を確定する。#63の旧「IDなし」記述は設計時の現行mainについてであり、最新branchコードの未実装宣言として引用しない。
+2. main workerの `severeFrame` は `new Date(f.validTime)`、JMA14桁時刻のparserとの不一致候補。静的確認済み。強雨の30分窓も含めてオフライン再現し、通知の確定原因とは呼ばない。
+3. `.limit(100)`、固定雨API URL、同一観測の再カウント、配信/DB間障害、期間外の直リンク、元画像の保持が要検証。
+4. 全国のstride2、欠測、実routeとproofの乖離は過去の理由と証拠を保全。成功した限定試験を全国完成へ拡張しない。
+5. 依存lockfileがない。既存監査の脆弱性件数・更新候補は当時のartifact値であり、現在のnpm監査結果として転記しない。今回依存更新は実施しない。
+
+## Preview・権限・未反映
+
+Vercel project `prj_LDqpPAqNGDaY4Aaix8ulwPc8oXmu` の存在は取得できたが、明示team/projectでdeploy一覧は403。ローカルvercel CLIなし。従って全deploy/production SHA対応は未確認。全branch HEADのGitHub commit statusと全PR会話コメントを取得し、証拠JSONに保存した。
+
+#63 HEADにはVercel success status（2026-10-20T14:01:08Z、deployment `rcnUQ3mAjdbYfygQLpMNkBbas1u9`）あり。一方PRコメントにはfree-per-day制限による失敗もある。statusの成功は該当SHAの記録であり、過去の失敗がすべて解消した証拠ではない。固定Preview URL/実環境の設定・操作は今回未検証。
+
+旧handoffには巨大文書追記がブロックされた記録がある。GitHubで成功した内容はcommit SHAで確認する。ブロックされたpayloadはGitに存在せず、自動再試行・別経路反映の有無をGitHubのみで完全復元できない。未反映がゼロとは宣言しない。
+
+## 更新運用
+
+作業ごとに台帳へ目的/理由、対象branchと開始SHA、変更path、到達段階、検証run/結果、未確認、阻害点、次の具体操作を記す。commit/push成功後にremote HEADを照合する。保存失敗時は完了と報告しない。main更新後は新基準SHAで全表を再計算し、旧snapshotを残す。mainへのマージ・branch削除・本番操作はユーザー承認が別途必要。
