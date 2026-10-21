@@ -43,3 +43,10 @@ export function selectFeedbackHistory<T extends { id: number }>(
     unanswered: unanswered.length,
   };
 }
+
+/** IDs identify a record to look up; they never authorize access. */
+export function parsePushNotificationId(raw: string | null): number | null {
+  if (!raw || !/^[1-9]\d{0,14}$/.test(raw)) return null;
+  const id = Number(raw);
+  return Number.isSafeInteger(id) ? id : null;
+}
