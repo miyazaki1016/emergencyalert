@@ -89,3 +89,24 @@ export function toggleFeedbackCard(openIds: readonly number[], notificationId: n
 export function revealFeedbackCard(openIds: readonly number[], notificationId: number): number[] {
   return openIds.includes(notificationId) ? [...openIds] : [...openIds, notificationId];
 }
+
+/**
+ * Counts eyewitness reports only. Never call this a forecast accuracy score:
+ * old deliveries lack a forecast target timestamp and UNKNOWN is not failure.
+ */
+export function summarizeFeedbackObservations<T extends {id:number;event_type:string}>(
+  notifications: readonly T[],
+  answers: Readonly<Record<number,string>>,
+): { answered:number; observedRain:number; observedDry:number; alreadyChanged:number; unknown:number } {
+  const result = { answered:0, observedRain:0, observedDry:0, alreadyChanged:0, unknown:0 };
+  for (const notification of notifications) {
+    const answer = answers[notification.id];
+    if (!answer) continue;
+    result.answered++;
+    if (answer === "UNKNOWN") result.unknown++;
+    else if (answer === "ALREADY_RAINING" || answer === "ALREADY_DRY") result.alreadyChanged++;
+    else if (answer === "RAINED" || answer === "DID_NOT_STOP") result.observedRain++;
+    else if (answer === "STOPPED" || answer === "DID_NOT_RAIN") result.observedDry++;
+  }
+  return result;
+}
