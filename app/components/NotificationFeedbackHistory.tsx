@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
 import { filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
+import { loadPhase1Feedback, savePhase1Feedback, type WeatherFeedbackAnswer } from "../../lib/weather/rain/feedbackPhase1Repository";
 
 type Delivery = {
   id: number;
@@ -11,8 +12,7 @@ type Delivery = {
   body: string;
   delivered_at: string;
 };
-type Answer = "RAINED" | "DID_NOT_RAIN" | "ALREADY_RAINING" |
-  "STOPPED" | "DID_NOT_STOP" | "ALREADY_DRY" | "UNKNOWN";
+type Answer = WeatherFeedbackAnswer;
 type Option = readonly [Answer, string];
 
 export const FEEDBACK_OPTIONS: Record<string, readonly Option[]> = {
@@ -104,19 +104,15 @@ export default function NotificationFeedbackHistory() {
         setMessage("最近7日間の通知はまだないよ。");
         return;
       }
-      const { data: recorded, error: feedbackError } = await client
-        .from("rain_notification_feedback")
-        .select("notification_id,actual_weather")
-        .in("notification_id", rows.map(row => row.id));
-      if (feedbackError) {
+      try {
+        const recorded = await loadPhase1Feedback(client, rows.map(row => row.id));
+        setAnswers(recorded);
+        setFeedbackReady(true);
+        setMessage("");
+      } catch {
         setAnswers({});
         setFeedbackReady(false);
         setMessage("通知履歴は表示できるよ。回答機能はまだ準備中だよ。");
-      } else {
-        setAnswers(Object.fromEntries((recorded ?? []).map(item =>
-          [item.notification_id, item.actual_weather as Answer])));
-        setFeedbackReady(true);
-        setMessage("");
       }
     } catch {
       setNotifications([]);
@@ -197,15 +193,7 @@ export default function NotificationFeedbackHistory() {
     setMessage("");
     try {
       const client = getSupabaseBrowserClient();
-      const { data: { session }, error: authError } = await client.auth.getSession();
-      if (authError || !session) throw authError ?? new Error("session_expired");
-      const { error } = await client.from("rain_notification_feedback").upsert({
-        notification_id: notification.id,
-        owner_id: session.user.id,
-        actual_weather: answer,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: "notification_id" });
-      if (error) throw error;
+      await savePhase1Feedback(client, notification.id, answer);
       setAnswers(prev => ({ ...prev, [notification.id]: answer }));
       setSaved(notification.id);
     } catch {
