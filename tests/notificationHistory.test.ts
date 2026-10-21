@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { prioritizeNotification, savedWeatherAnswerLabel } from "../lib/weather/rain/notificationHistory";
+import { prioritizeNotification, savedWeatherAnswerLabel, selectFeedbackHistory } from "../lib/weather/rain/notificationHistory";
 
 describe("notification feedback experience", () => {
   const items = [{ id: 3 }, { id: 2 }, { id: 1 }];
@@ -19,5 +19,27 @@ describe("notification feedback experience", () => {
     expect(savedWeatherAnswerLabel("STOPPED", start)).toBeNull();
     expect(savedWeatherAnswerLabel(undefined, start)).toBeNull();
     expect(savedWeatherAnswerLabel("RAINED", null)).toBeNull();
+  });
+});
+
+describe("unanswered notifications filter", () => {
+  const notifications = [{id:3,type:"RAIN_ENDING"},{id:2,type:"SEVERE"},{id:1,type:"RAIN_START"}];
+  const canAnswer = (item: typeof notifications[number]) => item.type !== "SEVERE";
+  it("counts only eligible notifications and removes answered notifications", () => {
+    const result = selectFeedbackHistory(notifications,{3:"STOPPED"},canAnswer,"unanswered",null);
+    expect(result.answerable).toBe(2);
+    expect(result.unanswered).toBe(1);
+    expect(result.items.map(x=>x.id)).toEqual([1]);
+  });
+  it("shows the focused notification even when already answered", () => {
+    const result = selectFeedbackHistory(notifications,{3:"STOPPED"},canAnswer,"unanswered",3);
+    expect(result.items.map(x=>x.id)).toEqual([3,1]);
+  });
+  it("preserves unsupported alerts in the all-history view", () => {
+    const result = selectFeedbackHistory(notifications,{3:"STOPPED"},canAnswer,"all",null);
+    expect(result.items.map(x=>x.id)).toEqual([3,2,1]);
+  });
+  it("immediately removes newly answered items when no Push is focused", () => {
+    expect(selectFeedbackHistory(notifications,{3:"STOPPED",1:"RAINED"},canAnswer,"unanswered",null).items).toEqual([]);
   });
 });
