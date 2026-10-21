@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel, filterFeedbackByTarget } from "../lib/weather/rain/feedbackPhase1";
+import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel, filterFeedbackByTarget, selectFeedbackHistory } from "../lib/weather/rain/feedbackPhase1";
 
 describe("phase-one in-app history links", () => {
   it("accepts positive numeric feedback IDs", () => {
@@ -64,5 +64,34 @@ describe("per-watched-place feedback filter", () => {
   });
   it("does not invent a location when the target was removed", () => {
     expect(filterFeedbackByTarget(notifications,"removed-id")).toEqual([]);
+  });
+});
+
+describe("answered, unanswered and selected history views", () => {
+  const items = [
+    {id:5,event_type:"RAIN_APPROACHING"},
+    {id:4,event_type:"SEVERE_RAIN"},
+    {id:3,event_type:"RAIN_ENDING"},
+    {id:2,event_type:"RAIN_APPROACHING"},
+  ];
+  const types = new Set(["RAIN_APPROACHING","RAIN_ENDING"]);
+  const answers = {3:"STOPPED",2:"RAINED"};
+  it("counts supported answers without counting unanswerable severe rain events", () => {
+    const result = selectFeedbackHistory(items,answers,types,"all",null);
+    expect([result.answerable,result.answered,result.unanswered]).toEqual([3,2,1]);
+    expect(result.visible.map(item=>item.id)).toEqual([5,4,3,2]);
+  });
+  it("shows only unanswered and only answered, keeping chronological order", () => {
+    expect(selectFeedbackHistory(items,answers,types,"unanswered",null).visible.map(x=>x.id)).toEqual([5]);
+    expect(selectFeedbackHistory(items,answers,types,"answered",null).visible.map(x=>x.id)).toEqual([3,2]);
+  });
+  it("never hides the focused notification even when its answer status disagrees", () => {
+    expect(selectFeedbackHistory(items,answers,types,"unanswered",3).visible.map(x=>x.id)).toEqual([5,3]);
+    expect(selectFeedbackHistory(items,answers,types,"answered",5).visible.map(x=>x.id)).toEqual([5,3,2]);
+  });
+  it("does not count unsupported alert types as unanswered", () => {
+    const result = selectFeedbackHistory(items,{},types,"unanswered",null);
+    expect(result.unanswered).toBe(3);
+    expect(result.visible.map(x=>x.id)).toEqual([5,3,2]);
   });
 });
