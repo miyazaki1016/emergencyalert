@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
-import { compactFeedbackHistory, filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, selectFeedbackHistory, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
+import { compactFeedbackHistory, filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, revealFeedbackCard, selectFeedbackHistory, toggleFeedbackCard, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
 import { loadPhase1Feedback, savePhase1Feedback, type WeatherFeedbackAnswer } from "../../lib/weather/rain/feedbackPhase1Repository";
 
 type Delivery = {
@@ -166,7 +166,7 @@ export default function NotificationFeedbackHistory() {
     const readHash = () => {
       const focused = parseFeedbackHash(window.location.hash);
       setFocusedNotificationId(focused);
-      if (focused !== null) setExpandedIds(previous => previous.includes(focused) ? previous : [...previous, focused]);
+      if (focused !== null) setExpandedIds(previous => revealFeedbackCard(previous, focused));
       if (focused !== null) {
         // A link from today's alert should work even after choosing a
         // different location in the history filter.
@@ -265,9 +265,7 @@ export default function NotificationFeedbackHistory() {
             <button type="button"
               aria-expanded={expanded}
               aria-controls={`rain-feedback-answer-${notification.id}`}
-              onClick={() => setExpandedIds(previous => expanded
-                ? previous.filter(id => id !== notification.id)
-                : [...previous, notification.id])}
+              onClick={() => setExpandedIds(previous => toggleFeedbackCard(previous, notification.id))}
               style={{ width: "100%", border: "none", background: "transparent", padding: "6px 0",
                 color: "#fff", textAlign: "left", cursor: "pointer" }}>
               <span style={{ display: "block", fontSize: 13, marginBottom: 5, color: "#b8efff", fontWeight: 700 }}>
