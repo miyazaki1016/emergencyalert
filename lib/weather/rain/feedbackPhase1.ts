@@ -62,3 +62,18 @@ export function selectFeedbackHistory<T extends { id: number; event_type: string
     answered: answerable.length - unanswered,
   };
 }
+
+/** Keep the screen short by default, without losing a linked notification. */
+export function compactFeedbackHistory<T extends { id: number }>(
+  notifications: readonly T[],
+  requestedCount: number,
+  focusedId: number | null,
+): { items: T[]; remaining: number } {
+  const limit = Number.isFinite(requestedCount) ? Math.max(1, Math.floor(requestedCount)) : 2;
+  const focusedIndex = focusedId === null ? -1 : notifications.findIndex(item => item.id === focusedId);
+  const visibleCount = Math.min(notifications.length, Math.max(limit, focusedIndex + 1));
+  return {
+    items: notifications.slice(0, visibleCount),
+    remaining: notifications.length - visibleCount,
+  };
+}
