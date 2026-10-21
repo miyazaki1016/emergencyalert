@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
-import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
+import { filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
 
 type Delivery = {
   id: number;
@@ -52,6 +52,7 @@ export default function NotificationFeedbackHistory() {
   const [saving, setSaving] = useState<number | null>(null);
   const [saved, setSaved] = useState<number | null>(null);
   const [filter, setFilter] = useState<"all" | "unanswered">("all");
+  const [selectedTargetId, setSelectedTargetId] = useState("all");
   const [focusedNotificationId, setFocusedNotificationId] = useState<number | null>(null);
 
   const refresh = useCallback(async () => {
@@ -208,9 +209,13 @@ export default function NotificationFeedbackHistory() {
     }
   };
 
-  const answerable = notifications.filter(n => Boolean(FEEDBACK_OPTIONS[n.event_type]));
+  const selectedNotifications = filterFeedbackByTarget(notifications, selectedTargetId);
+  const answerable = selectedNotifications.filter(n => Boolean(FEEDBACK_OPTIONS[n.event_type]));
   const unanswered = answerable.filter(n => !answers[n.id]).length;
-  const visible = filter === "all" ? notifications : answerable.filter(n => !answers[n.id] || n.id === focusedNotificationId);
+  const visible = filter === "all"
+    ? selectedNotifications
+    : answerable.filter(n => !answers[n.id] || n.id === focusedNotificationId);
+  const targetIds = [...new Set(notifications.map(n => n.target_id))];
 
   return (
     <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.15)", borderRadius: 20, background: "rgba(24,55,88,.8)" }}>
@@ -227,6 +232,19 @@ export default function NotificationFeedbackHistory() {
       </button>
       {feedbackReady && (
         <>
+          {targetIds.length > 1 && (
+            <label style={{ display: "block", marginBottom: 12, fontSize: 14, color: "#eaf2ff" }}>
+              📍 見張る場所で絞り込む
+              <select aria-label="通知履歴の地点" value={selectedTargetId} onChange={event => setSelectedTargetId(event.target.value)}
+                style={{ display: "block", width: "100%", padding: "9px 12px", marginTop: 6, borderRadius: 10,
+                  color: "#fff", background: "#284e75", border: "1px solid #7799b8" }}>
+                <option value="all">すべての見張り地点</option>
+                {targetIds.map(id => (
+                  <option key={id} value={id}>{watchedPlaceLabel(id, targetLabels)}</option>
+                ))}
+              </select>
+            </label>
+          )}
           <div style={{ fontSize: 14, marginBottom: 8 }}>回答できる通知：{answerable.length}件／未回答：{unanswered}件</div>
           <div aria-label="通知履歴の絞り込み" role="group" style={{ display: "flex", gap: 8 }}>
             {([["all", "すべて"], ["unanswered", "未回答だけ"]] as const).map(([key, label]) => (
