@@ -196,6 +196,11 @@ export default function NotificationFeedbackHistory() {
         見ていない場所なら「わからない」で大丈夫だよ。
       </p>
       {message && <p role="status" style={{ color: "#ffe1a0" }}>{message}</p>}
+      <button type="button" onClick={() => void refresh()} disabled={saving !== null}
+        style={{ marginBottom: 12, padding: "7px 12px", borderRadius: 10, color: "#eaf2ff",
+          border: "1px solid #7799b8", background: "#284e75", cursor: "pointer" }}>
+        ↻ 通知履歴を更新
+      </button>
       {feedbackReady && (
         <>
           <div style={{ fontSize: 14, marginBottom: 8 }}>回答できる通知：{answerable.length}件／未回答：{unanswered}件</div>
