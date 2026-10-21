@@ -1,0 +1,24 @@
+name: N03 national prefecture index proof
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/n03-national-index-proof.yml"
+      - "scripts/n03-national-index-proof.ts"
+      - "lib/weather/rain/japanPrefectures.ts"
+      - "lib/weather/rain/n03Dataset.ts"
+      - "lib/weather/rain/n03AdministrativeAreas.ts"
+
+jobs:
+  prove-national-index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Build all 47 prefecture bounds from official 2026 N03
+        run: npx tsx scripts/n03-national-index-proof.ts
