@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
-import { negativeFeedbackNeedsWait, parseFeedbackHash } from "../../lib/weather/rain/feedbackPhase1";
+import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
 
 type Delivery = {
   id: number;
@@ -45,6 +45,7 @@ function formatTokyo(timestamp: string): string {
 
 export default function NotificationFeedbackHistory() {
   const [notifications, setNotifications] = useState<Delivery[]>([]);
+  const [targetLabels, setTargetLabels] = useState<Record<string, string>>({});
   const [answers, setAnswers] = useState<Record<number, Answer>>({});
   const [feedbackReady, setFeedbackReady] = useState(false);
   const [message, setMessage] = useState("通知履歴を読み込み中…");
@@ -57,6 +58,7 @@ export default function NotificationFeedbackHistory() {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
       setMessage("この検証画面では通知履歴を利用できないよ。");
       setNotifications([]);
+      setTargetLabels({});
       setFeedbackReady(false);
       setAnswers({});
       return;
@@ -67,6 +69,7 @@ export default function NotificationFeedbackHistory() {
       if (authError) throw authError;
       if (!session) {
         setNotifications([]);
+        setTargetLabels({});
         setAnswers({});
         setFeedbackReady(false);
         setMessage("この通知を受け取った端末・アカウントで開いてね。");
@@ -82,6 +85,18 @@ export default function NotificationFeedbackHistory() {
       if (error) throw error;
       const rows = (data ?? []) as Delivery[];
       setNotifications(rows);
+      // Historical answers must always be described using the registered
+      // watched place; device location and target location may be different.
+      const ids = [...new Set(rows.map(row => row.target_id))];
+      if (ids.length) {
+        const { data: targets, error: targetError } = await client
+          .from("watch_targets").select("id,label").in("id", ids);
+        setTargetLabels(!targetError ? Object.fromEntries(
+          (targets ?? []).map(target => [target.id, String(target.label ?? "")]),
+        ) : {});
+      } else {
+        setTargetLabels({});
+      }
       if (rows.length === 0) {
         setAnswers({});
         setFeedbackReady(false);
@@ -104,6 +119,7 @@ export default function NotificationFeedbackHistory() {
       }
     } catch {
       setNotifications([]);
+      setTargetLabels({});
       setAnswers({});
       setFeedbackReady(false);
       setMessage("通知履歴を読み込めなかったよ。少しあとでもう一度試してね。");
@@ -230,6 +246,9 @@ export default function NotificationFeedbackHistory() {
         return (
           <div id={`rain-feedback-${notification.id}`} key={notification.id} style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.15)", scrollMarginTop: 24, outline: focusedNotificationId === notification.id ? "2px solid #7dd3fc" : "none", borderRadius: 8 }}>
             {focusedNotificationId === notification.id && <p style={{ margin: "0 0 5px", fontSize: 13, color: "#b8efff", fontWeight: 700 }}>📩 選んだ通知はこちら</p>}
+            <div style={{ fontSize: 13, marginBottom: 4, color: "#b8efff", fontWeight: 700 }}>
+              📍 見張っていた場所：{watchedPlaceLabel(notification.target_id, targetLabels)}
+            </div>
             <div style={{ fontWeight: 700 }}>{notification.body}</div>
             <div style={{ fontSize: 13, color: "#eef5ff" }}>{formatTokyo(notification.delivered_at)} に通知</div>
             {selected && <div role="status" style={{ marginTop: 6, color: "#bbf7d0" }}>
@@ -237,7 +256,7 @@ export default function NotificationFeedbackHistory() {
             </div>}
             {options.length ? (
               <>
-                <div style={{ fontSize: 13, marginTop: 10 }}>この場所で、実際はどうだった？</div>
+                <div style={{ fontSize: 13, marginTop: 10 }}>この見張り地点の天気を実際に確認できた？ 確認できないときは「わからない」を選んでね。</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 7 }}>
                   {options.map(([value, label]) => (
                     <button key={value} type="button" disabled={!feedbackReady || saving === notification.id ||
