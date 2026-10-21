@@ -9,6 +9,16 @@
 - 未ログイン時は通知履歴を見せずアカウント案内を表示。匿名ログインの端末/アカウントが異なると同じPush URLでも履歴は引けない。URLのIDは認可トークンではない。
 - **送信成功後のDB更新失敗**では、実際にPushが届いても `delivered_count=0` のままになる。配信成功ログ・未確定レコードの突合、再試行の重複防止、復旧手順が必要。整合性検証と異常ケース試験が済むまで**本番NO-GO**。
 
+## 2026-10-21 配送成功後の記録失敗 — 回復と停止契約（#63）
+
+- 送信直前に `notification_deliveries` の0件pending行を作り、そのIDをPush URLに入れる。**Pushの送信成功と、DBの確定成功は別の結果**。
+- 配信成功件数が1以上のときだけ、同じ `delivered_count` の絶対値UPDATEを試みる。書込み応答には `id,delivered_count` を要求し一致を検査する。通信タイムアウト等ならDBを再読込し、既にコミット済みか照合してから、最大3回の冪等な書込みを行う。**このリトライでPushは二度送らない**。
+- 確定できなかったときは `notification_delivery_unconfirmed_requires_reconciliation` をログへ出し、worker結果の `deliveryRecorded=false` と `unconfirmedDeliveryId` で監査対象を表す。見つかったIDと件数は内部ログ・権限付き運用記録でのみ扱う。これは**自動回復/再送成功の保証ではない**。
+- 安全な運用調査では、運用者が（実際の送信レスポンスを証明できるログと）対象のpending行を照合する。送達結果が証明できない場合は、成功件数を**推測で上書きしない**。現場利用者へは「履歴確認中」などの説明が必要となる場合がある。
+- workerが確定不能でも `watch_states.last_notified_at` を送信成功数に基づいて書き続けるため、その書込みも失敗した場合やworkerが途中で落ちた場合は、再実行で重複Pushが起きる余地が残る。**exactly-once配信・全成功の復旧保証は未達**。本番投入前に故障注入・並行実行・監視とオンコール復旧手順を検証する。
+- `delivered_count=0` はユーザーの配送成功履歴・フィードバックの対象外。RLSの所有者照合だけでなく、回答POLICYで成功件数1以上を必須にする。失効した匿名セッションでの履歴未表示も正常な権限制御であり、同じPush IDを別アカウントへ開放しない。
+- 本番DBの制約 `CHECK (delivered_count > 0)` に対する staged migration は `docs/sql/my-rain-notification-pending.sql`。順序を逆にしてEdgeを先行デプロイしてはいけない。
+
 ## 現行本番の読み取り専用確認
 - Supabase project: EmergencyAlert（「美咲」の別プロジェクトは対象外）。
 - 2026-10-20 確認：`public.notification_deliveries` に `decision_snapshot` は**ない**。新しい `public.rain_notification_feedback` テーブルも**ない**。
