@@ -10,12 +10,13 @@
 すべて上記監査ブランチ上。
 
 1. `docs/AMAFURU_CHAT_HANDOFF_20261021.md` — この入口、現在地、禁止事項。
-2. `docs/AMAFURU_CONCEPT.md` — 独立した基本構想・判断理由・決定/検討/実装の区別。
-3. `docs/AMAFURU_DEVELOPMENT_OVERVIEW.md` — 横断の実装状況と開発の入口。
-4. `docs/AMAFURU_BRANCH_AUDIT_20261021.md` — 全66branch/63PR、証拠、再開キュー。
-5. `docs/audit/20261021/branches.json`、`assets.json`、`documents.json`、`prs.json` — 同一ディレクトリ内の固定snapshot。全ファイル所在と未読版を含む。
-6. `docs/AMAFURU_SOURCE_AUDIT_20261016.md`、`docs/AMAFURU_HANDOFF_20261018.md` — 過去の調査と設計理由。新しい証拠で訂正された節を優先し、過去の時点を現行と混同しない。
-7. `docs/DECISIONS.md`、`docs/PROJECT_OVERVIEW.md`、ルート `PROJECT_OVERVIEW.md` — 既存設計。branchごとの版の違いを保持する。
+2. `docs/SAKIKURU_CONCEPT.md` — 上位サービスの憲法・原点・アメふるとの関係。
+3. `docs/AMAFURU_CONCEPT.md` — 独立した基本構想・判断理由・決定/検討/実装の区別。
+4. `docs/AMAFURU_DEVELOPMENT_OVERVIEW.md` — 横断の実装状況と開発の入口。
+5. `docs/AMAFURU_BRANCH_AUDIT_20261021.md` — 全66branch/63PR、証拠、再開キュー。
+6. `docs/audit/20261021/branches.json`、`assets.json`、`documents.json`、`prs.json` — 同一ディレクトリ内の固定snapshot。全ファイル所在と未読版を含む。
+7. `docs/AMAFURU_SOURCE_AUDIT_20261016.md`、`docs/AMAFURU_HANDOFF_20261018.md` — 過去の調査と設計理由。新しい証拠で訂正された節を優先し、過去の時点を現行と混同しない。
+8. `docs/DECISIONS.md`、`docs/PROJECT_OVERVIEW.md`、ルート `PROJECT_OVERVIEW.md` — 既存設計。branchごとの版の違いを保持する。
 
 ## 現在地と監査の限界
 
