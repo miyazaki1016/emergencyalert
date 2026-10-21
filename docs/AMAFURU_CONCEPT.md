@@ -1,5 +1,8 @@
 # アメふる 基本構想
 
+> **上位構想**: `docs/SAKIKURU_CONCEPT.md`。サキクルは生活の先回り見守り、アメふるはその最初の雨の機能。防災専用ではない。
+
+
 更新: 2026-10-21。保存先: `docs/amafuru-source-audit-20261016`。
 新チャット入口: `docs/AMAFURU_CHAT_HANDOFF_20261021.md`。
 
