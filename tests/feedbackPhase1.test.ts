@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { negativeFeedbackNeedsWait, parseFeedbackHash } from "../lib/weather/rain/feedbackPhase1";
+import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel } from "../lib/weather/rain/feedbackPhase1";
 
 describe("phase-one in-app history links", () => {
   it("accepts positive numeric feedback IDs", () => {
@@ -30,5 +30,19 @@ describe("phase-one legacy notification reply timing", () => {
   });
   it("never enables a negative answer with invalid delivery time", () => {
     expect(negativeFeedbackNeedsWait("DID_NOT_RAIN", "invalid", Date.now())).toBe(true);
+  });
+});
+
+describe("feedback always refers to a watched target", () => {
+  it("shows the registered label of the specific target", () => {
+    const labels = { "home-id": "自宅", "airport-id": "羽田空港" };
+    expect(watchedPlaceLabel("airport-id", labels)).toBe("羽田空港");
+    expect(watchedPlaceLabel("home-id", labels)).toBe("自宅");
+  });
+  it("never substitutes the current location or another target", () => {
+    expect(watchedPlaceLabel("missing-id", { "home-id": "自宅" }))
+      .toBe("登録地点（名称を確認できないよ）");
+    expect(watchedPlaceLabel("empty", { empty: "   " }))
+      .toBe("登録地点（名称を確認できないよ）");
   });
 });
