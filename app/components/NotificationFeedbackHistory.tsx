@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
+import { negativeFeedbackNeedsWait, parseFeedbackHash } from "../../lib/weather/rain/feedbackPhase1";
 
 type Delivery = {
   id: number;
@@ -35,12 +36,6 @@ export const FEEDBACK_OPTIONS: Record<string, readonly Option[]> = {
 
 // Phase 1 has no persisted forecast target time on legacy Push rows.
 // Avoid presenting a negative outcome as verified immediately after delivery.
-export function negativeFeedbackNeedsWait(answer: Answer, deliveredAt: string, now: number): boolean {
-  if (answer !== "DID_NOT_RAIN" && answer !== "DID_NOT_STOP") return false;
-  const deliveredMs = Date.parse(deliveredAt);
-  return !Number.isFinite(deliveredMs) || now < deliveredMs + 60 * 60 * 1000;
-}
-
 function formatTokyo(timestamp: string): string {
   return new Date(timestamp).toLocaleString("ja-JP", {
     timeZone: "Asia/Tokyo", month: "numeric", day: "numeric",
@@ -126,9 +121,7 @@ export default function NotificationFeedbackHistory() {
   // Phase 1: links from today's alerts work without changing the Push payload.
   useEffect(() => {
     const readHash = () => {
-      const match = /^#rain-feedback-([1-9]\d{0,14})$/.exec(window.location.hash);
-      const id = match ? Number(match[1]) : null;
-      setFocusedNotificationId(id !== null && Number.isSafeInteger(id) ? id : null);
+      setFocusedNotificationId(parseFeedbackHash(window.location.hash));
     };
     readHash();
     window.addEventListener("hashchange", readHash);
