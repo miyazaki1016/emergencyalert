@@ -16,7 +16,8 @@ CREATE TABLE public.notification_deliveries (
   id bigint PRIMARY KEY,
   owner_id uuid NOT NULL REFERENCES auth.users(id),
   event_type text NOT NULL,
-  delivered_count integer NOT NULL DEFAULT 1
+  delivered_count integer NOT NULL DEFAULT 1,
+  CONSTRAINT notification_deliveries_delivered_count_check CHECK (delivered_count > 0)
 );
 ALTER TABLE public.notification_deliveries ENABLE ROW LEVEL SECURITY;
 CREATE POLICY select_own_deliveries ON public.notification_deliveries
@@ -30,9 +31,12 @@ INSERT INTO public.notification_deliveries (id,owner_id,event_type) VALUES
   (1,'11111111-1111-4111-8111-111111111111','ACTIONABLE_RAIN_APPROACHING'),
   (2,'11111111-1111-4111-8111-111111111111','RAIN_ENDING'),
   (3,'22222222-2222-4222-8222-222222222222','RAIN_ENDING'),
-  (4,'11111111-1111-4111-8111-111111111111','SEVERE_RAIN_1'),
-  (5,'11111111-1111-4111-8111-111111111111','RAIN_ENDING');
-UPDATE public.notification_deliveries SET delivered_count=0 WHERE id=5;
+  (4,'11111111-1111-4111-8111-111111111111','SEVERE_RAIN_1');
+-- The production schema disallows pending rows until the staged migration is applied.
+\ir ../../docs/sql/my-rain-notification-pending.sql
+\ir ../../docs/sql/my-rain-notification-pending.sql
+INSERT INTO public.notification_deliveries (id,owner_id,event_type,delivered_count) VALUES
+  (5,'11111111-1111-4111-8111-111111111111','RAIN_ENDING',0);
 
 -- Evidence migration must preserve all existing delivered notifications and be idempotent.
 \ir ../../docs/sql/my-rain-notification-evidence.sql
