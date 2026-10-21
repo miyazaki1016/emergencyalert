@@ -18,3 +18,28 @@ export function savedWeatherAnswerLabel(
   const selected = options.find(([value]) => value === choice);
   return selected ? `回答済み：${selected[1]}` : null;
 }
+
+/**
+ * An unanswered filter is a convenience for people reviewing their Push alerts.
+ * Unsupported notification types are excluded from its denominator.
+ * The explicitly opened Push remains visible even when already answered.
+ */
+export function selectFeedbackHistory<T extends { id: number }>(
+  notifications: readonly T[],
+  answers: Readonly<Record<number, string>>,
+  canAnswer: (notification: T) => boolean,
+  filter: "all" | "unanswered",
+  focusedId: number | null,
+): { items: T[]; answerable: number; unanswered: number } {
+  const answerable = notifications.filter(canAnswer);
+  const unanswered = answerable.filter(item => !answers[item.id]);
+  const selected = filter === "unanswered"
+    ? notifications.filter(item =>
+        item.id === focusedId || (canAnswer(item) && !answers[item.id]))
+    : [...notifications];
+  return {
+    items: prioritizeNotification(selected, focusedId),
+    answerable: answerable.length,
+    unanswered: unanswered.length,
+  };
+}
