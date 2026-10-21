@@ -20,7 +20,7 @@ Push受理の後にDB `delivered_count` 更新が失敗すると、ユーザー�
 
 ## 観測された検証状態と未完了
 
-- 前段のGitHub Actionsでは `f7cea304`、`9f97005c` などが成功。finalize helper/worker差分 `aea51b2b` のCI成功を確認。ただし新しい `tests/deliveryFinalization.test.ts` を含むrunの最終結果は再確認が必要。
+- GitHub Actionsで `f7cea304`、`9f97005c`、finalize helper/worker差分 `aea51b2b`、**新しい単体テストを追加した `7da92198`（run 39548716686）**、文書更新 `fbc409ad` がsuccess。これらは隔離CI結果であり実機/本番の保証ではない。最新HEADの結果は別途確認。
 - 隔離PostgreSQLのCI RLSは、本物のSupabase HTTPセッション・iPhone Push受信/タップの代わりではない。実運用での故障注入・クラッシュ回復・重複抑制も未検証。
 - `watch_states` 書込み失敗、複数workerの同時実行、通知ごと/購読ごとの冪等キー、ジョブのクラッシュ間に**exactly-once** は保証できない。配信直後の落ち方によって、次サイクルの重複通知があり得る。後続の設計レビューと検証が必要。
 - DB確定に失敗した `notificationId` は自動で配信成功と復旧しない。運用者が証拠を照合し、権限/処理と復旧方法を決定する。推測で `delivered_count` を上げない。
