@@ -56,6 +56,7 @@ export default function NotificationFeedbackHistory() {
   const [saving, setSaving] = useState<number | null>(null);
   const [saved, setSaved] = useState<number | null>(null);
   const [filter, setFilter] = useState<"all" | "unanswered">("all");
+  const [focusedNotificationId, setFocusedNotificationId] = useState<number | null>(null);
 
   const refresh = useCallback(async () => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
@@ -122,6 +123,24 @@ export default function NotificationFeedbackHistory() {
     return () => { window.clearInterval(interval); document.removeEventListener("visibilitychange", onVisible); };
   }, [refresh]);
 
+  // Phase 1: links from today's alerts work without changing the Push payload.
+  useEffect(() => {
+    const readHash = () => {
+      const match = /^#rain-feedback-([1-9]\\d{0,14})$/.exec(window.location.hash);
+      const id = match ? Number(match[1]) : null;
+      setFocusedNotificationId(id !== null && Number.isSafeInteger(id) ? id : null);
+    };
+    readHash();
+    window.addEventListener("hashchange", readHash);
+    return () => window.removeEventListener("hashchange", readHash);
+  }, []);
+
+  useEffect(() => {
+    if (focusedNotificationId === null || !notifications.some(n => n.id === focusedNotificationId)) return;
+    document.getElementById(`rain-feedback-${focusedNotificationId}`)
+      ?.scrollIntoView({ block: "start", behavior: "smooth" });
+  }, [focusedNotificationId, notifications, filter]);
+
   const save = async (notification: Delivery, answer: Answer) => {
     const allowed = FEEDBACK_OPTIONS[notification.event_type];
     if (!feedbackReady || !allowed?.some(([value]) => value === answer)) return;
@@ -154,7 +173,7 @@ export default function NotificationFeedbackHistory() {
 
   const answerable = notifications.filter(n => Boolean(FEEDBACK_OPTIONS[n.event_type]));
   const unanswered = answerable.filter(n => !answers[n.id]).length;
-  const visible = filter === "all" ? notifications : answerable.filter(n => !answers[n.id]);
+  const visible = filter === "all" ? notifications : answerable.filter(n => !answers[n.id] || n.id === focusedNotificationId);
 
   return (
     <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.15)", borderRadius: 20, background: "rgba(24,55,88,.8)" }}>
@@ -183,7 +202,8 @@ export default function NotificationFeedbackHistory() {
         const options = FEEDBACK_OPTIONS[notification.event_type] ?? [];
         const selected = options.find(([value]) => value === answers[notification.id]);
         return (
-          <div key={notification.id} style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.15)" }}>
+          <div id={`rain-feedback-${notification.id}`} key={notification.id} style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.15)", scrollMarginTop: 24, outline: focusedNotificationId === notification.id ? "2px solid #7dd3fc" : "none", borderRadius: 8 }}>
+            {focusedNotificationId === notification.id && <p style={{ margin: "0 0 5px", fontSize: 13, color: "#b8efff", fontWeight: 700 }}>📩 選んだ通知はこちら</p>}
             <div style={{ fontWeight: 700 }}>{notification.body}</div>
             <div style={{ fontSize: 13, color: "#eef5ff" }}>{formatTokyo(notification.delivered_at)} に通知</div>
             {selected && <div role="status" style={{ marginTop: 6, color: "#bbf7d0" }}>
