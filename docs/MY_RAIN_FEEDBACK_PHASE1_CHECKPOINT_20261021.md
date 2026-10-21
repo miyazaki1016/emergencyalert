@@ -58,3 +58,10 @@
 - 最初のHTTP検証時に、模擬 `auth.uid()` がレガシーな `request.jwt.claim.sub` からの取得になっており、実PostgREST v12のJWT claims JSONと不整合を検出。使い捨てDB fixtureで `request.jwt.claims::jsonb ->> 'sub'` を読むよう修正。**製品本番のSQLは変更しない**。
 - コミット **`cdbec051`** の GitHub Actions run **`39570989341`** は **`verify`、`phase1-feedback-rls`、`phase1-feedback-http` 全て success**。今回の成果は模擬Supabaseだけでなく、**本物のPostgREST HTTP要求と実Postgres/RLSでの保存・更新・再読込を検証**できた点。
 - **注意：これはSupabaseマネージドのAuth/REST接続ではない**。本番とは別のSupabaseプロジェクト/開発ブランチの準備と iPhone実機 PWA 操作検証は引き続き未実施。CI緑 ≠ 本番公開可能。本番DB変更、Edge/Push変更、mainのマージは許可されていない。
+
+## 追補：回答済み通知の見直し（2026-10-21）
+
+- 第1段階のフィードバック履歴に「**すべて／未回答だけ／回答済みだけ**」を追加。対象地点ごとの **回答できる件数・回答済み件数・未回答件数** も表示。
+- `lib/weather/rain/feedbackPhase1.ts` に表示件数とフィルター選択を純粋関数化し、`tests/feedbackPhase1.test.ts` で未対応の通知種別の除外、絞り込み、通知リンクで指定した回答済み通知を隠さないことを検証。
+- Freeプランで3つ目のSupabaseプロジェクトは作成しない。既存の使い捨てPostgres/PostgREST HTTP試験を維持する。**SupabaseマネージドAuth/RESTおよびiPhone実機の検証は未実施のまま**。
+- PR #65はDraft/NO-GO、main/本番DB/Edge/既存Push配信には一切変更なし。運用保留はIssue #64。
