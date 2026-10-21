@@ -122,7 +122,7 @@ export default function NotificationFeedbackHistory() {
     let pendingAuthRefresh: ReturnType<typeof setTimeout> | null = null;
     const { data: { subscription } } = getSupabaseBrowserClient().auth.onAuthStateChange(
       (event) => {
-        if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_DELETED") return;
+        if (event !== "SIGNED_IN" && event !== "SIGNED_OUT") return;
         if (pendingAuthRefresh !== null) window.clearTimeout(pendingAuthRefresh);
         pendingAuthRefresh = window.setTimeout(() => {
           pendingAuthRefresh = null;
