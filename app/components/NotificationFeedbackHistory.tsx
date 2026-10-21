@@ -119,22 +119,30 @@ export default function NotificationFeedbackHistory() {
     // The user may register a watched place (anonymous Supabase sign-in)
     // without leaving this page. Refresh feedback immediately after sign-in.
     // Never call Supabase async APIs inside onAuthStateChange itself.
+    // Same-tab registration may use a separate Supabase client instance.
+    // The registration flow emits this event after a new anonymous session.
+    const onRegistered = () => void refresh();
+    window.addEventListener("amefuru:auth-ready", onRegistered);
+
+    // Subscribe only in configured environments. Supabase callbacks are
+    // synchronous: defer refresh instead of invoking async auth methods inside.
     let pendingAuthRefresh: number | null = null;
-    const { data: { subscription } } = getSupabaseBrowserClient().auth.onAuthStateChange(
-      (event) => {
+    const subscription = (process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)
+      ? getSupabaseBrowserClient().auth.onAuthStateChange((event) => {
         if (event !== "SIGNED_IN" && event !== "SIGNED_OUT") return;
         if (pendingAuthRefresh !== null) window.clearTimeout(pendingAuthRefresh);
         pendingAuthRefresh = window.setTimeout(() => {
           pendingAuthRefresh = null;
           void refresh();
         }, 0);
-      },
-    );
+      }).data.subscription : null;
     return () => {
       window.clearInterval(interval);
       document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("amefuru:auth-ready", onRegistered);
       if (pendingAuthRefresh !== null) window.clearTimeout(pendingAuthRefresh);
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, [refresh]);
 
