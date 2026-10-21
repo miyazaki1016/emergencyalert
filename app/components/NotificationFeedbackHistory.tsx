@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
-import { filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, selectFeedbackHistory, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
+import { compactFeedbackHistory, filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, selectFeedbackHistory, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
 import { loadPhase1Feedback, savePhase1Feedback, type WeatherFeedbackAnswer } from "../../lib/weather/rain/feedbackPhase1Repository";
 
 type Delivery = {
@@ -53,6 +53,7 @@ export default function NotificationFeedbackHistory() {
   const [saved, setSaved] = useState<number | null>(null);
   const [filter, setFilter] = useState<"all" | "unanswered" | "answered">("all");
   const [selectedTargetId, setSelectedTargetId] = useState("all");
+  const [shownCount, setShownCount] = useState(2);
   const [focusedNotificationId, setFocusedNotificationId] = useState<number | null>(null);
 
   const refresh = useCallback(async () => {
@@ -207,13 +208,14 @@ export default function NotificationFeedbackHistory() {
   const history = selectFeedbackHistory(selectedNotifications, answers,
     new Set(Object.keys(FEEDBACK_OPTIONS)), filter, focusedNotificationId);
   const { visible, unanswered } = history;
+  const compactHistory = compactFeedbackHistory(visible, shownCount, focusedNotificationId);
   const targetIds = [...new Set(notifications.map(n => n.target_id))];
 
   return (
     <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.15)", borderRadius: 20, background: "rgba(24,55,88,.8)" }}>
       <h2 style={{ marginTop: 0, marginBottom: 6 }}>🌧️ 届いた通知の天気を教えてね</h2>
       <p style={{ marginTop: 0, fontSize: 14, color: "#eef5ff" }}>
-        最近7日間・最大200件の通知。実際に見た場所の天気だけを回答してね。
+        最近の通知を2件ずつではなく、まず2件だけ表示するよ。必要なら続きを開けるよ。実際に見た場所の天気だけを回答してね。
         見ていない場所なら「わからない」で大丈夫だよ。
       </p>
       {message && <p role="status" style={{ color: "#ffe1a0" }}>{message}</p>}
@@ -227,7 +229,7 @@ export default function NotificationFeedbackHistory() {
           {targetIds.length > 1 && (
             <label style={{ display: "block", marginBottom: 12, fontSize: 14, color: "#eaf2ff" }}>
               📍 見張る場所で絞り込む
-              <select aria-label="通知履歴の地点" value={selectedTargetId} onChange={event => setSelectedTargetId(event.target.value)}
+              <select aria-label="通知履歴の地点" value={selectedTargetId} onChange={event => { setSelectedTargetId(event.target.value); setShownCount(2); }}
                 style={{ display: "block", width: "100%", padding: "9px 12px", marginTop: 6, borderRadius: 10,
                   color: "#fff", background: "#284e75", border: "1px solid #7799b8" }}>
                 <option value="all">すべての見張り地点</option>
@@ -241,7 +243,7 @@ export default function NotificationFeedbackHistory() {
           <div aria-label="通知履歴の絞り込み" role="group" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {([["all", "すべて"], ["unanswered", "未回答だけ"], ["answered", "回答済みだけ"]] as const).map(([key, label]) => (
               <button key={key} type="button" aria-pressed={filter === key}
-                onClick={() => setFilter(key)}
+                onClick={() => { setFilter(key); setShownCount(2); }}
                 style={{ padding: "8px 12px", borderRadius: 10, color: "#fff", cursor: "pointer",
                   border: filter === key ? "2px solid #7dd3fc" : "1px solid #7799b8",
                   background: "#284e75" }}>{label}</button>
@@ -251,7 +253,7 @@ export default function NotificationFeedbackHistory() {
           {filter === "answered" && history.answered === 0 && <p>回答済みの通知はまだないよ。</p>}
         </>
       )}
-      {visible.map(notification => {
+      {compactHistory.items.map(notification => {
         const options = FEEDBACK_OPTIONS[notification.event_type] ?? [];
         const selected = options.find(([value]) => value === answers[notification.id]);
         return (
@@ -291,6 +293,21 @@ export default function NotificationFeedbackHistory() {
           </div>
         );
       })}
+      {compactHistory.remaining > 0 && (
+        <button type="button" onClick={() => setShownCount(count => count + 5)}
+          style={{ display: "block", width: "100%", marginTop: 16, padding: "11px 16px",
+            borderRadius: 12, border: "1px solid #7dd3fc", background: "#28567e",
+            color: "#fff", fontWeight: 700, cursor: "pointer" }}>
+          ＋ 以前の通知をもっと見る（残り{compactHistory.remaining}件）
+        </button>
+      )}
+      {compactHistory.items.length > 2 && (
+        <button type="button" onClick={() => setShownCount(2)}
+          style={{ marginTop: 10, padding: "8px 12px", borderRadius: 10, border: "1px solid #7799b8",
+            background: "transparent", color: "#d7ebfc", cursor: "pointer" }}>
+          ↑ 最新の通知だけに戻す
+        </button>
+      )}
     </section>
   );
 }
