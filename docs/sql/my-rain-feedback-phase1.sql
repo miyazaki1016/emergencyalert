@@ -12,7 +12,9 @@ create table if not exists public.rain_notification_feedback (
 );
 create index if not exists rain_notification_feedback_owner_idx on public.rain_notification_feedback(owner_id);
 alter table public.rain_notification_feedback enable row level security;
-revoke all on public.rain_notification_feedback from anon;
+-- Supabase default table grants can include DELETE/TRUNCATE for authenticated.
+-- Explicitly remove those privileges: only read/answer/revise is required.
+revoke all on public.rain_notification_feedback from public, anon, authenticated;
 grant select, insert, update on public.rain_notification_feedback to authenticated;
 drop policy if exists "read own feedback" on public.rain_notification_feedback;
 create policy "read own feedback" on public.rain_notification_feedback
