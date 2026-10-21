@@ -333,7 +333,9 @@ export default function Home() {
         setLatestAlerts([]);
         setWeatherFeedback({});
         setFeedbackAvailable(false);
-        setHistoryNotice("");
+        setHistoryNotice(new URLSearchParams(window.location.search).has("notificationId")
+          ? "通知の履歴を見るには、この通知を受け取ったときのアカウントで利用してね。別の端末やアカウントでは表示できない場合があるよ。見張り登録から確認してね。"
+          : "通知履歴を表示するには、見張る場所を登録したときのアカウントが必要だよ。");
         return;
       }
       const start = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -382,7 +384,7 @@ export default function Home() {
         if (resolved.data) {
           deliveries.unshift({ ...(resolved.data as typeof deliveries[number]), decision_snapshot: (resolved.data as typeof deliveries[number]).decision_snapshot ?? null });
         } else {
-          setHistoryNotice("この通知の履歴は見つからなかったよ。別のアカウントの通知か、履歴が削除された可能性があるよ。");
+          setHistoryNotice("この通知の履歴は見つからなかったよ。別のアカウントの通知、送信未完了、または履歴の削除などが考えられるよ。");
         }
       }
       setLatestAlerts(deliveries);
