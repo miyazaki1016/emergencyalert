@@ -9,10 +9,8 @@
 -- approval -> apply additive evidence/feedback SQL and this CHECK adjustment
 -- -> inspect schema cache and worker compatibility -> separately approve worker.
 -- Roll back worker first. Preserve pending rows for incident diagnosis.
-BEGIN;
 ALTER TABLE public.notification_deliveries
   DROP CONSTRAINT IF EXISTS notification_deliveries_delivered_count_check;
 ALTER TABLE public.notification_deliveries
   ADD CONSTRAINT notification_deliveries_delivered_count_check
   CHECK (delivered_count >= 0);
-COMMIT;
