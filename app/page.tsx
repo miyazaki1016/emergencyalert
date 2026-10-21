@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "../lib/supabase/browser";
+import NotificationFeedbackHistory from "./components/NotificationFeedbackHistory";
 
 type RainMessage = { headline: string; detail: string };
 type RainInterpretation = {
@@ -418,6 +419,7 @@ export default function Home() {
     if (current.data.session) return current.data.session;
     const signedIn = await supabase.auth.signInAnonymously();
     if (signedIn.error || !signedIn.data.session) throw signedIn.error ?? new Error("Anonymous sign-in failed");
+    window.dispatchEvent(new Event("amefuru:auth-ready"));
     return signedIn.data.session;
   };
 
@@ -564,10 +566,17 @@ export default function Home() {
             <div key={alert.id} style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.08)" }}>
               <div style={{ fontWeight: 700 }}>{alert.body}</div>
               <div style={{ marginTop: 4, fontSize: 13, color: "#eef5ff" }}>{new Date(alert.delivered_at).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} に通知</div>
+              {["ACTIONABLE_RAIN_APPROACHING", "RAIN_APPROACHING", "RAIN_RETURNING", "RAIN_ENDING"].includes(alert.event_type) && (
+                <a href={`#rain-feedback-${alert.id}`} style={{ display: "inline-block", marginTop: 7, color: "#b8efff", fontWeight: 700, fontSize: 14 }}>
+                  この通知の天気を回答する →
+                </a>
+              )}
             </div>
           ))}
         </section>
       )}
+
+      <NotificationFeedbackHistory />
 
       <section style={{ marginTop: 40, paddingTop: 28, borderTop: "1px solid rgba(255,255,255,.10)" }}>
         <h2 style={{ marginBottom: 6 }}>通知</h2>
