@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel } from "../lib/weather/rain/feedbackPhase1";
+import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel, filterFeedbackByTarget } from "../lib/weather/rain/feedbackPhase1";
 
 describe("phase-one in-app history links", () => {
   it("accepts positive numeric feedback IDs", () => {
@@ -44,5 +44,25 @@ describe("feedback always refers to a watched target", () => {
       .toBe("登録地点（名称を確認できないよ）");
     expect(watchedPlaceLabel("empty", { empty: "   " }))
       .toBe("登録地点（名称を確認できないよ）");
+  });
+});
+
+describe("per-watched-place feedback filter", () => {
+  const notifications = [
+    {id:10, target_id:"home-id"},
+    {id:11, target_id:"airport-id"},
+    {id:12, target_id:"home-id"},
+  ];
+  it("shows only matching monitored place, not device location", () => {
+    expect(filterFeedbackByTarget(notifications,"airport-id").map(n => n.id)).toEqual([11]);
+    expect(filterFeedbackByTarget(notifications,"home-id").map(n => n.id)).toEqual([10,12]);
+  });
+  it("shows all places without changing original ordering", () => {
+    const items = filterFeedbackByTarget(notifications,"all");
+    expect(items).toEqual(notifications);
+    expect(items).not.toBe(notifications);
+  });
+  it("does not invent a location when the target was removed", () => {
+    expect(filterFeedbackByTarget(notifications,"removed-id")).toEqual([]);
   });
 });
