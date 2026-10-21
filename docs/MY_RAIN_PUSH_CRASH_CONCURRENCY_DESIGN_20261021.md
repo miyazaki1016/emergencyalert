@@ -58,3 +58,5 @@ PushのHTTPレスポンスがタイムアウトすると、先方が受理した
 `tests/sql/push-claim-integration.sql` は使い捨てPostgreSQL上で、二重イベント/送信先claimの抑止、UNCERTAIN後の再claim拒否、authenticated/anonの読み取り禁止を確認する。GitHub CIの `feedback-rls` jobにこのSQL試験を追加した。
 
 **注意**: 同一トランザクション内で順番にINSERTする試験はDBの一意制約とアクセス制御の証拠であって、**二つの独立コネクションが同時にclaimする負荷テストではない**。また event_keyの生成・サーバーでの所有者照合・原子的claim後の送信プロトコル・worker統合・故障時reconciliation・配信成功件数の正確な集約は未実装。ユニーク制約だけでexactly-once Pushを保証したと解釈しない。実環境の事件IDの意味を決めるまでは、このプロトタイプを本番マイグレーションと扱わない。
+
+**CI検証（2026-10-21）**: コミット `4ac1db68` の GitHub Actions run `39549775193` において `feedback-rls`（既存RLS試験＋追加した “Verify unique Push claim prototype in isolated Postgres”）と `verify`（npm test/build）の全ジョブが **success**。ただしこの試験は逐次INSERTであり実並行コネクション/実Push/実Supabase HTTPセッションの検証ではない。
