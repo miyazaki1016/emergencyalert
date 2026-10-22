@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
 import { compactFeedbackHistory, filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, revealFeedbackCard, selectFeedbackHistory, summarizeFeedbackObservations, toggleFeedbackCard, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
 import { loadPhase1Feedback, loadPhase2ObservationTimes, savePhase1Feedback, type WeatherFeedbackAnswer } from "../../lib/weather/rain/feedbackPhase1Repository";
-import { buildWeatherObservation, observedTimeLabel, type ObservationChoice, type WeatherObservation } from "../../lib/weather/rain/feedbackObservationTime";
+import { observationAsLocalInput, observedTimeLabel, resolveFeedbackObservation, type ObservationChoice, type WeatherObservation } from "../../lib/weather/rain/feedbackObservationTime";
 
 type Delivery = {
   id: number;
@@ -199,9 +199,10 @@ export default function NotificationFeedbackHistory() {
     }
     let observation:WeatherObservation;
     try {
-      observation = observationChoices[notification.id] === undefined && observationTimes[notification.id]
-        ? observationTimes[notification.id]
-        : buildWeatherObservation(observationChoices[notification.id] ?? "unknown",earlierInputs[notification.id] ?? "",new Date());
+      observation = resolveFeedbackObservation(
+        observationChoices[notification.id], observationTimes[notification.id],
+        earlierInputs[notification.id] ?? "", new Date(),
+      );
     } catch {
       setMessage("確認時刻を確認してね。未来の時刻や30日以上前は指定できないよ。");
       return;
@@ -328,7 +329,10 @@ export default function NotificationFeedbackHistory() {
                     🕒 実際に天気を確認した時刻（任意）
                   </label>
                   <select id={`rain-observed-choice-${notification.id}`} value={selectedObservation}
-                    onChange={event=>setObservationChoices(prev=>({...prev,[notification.id]:event.target.value as ObservationChoice}))}
+                    onChange={event=>{
+                      const choice = event.target.value as ObservationChoice;
+                      setObservationChoices(prev=>({...prev,[notification.id]:choice}));
+                    }}
                     style={{ padding:"8px 10px",maxWidth:"100%",width:"100%",borderRadius:8,color:"#fff",background:"#284e75",border:"1px solid #7799b8" }}>
                     <option value="unknown">覚えていない・確認していない</option>
                     <option value="now">今、その場所で確認した</option>
@@ -337,7 +341,7 @@ export default function NotificationFeedbackHistory() {
                   {selectedObservation === "earlier" && (
                     <label style={{display:"block",marginTop:8}}>
                       確認した日時（端末の現地時間）
-                      <input type="datetime-local" value={earlierInputs[notification.id] ?? ""}
+                      <input type="datetime-local" value={earlierInputs[notification.id] ?? observationAsLocalInput(existingObservation?.observed_at)}
                         onChange={event=>setEarlierInputs(prev=>({...prev,[notification.id]:event.target.value}))}
                         style={{display:"block",width:"100%",maxWidth:"100%",marginTop:4,padding:8,borderRadius:8,
                           color:"#fff",background:"#284e75",border:"1px solid #7799b8"}} />
