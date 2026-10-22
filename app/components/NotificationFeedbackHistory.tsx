@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
 import { compactFeedbackHistory, filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, revealFeedbackCard, selectFeedbackHistory, summarizeFeedbackObservations, toggleFeedbackCard, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
 import { loadPhase1Feedback, loadPhase2ObservationTimes, savePhase1Feedback, type WeatherFeedbackAnswer } from "../../lib/weather/rain/feedbackPhase1Repository";
-import { observationAsLocalInput, observedTimeLabel, resolveFeedbackObservation, summarizeObservationTimeCoverage, type ObservationChoice, type WeatherObservation } from "../../lib/weather/rain/feedbackObservationTime";
+import { observationAsLocalInput, observationVsDeliveryLabel, observedTimeLabel, resolveFeedbackObservation, summarizeObservationTimeCoverage, type ObservationChoice, type WeatherObservation } from "../../lib/weather/rain/feedbackObservationTime";
 
 type Delivery = {
   id: number;
@@ -368,6 +368,12 @@ export default function NotificationFeedbackHistory() {
                   )}
                   {existingObservation && <div style={{color:"#bbf7d0",marginTop:6}}>
                     記録済み：{observedTimeLabel(existingObservation.observed_time_source,existingObservation.observed_at)}
+                    {observationVsDeliveryLabel(notification.delivered_at,existingObservation.observed_at) && (
+                      <div style={{fontSize:12,color:"#d6e6f5",marginTop:3}}>
+                        {observationVsDeliveryLabel(notification.delivered_at,existingObservation.observed_at)}
+                        （通知が正確だったかは、これだけでは判断できないよ）
+                      </div>
+                    )}
                   </div>}
                   <div style={{fontSize:12,color:"#d6e6f5",marginTop:5}}>
                     通知時刻や回答保存時刻とは別に記録するよ。未入力でも回答できるよ。
