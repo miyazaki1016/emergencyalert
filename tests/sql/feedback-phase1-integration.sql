@@ -37,6 +37,34 @@ INSERT INTO public.rain_notification_feedback(notification_id,owner_id,actual_we
  ON CONFLICT (notification_id) DO UPDATE SET actual_weather=excluded.actual_weather,updated_at=now();
 INSERT INTO public.rain_notification_feedback(notification_id,owner_id,actual_weather)
  VALUES (2,auth.uid(),'ALREADY_DRY');
+-- An existing phase-1 answer has no observed-time metadata.
+\ir ../../docs/sql/my-rain-feedback-observation-time.sql
+\ir ../../docs/sql/my-rain-feedback-observation-time.sql
+DO $
+BEGIN
+  IF (SELECT observed_at IS NOT NULL OR observed_time_source <> 'UNKNOWN'
+      FROM public.rain_notification_feedback WHERE notification_id=1) THEN
+      RAISE EXCEPTION 'BACKFILLED_TIME_WITHOUT_EVIDENCE';
+  END IF;
+END $;
+UPDATE public.rain_notification_feedback
+  SET observed_at='2026-10-21T00:40:00Z', observed_time_source='RECALLED'
+  WHERE notification_id=1;
+DO $
+DECLARE blocked boolean:=false;
+BEGIN
+  IF (SELECT observed_at IS NULL OR observed_time_source <> 'RECALLED'
+      FROM public.rain_notification_feedback WHERE notification_id=1) THEN
+    RAISE EXCEPTION 'OBSERVED_TIME_UPDATE_FAILED';
+  END IF;
+  BEGIN
+    UPDATE public.rain_notification_feedback
+      SET observed_at=NULL, observed_time_source='AT_RESPONSE'
+      WHERE notification_id=1;
+  EXCEPTION WHEN check_violation THEN blocked:=true; END;
+  IF NOT blocked THEN RAISE EXCEPTION 'OBSERVATION_PAIR_CONSTRAINT_BYPASS'; END IF;
+END $;
+
 DO $$
 DECLARE blocked boolean;
 BEGIN
