@@ -53,6 +53,13 @@ describe("answer correction must not falsify observation timing", () => {
     expect(input).toMatch(/^2026-10-21T\d{2}:\d{2}$|^2026-10-22T\d{2}:\d{2}$/);
     expect(localDateTimeInputToIso(input)).toEqual(original.observed_at);
   });
+
+  it("uses existing observed time when the recalled-time picker is not touched", () => {
+    expect(resolveFeedbackObservation("earlier",original,"",now)).toEqual(original);
+  });
+  it("does not invent a recalled-time value when older feedback has no time", () => {
+    expect(() => resolveFeedbackObservation("earlier",undefined,"",now)).toThrow("invalid_observed_time");
+  });
   it("rejects a timestamp in the future even if it is remembered", () => {
     const future = new Date(now.getTime()+86400_000);
     const input = observationAsLocalInput(future.toISOString());
