@@ -76,9 +76,11 @@ const observed = await request("/rain_notification_feedback?notification_id=eq.1
 expectOk(observed,"read recorded eyewitness time");
 assert.equal(observed.data[0].observed_at,"2026-10-21T00:40:00+00:00");
 assert.equal(observed.data[0].observed_time_source,"RECALLED");
-expectDenied(await put("A",{
+const malformedTime = await put("A",{
   ...item(102,"STOPPED"),observed_at:null,observed_time_source:"AT_RESPONSE",
-}),"cannot claim response-time observation without a timestamp");
+});
+assert.equal(malformedTime.status,400,"database check constraint must reject a missing time");
+assert.equal(malformedTime.data.code,"23514");
 
 
 expectDenied(await put("B",item(101,"STOPPED",users.B)),"B cannot edit A delivered notification");
