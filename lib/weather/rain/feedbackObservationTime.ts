@@ -72,3 +72,20 @@ export function observationAsLocalInput(observedAt: string | null | undefined): 
   return [d.getFullYear(), String(d.getMonth()+1).padStart(2,"0"), String(d.getDate()).padStart(2,"0")].join("-") +
     "T" + String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
 }
+
+/** Observation coverage is a completeness measure, not a prediction score. */
+export function summarizeObservationTimeCoverage(
+  notificationIds: readonly number[],
+  answers: Readonly<Record<number,string>>,
+  times: Readonly<Record<number,WeatherObservation>>,
+): {answered:number; withTime:number; withoutTime:number} {
+  let answered=0,withTime=0;
+  for (const id of notificationIds) {
+    if (!answers[id]) continue;
+    answered++;
+    const observed=times[id];
+    if(observed && observed.observed_time_source !== "UNKNOWN" &&
+       observed.observed_at && Number.isFinite(Date.parse(observed.observed_at))) withTime++;
+  }
+  return {answered,withTime,withoutTime:answered-withTime};
+}
