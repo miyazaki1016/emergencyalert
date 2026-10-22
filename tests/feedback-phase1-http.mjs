@@ -59,12 +59,29 @@ const loaded = await request("/rain_notification_feedback?select=notification_id
 expectOk(loaded,"read own answer through HTTP");
 assert.deepEqual(loaded.data,[{notification_id:101,actual_weather:"RAINED"}]);
 
-const edited = await put("A",item(101,"DID_NOT_RAIN"));
+const timeInitial = await request("/rain_notification_feedback?notification_id=eq.101&select=observed_at,observed_time_source",{user:"A"});
+expectOk(timeInitial,"pre-existing answer has unset observation time");
+assert.equal(timeInitial.data[0].observed_at,null);
+assert.equal(timeInitial.data[0].observed_time_source,"UNKNOWN");
+
+const edited = await put("A",{
+  ...item(101,"DID_NOT_RAIN"),observed_at:"2026-10-21T00:40:00.000Z",observed_time_source:"RECALLED",
+});
 expectOk(edited,"change own answer");
 assert.equal(edited.data[0].actual_weather,"DID_NOT_RAIN");
 const refreshed = await request("/rain_notification_feedback?notification_id=eq.101&select=actual_weather",{user:"A"});
 expectOk(refreshed,"reload edited answer");
 assert.equal(refreshed.data[0].actual_weather,"DID_NOT_RAIN");
+const observed = await request("/rain_notification_feedback?notification_id=eq.101&select=observed_at,observed_time_source",{user:"A"});
+expectOk(observed,"read recorded eyewitness time");
+assert.equal(observed.data[0].observed_at,"2026-10-21T00:40:00+00:00");
+assert.equal(observed.data[0].observed_time_source,"RECALLED");
+const malformedTime = await put("A",{
+  ...item(102,"STOPPED"),observed_at:null,observed_time_source:"AT_RESPONSE",
+});
+assert.equal(malformedTime.status,400,"database check constraint must reject a missing time");
+assert.equal(malformedTime.data.code,"23514");
+
 
 expectDenied(await put("B",item(101,"STOPPED",users.B)),"B cannot edit A delivered notification");
 expectDenied(await put("A",item(201,"STOPPED")),"A cannot answer B delivery");

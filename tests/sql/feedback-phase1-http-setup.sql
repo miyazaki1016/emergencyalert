@@ -35,6 +35,7 @@ INSERT INTO public.notification_deliveries(id, owner_id, event_type, target_id, 
  (201,'22222222-2222-4222-8222-222222222222','RAIN_ENDING','bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb','もうすぐ止むよ'),
  (103,'11111111-1111-4111-8111-111111111111','SEVERE_RAIN_1','aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa','強い雨だよ');
 \ir ../../docs/sql/my-rain-feedback-phase1.sql
+\ir ../../docs/sql/my-rain-feedback-observation-time.sql
 
 -- PostgREST connects as postgres in this disposable container and can SET ROLE.
 GRANT USAGE ON SCHEMA public TO authenticated, anon;

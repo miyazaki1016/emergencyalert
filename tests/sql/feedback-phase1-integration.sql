@@ -37,6 +37,25 @@ INSERT INTO public.rain_notification_feedback(notification_id,owner_id,actual_we
  ON CONFLICT (notification_id) DO UPDATE SET actual_weather=excluded.actual_weather,updated_at=now();
 INSERT INTO public.rain_notification_feedback(notification_id,owner_id,actual_weather)
  VALUES (2,auth.uid(),'ALREADY_DRY');
+RESET ROLE;
+-- Existing rows retain unknown observed time after an idempotent migration.
+\ir ../../docs/sql/my-rain-feedback-observation-time.sql
+\ir ../../docs/sql/my-rain-feedback-observation-time.sql
+SET ROLE authenticated;
+SELECT 1 / CASE WHEN (SELECT observed_at IS NULL AND observed_time_source='UNKNOWN'
+   FROM public.rain_notification_feedback WHERE notification_id=1)
+   THEN 1 ELSE 0 END AS historical_time_is_unknown;
+UPDATE public.rain_notification_feedback
+  SET observed_at='2026-10-21T00:40:00Z', observed_time_source='RECALLED'
+  WHERE notification_id=1;
+SELECT 1 / CASE WHEN (SELECT observed_at IS NOT NULL AND observed_time_source='RECALLED'
+   FROM public.rain_notification_feedback WHERE notification_id=1)
+   THEN 1 ELSE 0 END AS recalled_time_persisted;
+SELECT 1 / CASE WHEN EXISTS(SELECT 1 FROM pg_constraint
+    WHERE conrelid='public.rain_notification_feedback'::regclass
+    AND conname='rain_notification_feedback_observation_pair_check')
+  THEN 1 ELSE 0 END AS observation_pair_constraint_exists;
+
 DO $$
 DECLARE blocked boolean;
 BEGIN
