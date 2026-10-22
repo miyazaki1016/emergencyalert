@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
 import { compactFeedbackHistory, filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, revealFeedbackCard, selectFeedbackHistory, summarizeFeedbackObservations, toggleFeedbackCard, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
-import { loadPhase1Feedback, savePhase1Feedback, type WeatherFeedbackAnswer } from "../../lib/weather/rain/feedbackPhase1Repository";
+import { loadPhase1Feedback, loadPhase2ObservationTimes, savePhase1Feedback, type WeatherFeedbackAnswer } from "../../lib/weather/rain/feedbackPhase1Repository";
+import { buildWeatherObservation, observedTimeLabel, type ObservationChoice, type WeatherObservation } from "../../lib/weather/rain/feedbackObservationTime";
 
 type Delivery = {
   id: number;
@@ -47,6 +48,9 @@ export default function NotificationFeedbackHistory() {
   const [notifications, setNotifications] = useState<Delivery[]>([]);
   const [targetLabels, setTargetLabels] = useState<Record<string, string>>({});
   const [answers, setAnswers] = useState<Record<number, Answer>>({});
+  const [observationTimes, setObservationTimes] = useState<Record<number,WeatherObservation>>({});
+  const [observationChoices, setObservationChoices] = useState<Record<number,ObservationChoice>>({});
+  const [earlierInputs, setEarlierInputs] = useState<Record<number,string>>({});
   const [feedbackReady, setFeedbackReady] = useState(false);
   const [message, setMessage] = useState("通知履歴を読み込み中…");
   const [saving, setSaving] = useState<number | null>(null);
@@ -108,7 +112,9 @@ export default function NotificationFeedbackHistory() {
       }
       try {
         const recorded = await loadPhase1Feedback(client, rows.map(row => row.id));
+        const times = await loadPhase2ObservationTimes(client, rows.map(row => row.id));
         setAnswers(recorded);
+        setObservationTimes(times);
         setFeedbackReady(true);
         setMessage("");
       } catch {
@@ -191,13 +197,24 @@ export default function NotificationFeedbackHistory() {
       setMessage("「降らなかった」「止まなかった」は、通知から1時間以上たってから回答してね。");
       return;
     }
+    let observation:WeatherObservation;
+    try {
+      observation = observationChoices[notification.id] === undefined && observationTimes[notification.id]
+        ? observationTimes[notification.id]
+        : buildWeatherObservation(observationChoices[notification.id] ?? "unknown",earlierInputs[notification.id] ?? "",new Date());
+    } catch {
+      setMessage("確認時刻を確認してね。未来の時刻や30日以上前は指定できないよ。");
+      return;
+    }
     setSaving(notification.id);
     setSaved(null);
     setMessage("");
     try {
       const client = getSupabaseBrowserClient();
-      await savePhase1Feedback(client, notification.id, answer);
+      await savePhase1Feedback(client, notification.id, answer, observation);
       setAnswers(prev => ({ ...prev, [notification.id]: answer }));
+      setObservationTimes(prev => ({...prev,[notification.id]:observation}));
+      setObservationChoices(prev=>{const next={...prev};delete next[notification.id];return next;});
       setSaved(notification.id);
     } catch {
       setMessage("回答を保存できなかったよ。少しあとでもう一度試してね。");
@@ -275,6 +292,8 @@ export default function NotificationFeedbackHistory() {
         const options = FEEDBACK_OPTIONS[notification.event_type] ?? [];
         const selected = options.find(([value]) => value === answers[notification.id]);
         const expanded = expandedIds.includes(notification.id);
+        const existingObservation = observationTimes[notification.id];
+        const selectedObservation = observationChoices[notification.id] ?? (existingObservation?.observed_time_source === "AT_RESPONSE" ? "now" : existingObservation?.observed_time_source === "RECALLED" ? "earlier" : "unknown");
         return (
           <div id={`rain-feedback-${notification.id}`} key={notification.id} style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.15)", scrollMarginTop: 24, outline: focusedNotificationId === notification.id ? "2px solid #7dd3fc" : "none", borderRadius: 8 }}>
             {focusedNotificationId === notification.id && <p style={{ margin: "0 0 5px", fontSize: 13, color: "#b8efff", fontWeight: 700 }}>📩 選んだ通知はこちら</p>}
@@ -304,6 +323,33 @@ export default function NotificationFeedbackHistory() {
             {options.length ? (
               <>
                 <div style={{ fontSize: 13, marginTop: 10 }}>この見張り地点の天気を実際に確認できた？ 確認できないときは「わからない」を選んでね。</div>
+                <div style={{ marginTop: 10, padding: "10px 0", fontSize: 13 }}>
+                  <label htmlFor={`rain-observed-choice-${notification.id}`} style={{display:"block",marginBottom:6}}>
+                    🕒 実際に天気を確認した時刻（任意）
+                  </label>
+                  <select id={`rain-observed-choice-${notification.id}`} value={selectedObservation}
+                    onChange={event=>setObservationChoices(prev=>({...prev,[notification.id]:event.target.value as ObservationChoice}))}
+                    style={{ padding:"8px 10px",maxWidth:"100%",width:"100%",borderRadius:8,color:"#fff",background:"#284e75",border:"1px solid #7799b8" }}>
+                    <option value="unknown">覚えていない・確認していない</option>
+                    <option value="now">今、その場所で確認した</option>
+                    <option value="earlier">以前に確認した（日時を入力）</option>
+                  </select>
+                  {selectedObservation === "earlier" && (
+                    <label style={{display:"block",marginTop:8}}>
+                      確認した日時（端末の現地時間）
+                      <input type="datetime-local" value={earlierInputs[notification.id] ?? ""}
+                        onChange={event=>setEarlierInputs(prev=>({...prev,[notification.id]:event.target.value}))}
+                        style={{display:"block",width:"100%",maxWidth:"100%",marginTop:4,padding:8,borderRadius:8,
+                          color:"#fff",background:"#284e75",border:"1px solid #7799b8"}} />
+                    </label>
+                  )}
+                  {existingObservation && <div style={{color:"#bbf7d0",marginTop:6}}>
+                    記録済み：{observedTimeLabel(existingObservation.observed_time_source,existingObservation.observed_at)}
+                  </div>}
+                  <div style={{fontSize:12,color:"#d6e6f5",marginTop:5}}>
+                    通知時刻や回答保存時刻とは別に記録するよ。未入力でも回答できるよ。
+                  </div>
+                </div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 7 }}>
                   {options.map(([value, label]) => (
                     <button key={value} type="button" disabled={!feedbackReady || saving === notification.id ||
