@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
-import { compactFeedbackHistory, filterFeedbackByTarget, filterHistoryAfterArchive, historyArchiveStorageKey, negativeFeedbackNeedsWait, parseFeedbackHash, revealFeedbackCard, selectFeedbackHistory, summarizeFeedbackObservations, toggleFeedbackCard, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
+import { compactFeedbackHistory, filterFeedbackByTarget, filterHistoryAfterArchive, historyArchiveStorageKey, historyQuerySince, negativeFeedbackNeedsWait, parseFeedbackHash, revealFeedbackCard, selectFeedbackHistory, summarizeFeedbackObservations, toggleFeedbackCard, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
 import { loadPhase1Feedback, loadPhase2ObservationTimes, savePhase1Feedback, type WeatherFeedbackAnswer } from "../../lib/weather/rain/feedbackPhase1Repository";
 import { observationAsLocalInput, observationVsDeliveryLabel, observedTimeLabel, resolveFeedbackObservation, summarizeObservationTimeCoverage, type ObservationChoice, type WeatherObservation } from "../../lib/weather/rain/feedbackObservationTime";
 
@@ -109,11 +109,12 @@ export default function NotificationFeedbackHistory() {
       } catch {
         setArchivedThrough(null);
       }
-      const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-      const { data, error } = await client.from("notification_deliveries")
+      const since = historyQuerySince(showArchived, Date.now());
+      let deliveryQuery = client.from("notification_deliveries")
         .select("id,target_id,event_type,body,delivered_at")
-        .gte("delivered_at", since)
-        .gt("delivered_count", 0)
+        .gt("delivered_count", 0);
+      if (since) deliveryQuery = deliveryQuery.gte("delivered_at", since);
+      const { data, error } = await deliveryQuery
         .order("delivered_at", { ascending: false })
         .limit(200);
       if (error) throw error;
@@ -135,7 +136,7 @@ export default function NotificationFeedbackHistory() {
         setAnswers({});
         setObservationTimes({});
         setFeedbackReady(false);
-        setMessage("最近7日間の通知はまだないよ。");
+        setMessage("表示できる通知はまだないよ。");
         return;
       }
       try {
@@ -159,7 +160,7 @@ export default function NotificationFeedbackHistory() {
       setFeedbackReady(false);
       setMessage("通知履歴を読み込めなかったよ。少しあとでもう一度試してね。");
     }
-  }, [ownerId]);
+  }, [ownerId, showArchived]);
 
   useEffect(() => {
     void refresh();
@@ -317,7 +318,7 @@ export default function NotificationFeedbackHistory() {
                 aria-pressed={showArchived}
                 style={{padding:"8px 12px",borderRadius:10,color:"#fff",
                   background:"#284e75",border:"1px solid #7799b8",cursor:"pointer"}}>
-                {showArchived?"新しい通知だけに戻す":`過去の通知を見る（直近7日で${archivedCount}件）`}
+                {showArchived?"新しい通知だけに戻す":"過去の通知を見る（最大200件）"}
               </button>
             )}
           </div>
