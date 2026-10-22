@@ -1,7 +1,6 @@
 -- Proposed migration for feedback observation time. REVIEW ONLY; NOT APPLIED to production.
 -- Prior answers retain NULL observed_at. updated_at is never copied to observed_at.
--- Apply after backup/approval; safe to rerun.
-BEGIN;
+-- Apply in a caller-managed transaction after backup/approval; safe to rerun.
 ALTER TABLE public.rain_notification_feedback
   ADD COLUMN IF NOT EXISTS observed_at timestamptz,
   ADD COLUMN IF NOT EXISTS observed_time_source text NOT NULL DEFAULT 'UNKNOWN';
@@ -14,4 +13,3 @@ ALTER TABLE public.rain_notification_feedback
     OR
     (observed_time_source IN ('AT_RESPONSE', 'RECALLED') AND observed_at IS NOT NULL)
   );
-COMMIT;
