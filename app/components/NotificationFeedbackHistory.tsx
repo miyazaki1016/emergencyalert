@@ -353,6 +353,14 @@ export default function NotificationFeedbackHistory() {
                   <div style={{fontSize:12,color:"#d6e6f5",marginTop:5}}>
                     通知時刻や回答保存時刻とは別に記録するよ。未入力でも回答できるよ。
                   </div>
+                  {selected && (
+                    <button type="button" disabled={!feedbackReady || saving === notification.id}
+                      onClick={() => void save(notification, answers[notification.id])}
+                      style={{marginTop:9,padding:"8px 11px",borderRadius:9,color:"#fff",
+                        background:"#284e75",border:"1px solid #7dd3fc",cursor:"pointer"}}>
+                      🕒 この回答の確認時刻だけ保存
+                    </button>
+                  )}
                 </div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 7 }}>
                   {options.map(([value, label]) => (
