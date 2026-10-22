@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel, filterFeedbackByTarget, selectFeedbackHistory, compactFeedbackHistory, toggleFeedbackCard, revealFeedbackCard, summarizeFeedbackObservations, filterHistoryAfterArchive, historyArchiveStorageKey } from "../lib/weather/rain/feedbackPhase1";
+import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel, filterFeedbackByTarget, selectFeedbackHistory, compactFeedbackHistory, toggleFeedbackCard, revealFeedbackCard, summarizeFeedbackObservations, filterHistoryAfterArchive, historyArchiveStorageKey, historyQuerySince } from "../lib/weather/rain/feedbackPhase1";
 
 describe("phase-one in-app history links", () => {
   it("accepts positive numeric feedback IDs", () => {
@@ -171,5 +171,15 @@ describe("non-destructive history archive for a single account and device",()=>{
   });
   it("never shares the view preference across auth owners",()=>{
     expect(historyArchiveStorageKey("user-A")).not.toBe(historyArchiveStorageKey("user-B"));
+  });
+});
+
+describe("archived feedback remains browsable after seven days", () => {
+  it("uses seven days for the default short feed", () => {
+    const now=Date.parse("2026-10-23T00:00:00Z");
+    expect(historyQuerySince(false,now)).toBe("2026-10-16T00:00:00.000Z");
+  });
+  it("removes the seven-day cutoff when viewing saved older notifications", () => {
+    expect(historyQuerySince(true,Date.parse("2026-10-23T00:00:00Z"))).toBeNull();
   });
 });
