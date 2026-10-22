@@ -55,7 +55,10 @@ describe("answer correction must not falsify observation timing", () => {
   });
 
   it("uses existing observed time when the recalled-time picker is not touched", () => {
-    expect(resolveFeedbackObservation("earlier",original,"",now)).toEqual(original);
+    expect(resolveFeedbackObservation("earlier",original,undefined,now)).toEqual(original);
+  });
+  it("rejects a date that was explicitly cleared instead of silently restoring the old time", () => {
+    expect(() => resolveFeedbackObservation("earlier",original,"",now)).toThrow("invalid_observed_time");
   });
   it("does not invent a recalled-time value when older feedback has no time", () => {
     expect(() => resolveFeedbackObservation("earlier",undefined,"",now)).toThrow("invalid_observed_time");
