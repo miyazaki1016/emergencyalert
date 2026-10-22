@@ -36,3 +36,15 @@ Issue #64の運用障害セーフティネットは引き続き別管理。
 - `tests/feedbackObservationTime.test.ts` に旧回答・地点フィルターに関する検証を追加。
 - HEAD `b8add877` のGitHub Actions run `39703807411` は **verify / phase1-feedback-rls / phase1-feedback-http 全て成功**。
 - 依然として **PR #71はDraft、本番DB移行は未適用、本番アプリは未変更**。iPhone実機の新しい時刻入力テストは未実施。先にDB移行内容と操作を確認してから公開する。
+
+## 本番DBへの移行前・読み取り専用照合（2026-10-22）
+- `EmergencyAlert` 本番 `public.rain_notification_feedback` の現行カラムは `notification_id` / `owner_id` / `actual_weather` / `updated_at` の4つ。**観測日時の2カラムはまだ存在しない**。
+- 本番には回答が2件保存されており、RLSが有効。既存のPK・FK・回答値CHECKも存在。照合は `SELECT` のみ。**本番DBには一切書き込んでいない**。
+- 提案移行 `docs/sql/my-rain-feedback-observation-time.sql` は2カラム追加と時刻/根拠の整合性制約。既存回答は `observed_at=NULL`, `observed_time_source='UNKNOWN'` になり、既存の回答を過去の`updated_at`から推測しない。
+- 本番公開では `SQL移行 → PostgREST列反映 → 新しい画面のデプロイ → iPhoneで記録/再読込` の順番が必須。移行前に新画面だけ公開すると `loadPhase2ObservationTimes` が列不存在で失敗し、回答欄が使えなくなる。**PR #71 をそのまま先にmainマージしないこと**。
+- 将来 `observed_at` が保存されたら、通知時刻との差だけを表示する。古い通知には予測対象時刻がないので、これは的中率・遅延判定ではない。
+- 本番DB変更はこの照合では承認されていない。明示承認後に本番移行を実行すること。
+
+## 観測と通知の差分表示（開発ブランチのみ）
+- 新しく `observationVsDeliveryLabel` を用意。例えば通知25分後の観測なら「通知から25分後に確認」、通知より5分前なら「通知より5分前に確認」。観測時刻不明なら表示しない。
+- 本人がいつ確認したかを表示し、**通知が遅かった/早かったとはまだ評価しない**。
