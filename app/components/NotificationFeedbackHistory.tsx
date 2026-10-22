@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
-import { compactFeedbackHistory, filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, revealFeedbackCard, selectFeedbackHistory, toggleFeedbackCard, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
+import { compactFeedbackHistory, filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, revealFeedbackCard, selectFeedbackHistory, summarizeFeedbackObservations, toggleFeedbackCard, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
 import { loadPhase1Feedback, savePhase1Feedback, type WeatherFeedbackAnswer } from "../../lib/weather/rain/feedbackPhase1Repository";
 
 type Delivery = {
@@ -210,6 +210,7 @@ export default function NotificationFeedbackHistory() {
   const history = selectFeedbackHistory(selectedNotifications, answers,
     new Set(Object.keys(FEEDBACK_OPTIONS)), filter, focusedNotificationId);
   const { visible, unanswered } = history;
+  const observations = summarizeFeedbackObservations(selectedNotifications, answers);
   const compactHistory = compactFeedbackHistory(visible, shownCount, focusedNotificationId);
   const targetIds = [...new Set(notifications.map(n => n.target_id))];
 
@@ -242,6 +243,21 @@ export default function NotificationFeedbackHistory() {
             </label>
           )}
           <div style={{ fontSize: 14, marginBottom: 8 }}>回答できる通知：{history.answerable}件／回答済み：{history.answered}件／未回答：{unanswered}件</div>
+          {observations.answered > 0 && (
+            <div aria-label="実際の天気の回答集計" style={{ marginBottom: 14, padding: "10px 12px",
+              border: "1px solid rgba(125,211,252,.4)", borderRadius: 12, background: "rgba(28,74,105,.5)" }}>
+              <div style={{ fontSize: 14, fontWeight: 700 }}>☔ 届いた回答の内訳（この地点の履歴）</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "5px 13px", fontSize: 13, marginTop: 6 }}>
+                <span>🌧️ 雨が降った・続いた：{observations.observedRain}件</span>
+                <span>☀️ 降らなかった・止んだ：{observations.observedDry}件</span>
+                <span>🕒 確認したときにはすでに変化：{observations.alreadyChanged}件</span>
+                <span>❓ わからない：{observations.unknown}件</span>
+              </div>
+              <div style={{ fontSize: 12, color: "#d6e6f5", marginTop: 6 }}>
+                回答を見やすく数えたものだよ。実際に天気を見た時刻はまだ記録していないので、通知の早い・遅い／予測の的中は判断できないよ。
+              </div>
+            </div>
+          )}
           <div aria-label="通知履歴の絞り込み" role="group" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {([["all", "すべて"], ["unanswered", "未回答だけ"], ["answered", "回答済みだけ"]] as const).map(([key, label]) => (
               <button key={key} type="button" aria-pressed={filter === key}

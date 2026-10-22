@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel, filterFeedbackByTarget, selectFeedbackHistory, compactFeedbackHistory, toggleFeedbackCard, revealFeedbackCard } from "../lib/weather/rain/feedbackPhase1";
+import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel, filterFeedbackByTarget, selectFeedbackHistory, compactFeedbackHistory, toggleFeedbackCard, revealFeedbackCard, summarizeFeedbackObservations } from "../lib/weather/rain/feedbackPhase1";
 
 describe("phase-one in-app history links", () => {
   it("accepts positive numeric feedback IDs", () => {
@@ -133,5 +133,20 @@ describe("tap-to-expand notification feedback cards", () => {
     expect(toggleFeedbackCard(previous,209)).toEqual([211,210,209]);
     expect(toggleFeedbackCard(previous,211)).toEqual([210]);
     expect(previous).toEqual([211,210]);
+  });
+});
+
+describe("feedback observation totals", () => {
+  it("keeps unknown and already-dry separate from observed rain and dry", () => {
+    const rows = [1,2,3,4,5].map(id => ({id,event_type:"RAIN_ENDING"}));
+    const answers = {1:"UNKNOWN",2:"ALREADY_DRY",3:"RAINED",4:"DID_NOT_RAIN",5:"DID_NOT_STOP"};
+    expect(summarizeFeedbackObservations(rows,answers)).toEqual({
+      answered:5, observedRain:2, observedDry:1, alreadyChanged:1, unknown:1,
+    });
+  });
+  it("only counts notifications in the selected list", () => {
+    expect(summarizeFeedbackObservations([{id:1,event_type:"RAIN_ENDING"}],{
+      1:"STOPPED", 2:"UNKNOWN",
+    })).toEqual({answered:1,observedRain:0,observedDry:1,alreadyChanged:0,unknown:0});
   });
 });
