@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
-import { compactFeedbackHistory, filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, revealFeedbackCard, selectFeedbackHistory, summarizeFeedbackObservations, toggleFeedbackCard, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
+import { compactFeedbackHistory, filterFeedbackByTarget, filterHistoryAfterArchive, historyArchiveStorageKey, negativeFeedbackNeedsWait, parseFeedbackHash, revealFeedbackCard, selectFeedbackHistory, summarizeFeedbackObservations, toggleFeedbackCard, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
 import { loadPhase1Feedback, loadPhase2ObservationTimes, savePhase1Feedback, type WeatherFeedbackAnswer } from "../../lib/weather/rain/feedbackPhase1Repository";
 import { observationAsLocalInput, observationVsDeliveryLabel, observedTimeLabel, resolveFeedbackObservation, summarizeObservationTimeCoverage, type ObservationChoice, type WeatherObservation } from "../../lib/weather/rain/feedbackObservationTime";
 
@@ -60,11 +60,17 @@ export default function NotificationFeedbackHistory() {
   const [shownCount, setShownCount] = useState(2);
   const [expandedIds, setExpandedIds] = useState<number[]>([]);
   const [focusedNotificationId, setFocusedNotificationId] = useState<number | null>(null);
+  const [ownerId, setOwnerId] = useState<string | null>(null);
+  const [archivedThrough, setArchivedThrough] = useState<string | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
+  const [archiveMessage, setArchiveMessage] = useState("");
 
   const refresh = useCallback(async () => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
       setMessage("この検証画面では通知履歴を利用できないよ。");
       setNotifications([]);
+      setOwnerId(null);
+      setArchivedThrough(null);
       setTargetLabels({});
       setFeedbackReady(false);
       setAnswers({});
@@ -78,6 +84,9 @@ export default function NotificationFeedbackHistory() {
       const { data: { session }, error: authError } = await client.auth.getSession();
       if (authError) throw authError;
       if (!session) {
+        setOwnerId(null);
+        setArchivedThrough(null);
+        setShowArchived(false);
         setNotifications([]);
         setTargetLabels({});
         setAnswers({});
@@ -87,6 +96,18 @@ export default function NotificationFeedbackHistory() {
         setFeedbackReady(false);
         setMessage("この通知を受け取った端末・アカウントで開いてね。");
         return;
+      }
+      // UI-only archive boundary: stored in this device's browser storage.
+      // The DB and Push notification pipeline are never changed.
+      if (ownerId !== session.user.id) {
+        setOwnerId(session.user.id);
+        setShowArchived(false);
+      }
+      try {
+        const stored = window.localStorage.getItem(historyArchiveStorageKey(session.user.id));
+        setArchivedThrough(stored && Number.isFinite(Date.parse(stored)) ? stored : null);
+      } catch {
+        setArchivedThrough(null);
       }
       const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
       const { data, error } = await client.from("notification_deliveries")
@@ -138,7 +159,7 @@ export default function NotificationFeedbackHistory() {
       setFeedbackReady(false);
       setMessage("通知履歴を読み込めなかったよ。少しあとでもう一度試してね。");
     }
-  }, []);
+  }, [ownerId]);
 
   useEffect(() => {
     void refresh();
@@ -233,7 +254,36 @@ export default function NotificationFeedbackHistory() {
     }
   };
 
-  const selectedNotifications = filterFeedbackByTarget(notifications, selectedTargetId);
+  const archivedCount = archivedThrough
+    ? notifications.filter(n=>Date.parse(n.delivered_at)<=Date.parse(archivedThrough)).length : 0;
+  // Hash links to earlier notifications must still work after archiving.
+  const linkedArchived = focusedNotificationId !== null && notifications.some(n=>
+    n.id===focusedNotificationId && archivedThrough !== null &&
+    Date.parse(n.delivered_at)<=Date.parse(archivedThrough));
+  const historyNotifications = filterHistoryAfterArchive(
+    notifications,archivedThrough,showArchived || linkedArchived);
+  const selectedNotifications = filterFeedbackByTarget(historyNotifications, selectedTargetId);
+  const resetVisibleHistory = () => {
+    if (!ownerId || saving !== null) return;
+    const boundary=new Date().toISOString();
+    try {
+      window.localStorage.setItem(historyArchiveStorageKey(ownerId),boundary);
+    } catch {
+      setArchiveMessage("この端末に整理設定を保存できなかったよ。ブラウザの保存設定を確認してね。");
+      return;
+    }
+    setArchivedThrough(boundary);
+    setShowArchived(false);
+    setShownCount(2);
+    setExpandedIds([]);
+    setFilter("all");
+    setSelectedTargetId("all");
+    setArchiveMessage("ここまでの通知を画面から整理したよ。DBの通知と回答はそのまま保存されているよ。");
+    if (window.location.hash.startsWith("#rain-feedback-")) {
+      window.history.replaceState(null,"",window.location.pathname+window.location.search);
+      setFocusedNotificationId(null);
+    }
+  };
   const history = selectFeedbackHistory(selectedNotifications, answers,
     new Set(Object.keys(FEEDBACK_OPTIONS)), filter, focusedNotificationId);
   const { visible, unanswered } = history;
@@ -250,6 +300,35 @@ export default function NotificationFeedbackHistory() {
         見ていない場所なら「わからない」で大丈夫だよ。
       </p>
       {message && <p role="status" style={{ color: "#ffe1a0" }}>{message}</p>}
+      {ownerId && feedbackReady && (
+        <div style={{margin:"12px 0",padding:"10px 12px",border:"1px solid rgba(125,211,252,.35)",borderRadius:12}}>
+          <div style={{fontSize:13,color:"#eef5ff",marginBottom:8}}>
+            🗂️ 過去の通知はDBに保管したまま、画面だけ新しい記録から始められるよ。
+            この整理設定はこの端末・ブラウザのアカウント別に保存されるよ。
+          </div>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+            <button type="button" onClick={resetVisibleHistory} disabled={saving!==null}
+              style={{padding:"8px 12px",borderRadius:10,color:"#fff",background:"#28567e",
+                border:"1px solid #7dd3fc",cursor:"pointer"}}>
+              🗂️ ここまでの通知を画面から整理
+            </button>
+            {archivedThrough && (
+              <button type="button" onClick={()=>{setShowArchived(x=>!x);setShownCount(2);}}
+                aria-pressed={showArchived}
+                style={{padding:"8px 12px",borderRadius:10,color:"#fff",
+                  background:"#284e75",border:"1px solid #7799b8",cursor:"pointer"}}>
+                {showArchived?"新しい通知だけに戻す":`過去の通知を見る（直近7日で${archivedCount}件）`}
+              </button>
+            )}
+          </div>
+          {archivedThrough && !showArchived && !linkedArchived && (
+            <p style={{fontSize:13,color:"#bbf7d0",margin:"8px 0 0"}}>
+              新しい通知から表示中。過去の回答は削除していないよ。
+            </p>
+          )}
+          {archiveMessage && <p role="status" style={{fontSize:13,margin:"7px 0 0",color:"#bbf7d0"}}>{archiveMessage}</p>}
+        </div>
+      )}
       <button type="button" onClick={() => void refresh()} disabled={saving !== null}
         style={{ marginBottom: 12, padding: "7px 12px", borderRadius: 10, color: "#eaf2ff",
           border: "1px solid #7799b8", background: "#284e75", cursor: "pointer" }}>
@@ -304,6 +383,9 @@ export default function NotificationFeedbackHistory() {
           {filter === "unanswered" && unanswered === 0 && <p>未回答の通知はないよ。ありがとう！</p>}
           {filter === "answered" && history.answered === 0 && <p>回答済みの通知はまだないよ。</p>}
         </>
+      )}
+      {archivedThrough && !showArchived && !linkedArchived && historyNotifications.length === 0 && (
+        <p style={{padding:"14px 0",color:"#eef5ff"}}>🌱 整理後の新しい通知はまだないよ。届いたらここに表示するね。</p>
       )}
       {compactHistory.items.map(notification => {
         const options = FEEDBACK_OPTIONS[notification.event_type] ?? [];
