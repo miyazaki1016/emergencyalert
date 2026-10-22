@@ -46,3 +46,24 @@ export function observedTimeLabel(source:ObservedTimeSource|null|undefined, obse
     timeZone:"Asia/Tokyo",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"});
   return source === "RECALLED" ? "思い出して入力："+formatted : "回答時に確認："+formatted;
 }
+
+/** Existing answers keep their observation metadata until the person explicitly changes it. */
+export function resolveFeedbackObservation(
+  chosen: ObservationChoice | undefined,
+  prior: WeatherObservation | undefined,
+  earlierLocal: string,
+  now: Date,
+): WeatherObservation {
+  return chosen === undefined && prior
+    ? prior
+    : buildWeatherObservation(chosen ?? "unknown", earlierLocal, now);
+}
+
+/** Format an existing observation for a datetime-local field in the device timezone. */
+export function observationAsLocalInput(observedAt: string | null | undefined): string {
+  if (!observedAt) return "";
+  const d = new Date(observedAt);
+  if (!Number.isFinite(d.getTime())) return "";
+  return [d.getFullYear(), String(d.getMonth()+1).padStart(2,"0"), String(d.getDate()).padStart(2,"0")].join("-") +
+    "T" + String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+}
