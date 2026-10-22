@@ -250,11 +250,11 @@ export default function NotificationFeedbackHistory() {
               <div style={{ display: "flex", flexWrap: "wrap", gap: "5px 13px", fontSize: 13, marginTop: 6 }}>
                 <span>🌧️ 雨が降った・続いた：{observations.observedRain}件</span>
                 <span>☀️ 降らなかった・止んだ：{observations.observedDry}件</span>
-                <span>🕒 通知時点ですでに変化：{observations.alreadyChanged}件</span>
+                <span>🕒 確認したときにはすでに変化：{observations.alreadyChanged}件</span>
                 <span>❓ わからない：{observations.unknown}件</span>
               </div>
               <div style={{ fontSize: 12, color: "#d6e6f5", marginTop: 6 }}>
-                本人の回答の集計だよ。通知時刻と確認時刻は違うことがあるため、予測の的中率ではないよ。
+                回答を見やすく数えたものだよ。実際に天気を見た時刻はまだ記録していないので、通知の早い・遅い／予測の的中は判断できないよ。
               </div>
             </div>
           )}
