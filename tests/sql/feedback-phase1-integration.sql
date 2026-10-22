@@ -37,9 +37,11 @@ INSERT INTO public.rain_notification_feedback(notification_id,owner_id,actual_we
  ON CONFLICT (notification_id) DO UPDATE SET actual_weather=excluded.actual_weather,updated_at=now();
 INSERT INTO public.rain_notification_feedback(notification_id,owner_id,actual_weather)
  VALUES (2,auth.uid(),'ALREADY_DRY');
+RESET ROLE;
 -- An existing phase-1 answer has no observed-time metadata.
 \ir ../../docs/sql/my-rain-feedback-observation-time.sql
 \ir ../../docs/sql/my-rain-feedback-observation-time.sql
+SET ROLE authenticated;
 DO $
 BEGIN
   IF (SELECT observed_at IS NOT NULL OR observed_time_source <> 'UNKNOWN'
