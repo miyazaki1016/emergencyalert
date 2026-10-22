@@ -110,3 +110,26 @@ export function summarizeFeedbackObservations<T extends {id:number;event_type:st
   }
   return result;
 }
+
+/**
+ * A non-destructive UI archive boundary. Notification rows and feedback remain
+ * in the database; the user may reveal archived history at any time.
+ */
+export function filterHistoryAfterArchive<T extends {delivered_at:string}>(
+  deliveries:readonly T[],
+  archivedThrough:string|null,
+  showArchived:boolean,
+):T[]{
+  if(showArchived || !archivedThrough) return [...deliveries];
+  const boundary=Date.parse(archivedThrough);
+  if(!Number.isFinite(boundary))return [...deliveries];
+  return deliveries.filter(d=>{
+    const when=Date.parse(d.delivered_at);
+    return Number.isFinite(when) && when>boundary;
+  });
+}
+
+/** Scope local screen preferences to the auth user; never mix between owners. */
+export function historyArchiveStorageKey(userId:string):string{
+  return "amefuru:feedback-history-archived-through:v1:"+userId;
+}
