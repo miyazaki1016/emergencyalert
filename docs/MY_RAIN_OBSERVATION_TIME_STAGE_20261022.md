@@ -64,3 +64,9 @@ Issue #64の運用障害セーフティネットは引き続き別管理。
 - `tests/feedbackObservationTime.test.ts` に両ケースを追加した。
 
 **注意:** この準備は本番DBの変更や本番デプロイの承認ではない。PR #71はDraftを維持。
+
+## 2026-10-22 本番移行前の追加点検
+- 本番DBを一切変更しない確認用SQL `docs/sql/my-rain-feedback-observation-preflight.sql` を追加。現存する回答数、現在のカラム、RLS有効化、既存CHECK/FKを出力する。
+- 移行 `docs/sql/my-rain-feedback-observation-time.sql` を再実行しても既存の時刻整合性CHECKをDROPしない方式に変更した。テストは使い捨てPostgreSQL上での2回実行を継続。
+- 現在の本番は旧Phase1回答2件と4カラム。次の手順は利用者の明示許可を得てから、もう一度読み取り専用で現況を照合し、DB移行後に新UIを公開すること。
+- **この文書の更新、テスト成功や「りょ」だけを本番DB移行への一括許可と解釈しない。PR #71はDraft維持。本番書込みは保留。**
