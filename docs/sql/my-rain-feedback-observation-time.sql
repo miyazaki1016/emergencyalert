@@ -4,12 +4,22 @@
 ALTER TABLE public.rain_notification_feedback
   ADD COLUMN IF NOT EXISTS observed_at timestamptz,
   ADD COLUMN IF NOT EXISTS observed_time_source text NOT NULL DEFAULT 'UNKNOWN';
-ALTER TABLE public.rain_notification_feedback
-  DROP CONSTRAINT IF EXISTS rain_notification_feedback_observation_pair_check;
-ALTER TABLE public.rain_notification_feedback
-  ADD CONSTRAINT rain_notification_feedback_observation_pair_check
-  CHECK (
-    (observed_time_source = 'UNKNOWN' AND observed_at IS NULL)
-    OR
-    (observed_time_source IN ('AT_RESPONSE', 'RECALLED') AND observed_at IS NOT NULL)
-  );
+-- Avoid dropping and briefly removing an existing consistency constraint
+-- when the migration is executed again.
+DO $observation_constraint$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'public.rain_notification_feedback'::regclass
+      AND conname = 'rain_notification_feedback_observation_pair_check'
+  ) THEN
+    ALTER TABLE public.rain_notification_feedback
+      ADD CONSTRAINT rain_notification_feedback_observation_pair_check
+      CHECK (
+        (observed_time_source = 'UNKNOWN' AND observed_at IS NULL)
+        OR
+        (observed_time_source IN ('AT_RESPONSE', 'RECALLED') AND observed_at IS NOT NULL)
+      );
+  END IF;
+END
+$observation_constraint$;
