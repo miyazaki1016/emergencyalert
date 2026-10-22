@@ -89,3 +89,26 @@ export function summarizeObservationTimeCoverage(
   }
   return {answered,withTime,withoutTime:answered-withTime};
 }
+
+/**
+ * How far the user's eyewitness time is from Push delivery. This is NOT
+ * a forecast lead time because old deliveries contain no forecast target time.
+ */
+export function observationVsDeliveryLabel(
+  deliveredAt: string,
+  observedAt: string | null | undefined,
+): string | null {
+  if (!observedAt) return null;
+  const delivery = Date.parse(deliveredAt);
+  const observed = Date.parse(observedAt);
+  if (!Number.isFinite(delivery) || !Number.isFinite(observed)) return null;
+  const roundedMinutes = Math.round((observed - delivery) / 60_000);
+  if (roundedMinutes === 0) return "通知とほぼ同じ時刻に確認";
+  const duration = Math.abs(roundedMinutes);
+  const interval = duration < 60
+    ? `${duration}分`
+    : `${Math.floor(duration/60)}時間${duration%60 ? `${duration%60}分` : ""}`;
+  return roundedMinutes > 0
+    ? `通知から${interval}後に確認`
+    : `通知より${interval}前に確認`;
+}
