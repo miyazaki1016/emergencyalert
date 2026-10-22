@@ -342,7 +342,10 @@ export default function NotificationFeedbackHistory() {
                     <label style={{display:"block",marginTop:8}}>
                       確認した日時（端末の現地時間）
                       <input type="datetime-local" value={earlierInputs[notification.id] ?? observationAsLocalInput(existingObservation?.observed_at)}
-                        onChange={event=>setEarlierInputs(prev=>({...prev,[notification.id]:event.target.value}))}
+                        onChange={event=>{
+                          setEarlierInputs(prev=>({...prev,[notification.id]:event.target.value}));
+                          setObservationChoices(prev=>({...prev,[notification.id]:"earlier"}));
+                        }}
                         style={{display:"block",width:"100%",maxWidth:"100%",marginTop:4,padding:8,borderRadius:8,
                           color:"#fff",background:"#284e75",border:"1px solid #7799b8"}} />
                     </label>
@@ -353,7 +356,7 @@ export default function NotificationFeedbackHistory() {
                   <div style={{fontSize:12,color:"#d6e6f5",marginTop:5}}>
                     通知時刻や回答保存時刻とは別に記録するよ。未入力でも回答できるよ。
                   </div>
-                  {selected && (
+                  {selected && observationChoices[notification.id] !== undefined && (
                     <button type="button" disabled={!feedbackReady || saving === notification.id}
                       onClick={() => void save(notification, answers[notification.id])}
                       style={{marginTop:9,padding:"8px 11px",borderRadius:9,color:"#fff",
