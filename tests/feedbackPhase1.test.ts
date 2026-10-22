@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel, filterFeedbackByTarget, selectFeedbackHistory, compactFeedbackHistory, toggleFeedbackCard, revealFeedbackCard, summarizeFeedbackObservations } from "../lib/weather/rain/feedbackPhase1";
+import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel, filterFeedbackByTarget, selectFeedbackHistory, compactFeedbackHistory, toggleFeedbackCard, revealFeedbackCard, summarizeFeedbackObservations, filterHistoryAfterArchive, historyArchiveStorageKey } from "../lib/weather/rain/feedbackPhase1";
 
 describe("phase-one in-app history links", () => {
   it("accepts positive numeric feedback IDs", () => {
@@ -148,5 +148,28 @@ describe("feedback observation totals", () => {
     expect(summarizeFeedbackObservations([{id:1,event_type:"RAIN_ENDING"}],{
       1:"STOPPED", 2:"UNKNOWN",
     })).toEqual({answered:1,observedRain:0,observedDry:1,alreadyChanged:0,unknown:0});
+  });
+});
+
+describe("non-destructive history archive for a single account and device",()=>{
+  const deliveries=[
+    {id:3,delivered_at:"2026-10-22T10:02:00Z"},
+    {id:2,delivered_at:"2026-10-22T10:00:00Z"},
+    {id:1,delivered_at:"2026-10-21T00:00:00Z"},
+  ];
+  it("hides deliveries at or before the boundary but keeps new Push messages",()=>{
+    const visible=filterHistoryAfterArchive(deliveries,"2026-10-22T10:00:00Z",false);
+    expect(visible.map(x=>x.id)).toEqual([3]);
+    expect(deliveries).toHaveLength(3);
+  });
+  it("reversibly shows all original records without changing any rows",()=>{
+    expect(filterHistoryAfterArchive(deliveries,"2026-10-22T10:00:00Z",true)).toEqual(deliveries);
+  });
+  it("ignores invalid or absent archive boundaries",()=>{
+    expect(filterHistoryAfterArchive(deliveries,null,false)).toEqual(deliveries);
+    expect(filterHistoryAfterArchive(deliveries,"invalid",false)).toEqual(deliveries);
+  });
+  it("never shares the view preference across auth owners",()=>{
+    expect(historyArchiveStorageKey("user-A")).not.toBe(historyArchiveStorageKey("user-B"));
   });
 });
