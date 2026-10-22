@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
 import { compactFeedbackHistory, filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, revealFeedbackCard, selectFeedbackHistory, summarizeFeedbackObservations, toggleFeedbackCard, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
 import { loadPhase1Feedback, loadPhase2ObservationTimes, savePhase1Feedback, type WeatherFeedbackAnswer } from "../../lib/weather/rain/feedbackPhase1Repository";
-import { observationAsLocalInput, observedTimeLabel, resolveFeedbackObservation, type ObservationChoice, type WeatherObservation } from "../../lib/weather/rain/feedbackObservationTime";
+import { observationAsLocalInput, observedTimeLabel, resolveFeedbackObservation, summarizeObservationTimeCoverage, type ObservationChoice, type WeatherObservation } from "../../lib/weather/rain/feedbackObservationTime";
 
 type Delivery = {
   id: number;
@@ -68,6 +68,9 @@ export default function NotificationFeedbackHistory() {
       setTargetLabels({});
       setFeedbackReady(false);
       setAnswers({});
+      setObservationTimes({});
+      setObservationChoices({});
+      setEarlierInputs({});
       return;
     }
     try {
@@ -78,6 +81,9 @@ export default function NotificationFeedbackHistory() {
         setNotifications([]);
         setTargetLabels({});
         setAnswers({});
+        setObservationTimes({});
+        setObservationChoices({});
+        setEarlierInputs({});
         setFeedbackReady(false);
         setMessage("この通知を受け取った端末・アカウントで開いてね。");
         return;
@@ -106,6 +112,7 @@ export default function NotificationFeedbackHistory() {
       }
       if (rows.length === 0) {
         setAnswers({});
+        setObservationTimes({});
         setFeedbackReady(false);
         setMessage("最近7日間の通知はまだないよ。");
         return;
@@ -119,6 +126,7 @@ export default function NotificationFeedbackHistory() {
         setMessage("");
       } catch {
         setAnswers({});
+        setObservationTimes({});
         setFeedbackReady(false);
         setMessage("通知履歴は表示できるよ。回答機能はまだ準備中だよ。");
       }
@@ -126,6 +134,7 @@ export default function NotificationFeedbackHistory() {
       setNotifications([]);
       setTargetLabels({});
       setAnswers({});
+      setObservationTimes({});
       setFeedbackReady(false);
       setMessage("通知履歴を読み込めなかったよ。少しあとでもう一度試してね。");
     }
@@ -231,6 +240,7 @@ export default function NotificationFeedbackHistory() {
   const observations = summarizeFeedbackObservations(selectedNotifications, answers);
   const compactHistory = compactFeedbackHistory(visible, shownCount, focusedNotificationId);
   const targetIds = [...new Set(notifications.map(n => n.target_id))];
+  const timingCoverage = summarizeObservationTimeCoverage(selectedNotifications.map(n=>n.id),answers,observationTimes);
 
   return (
     <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.15)", borderRadius: 20, background: "rgba(24,55,88,.8)" }}>
@@ -261,6 +271,12 @@ export default function NotificationFeedbackHistory() {
             </label>
           )}
           <div style={{ fontSize: 14, marginBottom: 8 }}>回答できる通知：{history.answerable}件／回答済み：{history.answered}件／未回答：{unanswered}件</div>
+          {timingCoverage.answered > 0 && (
+            <p style={{fontSize:13,margin:"0 0 12px",color:"#d6e6f5"}}>
+              🕒 実際の確認時刻が記録された回答：{timingCoverage.withTime}件
+              ／時刻不明：{timingCoverage.withoutTime}件
+            </p>
+          )}
           {observations.answered > 0 && (
             <div aria-label="実際の天気の回答集計" style={{ marginBottom: 14, padding: "10px 12px",
               border: "1px solid rgba(125,211,252,.4)", borderRadius: 12, background: "rgba(28,74,105,.5)" }}>
