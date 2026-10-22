@@ -28,3 +28,11 @@ Issue #64の運用障害セーフティネットは引き続き別管理。
 - 利用者が観測日時を明示的に変える場合、過去の日時を入力欄へ復元してから編集可能。時刻を消すのも「覚えていない・確認していない」を**本人が選んだ場合のみ**。
 - `tests/feedbackObservationTime.test.ts` に保持・明示変更・入力復元テストを追加。
 - 最新のGitHub Actions run `39699682179` は **verify / phase1-feedback-http / phase1-feedback-rls 全件success**。ただし本番DBカラムは**未追加**、PR #71 Draftのまま。本番iPhoneテストや展開を許可なく行わない。
+
+## 2026-10-22 10時台：回答の観測時刻カバー率表示
+- 通知の見張り地点で絞り込んだ回答について「🕒 実際の確認時刻が記録された回答：N件／時刻不明：M件」を表示するようにした。**回答した人の記録の充実度であり、予測的中率ではない**。
+- `summarizeObservationTimeCoverage` は閲覧している通知のIDだけ数え、旧回答で`observed_at`未登録なら未登録として扱う。回答UNKNOWNは時間が正しく記録されていれば観測時刻ありにカウントし、天気の正解/不正解には使わない。
+- 認証セッションが無い場合や履歴取得に失敗した場合には、過去に読み込んだ観測時刻を画面上に残さないようにした。
+- `tests/feedbackObservationTime.test.ts` に旧回答・地点フィルターに関する検証を追加。
+- HEAD `b8add877` のGitHub Actions run `39703807411` は **verify / phase1-feedback-rls / phase1-feedback-http 全て成功**。
+- 依然として **PR #71はDraft、本番DB移行は未適用、本番アプリは未変更**。iPhone実機の新しい時刻入力テストは未実施。先にDB移行内容と操作を確認してから公開する。
