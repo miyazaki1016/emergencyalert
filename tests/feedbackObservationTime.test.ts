@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildWeatherObservation, observedTimeLabel, localDateTimeInputToIso, observationAsLocalInput, resolveFeedbackObservation, summarizeObservationTimeCoverage } from "../lib/weather/rain/feedbackObservationTime";
+import { buildWeatherObservation, observedTimeLabel, localDateTimeInputToIso, observationAsLocalInput, resolveFeedbackObservation, summarizeObservationTimeCoverage, observationVsDeliveryLabel } from "../lib/weather/rain/feedbackObservationTime";
 
 describe("the time rain was actually observed",()=>{
   const now = new Date("2026-10-22T00:00:00.000Z");
@@ -85,5 +85,22 @@ describe("observation-time completeness by watched place", () => {
   it("does not invent observation time for older answers", () => {
     expect(summarizeObservationTimeCoverage([209,210],answers,{}))
       .toEqual({answered:2,withTime:0,withoutTime:2});
+  });
+});
+
+describe("notification time compared to eyewitness time", () => {
+  const delivery="2026-10-22T00:00:00.000Z";
+  it("shows time gap only, never an accuracy judgment", () => {
+    expect(observationVsDeliveryLabel(delivery,"2026-10-22T00:25:00.000Z"))
+      .toBe("通知から25分後に確認");
+    expect(observationVsDeliveryLabel(delivery,"2026-10-21T23:55:00.000Z"))
+      .toBe("通知より5分前に確認");
+  });
+  it("handles hours, nearly simultaneous observations and unknown time", () => {
+    expect(observationVsDeliveryLabel(delivery,"2026-10-22T02:05:00.000Z"))
+      .toBe("通知から2時間5分後に確認");
+    expect(observationVsDeliveryLabel(delivery,delivery)).toBe("通知とほぼ同じ時刻に確認");
+    expect(observationVsDeliveryLabel(delivery,null)).toBeNull();
+    expect(observationVsDeliveryLabel("invalid",delivery)).toBeNull();
   });
 });
