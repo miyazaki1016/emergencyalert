@@ -210,7 +210,7 @@ export default function NotificationFeedbackHistory() {
     try {
       observation = resolveFeedbackObservation(
         observationChoices[notification.id], observationTimes[notification.id],
-        earlierInputs[notification.id] ?? "", new Date(),
+        earlierInputs[notification.id], new Date(),
       );
     } catch {
       setMessage("確認時刻を確認してね。未来の時刻や30日以上前は指定できないよ。");
