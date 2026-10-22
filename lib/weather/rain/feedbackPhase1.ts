@@ -133,3 +133,13 @@ export function filterHistoryAfterArchive<T extends {delivered_at:string}>(
 export function historyArchiveStorageKey(userId:string):string{
   return "amefuru:feedback-history-archived-through:v1:"+userId;
 }
+
+/**
+ * Default: last seven days for a fast iPhone screen.
+ * In archive mode: query up to 200 historical deliveries without the 7-day
+ * restriction. Keeping DB rows means history must remain browsable later.
+ */
+export function historyQuerySince(showArchived:boolean, nowMs:number):string|null{
+  if(showArchived) return null;
+  return new Date(nowMs - 7 * 24 * 60 * 60 * 1000).toISOString();
+}
