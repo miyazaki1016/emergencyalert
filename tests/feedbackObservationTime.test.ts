@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildWeatherObservation, observedTimeLabel, localDateTimeInputToIso, observationAsLocalInput, resolveFeedbackObservation } from "../lib/weather/rain/feedbackObservationTime";
+import { buildWeatherObservation, observedTimeLabel, localDateTimeInputToIso, observationAsLocalInput, resolveFeedbackObservation, summarizeObservationTimeCoverage } from "../lib/weather/rain/feedbackObservationTime";
 
 describe("the time rain was actually observed",()=>{
   const now = new Date("2026-10-22T00:00:00.000Z");
@@ -64,5 +64,26 @@ describe("answer correction must not falsify observation timing", () => {
     const future = new Date(now.getTime()+86400_000);
     const input = observationAsLocalInput(future.toISOString());
     expect(() => resolveFeedbackObservation("earlier", undefined,input,now)).toThrow("future_observation");
+  });
+});
+
+describe("observation-time completeness by watched place", () => {
+  const answers={209:"UNKNOWN",210:"ALREADY_DRY",211:"RAINED"};
+  const times={
+    209:{observed_at:null,observed_time_source:"UNKNOWN" as const},
+    210:{observed_at:"2026-10-21T09:12:00Z",observed_time_source:"RECALLED" as const},
+    211:{observed_at:"2026-10-22T00:00:00Z",observed_time_source:"AT_RESPONSE" as const},
+  };
+  it("separates time availability from weather unknown", () => {
+    expect(summarizeObservationTimeCoverage([209,210,211],answers,times))
+      .toEqual({answered:3,withTime:2,withoutTime:1});
+  });
+  it("counts only the selected place's history", () => {
+    expect(summarizeObservationTimeCoverage([209,210],answers,times))
+      .toEqual({answered:2,withTime:1,withoutTime:1});
+  });
+  it("does not invent observation time for older answers", () => {
+    expect(summarizeObservationTimeCoverage([209,210],answers,{}))
+      .toEqual({answered:2,withTime:0,withoutTime:2});
   });
 });
