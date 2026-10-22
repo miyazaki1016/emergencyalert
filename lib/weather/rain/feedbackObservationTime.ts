@@ -54,9 +54,14 @@ export function resolveFeedbackObservation(
   earlierLocal: string,
   now: Date,
 ): WeatherObservation {
-  return chosen === undefined && prior
-    ? prior
-    : buildWeatherObservation(chosen ?? "unknown", earlierLocal, now);
+  // Editing only the answer must not overwrite a historical eyewitness time.
+  if (chosen === undefined) return prior ?? {observed_at:null,observed_time_source:"UNKNOWN"};
+  // When "earlier" was selected for an already-recorded observation, the
+  // datetime-local control displays the old value until the user changes it.
+  const effectiveLocal = chosen === "earlier"
+    ? (earlierLocal || observationAsLocalInput(prior?.observed_at))
+    : earlierLocal;
+  return buildWeatherObservation(chosen, effectiveLocal, now);
 }
 
 /** Format an existing observation for a datetime-local field in the device timezone. */
