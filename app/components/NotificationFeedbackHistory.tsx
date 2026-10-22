@@ -296,7 +296,9 @@ export default function NotificationFeedbackHistory() {
     <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.15)", borderRadius: 20, background: "rgba(24,55,88,.8)" }}>
       <h2 style={{ marginTop: 0, marginBottom: 6 }}>🌧️ 届いた通知の天気を教えてね</h2>
       <p style={{ marginTop: 0, fontSize: 14, color: "#eef5ff" }}>
-        直近2件を表示しているよ。通知をタップすると回答できるよ。
+        {feedbackReady && historyNotifications.length === 0
+          ? "新しい通知が届いたら、ここから回答できるよ。"
+          : "最近の通知を2件ずつ表示するよ。通知をタップすると回答できるよ。"}
         見ていない場所なら「わからない」で大丈夫だよ。
       </p>
       {message && <p role="status" style={{ color: "#ffe1a0" }}>{message}</p>}
