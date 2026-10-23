@@ -11,10 +11,18 @@ export default function ResumeDiagnosticsPanel() {
   const [storageStatus, setStorageStatus] = useState("未確認");
   const [runtimeStatus, setRuntimeStatus] = useState("確認中");
   const [swEvents, setSwEvents] = useState<string[]>([]);
+  const [authStatus, setAuthStatus] = useState("未観測");
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("resume_debug") !== "1") return;
     setEnabled(true);
+    const onAuthDiagnostic = (event: Event) => {
+      const status = (event as CustomEvent<{ status?: string }>).detail?.status;
+      if (status === "present") setAuthStatus("セッションあり");
+      else if (status === "absent") setAuthStatus("セッションなし");
+      else if (status === "error") setAuthStatus("確認エラー");
+    };
+    window.addEventListener("amefuru:diagnostic-auth-state", onAuthDiagnostic);
     const handle = installPwaResumeDiagnostics();
     // Diagnostic-only sessionStorage key. Never access auth/session keys.
     const key = "amefuru:resume-debug:snapshot:v1";
@@ -72,6 +80,7 @@ export default function ResumeDiagnosticsPanel() {
     const timer = window.setInterval(update, 700);
     return () => {
       active = false;
+      window.removeEventListener("amefuru:diagnostic-auth-state", onAuthDiagnostic);
       window.clearInterval(timer);
       sw?.removeEventListener("controllerchange", onChange);
       observed?.removeEventListener("updatefound", onUpdate);
@@ -90,6 +99,7 @@ export default function ResumeDiagnosticsPanel() {
       <div>履歴枠: {typeof document !== "undefined" && document.querySelector('[data-amefuru-feedback-history]') ? "あり" : "なし"} ／ 記録: {events.length}件</div>
       <div>診断保存: {storageStatus} ／ 前回の記録: {previous.length}件</div>
       <div>{runtimeStatus}</div>
+      <div>認証状態（既存の履歴読込から）: {authStatus}</div>
       <details>
         <summary>SWイベント: {swEvents.length}件</summary>
         <pre style={{ whiteSpace: "pre-wrap" }}>{swEvents.map(x => x + "\\n")}</pre>
