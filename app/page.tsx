@@ -274,6 +274,58 @@ export default function Home() {
     }
   };
 
+  const repairPushRegistration = async () => {
+    if (pushBusy || pushChecking) return;
+    setPushBusy(true);
+    setPushRegistrationStatus(null);
+    try {
+      if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)
+        || Notification.permission !== "granted") {
+        setPushRegistrationStatus("通知が許可されていないため、修復できないよ。");
+        return;
+      }
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+      if (!subscription) {
+        setPushRegistrationStatus("端末に通知登録がないよ。通常の通知設定から登録してね。");
+        return;
+      }
+      const json = subscription.toJSON();
+      if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) {
+        throw new Error("Incomplete existing subscription");
+      }
+      // Never create a new anonymous identity during repair.
+      const client = getSupabaseBrowserClient();
+      const { data: { session }, error: sessionError } = await client.auth.getSession();
+      if (sessionError || !session) {
+        setPushRegistrationStatus("現在のログイン情報が確認できないため、修復を中止したよ。");
+        return;
+      }
+      const { error: writeError } = await client.from("push_subscriptions").upsert({
+        owner_id: session.user.id,
+        endpoint: json.endpoint,
+        p256dh: json.keys.p256dh,
+        auth: json.keys.auth,
+        user_agent: navigator.userAgent,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "owner_id,endpoint" });
+      if (writeError) throw writeError;
+      const { data, error: verifyError } = await client.from("push_subscriptions")
+        .select("id")
+        .eq("owner_id", session.user.id)
+        .eq("endpoint", json.endpoint)
+        .limit(1);
+      if (verifyError || !data?.length) throw new Error("Registration verification failed");
+      setPushEnabled(true);
+      setPushStatus("通知登録を現在のアカウントに保存したよ。");
+      setPushRegistrationStatus("確認OK：現在のアカウントへの通知登録を確認できたよ。実際の通知到着は別途確認が必要だよ。");
+    } catch {
+      setPushRegistrationStatus("修復に失敗したよ。通知設定や登録地点は変更していないよ。");
+    } finally {
+      setPushBusy(false);
+    }
+  };
+
   const restorePushStatus = async () => {
     if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) return;
     if (Notification.permission !== "granted") return;
@@ -636,6 +688,12 @@ export default function Home() {
             style={{ padding: "8px 12px", borderRadius: 9, border: "1px solid rgba(255,255,255,.3)", background: "transparent", color: "#eef5ff" }}>
             {pushChecking ? "確認中…" : "🔍 通知の登録状態を確認"}
           </button>
+          {pushRegistrationStatus?.startsWith("要修復") && (
+            <button type="button" onClick={() => void repairPushRegistration()} disabled={pushBusy || pushChecking}
+              style={{ marginLeft: 8, padding: "8px 12px", borderRadius: 9, border: "1px solid rgba(255,255,255,.3)", background: "#37628d", color: "#eef5ff" }}>
+              {pushBusy ? "修復中…" : "通知登録を修復"}
+            </button>
+          )}
           {pushRegistrationStatus && <p role="status" style={{ color: "#eef5ff", fontSize: 14 }}>{pushRegistrationStatus}</p>}
         </div>
       </section>
