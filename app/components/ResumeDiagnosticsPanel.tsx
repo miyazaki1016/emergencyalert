@@ -12,6 +12,7 @@ export default function ResumeDiagnosticsPanel() {
   const [runtimeStatus, setRuntimeStatus] = useState("確認中");
   const [swEvents, setSwEvents] = useState<string[]>([]);
   const [authStatus, setAuthStatus] = useState("未観測");
+  const [copyStatus, setCopyStatus] = useState("");
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("resume_debug") !== "1") return;
@@ -87,6 +88,29 @@ export default function ResumeDiagnosticsPanel() {
     };
   }, []);
 
+  const copyReport = async () => {
+    // Allowlisted diagnostic summary only. No URLs, user IDs, tokens or event details.
+    const report = [
+      "アメふる 診断レポート",
+      "取得時刻: " + new Date().toISOString(),
+      "履歴枠: " + (document.querySelector("[data-amefuru-feedback-history]") ? "あり" : "なし"),
+      "認証状態: " + authStatus,
+      "診断保存: " + storageStatus,
+      "直近イベント:",
+      ...events.slice(-30).map(e => e.at.slice(11, 19) + " " + e.type),
+      "前回イベント:",
+      ...previous.map(e => e.at.slice(11, 19) + " " + e.type),
+      "SWイベント:",
+      ...swEvents,
+    ].join("\n");
+    try {
+      await navigator.clipboard.writeText(report);
+      setCopyStatus("コピーしました");
+    } catch {
+      setCopyStatus("コピーできませんでした");
+    }
+  };
+
   if (!enabled) return null;
   return (
     <aside aria-label="復帰診断（研究用）" style={{
@@ -116,6 +140,12 @@ export default function ResumeDiagnosticsPanel() {
           {events.slice(-18).map(e => `${e.at.slice(11, 19)} ${e.type} ${JSON.stringify(e.details ?? {})}`).join("\n")}
         </pre>
       </details>
+      <button type="button" onClick={() => void copyReport()}
+        style={{ marginTop: 8, padding: "6px 10px", borderRadius: 6, background: "#fbbf24", color: "#111827" }}>
+        診断レポートをコピー
+      </button>
+      <span role="status" style={{ marginLeft: 8 }}>{copyStatus}</span>
+      <br />
       <small>画面撮影時は位置情報などが映らないよう注意。再読み込み後は前回のイベント名と時刻のみ復元します。診断用sessionStorage以外は変更しません。</small>
     </aside>
   );
