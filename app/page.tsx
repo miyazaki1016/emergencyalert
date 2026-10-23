@@ -631,6 +631,13 @@ export default function Home() {
           {pushBusy ? "設定中…" : pushEnabled ? "✓ 通知ON" : "通知を受け取る"}
         </button>
         {pushStatus && <p style={{ color: "#eef5ff" }}>{pushStatus}</p>}
+        <div style={{ marginTop: 12 }}>
+          <button type="button" onClick={() => void checkPushRegistration()} disabled={pushChecking}
+            style={{ padding: "8px 12px", borderRadius: 9, border: "1px solid rgba(255,255,255,.3)", background: "transparent", color: "#eef5ff" }}>
+            {pushChecking ? "確認中…" : "🔍 通知の登録状態を確認"}
+          </button>
+          {pushRegistrationStatus && <p role="status" style={{ color: "#eef5ff", fontSize: 14 }}>{pushRegistrationStatus}</p>}
+        </div>
       </section>
 
       <section style={{ marginTop: 40, paddingTop: 28, borderTop: "1px solid rgba(255,255,255,.10)" }}>
