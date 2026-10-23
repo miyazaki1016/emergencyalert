@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
+import { installPwaResumeDiagnostics } from "../../lib/diagnostics/pwaResumeDiagnostics";
 import { compactFeedbackHistory, filterFeedbackByTarget, filterHistoryAfterArchive, historyArchiveStorageKey, negativeFeedbackNeedsWait, parseFeedbackHash, revealFeedbackCard, selectFeedbackHistory, summarizeFeedbackObservations, toggleFeedbackCard, watchedPlaceLabel } from "../../lib/weather/rain/feedbackPhase1";
 import { loadPhase1Feedback, loadPhase2ObservationTimes, savePhase1Feedback, type WeatherFeedbackAnswer } from "../../lib/weather/rain/feedbackPhase1Repository";
 import { observationAsLocalInput, observationVsDeliveryLabel, observedTimeLabel, resolveFeedbackObservation, summarizeObservationTimeCoverage, type ObservationChoice, type WeatherObservation } from "../../lib/weather/rain/feedbackObservationTime";
@@ -45,6 +46,12 @@ function formatTokyo(timestamp: string): string {
 }
 
 export default function NotificationFeedbackHistory() {
+  // Research branch only: local lifecycle markers, no identity or tokens recorded.
+  useEffect(() => {
+    const diagnostics = installPwaResumeDiagnostics();
+    diagnostics.mark("history-mount");
+    return () => diagnostics.mark("history-unmount");
+  }, []);
   const [notifications, setNotifications] = useState<Delivery[]>([]);
   const [targetLabels, setTargetLabels] = useState<Record<string, string>>({});
   const [answers, setAnswers] = useState<Record<number, Answer>>({});
@@ -66,6 +73,7 @@ export default function NotificationFeedbackHistory() {
   const [archiveMessage, setArchiveMessage] = useState("");
 
   const refresh = useCallback(async () => {
+    window.__amefuruResumeDiagnostics?.mark("history-refresh-start");
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
       setMessage("この検証画面では通知履歴を利用できないよ。");
       setNotifications([]);
@@ -158,6 +166,9 @@ export default function NotificationFeedbackHistory() {
       setObservationTimes({});
       setFeedbackReady(false);
       setMessage("通知履歴を読み込めなかったよ。少しあとでもう一度試してね。");
+      window.__amefuruResumeDiagnostics?.mark("history-refresh-error");
+    } finally {
+      window.__amefuruResumeDiagnostics?.mark("history-refresh-end");
     }
   }, [ownerId]);
 
@@ -293,7 +304,7 @@ export default function NotificationFeedbackHistory() {
   const timingCoverage = summarizeObservationTimeCoverage(selectedNotifications.map(n=>n.id),answers,observationTimes);
 
   return (
-    <section style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.15)", borderRadius: 20, background: "rgba(24,55,88,.8)" }}>
+    <section data-amefuru-feedback-history style={{ margin: "28px 0", padding: 20, border: "1px solid rgba(255,255,255,.15)", borderRadius: 20, background: "rgba(24,55,88,.8)" }}>
       <h2 style={{ marginTop: 0, marginBottom: 6 }}>🌧️ 届いた通知の天気を教えてね</h2>
       <p style={{ marginTop: 0, fontSize: 14, color: "#eef5ff" }}>
         {feedbackReady && historyNotifications.length === 0
