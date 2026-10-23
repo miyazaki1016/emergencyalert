@@ -15,6 +15,7 @@ export default function ResumeDiagnosticsPanel() {
   const [authIdPrefix, setAuthIdPrefix] = useState("未確認");
   const [authStorageStatus, setAuthStorageStatus] = useState("未確認");
   const [authStorageInventory, setAuthStorageInventory] = useState("未確認");
+  const [otherStorageKeys, setOtherStorageKeys] = useState<string[]>([]);
   const [copyStatus, setCopyStatus] = useState("");
   const [authTransitions, setAuthTransitions] = useState<string[]>([]);
   const [clearStatus, setClearStatus] = useState("");
@@ -72,10 +73,12 @@ export default function ResumeDiagnosticsPanel() {
         // Only count key names by prefix. Never access their stored values.
         const names = Array.from({ length: window.localStorage.length }, (_, i) => window.localStorage.key(i)).filter((k): k is string => typeof k === "string");
         const supabaseCount = names.filter(k => /^sb-[a-z0-9-]+-auth-token$/.test(k)).length;
+        setOtherStorageKeys(names.filter(k => !/^sb-[a-z0-9-]+-auth-token$/.test(k)).map(k => k.slice(0, 100)));
         setAuthStorageInventory(`Supabase形式の認証キー: ${supabaseCount}件 ／ 保存キー総数: ${names.length}件`);
       } catch {
         setAuthStorageStatus("保存領域を確認できない");
         setAuthStorageInventory("確認不可");
+        setOtherStorageKeys([]);
       }
     };
     // Metadata-only, opt-in transition journal. Never read auth token values.
@@ -223,6 +226,11 @@ export default function ResumeDiagnosticsPanel() {
       <div>認証ID先頭8文字（診断時のみ）: {authIdPrefix}</div>
       <div>認証保存キー（有無のみ）: {authStorageStatus}</div>
       <div>保存キー集計（件数のみ）: {authStorageInventory}</div>
+      <details>
+        <summary>その他の保存キー名: {otherStorageKeys.length}件</summary>
+        <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{otherStorageKeys.join("\n") || "該当なし"}</pre>
+        <small>キー名だけを端末内に表示します。値は読み取らず、コピー用レポートにも含めません。</small>
+      </details>
       <details>
         <summary>認証保存キーの変化: {authTransitions.length}件</summary>
         <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{authTransitions.join("\n") || "記録なし"}</pre>
