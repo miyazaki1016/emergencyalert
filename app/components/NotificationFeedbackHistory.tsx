@@ -99,7 +99,7 @@ export default function NotificationFeedbackHistory() {
         throw authError;
       }
       if ((new URLSearchParams(window.location.search).get("resume_debug") === "1" || (() => { try { return window.sessionStorage.getItem("amefuru:resume-debug:enabled:v1") === "1"; } catch { return false; } })())) window.dispatchEvent(new CustomEvent("amefuru:diagnostic-auth-state", {
-        detail: { status: session ? "present" : "absent" },
+        detail: { status: session ? "present" : "absent", userIdPrefix: session?.user.id.slice(0, 8) ?? null },
       }));
       if (!session) {
         setOwnerId(null);

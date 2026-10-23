@@ -12,6 +12,7 @@ export default function ResumeDiagnosticsPanel() {
   const [runtimeStatus, setRuntimeStatus] = useState("確認中");
   const [swEvents, setSwEvents] = useState<string[]>([]);
   const [authStatus, setAuthStatus] = useState("未観測");
+  const [authIdPrefix, setAuthIdPrefix] = useState("未確認");
   const [authStorageStatus, setAuthStorageStatus] = useState("未確認");
   const [authStorageInventory, setAuthStorageInventory] = useState("未確認");
   const [copyStatus, setCopyStatus] = useState("");
@@ -27,7 +28,9 @@ export default function ResumeDiagnosticsPanel() {
     if (!queryEnabled && !inAppEnabled) return;
     setEnabled(true);
     const onAuthDiagnostic = (event: Event) => {
-      const status = (event as CustomEvent<{ status?: string }>).detail?.status;
+      const detail = (event as CustomEvent<{ status?: string; userIdPrefix?: string | null }>).detail;
+      const status = detail?.status;
+      setAuthIdPrefix(status === "present" && /^[0-9a-f]{8}$/.test(detail?.userIdPrefix ?? "") ? detail!.userIdPrefix! : "なし");
       if (status === "present") setAuthStatus("セッションあり");
       else if (status === "absent") setAuthStatus("セッションなし");
       else if (status === "error") setAuthStatus("確認エラー");
@@ -129,6 +132,7 @@ export default function ResumeDiagnosticsPanel() {
       "取得時刻: " + new Date().toISOString(),
       "履歴枠: " + (document.querySelector("[data-amefuru-feedback-history]") ? "あり" : "なし"),
       "認証状態: " + authStatus,
+      "認証ID先頭8文字: " + authIdPrefix,
       "認証保存キー: " + authStorageStatus,
       "保存キー集計: " + authStorageInventory,
       "診断保存: " + storageStatus,
@@ -183,6 +187,7 @@ export default function ResumeDiagnosticsPanel() {
       <div>診断保存: {storageStatus} ／ 前回の記録: {previous.length}件</div>
       <div>{runtimeStatus}</div>
       <div>認証状態（既存の履歴読込から）: {authStatus}</div>
+      <div>認証ID先頭8文字（診断時のみ）: {authIdPrefix}</div>
       <div>認証保存キー（有無のみ）: {authStorageStatus}</div>
       <div>保存キー集計（件数のみ）: {authStorageInventory}</div>
       <details>
@@ -210,7 +215,7 @@ export default function ResumeDiagnosticsPanel() {
       {snapshotPaused && <button type="button" onClick={resumeSnapshot}>保存を再開</button>}
       <span role="status">{clearStatus}</span></div>
       <br />
-      <small>画面撮影時は位置情報などが映らないよう注意。再読み込み後は前回のイベント名と時刻のみ復元します。診断用sessionStorage以外は変更しません。認証保存キーは名前の有無だけを調べ、トークンやIDは読み取りません。</small>
+      <small>画面撮影時は位置情報などが映らないよう注意。再読み込み後は前回のイベント名と時刻のみ復元します。診断用sessionStorage以外は変更しません。認証保存キーは名前の有無だけを調べ、トークンは読み取りません。認証済みの場合のみIDの先頭8文字を表示します。</small>
     </aside>
   );
 }
