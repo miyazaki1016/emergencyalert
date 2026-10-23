@@ -82,8 +82,14 @@ export default function ResumeDiagnosticsPanel() {
       }
     };
     // Metadata-only, opt-in transition journal. Never read auth token values.
-    const journalKey = "amefuru:resume-debug:auth-transitions:v1";
+    const journalKey = "amefuru:resume-debug:auth-transitions:v2";
     let lastFingerprint = "";
+    const readJournal = (): string[] => {
+      try {
+        const parsed: unknown = JSON.parse(localStorage.getItem(journalKey) ?? "[]");
+        return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === "string").slice(-25) : [];
+      } catch { return []; }
+    };
     const journalAuth = (reason: string) => {
       try {
         const ref = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").hostname.split(".")[0];
@@ -93,16 +99,12 @@ export default function ResumeDiagnosticsPanel() {
         if (fingerprint === lastFingerprint) return;
         lastFingerprint = fingerprint;
         const entry = new Date().toISOString() + " " + reason + " authKey=" + (keys.includes(expected) ? "present" : "absent") + " supabaseKeyCount=" + fingerprint.split("/")[1];
-        const old: unknown = JSON.parse(sessionStorage.getItem(journalKey) ?? "[]");
-        const next = [...(Array.isArray(old) ? old.filter(x => typeof x === "string") : []), entry].slice(-25);
-        sessionStorage.setItem(journalKey, JSON.stringify(next));
+        const next = [...readJournal(), entry].slice(-25);
+        localStorage.setItem(journalKey, JSON.stringify(next));
         setAuthTransitions(next);
       } catch { /* Diagnostics must not interfere with the app. */ }
     };
-    try {
-      const old: unknown = JSON.parse(sessionStorage.getItem(journalKey) ?? "[]");
-      if (Array.isArray(old)) setAuthTransitions(old.filter(x => typeof x === "string").slice(-25));
-    } catch { /* Ignore corrupt diagnostic snapshot. */ }
+    setAuthTransitions(readJournal());
     journalAuth("initial");
     const onStorageChange = () => journalAuth("storage-event");
     const onVisibilityChange = () => journalAuth("visibility-" + document.visibilityState);
@@ -232,7 +234,7 @@ export default function ResumeDiagnosticsPanel() {
         <small>キー名だけを端末内に表示します。値は読み取らず、コピー用レポートにも含めません。</small>
       </details>
       <details>
-        <summary>認証保存キーの変化: {authTransitions.length}件</summary>
+        <summary>認証保存キーの変化（端末内に保持）: {authTransitions.length}件</summary>
         <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{authTransitions.join("\n") || "記録なし"}</pre>
       </details>
       <details>
@@ -260,7 +262,7 @@ export default function ResumeDiagnosticsPanel() {
       {snapshotPaused && <button type="button" onClick={resumeSnapshot}>保存を再開</button>}
       <span role="status">{clearStatus}</span></div>
       <br />
-      <small>画面撮影時は位置情報などが映らないよう注意。再読み込み後は前回のイベント名と時刻のみ復元します。診断用sessionStorage以外は変更しません。認証保存キーは名前の有無だけを調べ、トークンは読み取りません。認証済みの場合のみIDの先頭8文字を表示します。</small>
+      <small>画面撮影時は位置情報などが映らないよう注意。再読み込み後は前回のイベント名と時刻のみ復元します。診断用localStorageに認証キーの有無と時刻のみ最大25件記録します（認証情報は変更しません）。認証保存キーは名前の有無だけを調べ、トークンは読み取りません。認証済みの場合のみIDの先頭8文字を表示します。</small>
     </aside>
   );
 }
