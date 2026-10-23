@@ -51,8 +51,8 @@ export function installPwaResumeDiagnostics(): DiagnosticsHandle {
   const onBlur = () => mark("blur");
   const onFreeze = () => mark("freeze");
   const onResume = () => mark("resume");
-  const onError = (event: ErrorEvent) =>
-    mark("error", { message: String(event.message).slice(0, 160) });
+  // Record occurrence only; exception text can contain user-entered values.
+  const onError = () => mark("error", { occurred: true });
   const onRejection = () => mark("unhandledrejection", { occurred: true });
 
   document.addEventListener("visibilitychange", onVisibility);
