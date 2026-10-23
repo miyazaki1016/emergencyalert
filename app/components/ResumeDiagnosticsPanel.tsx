@@ -10,6 +10,7 @@ export default function ResumeDiagnosticsPanel() {
   const [previous, setPrevious] = useState<{at:string;type:string}[]>([]);
   const [storageStatus, setStorageStatus] = useState("未確認");
   const [runtimeStatus, setRuntimeStatus] = useState("確認中");
+  const [swEvents, setSwEvents] = useState<string[]>([]);
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("resume_debug") !== "1") return;
@@ -53,8 +54,28 @@ export default function ResumeDiagnosticsPanel() {
       }
     };
     update();
+    const sw = "serviceWorker" in navigator ? navigator.serviceWorker : null;
+    const record = (name: string) => setSwEvents(old =>
+      [...old, new Date().toISOString().slice(11, 19) + " " + name].slice(-12));
+    const onChange = () => record("controllerchange");
+    const onUpdate = () => record("updatefound");
+    let active = true;
+    let observed: ServiceWorkerRegistration | undefined;
+    sw?.addEventListener("controllerchange", onChange);
+    if (sw) {
+      void sw.getRegistration().then(reg => {
+        if (!active || !reg) return;
+        observed = reg;
+        reg.addEventListener("updatefound", onUpdate);
+      }).catch(() => {});
+    }
     const timer = window.setInterval(update, 700);
-    return () => window.clearInterval(timer);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+      sw?.removeEventListener("controllerchange", onChange);
+      observed?.removeEventListener("updatefound", onUpdate);
+    };
   }, []);
 
   if (!enabled) return null;
@@ -69,6 +90,10 @@ export default function ResumeDiagnosticsPanel() {
       <div>履歴枠: {typeof document !== "undefined" && document.querySelector('[data-amefuru-feedback-history]') ? "あり" : "なし"} ／ 記録: {events.length}件</div>
       <div>診断保存: {storageStatus} ／ 前回の記録: {previous.length}件</div>
       <div>{runtimeStatus}</div>
+      <details>
+        <summary>SWイベント: {swEvents.length}件</summary>
+        <pre style={{ whiteSpace: "pre-wrap" }}>{swEvents.map(x => x + "\\n")}</pre>
+      </details>
       <details>
         <summary>前回のページ記録（最大30件）</summary>
         <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere", maxHeight: "20vh", overflow: "auto" }}>
