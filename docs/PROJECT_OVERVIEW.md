@@ -726,3 +726,11 @@ from Push work, require CI to pass before merge, and verify the resulting
 Production deployment afterward.
 
 > targetTimes の値を読んでいるだけでは足りない。URLまで同じフレーム情報を運ぶ。
+
+
+## 2026-10-24 — Push registration ownership recovery (PR #79)
+
+- Production PR #78 (merge `3dd953dc4040`) added a read-only PWA push registration ownership check. On the installed iPhone PWA, it reported `要修復`: a browser PushSubscription exists but there is no matching row under the current anonymous account.
+- Database inspection confirmed one push row belongs to an older anonymous owner and none to the current owner, while five watch targets were successfully restored to the current owner. The UI's `通知ON` only indicates a browser subscription, not matching DB ownership.
+- PR #79 adds an explicit, opt-in `通知登録を修復` action after the mismatch check. It reuses the existing browser subscription and current authenticated session, upserts the current owner's row, and reads it back for verification. It does not request permission, unsubscribe, rotate anonymous IDs, alter targets, or delete the old owner's subscription.
+- **Unverified until iPhone test:** CI, preview, production rollout, actual push delivery, and any possible duplicate delivery from the old-owner row. No end-to-end delivery claim is made.
