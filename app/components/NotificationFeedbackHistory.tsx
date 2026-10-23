@@ -93,12 +93,12 @@ export default function NotificationFeedbackHistory() {
       const client = getSupabaseBrowserClient();
       const { data: { session }, error: authError } = await client.auth.getSession();
       if (authError) {
-        if (new URLSearchParams(window.location.search).get("resume_debug") === "1") window.dispatchEvent(new CustomEvent("amefuru:diagnostic-auth-state", {
+        if ((new URLSearchParams(window.location.search).get("resume_debug") === "1" || (() => { try { return window.sessionStorage.getItem("amefuru:resume-debug:enabled:v1") === "1"; } catch { return false; } })())) window.dispatchEvent(new CustomEvent("amefuru:diagnostic-auth-state", {
           detail: { status: "error" },
         }));
         throw authError;
       }
-      if (new URLSearchParams(window.location.search).get("resume_debug") === "1") window.dispatchEvent(new CustomEvent("amefuru:diagnostic-auth-state", {
+      if ((new URLSearchParams(window.location.search).get("resume_debug") === "1" || (() => { try { return window.sessionStorage.getItem("amefuru:resume-debug:enabled:v1") === "1"; } catch { return false; } })())) window.dispatchEvent(new CustomEvent("amefuru:diagnostic-auth-state", {
         detail: { status: session ? "present" : "absent" },
       }));
       if (!session) {
