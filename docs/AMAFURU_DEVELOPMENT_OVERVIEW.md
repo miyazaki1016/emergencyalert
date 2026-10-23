@@ -8,6 +8,14 @@
 >
 # アメふる 開発総覧
 
+## 2026-10-23 作業チェックポイント：PR #73一次コードレビュー
+
+- **対象**: PR #73 `fix/archived-history-beyond-seven-days-20261023` と main の比較。読み取りのみ。比較結果は **ahead 3 / behind 2（diverged）**。改修対象3ファイル：`app/components/NotificationFeedbackHistory.tsx`、`lib/weather/rain/feedbackPhase1.ts`、`tests/feedbackPhase1.test.ts`。
+- **確認した実装**：履歴整理後に「過去の通知を見る」を押すと、`historyQuerySince(showArchived, Date.now())` が `null` を返し、従来の `delivered_at >= 7日前` 条件を外して本人セッションの既存RLS下で最大200件を取得する。通常表示は7日間のまま。履歴・回答を削除せず、worker/Push/DB SQLも変更対象外。基本動作の単体テストが追加されている。
+- **要確認の重要な境界**：`app/components/NotificationFeedbackHistory.tsx` の `refresh`（今回取得時112–119行）では、`showArchived=false` の間は依然として7日以前を取得しない。一方、201行以降のURL `#rain-feedback-ID` による過去通知の指定は別の状態処理。**7日超の指定通知へ古いPushリンクだけで直接到達できるかは本コードだけでは保証できない**。リンク指定時の再取得／アーカイブ切替の実機回帰が必要。
+- **未完了**：CIの最新run結果・Vercel deployの最新HEAD照合、behind2のmain側変更との統合、7日超の実データ表示とRLS・200件上限・実機の確認。現時点では#73のマージ、本番反映、DB変更は未実施。レビュー中の候補を完成とは表現しない。
+- **次の一手**：PR #73の最新CIとmainの進みを確認し、特に「7日超アーカイブ→通常表示復帰」「7日超の履歴直リンク」「直近7日・整理境界・回答復元」の回帰を調べる。その結果を保存してからマージ可否を判断する。
+
 ## 2026-10-23 運用決定：毎作業GitHubチェックポイント（ユーザー明示指示）
 
 **どこで会話・ツール実行が途切れても、直前に完了した作業まで第三者がGitHubだけで追跡し、再開できることを必須とする。** チャット内での報告だけで完了扱いしない。
