@@ -85,6 +85,8 @@ export default function Home() {
   const [pushStatus, setPushStatus] = useState("");
   const [pushBusy, setPushBusy] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushRegistrationStatus, setPushRegistrationStatus] = useState<string | null>(null);
+  const [pushChecking, setPushChecking] = useState(false);
   const [testPushBusy, setTestPushBusy] = useState(false);
   const [latestAlerts, setLatestAlerts] = useState<NotificationDelivery[]>([]);
   const [mapPickerOpen, setMapPickerOpen] = useState(false);
@@ -227,6 +229,48 @@ export default function Home() {
       setPushStatus("通知の登録ができなかったよ。少しあとでもう一度試してね。");
     } finally {
       setPushBusy(false);
+    }
+  };
+
+  const checkPushRegistration = async () => {
+    if (pushChecking) return;
+    setPushChecking(true);
+    setPushRegistrationStatus(null);
+    try {
+      if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
+        setPushRegistrationStatus("この端末はプッシュ通知に対応していないよ。");
+        return;
+      }
+      if (Notification.permission !== "granted") {
+        setPushRegistrationStatus("端末の通知許可がないよ。");
+        return;
+      }
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+      if (!subscription) {
+        setPushRegistrationStatus("端末のプッシュ登録が見つからないよ。");
+        return;
+      }
+      // Read-only verification: do not reveal or copy endpoint or encryption keys.
+      const client = getSupabaseBrowserClient();
+      const { data: { session }, error: sessionError } = await client.auth.getSession();
+      if (sessionError || !session) {
+        setPushRegistrationStatus("認証状態を確認できないよ。");
+        return;
+      }
+      const { data, error } = await client.from("push_subscriptions")
+        .select("id")
+        .eq("owner_id", session.user.id)
+        .eq("endpoint", subscription.endpoint)
+        .limit(1);
+      if (error) throw error;
+      setPushRegistrationStatus(data && data.length > 0
+        ? "確認OK：この端末の通知登録は現在のアカウントに保存されているよ。"
+        : "要修復：端末には通知登録があるけど、現在のアカウントには保存されていないよ。");
+    } catch {
+      setPushRegistrationStatus("登録状態の照合に失敗したよ。時間をおいて再確認してね。");
+    } finally {
+      setPushChecking(false);
     }
   };
 
