@@ -14,6 +14,7 @@ export default function ResumeDiagnosticsPanel() {
   const [authStatus, setAuthStatus] = useState("未観測");
   const [copyStatus, setCopyStatus] = useState("");
   const [clearStatus, setClearStatus] = useState("");
+  const [snapshotPaused, setSnapshotPaused] = useState(false);
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("resume_debug") !== "1") return;
@@ -26,6 +27,7 @@ export default function ResumeDiagnosticsPanel() {
     };
     window.addEventListener("amefuru:diagnostic-auth-state", onAuthDiagnostic);
     const handle = installPwaResumeDiagnostics();
+    setSnapshotPaused(window.sessionStorage.getItem("amefuru:resume-debug:paused:v1") === "1");
     // Diagnostic-only sessionStorage key. Never access auth/session keys.
     const key = "amefuru:resume-debug:snapshot:v1";
     try {
@@ -55,6 +57,7 @@ export default function ResumeDiagnosticsPanel() {
         " ／ 通信: " + (navigator.onLine ? "オンライン" : "オフライン") +
         " ／ 表示: " + document.visibilityState);
 
+      if (window.sessionStorage.getItem("amefuru:resume-debug:paused:v1") === "1") return;
       try {
         window.sessionStorage.setItem(key, JSON.stringify(
           handle.events.slice(-30).map(e => ({ at: e.at, type: e.type }))
@@ -114,11 +117,23 @@ export default function ResumeDiagnosticsPanel() {
 
   const clearSnapshot = () => {
     try {
+      sessionStorage.setItem("amefuru:resume-debug:paused:v1", "1");
       sessionStorage.removeItem("amefuru:resume-debug:snapshot:v1");
+      setSnapshotPaused(true);
       setPrevious([]);
       setClearStatus("保存した診断記録を削除しました");
     } catch {
       setClearStatus("削除できませんでした");
+    }
+  };
+
+  const resumeSnapshot = () => {
+    try {
+      sessionStorage.removeItem("amefuru:resume-debug:paused:v1");
+      setSnapshotPaused(false);
+      setClearStatus("診断記録の保存を再開しました");
+    } catch {
+      setClearStatus("保存を再開できませんでした");
     }
   };
 
@@ -156,7 +171,9 @@ export default function ResumeDiagnosticsPanel() {
         診断レポートをコピー
       </button>
       <span role="status" style={{ marginLeft: 8 }}>{copyStatus}</span>
-      <div><button type="button" onClick={clearSnapshot}>保存した診断記録を削除</button> <span role="status">{clearStatus}</span></div>
+      <div><button type="button" onClick={clearSnapshot}>保存した診断記録を削除・保存停止</button>
+      {snapshotPaused && <button type="button" onClick={resumeSnapshot}>保存を再開</button>}
+      <span role="status">{clearStatus}</span></div>
       <br />
       <small>画面撮影時は位置情報などが映らないよう注意。再読み込み後は前回のイベント名と時刻のみ復元します。診断用sessionStorage以外は変更しません。</small>
     </aside>
