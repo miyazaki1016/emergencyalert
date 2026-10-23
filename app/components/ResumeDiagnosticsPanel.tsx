@@ -72,7 +72,7 @@ export default function ResumeDiagnosticsPanel() {
       <details>
         <summary>前回のページ記録（最大30件）</summary>
         <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere", maxHeight: "20vh", overflow: "auto" }}>
-          {previous.map(e => e.at.slice(11, 19) + " " + e.type).join("\\n") || "記録なし"}
+          {previous.map(e => e.at.slice(11, 19) + " " + e.type).join("\n") || "記録なし"}
         </pre>
       </details>
       <details>
