@@ -225,7 +225,7 @@ export default function ResumeDiagnosticsPanel() {
       <div>保存キー集計（件数のみ）: {authStorageInventory}</div>
       <details>
         <summary>認証保存キーの変化: {authTransitions.length}件</summary>
-        <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{authTransitions.join("\\n") || "記録なし"}</pre>
+        <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{authTransitions.join("\n") || "記録なし"}</pre>
       </details>
       <details>
         <summary>SWイベント: {swEvents.length}件</summary>
