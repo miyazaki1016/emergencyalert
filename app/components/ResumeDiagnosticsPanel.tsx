@@ -140,8 +140,9 @@ export default function ResumeDiagnosticsPanel() {
   if (!enabled) return null;
   return (
     <aside aria-label="復帰診断（研究用）" style={{
-      position: "fixed", bottom: 8, right: 8, zIndex: 2147483647,
-      width: "min(94vw, 380px)", maxHeight: "38vh", overflow: "auto",
+      position: "fixed", bottom: 8, left: 8, right: 8, zIndex: 2147483647,
+      width: "auto", maxWidth: 380, marginLeft: "auto", boxSizing: "border-box",
+      maxHeight: "38vh", overflowX: "hidden", overflowY: "auto",
       padding: 12, background: "#111827", color: "#fff", border: "2px solid #fbbf24",
       borderRadius: 12, fontSize: 12, boxShadow: "0 4px 24px #0008"
     }}>
