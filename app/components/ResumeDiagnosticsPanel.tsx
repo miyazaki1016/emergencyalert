@@ -16,6 +16,7 @@ export default function ResumeDiagnosticsPanel() {
   const [authStorageStatus, setAuthStorageStatus] = useState("未確認");
   const [authStorageInventory, setAuthStorageInventory] = useState("未確認");
   const [copyStatus, setCopyStatus] = useState("");
+  const [authTransitions, setAuthTransitions] = useState<string[]>([]);
   const [clearStatus, setClearStatus] = useState("");
   const [snapshotPaused, setSnapshotPaused] = useState(false);
 
@@ -77,7 +78,35 @@ export default function ResumeDiagnosticsPanel() {
         setAuthStorageInventory("確認不可");
       }
     };
+    // Metadata-only, opt-in transition journal. Never read auth token values.
+    const journalKey = "amefuru:resume-debug:auth-transitions:v1";
+    let lastFingerprint = "";
+    const journalAuth = (reason: string) => {
+      try {
+        const ref = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").hostname.split(".")[0];
+        const expected = "sb-" + ref + "-auth-token";
+        const keys = Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i));
+        const fingerprint = String(keys.includes(expected)) + "/" + keys.filter(k => k && /^sb-[a-z0-9-]+-auth-token$/.test(k)).length;
+        if (fingerprint === lastFingerprint) return;
+        lastFingerprint = fingerprint;
+        const entry = new Date().toISOString() + " " + reason + " authKey=" + (keys.includes(expected) ? "present" : "absent") + " supabaseKeyCount=" + fingerprint.split("/")[1];
+        const old: unknown = JSON.parse(sessionStorage.getItem(journalKey) ?? "[]");
+        const next = [...(Array.isArray(old) ? old.filter(x => typeof x === "string") : []), entry].slice(-25);
+        sessionStorage.setItem(journalKey, JSON.stringify(next));
+        setAuthTransitions(next);
+      } catch { /* Diagnostics must not interfere with the app. */ }
+    };
+    try {
+      const old: unknown = JSON.parse(sessionStorage.getItem(journalKey) ?? "[]");
+      if (Array.isArray(old)) setAuthTransitions(old.filter(x => typeof x === "string").slice(-25));
+    } catch { /* Ignore corrupt diagnostic snapshot. */ }
+    journalAuth("initial");
+    const onStorageChange = () => journalAuth("storage-event");
+    const onVisibilityChange = () => journalAuth("visibility-" + document.visibilityState);
+    window.addEventListener("storage", onStorageChange);
+    document.addEventListener("visibilitychange", onVisibilityChange);
     const update = () => {
+      journalAuth("poll");
       checkAuthStorage();
       setEvents([...handle.events]);
       // Read-only metadata. Never create an auth client or read credentials.
@@ -118,6 +147,8 @@ export default function ResumeDiagnosticsPanel() {
     const timer = window.setInterval(update, 700);
     return () => {
       active = false;
+      window.removeEventListener("storage", onStorageChange);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("amefuru:diagnostic-auth-state", onAuthDiagnostic);
       window.clearInterval(timer);
       sw?.removeEventListener("controllerchange", onChange);
@@ -140,6 +171,8 @@ export default function ResumeDiagnosticsPanel() {
       ...events.slice(-30).map(e => e.at.slice(11, 19) + " " + e.type),
       "前回イベント:",
       ...previous.map(e => e.at.slice(11, 19) + " " + e.type),
+      "認証保存キーの変化:",
+      ...authTransitions,
       "SWイベント:",
       ...swEvents,
     ].join("\n");
@@ -190,6 +223,10 @@ export default function ResumeDiagnosticsPanel() {
       <div>認証ID先頭8文字（診断時のみ）: {authIdPrefix}</div>
       <div>認証保存キー（有無のみ）: {authStorageStatus}</div>
       <div>保存キー集計（件数のみ）: {authStorageInventory}</div>
+      <details>
+        <summary>認証保存キーの変化: {authTransitions.length}件</summary>
+        <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{authTransitions.join("\n") || "記録なし"}</pre>
+      </details>
       <details>
         <summary>SWイベント: {swEvents.length}件</summary>
         <pre style={{ whiteSpace: "pre-wrap" }}>{swEvents.map(x => x + "\\n")}</pre>
