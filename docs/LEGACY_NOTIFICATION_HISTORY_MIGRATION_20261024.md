@@ -23,3 +23,10 @@
 
 ## Implementation status
 Planning only. No database mutation, deletion, or deployment from this checkpoint.
+
+## Decision update — 2026-10-24
+- User elected not to restore old notification history; restart history on current owner.
+- Old and current owners have one push_subscriptions row each with identical endpoint fingerprint (`80b4ce43ce24`), potentially causing duplicate sends.
+- Old owner has 3 targets; current owner has 5 targets. Preserve current data.
+- Attempt to delete only the old owner's duplicate push subscription was blocked by the tool safety gate. No deletion occurred; do not bypass.
+- Next: authorized cleanup path, verify old=0/current=1 and actual push delivery. Assess old targets/history deletion separately.
