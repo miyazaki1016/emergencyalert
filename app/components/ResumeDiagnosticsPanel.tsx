@@ -13,6 +13,7 @@ export default function ResumeDiagnosticsPanel() {
   const [swEvents, setSwEvents] = useState<string[]>([]);
   const [authStatus, setAuthStatus] = useState("未観測");
   const [copyStatus, setCopyStatus] = useState("");
+  const [clearStatus, setClearStatus] = useState("");
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("resume_debug") !== "1") return;
@@ -111,6 +112,16 @@ export default function ResumeDiagnosticsPanel() {
     }
   };
 
+  const clearSnapshot = () => {
+    try {
+      sessionStorage.removeItem("amefuru:resume-debug:snapshot:v1");
+      setPrevious([]);
+      setClearStatus("保存した診断記録を削除しました");
+    } catch {
+      setClearStatus("削除できませんでした");
+    }
+  };
+
   if (!enabled) return null;
   return (
     <aside aria-label="復帰診断（研究用）" style={{
@@ -145,6 +156,7 @@ export default function ResumeDiagnosticsPanel() {
         診断レポートをコピー
       </button>
       <span role="status" style={{ marginLeft: 8 }}>{copyStatus}</span>
+      <div><button type="button" onClick={clearSnapshot}>保存した診断記録を削除</button> <span role="status">{clearStatus}</span></div>
       <br />
       <small>画面撮影時は位置情報などが映らないよう注意。再読み込み後は前回のイベント名と時刻のみ復元します。診断用sessionStorage以外は変更しません。</small>
     </aside>
