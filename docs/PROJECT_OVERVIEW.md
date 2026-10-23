@@ -734,3 +734,14 @@ Production deployment afterward.
 - Database inspection confirmed one push row belongs to an older anonymous owner and none to the current owner, while five watch targets were successfully restored to the current owner. The UI's `通知ON` only indicates a browser subscription, not matching DB ownership.
 - PR #79 adds an explicit, opt-in `通知登録を修復` action after the mismatch check. It reuses the existing browser subscription and current authenticated session, upserts the current owner's row, and reads it back for verification. It does not request permission, unsubscribe, rotate anonymous IDs, alter targets, or delete the old owner's subscription.
 - **Unverified until iPhone test:** CI, preview, production rollout, actual push delivery, and any possible duplicate delivery from the old-owner row. No end-to-end delivery claim is made.
+
+
+## 2026-10-24 — Anonymous auth loss: code-level audit checkpoint
+
+- Five targets were visible in the installed iPhone PWA after three older targets were restored to the then-current anonymous owner `d76b7b7a…`; subsequently the PWA reported no session and no Supabase auth storage key. Safari is authenticated as a different owner `78497568…`; Chrome has no session.
+- PR #78 introduced a **read-only** push-ownership check using `auth.getSession()`; PR #79 introduced an explicit repair action which checks the session before upserting a push row. Neither patch directly calls `signOut` or replaces an auth session.
+- Prior to PR #80, `lib/supabase/browser.ts` created a new Supabase client on each invocation. PR #80 changed it to a singleton. This is a plausible refresh/listener race risk, **not an established cause** of localStorage key disappearance.
+- Current `app/page.tsx` only calls `signInAnonymously()` inside `ensureAnonymousSession()` when a user saves a location without a session. `loadSavedTargets()` and `loadLatestAlerts()` call `getSession()` and do not create a user. No sign-out or storage-clear call was found in inspected `app/page.tsx`, `lib/supabase/browser.ts`, or `public/sw.js`.
+- `public/sw.js` deletes **Cache Storage** entries other than `emergencyalert-shell-v1` during activation, but does not manipulate localStorage or Supabase auth keys. `app/pwa-register.tsx` registers this service worker.
+- **Unresolved:** what specifically removed or made inaccessible the original PWA auth storage key. Need exact device-side transition logs, Supabase auth refresh/error instrumentation (redacted), and storage-scope tests before claiming root cause.
+- No auth mutation, data transfer, or push subscription deletion authorized. User is willing to re-register locations **after** cause investigation and preventive safeguards.
