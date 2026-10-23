@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "../lib/supabase/browser";
 import NotificationFeedbackHistory from "./components/NotificationFeedbackHistory";
 import ResumeDiagnosticsPanel from "./components/ResumeDiagnosticsPanel";
+import PwaDiagnosticsToggle from "./components/PwaDiagnosticsToggle";
 
 type RainMessage = { headline: string; detail: string };
 type RainInterpretation = {
@@ -676,6 +677,7 @@ export default function Home() {
           </pre>
         </details>
       )}
+      <PwaDiagnosticsToggle />
       <ResumeDiagnosticsPanel />
     </main>
   );
