@@ -85,6 +85,7 @@ export default function NotificationFeedbackHistory() {
       setObservationTimes({});
       setObservationChoices({});
       setEarlierInputs({});
+      window.__amefuruResumeDiagnostics?.mark("history-refresh-end", { reason: "config-missing" });
       return;
     }
     try {
