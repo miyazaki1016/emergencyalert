@@ -12,6 +12,7 @@ export default function ResumeDiagnosticsPanel() {
   const [runtimeStatus, setRuntimeStatus] = useState("確認中");
   const [swEvents, setSwEvents] = useState<string[]>([]);
   const [authStatus, setAuthStatus] = useState("未観測");
+  const [authStorageStatus, setAuthStorageStatus] = useState("未確認");
   const [copyStatus, setCopyStatus] = useState("");
   const [clearStatus, setClearStatus] = useState("");
   const [snapshotPaused, setSnapshotPaused] = useState(false);
@@ -54,7 +55,21 @@ export default function ResumeDiagnosticsPanel() {
     } catch {
       setStorageStatus("利用不可");
     }
+    const checkAuthStorage = () => {
+      // Inspect key existence only. Never read, parse, log or copy auth token values.
+      try {
+        const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        if (!url) { setAuthStorageStatus("設定なし"); return; }
+        const ref = new URL(url).hostname.split(".")[0];
+        const key = `sb-${ref}-auth-token`;
+        const exists = Array.from({ length: window.localStorage.length }, (_, i) => window.localStorage.key(i)).includes(key);
+        setAuthStorageStatus(exists ? "認証保存キーあり（内容は未確認）" : "認証保存キーなし");
+      } catch {
+        setAuthStorageStatus("保存領域を確認できない");
+      }
+    };
     const update = () => {
+      checkAuthStorage();
       setEvents([...handle.events]);
       // Read-only metadata. Never create an auth client or read credentials.
       const sw = "serviceWorker" in navigator
@@ -108,6 +123,7 @@ export default function ResumeDiagnosticsPanel() {
       "取得時刻: " + new Date().toISOString(),
       "履歴枠: " + (document.querySelector("[data-amefuru-feedback-history]") ? "あり" : "なし"),
       "認証状態: " + authStatus,
+      "認証保存キー: " + authStorageStatus,
       "診断保存: " + storageStatus,
       "直近イベント:",
       ...events.slice(-30).map(e => e.at.slice(11, 19) + " " + e.type),
@@ -160,6 +176,7 @@ export default function ResumeDiagnosticsPanel() {
       <div>診断保存: {storageStatus} ／ 前回の記録: {previous.length}件</div>
       <div>{runtimeStatus}</div>
       <div>認証状態（既存の履歴読込から）: {authStatus}</div>
+      <div>認証保存キー（有無のみ）: {authStorageStatus}</div>
       <details>
         <summary>SWイベント: {swEvents.length}件</summary>
         <pre style={{ whiteSpace: "pre-wrap" }}>{swEvents.map(x => x + "\\n")}</pre>
@@ -185,7 +202,7 @@ export default function ResumeDiagnosticsPanel() {
       {snapshotPaused && <button type="button" onClick={resumeSnapshot}>保存を再開</button>}
       <span role="status">{clearStatus}</span></div>
       <br />
-      <small>画面撮影時は位置情報などが映らないよう注意。再読み込み後は前回のイベント名と時刻のみ復元します。診断用sessionStorage以外は変更しません。</small>
+      <small>画面撮影時は位置情報などが映らないよう注意。再読み込み後は前回のイベント名と時刻のみ復元します。診断用sessionStorage以外は変更しません。認証保存キーは名前の有無だけを調べ、トークンやIDは読み取りません。</small>
     </aside>
   );
 }
