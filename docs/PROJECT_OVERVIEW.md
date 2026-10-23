@@ -745,3 +745,9 @@ Production deployment afterward.
 - `public/sw.js` deletes **Cache Storage** entries other than `emergencyalert-shell-v1` during activation, but does not manipulate localStorage or Supabase auth keys. `app/pwa-register.tsx` registers this service worker.
 - **Unresolved:** what specifically removed or made inaccessible the original PWA auth storage key. Need exact device-side transition logs, Supabase auth refresh/error instrumentation (redacted), and storage-scope tests before claiming root cause.
 - No auth mutation, data transfer, or push subscription deletion authorized. User is willing to re-register locations **after** cause investigation and preventive safeguards.
+
+
+### 2026-10-24 — iPhone PWA unknown localStorage key investigation
+- Current code audit: `signInAnonymously` only in location-save flow; no explicit app-side auth key deletion was found. SDK or OS behavior remains unconfirmed.
+- Added opt-in on-device diagnostics to display names of non-Supabase-format localStorage keys without reading values or copying names into reports. The single unknown key can now be identified by name. This does not establish its stored value or recover a lost auth session.
+- No new anonymous ID or watch target created; preserve current state for inspection.
