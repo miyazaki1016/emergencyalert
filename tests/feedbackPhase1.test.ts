@@ -183,3 +183,17 @@ describe("archived feedback remains browsable after seven days", () => {
     expect(historyQuerySince(true,Date.parse("2026-10-23T00:00:00Z"))).toBeNull();
   });
 });
+
+describe("old Push deep links and history query", () => {
+  it("removes the seven-day cutoff for a focused historical notification", () => {
+    const now=Date.parse("2026-10-23T00:00:00Z");
+    const focused=parseFeedbackHash("#rain-feedback-123");
+    expect(focused).toBe(123);
+    expect(historyQuerySince(focused !== null,now)).toBeNull();
+  });
+  it("retains the seven-day cutoff without a focused link", () => {
+    const now=Date.parse("2026-10-23T00:00:00Z");
+    const focused=parseFeedbackHash("#unrelated");
+    expect(historyQuerySince(focused !== null,now)).toBe("2026-10-16T00:00:00.000Z");
+  });
+});
