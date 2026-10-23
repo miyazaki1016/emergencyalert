@@ -27,3 +27,18 @@
 - 2026-10-23：研究ブランチと計画を作成。**全国実データの取得、集計、検証、改善率の計測は未実施**。
 - 次：現行雨雲処理のソース監査とJMA資料の照合。入力形式と解析可能なサンプルを確定後、再現可能な解析スクリプト＋テストを追加する。
 - **各作業単位でGitHubに実施内容・結果・根拠・未解決・次の一手を保存し、リモートから再読して確認する。**
+
+
+## 2026-10-23 現行コード監査・第1チェックポイント（静的照合済み）
+
+**確認した実装（main）**
+- `lib/weather/providers/jma/JmaPublicImageProvider.ts`：観測・予測のtarget時刻ごとにズーム10のWeb Mercatorタイルを取得し、**登録地点の1画素のみ**を読み取る。近傍の密度・連続性は現行判定に未使用。
+- `lib/weather/providers/jma/readPixel.ts`：`pngjs`でRGBAをデコードし、指定1画素を抽出。円形領域解析には複数画素・タイル境界横断を扱う**研究用の別処理**が必要。
+- `lib/weather/providers/jma/webMercator.ts`：緯度経度→z10タイル／画素。地表距離250m等は緯度によるスケール補正を要する。タイル1画素を全国一律250mとみなさない。
+- `lib/weather/providers/jma/tileUrl.ts`：JMA公開`/bosai/jmatile/data/nowc/{basetime}/none/{validtime}/surf/hrpns/{z}/{x}/{y}.png`を参照。
+- `lib/weather/providers/jma/pngPalette.ts`：現行mainでは`#FAF500`を`20_TO_30`に登録済み。`pngPalette.test.ts`は保存済み実PNGの黄色562画素の分類を検査。古い`docs/PNG_PALETTE_EVIDENCE.md`の「黄色未解決」は**現行コードの状態ではない**。
+- `lib/weather/providers/jma/classifyPixel.ts`：現行mainは`alpha=0 -> NO_RAIN`。2026-09-23時点の古いドキュメントには透過の意味が未証明とあるため、**現行実装と当時の根拠の差異**を次に検証する。研究では透明・取得失敗・未知色を無条件に地上の無降雨とみなさない。
+
+**実施範囲**：GitHubのソースと既存テストを読んだ静的監査。テスト再実行・ライブ画像取得・地上雨量照合・全国集計はまだ行っていない。精度改善や実降雨との相関は未計測。
+
+**次の作業**：①公開PNGの既存保存サンプルを用いて、面積/距離補正とタイル境界のある小領域の画素分類・密度算出を再現可能な研究コードとして作る。②透過画素を「欠損・表示なし」と「実際に雨なし」に分離して評価する。③別系統の地上観測で照合する。Push/DB/本番判定は変更しない。
