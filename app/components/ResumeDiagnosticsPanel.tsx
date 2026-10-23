@@ -13,6 +13,7 @@ export default function ResumeDiagnosticsPanel() {
   const [swEvents, setSwEvents] = useState<string[]>([]);
   const [authStatus, setAuthStatus] = useState("未観測");
   const [authStorageStatus, setAuthStorageStatus] = useState("未確認");
+  const [authStorageInventory, setAuthStorageInventory] = useState("未確認");
   const [copyStatus, setCopyStatus] = useState("");
   const [clearStatus, setClearStatus] = useState("");
   const [snapshotPaused, setSnapshotPaused] = useState(false);
@@ -64,8 +65,13 @@ export default function ResumeDiagnosticsPanel() {
         const key = `sb-${ref}-auth-token`;
         const exists = Array.from({ length: window.localStorage.length }, (_, i) => window.localStorage.key(i)).includes(key);
         setAuthStorageStatus(exists ? "認証保存キーあり（内容は未確認）" : "認証保存キーなし");
+        // Only count key names by prefix. Never access their stored values.
+        const names = Array.from({ length: window.localStorage.length }, (_, i) => window.localStorage.key(i)).filter((k): k is string => typeof k === "string");
+        const supabaseCount = names.filter(k => /^sb-[a-z0-9-]+-auth-token$/.test(k)).length;
+        setAuthStorageInventory(`Supabase形式の認証キー: ${supabaseCount}件 ／ 保存キー総数: ${names.length}件`);
       } catch {
         setAuthStorageStatus("保存領域を確認できない");
+        setAuthStorageInventory("確認不可");
       }
     };
     const update = () => {
@@ -124,6 +130,7 @@ export default function ResumeDiagnosticsPanel() {
       "履歴枠: " + (document.querySelector("[data-amefuru-feedback-history]") ? "あり" : "なし"),
       "認証状態: " + authStatus,
       "認証保存キー: " + authStorageStatus,
+      "保存キー集計: " + authStorageInventory,
       "診断保存: " + storageStatus,
       "直近イベント:",
       ...events.slice(-30).map(e => e.at.slice(11, 19) + " " + e.type),
@@ -177,6 +184,7 @@ export default function ResumeDiagnosticsPanel() {
       <div>{runtimeStatus}</div>
       <div>認証状態（既存の履歴読込から）: {authStatus}</div>
       <div>認証保存キー（有無のみ）: {authStorageStatus}</div>
+      <div>保存キー集計（件数のみ）: {authStorageInventory}</div>
       <details>
         <summary>SWイベント: {swEvents.length}件</summary>
         <pre style={{ whiteSpace: "pre-wrap" }}>{swEvents.map(x => x + "\\n")}</pre>
