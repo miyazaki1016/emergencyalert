@@ -9,6 +9,7 @@ export default function ResumeDiagnosticsPanel() {
   const [events, setEvents] = useState<ResumeEvent[]>([]);
   const [previous, setPrevious] = useState<{at:string;type:string}[]>([]);
   const [storageStatus, setStorageStatus] = useState("未確認");
+  const [runtimeStatus, setRuntimeStatus] = useState("確認中");
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("resume_debug") !== "1") return;
@@ -33,6 +34,16 @@ export default function ResumeDiagnosticsPanel() {
     }
     const update = () => {
       setEvents([...handle.events]);
+      // Read-only metadata. Never create an auth client or read credentials.
+      const sw = "serviceWorker" in navigator
+        ? (navigator.serviceWorker.controller ? "制御あり" : "制御なし")
+        : "非対応";
+      const standalone = window.matchMedia("(display-mode: standalone)").matches;
+      setRuntimeStatus("PWA: " + (standalone ? "ホーム画面" : "ブラウザ") +
+        " ／ SW: " + sw +
+        " ／ 通信: " + (navigator.onLine ? "オンライン" : "オフライン") +
+        " ／ 表示: " + document.visibilityState);
+
       try {
         window.sessionStorage.setItem(key, JSON.stringify(
           handle.events.slice(-30).map(e => ({ at: e.at, type: e.type }))
@@ -57,6 +68,7 @@ export default function ResumeDiagnosticsPanel() {
       <strong>🔍 復帰診断（研究用・端末内のみ）</strong>
       <div>履歴枠: {typeof document !== "undefined" && document.querySelector('[data-amefuru-feedback-history]') ? "あり" : "なし"} ／ 記録: {events.length}件</div>
       <div>診断保存: {storageStatus} ／ 前回の記録: {previous.length}件</div>
+      <div>{runtimeStatus}</div>
       <details>
         <summary>前回のページ記録（最大30件）</summary>
         <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere", maxHeight: "20vh", overflow: "auto" }}>
