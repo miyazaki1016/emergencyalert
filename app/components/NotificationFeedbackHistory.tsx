@@ -48,6 +48,7 @@ function formatTokyo(timestamp: string): string {
 export default function NotificationFeedbackHistory() {
   // Research branch only: local lifecycle markers, no identity or tokens recorded.
   useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("resume_debug") !== "1") return;
     const diagnostics = installPwaResumeDiagnostics();
     diagnostics.mark("history-mount");
     return () => diagnostics.mark("history-unmount");
@@ -92,12 +93,12 @@ export default function NotificationFeedbackHistory() {
       const client = getSupabaseBrowserClient();
       const { data: { session }, error: authError } = await client.auth.getSession();
       if (authError) {
-        window.dispatchEvent(new CustomEvent("amefuru:diagnostic-auth-state", {
+        if (new URLSearchParams(window.location.search).get("resume_debug") === "1") window.dispatchEvent(new CustomEvent("amefuru:diagnostic-auth-state", {
           detail: { status: "error" },
         }));
         throw authError;
       }
-      window.dispatchEvent(new CustomEvent("amefuru:diagnostic-auth-state", {
+      if (new URLSearchParams(window.location.search).get("resume_debug") === "1") window.dispatchEvent(new CustomEvent("amefuru:diagnostic-auth-state", {
         detail: { status: session ? "present" : "absent" },
       }));
       if (!session) {
