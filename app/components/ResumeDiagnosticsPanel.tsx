@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { installPwaResumeDiagnostics, type ResumeEvent } from "../../lib/diagnostics/pwaResumeDiagnostics";
 
-/** Research-only. Shown only with ?resume_debug=1; never sends diagnostic events. */
+/** Opt-in diagnostics; local-only and never sends diagnostic events. */
 export default function ResumeDiagnosticsPanel() {
   const [enabled, setEnabled] = useState(false);
   const [events, setEvents] = useState<ResumeEvent[]>([]);
@@ -17,7 +17,12 @@ export default function ResumeDiagnosticsPanel() {
   const [snapshotPaused, setSnapshotPaused] = useState(false);
 
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("resume_debug") !== "1") return;
+    const queryEnabled = new URLSearchParams(window.location.search).get("resume_debug") === "1";
+    const inAppEnabled = (() => {
+      try { return window.sessionStorage.getItem("amefuru:resume-debug:enabled:v1") === "1"; }
+      catch { return false; }
+    })();
+    if (!queryEnabled && !inAppEnabled) return;
     setEnabled(true);
     const onAuthDiagnostic = (event: Event) => {
       const status = (event as CustomEvent<{ status?: string }>).detail?.status;
