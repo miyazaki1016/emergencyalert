@@ -91,7 +91,15 @@ export default function NotificationFeedbackHistory() {
     try {
       const client = getSupabaseBrowserClient();
       const { data: { session }, error: authError } = await client.auth.getSession();
-      if (authError) throw authError;
+      if (authError) {
+        window.dispatchEvent(new CustomEvent("amefuru:diagnostic-auth-state", {
+          detail: { status: "error" },
+        }));
+        throw authError;
+      }
+      window.dispatchEvent(new CustomEvent("amefuru:diagnostic-auth-state", {
+        detail: { status: session ? "present" : "absent" },
+      }));
       if (!session) {
         setOwnerId(null);
         setArchivedThrough(null);
