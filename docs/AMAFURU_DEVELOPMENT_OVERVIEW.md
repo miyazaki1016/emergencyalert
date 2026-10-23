@@ -1,3 +1,11 @@
+## 2026-10-23 作業チェックポイント：7日超Push直リンクの修正を隔離ブランチに保存
+
+- **修正ブランチ**：`fix/archived-history-deeplink-20261023`（PR #73の `fix/archived-history-beyond-seven-days-20261023` を起点に作成）。main・PR #73自体は変更なし。
+- **コード変更**：`app/components/NotificationFeedbackHistory.tsx`。初回の通知取得時、URL `#rain-feedback-ID` を `parseFeedbackHash` で読み、指定があれば `historyQuerySince(true, ...)` と同様に7日間の取得下限を外す。既存の `linkedArchived` とカード展開・場所フィルタ解除を利用。既存の最大200件、RLS、保存済み回答・観測時刻はそのまま。commit `6ec7a63ef7c0aa571f5cfb06a13b9220ec31d78b`。
+- **テスト追加**：`tests/feedbackPhase1.test.ts` に、古いPushリンク指定時は7日下限なし／無関係ハッシュ時は7日下限ありの単体テスト2件。commit `4d3acfeca1a30dc47223b7788ab351d89e783234`。GitHub remoteから両ファイルを再取得して保存確認済み。
+- **検証状況**：コードとテストをGitHubに保存した段階。**CI・テスト実行・iPhone実機は未確認**。また200件を超える履歴の古いリンクは現設計では未保証。URLハッシュを後から切り替える場合、再取得が必要となる可能性も残る。
+- **次の一手**：このブランチのCI／ローカルテスト実行、hashchangeと200件超のケース検証、mainからの差分整理。結果をcheckpointとして追記。明示承認なしにmainマージ・本番反映しない。
+
 ## 2026-10-23 追加チェックポイント：PR #73 深掘り・直リンク回帰リスク
 
 - **確認ソース**：PR #73 `fix/archived-history-beyond-seven-days-20261023` の `app/components/NotificationFeedbackHistory.tsx` 68–119行、201–225行、およびmain正本 `docs/PROJECT_OVERVIEW.md`。実機・CIは今回未実施。
