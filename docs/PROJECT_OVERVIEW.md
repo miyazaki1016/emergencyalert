@@ -751,3 +751,9 @@ Production deployment afterward.
 - Current code audit: `signInAnonymously` only in location-save flow; no explicit app-side auth key deletion was found. SDK or OS behavior remains unconfirmed.
 - Added opt-in on-device diagnostics to display names of non-Supabase-format localStorage keys without reading values or copying names into reports. The single unknown key can now be identified by name. This does not establish its stored value or recover a lost auth session.
 - No new anonymous ID or watch target created; preserve current state for inspection.
+
+
+### 2026-10-24 — Persistent opt-in auth-key presence journal (reproduction preparation)
+- User's iPhone report at 2026-10-23T21:14:32Z showed `session absent`, expected auth key absent, 0 Supabase-format keys, 1 other localStorage key. The remaining key name was `amefuru:feedback-history-archived-through:v1:668834cc-4113-4db5-9abe-ad72153d8e8b`, a history archive boundary for the first anonymous owner, not an auth credential. Journal started with `authKey=absent`; deletion time is still unknown.
+- Diagnostic-only journal moved from sessionStorage to localStorage under `amefuru:resume-debug:auth-transitions:v2`; max 25 timestamped presence/count transitions, initialized on each diagnostic mount, no token values, no ID, no auth writes. This allows comparison after a PWA process restart *if localStorage survives*. It cannot observe while closed or survive whole-origin storage clearing; journal may be removed alongside auth. New diagnostic key increases the localStorage key count.
+- No new anonymous login or location registration yet. After deployment, enable diagnostic in installed iPhone PWA before saving one test location and record baseline; do not infer causation from absence alone.
