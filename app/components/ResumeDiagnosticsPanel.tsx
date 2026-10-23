@@ -27,7 +27,11 @@ export default function ResumeDiagnosticsPanel() {
     };
     window.addEventListener("amefuru:diagnostic-auth-state", onAuthDiagnostic);
     const handle = installPwaResumeDiagnostics();
-    setSnapshotPaused(window.sessionStorage.getItem("amefuru:resume-debug:paused:v1") === "1");
+    try {
+      setSnapshotPaused(window.sessionStorage.getItem("amefuru:resume-debug:paused:v1") === "1");
+    } catch {
+      setStorageStatus("利用不可");
+    }
     // Diagnostic-only sessionStorage key. Never access auth/session keys.
     const key = "amefuru:resume-debug:snapshot:v1";
     try {
@@ -57,8 +61,8 @@ export default function ResumeDiagnosticsPanel() {
         " ／ 通信: " + (navigator.onLine ? "オンライン" : "オフライン") +
         " ／ 表示: " + document.visibilityState);
 
-      if (window.sessionStorage.getItem("amefuru:resume-debug:paused:v1") === "1") return;
       try {
+        if (window.sessionStorage.getItem("amefuru:resume-debug:paused:v1") === "1") return;
         window.sessionStorage.setItem(key, JSON.stringify(
           handle.events.slice(-30).map(e => ({ at: e.at, type: e.type }))
         ));
