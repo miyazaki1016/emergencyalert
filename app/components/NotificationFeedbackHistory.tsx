@@ -109,7 +109,12 @@ export default function NotificationFeedbackHistory() {
       } catch {
         setArchivedThrough(null);
       }
-      const since = historyQuerySince(showArchived, Date.now());
+      // A Push deep link may target a delivery older than seven days.
+      // Include older rows while a focused notification is requested;
+      // the existing archive boundary and focused-card logic still apply.
+      const focusedFromUrl = typeof window !== "undefined"
+        ? parseFeedbackHash(window.location.hash) : null;
+      const since = historyQuerySince(showArchived || focusedFromUrl !== null, Date.now());
       let deliveryQuery = client.from("notification_deliveries")
         .select("id,target_id,event_type,body,delivered_at")
         .gt("delivered_count", 0);
