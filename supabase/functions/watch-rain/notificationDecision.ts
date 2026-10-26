@@ -40,7 +40,7 @@ export function advanceObservationStreak(args: {
   previousClearStreak: number;
 }) {
   const { status, validAt, previousValidAt } = args;
-  const fresh = Boolean(validAt && /^\\d{14}$/.test(validAt) && (!previousValidAt || (validAt > previousValidAt)));
+  const fresh = Boolean(validAt && /^\d{14}$/.test(validAt) && (!previousValidAt || (validAt > previousValidAt)));
   if (!fresh || (status !== "RAIN" && status !== "NO_RAIN")) return {
     rainStreak: args.previousRainStreak, clearStreak: args.previousClearStreak,
     observationValidAt: previousValidAt,
