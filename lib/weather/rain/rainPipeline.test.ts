@@ -39,7 +39,7 @@ describe("rain user-facing pipeline", () => {
   it("turns verified near-term actionable rain into the laundry-saving event and copy", () => {
     const result = pipeline(
       frame(0, "NO_RAIN"),
-      [frame(5, "NO_RAIN"), frame(15, "RAIN", "5_TO_10"), frame(40, "UNKNOWN_PIXEL")],
+      [frame(5, "NO_RAIN"), frame(15, "RAIN", "5_TO_10"), frame(20, "RAIN", "5_TO_10"), frame(40, "UNKNOWN_PIXEL")],
     );
 
     expect(result.enabled).toBe(true);
@@ -56,7 +56,7 @@ describe("rain user-facing pipeline", () => {
   it("withholds the entire user-facing claim when evidence is unknown before the rain", () => {
     const result = pipeline(
       frame(0, "NO_RAIN"),
-      [frame(5, "UNKNOWN_PIXEL"), frame(15, "RAIN", "5_TO_10")],
+      [frame(5, "UNKNOWN_PIXEL"), frame(15, "RAIN", "5_TO_10"), frame(20, "RAIN", "5_TO_10")],
     );
 
     expect(result.enabled).toBe(false);
