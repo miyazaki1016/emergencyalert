@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nextLastNotifiedAt, nextRainEndingNotified, shouldNotifyForRain } from "../../../supabase/functions/watch-rain/notificationDecision";
+import { advanceObservationStreak, nextLastNotifiedAt, nextRainEndingNotified, shouldNotifyForRain } from "../../../supabase/functions/watch-rain/notificationDecision";
 
 describe("watch-rain notification decision", () => {
   it("notifies when a target becomes actionable", () => {
@@ -53,7 +53,7 @@ describe("watch-rain notification decision", () => {
       currentUrgency: "LIFESTYLE_ACTION",
       previousUrgency: "INFO",
       lastNotifiedAt: "2026-09-24T06:00:00.000Z",
-    })).toBe(true);
+    })).toBe(false);
   });
 
   it("does not notify when an actionable episode falls back to INFO", () => {
@@ -122,7 +122,7 @@ describe("watch-rain notification decision", () => {
     });
 
     it("clears the marker when the grounded event is no longer actionable", () => {
-      expect(nextLastNotifiedAt({ delivered: 0, actionable: false, previousLastNotifiedAt: previous, now })).toBeNull();
+      expect(nextLastNotifiedAt({ delivered: 0, actionable: false, previousLastNotifiedAt: previous, now })).toBe(previous);
     });
   });
 });
@@ -146,7 +146,7 @@ describe("rain-ending hysteresis", () => {
       previousRainEndingNotified: true,
       rainStreak: 3,
       endingDelivered: false,
-    })).toBe(false);
+    })).toBe(true);
   });
 
   it("keeps the latch set when a new ending notification is delivered", () => {
@@ -155,5 +155,19 @@ describe("rain-ending hysteresis", () => {
       rainStreak: 3,
       endingDelivered: true,
     })).toBe(true);
+  });
+});
+
+
+describe("unique observation time streaks", () => {
+  it("does not count repeated valid times or unknown observations", () => {
+    const a=advanceObservationStreak({status:"NO_RAIN",validAt:"20261026010000",previousValidAt:"20261026005500",previousRainStreak:0,previousClearStreak:1});
+    expect(a.clearStreak).toBe(2);
+    const b=advanceObservationStreak({status:"NO_RAIN",validAt:"20261026010000",previousValidAt:a.observationValidAt,previousRainStreak:a.rainStreak,previousClearStreak:a.clearStreak});
+    expect(b.clearStreak).toBe(2);
+    const c=advanceObservationStreak({status:"UNKNOWN",validAt:"20261026010500",previousValidAt:b.observationValidAt,previousRainStreak:b.rainStreak,previousClearStreak:b.clearStreak});
+    expect(c.clearStreak).toBe(2);
+    const d=advanceObservationStreak({status:"NO_RAIN",validAt:"20261026011000",previousValidAt:c.observationValidAt,previousRainStreak:c.rainStreak,previousClearStreak:c.clearStreak});
+    expect(d.clearStreak).toBe(3);
   });
 });
