@@ -34,7 +34,7 @@ Deno.serve(async(req:Request)=>{
   const rainConfirmed=rainStreak>=3&&!previous?.rain_confirmed_notified;
   const severeRank=(v?:string|null)=>v==="GTE_80"?3:v==="50_TO_80"?2:v==="30_TO_50"?1:0;
   const severeFrame=(rain.forecast??[]).filter(f=>f.validTime&&new Date(f.validTime).getTime()>=Date.now()&&severeRank(f.intensityClass)>0).sort((a,b)=>severeRank(b.intensityClass)-severeRank(a.intensityClass)||new Date(a.validTime!).getTime()-new Date(b.validTime!).getTime())[0];
-  const severeLevel=severeRank(severeFrame?.intensityClass); const previousSevere=Number(previous?.severe_rain_level??0); const severeEscalation=severeLevel>previousSevere;
+  const severeLevel=severeRank(severeFrame?.intensityClass); const previousSevere=Number(previous?.severe_rain_level??0); const severeEscalation=severeLevel>0&&previousSevere===0;
   const initialRaining=false;
   const rainEnding=!episodeClosed&&rain.event.eventType==="RAIN_ENDING"&&previousEvent?.eventType!=="RAIN_ENDING"&&!previous?.rain_ending_notified&&previous?.confirmed_weather==="RAINING";
   const confirmedAndEnding=!episodeClosed&&rainConfirmed&&rain.event.eventType==="RAIN_ENDING"&&!previous?.rain_ending_notified;
@@ -49,14 +49,14 @@ Deno.serve(async(req:Request)=>{
   const selectedClass=upcomingClasses.find(f=>f.validTime===actionableAt)?.intensityClass;
   const laundryBody=notificationLabel?selectedClass==="1_TO_5"?notificationLabel+"：このあと雨が続きそう。洗濯物を確認してね":notificationLabel+"：30分以内に雨が降りそう。洗濯物を確認してね":selectedClass==="1_TO_5"?"このあと雨が続きそう。洗濯物を確認してね":"30分以内に雨が降りそう。洗濯物を確認してね";
   const body=severeEscalation?severeBody:confirmedAndEnding?(notificationLabel?`${notificationLabel}の雨、もうすぐ止みそうだよ🌥️`:"雨、もうすぐ止みそうだよ🌥️"):initialRaining?(notificationLabel?`${notificationLabel}はいま雨が降ってるよ☔️`:"いま雨が降ってるよ☔️"):rainEnding?(notificationLabel?`${notificationLabel}の雨、もうすぐ止みそうだよ🌥️`:"雨、もうすぐ止みそうだよ🌥️"):returningRain?(notificationLabel?`${notificationLabel}：いったん弱まってるけど、また降りそうだよ☔️`:"いったん弱まってるけど、また降りそうだよ☔️"):(rain.event.suggestedAction==="BRING_LAUNDRY_INSIDE"?laundryBody:(notificationLabel?`${notificationLabel}：${rain.event.suggestedAction}`:rain.event.suggestedAction));
-  const notificationEventType=severeEscalation?`SEVERE_RAIN_${severeLevel}`:confirmedAndEnding?"RAIN_ENDING":rainEnding?"RAIN_ENDING":returningRain?"RAIN_RETURNING":rain.event.eventType;
+  const notificationEventType=severeEscalation?"SEVERE_RAIN":confirmedAndEnding?"RAIN_ENDING":rainEnding?"RAIN_ENDING":returningRain?"RAIN_RETURNING":rain.event.eventType;
   const notificationUrgency=severeEscalation?"DISASTER":rain.event.urgency;
   if(shouldNotify){const {data:subscriptions}=await db.from("push_subscriptions").select("id,endpoint,p256dh,auth").eq("owner_id",target.owner_id);
-   const payload=JSON.stringify({title:"EmergencyAlert",body,url:"/",data:{targetId:target.id,eventType:notificationEventType}});
+   const payload=JSON.stringify({title:severeEscalation?"🚨 大雨警戒":(notificationEventType==="RAIN_ENDING"?"🌤️ 雨がやみそう":"🌧️ 雨が降りそう"),body,url:"/",data:{targetId:target.id,eventType:notificationEventType}});
    for(const sub of subscriptions??[]){try{await webpush.sendNotification({endpoint:sub.endpoint,keys:{p256dh:sub.p256dh,auth:sub.auth}},payload);delivered++;}catch(err){const statusCode=Number((err as {statusCode?:number})?.statusCode??0);if(statusCode===404||statusCode===410)await db.from("push_subscriptions").delete().eq("id",sub.id);else failed++;}}
   }
   const now=new Date().toISOString();
-  if(delivered>0){await db.from("notification_deliveries").insert({owner_id:target.owner_id,target_id:target.id,event_type:notificationEventType,urgency:notificationUrgency,title:"EmergencyAlert",body,delivered_at:now,delivered_count:delivered});}
+  if(delivered>0){await db.from("notification_deliveries").insert({owner_id:target.owner_id,target_id:target.id,event_type:notificationEventType,urgency:notificationUrgency,title:severeEscalation?"🚨 大雨警戒":(notificationEventType==="RAIN_ENDING"?"🌤️ 雨がやみそう":"🌧️ 雨が降りそう"),body,delivered_at:now,delivered_count:delivered});}
   const notifiedAt=nextLastNotifiedAt({delivered,actionable,previousLastNotifiedAt:previous?.last_notified_at,now});
   const endingNotified=episodeClosed?false:nextRainEndingNotified({previousRainEndingNotified:Boolean(previous?.rain_ending_notified),rainStreak,endingDelivered:!severeEscalation&&(rainEnding||confirmedAndEnding)&&delivered>0});
   const rainConfirmedNotified=clearStreak>=3?false:(Boolean(previous?.rain_confirmed_notified)||rainConfirmed);
