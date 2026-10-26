@@ -767,3 +767,16 @@ Production deployment afterward.
 - 洗濯物通知の文面を強度別に変更。30mm/h以上の大雨通知は従来の優先経路を維持。
 - 対象: RainInterpretationEngine、watch-rain Edge Function、関連テスト。旧匿名IDのPush登録2件停止済み（別作業）。
 - 注意: 並行cron実行の排他・送信冪等性は別途検証対象。実機で通知件数と大雨通知を監視する。
+
+
+### 2026-10-26 — 通知過多対策の本番反映確認・残課題（追記）
+
+- **GitHub**: PR #89 `fix: 通常雨通知の重複抑制と5〜10mm連続予測判定` を squash merge 済み。main commit: `51389b82c4aa521b145fb6eedf1a76531640d23c`。
+- **CI**: PR #89 最終head `0b057730aaf055b3a25f467e60f3d413b7f1290f` に対する `verify`、`phase1-feedback-http`、`phase1-feedback-rls` はすべて成功。途中のテスト失敗は修正して再検証した。
+- **Vercel**: main commit `51389b82...` に対応する production deployment `dpl_33Qm49CyXGzEcQPwpHizVTdsqA3q` が `READY` と確認済み。アプリの雨解釈API側に反映。
+- **Supabase**: Edge Function `watch-rain` を version **30** に直接デプロイし、`ACTIVE` と確認済み（`verify_jwt=false`、従来の `x-watch-token` 認証を維持）。本番通知送信側に反映。
+- **Push登録**: DB上は現匿名ID接頭辞 `51d4ba07` の1件のみ。旧匿名ID `668834cc`、`d76b7b7a` の登録は停止済み。地点や通知履歴はこの操作で削除していない。
+- **実装**: 1〜5mm/hは5分間隔3コマ、5〜10mm/hは5分間隔2コマ、通知済み状態はINFO遷移で解除しない。雨なし3回の観測は有効時刻が異なる新しい観測のみ加算し、UNKNOWN・失敗では加算しない。通知文面は指定の洗濯物確認メッセージに変更。30mm/h以上の優先通知は維持。
+- **未検証**: 実際の降雨時に通知件数が十分減るか、降り始め・やみそうが各1回になるか、重要通知の到達、異常なcron並列起動時の重複送信、Push送信と状態保存間の競合。CI成功は実機通知到達の証明ではない。
+- **次回検証**: 本番 `notification_deliveries` を地点・雨エピソード単位で比較し、iPhone受信画面と照合。並列cronの排他/冪等化を別PRで検討。通常雨の重複が続く場合は送信前の原子的な通知予約を優先。
+- **運用原則**: 作業のたびにGitHubブランチ/PRと本総覧を更新し、mainへ統合して追跡可能にする。未検証事項を「完了」と記載しない。
