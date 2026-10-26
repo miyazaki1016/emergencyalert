@@ -757,3 +757,17 @@ Production deployment afterward.
 - User's iPhone report at 2026-10-23T21:14:32Z showed `session absent`, expected auth key absent, 0 Supabase-format keys, 1 other localStorage key. The remaining key name was `amefuru:feedback-history-archived-through:v1:668834cc-4113-4db5-9abe-ad72153d8e8b`, a history archive boundary for the first anonymous owner, not an auth credential. Journal started with `authKey=absent`; deletion time is still unknown.
 - Diagnostic-only journal moved from sessionStorage to localStorage under `amefuru:resume-debug:auth-transitions:v2`; max 25 timestamped presence/count transitions, initialized on each diagnostic mount, no token values, no ID, no auth writes. This allows comparison after a PWA process restart *if localStorage survives*. It cannot observe while closed or survive whole-origin storage clearing; journal may be removed alongside auth. New diagnostic key increases the localStorage key count.
 - No new anonymous login or location registration yet. After deployment, enable diagnostic in installed iPhone PWA before saving one test location and record baseline; do not infer causation from absence alone.
+
+
+## 2026-10-26 通常雨通知・第1段階見直し（未実装）
+
+- 背景: 10/25 通知大量発生。旧IDのPush登録2件は停止済み。現在ID内の重複通知も別途対策する。
+- 1〜5mm/h: 予測3コマ連続を維持。
+- 5〜10mm/h: 5分間隔・有効時刻が異なる予測2コマ連続を要求。単独1コマでは送信しない。
+- 同じ雨: 地点ごとの雨エピソードで「降り始め」「やみそう」を各1回。INFOへの一時的な遷移では再通知を許可しない。
+- 区切り: 有効な雨なし観測を3回連続で確認するまでエピソードを維持。UNKNOWN/取得失敗は加算しない。同じ観測時刻の再取得も加算しない。
+- 文面: 1〜5mm「○○：このあと雨が続きそう。洗濯物を確認してね」／5〜10mm「○○：30分以内に雨が降りそう。洗濯物を確認してね」。後者は予測時刻が30分以内のときだけ使用。
+- 30mm/h以上の重要通知は別系統で維持する。
+- 現状コードとの差分: supabase/functions/watch-rain/notificationDecision.ts は INFO→LIFESTYLE_ACTION で再通知し、index.ts は非actionableで last_notified_at を消去する。clear_streak は観測時刻の重複を検証せず増加する。予測2コマ判定は /api/rain 側も確認が必要。
+- 必須テスト: 同時刻の再実行、UNKNOWN、雨→INFO→雨、短い晴れ間、雨の再開、5〜10mm単発/連続、30mm以上、送信失敗、cron並列実行。
+- ステータス: 仕様・調査記録のみ。実装・merge・本番反映は未実施。
