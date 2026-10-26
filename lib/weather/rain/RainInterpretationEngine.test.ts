@@ -18,13 +18,23 @@ describe("actionable rain boundary", () => {
   const now = new Date("2026-09-24T06:00:00.000Z");
   const current = frame(now, 0, "NO_RAIN", null);
 
-  it("promotes 5mm/h-or-more rain at 30 minutes to LIFESTYLE_ACTION", () => {
-    const forecast = [frame(now, 5, "NO_RAIN", null), frame(now, 30, "RAIN", "5_TO_10")];
+  it("promotes two consecutive 5-10mm/h frames within 30 minutes", () => {
+    const forecast = [frame(now, 5, "NO_RAIN", null), frame(now, 25, "RAIN", "5_TO_10"), frame(now, 30, "RAIN", "5_TO_10")];
     const interpretation = interpretRainSeries({ now, current, forecast });
     const event = toRainSemanticEvent(interpretation, now, current.validTime);
     expect(interpretation.state).toBe("ACTIONABLE_RAIN");
     expect(interpretation.shouldNotify).toBe(true);
     expect(event?.urgency).toBe("LIFESTYLE_ACTION");
+  });
+
+  it("does not notify for one 5-10mm/h frame", () => {
+    const result = interpretRainSeries({ now, current, forecast: [frame(now, 20, "RAIN", "5_TO_10")] });
+    expect(result.shouldNotify).toBe(false);
+  });
+
+  it("does not count a gap as consecutive 5-10mm/h frames", () => {
+    const result = interpretRainSeries({ now, current, forecast: [frame(now, 20, "RAIN", "5_TO_10"), frame(now, 30, "RAIN", "5_TO_10")] });
+    expect(result.shouldNotify).toBe(false);
   });
 
   it("promotes persistent 1-5mm/h rain when three consecutive 5-minute frames start within 30 minutes", () => {
