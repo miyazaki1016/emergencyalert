@@ -25,7 +25,7 @@ export interface RainSeriesInput {
 }
 
 const ACTIONABLE = new Set<RainIntensityClass>([
-  "5_TO_10", "10_TO_20", "20_TO_30", "30_TO_50", "50_TO_80", "GTE_80",
+  "10_TO_20", "20_TO_30", "30_TO_50", "50_TO_80", "GTE_80",
 ]);
 
 const INVALID = new Set([
@@ -62,6 +62,7 @@ export function interpretRainSeries(input: RainSeriesInput): RainInterpretation 
   const future = forecast.filter((f) => minutesFrom(now, f.validTime) >= 0);
   const validFuture = future.filter((f) => !INVALID.has(f.status));
   const firstRain = validFuture.find((f) => f.status === "RAIN");
+  const firstModerateRain = findPersistentModerateRainStart(future);
   const firstStrongActionable = validFuture.find(
     (f) => f.status === "RAIN" && f.intensityClass !== null && ACTIONABLE.has(f.intensityClass),
   );
@@ -74,12 +75,12 @@ export function interpretRainSeries(input: RainSeriesInput): RainInterpretation 
       state: ending ? "ENDING" : easing ? "EASING" : "RAINING",
       shouldNotify: false,
       firstRainTime: current.validTime,
-      firstActionableRainTime: firstStrongActionable?.validTime ?? firstPersistentLightRain?.validTime ?? null,
+      firstActionableRainTime: firstStrongActionable?.validTime ?? firstModerateRain?.validTime ?? firstPersistentLightRain?.validTime ?? null,
       endingTime: ending,
     };
   }
 
-  const actionableCandidates = [firstStrongActionable, firstPersistentLightRain]
+  const actionableCandidates = [firstStrongActionable, firstModerateRain, firstPersistentLightRain]
     .filter((f): f is OfficialRainFrame => f !== null && f !== undefined)
     .sort((a, b) => parseJmaTime(a.validTime).getTime() - parseJmaTime(b.validTime).getTime());
   const firstActionable = actionableCandidates[0];
@@ -113,6 +114,15 @@ export function interpretRainSeries(input: RainSeriesInput): RainInterpretation 
 
   if (complete && future.every((f) => f.status === "NO_RAIN")) return empty("DRY");
   return empty("INSUFFICIENT_DATA");
+}
+
+function findPersistentModerateRainStart(frames: OfficialRainFrame[]): OfficialRainFrame | null {
+  for (let i = 0; i < frames.length - 1; i++) {
+    const a = frames[i], b = frames[i + 1];
+    if (a.status !== "RAIN" || b.status !== "RAIN" || a.intensityClass !== "5_TO_10" || b.intensityClass !== "5_TO_10") continue;
+    if (parseJmaTime(b.validTime).getTime() - parseJmaTime(a.validTime).getTime() === 5 * 60_000) return a;
+  }
+  return null;
 }
 
 function findPersistentLightRainStart(frames: OfficialRainFrame[]): OfficialRainFrame | null {

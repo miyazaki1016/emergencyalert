@@ -757,3 +757,13 @@ Production deployment afterward.
 - User's iPhone report at 2026-10-23T21:14:32Z showed `session absent`, expected auth key absent, 0 Supabase-format keys, 1 other localStorage key. The remaining key name was `amefuru:feedback-history-archived-through:v1:668834cc-4113-4db5-9abe-ad72153d8e8b`, a history archive boundary for the first anonymous owner, not an auth credential. Journal started with `authKey=absent`; deletion time is still unknown.
 - Diagnostic-only journal moved from sessionStorage to localStorage under `amefuru:resume-debug:auth-transitions:v2`; max 25 timestamped presence/count transitions, initialized on each diagnostic mount, no token values, no ID, no auth writes. This allows comparison after a PWA process restart *if localStorage survives*. It cannot observe while closed or survive whole-origin storage clearing; journal may be removed alongside auth. New diagnostic key increases the localStorage key count.
 - No new anonymous login or location registration yet. After deployment, enable diagnostic in installed iPhone PWA before saving one test location and record baseline; do not infer causation from absence alone.
+
+
+## 2026-10-26 通知過多抑制・実装PR
+
+- 通常雨のエピソード単位で通知済み時刻を保持し、INFOへの一時遷移で消去しない。3回の有効な雨なし観測でのみ再通知を許可する。
+- 5〜10mm/hは5分間隔の予測2コマを要求し、1〜5mm/hは従来どおり3コマ連続。
+- 観測の有効時刻をwatch_states.last_event.observationValidAtに保持し、同一観測の再取得・UNKNOWNでは観測連続回数を加算しない。
+- 洗濯物通知の文面を強度別に変更。30mm/h以上の大雨通知は従来の優先経路を維持。
+- 対象: RainInterpretationEngine、watch-rain Edge Function、関連テスト。旧匿名IDのPush登録2件停止済み（別作業）。
+- 注意: 並行cron実行の排他・送信冪等性は別途検証対象。実機で通知件数と大雨通知を監視する。

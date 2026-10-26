@@ -8,9 +8,7 @@ export function shouldNotifyForRain(args: {
   rainEnding?: boolean;
 }) {
   const actionable = args.currentUrgency === "LIFESTYLE_ACTION";
-  const becameActionable = actionable && args.previousUrgency !== "LIFESTYLE_ACTION";
-  const retryPending = actionable && !args.lastNotifiedAt;
-  return args.notificationsEnabled && (Boolean(args.rainEnding) || becameActionable || retryPending);
+  return args.notificationsEnabled && (Boolean(args.rainEnding) || (actionable && !args.lastNotifiedAt));
 }
 
 
@@ -21,8 +19,7 @@ export function nextLastNotifiedAt(args: {
   now: string;
 }) {
   if (args.delivered > 0) return args.now;
-  if (args.actionable) return args.previousLastNotifiedAt ?? null;
-  return null;
+  return args.previousLastNotifiedAt ?? null;
 }
 
 export function nextRainEndingNotified(args: {
@@ -31,6 +28,26 @@ export function nextRainEndingNotified(args: {
   endingDelivered: boolean;
 }) {
   if (args.endingDelivered) return true;
-  if (args.rainStreak >= 3) return false;
   return args.previousRainEndingNotified;
+}
+
+/** A repeated fetch of the same observation must not advance a weather streak. */
+export function advanceObservationStreak(args: {
+  status: string | null;
+  validAt: string | null;
+  previousValidAt: string | null;
+  previousRainStreak: number;
+  previousClearStreak: number;
+}) {
+  const { status, validAt, previousValidAt } = args;
+  const fresh = Boolean(validAt && /^\d{14}$/.test(validAt) && (!previousValidAt || (validAt > previousValidAt)));
+  if (!fresh || (status !== "RAIN" && status !== "NO_RAIN")) return {
+    rainStreak: args.previousRainStreak, clearStreak: args.previousClearStreak,
+    observationValidAt: previousValidAt,
+  };
+  return {
+    rainStreak: status === "RAIN" ? Math.min(args.previousRainStreak + 1, 3) : 0,
+    clearStreak: status === "NO_RAIN" ? Math.min(args.previousClearStreak + 1, 3) : 0,
+    observationValidAt: validAt,
+  };
 }

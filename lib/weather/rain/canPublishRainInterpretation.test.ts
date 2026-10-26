@@ -21,6 +21,7 @@ describe("canPublishRainInterpretation", () => {
     const forecast = [
       frame(5, "NO_RAIN"),
       frame(15, "RAIN", "5_TO_10"),
+      frame(20, "RAIN", "5_TO_10"),
       frame(40, "UNKNOWN_PIXEL"),
     ];
     const interpretation = interpretRainSeries({ now, current: observation[0], forecast });
@@ -33,6 +34,7 @@ describe("canPublishRainInterpretation", () => {
     const forecast = [
       frame(5, "UNKNOWN_PIXEL"),
       frame(15, "RAIN", "5_TO_10"),
+      frame(20, "RAIN", "5_TO_10"),
     ];
     const interpretation = interpretRainSeries({ now, current: observation[0], forecast });
     expect(interpretation.state).toBe("ACTIONABLE_RAIN");
