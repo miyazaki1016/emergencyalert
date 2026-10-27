@@ -41,3 +41,28 @@
 - Pushは外部サービスなのでDBと完全な原子的トランザクションにできず、**厳密な一度だけの端末到達保証はできない**。重複抑止と不明結果の安全な扱いを優先する。
 
 **次の実装ゲート**：使い捨てPostgresの別接続2本で同時INSERT/claimを競争させ、同じevent_keyとsubscription_idで送信権が1件だけになるテストを作る。これが通るまで本番workerに接続しない。
+
+## 2026-10-28 ユーザー実例：「雨が降っていないのに止むよ」／歯抜けの雨雲
+
+**第1優先の意味を訂正**：ユーザーの主眼は「誤った降る／止む通知を減らすこと」。技術的な重複Push/障害対策は別トラックとして保持し、通知内容・タイミングの判定改善を先行して調査する。ユーザー仮説：中心画素の歯抜けで状態が揺れる。直前に**実際に送った通知**と、その後に雨が継続したかを組み合わせたい。
+
+### mainのコード追跡（静的確認）
+- `notificationDecision.ts/advanceObservationStreak`：新しい有効時刻の `RAIN` は rain_streak+1、`NO_RAIN` は rain_streak=0。逆も同様。**一回の歯抜けで連続雨カウントは0に戻る**。同じ観測時刻やUNKNOWNはカウントしない。
+- `watch-rain/index.ts`：`confirmed_weather` は rain_streak>=3 で RAINING、clear_streak>=3 で DRY。それ以外は以前の値を**維持**。歯抜け1〜2回では古いRAININGが残る。
+- `rainEnding` は `eventType === RAIN_ENDING`、直前eventがRAIN_ENDINGではない、`rain_ending_notified` がfalse、**confirmed_weatherがRAINING**等で成立し得る。**現在のrain_streak>=3を必須にしていない**。
+- `confirmedAndEnding` は rain_streak>=3、まだrain_confirmed_notifiedでない、かつ eventType=RAIN_ENDING で成立。**同じ判定サイクル内に雨確認と止む予測が重なる**ケースがある。
+- `rain_confirmed_notified` は実際のPush成功ではなく rain_streak>=3 でtrueになり得るため、変数名と「実際に通知済み」の意味が一致しない。
+- `last_notified_at` は最後のPush時刻だけで、**直前の配信種類（降る／止む）とその後の観測履歴を明示的に結び付けていない**。一方 `rain_ending_notified` は止む通知の送信済み状態を持つ。
+- 以上はコード上の経路。実際の誤通知の原因と断定するには、その通知時点のrain_diagnostic_historyとnotification_deliveriesの時系列照合が必要。
+
+### 最小再現シナリオ（これからテスト化）
+1. 有効時刻の異なるRAINを3回観測 → confirmed_weather=RAINING。
+2. NO_RAINを1回（歯抜け） → rain_streak=0、clear_streak=1、confirmed_weatherはRAININGのまま。
+3. その時点で予報eventがRAIN_ENDINGに変わる → 条件次第で「止むよ」を送る。実際に地上で降っていたかは不明。
+4. 直前の実送信が「降るよ」でも、送信後に地上雨を確認できていなければ「止むよ」を保留する候補を比較。
+
+### 次の作業
+- `RAIN, RAIN, RAIN, NO_RAIN, RAIN_ENDING` と `RAIN, NO_RAIN, RAIN, NO_RAIN` を含む純粋関数の回帰テストを追加。
+- 直前に**実送信成功**したイベント種別と、通知後の**新規の有効時刻**での観測を区別する設計。直前の通知だけで降雨を証明しない。
+- 点／面／併用による歯抜け対策は研究ブランチで精度比較。地上雨の独立観測なしに「正解」とは呼ばない。
+- 本番のPush条件・DB・Edgeは変更しない。
