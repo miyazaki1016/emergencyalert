@@ -42,3 +42,19 @@
 
 ## 次の一手
 通知の実送信コードと既存DBの読み取り専用照合を完了し、保存接続点を確定する。現時点でその箇所の確認が完了したとは言わない。
+
+## 2026-10-29 実運用経路・本番スキーマの読み取り専用照合【完了】
+- Supabase 本番 EmergencyAlert の ACTIVE Edge Function `watch-rain` version 31 を**読み取りのみ**で確認。cron認証後に有効 watch_targets を最大100件取得し、各地点について公開 `/api/rain?lat=...&lon=...` を呼び出す。結果は `rain_diagnostic_history` に一部保存し、`watch_states` で前回イベント/連続実況/抑制状態を判断。
+- Push経路：`shouldNotify` → `push_subscriptions` を取得 → 購読ごとに `webpush.sendNotification` → delivered > 0 の場合だけ `notification_deliveries.insert` → `watch_states.upsert`。**送信後に配信履歴を INSERT**するため、送信成功と履歴書込み失敗の間にギャップがある。今の経路にDB書込みを挿入する場合、通知停止・二重送信・記録欠落を招かないよう別途設計が必要（Issue #64）。
+- `watch-rain` は `rain.forecast` の `baseTime/validTime/status/intensityClass/rgba` を受け取っているが、通知履歴には残していない。 `rain_diagnostic_history` への記録は `diagnostic` が通常時にはnullとなり得るため、**全通知の予測根拠の完全保存を保証しない**。
+- 通知の種別・予測対象時刻の決め方が一律ではない：強雨 `SEVERE_RAIN` は `severeFrame.validTime`、雨接近は `rain.event.actionableAt` / `startsAt`、終了は `rain.event.endingAt` を候補にする。実際の送信種別 `notificationEventType` は rain.event.eventType と異なることがある。**送信した通知種別に基づいて対象時刻を決定**する必要がある。
+- 現行本番 `notification_deliveries` カラムは id,owner_id,target_id,event_type,urgency,title,body,delivered_at,delivered_count,created_at の10件。予測対象時刻・判定根拠は存在しない。 `watch_targets` には登録地点の緯度経度があるが、評価時に地点が編集・削除される可能性があるため、当時の地点識別/位置の保全方針が必要。
+- 現行本番 `watch_states` は `last_event jsonb`、`last_checked_at`、`last_notified_at`、`rain_ending_notified`、`clear_streak`、`rain_streak`、`confirmed_weather` 等を保持。これは**最新状態で上書きされる**ため過去通知の完全再生には使えない。
+- 注意：`webpush.sendNotification` の成功はPushサービスへの受理であり、端末への表示・利用者の閲覧を保証しない。「配信済み」はこの意味に限定する。
+- 既存の Edge Function / 本番DB / Push / cron に変更なし。読み取り結果に秘密値が含まれる可能性があるため、関数ソース全体や設定値を設計書に転載しない。
+
+### 推奨する最小実装の接続点
+- `watch-rain` の **shouldNotify が確定した後、Push送信前** に通知候補の不変スナップショットを構成する。ただし永続化と実送信の順序は既存 #64 と整合させるまで確定しない。
+- `notification_deliveries.id` との紐付けは、現状 `insert` の返却IDを使っていないため、`insert(...).select('id').single()` 等の改修が候補。ただし失敗時の取り扱いと重複防止を先に設計する。
+- 最初は **独立した評価レコード** を検討。現行 `notification_deliveries` の制約・配信処理を直接変えるのは避ける。DB移行、Edge更新、cron変更は別途承認を取る。
+- 次工程：この照合結果を前提に、保存形式・照合器の純粋関数・単体テストを専用ブランチで追加する。実データの正解率はまだ算出できない。
