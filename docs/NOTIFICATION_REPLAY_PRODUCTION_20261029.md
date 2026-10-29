@@ -47,3 +47,9 @@ rain_notification_evaluationsは90日、rain_evaluation_runsは30日保存。pri
 - セキュリティ診断：追加テーブルには意図的な「RLS有効・クライアント用policyなし」のINFOだけが増加。既存WARNは今回の追加で変更していない。関連説明：https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy
 - 現時点では新規の実通知評価サンプルは0件。実通知→保存→後日の実況→確定評価という自然データの全行程、およびiPhone表示は未確認。これを的中率や精度改善の実証として扱わない。
 - コネクタ配備時だけ、function直下index.tsへエントリポイントを平坦化し、../_shared/を./_shared/に置換して同じ共有ソースを同梱する。元ソースはPR #99で追跡。
+
+## main統合と引き継ぎ
+- [PR #99](https://github.com/miyazaki1016/emergencyalert/pull/99) はmain統合済み。統合コミット：`b6c216be96ecadcb9f86f2042ee6e786800b30c8`。
+- 最終head `626c66338dbb81f8ea1b4ccc1bb7487b89a31cf8` のverify / phase1-feedback-rls / phase1-feedback-httpもすべて成功。初期headの確認だけで完了扱いにはしていない。
+- 入口：[main総覧](PROJECT_OVERVIEW.md)、経緯・次工程：[開発台帳](DEVELOPMENT_LEDGER.md)。
+- 上記の時刻・サンプル件数は2026-10-29 11:27 JSTの確認記録。再開時には現状を読み取りで再確認し、過去時点の0件を現在件数として扱わない。
