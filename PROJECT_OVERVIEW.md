@@ -1,6 +1,6 @@
 # EmergencyAlert 総覧
 
-- **最優先・予測通知の重複修正**：branch `fix/forecast-notification-episodes-20261029` → [実装・検証・本番結果と再開地点](docs/FORECAST_EPISODE_FIX_20261029.md)。現況と予測エピソードを分離し、購読別intentで並行／クラッシュ再送を抑止。PR #104でmain統合・v33反映、17:10自然cron14地点エラー0。移行境界の追加補正は `fix/forecast-bootstrap-20261029` で追跡。面判定は本番へ採用しない。
+- **最優先・予測通知の重複修正**：branch `fix/forecast-notification-episodes-20261029` → [実装・検証・本番結果と再開地点](docs/FORECAST_EPISODE_FIX_20261029.md)。現況と予測エピソードを分離し、購読別intentで並行／クラッシュ再送を抑止。PR #104・#105で管理。本番v34、17:20自然cron14地点エラー0、272テスト・CI全4ジョブ成功。自然な継続接近での重複減少効果はまだ未観測。次は詳細の監視SQLで追跡。面判定は本番へ採用しない。
 
 - **2026-10-29 美深町538・539監査**：[画像・最終状態・再通知の根拠と残課題](docs/BIFUKA_NOTIFICATION_AUDIT_20261029.md)。ブランチ `audit/bifuka-notifications-538-539-20261029`。両件の全処理COMPLETEを確認。通知条件は未変更。表示の明確化・不一致のパターン別集計・具体的理由の表示はPR #103でmain統合、本番READY。247テスト・CI成功。通知条件は維持し、追加UIの実機確認は未完了。
 

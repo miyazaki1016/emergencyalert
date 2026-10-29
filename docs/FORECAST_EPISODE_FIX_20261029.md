@@ -70,3 +70,11 @@
 
 - 17:10の自然監視で遠別町の必要な止む通知552が発生。2つの購読に対して各1個のENDING intentがACCEPTEDとなり、配信履歴1行・delivered_count=2と対応。これは手動のテスト送信ではない。
 - 移行境界テストをさらに追加：3回の解消確認と今回のACTIVEの間に弱雨INFOが入っても解消を忘れず、最新配信より前の古い解消は使わない。272テスト成功。既存runtimeを再生成しない。
+
+## 最終確認・残課題（17:20 JST）
+- [PR #104](https://github.com/miyazaki1016/emergencyalert/pull/104) と[移行補強PR #105](https://github.com/miyazaki1016/emergencyalert/pull/105)で管理。ソースhead `bbe9a526a437e121b3c38da0b6d4253db3bc77d4` の272テスト・CI全4ジョブ（独立Postgres競合含む）成功。
+- 本番watch-rain v34へ反映済み。全6ファイルを本番から再取得し、梱包時のimport相対パス変換後のソースと一致。DBの追加変更や既存runtimeの再初期化はしていない。
+- 17:10 / 17:15 / 17:20の反映後自然cronは各HTTP200・14地点・CHECK_FAILED=0。17:20後のruntime14件はlease解放済み。552の必要な止む通知は2購読各1回のACCEPTED intent、未確定intentなし。履歴538〜548は11行維持。
+- この観測期間には継続接近予測の抑止対象がなく、実データでのsuppressionReason件数は0。したがって「本番で重複が減った」という効果の実測や、新しい雨への再通知・強雨悪化の自然事例は未確認。回帰・故障注入・独立Postgresで条件を検証した段階で、次の自然な該当予測を[監視SQL](sql/forecast-episode-monitoring.sql)で追う。
+- ラボは本番READY・HTTP200、共通コマの除外理由欄が配信JSへ含まれることを確認。既存539の表示は利用者確認済み、今回の追加欄の実機目視は未確認。
+- 地上正解、面判定の採用効果、無通知を含む見逃し率は未測定。今回の45コマを独立した雨事例数と混同しない。送信不明の自動再送や、attemptの無条件削除はしない。
