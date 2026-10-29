@@ -1,0 +1,1328 @@
+[
+  {
+    "notificationId": 538,
+    "kind": "FORECAST",
+    "base": "20261029034000",
+    "valid": "20261029035000",
+    "captured": "2026-10-29T03:46:01.926Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 0,
+      "TRANSPARENT_NO_RAIN": 529,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      255,
+      255,
+      255,
+      0
+    ],
+    "centerClass": "TRANSPARENT_NO_RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 0,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 0,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": true,
+    "storedInputMatch": true,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "3acac377bfe45a3d9f9eb1743f09e6d23650e7474766948a94dcecd966deab17",
+    "rgbaSha256": "618a93398348557ceef8747e109b37b493964e45f60ae998f33f32428accc41f"
+  },
+  {
+    "notificationId": 538,
+    "kind": "FORECAST",
+    "base": "20261029034000",
+    "valid": "20261029035500",
+    "captured": "2026-10-29T03:46:02.054Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 526,
+      "TRANSPARENT_NO_RAIN": 3,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      242,
+      242,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 0.9957466918714556,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0.9886739027843322,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": true,
+    "storedInputMatch": true,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "68c6595b8927892562c1790de6f51af2c83b3ed3a2936c55dc5a53ef2a359ac6",
+    "rgbaSha256": "582cd8122c75f9a9beaf37267ae11c05349ade175f1823d23b43f33278ea5548"
+  },
+  {
+    "notificationId": 538,
+    "kind": "FORECAST",
+    "base": "20261029034000",
+    "valid": "20261029040000",
+    "captured": "2026-10-29T03:46:02.158Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 529,
+      "TRANSPARENT_NO_RAIN": 0,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      242,
+      242,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": true,
+    "storedInputMatch": true,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "fe74b13e864bcbaca553b9c36f6f5f3cd76edc6be280a71f8d00fad647dd8e81",
+    "rgbaSha256": "f0ac774510ac20cabb18f3b13b5da8f580b0a5b6a791ad6c3c5dc8f2687b614b"
+  },
+  {
+    "notificationId": 538,
+    "kind": "FORECAST",
+    "base": "20261029034000",
+    "valid": "20261029040500",
+    "captured": "2026-10-29T03:46:02.221Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 529,
+      "TRANSPARENT_NO_RAIN": 0,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      160,
+      210,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": true,
+    "storedInputMatch": true,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "02d7ffe65f56f4629912a5edd57f18ecac29054eabf046af9a046643bd797137",
+    "rgbaSha256": "06fda82a784c376d7da3fe609eeaa6949be2a7b1dde50c4ac24f035724c2f0d1"
+  },
+  {
+    "notificationId": 538,
+    "kind": "FORECAST",
+    "base": "20261029034000",
+    "valid": "20261029041000",
+    "captured": "2026-10-29T03:46:02.305Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 529,
+      "TRANSPARENT_NO_RAIN": 0,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      160,
+      210,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": true,
+    "storedInputMatch": true,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "532f00ad035eb29cf97f6cac3dd69a154563f20cb443059cbc6e4e5b347421be",
+    "rgbaSha256": "0f118c18d18a19f194e51351b7638a51440d9ff878f7e84bae9a8022df99683c"
+  },
+  {
+    "notificationId": 538,
+    "kind": "FORECAST",
+    "base": "20261029034000",
+    "valid": "20261029041500",
+    "captured": "2026-10-29T03:46:02.374Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 529,
+      "TRANSPARENT_NO_RAIN": 0,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      160,
+      210,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": true,
+    "storedInputMatch": true,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "b37582170e86763eb0480b2a84fb32ac261305f1d758b3d1e9b13cf6487d8eef",
+    "rgbaSha256": "cefba5dd588c33b0d485bbefdbfc9ee6830b28097d85814d5fe22ba992548802"
+  },
+  {
+    "notificationId": 538,
+    "kind": "INPUT_OBSERVATION",
+    "base": "20261029034000",
+    "valid": "20261029034000",
+    "captured": "2026-10-29T03:49:01.309Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 77,
+      "TRANSPARENT_NO_RAIN": 452,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      255,
+      255,
+      255,
+      0
+    ],
+    "centerClass": "TRANSPARENT_NO_RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 0.2820754716981132,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 0.2637051039697543,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0.18929919773478054,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": true,
+    "storedInputMatch": true,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "26ea4a8799e57969e72c67e123da042e13cba70fd7fec9dd083dfbb15759d9a4",
+    "rgbaSha256": "7b239c8799eb7f35c51493607937260b2a755ad9ae9330631d4c7270ccdcb8c7"
+  },
+  {
+    "notificationId": 538,
+    "kind": "OBSERVATION",
+    "base": "20261029035000",
+    "valid": "20261029035000",
+    "captured": "2026-10-29T03:52:01.583Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 12,
+      "TRANSPARENT_NO_RAIN": 517,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      255,
+      255,
+      255,
+      0
+    ],
+    "centerClass": "TRANSPARENT_NO_RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 0,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 0,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": null,
+    "storedInputMatch": null,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "3eb89c20852db69efb6047b1063b7e4f0fc3d2a78e53be57c40205d2d3fe0cfa",
+    "rgbaSha256": "1779a3be86b5e213851c8cf1c0bd69945c94867f377f938b607a32a202cec671"
+  },
+  {
+    "notificationId": 538,
+    "kind": "OBSERVATION",
+    "base": "20261029035500",
+    "valid": "20261029035500",
+    "captured": "2026-10-29T03:57:01.119Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 336,
+      "TRANSPARENT_NO_RAIN": 193,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      242,
+      242,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 0.44433962264150945,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 0.4168241965973535,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0.6189830108541765,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": null,
+    "storedInputMatch": null,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "c142c7a6db7a14d2cf3ae1472687024035ccec2f0e80aaa93a77d90730a780ec",
+    "rgbaSha256": "dc46cd10eee592e696f4891d3132676277345c89a86b06fc89a18aaf420436d3"
+  },
+  {
+    "notificationId": 538,
+    "kind": "OBSERVATION",
+    "base": "20261029040000",
+    "valid": "20261029040000",
+    "captured": "2026-10-29T04:02:01.668Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 391,
+      "TRANSPARENT_NO_RAIN": 138,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      242,
+      242,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0.8796602170835299,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": null,
+    "storedInputMatch": null,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "f0ccfbbc4a8ddb06322d21093acf7e209eea0e541dc59d738a5c2b1c3d63c396",
+    "rgbaSha256": "3b635d3cf6b92e08fe454b6b2a0779ad846b9899c17441a0521a725234fa0bc9"
+  },
+  {
+    "notificationId": 538,
+    "kind": "OBSERVATION",
+    "base": "20261029040500",
+    "valid": "20261029040500",
+    "captured": "2026-10-29T04:08:01.579Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 183,
+      "TRANSPARENT_NO_RAIN": 346,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      242,
+      242,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 0.7764150943396226,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 0.5649810964083176,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0.39682633317602645,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": null,
+    "storedInputMatch": null,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "0325aa233ba3123e74fb115d6922d3d6ff4970875ce01676a328a5bc508a7dfb",
+    "rgbaSha256": "968c6e8d6374945f8dfbe73fd4f2deccc4ec444134ef0ccb7200685ab86f2310"
+  },
+  {
+    "notificationId": 538,
+    "kind": "OBSERVATION",
+    "base": "20261029041000",
+    "valid": "20261029041000",
+    "captured": "2026-10-29T04:13:01.056Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 119,
+      "TRANSPARENT_NO_RAIN": 410,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      242,
+      242,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 0.9830188679245283,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 0.6488657844990549,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0.29288579518640867,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": null,
+    "storedInputMatch": null,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "15a2092427ce61bdeda6acca84ce2bbecc30a3ddbc71bea82f74cf7933da0b0d",
+    "rgbaSha256": "8b3bd7a5bc5610157efed53730d5098e8b2283c133349b30f6af407a7f9df0cd"
+  },
+  {
+    "notificationId": 538,
+    "kind": "OBSERVATION",
+    "base": "20261029041500",
+    "valid": "20261029041500",
+    "captured": "2026-10-29T04:17:01.470Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 459,
+      "TRANSPARENT_NO_RAIN": 70,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      242,
+      242,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0.9956347333647947,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": null,
+    "storedInputMatch": null,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "49a27d82e67b15b75c0f617c9eeaeb7207b9fc367267dd116dddd7c318515910",
+    "rgbaSha256": "547f4915a5925fc484fbec4bcdda55152ca181a26f58abfc32ea28d2954d2533"
+  },
+  {
+    "notificationId": 539,
+    "kind": "FORECAST",
+    "base": "20261029035000",
+    "valid": "20261029035500",
+    "captured": "2026-10-29T03:56:01.641Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 437,
+      "TRANSPARENT_NO_RAIN": 92,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      242,
+      242,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 0.9169811320754717,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 0.8341209829867675,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0.8864440773949976,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": true,
+    "storedInputMatch": true,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "b495a9db33a5373151662b02996d48317f7d1ea273e2ff6733a91c138a7726fd",
+    "rgbaSha256": "88e98a004f46dc7839f0aa7a0c0624dc8c2bc902ad336f0edd335b0e9bb03f39"
+  },
+  {
+    "notificationId": 539,
+    "kind": "FORECAST",
+    "base": "20261029035000",
+    "valid": "20261029040000",
+    "captured": "2026-10-29T03:56:01.757Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 481,
+      "TRANSPARENT_NO_RAIN": 48,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      242,
+      242,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 0.9293478260869565,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0.9252595563945257,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": true,
+    "storedInputMatch": true,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "8e23675c7b1df02aba34be46feed304fcaf7a2d16b8cec0c5ffccf868937e963",
+    "rgbaSha256": "ce61f66a1e3f5b0397b59b5e93e8dec72e096075e9d792a818a3c64a28e402f7"
+  },
+  {
+    "notificationId": 539,
+    "kind": "FORECAST",
+    "base": "20261029035000",
+    "valid": "20261029040500",
+    "captured": "2026-10-29T03:56:01.897Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 527,
+      "TRANSPARENT_NO_RAIN": 2,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      242,
+      242,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": true,
+    "storedInputMatch": true,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "66b1d9c8e28891b05dca6dc9c3026e7a886bb7a7a3deb044f0242cb693d552d0",
+    "rgbaSha256": "cf6c0d94886175bd9623b2745951dc4fa6c81696c43b8f2e17051475a2d25571"
+  },
+  {
+    "notificationId": 539,
+    "kind": "FORECAST",
+    "base": "20261029035000",
+    "valid": "20261029041000",
+    "captured": "2026-10-29T03:56:01.985Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 529,
+      "TRANSPARENT_NO_RAIN": 0,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      160,
+      210,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": true,
+    "storedInputMatch": true,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "362ef3db5c3d90fa8e56e74c3b8c3496896e68150b5f2d1cb69065f85d29d608",
+    "rgbaSha256": "4b847fb6e2f01b9a7284f5ef1a23088e1e2f14eac75b53da1e7dd8418f30dffc"
+  },
+  {
+    "notificationId": 539,
+    "kind": "FORECAST",
+    "base": "20261029035000",
+    "valid": "20261029041500",
+    "captured": "2026-10-29T03:56:02.055Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 529,
+      "TRANSPARENT_NO_RAIN": 0,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      160,
+      210,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": true,
+    "storedInputMatch": true,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "b37582170e86763eb0480b2a84fb32ac261305f1d758b3d1e9b13cf6487d8eef",
+    "rgbaSha256": "cefba5dd588c33b0d485bbefdbfc9ee6830b28097d85814d5fe22ba992548802"
+  },
+  {
+    "notificationId": 539,
+    "kind": "FORECAST",
+    "base": "20261029035000",
+    "valid": "20261029042000",
+    "captured": "2026-10-29T03:56:02.147Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 529,
+      "TRANSPARENT_NO_RAIN": 0,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      160,
+      210,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": true,
+    "storedInputMatch": true,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "b37582170e86763eb0480b2a84fb32ac261305f1d758b3d1e9b13cf6487d8eef",
+    "rgbaSha256": "cefba5dd588c33b0d485bbefdbfc9ee6830b28097d85814d5fe22ba992548802"
+  },
+  {
+    "notificationId": 539,
+    "kind": "INPUT_OBSERVATION",
+    "base": "20261029035000",
+    "valid": "20261029035000",
+    "captured": "2026-10-29T03:58:01.388Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 12,
+      "TRANSPARENT_NO_RAIN": 517,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      255,
+      255,
+      255,
+      0
+    ],
+    "centerClass": "TRANSPARENT_NO_RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 0,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 0,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": true,
+    "storedInputMatch": true,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "3eb89c20852db69efb6047b1063b7e4f0fc3d2a78e53be57c40205d2d3fe0cfa",
+    "rgbaSha256": "1779a3be86b5e213851c8cf1c0bd69945c94867f377f938b607a32a202cec671"
+  },
+  {
+    "notificationId": 539,
+    "kind": "OBSERVATION",
+    "base": "20261029035500",
+    "valid": "20261029035500",
+    "captured": "2026-10-29T03:58:01.530Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 336,
+      "TRANSPARENT_NO_RAIN": 193,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      242,
+      242,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 0.44433962264150945,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 0.4168241965973535,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0.6189830108541765,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": null,
+    "storedInputMatch": null,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "c142c7a6db7a14d2cf3ae1472687024035ccec2f0e80aaa93a77d90730a780ec",
+    "rgbaSha256": "dc46cd10eee592e696f4891d3132676277345c89a86b06fc89a18aaf420436d3"
+  },
+  {
+    "notificationId": 539,
+    "kind": "OBSERVATION",
+    "base": "20261029040000",
+    "valid": "20261029040000",
+    "captured": "2026-10-29T04:02:01.434Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 391,
+      "TRANSPARENT_NO_RAIN": 138,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      242,
+      242,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0.8796602170835299,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": null,
+    "storedInputMatch": null,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "f0ccfbbc4a8ddb06322d21093acf7e209eea0e541dc59d738a5c2b1c3d63c396",
+    "rgbaSha256": "3b635d3cf6b92e08fe454b6b2a0779ad846b9899c17441a0521a725234fa0bc9"
+  },
+  {
+    "notificationId": 539,
+    "kind": "OBSERVATION",
+    "base": "20261029040500",
+    "valid": "20261029040500",
+    "captured": "2026-10-29T04:08:01.358Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 183,
+      "TRANSPARENT_NO_RAIN": 346,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      242,
+      242,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 0.7764150943396226,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 0.5649810964083176,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0.39682633317602645,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": null,
+    "storedInputMatch": null,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "0325aa233ba3123e74fb115d6922d3d6ff4970875ce01676a328a5bc508a7dfb",
+    "rgbaSha256": "968c6e8d6374945f8dfbe73fd4f2deccc4ec444134ef0ccb7200685ab86f2310"
+  },
+  {
+    "notificationId": 539,
+    "kind": "OBSERVATION",
+    "base": "20261029041000",
+    "valid": "20261029041000",
+    "captured": "2026-10-29T04:12:02.067Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 119,
+      "TRANSPARENT_NO_RAIN": 410,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      242,
+      242,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 0.9830188679245283,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 0.6488657844990549,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0.29288579518640867,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": null,
+    "storedInputMatch": null,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "15a2092427ce61bdeda6acca84ce2bbecc30a3ddbc71bea82f74cf7933da0b0d",
+    "rgbaSha256": "8b3bd7a5bc5610157efed53730d5098e8b2283c133349b30f6af407a7f9df0cd"
+  },
+  {
+    "notificationId": 539,
+    "kind": "OBSERVATION",
+    "base": "20261029041500",
+    "valid": "20261029041500",
+    "captured": "2026-10-29T04:17:01.275Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 459,
+      "TRANSPARENT_NO_RAIN": 70,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      242,
+      242,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0.9956347333647947,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": null,
+    "storedInputMatch": null,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "49a27d82e67b15b75c0f617c9eeaeb7207b9fc367267dd116dddd7c318515910",
+    "rgbaSha256": "547f4915a5925fc484fbec4bcdda55152ca181a26f58abfc32ea28d2954d2533"
+  },
+  {
+    "notificationId": 539,
+    "kind": "OBSERVATION",
+    "base": "20261029042000",
+    "valid": "20261029042000",
+    "captured": "2026-10-29T04:22:01.384Z",
+    "pixels": 529,
+    "counts": {
+      "RAIN": 470,
+      "TRANSPARENT_NO_RAIN": 59,
+      "UNKNOWN": 0,
+      "MISSING": 0
+    },
+    "centerRgba": [
+      242,
+      242,
+      255,
+      255
+    ],
+    "centerClass": "RAIN",
+    "circles": {
+      "250": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "500": {
+        "rainFraction": 1,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      },
+      "1000": {
+        "rainFraction": 0.9846035865974516,
+        "missingFraction": 0,
+        "unknownFraction": 0,
+        "usableCoverage": 1,
+        "storedMatches": true
+      }
+    },
+    "hashesMatch": true,
+    "inputMatch": null,
+    "storedInputMatch": null,
+    "inputDebugMatch": true,
+    "identityMatch": true,
+    "pngSha256": "461189662838836a2371e0fcf02c9945124b360e5301cd323474112a1e6aefb6",
+    "rgbaSha256": "9a8145261a46ea63175db0fdba12c7ecfb4993c73425b6bd053c9f06a52646af"
+  }
+]
