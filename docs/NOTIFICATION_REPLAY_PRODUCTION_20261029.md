@@ -35,3 +35,15 @@ rain_notification_evaluationsは90日、rain_evaluation_runsは30日保存。pri
 - 本番反映順：DB追加 → evaluate-rain配備 → cron登録・認証／無通知の疎通 → watch-rain記録追加 → 定時実行とDB照会で確認。
 - 切り戻し：評価cronを停止し、watch-rainを保存前のversion31ソースに戻す。評価テーブルは残して解析可能。既存Push制約を変更していないのでDBの破壊的切り戻しは不要。
 - 本番反映結果と実際の件数は作業完了時に追記する。自然に発生した通知の成否と、疎通用フィクスチャの結果を混同しない。
+
+## 本番反映・確認結果（2026-10-29 11:27 JST）
+- DB：notification_radar_replay と notification_radar_replay_schedule を適用済み。既存delivered_count>0制約の維持を照会で確認。
+- Edge：watch-rain version32 / evaluate-rain version1 をACTIVEとして配備。
+- cron：watch-rainは従来どおり5分ごと。evaluate-rainは毎時02,07,...57分に実行。11:27の定時評価はOK、failures=0。
+- 通知worker：11:25の自然な定時処理がHTTP200、12地点を処理しCHECK_FAILED=0。テスト目的のPush送信や通知条件の緩和はしていない。
+- 実況：本番EdgeからN1の37フレームを確認し、20261029022000の実況PNGの中心画素を読み取った。プローブは実通知の評価レコードを作らない。
+- 認証／権限：トークンなし呼出しはHTTP401。anon/authenticatedの評価テーブルSELECT権限、anonのclaim実行権限はいずれもfalse。
+- CI：PR #99 初期head c537c301 のverify / phase1-feedback-rls / phase1-feedback-httpはすべて成功。ローカル181件も成功。
+- セキュリティ診断：追加テーブルには意図的な「RLS有効・クライアント用policyなし」のINFOだけが増加。既存WARNは今回の追加で変更していない。関連説明：https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy
+- 現時点では新規の実通知評価サンプルは0件。実通知→保存→後日の実況→確定評価という自然データの全行程、およびiPhone表示は未確認。これを的中率や精度改善の実証として扱わない。
+- コネクタ配備時だけ、function直下index.tsへエントリポイントを平坦化し、../_shared/を./_shared/に置換して同じ共有ソースを同梱する。元ソースはPR #99で追跡。
