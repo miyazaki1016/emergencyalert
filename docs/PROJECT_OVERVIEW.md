@@ -18,7 +18,7 @@
 ## 2026-10-29 開発者専用「雨の判定ラボ」
 
 - **目的**：公開予定の履歴と分離し、点・面・併用、同時刻の予測／実況画像、専用の地点確認を比較する。
-- **ブランチ**：`feat/rain-comparison-dashboard-20261029`。**詳細**：[RAIN_RESEARCH_DASHBOARD_20261029.md](RAIN_RESEARCH_DASHBOARD_20261029.md)。**進捗**：実装・233テスト・隔離RLS試験完了。本番反映結果は詳細に追記。
+- **ブランチ**：`feat/rain-comparison-dashboard-20261029`。**詳細**：[RAIN_RESEARCH_DASHBOARD_20261029.md](RAIN_RESEARCH_DASHBOARD_20261029.md)。**進捗**：[PR #102](https://github.com/miyazaki1016/emergencyalert/pull/102)をmain統合、本番専用画面READY・HTTP200。233テスト・CI全3ジョブ・本番RLS境界確認済み。実機表示は未確認。
 - **次の一手**：許可済みの通常PWAで画面確認し、実通知と現地確認を蓄積。通知条件は変更せず、データ不足では改善判定をしない。
 
 ## 2026-10-29 最新の再開地点：通知予測・実況の答え合わせと半径1km画像保存

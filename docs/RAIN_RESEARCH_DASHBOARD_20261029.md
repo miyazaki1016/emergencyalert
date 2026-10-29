@@ -31,3 +31,14 @@
 1. 通知を受けている通常のPWAから開発リンクを開き、画像と処理状態を確認。
 2. 確認できた現地の天気だけを記録し、独立した複数の雨／非雨ケースで偽陽性・偽陰性・保留率を比較。
 3. 無通知サンプルと独立した地上観測を追加する設計を作り、閾値・採用条件を検討する。それまでは通知条件を維持。
+
+## 反映・確認チェックポイント
+- 実装PR：[#102](https://github.com/miyazaki1016/emergencyalert/pull/102)。初回head `128791dc03bb3e3d8bd7f4698fc275a1017e7a14`。
+- 本番DB移行 `rain_research_dashboard` 適用成功。現在の通知用PWAの確認済みIDを1件許可。端末IDは公開資料へ転載しない。
+- 本番でauthenticated roleとJWT subjectを設定した読み取り試験：開発者は所属1・自己ケース2・稼働ログ21件。自己昇格INSERT不可、通知評価UPDATE不可。非許可subjectは所属／ケース／画像／稼働ログ／地点確認すべて0件。試験トランザクションはrollbackし、偽の通知や地点観測は追加していない。
+- Preview `emergencyalert-biixltboo-kishibojim.vercel.app` が対象headでREADY。`/dev/rain-lab` はHTTP200、noindex、初期権限確認表示を確認。未認証HTMLにケースデータは埋め込まない。ブラウザ実行・実機操作は未確認。
+- セキュリティadvisorは研究テーブルのRLS未設定を検出していない。既存の匿名認証を使うためauthenticated向けポリシーに [Anonymous Access Policies](https://supabase.com/docs/guides/database/database-advisors?queryGroups=lint&lint=0012_auth_allow_anonymous_sign_ins) 警告が出るが、許可リスト＋自己所有制約を必須とし、未認証anonロールへ研究権限は付与していない。既存のpg_net配置等の警告は今回の変更対象外。
+
+- PR #102をmainへ統合済み。統合コミット `de9b480293d5db68e3d1497db28f86179dd71c8a`。初回headのverify／phase1-feedback-rls／phase1-feedback-http全3ジョブ成功。
+- Production deployment `dpl_C8P84XJRsgvZnesM3nRQ1ToHPJ9j` が上記コミットでREADY。[本番の専用画面](https://emergencyalert-gilt.vercel.app/dev/rain-lab) はHTTP200、noindex、権限確認の初期表示を確認。
+- 未認証anonロールの許可リストSELECT／ケースSELECT／地点確認INSERTはすべて不可。本番確認時に画像保存19行まで進行したが、地上観測・予測改善の証拠ではない。実機表示と認証済みPWAの端末操作確認は引き続き未完了。
