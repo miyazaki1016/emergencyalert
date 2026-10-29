@@ -6,7 +6,7 @@ import { makeSnapshot, timestamp, type Frame } from "../_shared/rainReplay.ts";
 import { bestEffort } from "../_shared/replayRecording.ts";
 
 type RainEvent = { schemaVersion:1; eventType:string; urgency:"INFO"|"LIFESTYLE_ACTION"; suggestedAction:string; startsAt:string|null; actionableAt:string|null; endingAt:string|null; source:string; checkedAt:string; sourceValidAt:string|null; };
-import {advanceForecastEpisode,forecastEpisodeDecision,forecastSignal,seedForecastEpisode,severeForecast,type ForecastEpisode} from './forecastEpisode.ts';
+import {advanceForecastEpisode,forecastEpisodeDecision,forecastSignal,bootstrapForecastEpisode,severeForecast,type ForecastEpisode} from './forecastEpisode.ts';
 import {guardedPush} from './deliveryGuard.ts';
 type Rgba = { r:number; g:number; b:number; a:number };
 type RainResponse = { checkedAt?:string; sourceValidAt?:string|null; event?:RainEvent|null; interpretationEnabled?:boolean; interpretation?:unknown; diagnostic?:unknown; observation?:Frame[]; forecast?:Array<{baseTime?:string;validTime?:string;status?:string;intensityClass?:string|null;rgba?:Rgba|null}>; };
@@ -36,15 +36,14 @@ Deno.serve(async(req:Request)=>{
 
   const {data:previous,error:previousError}=await db.from("watch_states").select("last_event,last_notified_at,rain_ending_notified,clear_streak,rain_streak,rain_confirmed_notified,confirmed_weather,severe_rain_level").eq("target_id",target.id).maybeSingle();
   if(previousError)throw Error('WATCH_STATE_READ_FAILED');
+  const signal=forecastSignal(rain,Date.now());
   let episode=runtime.data.episode as ForecastEpisode;
   if(!episode.id){
    const recent=await db.from('rain_diagnostic_history').select('source_valid_at,event_type,checked_at').eq('target_id',target.id).order('checked_at',{ascending:false}).limit(20);
    if(recent.error)throw Error('EPISODE_BOOTSTRAP_FAILED');
-   const unique=[...new Map((recent.data??[]).filter(r=>r.source_valid_at).reverse().map(r=>[r.source_valid_at,r])).values()].reverse().slice(0,3);
-   const cleared=unique.length===3&&unique.every(r=>r.event_type==='RAIN_CLEAR'&&(!previous?.last_notified_at||Date.parse(r.checked_at)>Date.parse(previous.last_notified_at)));
-   episode=seedForecastEpisode(crypto.randomUUID(),previous,cleared);
+   episode=bootstrapForecastEpisode(crypto.randomUUID(),previous,recent.data??[],signal.validAt??rain.sourceValidAt??null);
   }
-  const signal=forecastSignal(rain,Date.now());episode=advanceForecastEpisode(episode,signal.signal,signal.validAt,crypto.randomUUID());
+  episode=advanceForecastEpisode(episode,signal.signal,signal.validAt,crypto.randomUUID());
   await persist(episode);
   if(!rain.interpretationEnabled||!rain.event){results.push({id:target.id,status:'UNKNOWN'});continue;}
   const previousEvent=previous?.last_event as RainEvent|null|undefined; const actionable=rain.event.urgency==="LIFESTYLE_ACTION";
