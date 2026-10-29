@@ -2,9 +2,12 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
 import { advanceObservationStreak, nextLastNotifiedAt, nextRainEndingNotified, shouldNotifyForRain } from "./notificationDecision.ts";
 
+import { makeSnapshot, timestamp, type Frame } from "../_shared/rainReplay.ts";
+import { bestEffort } from "../_shared/replayRecording.ts";
+
 type RainEvent = { schemaVersion:1; eventType:string; urgency:"INFO"|"LIFESTYLE_ACTION"; suggestedAction:string; startsAt:string|null; actionableAt:string|null; endingAt:string|null; source:string; checkedAt:string; sourceValidAt:string|null; };
 type Rgba = { r:number; g:number; b:number; a:number };
-type RainResponse = { checkedAt?:string; sourceValidAt?:string|null; event?:RainEvent|null; interpretationEnabled?:boolean; diagnostic?:unknown; observation?:Array<{status?:string;rgba?:Rgba|null}>; forecast?:Array<{baseTime?:string;validTime?:string;status?:string;intensityClass?:string|null;rgba?:Rgba|null}>; };
+type RainResponse = { checkedAt?:string; sourceValidAt?:string|null; event?:RainEvent|null; interpretationEnabled?:boolean; interpretation?:unknown; diagnostic?:unknown; observation?:Frame[]; forecast?:Array<{baseTime?:string;validTime?:string;status?:string;intensityClass?:string|null;rgba?:Rgba|null}>; };
 const VAPID_PUBLIC_KEY="BBOurfjBkBMea0Hx90WiF83hmif8qv8LI1hFOx6AthWJQhkIWnhnUUZ0LYm7tyYg_3q1Aq3YP6mbJOtKjWA-Nec";
 
 Deno.serve(async(req:Request)=>{
@@ -51,18 +54,33 @@ Deno.serve(async(req:Request)=>{
   const body=severeEscalation?severeBody:confirmedAndEnding?(notificationLabel?`${notificationLabel}の雨、もうすぐ止みそうだよ🌥️`:"雨、もうすぐ止みそうだよ🌥️"):initialRaining?(notificationLabel?`${notificationLabel}はいま雨が降ってるよ☔️`:"いま雨が降ってるよ☔️"):rainEnding?(notificationLabel?`${notificationLabel}の雨、もうすぐ止みそうだよ🌥️`:"雨、もうすぐ止みそうだよ🌥️"):returningRain?(notificationLabel?`${notificationLabel}：いったん弱まってるけど、また降りそうだよ☔️`:"いったん弱まってるけど、また降りそうだよ☔️"):(rain.event.suggestedAction==="BRING_LAUNDRY_INSIDE"?laundryBody:(notificationLabel?`${notificationLabel}：${rain.event.suggestedAction}`:rain.event.suggestedAction));
   const notificationEventType=severeEscalation?"SEVERE_RAIN":confirmedAndEnding?"RAIN_ENDING":rainEnding?"RAIN_ENDING":returningRain?"RAIN_RETURNING":rain.event.eventType;
   const notificationUrgency=severeEscalation?"DISASTER":rain.event.urgency;
-  if(shouldNotify){const {data:subscriptions}=await db.from("push_subscriptions").select("id,endpoint,p256dh,auth").eq("owner_id",target.owner_id);
+  const replayId=crypto.randomUUID();
+  const replaySnapshot=shouldNotify?makeSnapshot({eventType:notificationEventType,decidedAt:new Date().toISOString(),latitude:target.latitude,longitude:target.longitude,title:notificationEventType==="RAIN_ENDING"?"🌤️ 雨がやみそう":"🌧️ 雨が降りそう",body,rain,previousState:previous??null}):null;
+  const replayFailure=()=>console.warn("[rain-replay] recording_failed");
+  let replayRecorded=false, subscriptionCount=0, subscriptionQueryFailed=false, replayFailed=0, replayUnknown=0;
+  const sendStartedAt=new Date().toISOString();
+  if(replaySnapshot){
+   const targetMs=timestamp(replaySnapshot.targetTime);
+   const inserted=await bestEffort(()=>db.from("rain_notification_evaluations").insert({id:replayId,owner_id:target.owner_id,target_id:target.id,event_type:notificationEventType,target_time:targetMs===null?null:new Date(targetMs).toISOString(),snapshot:replaySnapshot,send_started_at:sendStartedAt,deadline_at:new Date((targetMs??Date.now())+50*60000).toISOString()}).select("id").abortSignal(AbortSignal.timeout(1000)).single(),replayFailure);
+   replayRecorded=Boolean(inserted);
+  }
+  if(shouldNotify){const {data:subscriptions,error:subscriptionError}=await db.from("push_subscriptions").select("id,endpoint,p256dh,auth").eq("owner_id",target.owner_id);
+   subscriptionCount=subscriptions?.length??0;subscriptionQueryFailed=Boolean(subscriptionError);
    const payload=JSON.stringify({title:severeEscalation?"🚨 大雨警戒":(notificationEventType==="RAIN_ENDING"?"🌤️ 雨がやみそう":"🌧️ 雨が降りそう"),body,url:"/",data:{targetId:target.id,eventType:notificationEventType}});
-   for(const sub of subscriptions??[]){try{await webpush.sendNotification({endpoint:sub.endpoint,keys:{p256dh:sub.p256dh,auth:sub.auth}},payload);delivered++;}catch(err){const statusCode=Number((err as {statusCode?:number})?.statusCode??0);if(statusCode===404||statusCode===410)await db.from("push_subscriptions").delete().eq("id",sub.id);else failed++;}}
+   for(const sub of subscriptions??[]){try{await webpush.sendNotification({endpoint:sub.endpoint,keys:{p256dh:sub.p256dh,auth:sub.auth}},payload);delivered++;}catch(err){const statusCode=Number((err as {statusCode?:number})?.statusCode??0);if(statusCode>=400&&statusCode<500)replayFailed++;else replayUnknown++;if(statusCode===404||statusCode===410)await db.from("push_subscriptions").delete().eq("id",sub.id);else failed++;}}
   }
   const now=new Date().toISOString();
-  if(delivered>0){await db.from("notification_deliveries").insert({owner_id:target.owner_id,target_id:target.id,event_type:notificationEventType,urgency:notificationUrgency,title:severeEscalation?"🚨 大雨警戒":(notificationEventType==="RAIN_ENDING"?"🌤️ 雨がやみそう":"🌧️ 雨が降りそう"),body,delivered_at:now,delivered_count:delivered});}
+  let replayNotificationId:number|null=null,replayHistoryFailed=false;
+  if(delivered>0){const deliveryResult=await db.from("notification_deliveries").insert({owner_id:target.owner_id,target_id:target.id,event_type:notificationEventType,urgency:notificationUrgency,title:severeEscalation?"🚨 大雨警戒":(notificationEventType==="RAIN_ENDING"?"🌤️ 雨がやみそう":"🌧️ 雨が降りそう"),body,delivered_at:now,delivered_count:delivered}).select("id").single();replayNotificationId=deliveryResult.data?.id??null;replayHistoryFailed=Boolean(deliveryResult.error);}
   const notifiedAt=nextLastNotifiedAt({delivered,actionable,previousLastNotifiedAt:previous?.last_notified_at,now});
   const endingNotified=episodeClosed?false:nextRainEndingNotified({previousRainEndingNotified:Boolean(previous?.rain_ending_notified),rainStreak,endingDelivered:!severeEscalation&&(rainEnding||confirmedAndEnding)&&delivered>0});
   const rainConfirmedNotified=clearStreak>=3?false:(Boolean(previous?.rain_confirmed_notified)||rainConfirmed);
   const confirmedWeather=rainStreak>=3?"RAINING":clearStreak>=3?"DRY":(previous?.confirmed_weather??"UNKNOWN");
   const persistedSevere=clearStreak>=3?0:Math.max(previousSevere,severeLevel);
   await db.from("watch_states").upsert({target_id:target.id,last_event:{...rain.event,observationValidAt:observation.observationValidAt},last_checked_at:checkedAt,last_notified_at:notifiedAt,rain_ending_notified:endingNotified,clear_streak:clearStreak,rain_streak:rainStreak,rain_confirmed_notified:rainConfirmedNotified,confirmed_weather:confirmedWeather,severe_rain_level:persistedSevere,updated_at:now},{onConflict:"target_id"});
+  if(replayRecorded){
+   await bestEffort(()=>db.from("rain_notification_evaluations").update({notification_id:replayNotificationId,accepted_count:delivered,failed_count:replayFailed,unknown_count:replayUnknown,delivery_status:delivered>0?"ACCEPTED":subscriptionQueryFailed||replayUnknown>0?"UNKNOWN":subscriptionCount===0?"NO_SUBSCRIPTIONS":"FAILED",delivery_record_status:replayHistoryFailed?"WRITE_FAILED":replayNotificationId!==null?"LINKED":"NOT_APPLICABLE",send_settled_at:now}).eq("id",replayId).abortSignal(AbortSignal.timeout(1000)),replayFailure);
+  }
   results.push({id:target.id,status:rain.event.eventType,initialRaining,rainEnding,shouldNotify,delivered,failed});
  }catch(err){results.push({id:target.id,status:"CHECK_FAILED",error:String((err as Error)?.message??err)});}}
  return Response.json({ok:true,checked:results.length,results});
