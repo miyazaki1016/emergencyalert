@@ -127,3 +127,12 @@
 539は12:50の当時実況NO_RAINと12:55の後日実況RAINから、雨色の切替が対象13:10より15分早いと説明できる。対象の当時予測1〜5mm/h、実況中心1mm/h未満なので強さの差も併記し、雨色の有無の逆転には分類しない。現地の正解は未確認のまま。
 
 本番通知・DB・workerは変更せず、説明に必要な既存evidenceを自己所有RLSの読取り項目へ追加する。ブラウザ起動は再試行しても環境制限で失敗し、追加表示の目視・実機操作確認は未完了。247テスト成功（前回235＋説明の12ケース）、本番ビルドを確認する。保存26画像の監査結果は前節の時点の証拠で、最新ケースを追加監査した意味ではない。
+
+### 追加説明の検証チェックポイント
+- 本番から538・539のsnapshot（位置・端末ID等は除外）、evidence、featuresを読み取り、新しい説明関数へ渡す確認を実施。両件とも `STRONGER_FORECAST / START_EARLY / AREA_SHRINK / METRIC_DIFFERENCE / GROUND_HOLD`、`FALSE_RAIN`なし。539の開始差は15分早いと確認。
+- [実記録から生成した説明](evidence/BIFUKA_538_539_EXPLANATIONS_20261029.json)。観測された差の根拠であり、地上の降雨や物理的原因の確定ではない。
+- 最終head `c23715472dfe8733adddbdcac91d6aa9d7d0b58a` のCI（verify・phase1-feedback-rls・phase1-feedback-http）全成功。Preview READY、専用ページHTTP200・noindex・初期権限確認表示を確認。
+- [PR #103](https://github.com/miyazaki1016/emergencyalert/pull/103)をmain統合。統合コミット `f65f826d7fab4cd507f048614ccdbe007f6514b7`。本番公開の状態は次に追記する。
+
+- 本番 `dpl_7sRcTzx5MixGVG9UW1dStmoqTw6Z` は統合コミットでREADY。[専用ラボ](https://emergencyalert-gilt.vercel.app/dev/rain-lab)のHTTP200・noindex・権限確認表示を確認。追加画面の実機・目視確認は引き続き未完了。
+- 通知条件・Push送信・DB・workerは差分なし。不一致理由は閲覧用の説明で、保存済み自動評価を書き換えない。例外／容量時の終端化、元画像同一性、予測通知エピソードの分離、生活行動閾値に対応する別評価は、前節の残課題として維持する。
