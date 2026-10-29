@@ -53,3 +53,6 @@ rain_notification_evaluationsは90日、rain_evaluation_runsは30日保存。pri
 - 最終head `626c66338dbb81f8ea1b4ccc1bb7487b89a31cf8` のverify / phase1-feedback-rls / phase1-feedback-httpもすべて成功。初期headの確認だけで完了扱いにはしていない。
 - 入口：[main総覧](PROJECT_OVERVIEW.md)、経緯・次工程：[開発台帳](DEVELOPMENT_LEDGER.md)。
 - 上記の時刻・サンプル件数は2026-10-29 11:27 JSTの確認記録。再開時には現状を読み取りで再確認し、過去時点の0件を現在件数として扱わない。
+
+## 後続：半径1km画像保存（2026-10-29）
+上記の「画像未実装」はPR #99時点の記録。後続[PR #100](https://github.com/miyazaki1016/emergencyalert/pull/100)で独立archive-rain v1と可逆PNG＋欠測マスクの本番保存を追加した。実測・制限・未検証事項は[画像保存の正本](RAIN_AREA_EVIDENCE_20261029.md)を読む。点評価のロジックや当時の入力snapshotは変更していない。

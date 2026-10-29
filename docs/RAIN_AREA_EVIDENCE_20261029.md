@@ -3,7 +3,7 @@
 [総覧](PROJECT_OVERVIEW.md) · [開発台帳](DEVELOPMENT_LEDGER.md) · [先行の点評価](NOTIFICATION_REPLAY_PRODUCTION_20261029.md)
 
 ## 目的と現在地
-通知された登録地点について、点予測／面予測／併用の比較に必要な最小の画像を残す。既存の点評価を先行稼働させたPR #99の続き。ユーザーの本番実装承認と「作業の続き」に基づく。専用ブランチ `feat/replay-area-evidence-20261029`。実装・テスト中で、本番反映結果は末尾に追記する。
+通知された登録地点について、点予測／面予測／併用の比較に必要な最小の画像を残す。既存の点評価を先行稼働させたPR #99の続き。ユーザーの本番実装承認と「作業の続き」に基づく。専用ブランチ `feat/replay-area-evidence-20261029`。[PR #100](https://github.com/miyazaki1016/emergencyalert/pull/100)で追跡し、本番反映・実測確認まで完了。自然な実通知の全行程は未検証（末尾参照）。
 
 ## 対象と時刻の意味
 - Pushサービスの受理件数が1以上の評価レコードだけを回収対象にする。候補だけの通知、失敗・送信不明を実通知件数に混ぜない。
@@ -44,3 +44,13 @@
 
 ## 未検証・次工程
 自然に発生した新規実通知がまだない場合、元通知→画像保存→点／面比較という全行程や予測精度を実証済みとはしない。画像を取得できても、面予測の実装・採用、地上雨量との照合、見逃し率、利用者向け結果画面は別作業。まず受理済みの実通知で欠測率・中心一致・取得遅延・容量を確かめる。
+
+## 本番反映と実測（2026-10-29 11:48 JST確認）
+- `archive-rain version1`をACTIVEとして配備。DB移行`20261029023607_replay_area_images.sql`、毎分cronの移行`20261029024650_replay_area_schedule.sql`を適用。既存watch-rain v32／evaluate-rain v1のコードとスケジュールは変更していない。
+- 11:47のPROBE：本番Edgeで11:45実況を取得し、半径1kmの外接範囲を21×21画素、実効約124.21m/画素で可逆切抜き。1タイル、全画素取得済み。PNG78bytes＋マスク441bytes（メタデータ・索引等は別）。雨なしの1例であり、雨域がある画像の平均容量ではない。
+- 本番DBへbyteaで保存し、読戻したPNGのSHA-256一致を確認：`ce24e206fdf617ad4b3d889208f5934672d0d0ed512ea3446276cac764789a90`。PROBEは通知評価サンプルを作っていない。
+- 11:48の自然なREGULAR定時実行：OK、failures=0、frameErrors=0、回収対象0件、物理画像容量24576bytes、容量停止なし。画像保存先の権限も照会し、anon/authenticated読取り不可・anonのclaim不可を確認。トークンなし呼出しはHTTP401。
+- ローカル195テスト・本番ビルド・Edge型チェック成功。PR #100初期head `71407976186268ffeee1e9dd7425307abe1cb8f2` のverify / phase1-feedback-rls / phase1-feedback-httpはすべて成功。
+- セキュリティ診断：追加テーブルはprivate設計によるRLS有効・policyなしのINFOのみ増加。既存WARNは今回変更していない。説明：https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy
+- 11:48時点の実通知評価は0件。実通知の予測画像・中心一致、後日の実況画像との比較、精度改善は未検証。次は[監視SQL](sql/rain-area-monitoring.sql)で自然データを確認する。過去時点の0件や78bytesを現在の件数・平均容量として再利用しない。
+- mainからは[総覧](PROJECT_OVERVIEW.md)→[開発台帳](DEVELOPMENT_LEDGER.md)→本記録へ辿る。配備時だけエントリポイントを平坦化し、../_shared/を./_shared/に置換して同じ共有ソースを同梱。

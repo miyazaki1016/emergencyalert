@@ -38,8 +38,14 @@
 ## 2026-10-29 続き：半径1kmの予測・実況画像
 
 - 本番点評価の再照合：11:32 JSTの定時実行もOK、新規実通知の評価レコードは0件。watch-rain v32 / evaluate-rain v1が稼働。精度集計は行わない。
-- 次工程の画像保存を専用ブランチ `feat/replay-area-evidence-20261029` で実装・検証中。正本：[半径1km画像保存](RAIN_AREA_EVIDENCE_20261029.md)。
+- 次工程の画像保存を専用ブランチ `feat/replay-area-evidence-20261029`・[PR #100](https://github.com/miyazaki1016/emergencyalert/pull/100)で実装し、本番反映・疎通確認まで完了。正本：[半径1km画像保存](RAIN_AREA_EVIDENCE_20261029.md)。
 - 独立archive-rain、可逆PNG＋欠測マスクのDB bytea保存、予測／入力実況／後日実況の分離、中心画素一致、元タイルハッシュ、90日保持、32MiBの物理容量停止ゲートを追加。通知処理や点評価ロジックは変更しない。
 - 通知後に同じ発表時刻のURLから取得する方式なので、当時の元PNGバイト列とは区別する。元入力snapshotを後から画像で上書きしない。
-- ローカル195テスト、隔離SQLの権限・bytea・排他・不変性・cascade検証を実施。本番反映と実測結果は確認後に追記する。
+- ローカル195テスト、隔離SQLの権限・bytea・排他・不変性・cascade検証を実施。本番ビルド・Edge型チェック・初期headのCI全3ジョブも成功。
 - 監視：[画像保存用SQL](sql/rain-area-monitoring.sql)。次は本番PROBEのPNG保存往復と定時回収を確認し、実通知の画像が得られたら欠測・中心一致・取得遅延を検証する。
+
+### 続きの本番結果（11:48 JST）
+- archive-rain v1、privateなPNG/マスクbytea保存先、毎分cronを反映。watch-rain v32／evaluate-rain v1は継続。
+- PROBEで実JMA実況の21×21画素PNGを本番DBへ保存し、読戻しハッシュが一致。雨なし1例はPNG78bytes＋マスク441bytes、メタデータ等は別。
+- 11:48 REGULAR定時実行OK、failures/frameErrorsとも0。トークンなし401、一般クライアントからの画像読取り不可。セキュリティ診断の追加はprivate用policyなしのINFOのみ。
+- 実通知評価0件のため、予測画像の自然データ保存から後日実況との比較までの全行程・精度は未実証。次は実通知の欠測・中心一致・容量を[画像監視SQL](sql/rain-area-monitoring.sql)で確認する。地上雨量・面予測の採用・見逃し評価・結果画面は未実装。
