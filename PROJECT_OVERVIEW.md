@@ -6,6 +6,7 @@
 
 - [最新の総覧・再開地点](docs/PROJECT_OVERVIEW.md)
 - [開発台帳](docs/DEVELOPMENT_LEDGER.md)
+- [開発者専用「雨の判定ラボ」](docs/RAIN_RESEARCH_DASHBOARD_20261029.md)
 - [2026-10-29 通知予測と実況の自動答え合わせ：本番結果](docs/NOTIFICATION_REPLAY_PRODUCTION_20261029.md)
 - [続き：半径1kmの予測・実況画像保存](docs/RAIN_AREA_EVIDENCE_20261029.md)
 - [続き：点・面・併用のシャドー比較](docs/RAIN_AREA_SHADOW_20261029.md)

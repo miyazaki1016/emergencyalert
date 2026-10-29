@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "../lib/supabase/browser";
+import DeveloperLabLink from "./components/DeveloperLabLink";
 import NotificationFeedbackHistory from "./components/NotificationFeedbackHistory";
 import ResumeDiagnosticsPanel from "./components/ResumeDiagnosticsPanel";
 import PwaDiagnosticsToggle from "./components/PwaDiagnosticsToggle";
@@ -788,6 +789,7 @@ export default function Home() {
       )}
       <PwaDiagnosticsToggle />
       <ResumeDiagnosticsPanel />
+    <DeveloperLabLink />
     </main>
   );
 }

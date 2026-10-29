@@ -1,0 +1,8 @@
+import {it,expect} from 'vitest';
+import type {SupabaseClient} from '@supabase/supabase-js';
+import {requireResearchAccess,loadCaseImages,saveGround,LabAccessError} from '../lib/research/rainLabRepository';
+function client(member:boolean,user=true){const calls:string[]=[];const c={auth:{getUser:async()=>({data:{user:user?{id:'owner'}:null},error:null})},from:(table:string)=>{calls.push(table);const chain:any={};for(const m of ['select','eq','maybeSingle','order','limit','upsert'])chain[m]=()=>chain;chain.then=(resolve:any)=>Promise.resolve({data:table==='rain_research_admins'?(member?{owner_id:'owner'}:null):[],error:null}).then(resolve);return chain;}};return {c:c as unknown as SupabaseClient,calls};}
+it('denies ordinary authenticated identities before reading research data',async()=>{const f=client(false);await expect(loadCaseImages(f.c,'case')).rejects.toBeInstanceOf(LabAccessError);expect(f.calls).toEqual(['rain_research_admins']);});
+it('does not create anonymous identities when there is no session',async()=>{const f=client(false,false);await expect(requireResearchAccess(f.c)).rejects.toBeInstanceOf(LabAccessError);expect(f.calls).toHaveLength(0);});
+it('checks membership before case image reads',async()=>{const f=client(true);await loadCaseImages(f.c,'case');expect(f.calls).toEqual(['rain_research_admins','rain_evaluation_images']);});
+it('never saves an unconfirmed observation',async()=>{const f=client(true);await expect(saveGround(f.c,{evaluation_id:'case',observed_at:new Date(Date.now()-60000).toISOString(),weather:'RAIN',report_source:'AT_LOCATION',location_confirmed:false,note:''})).rejects.toThrow();expect(f.calls).toHaveLength(0);});
