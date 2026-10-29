@@ -35,6 +35,10 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v4
+      - name: Test isolated area shadow schema and permissions
+        env:
+          PGPASSWORD: local-test-only
+        run: psql -h localhost -U postgres -d phase1_test -v ON_ERROR_STOP=1 -f tests/sql/rain-shadow-integration.sql
       - name: Test isolated area evidence schema, bytea and permissions
         env:
           PGPASSWORD: local-test-only
