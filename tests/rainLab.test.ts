@@ -26,3 +26,5 @@ it('distinguishes faint opaque rain, acquired transparency, unknown and missing 
  row.availability_mask='\\x00';expect(centerPixelLabel(row,0)).toMatch(/^未取得/);
  row.availability_mask='\\x01';expect(centerPixelLabel(row,10)).toBe('取得状態を確認できない');
 });
+
+it('explains zero ground pairs independently from radar pairs and area exclusions',()=>{const f=fixture();f.reports=[];expect(summarize(f,.4,'ground',now).exclusions.GROUND_UNCONFIRMED).toBe(1);expect(summarize(f,.4,'radar',now).paired).toBe(1);f.shadows[0].comparison.groups[0].variants[0].area.series[0]={validTime:valid,state:'INDETERMINATE',reason:'COARSE_SOURCE_HORIZON'};expect(summarize(f,.4,'radar',now).exclusions.COARSE_SOURCE_HORIZON).toBe(1);expect(summarize(f,.4,'radar',now).paired).toBe(0);});
