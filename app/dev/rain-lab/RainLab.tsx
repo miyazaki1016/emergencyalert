@@ -1,7 +1,7 @@
 'use client';
 import {useCallback,useEffect,useId,useMemo,useRef,useState,type FormEvent} from 'react';
 import {getSupabaseBrowserClient} from '../../../lib/supabase/browser';
-import {centerPixelLabel,imageDataUrl,METHODS,METHOD_LABELS,percent,REASONS,STATE_LABELS,summarize,tokyo,type Evaluation,type GroundReport,type Health,type ImageRow,type LabData,type Shadow} from '../../../lib/research/rainLab';
+import {EXCLUSION_LABELS,centerPixelLabel,imageDataUrl,METHODS,METHOD_LABELS,percent,REASONS,STATE_LABELS,summarize,tokyo,type Evaluation,type GroundReport,type Health,type ImageRow,type LabData,type Shadow} from '../../../lib/research/rainLab';
 import {LabAccessError,loadCaseImages,loadLab,saveGround} from '../../../lib/research/rainLabRepository';
 import s from './lab.module.css';
 import {explainCase,PATTERNS,VERDICT_LABELS} from '../../../lib/research/rainMismatch';
@@ -80,6 +80,7 @@ export default function RainLab(){
  <p className={s.muted}>{source==='ground'?'現地・地点カメラの確認記録との一致です。近隣の参考情報は正解として使いません。':'対象時刻のレーダー中心との一致です。地上の雨の正解率ではありません。'}</p>
  <div className={s.tableWrap}><table className={s.table}><thead><tr><th>方式</th><th>一致 / 共通コマ</th><th>雨なしを雨と判定</th><th>雨をなしと判定</th><th>判定保留</th></tr></thead><tbody>{METHODS.map(m=><tr key={m}><td className={s.method}>{METHOD_LABELS[m]}</td><td><span className={s.rate}>{summary.paired?percent(summary.totals[m].matched/summary.paired):'—'}</span><br/><span className={s.muted}>{summary.totals[m].matched} / {summary.paired}コマ</span></td><td>{summary.paired?summary.totals[m].falseRain:'—'}</td><td>{summary.paired?summary.totals[m].falseDry:'—'}</td><td>{summary.totals[m].abstained}コマ</td></tr>)}</tbody></table></div>
  <p className={s.notes}>3方式とも判定できた同じコマだけを一致の分母にしています。比較 {summary.caseCount}ケース・{summary.paired}コマ／確認情報なし {summary.truthMissing}コマ。保留は別集計です。コマ数は独立した雨事例の数ではありません。</p>
+ <details><summary>共通コマに入らなかった理由を見る</summary><p className={s.notes}>処理待ち・比較結果なし {summary.pendingCases}ケース。下の数はコマごとの除外理由で、同じコマが複数項目に入る場合があります。面・併用の同じ保留理由も別々に数えます。</p><div className={s.tableWrap}><table className={s.table}><thead><tr><th>除外理由</th><th>件数</th></tr></thead><tbody>{Object.entries(summary.exclusions).map(([reason,n])=><tr key={reason}><td>{EXCLUSION_LABELS[reason]??'判定条件による保留'}</td><td>{n}</td></tr>)}</tbody></table></div><p className={s.notes}>地点での確認が0件でも、レーダー中心との比較コマがある場合があります。比較元を切り替えて確認してください。どちらも地上の精度や見逃し率を保証するものではありません。</p></details>
  {summary.conflictingReports?<p className={s.error}>相反する観測が重なる対象時刻が {summary.conflictingReports}件あります。該当コマは保留になります。</p>:null}
  <div className={s.banner}><strong>判断の範囲</strong><p>通知が出たケースの比較です。通知されなかった雨の見逃し率や、地上観測なしでの精度改善は判断できません。研究用の点候補は本番通知エンジンの完全な再現ではなく、本番の通知結果はケースごとに別保存しています。</p></div></section>
  <section className={s.panel}><h2>不一致と保留の内訳</h2><p className={s.notes}>通知の対象時刻で比較します。1ケースが複数の項目に入ります。保留・比較の前提も別項目で表示し、合計を失敗件数にはしません。ケースを開くと時刻と値を確認できます。</p><div className={s.tableWrap}><table className={s.table}><thead><tr><th>パターン</th><th>該当ケース数</th></tr></thead><tbody>{[...patternCases].map(([code,ids])=><tr key={code}><td>{PATTERNS[code]}</td><td>{ids.size}</td></tr>)}</tbody></table></div>{!patternCases.size?<p>比較対象のデータがまだありません。</p>:null}<details><summary>分類するパターンをすべて見る</summary><ul>{Object.entries(PATTERNS).map(([code,title])=><li key={code}>{title}</li>)}</ul></details></section>

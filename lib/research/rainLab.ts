@@ -24,14 +24,17 @@ export function groundAt(reports:GroundReport[],id:string,time:string,now=Date.n
 }
 export function summarize(data:LabData,threshold:number,source:'ground'|'radar',now=Date.now()){
  const totals=Object.fromEntries(METHODS.map(m=>[m,{matched:0,falseRain:0,falseDry:0,abstained:0}])) as Record<Method,{matched:number;falseRain:number;falseDry:number;abstained:number}>;
- let potential=0,truthMissing=0,paired=0;const conflictingWindows=new Set<string>();const cases=new Set<string>(),rainCases=new Set<string>(),dryCases=new Set<string>();
- for(const e of data.evaluations){if(e.shadow_state==='PENDING')continue;const shadow=data.shadows.find(s=>s.evaluation_id===e.id);if(!shadow)continue;
+ let potential=0,truthMissing=0,paired=0,pendingCases=0;const exclusions:Record<string,number>={};const exclude=(reason:string)=>{exclusions[reason]=(exclusions[reason]??0)+1;};const conflictingWindows=new Set<string>();const cases=new Set<string>(),rainCases=new Set<string>(),dryCases=new Set<string>();
+ for(const e of data.evaluations){if(e.shadow_state==='PENDING'){pendingCases++;continue;}const shadow=data.shadows.find(s=>s.evaluation_id===e.id);if(!shadow){pendingCases++;continue;}
   for(const group of shadow.comparison.groups??[]){const variant=group.variants.find(v=>Math.abs(v.threshold-threshold)<0.0001);if(!variant)continue;
    const pointRows=group.point.scores??[];
-   for(const p of pointRows){const t=parseTime(p.validTime),decided=parseTime(e.snapshot.decidedAt);if(t===null||decided===null||t<=decided||t>now)continue;
+   for(const p of pointRows){const t=parseTime(p.validTime),decided=parseTime(e.snapshot.decidedAt);if(t===null||decided===null){exclude('INVALID_TIME');continue;}if(t<=decided){exclude('NOT_FUTURE_AT_DECISION');continue;}if(t>now){exclude('NOT_YET_VALID');continue;}
     const a=variant.area.series.find(x=>x.validTime===p.validTime),c=variant.combined.series.find(x=>x.validTime===p.validTime);potential++;
+    if(!a||!c)exclude('TIME_NOT_ALIGNED');
+    for(const row of [a,c])if(row?.state==='INDETERMINATE')exclude(row.reason??'RULE_UNDECIDED');
+    if(p.predicted==='INDETERMINATE')exclude('POINT_UNDECIDED');
     const truth=source==='ground'?groundAt(data.reports,e.id,p.validTime,now):p.actual;
-    if(truth==='INDETERMINATE') {truthMissing++;if(source==='ground'){const states=new Set(data.reports.filter(r=>r.evaluation_id===e.id&&r.location_confirmed&&r.report_source!=='NEARBY_REFERENCE'&&r.weather!=='UNKNOWN'&&(parseTime(r.observed_at)??Infinity)<=now&&Math.abs((parseTime(r.observed_at)??Infinity)-t)<=150000).map(r=>r.weather));if(states.size>1)conflictingWindows.add(`${e.id}:${p.validTime}`);}continue;}
+    if(truth==='INDETERMINATE') {truthMissing++;exclude(source==='ground'?'GROUND_UNCONFIRMED':'RADAR_MISSING');if(source==='ground'){const states=new Set(data.reports.filter(r=>r.evaluation_id===e.id&&r.location_confirmed&&r.report_source!=='NEARBY_REFERENCE'&&r.weather!=='UNKNOWN'&&(parseTime(r.observed_at)??Infinity)<=now&&Math.abs((parseTime(r.observed_at)??Infinity)-t)<=150000).map(r=>r.weather));if(states.size>1)conflictingWindows.add(`${e.id}:${p.validTime}`);}continue;}
     const predicted:Record<Method,State>={point:p.predicted,area:a?.state??'INDETERMINATE',combined:c?.state??'INDETERMINATE'};
     for(const m of METHODS)if(predicted[m]==='INDETERMINATE')totals[m].abstained++;
     if(METHODS.some(m=>predicted[m]==='INDETERMINATE'))continue;
@@ -40,7 +43,7 @@ export function summarize(data:LabData,threshold:number,source:'ground'|'radar',
    }
   }
  }
- return {totals,potential,truthMissing,paired,caseCount:cases.size,rainCaseCount:rainCases.size,dryCaseCount:dryCases.size,conflictingReports:conflictingWindows.size};
+ return {totals,potential,truthMissing,paired,pendingCases,exclusions,caseCount:cases.size,rainCaseCount:rainCases.size,dryCaseCount:dryCases.size,conflictingReports:conflictingWindows.size};
 }
 export function validateGroundReport(r:GroundReport,now=Date.now()):string|null{
  if(!['RAIN','NO_RAIN','UNKNOWN'].includes(r.weather))return '天気を選んでください。';
@@ -60,3 +63,5 @@ export function centerPixelLabel(image:ImageRow,index:number):string{
  if(rgba.a===0)return '取得済み透明（レーダー雨色なし）';
  const c=classifyRainPixel(rgba);return c.status==='RAIN'?`雨色（${c.intensityClass==='LT_1'?'1mm/h未満':c.intensityClass==='1_TO_5'?'1〜5mm/h':c.intensityClass}）`:'未知色（判定保留）';
 }
+
+export const EXCLUSION_LABELS:Record<string,string>={...REASONS,INVALID_TIME:'予測・通知時刻が不正',NOT_FUTURE_AT_DECISION:'通知時点で未来の予測ではない',NOT_YET_VALID:'まだ対象時刻に到達していない',TIME_NOT_ALIGNED:'3方式で同じ対象時刻が揃わない',RULE_UNDECIDED:'判定条件を満たさず保留',POINT_UNDECIDED:'点候補が判定保留',GROUND_UNCONFIRMED:'現地・地点カメラの正解記録なし／矛盾',RADAR_MISSING:'対象時刻の実況中心が欠測／判定不能',IMAGE_MISSING:'予測画像が未保存（保存対象外・回収待ち・失敗）'};
