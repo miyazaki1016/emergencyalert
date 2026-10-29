@@ -3,3 +3,5 @@
 .table th:first-child,.table td:first-child{position:sticky;left:0;background:#fff;z-index:1}
 
 .contrast{font-size:12px!important;padding:7px 9px!important;margin-top:10px}.table caption{text-align:left;font-weight:700;padding:12px 0;color:#29475c}
+
+.explanation{margin:20px 0}.reasonList{list-style:none;padding:0;display:grid;gap:10px}.reasonList li{padding:13px;border-radius:10px;border-left:4px solid #b18536}.reasonList p{font-size:14px;margin:8px 0 0}.difference{background:#fff3df}.hold{background:#edf3f6}

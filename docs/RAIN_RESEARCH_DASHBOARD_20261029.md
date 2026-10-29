@@ -44,3 +44,5 @@
 - PR #102をmainへ統合済み。統合コミット `de9b480293d5db68e3d1497db28f86179dd71c8a`。初回headのverify／phase1-feedback-rls／phase1-feedback-http全3ジョブ成功。
 - Production deployment `dpl_C8P84XJRsgvZnesM3nRQ1ToHPJ9j` が上記コミットでREADY。[本番の専用画面](https://emergencyalert-gilt.vercel.app/dev/rain-lab) はHTTP200、noindex、権限確認の初期表示を確認。
 - 未認証anonロールの許可リストSELECT／ケースSELECT／地点確認INSERTはすべて不可。本番確認時に画像保存19行まで進行したが、地上観測・予測改善の証拠ではない。実機表示と認証済みPWAの端末操作確認は引き続き未完了。
+
+- 続き：不一致を有無・時刻・強度・範囲・地点確認・保留に分け、具体的な値と理由を表示。詳細仕様は[538・539監査](BIFUKA_NOTIFICATION_AUDIT_20261029.md)末尾。通知条件・保存済み評価結果は変更しない。
