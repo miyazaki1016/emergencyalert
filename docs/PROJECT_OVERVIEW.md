@@ -15,6 +15,12 @@
 > **実例：雨域密度・歯抜け解析 → `research/rain-field-morphology-20261023` → `docs/research/RAIN_FIELD_MORPHOLOGY_PLAN.md`。詳しくはそっちを読め！**
 
 
+## 2026-10-29 開発者専用「雨の判定ラボ」
+
+- **目的**：公開予定の履歴と分離し、点・面・併用、同時刻の予測／実況画像、専用の地点確認を比較する。
+- **ブランチ**：`feat/rain-comparison-dashboard-20261029`。**詳細**：[RAIN_RESEARCH_DASHBOARD_20261029.md](RAIN_RESEARCH_DASHBOARD_20261029.md)。**進捗**：実装・233テスト・隔離RLS試験完了。本番反映結果は詳細に追記。
+- **次の一手**：許可済みの通常PWAで画面確認し、実通知と現地確認を蓄積。通知条件は変更せず、データ不足では改善判定をしない。
+
 ## 2026-10-29 最新の再開地点：通知予測・実況の答え合わせと半径1km画像保存
 
 - **状態**：実装PR [#99](https://github.com/miyazaki1016/emergencyalert/pull/99) はmainへ統合済み。統合コミット `b6c216be96ecadcb9f86f2042ee6e786800b30c8`。本番 `watch-rain v32` / `evaluate-rain v1` と評価用DB・5分cronを反映済み。
