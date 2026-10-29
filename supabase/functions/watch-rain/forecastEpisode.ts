@@ -36,7 +36,11 @@ export function forecastEpisodeDecision(state:ForecastEpisode,enabled:boolean,ac
 export function bootstrapForecastEpisode(id:string,legacy:Parameters<typeof seedForecastEpisode>[1],recent:Array<{source_valid_at:string|null;event_type:string|null;checked_at:string}>,currentAt:string|null):ForecastEpisode{
  const unique=new Map<string,typeof recent[number]>();
  for(const row of recent){const at=row.source_valid_at;if(!at||timestamp(at)===null||(currentAt&&at>=currentAt)||unique.has(at))continue;unique.set(at,row);}
- const prior=[...unique.values()].slice(0,3);let clear=0;
- for(const row of prior){if(row.event_type!=='RAIN_CLEAR'||(legacy?.last_notified_at&&Date.parse(row.checked_at)<=Date.parse(legacy.last_notified_at)))break;clear++;}
- return {...seedForecastEpisode(id,legacy,clear===3),clearForecasts:clear,lastForecastAt:prior[0]?.source_valid_at??null};
+ const prior=[...unique.values()].slice(0,20);
+ const cleared=(row:typeof recent[number])=>row.event_type==='RAIN_CLEAR'&&(!legacy?.last_notified_at||Date.parse(row.checked_at)>Date.parse(legacy.last_notified_at));
+ let clear=0;for(const row of prior){if(!cleared(row))break;clear=Math.min(3,clear+1);}
+ // A newly approaching weak/INFO forecast may sit between the completed
+ // cancellation and today's actionable frame. Do not lose that cancellation.
+ let streak=0,hadCancellation=false;for(const row of [...prior].reverse()){streak=cleared(row)?streak+1:0;if(streak>=3)hadCancellation=true;}
+ return {...seedForecastEpisode(id,legacy,hadCancellation),clearForecasts:clear,lastForecastAt:prior[0]?.source_valid_at??null};
 }

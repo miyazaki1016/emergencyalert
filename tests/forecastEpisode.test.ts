@@ -24,3 +24,9 @@ it('bootstraps a new approach from three prior clear forecasts without counting 
 it('carries two prior clear issuances into the third current complete-clear forecast, ignoring duplicate rows',()=>{
  const rows=['20261029035500','20261029035500','20261029035000'].map(t=>({source_valid_at:t,event_type:'RAIN_CLEAR',checked_at:'2026-10-29T04:00:00Z'}));const s=bootstrapForecastEpisode('old',{last_notified_at:'2026-10-29T03:00:00Z'},rows,'20261029040000');expect(s.clearForecasts).toBe(2);expect(advanceForecastEpisode(s,'CLEAR','20261029040000','unused').active).toBe(false);
 });
+
+it('remembers cancellation before intervening weak INFO approach frames, but never before the latest delivery',()=>{
+ const rows=['20261029035500','20261029035000','20261029034500','20261029034000'].map((t,i)=>({source_valid_at:t,event_type:i===0?'RAIN_APPROACHING':'RAIN_CLEAR',checked_at:`2026-10-29T03:${55-i*5}:00Z`}));
+ const s=bootstrapForecastEpisode('old',{last_notified_at:'2026-10-29T03:00:00Z'},rows,'20261029040000');expect(s.approachNotified).toBe(false);expect(forecastEpisodeDecision(advanceForecastEpisode(s,'ACTIVE','20261029040000','new'),true,true,0,false).notify).toBe(true);
+ expect(bootstrapForecastEpisode('old',{last_notified_at:'2026-10-29T03:54:00Z'},rows,'20261029040000').approachNotified).toBe(true);
+});
