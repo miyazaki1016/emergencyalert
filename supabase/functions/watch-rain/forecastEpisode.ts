@@ -32,3 +32,11 @@ export function forecastEpisodeDecision(state:ForecastEpisode,enabled:boolean,ac
  const approach=enabled&&state.active&&actionable&&!state.approachNotified;
  return {notify:severe||approach||(enabled&&ending),severe,key:`${state.id}/${severe?'SEVERE_'+severeLevel:ending?'ENDING':'APPROACH'}`};
 }
+
+export function bootstrapForecastEpisode(id:string,legacy:Parameters<typeof seedForecastEpisode>[1],recent:Array<{source_valid_at:string|null;event_type:string|null;checked_at:string}>,currentAt:string|null):ForecastEpisode{
+ const unique=new Map<string,typeof recent[number]>();
+ for(const row of recent){const at=row.source_valid_at;if(!at||timestamp(at)===null||(currentAt&&at>=currentAt)||unique.has(at))continue;unique.set(at,row);}
+ const prior=[...unique.values()].slice(0,3);let clear=0;
+ for(const row of prior){if(row.event_type!=='RAIN_CLEAR'||(legacy?.last_notified_at&&Date.parse(row.checked_at)<=Date.parse(legacy.last_notified_at)))break;clear++;}
+ return {...seedForecastEpisode(id,legacy,clear===3),clearForecasts:clear,lastForecastAt:prior[0]?.source_valid_at??null};
+}

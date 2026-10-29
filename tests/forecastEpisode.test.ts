@@ -1,5 +1,5 @@
 import {it,expect} from 'vitest';
-import {advanceForecastEpisode,seedForecastEpisode,forecastEpisodeDecision,forecastSignal,severeForecast,type ForecastEpisode} from '../supabase/functions/watch-rain/forecastEpisode';
+import {advanceForecastEpisode,seedForecastEpisode,forecastEpisodeDecision,forecastSignal,severeForecast,bootstrapForecastEpisode,type ForecastEpisode} from '../supabase/functions/watch-rain/forecastEpisode';
 import {guardedPush} from '../supabase/functions/watch-rain/deliveryGuard';
 const start=():ForecastEpisode=>({...seedForecastEpisode('existing',{last_notified_at:'2026-10-29T03:45:00Z'},false),lastForecastAt:'20261029034000'});
 it('keeps one approach intent through repeated dry observations, INFO and changing target minutes',()=>{let s=start();for(const v of ['20261029034500','20261029035000','20261029035500','20261029040000']){s=advanceForecastEpisode(s,'ACTIVE',v,'unused');expect(s.id).toBe('existing');expect(forecastEpisodeDecision(s,true,true,0,false).notify).toBe(false);}});
@@ -16,3 +16,11 @@ it.each([0,500,408,429])('keeps ambiguous transport %s uncertain and never grant
 it('treats invalid endpoints terminal without blocking another subscription',async()=>{const states:string[]=[];for(const code of [410,0])await guardedPush({claim:async()=>String(code),send:async()=>{if(code)throw {statusCode:code};},finish:async(_,s)=>{states.push(s);}});expect(states).toEqual(['FAILED_TERMINAL','ACCEPTED']);});
 
 it('breaks forecast cancellation confirmation on an outage with no issuance',()=>{const s={...start(),clearForecasts:2};expect(advanceForecastEpisode(s,'UNKNOWN',null,'unused').clearForecasts).toBe(0);});
+
+it('bootstraps a new approach from three prior clear forecasts without counting its current ACTIVE row as a cancellation',()=>{
+ const recent=[{source_valid_at:'20261029040000',event_type:'ACTIONABLE_RAIN_APPROACHING',checked_at:'2026-10-29T04:05:00Z'},...['035500','035000','034500'].map(t=>({source_valid_at:'20261029'+t,event_type:'RAIN_CLEAR',checked_at:'2026-10-29T04:00:00Z'}))];
+ const s=bootstrapForecastEpisode('old',{last_notified_at:'2026-10-29T03:00:00Z'},recent,'20261029040000');expect(s.active).toBe(false);const next=advanceForecastEpisode(s,'ACTIVE','20261029040000','new');expect(forecastEpisodeDecision(next,true,true,0,false).notify).toBe(true);
+});
+it('carries two prior clear issuances into the third current complete-clear forecast, ignoring duplicate rows',()=>{
+ const rows=['20261029035500','20261029035500','20261029035000'].map(t=>({source_valid_at:t,event_type:'RAIN_CLEAR',checked_at:'2026-10-29T04:00:00Z'}));const s=bootstrapForecastEpisode('old',{last_notified_at:'2026-10-29T03:00:00Z'},rows,'20261029040000');expect(s.clearForecasts).toBe(2);expect(advanceForecastEpisode(s,'CLEAR','20261029040000','unused').active).toBe(false);
+});
