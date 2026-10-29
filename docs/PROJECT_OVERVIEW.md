@@ -15,14 +15,15 @@
 > **実例：雨域密度・歯抜け解析 → `research/rain-field-morphology-20261023` → `docs/research/RAIN_FIELD_MORPHOLOGY_PLAN.md`。詳しくはそっちを読め！**
 
 
-## 2026-10-29 最新の再開地点：通知予測・実況の自動答え合わせ
+## 2026-10-29 最新の再開地点：通知予測・実況の答え合わせと半径1km画像保存
 
 - **状態**：実装PR [#99](https://github.com/miyazaki1016/emergencyalert/pull/99) はmainへ統合済み。統合コミット `b6c216be96ecadcb9f86f2042ee6e786800b30c8`。本番 `watch-rain v32` / `evaluate-rain v1` と評価用DB・5分cronを反映済み。
 - **開発台帳**：[DEVELOPMENT_LEDGER.md](DEVELOPMENT_LEDGER.md)。成果・確認証拠・未検証・次工程を記録。
 - **詳細総覧／本番記録**：[NOTIFICATION_REPLAY_PRODUCTION_20261029.md](NOTIFICATION_REPLAY_PRODUCTION_20261029.md)。保存形式・評価規則・保持期間・権限・失敗時処理・切り戻しを参照。
 - **元ブランチ**：`feat/notification-replay-production-20261029`（#99、main統合済み）。設計元は `research/notification-replay-20261029` の [PR #98](https://github.com/miyazaki1016/emergencyalert/pull/98)・`docs/research/NOTIFICATION_REPLAY_PLAN_20261029.md`（研究資料全体は未統合）。
 - **確認済み**：181テスト、本番ビルド、#99最終head `626c66338dbb81f8ea1b4ccc1bb7487b89a31cf8` のCI全3ジョブ成功。11:25 JSTの監視12地点エラー0、11:27の評価定時実行OK、JMA実況取得・認証拒否・非公開権限を確認。
-- **未検証**：11:27確認時点の新規実通知評価は0件。自然な実通知→記録→実況回収→評価確定の全行程、実機表示、正解率はまだ未確認。半径1km画像・地上雨量・見逃し評価・結果画面は未実装。Issue #64も継続。
+- **未検証**：11:27確認時点の新規実通知評価は0件。自然な実通知→記録→実況回収→評価確定の全行程、実機表示、正解率はまだ未確認。半径1km画像は後続PR #100で保存開始（下記）。地上雨量・見逃し評価・結果画面は未実装。Issue #64も継続。
+- **画像保存の続き**：branch `feat/replay-area-evidence-20261029`、[半径1km画像保存の詳細](RAIN_AREA_EVIDENCE_20261029.md)、[画像監視SQL](sql/rain-area-monitoring.sql)。[PR #100](https://github.com/miyazaki1016/emergencyalert/pull/100)で独立archive-rain v1・可逆PNG・欠測マスクを本番反映。実JMA画像のDB保存往復、11:48の毎分cron成功を確認。195テスト・ビルド・初期CI成功。実通知は0件で、点／面の精度結果とは分けて扱う。
 - **次の一手**：[監視用SQL](sql/rain-replay-monitoring.sql)で実通知の保存と確定結果を確認。取得不能・時刻ずれ・配信不明を分離し、サンプルを確認してから精度を集計する。先に現在の本番版・DB・件数を読み取りで再照合し、既存実装を作り直さない。
 
 ---

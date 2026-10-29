@@ -35,6 +35,10 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v4
+      - name: Test isolated area evidence schema, bytea and permissions
+        env:
+          PGPASSWORD: local-test-only
+        run: psql -h localhost -U postgres -d phase1_test -v ON_ERROR_STOP=1 -f tests/sql/rain-area-integration.sql
       - name: Test isolated notification replay schema and private permissions
         env:
           PGPASSWORD: local-test-only

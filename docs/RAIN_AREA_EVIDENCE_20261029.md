@@ -1,0 +1,56 @@
+# 通知地点の半径1km画像保存 — 2026-10-29
+
+[総覧](PROJECT_OVERVIEW.md) · [開発台帳](DEVELOPMENT_LEDGER.md) · [先行の点評価](NOTIFICATION_REPLAY_PRODUCTION_20261029.md)
+
+## 目的と現在地
+通知された登録地点について、点予測／面予測／併用の比較に必要な最小の画像を残す。既存の点評価を先行稼働させたPR #99の続き。ユーザーの本番実装承認と「作業の続き」に基づく。専用ブランチ `feat/replay-area-evidence-20261029`。[PR #100](https://github.com/miyazaki1016/emergencyalert/pull/100)で追跡し、本番反映・実測確認まで完了。自然な実通知の全行程は未検証（末尾参照）。
+
+## 対象と時刻の意味
+- Pushサービスの受理件数が1以上の評価レコードだけを回収対象にする。候補だけの通知、失敗・送信不明を実通知件数に混ぜない。
+- FORECAST：当時のsnapshotに実在し、対象時刻の-15分〜+10分（開始）／+20分（終了）の5分刻み比較窓に入る予測フレーム。同じbaseTime/validTimeのURLを使う。
+- INPUT_OBSERVATION：通知判断時に入力された実況（最大2枚、現Providerは通常1枚）。
+- OBSERVATION：比較窓の各validTimeについて、後日N1に掲載されたbaseTime=validTimeの実況だけを回収。未来予報を実況として代用しない。
+- 画像回収は通知後であり、通知処理が当時取得した元PNGのバイト列そのものを保存する方式ではない。**同じ発表時刻のURLを後から取得した画像**として記録する。取得時刻、元タイルURL・SHA-256・取得時刻・PNG容量を保存。
+- 予測／入力実況の中心RGBAを当時の入力と照合し、matchesInputPixel=true/false/nullを保存。中心の一致だけで周辺全体の当時同一性が証明できるわけではない。falseやnullを確認済みの元入力画像として使わない。当時の点入力snapshotは更新しない。
+
+## 可逆画像と欠測
+- z10、256×256の元タイルを1〜4枚取得し、半径1000mの円を保守的に覆う外接正方形を切り抜く。緯度に応じて画素幅を計算し、端の画素も残すため余白1画素を加える。
+- 元RGBAをそのままPNGで可逆保存。未知色・alphaも保持し、復元後のRGBA一致を検証。1バイトの雨分類への不可逆変換はしない。
+- availability_maskは1画素1byte、1=元画素取得済み、0=欠測。透明画素と未取得画素は別物。これは取得可否マスクであり、気象学的な観測品質・レーダー範囲の保証ではない。
+- タイル原点、切抜き原点、幅・高さ、中心座標、実効m/画素、半径、元タイル識別、RGBA/PNGハッシュを保存。緯度±60度以内、最大4タイル、PNG16KiB以下を対象にし、境界外・上限超過は欠測理由にする。
+- 部分取得のPNGには欠測マスクを必ず添える。後の成功取得で部分画像を更新できるが、全画素取得済みの画像はDBトリガーで上書きを禁止する。全タイル失敗時は偽の透明画像を作らない。
+
+## DBとコスト制限
+- Freeプラン、作業開始時DB約40MBを読み取り確認。今回は小さい切抜きに限定し、privateな`rain_evaluation_images`のbyteaへPNGとマスク、jsonbへメタデータを保存する。DB／Storage全用途の最適方式を決めたという意味ではない。
+- 画像は親の評価レコードと同じ有効期限（最大90日）。親の削除・アカウント削除ではcascadeで画像も消える。
+- 画像テーブルの物理容量（索引等込み）が32MiB以上なら新しい回収claimを停止。実行中の小規模バッチによる限定的な超過はあり得る。物理容量はDELETEだけでは縮まらない場合があるため、上限到達後は保持量・回収方式・保守の見直しが必要。自動増額しない。
+- PNG単体のバイト数だけで費用を見積もらず、マスク・メタデータ・索引・バックアップも考慮する。
+- RLS有効、anon/authenticatedの権限なし。service_roleのみ操作。購読endpointや認証鍵は保存しない。
+
+## 実行と失敗時
+- 独立Edge Function `archive-rain`を毎分実行。WATCH_CRON_TOKENで認証。Push送信や通知判定、点評価の結果を変更しない。
+- 1回最大2評価、各6画像、合計40秒の取得予算。タイル1枚4秒タイムアウト、同じタイルは呼出し内で再利用。タイルキャッシュ上限48枚。
+- SQLのSKIP LOCKEDと2分leaseで競合を避け、状態更新もlease_idを照合する。これはPush送信の重複防止とは別。
+- 対象時刻+60分または60回試行で、未取得をINCOMPLETEに確定する。失敗／部分取得／中心不一致を成功した精度評価として扱わない。
+- 実行記録は`rain_image_runs`に30日保存。PROBEは固定の公開気象地点でPNG→DB bytea→読戻しハッシュを検査し、REGULARとは区別。通知・評価の架空レコードを作らない。
+- source：気象庁 https://www.jma.go.jp/bosai/nowc/ 公開hrpnsタイルを切抜き。利用条件：https://www.jma.go.jp/jma/kishou/info/coment.html 。加工・取得元をメタデータに記載。画像は地上雨量の真値ではない。
+
+## 確認・切り戻し
+- 境界跨ぎ・欠測・透明・未知RGBA・元画素不一致・可逆性・キャッシュ・未到達実況・全取得失敗のテスト。
+- workerの書込み・障害・lease解放・PROBE分離・認証をモック検証。
+- 隔離DBでbytea往復、RLS/権限、受理済みだけのclaim、排他、完全画像の不変性、cascadeを検証。CIはPostgres16。
+- Supabase向け共有モジュールをテストから参照するため、既存noEmit設定下でTypeScriptのallowImportingTsExtensionsを有効化。
+- 切り戻し：archive-rainのcronを停止する。独立した画像処理なので、watch-rain v32／evaluate-rain v1はそのまま継続できる。テーブルは検証用に残し、破壊的削除は行わない。
+
+## 未検証・次工程
+自然に発生した新規実通知がまだない場合、元通知→画像保存→点／面比較という全行程や予測精度を実証済みとはしない。画像を取得できても、面予測の実装・採用、地上雨量との照合、見逃し率、利用者向け結果画面は別作業。まず受理済みの実通知で欠測率・中心一致・取得遅延・容量を確かめる。
+
+## 本番反映と実測（2026-10-29 11:48 JST確認）
+- `archive-rain version1`をACTIVEとして配備。DB移行`20261029023607_replay_area_images.sql`、毎分cronの移行`20261029024650_replay_area_schedule.sql`を適用。既存watch-rain v32／evaluate-rain v1のコードとスケジュールは変更していない。
+- 11:47のPROBE：本番Edgeで11:45実況を取得し、半径1kmの外接範囲を21×21画素、実効約124.21m/画素で可逆切抜き。1タイル、全画素取得済み。PNG78bytes＋マスク441bytes（メタデータ・索引等は別）。雨なしの1例であり、雨域がある画像の平均容量ではない。
+- 本番DBへbyteaで保存し、読戻したPNGのSHA-256一致を確認：`ce24e206fdf617ad4b3d889208f5934672d0d0ed512ea3446276cac764789a90`。PROBEは通知評価サンプルを作っていない。
+- 11:48の自然なREGULAR定時実行：OK、failures=0、frameErrors=0、回収対象0件、物理画像容量24576bytes、容量停止なし。画像保存先の権限も照会し、anon/authenticated読取り不可・anonのclaim不可を確認。トークンなし呼出しはHTTP401。
+- ローカル195テスト・本番ビルド・Edge型チェック成功。PR #100初期head `71407976186268ffeee1e9dd7425307abe1cb8f2` のverify / phase1-feedback-rls / phase1-feedback-httpはすべて成功。
+- セキュリティ診断：追加テーブルはprivate設計によるRLS有効・policyなしのINFOのみ増加。既存WARNは今回変更していない。説明：https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy
+- 11:48時点の実通知評価は0件。実通知の予測画像・中心一致、後日の実況画像との比較、精度改善は未検証。次は[監視SQL](sql/rain-area-monitoring.sql)で自然データを確認する。過去時点の0件や78bytesを現在の件数・平均容量として再利用しない。
+- mainからは[総覧](PROJECT_OVERVIEW.md)→[開発台帳](DEVELOPMENT_LEDGER.md)→本記録へ辿る。配備時だけエントリポイントを平坦化し、../_shared/を./_shared/に置換して同じ共有ソースを同梱。
