@@ -7,6 +7,7 @@
 - [最新の総覧・再開地点](docs/PROJECT_OVERVIEW.md)
 - [開発台帳](docs/DEVELOPMENT_LEDGER.md)
 - [2026-10-29 通知予測と実況の自動答え合わせ：本番結果](docs/NOTIFICATION_REPLAY_PRODUCTION_20261029.md)
+- [続き：半径1kmの予測・実況画像保存](docs/RAIN_AREA_EVIDENCE_20261029.md)
 
 以下の本文は主に2026-09-30時点の履歴です。現行の実装・本番状態は上記の最新総覧と台帳を優先してください。
 

@@ -23,6 +23,7 @@
 - **元ブランチ**：`feat/notification-replay-production-20261029`（#99、main統合済み）。設計元は `research/notification-replay-20261029` の [PR #98](https://github.com/miyazaki1016/emergencyalert/pull/98)・`docs/research/NOTIFICATION_REPLAY_PLAN_20261029.md`（研究資料全体は未統合）。
 - **確認済み**：181テスト、本番ビルド、#99最終head `626c66338dbb81f8ea1b4ccc1bb7487b89a31cf8` のCI全3ジョブ成功。11:25 JSTの監視12地点エラー0、11:27の評価定時実行OK、JMA実況取得・認証拒否・非公開権限を確認。
 - **未検証**：11:27確認時点の新規実通知評価は0件。自然な実通知→記録→実況回収→評価確定の全行程、実機表示、正解率はまだ未確認。半径1km画像・地上雨量・見逃し評価・結果画面は未実装。Issue #64も継続。
+- **画像保存の続き**：branch `feat/replay-area-evidence-20261029`、[半径1km画像保存の詳細](RAIN_AREA_EVIDENCE_20261029.md)、[画像監視SQL](sql/rain-area-monitoring.sql)。独立worker・可逆PNG・欠測マスクを実装検証中。本番の実測確認後に進捗を更新する。点評価の精度結果とは分けて扱う。
 - **次の一手**：[監視用SQL](sql/rain-replay-monitoring.sql)で実通知の保存と確定結果を確認。取得不能・時刻ずれ・配信不明を分離し、サンプルを確認してから精度を集計する。先に現在の本番版・DB・件数を読み取りで再照合し、既存実装を作り直さない。
 
 ---
