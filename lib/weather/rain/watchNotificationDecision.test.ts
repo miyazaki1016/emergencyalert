@@ -171,3 +171,18 @@ describe("unique observation time streaks", () => {
     expect(d.clearStreak).toBe(3);
   });
 });
+
+// Reproduces the deployed behaviour audited for notifications 538/539.
+// This records the issue; it is not approval of this re-notification policy.
+it('documents the third clear observation bypassing an existing delivered latch while forecast remains actionable',()=>{
+ const first={status:'NO_RAIN',validAt:'20261029034000',previousValidAt:'20261029033500',previousRainStreak:2,previousClearStreak:0};
+ let state=advanceObservationStreak(first);
+ const notified='2026-10-29T03:45:16.677Z';
+ expect(shouldNotifyForRain({notificationsEnabled:true,currentUrgency:'LIFESTYLE_ACTION',lastNotifiedAt:null})).toBe(true);
+ state=advanceObservationStreak({...first,validAt:'20261029034500',previousValidAt:'20261029034000',previousRainStreak:state.rainStreak,previousClearStreak:state.clearStreak});
+ expect(state.clearStreak).toBe(2);
+ expect(shouldNotifyForRain({notificationsEnabled:true,currentUrgency:'LIFESTYLE_ACTION',lastNotifiedAt:notified})).toBe(false);
+ state=advanceObservationStreak({...first,validAt:'20261029035000',previousValidAt:'20261029034500',previousRainStreak:state.rainStreak,previousClearStreak:state.clearStreak});
+ expect(state.clearStreak).toBe(3);
+ expect(shouldNotifyForRain({notificationsEnabled:true,currentUrgency:'LIFESTYLE_ACTION',lastNotifiedAt:state.clearStreak>=3?null:notified})).toBe(true);
+});

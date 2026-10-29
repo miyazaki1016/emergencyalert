@@ -10,7 +10,7 @@ function check<T>(r:{data:T|null;error:unknown},message:string):T{if(r.error||r.
 export async function loadLab(client:SupabaseClient,days:number):Promise<LabData>{
  const owner=await requireResearchAccess(client);const since=new Date(Date.now()-Math.min(90,Math.max(1,days))*86400000).toISOString();
  const [events,targets,radar,images,shadow,diagnostic,probe]=await Promise.all([
-  client.from('rain_notification_evaluations').select('id,target_id,event_type,target_time,created_at,notification_id,state,image_state,shadow_state,delivery_record_status,snapshot',{count:'exact'}).eq('owner_id',owner).gt('accepted_count',0).gte('created_at',since).order('created_at',{ascending:false}).limit(100),
+  client.from('rain_notification_evaluations').select('id,target_id,event_type,target_time,created_at,notification_id,state,image_state,shadow_state,delivery_record_status,attempts,image_attempts,shadow_attempts,deadline_at,last_error,image_error,shadow_error,radar_result,snapshot',{count:'exact'}).eq('owner_id',owner).gt('accepted_count',0).gte('created_at',since).order('created_at',{ascending:false}).limit(100),
   client.from('watch_targets').select('id,label').eq('owner_id',owner),
   client.from('rain_evaluation_runs').select('started_at,finished_at,status,summary').order('id',{ascending:false}).limit(1),
   client.from('rain_image_runs').select('started_at,finished_at,status,summary,mode').eq('mode','REGULAR').order('id',{ascending:false}).limit(1),

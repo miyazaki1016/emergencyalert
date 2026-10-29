@@ -1,13 +1,14 @@
+import {classifyRainPixel} from '../weather/providers/jma/classifyPixel';
 export type State='RAIN'|'NO_RAIN'|'INDETERMINATE';
 export type Method='point'|'area'|'combined';
-export type Evaluation={id:string;target_id:string;event_type:string;target_time:string|null;created_at:string;notification_id:number|null;state:string;image_state:string;shadow_state:string;delivery_record_status?:string;snapshot:{decidedAt:string;body?:string;location:{latitude:number;longitude:number};[key:string]:unknown}};
+export type Evaluation={id:string;target_id:string;event_type:string;target_time:string|null;created_at:string;notification_id:number|null;state:string;image_state:string;shadow_state:string;delivery_record_status?:string;attempts?:number;image_attempts?:number;shadow_attempts?:number;deadline_at?:string;last_error?:string|null;image_error?:string|null;shadow_error?:string|null;radar_result?:{reason?:string;missingTimes?:string[];exact?:string;within5?:string;within10?:string};snapshot:{decidedAt:string;body?:string;location:{latitude:number;longitude:number};[key:string]:unknown}};
 export type Score={validTime:string;predicted:State;actual:State;verdict:string;reason?:string;leadMinutes?:number};
 export type Series={series:Array<{validTime:string;state:State;reason?:string}>;scores:Score[];transitions?:{rainStartsAt:string|null;rainEndsAt:string|null}};
 export type Shadow={evaluation_id:string;algorithm_version:string;features:Array<{kind:string;baseTime:string;validTime:string;matchesInputPixel:boolean|null;capturedAt:string;metrics:{circles:Record<string,{rainFraction:number|null;usableCoverage:number;missingFraction:number;unknownFraction:number;rainComponentCount:number;centerDryHoleM2:number|null}>}}>;
  comparison:{groups:Array<{baseTime:string;point:Series;variants:Array<{threshold:number;area:Series;combined:Series}>}>;imageErrors?:unknown[]};computed_at:string};
 export type GroundReport={evaluation_id:string;observed_at:string;weather:'RAIN'|'NO_RAIN'|'UNKNOWN';report_source:'AT_LOCATION'|'CAMERA'|'NEARBY_REFERENCE';location_confirmed:boolean;note:string;updated_at?:string};
 export type Health={started_at:string;finished_at?:string|null;status:string;summary?:Record<string,unknown>;mode?:string};
-export type ImageRow={frame_kind:string;base_time:string;valid_time:string;crop_png:string;availability_mask:string;width:number;height:number;complete:boolean;metadata:{capturedAt?:string;matchesInputPixel?:boolean|null;window:{originX:number;originY:number;metersPerPixel:number;width:number;height:number};[key:string]:unknown}};
+export type ImageRow={frame_kind:string;base_time:string;valid_time:string;crop_png:string;availability_mask:string;width:number;height:number;complete:boolean;metadata:{centerRgba?:{r:number;g:number;b:number;a:number}|null;pngSha256?:string;capturedAt?:string;matchesInputPixel?:boolean|null;window:{originX:number;originY:number;metersPerPixel:number;width:number;height:number};[key:string]:unknown}};
 export type LabData={evaluations:Evaluation[];total:number;shadows:Shadow[];reports:GroundReport[];targets:Array<{id:string;label:string}>;feedback:Array<{notification_id:number;actual_weather:string;observed_at:string|null;observed_time_source:string|null}>;health:{observation:Health|null;radar:Health|null;images:Health|null;shadow:Health|null};probe:{image:ImageRow;sourceValidTime:string}|null};
 export const METHODS:Method[]=['point','area','combined'];
 export const METHOD_LABELS:Record<Method,string>={point:'点（共通ルール）',area:'面（500m）',combined:'点と面の併用'};
@@ -49,3 +50,13 @@ export function validateGroundReport(r:GroundReport,now=Date.now()):string|null{
  if(r.note.length>300)return 'メモは300文字以内にしてください。';return null;
 }
 export function imageDataUrl(hex:string):string|null{if(!/^\\x(?:[0-9a-f]{2})+$/i.test(hex)||hex.length>32770)return null;const parts=hex.slice(2).match(/../g)??[];const bytes=Uint8Array.from(parts.map(p=>parseInt(p,16)));if(bytes[0]!==137||bytes[1]!==80||bytes[2]!==78||bytes[3]!==71)return null;return `data:image/png;base64,${btoa(Array.from(bytes,b=>String.fromCharCode(b)).join(''))}`;}
+
+export function centerPixelLabel(image:ImageRow,index:number):string{
+ const mask=image.availability_mask.slice(2).match(/../g)??[];
+ if(mask[index]==='00')return '未取得（雨なしには数えない）';
+ if(mask[index]!=='01')return '取得状態を確認できない';
+ const rgba=image.metadata.centerRgba;
+ if(!rgba||!['r','g','b','a'].every(k=>Number.isInteger(rgba[k as keyof typeof rgba])&&rgba[k as keyof typeof rgba]>=0&&rgba[k as keyof typeof rgba]<=255))return '中心の色情報なし';
+ if(rgba.a===0)return '取得済み透明（レーダー雨色なし）';
+ const c=classifyRainPixel(rgba);return c.status==='RAIN'?`雨色（${c.intensityClass==='LT_1'?'1mm/h未満':c.intensityClass==='1_TO_5'?'1〜5mm/h':c.intensityClass}）`:'未知色（判定保留）';
+}

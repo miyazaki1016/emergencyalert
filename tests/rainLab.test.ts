@@ -1,5 +1,5 @@
 import {it,expect} from 'vitest';
-import {groundAt,summarize,validateGroundReport,imageDataUrl,type LabData,type GroundReport,type Shadow} from '../lib/research/rainLab';
+import {centerPixelLabel,groundAt,summarize,validateGroundReport,imageDataUrl,type ImageRow,type LabData,type GroundReport,type Shadow} from '../lib/research/rainLab';
 const valid='20261029031000',time='2026-10-29T03:10:00Z',now=Date.parse('2026-10-29T04:00:00Z');
 const report:GroundReport={evaluation_id:'case',observed_at:time,weather:'RAIN',report_source:'AT_LOCATION',location_confirmed:true,note:''};
 function fixture():LabData{
@@ -17,3 +17,12 @@ it('shows abstentions but excludes them from the common denominator',()=>{const 
 it('does not score pending or not-yet-valid cases',()=>{const f=fixture();f.evaluations[0].shadow_state='PENDING';expect(summarize(f,.4,'ground',now).paired).toBe(0);f.evaluations[0].shadow_state='COMPLETE';expect(summarize(f,.4,'ground',0).paired).toBe(0);});
 it('requires explicit input and location confirmation before saving observations',()=>{expect(validateGroundReport({...report,location_confirmed:false},now)).not.toBeNull();expect(validateGroundReport({...report,observed_at:'2030-01-01T00:00:00Z'},now)).not.toBeNull();expect(validateGroundReport({...report,note:'x'.repeat(301)},now)).not.toBeNull();expect(validateGroundReport(report,now)).toBeNull();});
 it('accepts only bounded PNG bytea for image rendering',()=>{expect(imageDataUrl('javascript:alert(1)')).toBeNull();expect(imageDataUrl('\\x89504e47f')).toBeNull();expect(imageDataUrl('\\x89504e470d0a1a0a')).toMatch(/^data:image\/png;base64,/);});
+
+it('distinguishes faint opaque rain, acquired transparency, unknown and missing center pixels',()=>{
+ const row={availability_mask:'\\x01',metadata:{centerRgba:{r:242,g:242,b:255,a:255}}} as ImageRow;
+ expect(centerPixelLabel(row,0)).toBe('雨色（1mm/h未満）');
+ row.metadata.centerRgba={r:255,g:255,b:255,a:0};expect(centerPixelLabel(row,0)).toMatch(/^取得済み透明/);
+ row.metadata.centerRgba={r:1,g:2,b:3,a:255};expect(centerPixelLabel(row,0)).toBe('未知色（判定保留）');
+ row.availability_mask='\\x00';expect(centerPixelLabel(row,0)).toMatch(/^未取得/);
+ row.availability_mask='\\x01';expect(centerPixelLabel(row,10)).toBe('取得状態を確認できない');
+});
