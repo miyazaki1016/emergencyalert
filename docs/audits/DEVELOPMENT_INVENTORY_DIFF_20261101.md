@@ -29,3 +29,10 @@
 | A-PUSH-01 | Push並行実行・永続claim | `audit/push-concurrency-20261026` の監査文書、PR #63 **open Draft、未マージ** | D（監査）／別PRの実装案は未採用。既存制約との整合を優先確認 |
 
 ※ 同じwatch-rainを変更する複数ブランチを機能数として足し算しない。PR #107は管理用Draft PR。PRのopen/mergedは機能品質や本番適用を保証しない。
+
+## 第四段階：既存台帳との整合修正（2026-11-01）
+
+- **A-REPLAY-01は過去証拠を保持する。** main `docs/DEVELOPMENT_LEDGER.md` にはPR #99のmain統合コミット `b6c216be96ecadcb9f86f2042ee6e786800b30c8` と `watch-rain v32`、`evaluate-rain v1` の**本番反映済み記録**がある。従って「本番未確認」と一律に戻すのは誤り。**既存記録上は本番反映済み、現在の稼働状態は別途未確認**とする。
+- PR #99のGitHub状態も **closed/merged（2026-10-29）** と一致。PR #63はopen Draftのまま。研究PR #109はopen Draftのまま。
+- `fix/severe-once-per-episode-20261031` と `fix/forecast-bootstrap-20261029` は同じ `watch-rain/index.ts` / `forecastEpisode.ts` を変更する。**重複する可能性がある作業群**として扱い、片方のブランチを単純に未実装リストへ追加しない。
+- 未確認は最新の本番バージョン・稼働・実機の差分に限定し、過去の証拠を無効化しない。
