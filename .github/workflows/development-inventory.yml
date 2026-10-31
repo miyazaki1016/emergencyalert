@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Read-only inventory
+      - name: Offline regression tests\n        run: python3 -m unittest discover -s tests -p 'test_development_inventory.py' -v\n      - name: Read-only inventory
         env:
           GITHUB_TOKEN: ${{ github.token }}
           STALE_DAYS: '14'
