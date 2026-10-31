@@ -7,7 +7,7 @@ on:
       - 'tests/test_development_inventory.py'
       - '.github/workflows/development-inventory.yml'
   schedule:
-    - cron: '17 1 * * 1'
+    - cron: '17 1 * * *'
 permissions:
   contents: read
   pull-requests: read
