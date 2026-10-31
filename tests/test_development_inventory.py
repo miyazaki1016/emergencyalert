@@ -29,6 +29,33 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(len(result), 101)
         self.assertEqual(len(calls), 2)
 
+    def test_closed_pr_history_is_retained(self):
+        old = "2020-01-01T00:00:00Z"
+        closed = {"number": 8, "state": "closed", "title": "Done",
+                  "updated_at": old, "html_url": "https://github.com/example/demo/pull/8",
+                  "head": {"ref": "feature/done", "repo": {"full_name": "example/demo"}}}
+        def fake_pages(path):
+            if "/branches" in path:
+                return [{"name": "main"}, {"name": "feature/done"}]
+            if "/pulls?" in path:
+                return [closed]
+            if "/issues?" in path:
+                return []
+            raise AssertionError(path)
+        with tempfile.TemporaryDirectory() as tmp:
+            current = os.getcwd()
+            try:
+                os.chdir(tmp)
+                with patch.object(inventory, "get", return_value={"default_branch": "main"}), patch.object(inventory, "pages", side_effect=fake_pages):
+                    inventory.main()
+                with open("inventory-output/report.json", encoding="utf-8") as f:
+                    result = json.load(f)
+            finally:
+                os.chdir(current)
+        self.assertEqual(result["open_pr_count"], 0)
+        self.assertEqual(result["historical_pr_count"], 1)
+        self.assertTrue(result["review_candidates"][0]["historical_pr_found"])
+
     def test_report_candidates_are_not_completion_claims(self):
         old = "2020-01-01T00:00:00Z"
         recent = inventory.NOW.isoformat()
