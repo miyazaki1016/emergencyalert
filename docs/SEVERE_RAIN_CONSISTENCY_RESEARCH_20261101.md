@@ -37,3 +37,11 @@
 - APIのトップレベル `forecast` は正常系でも返されているため、記録処理を `diagnostic` の有無から独立させれば予測フレームを保持できる。欠損・期待フレーム数の不明は別状態として扱う。
 - 研究用の `lib/research/forecastEvidence.ts` と6テストを追加。現行APIでは正常系のexpectedFramesがトップレベルに出ないため、研究関数が正常系を `PARTIAL / EXPECTED_COUNT_UNKNOWN` と返すのは意図的。 `COMPLETE` と確定するにはAPI契約に期待件数を追加するか、JMA系列の仕様・検証済み期待値を参照する必要がある。
 - **未実装**: 本番保存経路の修正、APIのexpectedFrames追加、DBスキーマ変更、バックフィル、デプロイ。安全な書込先・保存量・個人位置情報保護を別PRで確認してから実装。
+
+## 完全性の確認と実装準備（追記）
+- 本番DB直近24時間の診断履歴は3,775件・15地点で、全件 `diagnostic IS NULL`。これは雨情報APIが正常時に診断をnullにする設計と整合。正常系の予測履歴は現在の診断テーブルから再現不能。
+- JMAプロバイダー `getForecastSeries` はすでに `expectedFrames: targets.length` を取得している。APIは現在、正常系レスポンスにこの値を公開していない。**最小変更案**: `app/api/rain/route.ts` のレスポンスへ `expectedForecastFrames: forecastSeries.expectedFrames` を追加。既存 `diagnostic` の正常時nullという意味は変えない。
+- `watch-rain` 側は診断の有無とは独立して `forecast` と期待件数を読み取り、`COMPLETE / PARTIAL / MISSING` を明示して保存する。取得失敗や未知画素はフレーム件数が揃っても `PARTIAL`。この状態分類を研究関数に追加しテストする。
+- **データ保持案**: 全地点・全発表回の長期無期限保存は避ける。まず短期（例: 7日）のフレーム系列と、通知発生時・強雨予測発生時の検証用証跡を分ける。7日は未決定の仮置き。容量・期限・地点プライバシー・RLS・既存クリーンアップの調査後に決定。
+- `rain_diagnostic_history` は14MB、`rain_evaluation_images` 約1.4MB、`rain_area_shadow_results` 約520KB（監査時点）。既存診断テーブルへ毎回フレーム配列を付加すると容量が急増する可能性があるため、保存先と必要粒度を先に測定。
+- **本番実装前の受入条件**: 正常時にも記録される、期待フレーム数一致、取得失敗・未知画素の欠測扱い、発表時刻と対象時刻の保持、重複取得時の一意性、保持期限、通知経路への非干渉、RLS、負荷試験、過去の正しい大雨を見逃さない評価。
