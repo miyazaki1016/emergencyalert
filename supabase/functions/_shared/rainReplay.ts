@@ -24,12 +24,12 @@ export function jmaTime(time: number): string { return new Date(time).toISOStrin
 export function makeSnapshot(args: {
  eventType: string; decidedAt: string; latitude: number; longitude: number; title: string; body: string;
  rain: { observation?: Frame[]; forecast?: Frame[]; interpretation?: unknown; diagnostic?: {expectedForecastFrames?: number} | unknown; event?: {actionableAt?:string|null;startsAt?:string|null;endingAt?:string|null} | null };
- previousState: unknown;
+ previousState: unknown; severeTargetTime?: string | null;
 }): Snapshot | null {
- if (!['RAIN_APPROACHING','ACTIONABLE_RAIN_APPROACHING','RAIN_ENDING'].includes(args.eventType)) return null;
+ if (!['RAIN_APPROACHING','ACTIONABLE_RAIN_APPROACHING','RAIN_ENDING','SEVERE_RAIN'].includes(args.eventType)) return null;
  const event = args.rain.event;
- const source = args.eventType === 'RAIN_ENDING' ? 'endingAt' : args.eventType === 'ACTIONABLE_RAIN_APPROACHING' && event?.actionableAt ? 'actionableAt' : 'startsAt';
- const value = event?.[source];
+ const source = args.eventType === 'SEVERE_RAIN' ? 'severeForecast' : args.eventType === 'RAIN_ENDING' ? 'endingAt' : args.eventType === 'ACTIONABLE_RAIN_APPROACHING' && event?.actionableAt ? 'actionableAt' : 'startsAt';
+ const value = source === 'severeForecast' ? args.severeTargetTime : event?.[source as 'endingAt'|'actionableAt'|'startsAt'];
  const target = timestamp(value);
  return {
   schemaVersion:1,engineVersion:'main-0baa0bc-rain-interpretation',decidedAt:args.decidedAt,
@@ -54,7 +54,7 @@ export function evaluateReplay(snapshot: Snapshot, evidence: Evidence[], now: nu
  const t = timestamp(snapshot.targetTime), decided = timestamp(snapshot.decidedAt);
  const invalid = (reason:string) => ({version:REPLAY_VERSION,metric:'RADAR_POINT_TRANSITION',exact:'INDETERMINATE' as Verdict,within5:'INDETERMINATE' as Verdict,within10:'INDETERMINATE' as Verdict,reason});
  if (t === null || decided === null || t < decided - 5*60000 || t > decided + 120*60000 || t % 300000 !== 0) return invalid('INVALID_TARGET_TIME');
- if (snapshot.eventType !== 'RAIN_ENDING' && !['RAIN_APPROACHING','ACTIONABLE_RAIN_APPROACHING'].includes(snapshot.eventType)) return invalid('UNSUPPORTED_EVENT');
+ if (snapshot.eventType !== 'RAIN_ENDING' && !['RAIN_APPROACHING','ACTIONABLE_RAIN_APPROACHING','SEVERE_RAIN'].includes(snapshot.eventType)) return invalid('UNSUPPORTED_EVENT');
  const original = snapshot.forecast.find(f=>timestamp(f.validTime)===t);
  if(!original || timestamp(original.baseTime)===null || timestamp(original.baseTime)!>decided || timestamp(original.baseTime)!>t || original.status!==(snapshot.eventType==='RAIN_ENDING'?'NO_RAIN':'RAIN')) return invalid('INVALID_OR_MISSING_FORECAST_INPUT');
  const at = (time:number): string | null => {
@@ -64,6 +64,21 @@ export function evaluateReplay(snapshot: Snapshot, evidence: Evidence[], now: nu
   return new Set(rows.map(f=>f.status)).size === 1 ? rows[0].status! : null;
  };
  const ending = snapshot.eventType === 'RAIN_ENDING';
+ if(snapshot.eventType==='SEVERE_RAIN'){
+  const severe=(v?:string|null)=>['30_TO_50','50_TO_80','GTE_80'].includes(v??'');
+  if(!severe(original.intensityClass))return invalid('INVALID_SEVERE_FORECAST');
+  const intensityAt=(time:number):string|null=>{
+   if(time>now)return null;
+   const rows=evidence.filter(f=>timestamp(f.validTime)===time);
+   if(rows.length!==1||rows[0].kind!=='OBSERVATION'||timestamp(rows[0].baseTime)!==time||timestamp(rows[0].capturedAt)!<time||timestamp(rows[0].capturedAt)!>now||!['RAIN','NO_RAIN'].includes(rows[0].status??''))return null;
+   return rows[0].status==='NO_RAIN'?'NO_RAIN':rows[0].intensityClass??null;
+  };
+  const windowSevere=(minutes:number):Verdict=>{
+   const values=[] as (string|null)[];for(let d=-minutes;d<=minutes;d+=5)values.push(intensityAt(t+d*60000));
+   return values.some(v=>severe(v))?'MATCH':values.some(v=>v===null)?'INDETERMINATE':'MISMATCH';
+  };
+  return {version:REPLAY_VERSION,metric:'RADAR_POINT_SEVERE_30',exact:windowSevere(0),within5:windowSevere(5),within10:windowSevere(10),reason:'SEVERE_THRESHOLD_30',rainAtTarget:at(t),missingTimes:requiredTimes(snapshot).filter(time=>intensityAt(timestamp(time)!)===null),groundTruth:'NOT_EVALUATED'};
+ }
  // A stop is valid only with independently recorded pre-notification rain.
  const priorRain = snapshot.observation.some(f => f.status === 'RAIN' && timestamp(f.baseTime) === timestamp(f.validTime) && timestamp(f.validTime) !== null && timestamp(f.validTime)! <= decided && decided-timestamp(f.validTime)! <= 15*60000);
  if (ending && !priorRain) return invalid('NO_PRE_NOTIFICATION_RAIN');
