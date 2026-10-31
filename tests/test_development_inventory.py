@@ -29,6 +29,21 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(len(result), 101)
         self.assertEqual(len(calls), 2)
 
+    def test_pagination_multiple_full_pages(self):
+        calls = []
+        def fake_get(path):
+            calls.append(path)
+            page = int(path.rsplit("page=", 1)[-1])
+            if page <= 2:
+                return [{"name": "branch-%s-%s" % (page, i)} for i in range(100)]
+            return [{"name": "branch-last"}]
+        with patch.object(inventory, "get", side_effect=fake_get):
+            result = inventory.pages("/repos/example/demo/pulls?state=all")
+        self.assertEqual(len(result), 201)
+        self.assertEqual(len(calls), 3)
+        self.assertTrue(all("state=all" in path for path in calls))
+        self.assertEqual(result[-1]["name"], "branch-last")
+
     def test_closed_pr_history_is_retained(self):
         old = "2020-01-01T00:00:00Z"
         closed = {"number": 8, "state": "closed", "title": "Done",
