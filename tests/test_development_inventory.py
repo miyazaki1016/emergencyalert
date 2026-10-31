@@ -23,7 +23,7 @@ class InventoryTests(unittest.TestCase):
         calls = []
         def fake_get(path):
             calls.append(path)
-            return [{"name": str(i)} for i in range(100)] if "page=1" in path else [{"name": "last"}]
+            return [{"name": str(i)} for i in range(100)] if path.rsplit("page=", 1)[-1] == "1" else [{"name": "last"}]
         with patch.object(inventory, "get", side_effect=fake_get):
             result = inventory.pages("/repos/example/demo/branches")
         self.assertEqual(len(result), 101)
