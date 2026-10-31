@@ -21,3 +21,10 @@ test("missing time fields are excluded and flagged", () => {
 test("diagnostic expected count is usable for withheld interpretation", () => {
   expect(extractForecastEvidence({ diagnostic: {expectedForecastFrames: 1}, forecast: [frame] }).state).toBe("COMPLETE");
 });
+
+test("fetch error is incomplete even when expected count matches", () => {
+  expect(extractForecastEvidence({ forecast: [{...frame, status: "FETCH_ERROR"}] }, 1)).toMatchObject({ state: "PARTIAL", reason: "UNUSABLE_FRAME_STATUS" });
+});
+test("unknown pixel is incomplete even when expected count matches", () => {
+  expect(extractForecastEvidence({ forecast: [{...frame, status: "UNKNOWN_PIXEL"}] }, 1)).toMatchObject({ state: "PARTIAL", reason: "UNUSABLE_FRAME_STATUS" });
+});
