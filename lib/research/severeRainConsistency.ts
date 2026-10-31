@@ -20,7 +20,7 @@ export type SevereConsistency = {
 };
 const severe = new Set(["30_TO_50", "50_TO_80", "GTE_80"]);
 const validTime = (s: string): number | null => {
-  if (!/^\\d{14}$/.test(s)) return null;
+  if (!/^\d{14}$/.test(s)) return null;
   const n = Date.UTC(+s.slice(0,4), +s.slice(4,6)-1, +s.slice(6,8), +s.slice(8,10), +s.slice(10,12), +s.slice(12,14));
   return Number.isFinite(n) && new Date(n).toISOString().replace(/[-:T.Z]/g, "").slice(0,14) === s ? n : null;
 };
