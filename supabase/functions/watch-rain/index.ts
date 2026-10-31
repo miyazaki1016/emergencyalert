@@ -55,7 +55,7 @@ Deno.serve(async(req:Request)=>{
   const severeRank=(v?:string|null)=>v==="GTE_80"?3:v==="50_TO_80"?2:v==="30_TO_50"?1:0;
   const severeFrame=severeForecast(rain.forecast??[],Date.now());
   const severeLevel=severeRank(severeFrame?.intensityClass);const previousSevere=episode.peakSevere;
-  const severeEscalation=Boolean(target.notifications_enabled)&&severeLevel>previousSevere;
+  const severeEscalation=Boolean(target.notifications_enabled)&&severeLevel>0&&previousSevere===0;
   const initialRaining=false;
   const rainEnding=!episodeClosed&&rain.event.eventType==="RAIN_ENDING"&&previousEvent?.eventType!=="RAIN_ENDING"&&!previous?.rain_ending_notified&&previous?.confirmed_weather==="RAINING";
   const confirmedAndEnding=!episodeClosed&&rainConfirmed&&rain.event.eventType==="RAIN_ENDING"&&!previous?.rain_ending_notified;
@@ -75,7 +75,7 @@ Deno.serve(async(req:Request)=>{
   const notificationEventType=severeEscalation?"SEVERE_RAIN":confirmedAndEnding?"RAIN_ENDING":rainEnding?"RAIN_ENDING":returningRain?"RAIN_RETURNING":rain.event.eventType;
   const notificationUrgency=severeEscalation?"DISASTER":rain.event.urgency;
   const replayId=crypto.randomUUID();
-  const replaySnapshot=shouldNotify?makeSnapshot({eventType:notificationEventType,decidedAt:new Date().toISOString(),latitude:target.latitude,longitude:target.longitude,title:notificationEventType==="RAIN_ENDING"?"🌤️ 雨がやみそう":"🌧️ 雨が降りそう",body,rain,previousState:previous??null}):null;
+  const replaySnapshot=shouldNotify?makeSnapshot({eventType:notificationEventType,decidedAt:new Date().toISOString(),latitude:target.latitude,longitude:target.longitude,title:notificationEventType==="RAIN_ENDING"?"🌤️ 雨がやみそう":"🌧️ 雨が降りそう",body,rain,previousState:previous??null,severeTargetTime:notificationEventType==='SEVERE_RAIN'?severeFrame?.validTime:null}):null;
   const replayFailure=()=>console.warn("[rain-replay] recording_failed");
   let replayRecorded=false, subscriptionCount=0, subscriptionQueryFailed=false, replayFailed=0, replayUnknown=0;
   const sendStartedAt=new Date().toISOString();
