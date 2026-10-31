@@ -28,6 +28,6 @@ export function extractForecastEvidence(response: {
   if (!raw.length) return { state: "MISSING", expectedFrames: expected, frames: [], reason: "NO_FORECAST_FRAMES" };
   if (frames.length !== raw.length) return { state: "PARTIAL", expectedFrames: expected, frames, reason: "INCOMPLETE_FRAME_FIELDS" };
   if (expected === null) return { state: "PARTIAL", expectedFrames: null, frames, reason: "EXPECTED_COUNT_UNKNOWN" };
-  if (frames.length !== expected) return { state: "PARTIAL", expectedFrames: expected, frames, reason: "FRAME_COUNT_MISMATCH" };
+  if (frames.length !== expected) return { state: "PARTIAL", expectedFrames: expected, frames, reason: "FRAME_COUNT_MISMATCH" };\n  if (frames.some(f => !["RAIN", "NO_RAIN"].includes(f.status))) return { state: "PARTIAL", expectedFrames: expected, frames, reason: "UNUSABLE_FRAME_STATUS" };
   return { state: "COMPLETE", expectedFrames: expected, frames, reason: null };
 }
