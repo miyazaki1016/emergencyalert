@@ -55,7 +55,7 @@ Deno.serve(async(req:Request)=>{
   const severeRank=(v?:string|null)=>v==="GTE_80"?3:v==="50_TO_80"?2:v==="30_TO_50"?1:0;
   const severeFrame=severeForecast(rain.forecast??[],Date.now());
   const severeLevel=severeRank(severeFrame?.intensityClass);const previousSevere=episode.peakSevere;
-  const severeEscalation=Boolean(target.notifications_enabled)&&severeLevel>previousSevere;
+  const severeEscalation=Boolean(target.notifications_enabled)&&severeLevel>0&&previousSevere===0;
   const initialRaining=false;
   const rainEnding=!episodeClosed&&rain.event.eventType==="RAIN_ENDING"&&previousEvent?.eventType!=="RAIN_ENDING"&&!previous?.rain_ending_notified&&previous?.confirmed_weather==="RAINING";
   const confirmedAndEnding=!episodeClosed&&rainConfirmed&&rain.event.eventType==="RAIN_ENDING"&&!previous?.rain_ending_notified;
