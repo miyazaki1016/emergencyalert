@@ -23,3 +23,10 @@
 
 ## 安全境界
 本PRは研究用純粋関数・テスト・設計文書のみ。watch-rain、Push、Edge Function、本番DB、通知閾値には変更を加えない。
+
+## 本番READ ONLY監査追記（2026-11-01）
+- PR #109 の最新確認時、GitHub Actions verify / phase1-feedback-http / phase1-feedback-rls / rain-delivery-concurrency は全てsuccess。初回CIで発生したJMA日時パースの6件失敗は修正済み。
+- `rain_diagnostic_history` は照会時46,214行、うち `diagnostic IS NULL` が45,913行、`diagnostic.forecastDetails` が空でないものは17行のみ。最終該当時刻は2026-10-27 01:05 JST。つまり現状の診断履歴だけでは発表別の継続性評価を再現できない。
+- `rain_evaluation_images` は603行・約1.4MB、`rain_area_shadow_results` は42行・約520KB、`rain_diagnostic_history` は約14MB（照会時点）。件数は稼働中に変化する。
+- `watch-rain/index.ts` のコード上は予測フレームを `diagnostic.forecastDetails` に付加してinsertする。ただし本番の保存行にほぼ反映されていないため、稼働版との不一致・APIが返すdiagnosticの形・書込経路をREAD ONLYで切り分ける必要がある。原因未確定。
+- このギャップが解決するまで、既存診断履歴を予測継続性の証拠とみなさない。次の実装は新規DB書込ではなく、まず記録経路・スキーマ・保持期限の監査を優先。
