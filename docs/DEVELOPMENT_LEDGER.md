@@ -120,3 +120,7 @@
 
 ## 2026-11-01 棚卸し・ブランチ差分調査
 - [調査証拠・判断・未解決事項](audits/INVENTORY_RECONCILIATION_20261101.md)（GitHub/本番DBの読み取り確認。アプリ・DB・Push・本番変更なし）。
+
+
+## 2026-11-01 旧監査ブランチの追加照合
+- [旧監査ブランチの証拠・未確認事項](audits/LEGACY_AUDIT_FOLLOWUP_20261101.md)。過去snapshotと現行状態を区別し、旧ブランチは未削除・未merge。
