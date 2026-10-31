@@ -1,0 +1,26 @@
+name: Development inventory (read-only)
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 1 * * 1'
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read-only inventory
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          STALE_DAYS: '14'
+        run: python3 scripts/development_inventory.py
+      - name: Save report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: development-inventory
+          path: inventory-output/
+          retention-days: 30
