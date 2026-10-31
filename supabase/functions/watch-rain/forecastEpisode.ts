@@ -28,9 +28,9 @@ export function severeForecast(frames:Frame[],now:number){
  return [...frames].filter(f=>f.status==='RAIN'&&timestamp(f.baseTime)!==null&&timestamp(f.baseTime)!<=now&&timestamp(f.validTime)!==null&&timestamp(f.validTime)!>=now&&rank(f.intensityClass)>0).sort((a,b)=>rank(b.intensityClass)-rank(a.intensityClass)||timestamp(a.validTime)!-timestamp(b.validTime)!)[0]??null;
 }
 export function forecastEpisodeDecision(state:ForecastEpisode,enabled:boolean,actionable:boolean,severeLevel:number,ending:boolean){
- const severe=enabled&&severeLevel>state.peakSevere;
+ const severe=enabled&&severeLevel>0&&state.peakSevere===0;
  const approach=enabled&&state.active&&actionable&&!state.approachNotified;
- return {notify:severe||approach||(enabled&&ending),severe,key:`${state.id}/${severe?'SEVERE_'+severeLevel:ending?'ENDING':'APPROACH'}`};
+ return {notify:severe||approach||(enabled&&ending),severe,key:`${state.id}/${severe?'SEVERE':ending?'ENDING':'APPROACH'}`};
 }
 
 export function bootstrapForecastEpisode(id:string,legacy:Parameters<typeof seedForecastEpisode>[1],recent:Array<{source_valid_at:string|null;event_type:string|null;checked_at:string}>,currentAt:string|null):ForecastEpisode{
