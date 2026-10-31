@@ -30,3 +30,10 @@
 - `rain_evaluation_images` は603行・約1.4MB、`rain_area_shadow_results` は42行・約520KB、`rain_diagnostic_history` は約14MB（照会時点）。件数は稼働中に変化する。
 - `watch-rain/index.ts` のコード上は予測フレームを `diagnostic.forecastDetails` に付加してinsertする。ただし本番の保存行にほぼ反映されていないため、稼働版との不一致・APIが返すdiagnosticの形・書込経路をREAD ONLYで切り分ける必要がある。原因未確定。
 - このギャップが解決するまで、既存診断履歴を予測継続性の証拠とみなさない。次の実装は新規DB書込ではなく、まず記録経路・スキーマ・保持期限の監査を優先。
+
+## 原因特定（本番Edge Function v35・main APIのコード突合）
+- 本番 `watch-rain` v35 の保存処理は `rain.diagnostic` がオブジェクトの場合にのみ `forecastDetails` を追加する。 `rain.diagnostic === null` なら `diagnostic: null` をそのまま保存する。
+- `app/api/rain/route.ts` は `interpretationEnabled === true` の正常系で意図的に `diagnostic = null` とする。つまり正常に雨判定できた回ほど予測履歴が残らないのが直接原因。GitHub/mainと稼働Edge v35のこの分岐は一致する。
+- APIのトップレベル `forecast` は正常系でも返されているため、記録処理を `diagnostic` の有無から独立させれば予測フレームを保持できる。欠損・期待フレーム数の不明は別状態として扱う。
+- 研究用の `lib/research/forecastEvidence.ts` と6テストを追加。現行APIでは正常系のexpectedFramesがトップレベルに出ないため、研究関数が正常系を `PARTIAL / EXPECTED_COUNT_UNKNOWN` と返すのは意図的。 `COMPLETE` と確定するにはAPI契約に期待件数を追加するか、JMA系列の仕様・検証済み期待値を参照する必要がある。
+- **未実装**: 本番保存経路の修正、APIのexpectedFrames追加、DBスキーマ変更、バックフィル、デプロイ。安全な書込先・保存量・個人位置情報保護を別PRで確認してから実装。
