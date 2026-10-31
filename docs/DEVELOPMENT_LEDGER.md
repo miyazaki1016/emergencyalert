@@ -132,3 +132,7 @@
 
 ## 2026-11-01 機能単位の追加照合
 - [mainと旧ブランチの実ファイル照合](audits/FEATURE_RECONCILIATION_20261101.md)（アメふる旧履歴Deep Linkのmain実装を再確認。過去の暫定懸念を訂正）。
+
+
+## 2026-11-01 旧実験コードの照合
+- [旧実験コードとmainの比較記録](audits/LEGACY_CODE_DIFF_20261101.md)。実装採用・DB変更は別途判断。
