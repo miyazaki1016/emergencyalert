@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import patch
 
 SCRIPT = pathlib.Path(__file__).resolve().parents[1] / "scripts" / "development_inventory.py"
-os.environ.setdefault("GITHUB_REPOSITORY", "example/demo")
+os.environ.update(GITHUB_REPOSITORY="example/demo")
 os.environ.setdefault("GITHUB_TOKEN", "offline-test-token")
 spec = importlib.util.spec_from_file_location("development_inventory", SCRIPT)
 inventory = importlib.util.module_from_spec(spec)
