@@ -116,3 +116,7 @@
 | A-PUSH-01 Push並行実行・永続claim | D（監査） | `audit/push-concurrency-20261026`、PR #63 open Draft、監査文書 | 未確認 / 未確認 / 未確認 / 未確認 | 旧監査の指摘を現行本番の未修正と断定せず、PR #63のDB制約と現行workerを照合 |
 
 ※ 状態B/Cは作業群の暫定分類。未確認は未実施の意味ではない。管理用PR #107は別管理。
+
+
+## 2026-11-01 棚卸し・ブランチ差分調査
+- [調査証拠・判断・未解決事項](audits/INVENTORY_RECONCILIATION_20261101.md)（GitHub/本番DBの読み取り確認。アプリ・DB・Push・本番変更なし）。

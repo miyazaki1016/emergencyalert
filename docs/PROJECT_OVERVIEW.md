@@ -843,3 +843,7 @@ Production deployment afterward.
 - 11:25 JSTのwatch-rain定時処理は12地点・エラー0、11:27の評価定時実行はOK。新規実通知サンプルはまだ0件で、実通知の全行程と実端末表示は未検証。
 - 地点の中心画素が先行。半径1km画像・地上雨量・見逃し率・結果表示画面は未実装。Issue #64のPushクラッシュ／並行実行の課題も継続。
 - 詳細・本番確認・切り戻し：[本番実装記録](NOTIFICATION_REPLAY_PRODUCTION_20261029.md)。照会：[監視用SQL](sql/rain-replay-monitoring.sql)。
+
+
+## 2026-11-01 棚卸し・ブランチ差分調査
+- [調査証拠・判断・未解決事項](audits/INVENTORY_RECONCILIATION_20261101.md)（GitHub/本番DBの読み取り確認。アプリ・DB・Push・本番変更なし）。
