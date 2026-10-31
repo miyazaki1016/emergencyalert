@@ -32,7 +32,7 @@ class InventoryTests(unittest.TestCase):
     def test_report_candidates_are_not_completion_claims(self):
         old = "2020-01-01T00:00:00Z"
         recent = inventory.NOW.isoformat()
-        pr = {"number": 12, "title": "Open PR", "updated_at": old,
+        pr = {"number": 12, "state": "open", "title": "Open PR", "updated_at": old,
               "html_url": "https://github.com/example/demo/pull/12",
               "head": {"ref": "feature/open", "repo": {"full_name": "example/demo"}}}
         issue = {"number": 13, "title": "Open issue", "updated_at": recent,
