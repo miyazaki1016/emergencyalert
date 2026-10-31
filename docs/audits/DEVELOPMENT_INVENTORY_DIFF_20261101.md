@@ -36,3 +36,11 @@
 - PR #99のGitHub状態も **closed/merged（2026-10-29）** と一致。PR #63はopen Draftのまま。研究PR #109はopen Draftのまま。
 - `fix/severe-once-per-episode-20261031` と `fix/forecast-bootstrap-20261029` は同じ `watch-rain/index.ts` / `forecastEpisode.ts` を変更する。**重複する可能性がある作業群**として扱い、片方のブランチを単純に未実装リストへ追加しない。
 - 未確認は最新の本番バージョン・稼働・実機の差分に限定し、過去の証拠を無効化しない。
+
+## 2026-11-01 管理PRの差分・CI最終レビュー
+
+- 管理Draft PRの変更ファイルは計7件。内訳は棚卸し用workflow 1、読み取り専用スクリプト1、回帰テスト1、管理・監査ドキュメント4。アプリ本体、DBマイグレーション、Push、本番設定ファイルの変更は差分に含まれない。
+- 最新コミットのPR起動CIは成功。`Offline regression tests` 成功、`Read-only inventory` と `Save report artifact` はPRでは両方skip。実データ棚卸しの成功と取り違えない。
+- 両リポジトリのworkflowに週次cron（UTC月曜01:17、日本時間月曜10:17）と手動実行の定義がある。main未統合のため定期実行は未開始。**main統合すると週次実行が有効になるため別途承認が必要**。
+- GitHubのブランチ検索による独立した読み取り確認では、アメふる112、美咲109（各main含む）。PR・Issueの実データを棚卸しスクリプト自身が集計するE2E検証は未完了。
+- 受入残件：読み取り専用の実データ収集、PR/Issue集計の既存台帳との突合、誤検出レビュー、main統合とschedule開始の承認。
