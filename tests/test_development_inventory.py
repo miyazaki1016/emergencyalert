@@ -44,6 +44,29 @@ class InventoryTests(unittest.TestCase):
         self.assertTrue(all("state=all" in path for path in calls))
         self.assertEqual(result[-1]["name"], "branch-last")
 
+    def test_empty_page_terminates_pagination(self):
+        with patch.object(inventory, "get", return_value=[]) as fake_get:
+            result = inventory.pages("/repos/example/demo/issues?state=open")
+        self.assertEqual(result, [])
+        fake_get.assert_called_once_with("/repos/example/demo/issues?state=open&per_page=100&page=1")
+
+    def test_pr_and_issue_pagination_are_independent(self):
+        calls = []
+        def fake_get(path):
+            calls.append(path)
+            page = int(path.rsplit("page=", 1)[-1])
+            if "/pulls?" in path:
+                return [{"number": i} for i in range(100)] if page == 1 else [{"number": 101}]
+            if "/issues?" in path:
+                return [{"number": i} for i in range(100)] if page == 1 else [{"number": 102}]
+            raise AssertionError(path)
+        with patch.object(inventory, "get", side_effect=fake_get):
+            prs = inventory.pages("/repos/example/demo/pulls?state=all")
+            issues = inventory.pages("/repos/example/demo/issues?state=open")
+        self.assertEqual(len(prs), 101)
+        self.assertEqual(len(issues), 101)
+        self.assertEqual(len(calls), 4)
+
     def test_closed_pr_history_is_retained(self):
         old = "2020-01-01T00:00:00Z"
         closed = {"number": 8, "state": "closed", "title": "Done",
