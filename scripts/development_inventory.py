@@ -48,9 +48,11 @@ def main():
     metadata = get("/repos/" + repo)
     default = metadata["default_branch"]
     branches = pages("/repos/" + repo + "/branches")
-    prs = pages("/repos/" + repo + "/pulls?state=open")
+    all_prs = pages("/repos/" + repo + "/pulls?state=all")
+    prs = [p for p in all_prs if p["state"] == "open"]
     issues = [item for item in pages("/repos/" + repo + "/issues?state=open") if "pull_request" not in item]
     pr_heads = {p["head"]["ref"] for p in prs if p["head"]["repo"] and p["head"]["repo"]["full_name"] == REPO}
+    historical_heads = {p["head"]["ref"] for p in all_prs if p["head"]["repo"] and p["head"]["repo"]["full_name"] == REPO}
     findings = []
     for branch in branches:
         name = branch["name"]
@@ -59,6 +61,7 @@ def main():
         # No-PR does NOT mean unfinished. Report only as a review candidate.
         if name not in pr_heads:
             findings.append({"type": "branch_without_open_pr", "name": name,
+                             "historical_pr_found": name in historical_heads,
                              "url": "https://github.com/" + REPO + "/tree/" + urllib.parse.quote(name, safe="")})
     stale_prs = [{"number": p["number"], "title": p["title"], "days": age(p["updated_at"]),
                   "url": p["html_url"]} for p in prs if age(p["updated_at"]) is not None and age(p["updated_at"]) >= STALE_DAYS]
@@ -66,7 +69,7 @@ def main():
                      "url": i["html_url"]} for i in issues if age(i["updated_at"]) is not None and age(i["updated_at"]) >= STALE_DAYS]
     report = {"repository": REPO, "generated_at": NOW.isoformat(), "default_branch": default,
               "branch_count": len(branches), "open_pr_count": len(prs),
-              "open_issue_count": len(issues), "review_candidates": findings,
+              "open_issue_count": len(issues), "historical_pr_count": len(all_prs), "review_candidates": findings,
               "stale_prs": stale_prs, "stale_issues": stale_issues,
               "caveat": "Candidates are NOT proof of unfinished work. Compare main, merged/closed PRs, and canonical ledger before action."}
     os.makedirs("inventory-output", exist_ok=True)
