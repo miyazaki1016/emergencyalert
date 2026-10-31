@@ -1,6 +1,6 @@
 # 🚨🚨🚨 最重要・永久運用ルール：main総覧は「索引」、詳細は各ブランチ！絶対に忘れるな！ 🚨🚨🚨
 
-> **開発管理の共通化（2026-10-31、Draft PR #107・未統合）**：[開発台帳](DEVELOPMENT_LEDGER.md)／[共通運用規約](DEVELOPMENT_MANAGEMENT_STANDARD.md)／`scripts/development_inventory.py`／`.github/workflows/development-inventory.yml`。詳細は管理ブランチ `chore/development-inventory-automation-20261031` に保存。週次の忘れ物候補検出はmain統合後のみ動作する。既存の開発証拠を変更せず、次はテスト・台帳照合・承認後の統合。
+> **開発管理の現況（2026-11-01確認）**：[開発台帳・棚卸し監査索引](DEVELOPMENT_LEDGER.md)／[共通運用規約](DEVELOPMENT_MANAGEMENT_STANDARD.md)。読み取り専用の自動棚卸しはPR #107でmainへ統合済み、PR #118で**毎日10:17 JST**に変更済み（`.github/workflows/development-inventory.yml`）。実行ごとの `report.json` と `summary.md` はGitHub Actionsの `development-inventory` artifactに30日間保存し、**mainの台帳へ日次自動追記はしない**。週次の詳細照合は別途行う管理作業で、自動実装済みとは扱わない。旧管理ブランチ `chore/development-inventory-automation-20261031` は歴史的な作業元であり、未統合・未稼働の現況ではない。
 
 - **最優先・予測通知の重複修正**：branch `fix/forecast-notification-episodes-20261029` → [実装・検証・本番結果と再開地点](FORECAST_EPISODE_FIX_20261029.md)。現況と予測エピソードを分離し、購読別intentで並行／クラッシュ再送を抑止。PR #104・#105で管理。本番v34、17:20自然cron14地点エラー0、272テスト・CI全4ジョブ成功。自然な継続接近での重複減少効果はまだ未観測。次は詳細の監視SQLで追跡。面判定は本番へ採用しない。
 
