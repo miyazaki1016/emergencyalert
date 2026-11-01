@@ -72,6 +72,14 @@ def main():
               "open_issue_count": len(issues), "historical_pr_count": len(all_prs), "review_candidates": findings,
               "stale_prs": stale_prs, "stale_issues": stale_issues,
               "caveat": "Candidates are NOT proof of unfinished work. Compare main, merged/closed PRs, and canonical ledger before action."}
+    # Stable snapshot for comparison across successful scheduled/manual runs.
+    report["snapshot"] = {
+        "branches": {b["name"]: b.get("commit", {}).get("sha") for b in branches},
+        "prs": {str(p["number"]): {"state": ("merged" if p.get("merged_at") else p["state"]),
+                                  "head": p["head"].get("sha"), "updated_at": p["updated_at"]}
+                for p in all_prs},
+        "issues": {str(i["number"]): {"state": "open", "updated_at": i["updated_at"]} for i in issues},
+    }
     os.makedirs("inventory-output", exist_ok=True)
     with open("inventory-output/report.json", "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
