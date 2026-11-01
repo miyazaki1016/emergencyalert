@@ -83,7 +83,7 @@ def compare(previous, current):
 def classify_candidates(changes, index_text):
     """Conservative suggestions only: never infer completion from a branch or PR."""
     import re
-    rows = re.findall(r"^\\| ([AM]-\\d+) \\| ([^|]+) \\|", index_text, re.M)
+    rows = re.findall(r"^\|\s*([AM]-\d+)\s*\|\s*([^|]+)\s*\|", index_text, re.M)
     suggestions = []
     for change in changes:
         identifier = str(change["id"])
