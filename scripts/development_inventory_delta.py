@@ -6,6 +6,7 @@ import os
 import urllib.parse
 import urllib.error
 import urllib.request
+import urllib.error
 import zipfile
 from pathlib import Path
 
@@ -14,6 +15,17 @@ REPO = os.environ.get("GITHUB_REPOSITORY", "")
 TOKEN = os.environ.get("GITHUB_TOKEN", "")
 CURRENT_RUN = str(os.environ.get("GITHUB_RUN_ID", ""))
 
+class SafeRedirect(urllib.request.HTTPRedirectHandler):
+    """Do not forward GitHub bearer tokens to external artifact storage."""
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        redirected = super().redirect_request(req, fp, code, msg, headers, newurl)
+        if redirected is not None and urllib.parse.urlsplit(newurl).hostname != urllib.parse.urlsplit(req.full_url).hostname:
+            redirected.remove_header("Authorization")
+            redirected.remove_unredirected_header("Authorization")
+        return redirected
+
+OPENER = urllib.request.build_opener(SafeRedirect)
+
 def api(path, binary=False):
     req = urllib.request.Request(API + path, headers={
         "Authorization": "Bearer " + TOKEN,
@@ -21,7 +33,14 @@ def api(path, binary=False):
         "X-GitHub-Api-Version": "2022-11-28",
         "User-Agent": "development-inventory-delta-readonly",
     })
-    with urllib.request.urlopen(req, timeout=30) as response:
+    try:
+        response = OPENER.open(req, timeout=30)
+    except urllib.error.HTTPError as error:
+        # Expose the failed endpoint *path*, never signed query parameters or tokens.
+        location = urllib.parse.urlsplit(error.url)
+        raise RuntimeError("GitHub artifact lookup HTTP " + str(error.code) +
+                           " at " + location.hostname + location.path) from error
+    with response:
         return response.read() if binary else json.load(response)
 
 def previous_snapshot():
@@ -66,13 +85,15 @@ def main():
     error_note = None
     try:
         previous, run_id = previous_snapshot()
-    except (urllib.error.HTTPError, urllib.error.URLError, zipfile.BadZipFile, KeyError, ValueError) as error:
+    except (RuntimeError, urllib.error.HTTPError, urllib.error.URLError, zipfile.BadZipFile, KeyError, ValueError) as error:
         # Never discard today's complete inventory because a prior artifact cannot be read.
         # Explicitly report the comparison failure; do NOT claim zero changes.
         previous, run_id = None, None
         error_note = "Previous report unavailable: " + type(error).__name__
         if isinstance(error, urllib.error.HTTPError):
             error_note += " (HTTP " + str(error.code) + ")"
+        if isinstance(error, RuntimeError):
+            error_note += " (" + str(error) + ")"
     if error_note:
         result = {"status": "comparison_unavailable", "previous_run_id": None, "changes": [],
                   "note": error_note + "; delta NOT checked. Current inventory saved."}
