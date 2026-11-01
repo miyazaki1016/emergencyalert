@@ -9,8 +9,8 @@ import zipfile
 from pathlib import Path
 
 API = "https://api.github.com"
-REPO = os.environ["GITHUB_REPOSITORY"]
-TOKEN = os.environ["GITHUB_TOKEN"]
+REPO = os.environ.get("GITHUB_REPOSITORY", "")
+TOKEN = os.environ.get("GITHUB_TOKEN", "")
 CURRENT_RUN = str(os.environ.get("GITHUB_RUN_ID", ""))
 
 def api(path, binary=False):
