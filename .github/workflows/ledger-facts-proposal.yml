@@ -29,6 +29,8 @@ jobs:
           persist-credentials: true
       - name: Validate offline generator
         run: python3 -m unittest discover -s tests -p 'test_development_ledger_proposal.py' -v
+      - name: Verify safe event triggers
+        run: python3 -m unittest discover -s tests -p 'test_ledger_event_triggers.py' -v
       - name: Build read-only snapshot and proposal
         env:
           GITHUB_TOKEN: ${{ github.token }}
