@@ -58,6 +58,14 @@ class DeltaTests(unittest.TestCase):
         self.assertIsNone(suggestions[0]["proposed_status"])
         self.assertEqual(suggestions[0]["ledger_action"], "review_only")
 
+    def test_pr_title_matches_index_without_status_change(self):
+        changes = [{"type": "prs", "id": "123", "change": "added",
+                    "after": {"title": "重複通知", "body": "", "head_ref": "feature"}}]
+        suggestions = delta.classify_candidates(changes, "| A-01 | 重複通知 | 進行中 |")
+        self.assertEqual(suggestions[0]["candidate_case_ids"], ["A-01"])
+        self.assertEqual(suggestions[0]["ledger_action"], "review_only")
+        self.assertIsNone(suggestions[0]["proposed_status"])
+
     def test_identical(self):
         snapshot = {"snapshot": {"branches": {"main": "x"}, "prs": {}, "issues": {}}}
         self.assertEqual(compare(snapshot, snapshot), [])
