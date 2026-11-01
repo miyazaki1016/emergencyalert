@@ -1,8 +1,11 @@
 name: Ledger facts proposal PR (review required)
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '35 1 * * *'
+  push:
+    branches: [main]
+concurrency:
+  group: ledger-facts-proposal
+  cancel-in-progress: false
 permissions:
   contents: read
 jobs:
@@ -13,11 +16,15 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      # Execute only on trusted main; no untrusted PR code.
       - uses: actions/checkout@v4
         with:
+          ref: main
           persist-credentials: true
       - name: Validate offline generator
         run: python3 -m unittest discover -s tests -p 'test_development_ledger_proposal.py' -v
+      - name: Verify safe event triggers
+        run: python3 -m unittest discover -s tests -p 'test_ledger_event_triggers.py' -v
       - name: Build read-only snapshot and proposal
         env:
           GITHUB_TOKEN: ${{ github.token }}
