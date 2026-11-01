@@ -3,7 +3,10 @@
 import argparse
 import json
 from pathlib import Path
-from scripts.development_ledger_proposal import START, END, update
+try:
+    from scripts.development_ledger_proposal import START, END, update
+except ModuleNotFoundError:
+    from development_ledger_proposal import START, END, update
 
 def verify(original, proposed, report):
     if not isinstance(report, dict) or not isinstance(report.get("snapshot", {}).get("prs"), dict):
