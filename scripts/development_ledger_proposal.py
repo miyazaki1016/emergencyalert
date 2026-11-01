@@ -16,6 +16,8 @@ def render(report):
     for number, pr in sorted(prs.items(), key=lambda item: int(item[0]) if str(item[0]).isdigit() else -1):
         if not str(number).isdigit() or not isinstance(pr, dict):
             continue
+        if str(pr.get("head_ref", "")).startswith("automation/ledger-facts-"):
+            continue
         state = str(pr.get("state", "unknown")).replace("|", "/").replace("\n", " ")
         sha = str(pr.get("head", ""))[:40]
         updated = str(pr.get("updated_at", ""))[:35]
