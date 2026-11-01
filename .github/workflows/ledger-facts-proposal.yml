@@ -25,12 +25,15 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_development_ledger_proposal.py' -v
       - name: Verify safe event triggers
         run: python3 -m unittest discover -s tests -p 'test_ledger_event_triggers.py' -v
+      - name: Validate proposal safety checks
+        run: python3 -m unittest discover -s tests -p 'test_verify_ledger_proposal.py' -v
       - name: Build read-only snapshot and proposal
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           python3 scripts/development_inventory.py
           python3 scripts/development_ledger_proposal.py
+          python3 scripts/verify_ledger_proposal.py
       - name: Open review-only PR when needed
         env:
           GH_TOKEN: ${{ github.token }}
