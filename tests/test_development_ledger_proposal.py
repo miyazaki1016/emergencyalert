@@ -4,13 +4,13 @@ from scripts.development_ledger_proposal import START, END, update
 class LedgerProposalTests(unittest.TestCase):
     def setUp(self):
         self.report = {"snapshot": {"prs": {"12": {
-            "state": "open", "head": "abc123", "updated_at": "2026-11-01T12:00:00Z"
+            "state": "open", "title": "Review-only change", "head": "abc123", "updated_at": "2026-11-01T12:00:00Z"
         }}}}
 
     def test_idempotent(self):
         once = update("# 台帳\n", self.report)
         self.assertEqual(update(once, self.report), once)
-        self.assertIn("#12", once)
+        self.assertIn("#12 | Review-only change | open |", once)
 
     def test_preserves_human_notes(self):
         ledger = "# 台帳\n\n## 担当者の判断\n完了ではない\n"
