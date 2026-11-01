@@ -28,3 +28,14 @@ test("fetch error is incomplete even when expected count matches", () => {
 test("unknown pixel is incomplete even when expected count matches", () => {
   expect(extractForecastEvidence({ forecast: [{...frame, status: "UNKNOWN_PIXEL"}] }, 1)).toMatchObject({ state: "PARTIAL", reason: "UNUSABLE_FRAME_STATUS" });
 });
+
+test("healthy API contract includes expected count without diagnostic", () => {
+  expect(extractForecastEvidence({ diagnostic: null, expectedForecastFrames: 1, forecast: [frame] })).toMatchObject({
+    state: "COMPLETE", expectedFrames: 1, reason: null,
+  });
+});
+test("top-level expected count takes precedence over diagnostic fallback", () => {
+  expect(extractForecastEvidence({ expectedForecastFrames: 2, diagnostic: { expectedForecastFrames: 1 }, forecast: [frame] })).toMatchObject({
+    state: "PARTIAL", reason: "FRAME_COUNT_MISMATCH",
+  });
+});
