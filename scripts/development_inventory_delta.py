@@ -123,7 +123,7 @@ def write_triage(output, result):
                       " (" + item["change"] + ")",
                       "  - 関連候補: " + linked + "（未検証）",
                       "  - 台帳変更案: 照合後に人が判断（状態変更なし）"])
-    (output / "ledger-review-proposals.md").write_text("\\n".join(lines) + "\n", encoding="utf-8")
+    (output / "ledger-review-proposals.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 def main():
     output = Path("inventory-output")
