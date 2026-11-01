@@ -81,31 +81,45 @@ def compare(previous, current):
 
 
 def classify_candidates(changes, index_text):
-    """Conservative suggestions only: never infer completion from a branch or PR."""
+    """Conservative review-only matching; PR files are evidence, never proof."""
     import re
-    rows = re.findall(r"^\|\s*([AM]-\d+)\s*\|\s*([^|]+)\s*\|", index_text, re.M)
+    rows = re.findall(r"^\|\s*([AM]-\d+)\s*\|\s*([^|]+)\|", index_text, re.M)
     suggestions = []
     for change in changes:
         identifier = str(change["id"])
         details = change.get("after") or change.get("before") or {}
-        evidence_text = " ".join(str(details.get(key, "")) for key in ("title", "body", "head_ref"))
-        identifier_text = (identifier + " " + evidence_text).lower()
-        tokens = set(re.findall(r"[a-z0-9]{4,}", identifier_text.replace("_", "-")))
-        tokens.update(re.findall(r"[\u3040-\u30ff\u4e00-\u9fff]{2,}", identifier_text))
+        metadata = " ".join(str(details.get(k, "")) for k in ("title", "body", "head_ref"))
+        filenames = []
+        file_status = "not_applicable"
+        if change["type"] == "prs" and identifier.isdigit() and REPO:
+            try:
+                path = "/repos/" + urllib.parse.quote(REPO, safe="/") + "/pulls/" + identifier + "/files?per_page=100"
+                files = api(path)
+                filenames = [item["filename"] for item in files if "filename" in item]
+                file_status = "partial_first_100" if len(files) == 100 else "complete"
+            except (RuntimeError, urllib.error.URLError, ValueError, KeyError):
+                file_status = "unavailable"
+        text = (identifier + " " + metadata + " " + " ".join(filenames)).lower()
+        tokens = set(re.findall(r"[a-z0-9]{4,}", text.replace("_", "-")))
+        tokens.update(re.findall(r"[\u3040-\u30ff\u4e00-\u9fff]{2,}", text))
         matches = []
         for case_id, title in rows:
             title_tokens = set(re.findall(r"[a-z0-9]{4,}", title.lower()))
             title_tokens.update(re.findall(r"[\u3040-\u30ff\u4e00-\u9fff]{2,}", title))
             if tokens & title_tokens:
                 matches.append(case_id)
-        # Keyword overlap alone is a hint, never a verified case assignment.
+        # Generic infrastructure PRs are not forced into product work items.
+        infrastructure = any(x in text for x in ("development_inventory", "development-inventory", "inventory-triage"))
+        if infrastructure:
+            matches = []
         suggestions.append({
             "source_type": change["type"], "source_id": identifier,
             "change": change["change"], "candidate_case_ids": matches,
-            "classification": "possible_existing" if matches else "needs_review",
-            "ledger_action": "review_only",
-            "proposed_status": None,
-            "evidence": "inventory snapshot delta; verify main, PR description and ledger"
+            "classification": ("automation_maintenance" if infrastructure else
+                               "possible_existing" if matches else "needs_review"),
+            "ledger_action": "review_only", "proposed_status": None,
+            "evidence": "PR metadata and changed file names; unverified token hints",
+            "file_evidence": {"status": file_status, "paths": filenames[:100]}
         })
     return suggestions
 
