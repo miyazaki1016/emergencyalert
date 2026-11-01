@@ -53,7 +53,8 @@ class DeltaTests(unittest.TestCase):
 
     def test_triage_does_not_assign_completion(self):
         changes = [{"type": "branches", "id": "feature/new-thing", "change": "added"}]
-        suggestions = delta.classify_candidates(changes, "| M-01 | ラウンジ | 進行中 |")
+        with patch.object(delta, "api", return_value=[]):
+            suggestions = delta.classify_candidates(changes, "| M-01 | ラウンジ | 進行中 |")
         self.assertEqual(suggestions[0]["classification"], "needs_review")
         self.assertIsNone(suggestions[0]["proposed_status"])
         self.assertEqual(suggestions[0]["ledger_action"], "review_only")
@@ -61,10 +62,28 @@ class DeltaTests(unittest.TestCase):
     def test_pr_title_matches_index_without_status_change(self):
         changes = [{"type": "prs", "id": "123", "change": "added",
                     "after": {"title": "重複通知", "body": "", "head_ref": "feature"}}]
-        suggestions = delta.classify_candidates(changes, "| A-01 | 重複通知 | 進行中 |")
+        with patch.object(delta, "api", return_value=[]):
+            suggestions = delta.classify_candidates(changes, "| A-01 | 重複通知 | 進行中 |")
         self.assertEqual(suggestions[0]["candidate_case_ids"], ["A-01"])
         self.assertEqual(suggestions[0]["ledger_action"], "review_only")
         self.assertIsNone(suggestions[0]["proposed_status"])
+
+    def test_inventory_maintenance_is_not_product_case(self):
+        changes = [{"type": "prs", "id": "44", "change": "added",
+                    "after": {"title": "inventory triage", "body": "", "head_ref": "fix"}}]
+        with patch.object(delta, "api", return_value=[{"filename": "scripts/development_inventory_delta.py"}]):
+            suggestions = delta.classify_candidates(changes, "| M-01 | ラウンジ | x |")
+        self.assertEqual(suggestions[0]["classification"], "automation_maintenance")
+        self.assertEqual(suggestions[0]["candidate_case_ids"], [])
+        self.assertEqual(suggestions[0]["file_evidence"]["status"], "complete")
+
+    def test_file_evidence_does_not_change_ledger(self):
+        changes = [{"type": "prs", "id": "45", "change": "added", "after": {}}]
+        with patch.object(delta, "api", return_value=[{"filename": "src/lounge/ui.ts"}]):
+            suggestions = delta.classify_candidates(changes, "| M-01 | ラウンジ | x |")
+        self.assertEqual(suggestions[0]["ledger_action"], "review_only")
+        self.assertIsNone(suggestions[0]["proposed_status"])
+        self.assertEqual(suggestions[0]["file_evidence"]["paths"], ["src/lounge/ui.ts"])
 
     def test_identical(self):
         snapshot = {"snapshot": {"branches": {"main": "x"}, "prs": {}, "issues": {}}}
