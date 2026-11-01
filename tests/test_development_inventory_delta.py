@@ -3,6 +3,7 @@ import json
 import os
 import tempfile
 import urllib.error
+import urllib.request
 from pathlib import Path
 from unittest.mock import patch
 import scripts.development_inventory_delta as delta
@@ -37,6 +38,18 @@ class DeltaTests(unittest.TestCase):
                 self.assertTrue(Path("inventory-output/report.json").exists())
             finally:
                 os.chdir(cwd)
+
+    def test_cross_host_redirect_does_not_forward_token(self):
+        req = urllib.request.Request(
+            "https://api.github.com/repos/example/demo/actions/artifacts/123/zip",
+            headers={"Authorization": "Bearer test-secret"})
+        handler = delta.SafeRedirect()
+        redirected = handler.redirect_request(
+            req, None, 302, "Found", {},
+            "https://artifact-storage.example.test/file.zip?sig=dummy")
+        self.assertIsNotNone(redirected)
+        self.assertNotIn("Authorization", redirected.headers)
+        self.assertNotIn("Authorization", redirected.unredirected_hdrs)
 
     def test_identical(self):
         snapshot = {"snapshot": {"branches": {"main": "x"}, "prs": {}, "issues": {}}}
