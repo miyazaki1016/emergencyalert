@@ -3,11 +3,6 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-  pull_request_target:
-    types: [closed]
-    branches: [main]
-  schedule:
-    - cron: '35 1 * * *'
 concurrency:
   group: ledger-facts-proposal
   cancel-in-progress: false
@@ -15,14 +10,13 @@ permissions:
   contents: read
 jobs:
   propose:
-    if: github.event_name != 'pull_request_target' || !startsWith(github.event.pull_request.head.ref, 'automation/ledger-facts-')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
       contents: write
       pull-requests: write
     steps:
-      # For pull_request_target, checkout trusted main only, NEVER the untrusted PR head.
+      # Execute only on trusted main; no untrusted PR code.
       - uses: actions/checkout@v4
         with:
           ref: main
