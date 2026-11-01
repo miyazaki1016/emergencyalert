@@ -111,7 +111,7 @@ def write_triage(output, result):
     payload = {"status": result["status"], "previous_run_id": result["previous_run_id"],
                "suggestions": suggestions, "auto_applied": False}
     (output / "triage-proposals.json").write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     lines = ["# 台帳更新案（承認待ち・自動反映なし）", "",
              "比較状態: " + result["status"], "",
              "候補は照合用のヒントです。完了・未完了・削除可否は自動判定しません。", ""]
@@ -123,7 +123,7 @@ def write_triage(output, result):
                       " (" + item["change"] + ")",
                       "  - 関連候補: " + linked + "（未検証）",
                       "  - 台帳変更案: 照合後に人が判断（状態変更なし）"])
-    (output / "ledger-review-proposals.md").write_text("\\n".join(lines) + "\\n", encoding="utf-8")
+    (output / "ledger-review-proposals.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 def main():
     output = Path("inventory-output")
