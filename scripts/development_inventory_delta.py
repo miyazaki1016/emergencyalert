@@ -87,10 +87,15 @@ def classify_candidates(changes, index_text):
     suggestions = []
     for change in changes:
         identifier = str(change["id"])
-        tokens = set(re.findall(r"[a-z0-9]{4,}", identifier.lower().replace("_", "-")))
+        details = change.get("after") or change.get("before") or {}
+        evidence_text = " ".join(str(details.get(key, "")) for key in ("title", "body", "head_ref"))
+        identifier_text = (identifier + " " + evidence_text).lower()
+        tokens = set(re.findall(r"[a-z0-9]{4,}", identifier_text.replace("_", "-")))
+        tokens.update(re.findall(r"[\u3040-\u30ff\u4e00-\u9fff]{2,}", identifier_text))
         matches = []
         for case_id, title in rows:
             title_tokens = set(re.findall(r"[a-z0-9]{4,}", title.lower()))
+            title_tokens.update(re.findall(r"[\u3040-\u30ff\u4e00-\u9fff]{2,}", title))
             if tokens & title_tokens:
                 matches.append(case_id)
         # Keyword overlap alone is a hint, never a verified case assignment.
