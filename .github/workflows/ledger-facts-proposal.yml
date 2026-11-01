@@ -30,7 +30,7 @@ jobs:
         run: |
           set -euo pipefail
           cmp -s docs/DEVELOPMENT_LEDGER.md inventory-output/ledger-proposed.md && exit 0
-          if gh pr list --state open --head 'automation/ledger-facts-' --json number --jq 'length' | grep -qv '^0$'; then
+          if gh pr list --state open --json headRefName --jq '[.[] | select(.headRefName | startswith("automation/ledger-facts-"))] | length' | grep -qv '^0$'; then
             echo 'An automation review PR is already open; leaving it for review.'
             exit 0
           fi
