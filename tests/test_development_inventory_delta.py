@@ -51,6 +51,13 @@ class DeltaTests(unittest.TestCase):
         self.assertNotIn("Authorization", redirected.headers)
         self.assertNotIn("Authorization", redirected.unredirected_hdrs)
 
+    def test_triage_does_not_assign_completion(self):
+        changes = [{"type": "branches", "id": "feature/new-thing", "change": "added"}]
+        suggestions = delta.classify_candidates(changes, "| M-01 | ラウンジ | 進行中 |")
+        self.assertEqual(suggestions[0]["classification"], "needs_review")
+        self.assertIsNone(suggestions[0]["proposed_status"])
+        self.assertEqual(suggestions[0]["ledger_action"], "review_only")
+
     def test_identical(self):
         snapshot = {"snapshot": {"branches": {"main": "x"}, "prs": {}, "issues": {}}}
         self.assertEqual(compare(snapshot, snapshot), [])
