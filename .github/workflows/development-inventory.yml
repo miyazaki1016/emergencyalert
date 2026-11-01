@@ -10,6 +10,8 @@ on:
       - 'tests/test_development_inventory.py'
       - 'scripts/development_inventory_delta.py'
       - 'tests/test_development_inventory_delta.py'
+      - 'scripts/development_ledger_proposal.py'
+      - 'tests/test_development_ledger_proposal.py'
       - '.github/workflows/development-inventory.yml'
   schedule:
     - cron: '17 1 * * *'
@@ -28,6 +30,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_development_inventory.py' -v
       - name: Offline delta regression tests
         run: python3 -m unittest discover -s tests -p 'test_development_inventory_delta.py' -v
+      - name: Offline ledger proposal tests
+        run: python3 -m unittest discover -s tests -p 'test_development_ledger_proposal.py' -v
       - name: Read-only inventory
         if: github.event_name != 'pull_request'
         env:
@@ -39,6 +43,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: python3 scripts/development_inventory_delta.py
+      - name: Prepare review-only ledger proposal
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/development_ledger_proposal.py
       - name: Save report artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
