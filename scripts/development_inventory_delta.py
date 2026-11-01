@@ -83,7 +83,7 @@ def compare(previous, current):
 def classify_candidates(changes, index_text):
     """Conservative review-only matching; PR files are evidence, never proof."""
     import re
-    rows = re.findall(r"^\\|\\s*([AM]-\\d+)\\s*\\|\\s*([^|]+)\\|", index_text, re.M)
+    rows = re.findall(r"^\|\s*([AM]-\d+)\s*\|\s*([^|]+)\|", index_text, re.M)
     suggestions = []
     for change in changes:
         identifier = str(change["id"])
@@ -101,11 +101,11 @@ def classify_candidates(changes, index_text):
                 file_status = "unavailable"
         text = (identifier + " " + metadata + " " + " ".join(filenames)).lower()
         tokens = set(re.findall(r"[a-z0-9]{4,}", text.replace("_", "-")))
-        tokens.update(re.findall(r"[\\u3040-\\u30ff\\u4e00-\\u9fff]{2,}", text))
+        tokens.update(re.findall(r"[\u3040-\u30ff\u4e00-\u9fff]{2,}", text))
         matches = []
         for case_id, title in rows:
             title_tokens = set(re.findall(r"[a-z0-9]{4,}", title.lower()))
-            title_tokens.update(re.findall(r"[\\u3040-\\u30ff\\u4e00-\\u9fff]{2,}", title))
+            title_tokens.update(re.findall(r"[\u3040-\u30ff\u4e00-\u9fff]{2,}", title))
             if tokens & title_tokens:
                 matches.append(case_id)
         # Generic infrastructure PRs are not forced into product work items.
