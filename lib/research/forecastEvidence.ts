@@ -16,9 +16,11 @@ export type ForecastEvidenceResult = {
 export function extractForecastEvidence(response: {
   forecast?: Array<{baseTime?: string; validTime?: string; status?: string; intensityClass?: string | null; rgba?: ForecastEvidenceFrame["rgba"]}>;
   diagnostic?: { expectedForecastFrames?: number } | null;
+  expectedForecastFrames?: number | null;
 }, expectedFrames?: number | null): ForecastEvidenceResult {
   const expected = Number.isInteger(expectedFrames) && (expectedFrames ?? 0) > 0
-    ? expectedFrames! : Number.isInteger(response.diagnostic?.expectedForecastFrames) && (response.diagnostic?.expectedForecastFrames ?? 0) > 0
+    ? expectedFrames! : Number.isInteger(response.expectedForecastFrames) && (response.expectedForecastFrames ?? 0) > 0
+    ? response.expectedForecastFrames! : Number.isInteger(response.diagnostic?.expectedForecastFrames) && (response.diagnostic?.expectedForecastFrames ?? 0) > 0
     ? response.diagnostic!.expectedForecastFrames! : null;
   const raw = response.forecast ?? [];
   const frames = raw.filter(f => typeof f.baseTime === "string" && typeof f.validTime === "string" && typeof f.status === "string").map(f => ({
