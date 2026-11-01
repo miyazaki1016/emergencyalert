@@ -1,0 +1,47 @@
+name: Ledger facts proposal PR (review required)
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '35 1 * * *'
+permissions:
+  contents: read
+jobs:
+  propose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Validate offline generator
+        run: python3 -m unittest discover -s tests -p 'test_development_ledger_proposal.py' -v
+      - name: Build read-only snapshot and proposal
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/development_inventory.py
+          python3 scripts/development_ledger_proposal.py
+      - name: Open review-only PR when needed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cmp -s docs/DEVELOPMENT_LEDGER.md inventory-output/ledger-proposed.md && exit 0
+          if gh pr list --state open --json headRefName --jq '[.[] | select(.headRefName | startswith("automation/ledger-facts-"))] | length' | grep -qv '^0$'; then
+            echo 'An automation review PR is already open; leaving it for review.'
+            exit 0
+          fi
+          branch="automation/ledger-facts-${GITHUB_RUN_ID}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -b "$branch"
+          cp inventory-output/ledger-proposed.md docs/DEVELOPMENT_LEDGER.md
+          git add docs/DEVELOPMENT_LEDGER.md
+          git commit -m 'docs: propose factual GitHub PR ledger snapshot'
+          git push origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title 'docs: review GitHub PR facts in development ledger' \
+            --body 'Automatically generated factual PR snapshot only. Review required; no automatic merge. Does not assert implementation, production deployment, or verification completion.'

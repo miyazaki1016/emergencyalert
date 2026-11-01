@@ -11,10 +11,12 @@ def render(report):
     prs = report.get("snapshot", {}).get("prs", {})
     lines = ["## GitHub自動取得の事実（確認用）", "",
              "> この欄はPRメタデータの記録であり、開発完了・本番反映の認定ではありません。", "",
-             "| PR | 状態 | head SHA | 更新日時 |",
-             "| --- | --- | --- | --- |"]
+             "| PR | タイトル | 状態 | head SHA | 更新日時 |",
+             "| --- | --- | --- | --- | --- |"]
     for number, pr in sorted(prs.items(), key=lambda item: int(item[0]) if str(item[0]).isdigit() else -1):
         if not str(number).isdigit() or not isinstance(pr, dict):
+            continue
+        if str(pr.get("head_ref", "")).startswith("automation/ledger-facts-"):
             continue
         state = str(pr.get("state", "unknown")).replace("|", "/").replace("\n", " ")
         sha = str(pr.get("head", ""))[:40]
