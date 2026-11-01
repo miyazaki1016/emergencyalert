@@ -76,7 +76,9 @@ def main():
     report["snapshot"] = {
         "branches": {b["name"]: b.get("commit", {}).get("sha") for b in branches},
         "prs": {str(p["number"]): {"state": ("merged" if p.get("merged_at") else p["state"]),
-                                  "head": p["head"].get("sha"), "updated_at": p["updated_at"]}
+                                  "head": p["head"].get("sha"), "updated_at": p["updated_at"],
+                                  "title": p.get("title", ""), "body": (p.get("body") or "")[:2000],
+                                  "head_ref": p["head"].get("ref", "")}
                 for p in all_prs},
         "issues": {str(i["number"]): {"state": "open", "updated_at": i["updated_at"]} for i in issues},
     }
