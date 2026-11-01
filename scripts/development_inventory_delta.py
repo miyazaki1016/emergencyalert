@@ -79,6 +79,52 @@ def compare(previous, current):
                             "before": before.get(key), "after": after.get(key)})
     return changes
 
+
+def classify_candidates(changes, index_text):
+    """Conservative suggestions only: never infer completion from a branch or PR."""
+    import re
+    rows = re.findall(r"^\\| ([AM]-\\d+) \\| ([^|]+) \\|", index_text, re.M)
+    suggestions = []
+    for change in changes:
+        identifier = str(change["id"])
+        tokens = set(re.findall(r"[a-z0-9]{4,}", identifier.lower().replace("_", "-")))
+        matches = []
+        for case_id, title in rows:
+            title_tokens = set(re.findall(r"[a-z0-9]{4,}", title.lower()))
+            if tokens & title_tokens:
+                matches.append(case_id)
+        # Keyword overlap alone is a hint, never a verified case assignment.
+        suggestions.append({
+            "source_type": change["type"], "source_id": identifier,
+            "change": change["change"], "candidate_case_ids": matches,
+            "classification": "possible_existing" if matches else "needs_review",
+            "ledger_action": "review_only",
+            "proposed_status": None,
+            "evidence": "inventory snapshot delta; verify main, PR description and ledger"
+        })
+    return suggestions
+
+def write_triage(output, result):
+    index_path = Path("docs/DEVELOPMENT_OPERATIONS_INDEX.md")
+    index_text = index_path.read_text(encoding="utf-8") if index_path.exists() else ""
+    suggestions = classify_candidates(result["changes"], index_text) if result["status"] == "compared" else []
+    payload = {"status": result["status"], "previous_run_id": result["previous_run_id"],
+               "suggestions": suggestions, "auto_applied": False}
+    (output / "triage-proposals.json").write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+    lines = ["# 台帳更新案（承認待ち・自動反映なし）", "",
+             "比較状態: " + result["status"], "",
+             "候補は照合用のヒントです。完了・未完了・削除可否は自動判定しません。", ""]
+    if result["status"] != "compared":
+        lines.append("比較未完了のため更新案を作成していません。")
+    for item in suggestions:
+        linked = ", ".join(item["candidate_case_ids"]) or "未特定"
+        lines.extend(["- " + item["source_type"] + " " + item["source_id"] +
+                      " (" + item["change"] + ")",
+                      "  - 関連候補: " + linked + "（未検証）",
+                      "  - 台帳変更案: 照合後に人が判断（状態変更なし）"])
+    (output / "ledger-review-proposals.md").write_text("\\n".join(lines) + "\\n", encoding="utf-8")
+
 def main():
     output = Path("inventory-output")
     current = json.loads((output / "report.json").read_text(encoding="utf-8"))
@@ -114,6 +160,7 @@ def main():
     for c in result["changes"]:
         lines.append("- " + c["type"] + " `" + c["id"].replace("`", "") + "`: " + c["change"])
     (output / "ledger-update-candidates.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    write_triage(output, result)
     print("\n".join(lines))
 
 if __name__ == "__main__":
