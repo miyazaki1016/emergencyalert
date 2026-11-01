@@ -21,7 +21,8 @@ def render(report):
         state = str(pr.get("state", "unknown")).replace("|", "/").replace("\n", " ")
         sha = str(pr.get("head", ""))[:40]
         updated = str(pr.get("updated_at", ""))[:35]
-        lines.append(f"| #{number} | {state} | `{sha}` | {updated} |")
+        title = str(pr.get("title", "")).replace("|", "/").replace("\\n", " ")[:120]
+        lines.append(f"| #{number} | {title} | {state} | `{sha}` | {updated} |")
     return "\n".join(lines) + "\n"
 
 def update(ledger, report):
