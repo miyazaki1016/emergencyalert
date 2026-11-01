@@ -74,9 +74,9 @@ def main():
               "caveat": "Candidates are NOT proof of unfinished work. Compare main, merged/closed PRs, and canonical ledger before action."}
     # Stable snapshot for comparison across successful scheduled/manual runs.
     report["snapshot"] = {
-        "branches": {b["name"]: b["commit"]["sha"] for b in branches},
+        "branches": {b["name"]: b.get("commit", {}).get("sha") for b in branches},
         "prs": {str(p["number"]): {"state": ("merged" if p.get("merged_at") else p["state"]),
-                                  "head": p["head"]["sha"], "updated_at": p["updated_at"]}
+                                  "head": p["head"].get("sha"), "updated_at": p["updated_at"]}
                 for p in all_prs},
         "issues": {str(i["number"]): {"state": "open", "updated_at": i["updated_at"]} for i in issues},
     }
