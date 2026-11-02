@@ -36,6 +36,8 @@ export function packForecastEvidence(
   else if (expectedFrames===null) reason="EXPECTED_COUNT_UNKNOWN";
   else if (frames.length!==expectedFrames) reason="FRAME_COUNT_MISMATCH";
   else if (usableFrames!==frames.length) reason="UNUSABLE_FRAME_STATUS";
+  else if (input.some(f => (f.status==="RAIN" && !f.intensityClass) ||
+    !f.rgba || ![f.rgba.r,f.rgba.g,f.rgba.b,f.rgba.a].every(n => Number.isInteger(n) && n>=0 && n<=255))) reason="INCOMPLETE_FRAME_EVIDENCE";
   return {
     schemaVersion:1,
     state:frames.length===0?"MISSING":reason?"PARTIAL":"COMPLETE",
