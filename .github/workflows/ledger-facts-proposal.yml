@@ -57,8 +57,54 @@ jobs:
             echo 'No ledger or index changes; no PR required.'
             exit 0
           fi
-          if gh pr list --state open --json headRefName --jq '[.[] | select(.headRefName | startswith("automation/ledger-facts-"))] | length' | grep -qv '^0$'; then
-            echo 'An automation review PR is already open; leaving it for review.'
+          existing="$(gh pr list --state open --json headRefName --jq '[.[] | select(.headRefName | startswith("automation/ledger-facts-")) | .headRefName] | .[]' )"
+          if [ -n "$existing" ]; then
+            if [ "$(printf '%s\\n' "$existing" | wc -l | tr -d ' ')" -ne 1 ]; then
+              echo 'Multiple automation PRs exist; manual reconciliation required.' >&2
+              exit 1
+            fi
+            branch="$existing"
+            # Never overwrite a branch with unexpected changes.
+            changed="$(gh pr diff "$branch" --name-only)"
+            if printf '%s\\n' "$changed" | grep -Ev '^(docs/DEVELOPMENT_LEDGER.md|docs/DEVELOPMENT_OPERATIONS_INDEX.md)
+          # A rerun keeps GITHUB_RUN_ID but increments GITHUB_RUN_ATTEMPT.
+          # Never reuse or overwrite the branch from an earlier attempt.
+          branch="automation/ledger-facts-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+            echo "ERROR: proposal branch already exists: $branch; refusing to overwrite." >&2
+            exit 1
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -b "$branch"
+          cp inventory-output/ledger-proposed.md docs/DEVELOPMENT_LEDGER.md
+          cp inventory-output/index-proposed.md docs/DEVELOPMENT_OPERATIONS_INDEX.md
+          git add docs/DEVELOPMENT_LEDGER.md docs/DEVELOPMENT_OPERATIONS_INDEX.md
+          git commit -m 'docs: propose factual GitHub ledger and operations index snapshot'
+          git push origin "$branch"
+          if ! gh pr create --base main --head "$branch" \
+            --title 'docs: review GitHub facts in development ledger and operations index' \
+            --body 'Automatically generated factual PR snapshot only. Review required; no automatic merge. Does not assert implementation, production deployment, or verification completion.'; then
+            echo 'ERROR: GitHub Actions could not create the ledger PR. Check repository Actions permissions for PR creation.' >&2
+            exit 1
+          fi
+ | grep -q .; then
+              echo 'Existing proposal contains unrelated files; refusing update.' >&2
+              exit 1
+            fi
+            git fetch origin "refs/heads/$branch:refs/remotes/origin/$branch"
+            git checkout -b "$branch" "origin/$branch"
+            cp inventory-output/ledger-proposed.md docs/DEVELOPMENT_LEDGER.md
+            cp inventory-output/index-proposed.md docs/DEVELOPMENT_OPERATIONS_INDEX.md
+            git add docs/DEVELOPMENT_LEDGER.md docs/DEVELOPMENT_OPERATIONS_INDEX.md
+            if git diff --cached --quiet; then
+              echo 'Existing proposal is already current; no commit.'
+              exit 0
+            fi
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'docs: refresh existing inventory proposal'
+            git push origin "HEAD:refs/heads/$branch"
             exit 0
           fi
           # A rerun keeps GITHUB_RUN_ID but increments GITHUB_RUN_ATTEMPT.
