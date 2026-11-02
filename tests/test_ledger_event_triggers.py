@@ -12,6 +12,9 @@ class LedgerEventTriggerTests(unittest.TestCase):
         self.assertNotIn("github.event.pull_request.head.sha", workflow)
         self.assertIn("cancel-in-progress: false", workflow)
         self.assertIn("automation/ledger-facts-", workflow)
+        self.assertIn("${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}", workflow)
+        self.assertIn("git ls-remote --exit-code --heads origin", workflow)
+        self.assertNotIn("branch=\"automation/ledger-facts-${GITHUB_RUN_ID}\"", workflow)
         self.assertIn("gh pr create", workflow)
         self.assertNotIn("gh pr merge", workflow)
 

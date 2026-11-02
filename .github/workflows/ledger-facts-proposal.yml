@@ -61,7 +61,13 @@ jobs:
             echo 'An automation review PR is already open; leaving it for review.'
             exit 0
           fi
-          branch="automation/ledger-facts-${GITHUB_RUN_ID}"
+          # A rerun keeps GITHUB_RUN_ID but increments GITHUB_RUN_ATTEMPT.
+          # Never reuse or overwrite the branch from an earlier attempt.
+          branch="automation/ledger-facts-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+            echo "ERROR: proposal branch already exists: $branch; refusing to overwrite." >&2
+            exit 1
+          fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git checkout -b "$branch"
