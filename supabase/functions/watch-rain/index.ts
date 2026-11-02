@@ -36,7 +36,13 @@ Deno.serve(async(req:Request)=>{
   // Store every issuance/valid-time pair with compact tuples, regardless of healthy diagnostic=null.
   // Legacy error diagnostics remain intact. Push decisions do not read the packed evidence.
   const diagnostic={...(rain.diagnostic&&typeof rain.diagnostic==="object"?rain.diagnostic as Record<string,unknown>:{}),forecastEvidenceCompact:evidence};
-  await db.from("rain_diagnostic_history").insert({target_id:target.id,checked_at:checkedAt,source_valid_at:rain.sourceValidAt??rain.event?.sourceValidAt??null,interpretation_enabled:Boolean(rain.interpretationEnabled),event_type:rain.event?.eventType??null,urgency:rain.event?.urgency??null,current_status:rain.observation?.[0]?.status??null,current_rgba:rain.observation?.[0]?.rgba??null,diagnostic});
+  const {error:evidenceWriteError}=await db.from("rain_diagnostic_history").insert({target_id:target.id,checked_at:checkedAt,source_valid_at:rain.sourceValidAt??rain.event?.sourceValidAt??null,interpretation_enabled:Boolean(rain.interpretationEnabled),event_type:rain.event?.eventType??null,urgency:rain.event?.urgency??null,current_status:rain.observation?.[0]?.status??null,current_rgba:rain.observation?.[0]?.rgba??null,diagnostic});
+  // Evidence persistence is best-effort: never block notification decisions.
+  // Emit a bounded operational marker; do not log user location or raw forecast.
+  if(evidenceWriteError) console.warn("RAIN_EVIDENCE_HISTORY_WRITE_FAILED",{
+    code:evidenceWriteError.code??"UNKNOWN",schemaVersion:evidence.schemaVersion,
+    receivedFrames:evidence.receivedFrames,
+  });
 
   const {data:previous,error:previousError}=await db.from("watch_states").select("last_event,last_notified_at,rain_ending_notified,clear_streak,rain_streak,rain_confirmed_notified,confirmed_weather,severe_rain_level").eq("target_id",target.id).maybeSingle();
   if(previousError)throw Error('WATCH_STATE_READ_FAILED');
