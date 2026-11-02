@@ -10,7 +10,7 @@ class IndexReviewTests(unittest.TestCase):
     def test_renders_branch_review(self):
         output = render(self.index, self.report)
         self.assertIn("work", output)
-        self.assertIn("M", output)
+        self.assertIn("Indexed cases: 1", output)
     def test_missing_snapshot_fails(self):
         with self.assertRaises(ValueError):
             render(self.index, {})
