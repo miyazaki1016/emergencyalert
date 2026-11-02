@@ -16,6 +16,7 @@ on:
       - 'tests/test_development_branch_case_handoff.py'
       - 'tests/test_development_branch_compare.py'
       - 'tests/test_development_branch_overlap.py'
+      - 'tests/test_development_equal_patch.py'
       - 'tests/test_development_index_review.py'
       - 'tests/test_development_inventory.py'
       - 'scripts/development_inventory_delta.py'
@@ -70,6 +71,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_development_index_proposal.py' -v
       - name: Offline branch-case handoff tests
         run: python3 -m unittest discover -s tests -p 'test_development_branch_case_handoff.py' -v
+      - name: Offline exact code patch fingerprint tests
+        run: python3 -m unittest discover -s tests -p 'test_development_equal_patch.py' -v
       - name: Offline shared branch-path evidence tests
         run: python3 -m unittest discover -s tests -p 'test_development_branch_overlap.py' -v
       - name: Offline index reconciliation tests
