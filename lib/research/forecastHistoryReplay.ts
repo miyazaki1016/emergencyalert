@@ -55,7 +55,11 @@ export function compareStoredForecasts(
           if (!/^\d{14}$/.test(f.baseTime)) return false;
           const issued = Date.UTC(+f.baseTime.slice(0,4),+f.baseTime.slice(4,6)-1,+f.baseTime.slice(6,8),
             +f.baseTime.slice(8,10),+f.baseTime.slice(10,12),+f.baseTime.slice(12,14));
-          if (!Number.isFinite(issued)) return false;\n          const d = new Date(issued);\n          // Date.UTC normalizes impossible calendar dates (e.g. February 31).\n          const canonical = d.toISOString().replace(/\\D/g, "").slice(0,14);\n          return Number.isFinite(issued) && canonical === f.baseTime && issued <= collected;
+          if (!Number.isFinite(issued)) return false;
+          const d = new Date(issued);
+          // Date.UTC normalizes impossible calendar dates (e.g. February 31).
+          const canonical = d.toISOString().replace(/\D/g, "").slice(0,14);
+          return Number.isFinite(issued) && canonical === f.baseTime && issued <= collected;
         })
         .map(f => ({
           baseTime: f.baseTime!,
