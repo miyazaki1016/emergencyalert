@@ -43,3 +43,19 @@ test("unknown version snapshots are skipped rather than invented as no rain",()=
     result:{continuity:"UNKNOWN"},usableSnapshots:0,skippedSnapshots:1,
   });
 });
+
+test("rejects a forecast issuance timestamp after the recorded poll",()=>{
+  const rows=[
+    stored("A","2026-11-02T11:02:00Z",[frame("20261102110500","30_TO_50")]),
+  ];
+  const result=compareStoredForecasts(rows,"A",target,"2026-11-02T11:10:00Z");
+  expect(result.result).toMatchObject({continuity:"UNKNOWN",latestBaseTime:null});
+});
+test("valid forecast issued before its own poll remains comparable",()=>{
+  const rows=[
+    stored("A","2026-11-02T11:02:00Z",[frame("20261102110000","30_TO_50")]),
+    stored("A","2026-11-02T11:07:00Z",[frame("20261102110500","30_TO_50")]),
+  ];
+  const result=compareStoredForecasts(rows,"A",target,"2026-11-02T11:10:00Z");
+  expect(result.result.continuity).toBe("PERSISTENT");
+});
