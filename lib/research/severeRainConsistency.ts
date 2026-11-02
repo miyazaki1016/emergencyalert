@@ -44,7 +44,12 @@ export function analyzeSevereConsistency(
   const at = (base: string): boolean | null => {
     const matches = groups.get(base)!.filter(f => f.validTime === targetTime);
     if (!matches.length || matches.some(f => f.status !== "RAIN" && f.status !== "NO_RAIN")) return null;
-    return matches.some(f => f.status === "RAIN" && severe.has(f.intensityClass ?? ""));
+    // The same JMA issuance/valid time may be polled repeatedly. Identical
+    // repeats are harmless, but conflicting values must not imply persistence.
+    const signatures = new Set(matches.map(f => f.status === "NO_RAIN"
+      ? "NO_RAIN" : `RAIN:${f.intensityClass ?? "UNKNOWN"}`));
+    if (signatures.size !== 1 || matches.some(f => f.status === "RAIN" && !f.intensityClass)) return null;
+    return matches[0].status === "RAIN" && severe.has(matches[0].intensityClass ?? "");
   };
   const latest = latestBaseTime ? at(latestBaseTime) : null;
   const prior = priorBaseTime ? at(priorBaseTime) : null;
