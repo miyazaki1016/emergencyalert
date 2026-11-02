@@ -13,6 +13,8 @@ on:
       - '.github/workflows/ledger-facts-proposal.yml'
       - 'scripts/development_branch_compare.py'
       - 'scripts/development_branch_case_handoff.py'
+      - 'scripts/development_branch_review_queue.py'
+      - 'tests/test_development_branch_review_queue.py'
       - 'tests/test_development_branch_case_handoff.py'
       - 'tests/test_development_branch_compare.py'
       - 'tests/test_development_branch_overlap.py'
@@ -69,6 +71,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_development_branch_compare.py' -v
       - name: Offline index facts proposal tests
         run: python3 -m unittest discover -s tests -p 'test_development_index_proposal.py' -v
+      - name: Offline branch-review queue tests
+        run: python3 -m unittest discover -s tests -p 'test_development_branch_review_queue.py' -v
       - name: Offline branch-case handoff tests
         run: python3 -m unittest discover -s tests -p 'test_development_branch_case_handoff.py' -v
       - name: Offline exact code patch fingerprint tests
@@ -109,6 +113,9 @@ jobs:
       - name: Prepare branch-to-case handoff (read-only)
         if: github.event_name != 'pull_request'
         run: python3 scripts/development_branch_case_handoff.py
+      - name: Prepare human branch review priority queue
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/development_branch_review_queue.py
       - name: Prepare operations index review artifact
         if: github.event_name != 'pull_request'
         run: python3 scripts/development_index_review.py
