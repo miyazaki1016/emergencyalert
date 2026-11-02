@@ -32,5 +32,6 @@ export function extractForecastEvidence(response: {
   if (expected === null) return { state: "PARTIAL", expectedFrames: null, frames, reason: "EXPECTED_COUNT_UNKNOWN" };
   if (frames.length !== expected) return { state: "PARTIAL", expectedFrames: expected, frames, reason: "FRAME_COUNT_MISMATCH" };
   if (frames.some(f => !["RAIN", "NO_RAIN"].includes(f.status))) return { state: "PARTIAL", expectedFrames: expected, frames, reason: "UNUSABLE_FRAME_STATUS" };
+  if (frames.some(f => (f.status === "RAIN" && !f.intensityClass) || !f.rgba || ![f.rgba.r,f.rgba.g,f.rgba.b,f.rgba.a].every(n => Number.isInteger(n) && n >= 0 && n <= 255))) return { state: "PARTIAL", expectedFrames: expected, frames, reason: "INCOMPLETE_FRAME_EVIDENCE" };
   return { state: "COMPLETE", expectedFrames: expected, frames, reason: null };
 }
