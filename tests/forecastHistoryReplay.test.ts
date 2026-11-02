@@ -59,3 +59,9 @@ test("valid forecast issued before its own poll remains comparable",()=>{
   const result=compareStoredForecasts(rows,"A",target,"2026-11-02T11:10:00Z");
   expect(result.result.continuity).toBe("PERSISTENT");
 });
+
+test("rejects impossible calendar dates instead of normalizing them",()=>{
+  const rows=[stored("A","2026-03-04T11:02:00Z",[{...frame("20260231010000","30_TO_50"),validTime:"20260304113000"}])];
+  const result=compareStoredForecasts(rows,"A","20260304113000","2026-03-04T11:10:00Z");
+  expect(result.result).toMatchObject({continuity:"UNKNOWN",latestBaseTime:null});
+});
