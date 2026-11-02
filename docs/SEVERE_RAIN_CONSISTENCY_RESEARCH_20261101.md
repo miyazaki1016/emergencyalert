@@ -129,3 +129,9 @@
 - head `619d4731` のCIは verify / phase1-feedback-http / phase1-feedback-rls / rain-delivery-concurrency / classify が全件成功。
 - 研究用 `compareStoredForecasts` は履歴の `checkedAt` をasOfで切っていたが、フレームの `baseTime` が実際の収集時刻より未来でも通していた。発表時刻が収集時刻を超えるものは証拠として使わないようにした。
 - 異常な未来発表を除外するテスト、通常の収集時刻の連続予測が維持されるテストを追加。保存・通知・Pushには影響しない。最新CIは未確認。
+
+## 2026-11-03 完全性判定の追加監査
+- head `fc003fa0` のCI verify / phase1-feedback-http / phase1-feedback-rls / rain-delivery-concurrency / classify は全成功。
+- 実装照合で、`status=RAIN` かつ `intensityClass=null`、またはRGBA欠損を持つフレームが枚数一致だけでCOMPLETEになる余地を発見。実際のJMAプロバイダーは透明(NO_RAIN)にもRGBAを返すため、画素が欠けた場合は証拠を不完全として扱うべき。
+- `packForecastEvidence` と `extractForecastEvidence` を一致させ、雨量区分のないRAIN、RGBA欠損・RGBA異常値を `PARTIAL / INCOMPLETE_FRAME_EVIDENCE` とする。フレーム自体は保持し、欠損をNO_RAINへ置換しない。正常なRGBA付きの雨・透明NO_RAINはCOMPLETEのまま。
+- 追加の回帰テストを作成し、旧テストの「RGBAなしでもCOMPLETE」という不適切な期待値を修正。本番通知・Push・DB・Edge Functionは未変更。最新CI結果の確認が必要。
