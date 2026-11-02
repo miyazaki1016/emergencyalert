@@ -7,7 +7,7 @@ import {packForecastEvidence} from '../supabase/functions/_shared/forecastEviden
 import * as episodes from '../supabase/functions/watch-rain/forecastEpisode';
 import {guardedPush} from '../supabase/functions/watch-rain/deliveryGuard';
 import * as decision from '../supabase/functions/watch-rain/notificationDecision';
-async function run(recordError=false,historyError=false,pushError=false,repeats=1,finishError=false,stateError=false,alreadyNotified=false,evidenceHistoryError=false){
+async function run(recordError=false,historyError=false,pushError=false,repeats=1,finishError=false,stateError=false,alreadyNotified=false,evidenceHistoryError=false,withForecast=false){
  const order:string[]=[],writes:Array<{table:string;op:string;value:any}>=[];let handler:any;
  const time=new Date(),target=new Date(Math.ceil((time.getTime()+10*60000)/300000)*300000).toISOString();
  let runtime:any={},previous:any={last_notified_at:alreadyNotified?'2026-10-29T03:45:00Z':null,clear_streak:3,rain_streak:0,last_event:{sourceValidAt:'20261029034000',urgency:'LIFESTYLE_ACTION'}},locked=false;const intents=new Set<string>();
@@ -26,7 +26,7 @@ async function run(recordError=false,historyError=false,pushError=false,repeats=
  const source=readFileSync('supabase/functions/watch-rain/index.ts','utf8').replace(/^import .*;\n/gm,'');
  const code=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText;
  const {timestamp}=await import('../supabase/functions/_shared/rainReplay');
- const injected={createClient:()=>db,webpush:{setVapidDetails(){},async sendNotification(){order.push('PUSH');if(pushError)throw {statusCode:0};}},...decision,...episodes,guardedPush,makeSnapshot,timestamp,bestEffort,packForecastEvidence,Deno:{env:{get:()=> 'config'},serve:(fn:any)=>handler=fn},fetch:async()=>({ok:true,json:async()=>({checkedAt:time.toISOString(),interpretationEnabled:true,event:{eventType:'ACTIONABLE_RAIN_APPROACHING',urgency:'LIFESTYLE_ACTION',suggestedAction:'BRING_LAUNDRY_INSIDE',actionableAt:target},observation:[],forecast:[]})})};
+ const injected={createClient:()=>db,webpush:{setVapidDetails(){},async sendNotification(){order.push('PUSH');if(pushError)throw {statusCode:0};}},...decision,...episodes,guardedPush,makeSnapshot,timestamp,bestEffort,packForecastEvidence,Deno:{env:{get:()=> 'config'},serve:(fn:any)=>handler=fn},fetch:async()=>({ok:true,json:async()=>({checkedAt:time.toISOString(),interpretationEnabled:true,event:{eventType:'ACTIONABLE_RAIN_APPROACHING',urgency:'LIFESTYLE_ACTION',suggestedAction:'BRING_LAUNDRY_INSIDE',actionableAt:target},observation:[],expectedForecastFrames:withForecast?1:undefined,forecast:withForecast?[{baseTime:'20261103000000',validTime:'20261103000500',status:'RAIN',intensityClass:'30_TO_50',rgba:{r:12,g:34,b:56,a:255}}]:[]})})};
  new Function(...Object.keys(injected),code)(...Object.values(injected));
  let response:any;for(let i=0;i<repeats;i++)response=await handler(new Request('https://test.invalid',{headers:{'x-watch-token':'config'}}));
  return {order,writes,body:await response.json()};
@@ -53,4 +53,14 @@ it('evidence history write failure is observable but cannot suppress Push',async
    expect(warnings.some(x=>x[0]==='RAIN_EVIDENCE_HISTORY_WRITE_FAILED' &&
      (x[1] as {code:string}).code==='MOCK_STORAGE_ERROR')).toBe(true);
  }finally{console.warn=original;}
+});
+
+it('persists every complete forecast frame even when API diagnostic is null',async()=>{
+ const r=await run(false,false,false,1,false,false,false,false,true);
+ const row=r.writes.find(x=>x.table==='rain_diagnostic_history'&&x.op==='insert')?.value;
+ expect(row?.diagnostic?.forecastEvidenceCompact).toMatchObject({
+   schemaVersion:1,state:'COMPLETE',expectedFrames:1,receivedFrames:1,
+   frames:[['20261103000000','20261103000500','RAIN','30_TO_50',[12,34,56,255]]],
+ });
+ expect(r.body.results[0].delivered).toBe(1);
 });
