@@ -46,3 +46,18 @@ export function inspectStoredEvidenceRetention(row: {
     preservationHold: false,
   }, now);
 }
+
+/** Aggregate a dry-run report only. No SQL, deletes, or updates. */
+export function summarizeEvidenceRetention(
+  rows: Array<{checked_at:string;diagnostic:unknown}>,
+  now: string,
+): {total:number;keep:number;review:number;eligible:number} {
+  const summary={total:rows.length,keep:0,review:0,eligible:0};
+  for(const row of rows){
+    const decision=inspectStoredEvidenceRetention(row,now);
+    if(decision==="KEEP") summary.keep++;
+    else if(decision==="REVIEW") summary.review++;
+    else summary.eligible++;
+  }
+  return summary;
+}
