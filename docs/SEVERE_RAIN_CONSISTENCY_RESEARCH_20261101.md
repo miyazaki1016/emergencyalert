@@ -112,3 +112,9 @@
 - データ不足・版違い・不正JSON・取得失敗は「降っていない」に置き換えず UNKNOWN。利用できたスナップショット数・欠落数・COMPLETE数を返す。
 - `tests/forecastHistoryReplay.test.ts` に持続強雨、初回強雨、地点分離・未来データ除外、欠測/壊れた版を試す4テストを追加。通知処理・本番UI・保存先には非接続。
 - **未解決**: 保持期限用の専用保存領域、実取得データでの再生、時刻重複の厳格な排除、データアクセス権限、履歴可視化。CI未確認の間は合格扱いにしない。
+
+## 2026-11-03 保持期限の本番スキーマ適合チェック
+- head `ab5b2457` のCIは verify/classify/feedback HTTP/RLS/delivery concurrency/Preview全成功。
+- 本番の `rain_diagnostic_history` 列を読み取りで確認。列は id/target_id/checked_at/source_valid_at/interpretation_enabled/event_type/urgency/current_status/diagnostic/created_at/current_rgba。**証拠専用のexpires_at、保全フラグ、通知評価との確実な連結は存在しない**。
+- `inspectStoredEvidenceRetention` を追加。実在の履歴形式から新形式の存在だけ認識するが、専用期限・保全情報が未確認なので自動削除候補には絶対にせず REVIEW を返す。旧形式・不明バージョンは KEEP。テスト2件を追加。
+- **安全判断**: 7日経過を `checked_at` から推測して歴史データを削除しない。独立の期限・通知証拠保全・容量予算・監査ログが備わるまで本番cleanupを導入しない。研究コードはDraft PRのみ。本番変更なし。
