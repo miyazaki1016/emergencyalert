@@ -67,6 +67,7 @@ export async function GET(request: NextRequest) {
       location: { lat, lon },
       observation,
       forecast,
+      expectedForecastFrames: forecastSeries.expectedFrames,
       interpretation: interpretationEnabled ? interpretation : null,
       event: interpretationEnabled ? toRainSemanticEvent(interpretation, now, observation[0]?.validTime ?? null) : null,
       message: interpretationEnabled ? formatRainMessage(interpretation, now) : null,
