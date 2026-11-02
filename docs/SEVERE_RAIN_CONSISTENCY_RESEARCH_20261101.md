@@ -50,3 +50,9 @@
 - 正常時のAPIレスポンスに `expectedForecastFrames` を追加（プロバイダーの既存 `forecastSeries.expectedFrames` を転送）。既存の `diagnostic`、`interpretation`、通知条件は不変。
 - 研究用 `extractForecastEvidence` はトップレベルの期待件数を優先し、診断の期待件数は後方互換のためのフォールバックとする。正常時の完全性判定と件数不一致のテストを追加。
 - **注意**: このPRはDraft。VercelのPreviewが自動生成される可能性はあるが、本番環境へのデプロイ・DB保存経路の変更は未実施。実際の保存・保持期限・容量・権限は別途検証が必要。
+
+## 保存経路の研究ブランチ実装
+- `supabase/functions/watch-rain/index.ts` の履歴保存を修正し、正常時にAPIの `diagnostic=null` でも `forecastDetails` を履歴JSONへ記録する。追加の通知判断・Push経路変更なし。
+- `forecastEvidence` に `state`（COMPLETE/PARTIAL/MISSING）、期待件数・受信件数・利用可能件数を格納する。APIが未更新の場合は期待件数不明としてPARTIALとする。
+- **容量上の注意**: 既存の `rain_diagnostic_history` へ全監視サイクルの予測配列を保存するため、このまま本番へ適用するとデータ量が増加する。保持期限・圧縮/間引き・必要な通知証跡の保護と、DB容量の見積もりが完了するまで本番反映不可。
+- 本番Edge Functionのv35は未変更。研究ブランチでの静的変更のみ。CI確認後に、保存先・保持方針を決める。
