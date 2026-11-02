@@ -141,3 +141,9 @@
 - `summarizeEvidenceRetention` を追加。実DBに存在する `checked_at` と `diagnostic` だけを入力とする純粋関数で、KEEP/REVIEW/ELIGIBLEの件数を計算する。DB接続・DELETE/UPDATEは一切持たない。
 - 期限・保全情報が無い現在のスキーマでは新形式でも REVIEW、旧形式・不明版は KEEP となり、ELIGIBLE は0件のはず。単体テストで確認する。
 - 次の本番導入判断には専用の有効期限・通知関連証拠保護・容量上限・保存エラーの可観測性が必要。**現行の履歴テーブルを7日で一括削除しない**。この追加変更のCIは未確認。
+
+## 2026-11-03 保存容量の明示的な試算
+- head `04ec017d` のCI verify/classify/feedback HTTP/RLS/delivery concurrency 全成功。
+- `projectForecastEvidenceCapacity` を追加。地点数・地点別日次取得回数・1件あたりJSONB bytes・候補保存日数・予算を**明示的な入力**として扱う純粋関数。DB更新や削除はしない。
+- 合成12フレームの1656 bytes、12地点×288回/日なら5,723,136 bytes/日、7日40,061,952 bytes（約40.1MB、10進表記）。14日では約80.1MB。50MBの仮予算なら7日内、14日超過となる。**実運用サイズではなく、TOAST・WAL・インデックス・JSONB圧縮・行オーバーヘッドを含まない**。
+- 無効な入力と数値オーバーフローは拒否。保存期間や予算は未承認の仮定であり、容量管理や自動削除は本番未実装。最新CIは要確認。
