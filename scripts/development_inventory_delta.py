@@ -88,6 +88,10 @@ def classify_candidates(changes, index_text):
     for change in changes:
         identifier = str(change["id"])
         details = change.get("after") or change.get("before") or {}
+        # Branch snapshots contain SHA strings, while PR snapshots contain dicts.
+        # Never treat a branch SHA as PR metadata.
+        if not isinstance(details, dict):
+            details = {}
         metadata = " ".join(str(details.get(k, "")) for k in ("title", "body", "head_ref"))
         filenames = []
         file_status = "not_applicable"
