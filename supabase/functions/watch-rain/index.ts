@@ -5,6 +5,7 @@ import { advanceObservationStreak, nextLastNotifiedAt, nextRainEndingNotified } 
 import { makeSnapshot, timestamp, type Frame } from "../_shared/rainReplay.ts";
 import { bestEffort } from "../_shared/replayRecording.ts";
 import { packForecastEvidence } from "../_shared/forecastEvidenceCompact.ts";
+import { shouldCaptureForecastEvidence } from "../_shared/forecastEvidencePilot.ts";
 
 type RainEvent = { schemaVersion:1; eventType:string; urgency:"INFO"|"LIFESTYLE_ACTION"; suggestedAction:string; startsAt:string|null; actionableAt:string|null; endingAt:string|null; source:string; checkedAt:string; sourceValidAt:string|null; };
 import {advanceForecastEpisode,forecastEpisodeDecision,forecastSignal,bootstrapForecastEpisode,severeForecast,type ForecastEpisode} from './forecastEpisode.ts';
@@ -32,16 +33,23 @@ Deno.serve(async(req:Request)=>{
   const notificationLabel=target.label&&(labelCounts.get(target.label)??0)>1&&target.display_name?`${target.label}（${target.display_name}）`:target.label;
   const rainUrl=new URL("https://emergencyalert-gilt.vercel.app/api/rain"); rainUrl.searchParams.set("lat",String(target.latitude)); rainUrl.searchParams.set("lon",String(target.longitude));
   const response=await fetch(rainUrl,{headers:{accept:"application/json"}}); if(!response.ok)throw new Error("rain_unavailable");
-  const rain=await response.json() as RainResponse; const checkedAt=rain.checkedAt??new Date().toISOString(); const evidence=packForecastEvidence(rain.forecast,rain.expectedForecastFrames);
-  // Store every issuance/valid-time pair with compact tuples, regardless of healthy diagnostic=null.
-  // Legacy error diagnostics remain intact. Push decisions do not read the packed evidence.
-  const diagnostic={...(rain.diagnostic&&typeof rain.diagnostic==="object"?rain.diagnostic as Record<string,unknown>:{}),forecastEvidenceCompact:evidence};
+  const rain=await response.json() as RainResponse; const checkedAt=rain.checkedAt??new Date().toISOString();
+  // Explicit opt-in only. A 24-hour maximum pilot window bounds new evidence
+  // volume without changing legacy diagnostics or any Push decision.
+  const captureEvidence=shouldCaptureForecastEvidence(
+    new Date().toISOString(),
+    Deno.env.get("RAIN_EVIDENCE_CAPTURE_START")??undefined,
+    Deno.env.get("RAIN_EVIDENCE_CAPTURE_END")??undefined,
+  );
+  const legacyDiagnostic=rain.diagnostic&&typeof rain.diagnostic==="object"
+    ? rain.diagnostic as Record<string,unknown> : null;
+  const evidence=captureEvidence?packForecastEvidence(rain.forecast,rain.expectedForecastFrames):null;
+  const diagnostic=evidence?{...(legacyDiagnostic??{}),forecastEvidenceCompact:evidence}:legacyDiagnostic;
   const {error:evidenceWriteError}=await db.from("rain_diagnostic_history").insert({target_id:target.id,checked_at:checkedAt,source_valid_at:rain.sourceValidAt??rain.event?.sourceValidAt??null,interpretation_enabled:Boolean(rain.interpretationEnabled),event_type:rain.event?.eventType??null,urgency:rain.event?.urgency??null,current_status:rain.observation?.[0]?.status??null,current_rgba:rain.observation?.[0]?.rgba??null,diagnostic});
-  // Evidence persistence is best-effort: never block notification decisions.
-  // Emit a bounded operational marker; do not log user location or raw forecast.
-  if(evidenceWriteError) console.warn("RAIN_EVIDENCE_HISTORY_WRITE_FAILED",{
-    code:evidenceWriteError.code??"UNKNOWN",schemaVersion:evidence.schemaVersion,
-    receivedFrames:evidence.receivedFrames,
+  // Best effort: capture errors must not block notifications or store raw location in logs.
+  if(evidenceWriteError&&captureEvidence) console.warn("RAIN_EVIDENCE_HISTORY_WRITE_FAILED",{
+    code:evidenceWriteError.code??"UNKNOWN",schemaVersion:evidence?.schemaVersion??null,
+    receivedFrames:evidence?.receivedFrames??0,
   });
 
   const {data:previous,error:previousError}=await db.from("watch_states").select("last_event,last_notified_at,rain_ending_notified,clear_streak,rain_streak,rain_confirmed_notified,confirmed_weather,severe_rain_level").eq("target_id",target.id).maybeSingle();
