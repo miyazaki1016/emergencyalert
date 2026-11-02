@@ -7,6 +7,7 @@ on:
   pull_request:
     paths:
       - 'scripts/development_inventory.py'
+      - 'scripts/development_index_review.py'
       - 'tests/test_development_inventory.py'
       - 'scripts/development_inventory_delta.py'
       - 'tests/test_development_inventory_delta.py'
@@ -78,6 +79,9 @@ jobs:
       - name: Prepare review-only ledger proposal
         if: github.event_name != 'pull_request'
         run: python3 scripts/development_ledger_proposal.py
+      - name: Prepare operations index review artifact
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/development_index_review.py
       - name: Save report artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
