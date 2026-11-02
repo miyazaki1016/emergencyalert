@@ -45,6 +45,11 @@ export function compareStoredForecasts(
       frames: evidence.frames
         .filter(f => {
           if (typeof f.baseTime !== "string" || typeof f.validTime !== "string" || typeof f.status !== "string") return false;
+          // A classification without its underlying pixel is not reliable evidence.
+          // Exclude it rather than interpreting a damaged partial snapshot as severe/dry.
+          if ((f.status === "RAIN" || f.status === "NO_RAIN") &&
+            (!f.rgba || ![f.rgba.r, f.rgba.g, f.rgba.b, f.rgba.a].every(n =>
+              Number.isInteger(n) && n >= 0 && n <= 255))) return false;
           // Never accept an issuance timestamp later than the actual poll that
           // supposedly captured it, even if it precedes the overall asOf.
           if (!/^\d{14}$/.test(f.baseTime)) return false;
