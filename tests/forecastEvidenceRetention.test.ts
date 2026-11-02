@@ -25,3 +25,7 @@ test("does not silently expire records without a valid expiry",()=>{
 test("invalid clock needs review",()=>{
   expect(classifyEvidenceRetention(record,"bad")).toBe("REVIEW");
 });
+
+test("future-dated evidence is reviewed, not silently expired",()=>{
+  expect(classifyEvidenceRetention(record,"2026-10-31T00:00:00Z")).toBe("REVIEW");
+});
