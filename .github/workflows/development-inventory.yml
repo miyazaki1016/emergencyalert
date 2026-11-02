@@ -17,6 +17,8 @@ on:
       - 'tests/test_pr_promotion_review.py'
       - 'scripts/pr_review_handoff.py'
       - 'tests/test_pr_review_handoff.py'
+      - 'scripts/pr_approval_routing.py'
+      - 'tests/test_pr_approval_routing.py'
       - '.github/workflows/pr-promotion-review.yml'
       - 'scripts/development_ledger_proposal.py'
       - 'tests/test_development_ledger_proposal.py'
@@ -46,6 +48,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_pr_promotion_review.py' -v
       - name: PR handoff report tests
         run: python3 -m unittest discover -s tests -p 'test_pr_review_handoff.py' -v
+      - name: PR approval routing regression tests
+        run: python3 -m unittest discover -s tests -p 'test_pr_approval_routing.py' -v
       - name: Offline ledger proposal tests
         run: python3 -m unittest discover -s tests -p 'test_development_ledger_proposal.py' -v
       - name: Read-only inventory
@@ -57,6 +61,11 @@ jobs:
       - name: Build maintainer PR handoff queue
         if: github.event_name != 'pull_request'
         run: python3 scripts/pr_review_handoff.py
+      - name: Route open PRs for human review (read-only)
+        if: github.event_name != 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/pr_approval_routing.py
       - name: Read-only change candidates
         if: github.event_name != 'pull_request'
         env:
