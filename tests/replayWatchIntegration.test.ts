@@ -3,6 +3,7 @@ import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 import {makeSnapshot} from '../supabase/functions/_shared/rainReplay';
 import {bestEffort} from '../supabase/functions/_shared/replayRecording';
+import {packForecastEvidence} from '../supabase/functions/_shared/forecastEvidenceCompact';
 import * as episodes from '../supabase/functions/watch-rain/forecastEpisode';
 import {guardedPush} from '../supabase/functions/watch-rain/deliveryGuard';
 import * as decision from '../supabase/functions/watch-rain/notificationDecision';
@@ -24,7 +25,7 @@ async function run(recordError=false,historyError=false,pushError=false,repeats=
  const source=readFileSync('supabase/functions/watch-rain/index.ts','utf8').replace(/^import .*;\n/gm,'');
  const code=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText;
  const {timestamp}=await import('../supabase/functions/_shared/rainReplay');
- const injected={createClient:()=>db,webpush:{setVapidDetails(){},async sendNotification(){order.push('PUSH');if(pushError)throw {statusCode:0};}},...decision,...episodes,guardedPush,makeSnapshot,timestamp,bestEffort,Deno:{env:{get:()=> 'config'},serve:(fn:any)=>handler=fn},fetch:async()=>({ok:true,json:async()=>({checkedAt:time.toISOString(),interpretationEnabled:true,event:{eventType:'ACTIONABLE_RAIN_APPROACHING',urgency:'LIFESTYLE_ACTION',suggestedAction:'BRING_LAUNDRY_INSIDE',actionableAt:target},observation:[],forecast:[]})})};
+ const injected={createClient:()=>db,webpush:{setVapidDetails(){},async sendNotification(){order.push('PUSH');if(pushError)throw {statusCode:0};}},...decision,...episodes,guardedPush,makeSnapshot,timestamp,bestEffort,packForecastEvidence,Deno:{env:{get:()=> 'config'},serve:(fn:any)=>handler=fn},fetch:async()=>({ok:true,json:async()=>({checkedAt:time.toISOString(),interpretationEnabled:true,event:{eventType:'ACTIONABLE_RAIN_APPROACHING',urgency:'LIFESTYLE_ACTION',suggestedAction:'BRING_LAUNDRY_INSIDE',actionableAt:target},observation:[],forecast:[]})})};
  new Function(...Object.keys(injected),code)(...Object.values(injected));
  let response:any;for(let i=0;i<repeats;i++)response=await handler(new Request('https://test.invalid',{headers:{'x-watch-token':'config'}}));
  return {order,writes,body:await response.json()};
