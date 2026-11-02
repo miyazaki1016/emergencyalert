@@ -68,3 +68,33 @@ export function unpackForecastEvidence(value: unknown): {
   const expectedFrames = Number.isInteger(data.expectedFrames)&&Number(data.expectedFrames)>0 ? Number(data.expectedFrames) : null;
   return {state:data.state as CompactEvidence["state"],expectedFrames,frames};
 }
+
+/** Decode only schema-v1 evidence; reject damaged tuples instead of treating missing data as dry. */
+export function unpackForecastEvidence(value: unknown): {
+  state: CompactEvidence["state"];
+  reason: string|null;
+  expectedFrames: number|null;
+  frames: ForecastInput[];
+} | null {
+  if (typeof value!=="object"||value===null||Array.isArray(value)) return null;
+  const v=value as Record<string,unknown>;
+  if (v.schemaVersion!==1||!Array.isArray(v.frames)) return null;
+  if (v.state!=="COMPLETE"&&v.state!=="PARTIAL"&&v.state!=="MISSING") return null;
+  if (!(v.expectedFrames===null||(typeof v.expectedFrames==="number"&&Number.isInteger(v.expectedFrames)&&v.expectedFrames>0))) return null;
+  if (typeof v.receivedFrames!=="number"||v.receivedFrames!==v.frames.length) return null;
+  const frames:ForecastInput[]=[];
+  for(const unknownFrame of v.frames){
+    if (!Array.isArray(unknownFrame)||unknownFrame.length!==5) return null;
+    const [baseTime,validTime,status,intensityClass,rgba]=unknownFrame;
+    if (![baseTime,validTime,status,intensityClass].every(x=>x===null||typeof x==="string")) return null;
+    if (rgba!==null&&(!Array.isArray(rgba)||rgba.length!==4||!rgba.every(x=>typeof x==="number"&&Number.isInteger(x)&&x>=0&&x<=255))) return null;
+    frames.push({
+      baseTime:baseTime??undefined,validTime:validTime??undefined,
+      status:status??undefined,intensityClass:intensityClass??null,
+      rgba:rgba===null?null:{r:rgba[0],g:rgba[1],b:rgba[2],a:rgba[3]},
+    });
+  }
+  const checked=packForecastEvidence(frames,v.expectedFrames as number|null);
+  if (checked.state!==v.state||checked.receivedFrames!==v.receivedFrames||checked.usableFrames!==v.usableFrames||checked.reason!==v.reason) return null;
+  return {state:checked.state,reason:checked.reason,expectedFrames:checked.expectedFrames,frames};
+}
