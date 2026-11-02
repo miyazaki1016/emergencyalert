@@ -82,3 +82,10 @@
 - 実DBのSQL関数一覧では診断履歴専用のretention名は見当たらず、cron一覧にも専用ジョブはなかった。ただし全削除経路の不存在を証明したわけではない。
 - **設計判定**: 7日保持でも大量になる可能性がある。研究用の毎回全フレーム保存コードをこのまま本番反映しない。既存通知スナップショットと保存領域を競合させないため、独立した容量予算・期限と、期限切れの削除対象を明示する実装および負荷テストが必要。短期解析に必要な予測発表の連続性を失わせない間引き条件も必要。
 - 直近head `ee4a5407` のGitHubチェック verify/classify/feedback/競合/Preview は全件成功を確認。新しい文書追記に対するCIは別途確認。
+
+## 2026-11-02 コンパクト化実装（Draft PR内、本番未反映）
+- 保存容量試算を受け、**全フレームを毎回大きなJSONオブジェクトの配列にする研究実装を置き換え**。`supabase/functions/_shared/forecastEvidenceCompact.ts` に、各フレームを `[baseTime, validTime, status, intensityClass, [r,g,b,a] | null]` の順序固定タプルで保存する `packForecastEvidence` を実装。スキーマバージョン1、期待件数、取得件数、利用可能件数、COMPLETE/PARTIAL/MISSINGと判定理由を付ける。
+- 読み戻し側は `diagnostic.forecastEvidenceCompact.frames` を上記タプル順で解釈する。**予測発表時刻・有効時刻・雨量区分・RGBA・失敗状態は欠落させず、時刻間引きもしない**。透明なNO_RAINと未知・取得失敗を区別する。
+- `watch-rain/index.ts` の研究版は、正常系・診断nullでも `forecastEvidenceCompact` を記録。古いエラー時診断の各キーは保持。通知条件・Push意思決定は参照しない。旧 `forecastDetails` 新規書込はやめる（過去データの削除はしない）。
+- 上記エンコードの単体テスト8件を追加。**CIの結果を確認するまで成功扱いにしない**。
+- 未解決：実運用データの圧縮後サイズ、短期保持の実装、重複発表の扱い、期限切れ削除の安全条件、研究表示の読み戻し。**本番適用不可**、DB変更・本番Edge deployなし。
