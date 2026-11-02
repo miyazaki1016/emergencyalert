@@ -66,7 +66,8 @@ test("legacy missing evidence is not silently treated as a dry forecast",()=>{
 test("reconstructs every original time, status, intensity and RGBA",()=>{
   const input=[frame,{...frame,baseTime:"20261102110500",validTime:"20261102113500",rgba:null}, {...frame,status:"NO_RAIN",intensityClass:null,rgba:{r:0,g:0,b:0,a:0}}];
   const decoded=unpackForecastEvidence(packForecastEvidence(input,3));
-  expect(decoded?.state).toBe("COMPLETE");
+  expect(decoded?.state).toBe("PARTIAL");
+  expect(decoded?.reason).toBe("INCOMPLETE_FRAME_EVIDENCE");
   expect(decoded?.frames).toEqual(input);
 });
 test("missing or unusable frames round-trip without becoming no-rain",()=>{
@@ -84,4 +85,20 @@ test("rejects falsified completeness metadata",()=>{
   const packed=packForecastEvidence([frame],1);
   expect(unpackForecastEvidence({...packed,state:"PARTIAL"})).toBeNull();
   expect(unpackForecastEvidence({...packed,receivedFrames:2})).toBeNull();
+});
+
+test("rain with no intensity is partial, not a complete severe-rain observation",()=>{
+  expect(packForecastEvidence([{...frame,intensityClass:null}],1)).toMatchObject({
+    state:"PARTIAL",reason:"INCOMPLETE_FRAME_EVIDENCE"
+  });
+});
+test("no pixel values means unverified rain, but original frame survives replay",()=>{
+  const input=[{...frame,rgba:null}];
+  const packed=packForecastEvidence(input,1);
+  expect(packed).toMatchObject({state:"PARTIAL",reason:"INCOMPLETE_FRAME_EVIDENCE"});
+  expect(unpackForecastEvidence(packed)?.frames).toEqual(input);
+});
+test("invalid channel values cannot create complete evidence",()=>{
+  const result=packForecastEvidence([{...frame,rgba:{r:300,g:10,b:0,a:255}}],1);
+  expect(result).toMatchObject({state:"PARTIAL",reason:"INCOMPLETE_FRAME_EVIDENCE"});
 });
