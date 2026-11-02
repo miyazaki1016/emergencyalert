@@ -3,8 +3,8 @@ import {projectForecastEvidenceCapacity} from "../lib/research/forecastEvidenceC
 const input={targets:12,pollsPerTargetPerDay:288,bytesPerSnapshot:1656,retentionDays:7,budgetBytes:50_000_000};
 test("estimates explicit JSONB-only volume without asserting disk footprint",()=>{
   const r=projectForecastEvidenceCapacity(input);
-  expect(r.dailyBytes).toBe(5_722_624);
-  expect(r.retentionBytes).toBe(40_058_368);
+  expect(r.dailyBytes).toBe(5_723_136);
+  expect(r.retentionBytes).toBe(40_061_952);
   expect(r.exceedsBudget).toBe(false);
 });
 test("flags a candidate retention window above budget without deleting",()=>{
