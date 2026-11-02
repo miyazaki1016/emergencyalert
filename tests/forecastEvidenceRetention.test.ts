@@ -1,5 +1,5 @@
 import {expect,test} from "vitest";
-import {classifyEvidenceRetention,type RetentionRecord} from "../lib/research/forecastEvidenceRetention";
+import {classifyEvidenceRetention,inspectStoredEvidenceRetention,type RetentionRecord} from "../lib/research/forecastEvidenceRetention";
 const record:RetentionRecord={
   schemaVersion:1,recordedAt:"2026-11-01T00:00:00Z",expiresAt:"2026-11-08T00:00:00Z",
   notificationEvidenceLinked:false,preservationHold:false,
@@ -28,4 +28,13 @@ test("invalid clock needs review",()=>{
 
 test("future-dated evidence is reviewed, not silently expired",()=>{
   expect(classifyEvidenceRetention(record,"2026-10-31T00:00:00Z")).toBe("REVIEW");
+});
+
+test("actual diagnostic schema without expiry is never eligible for deletion",()=>{
+  const row={checked_at:"2026-10-01T00:00:00Z",diagnostic:{forecastEvidenceCompact:{schemaVersion:1,frames:[]}}};
+  expect(inspectStoredEvidenceRetention(row,"2026-12-01T00:00:00Z")).toBe("REVIEW");
+});
+test("legacy or unknown-version diagnostic is preserved untouched",()=>{
+  expect(inspectStoredEvidenceRetention({checked_at:"2026-10-01T00:00:00Z",diagnostic:null},"2026-12-01T00:00:00Z")).toBe("KEEP");
+  expect(inspectStoredEvidenceRetention({checked_at:"2026-10-01T00:00:00Z",diagnostic:{forecastEvidenceCompact:{schemaVersion:2}}},"2026-12-01T00:00:00Z")).toBe("KEEP");
 });
