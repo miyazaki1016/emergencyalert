@@ -1,0 +1,84 @@
+name: Ledger facts proposal PR (review required)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+concurrency:
+  group: ledger-facts-proposal
+  cancel-in-progress: false
+permissions:
+  contents: read
+jobs:
+  propose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      # Execute only on trusted main; no untrusted PR code.
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - name: Validate offline generator
+        run: python3 -m unittest discover -s tests -p 'test_development_ledger_proposal.py' -v
+      - name: Validate index proposal generation
+        run: python3 -m unittest discover -s tests -p 'test_development_index_proposal.py' -v
+      - name: Verify safe event triggers
+        run: python3 -m unittest discover -s tests -p 'test_ledger_event_triggers.py' -v
+      - name: Validate proposal safety checks
+        run: python3 -m unittest discover -s tests -p 'test_verify_ledger_proposal.py' -v
+      - name: Build read-only snapshot and proposal
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/development_inventory.py
+          python3 scripts/development_ledger_proposal.py
+          python3 scripts/verify_ledger_proposal.py
+          python3 scripts/development_index_proposal.py
+      - name: Save generated proposal for inspection
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ledger-proposal-diagnostics
+          path: |
+            inventory-output/report.json
+            inventory-output/ledger-proposed.md
+            inventory-output/index-proposed.md
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Open review-only PR when needed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if cmp -s docs/DEVELOPMENT_LEDGER.md inventory-output/ledger-proposed.md && cmp -s docs/DEVELOPMENT_OPERATIONS_INDEX.md inventory-output/index-proposed.md; then
+            echo 'No ledger or index changes; no PR required.'
+            exit 0
+          fi
+          if gh pr list --state open --json headRefName --jq '[.[] | select(.headRefName | startswith("automation/ledger-facts-"))] | length' | grep -qv '^0$'; then
+            echo 'An automation review PR is already open; leaving it for review.'
+            exit 0
+          fi
+          # A rerun keeps GITHUB_RUN_ID but increments GITHUB_RUN_ATTEMPT.
+          # Never reuse or overwrite the branch from an earlier attempt.
+          branch="automation/ledger-facts-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+            echo "ERROR: proposal branch already exists: $branch; refusing to overwrite." >&2
+            exit 1
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -b "$branch"
+          cp inventory-output/ledger-proposed.md docs/DEVELOPMENT_LEDGER.md
+          cp inventory-output/index-proposed.md docs/DEVELOPMENT_OPERATIONS_INDEX.md
+          git add docs/DEVELOPMENT_LEDGER.md docs/DEVELOPMENT_OPERATIONS_INDEX.md
+          git commit -m 'docs: propose factual GitHub ledger and operations index snapshot'
+          git push origin "$branch"
+          if ! gh pr create --base main --head "$branch" \
+            --title 'docs: review GitHub facts in development ledger and operations index' \
+            --body 'Automatically generated factual PR snapshot only. Review required; no automatic merge. Does not assert implementation, production deployment, or verification completion.'; then
+            echo 'ERROR: GitHub Actions could not create the ledger PR. Check repository Actions permissions for PR creation.' >&2
+            exit 1
+          fi

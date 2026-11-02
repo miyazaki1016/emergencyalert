@@ -1,5 +1,7 @@
 # 🚨🚨🚨 最重要・永久運用ルール：main総覧は「索引」、詳細は各ブランチ！絶対に忘れるな！ 🚨🚨🚨
 
+> **開発管理の現況（2026-11-01確認）**：[開発台帳・棚卸し監査索引](DEVELOPMENT_LEDGER.md)／[共通運用規約](DEVELOPMENT_MANAGEMENT_STANDARD.md)。読み取り専用の自動棚卸しはPR #107でmainへ統合済み、PR #118で**毎日10:17 JST**に変更済み（`.github/workflows/development-inventory.yml`）。実行ごとの `report.json` と `summary.md` はGitHub Actionsの `development-inventory` artifactに30日間保存し、**mainの台帳へ日次自動追記はしない**。週次の詳細照合は別途行う管理作業で、自動実装済みとは扱わない。旧管理ブランチ `chore/development-inventory-automation-20261031` は歴史的な作業元であり、未統合・未稼働の現況ではない。
+
 - **最優先・予測通知の重複修正**：branch `fix/forecast-notification-episodes-20261029` → [実装・検証・本番結果と再開地点](FORECAST_EPISODE_FIX_20261029.md)。現況と予測エピソードを分離し、購読別intentで並行／クラッシュ再送を抑止。PR #104・#105で管理。本番v34、17:20自然cron14地点エラー0、272テスト・CI全4ジョブ成功。自然な継続接近での重複減少効果はまだ未観測。次は詳細の監視SQLで追跡。面判定は本番へ採用しない。
 
 - **2026-10-29 美深町538・539監査**：[画像・最終状態・再通知の根拠と残課題](BIFUKA_NOTIFICATION_AUDIT_20261029.md)。ブランチ `audit/bifuka-notifications-538-539-20261029`。両件の全処理COMPLETEを確認。通知条件は未変更。表示の明確化・不一致のパターン別集計・具体的理由の表示はPR #103でmain統合、本番READY。247テスト・CI成功。通知条件は維持し、追加UIの実機確認は未完了。
@@ -845,3 +847,10 @@ Production deployment afterward.
 ### 2026-11-03 — PR #109 予測証拠の容量試算（研究中）
 - [研究記録](SEVERE_RAIN_CONSISTENCY_RESEARCH_20261101.md)・Draft PR #109。全予測フレームの保存・復元・重複発表照合・欠測判定を研究ブランチに実装。本番反映なし。
 - JSONB容量の概算関数を追加。DBディスク・WAL・TOAST・インデックスを含まないため、本番容量上限を保証するものではない。保持期限・保護情報・保存失敗の監視が整うまで本番Edge deployと削除は行わない。
+
+## 2026-11-01 棚卸し・ブランチ差分調査
+- [調査証拠・判断・未解決事項](audits/INVENTORY_RECONCILIATION_20261101.md)（GitHub/本番DBの読み取り確認。アプリ・DB・Push・本番変更なし）。
+
+## 2026-11-03 PR #109 CI起動復旧
+- mainとの総覧・台帳の追記競合がpull_request CIを抑止。両方の記録を保持してmainを研究ブランチへ取り込み。通知判定・Push・本番は変更しない。
+- [原因・証拠・検証方法](audits/PR109_CI_RECOVERY_20261103.md)。最新headの自動CI結果は完了報告で照合する。

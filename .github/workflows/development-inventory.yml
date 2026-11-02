@@ -1,0 +1,128 @@
+name: Development inventory (read-only)
+on:
+  workflow_dispatch:
+  create:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - 'scripts/development_inventory.py'
+      - 'scripts/development_index_review.py'
+      - 'scripts/development_index_proposal.py'
+      - 'tests/test_development_index_proposal.py'
+      - '.github/workflows/ledger-facts-proposal.yml'
+      - 'scripts/development_branch_compare.py'
+      - 'scripts/development_branch_case_handoff.py'
+      - 'scripts/development_branch_review_queue.py'
+      - 'tests/test_development_branch_review_queue.py'
+      - 'tests/test_development_branch_case_handoff.py'
+      - 'tests/test_development_branch_compare.py'
+      - 'tests/test_development_branch_overlap.py'
+      - 'tests/test_development_equal_patch.py'
+      - 'tests/test_development_index_review.py'
+      - 'tests/test_development_inventory.py'
+      - 'scripts/development_inventory_delta.py'
+      - 'tests/test_development_inventory_delta.py'
+      - 'tests/test_inventory_delta_string_details.py'
+      - 'scripts/pr_promotion_policy.py'
+      - 'tests/test_pr_promotion_policy.py'
+      - 'scripts/pr_promotion_review.py'
+      - 'tests/test_pr_promotion_review.py'
+      - 'scripts/pr_review_handoff.py'
+      - 'tests/test_pr_review_handoff.py'
+      - 'scripts/pr_approval_routing.py'
+      - 'tests/test_pr_approval_routing.py'
+      - 'scripts/vercel_build_guard.py'
+      - 'tests/test_vercel_build_guard.py'
+      - '.github/workflows/pr-promotion-review.yml'
+      - 'scripts/development_ledger_proposal.py'
+      - 'tests/test_development_ledger_proposal.py'
+      - '.github/workflows/development-inventory.yml'
+  schedule:
+    - cron: '17 1 * * *'
+permissions:
+  actions: read
+  contents: read
+  pull-requests: read
+  issues: read
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Offline regression tests
+        run: python3 -m unittest discover -s tests -p 'test_development_inventory.py' -v
+      - name: Offline delta regression tests
+        run: python3 -m unittest discover -s tests -p 'test_development_inventory_delta.py' -v
+      - name: Branch SHA and PR metadata regression tests
+        run: python3 -m unittest discover -s tests -p 'test_inventory_delta_string_details.py' -v
+      - name: PR promotion policy tests (review only)
+        run: python3 -m unittest discover -s tests -p 'test_pr_promotion_policy.py' -v
+      - name: PR classification metadata tests
+        run: python3 -m unittest discover -s tests -p 'test_pr_promotion_review.py' -v
+      - name: PR handoff report tests
+        run: python3 -m unittest discover -s tests -p 'test_pr_review_handoff.py' -v
+      - name: PR approval routing regression tests
+        run: python3 -m unittest discover -s tests -p 'test_pr_approval_routing.py' -v
+      - name: Vercel build guard offline tests
+        run: python3 -m unittest discover -s tests -p 'test_vercel_build_guard.py' -v
+      - name: Offline branch compare regression tests
+        run: python3 -m unittest discover -s tests -p 'test_development_branch_compare.py' -v
+      - name: Offline index facts proposal tests
+        run: python3 -m unittest discover -s tests -p 'test_development_index_proposal.py' -v
+      - name: Offline branch-review queue tests
+        run: python3 -m unittest discover -s tests -p 'test_development_branch_review_queue.py' -v
+      - name: Offline branch-case handoff tests
+        run: python3 -m unittest discover -s tests -p 'test_development_branch_case_handoff.py' -v
+      - name: Offline exact code patch fingerprint tests
+        run: python3 -m unittest discover -s tests -p 'test_development_equal_patch.py' -v
+      - name: Offline shared branch-path evidence tests
+        run: python3 -m unittest discover -s tests -p 'test_development_branch_overlap.py' -v
+      - name: Offline index reconciliation tests
+        run: python3 -m unittest discover -s tests -p 'test_development_index_review.py' -v
+      - name: Offline ledger proposal tests
+        run: python3 -m unittest discover -s tests -p 'test_development_ledger_proposal.py' -v
+      - name: Read-only inventory
+        if: github.event_name != 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          STALE_DAYS: '14'
+        run: python3 scripts/development_inventory.py
+      - name: Build maintainer PR handoff queue
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/pr_review_handoff.py
+      - name: Route open PRs for human review (read-only)
+        if: github.event_name != 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/pr_approval_routing.py
+      - name: Read-only change candidates
+        if: github.event_name != 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/development_inventory_delta.py
+      - name: Prepare review-only ledger proposal
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/development_ledger_proposal.py
+      - name: Compare all branch heads with main (read-only)
+        if: github.event_name != 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/development_branch_compare.py
+      - name: Prepare branch-to-case handoff (read-only)
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/development_branch_case_handoff.py
+      - name: Prepare human branch review priority queue
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/development_branch_review_queue.py
+      - name: Prepare operations index review artifact
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/development_index_review.py
+      - name: Save report artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: development-inventory
+          path: inventory-output/
+          retention-days: 30

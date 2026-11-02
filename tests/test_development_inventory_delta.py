@@ -1,0 +1,93 @@
+import unittest
+import json
+import os
+import tempfile
+import urllib.error
+import urllib.request
+from pathlib import Path
+from unittest.mock import patch
+import scripts.development_inventory_delta as delta
+from scripts.development_inventory_delta import compare
+
+class DeltaTests(unittest.TestCase):
+    def test_changes_and_unchanged(self):
+        old = {"snapshot": {"branches": {"main": "a", "old": "x"}, "prs": {"1": {"state": "open"}}, "issues": {}}}
+        new = {"snapshot": {"branches": {"main": "a", "new": "y"}, "prs": {"1": {"state": "merged"}}, "issues": {"2": {"state": "open"}}}}
+        changes = compare(old, new)
+        self.assertEqual(len(changes), 4)
+        self.assertEqual({(x["type"], x["id"], x["change"]) for x in changes},
+                         {("branches", "old", "absent_from_snapshot"),
+                          ("branches", "new", "added"),
+                          ("prs", "1", "changed"),
+                          ("issues", "2", "added")})
+
+    def test_http_401_preserves_report_and_marks_delta_unavailable(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cwd = os.getcwd()
+            try:
+                os.chdir(tmp)
+                Path("inventory-output").mkdir()
+                Path("inventory-output/report.json").write_text(
+                    json.dumps({"snapshot": {"branches": {}, "prs": {}, "issues": {}}}))
+                with patch.object(delta, "previous_snapshot",
+                                  side_effect=urllib.error.HTTPError("test", 401, "Unauthorized", {}, None)):
+                    delta.main()
+                result = json.loads(Path("inventory-output/delta.json").read_text())
+                self.assertEqual(result["status"], "comparison_unavailable")
+                self.assertIn("401", result["note"])
+                self.assertTrue(Path("inventory-output/report.json").exists())
+            finally:
+                os.chdir(cwd)
+
+    def test_cross_host_redirect_does_not_forward_token(self):
+        req = urllib.request.Request(
+            "https://api.github.com/repos/example/demo/actions/artifacts/123/zip",
+            headers={"Authorization": "Bearer test-secret"})
+        handler = delta.SafeRedirect()
+        redirected = handler.redirect_request(
+            req, None, 302, "Found", {},
+            "https://artifact-storage.example.test/file.zip?sig=dummy")
+        self.assertIsNotNone(redirected)
+        self.assertNotIn("Authorization", redirected.headers)
+        self.assertNotIn("Authorization", redirected.unredirected_hdrs)
+
+    def test_triage_does_not_assign_completion(self):
+        changes = [{"type": "branches", "id": "feature/new-thing", "change": "added"}]
+        with patch.object(delta, "api", return_value=[]):
+            suggestions = delta.classify_candidates(changes, "| M-01 | ラウンジ | 進行中 |")
+        self.assertEqual(suggestions[0]["classification"], "needs_review")
+        self.assertIsNone(suggestions[0]["proposed_status"])
+        self.assertEqual(suggestions[0]["ledger_action"], "review_only")
+
+    def test_pr_title_matches_index_without_status_change(self):
+        changes = [{"type": "prs", "id": "123", "change": "added",
+                    "after": {"title": "重複通知", "body": "", "head_ref": "feature"}}]
+        with patch.object(delta, "api", return_value=[]):
+            suggestions = delta.classify_candidates(changes, "| A-01 | 重複通知 | 進行中 |")
+        self.assertEqual(suggestions[0]["candidate_case_ids"], ["A-01"])
+        self.assertEqual(suggestions[0]["ledger_action"], "review_only")
+        self.assertIsNone(suggestions[0]["proposed_status"])
+
+    def test_inventory_maintenance_is_not_product_case(self):
+        changes = [{"type": "prs", "id": "44", "change": "added",
+                    "after": {"title": "inventory triage", "body": "", "head_ref": "fix"}}]
+        with patch.object(delta, "api", return_value=[{"filename": "scripts/development_inventory_delta.py"}]):
+            suggestions = delta.classify_candidates(changes, "| M-01 | ラウンジ | x |")
+        self.assertEqual(suggestions[0]["classification"], "automation_maintenance")
+        self.assertEqual(suggestions[0]["candidate_case_ids"], [])
+        self.assertEqual(suggestions[0]["file_evidence"]["status"], "complete")
+
+    def test_file_evidence_does_not_change_ledger(self):
+        changes = [{"type": "prs", "id": "45", "change": "added", "after": {}}]
+        with patch.object(delta, "api", return_value=[{"filename": "src/lounge/ui.ts"}]):
+            suggestions = delta.classify_candidates(changes, "| M-01 | ラウンジ | x |")
+        self.assertEqual(suggestions[0]["ledger_action"], "review_only")
+        self.assertIsNone(suggestions[0]["proposed_status"])
+        self.assertEqual(suggestions[0]["file_evidence"]["paths"], ["src/lounge/ui.ts"])
+
+    def test_identical(self):
+        snapshot = {"snapshot": {"branches": {"main": "x"}, "prs": {}, "issues": {}}}
+        self.assertEqual(compare(snapshot, snapshot), [])
+
+if __name__ == "__main__":
+    unittest.main()
