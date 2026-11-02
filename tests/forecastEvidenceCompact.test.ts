@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { packForecastEvidence } from "../supabase/functions/_shared/forecastEvidenceCompact.ts";
+import { packForecastEvidence, unpackForecastEvidence } from "../supabase/functions/_shared/forecastEvidenceCompact.ts";
 
 const frame = {
   baseTime:"20261102110000",validTime:"20261102113000",
@@ -40,4 +40,25 @@ test("missing time fields are retained with null markers",()=>{
   const result=packForecastEvidence([{status:"RAIN"}],1);
   expect(result).toMatchObject({state:"PARTIAL",reason:"INCOMPLETE_FRAME_FIELDS",receivedFrames:1});
   expect(result.frames[0]).toEqual([null,null,"RAIN",null,null]);
+});
+
+test("compact evidence round trips timestamps, rain intensity and rgba",()=>{
+  const input=[frame,{...frame,baseTime:"20261102110500",validTime:"20261102113500",status:"NO_RAIN",intensityClass:null,rgba:{r:0,g:0,b:0,a:0}}];
+  const decoded=unpackForecastEvidence(JSON.parse(JSON.stringify(packForecastEvidence(input,2))));
+  expect(decoded).toMatchObject({state:"COMPLETE",expectedFrames:2});
+  expect(decoded?.frames).toEqual(input);
+});
+test("partially unavailable forecast retains failure marker through replay",()=>{
+  const input=[{...frame,status:"FETCH_ERROR",intensityClass:null,rgba:null}];
+  const decoded=unpackForecastEvidence(packForecastEvidence(input,1));
+  expect(decoded?.state).toBe("PARTIAL");
+  expect(decoded?.frames).toEqual(input);
+});
+test("rejects unknown schema version and invalid rgba",()=>{
+  const packed=packForecastEvidence([frame],1);
+  expect(unpackForecastEvidence({...packed,schemaVersion:2})).toBeNull();
+  expect(unpackForecastEvidence({...packed,frames:[[frame.baseTime,frame.validTime,"RAIN","30_TO_50",[300,0,0,255]]]})).toBeNull();
+});
+test("legacy missing evidence is not silently treated as a dry forecast",()=>{
+  expect(unpackForecastEvidence(null)).toBeNull();
 });
