@@ -65,3 +65,11 @@ test("rejects impossible calendar dates instead of normalizing them",()=>{
   const result=compareStoredForecasts(rows,"A","20260304113000","2026-03-04T11:10:00Z");
   expect(result.result).toMatchObject({continuity:"UNKNOWN",latestBaseTime:null});
 });
+
+test("missing source pixel cannot be treated as confirmed severe rain",()=>{
+  const rows=[stored("A","2026-11-02T11:02:00Z",[
+    {...frame("20261102110000","30_TO_50"),rgba:null},
+  ])];
+  const result=compareStoredForecasts(rows,"A",target,"2026-11-02T11:10:00Z");
+  expect(result.result).toMatchObject({continuity:"UNKNOWN",latestSevere:false});
+});
