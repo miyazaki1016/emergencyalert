@@ -62,3 +62,26 @@ test("rejects unknown schema version and invalid rgba",()=>{
 test("legacy missing evidence is not silently treated as a dry forecast",()=>{
   expect(unpackForecastEvidence(null)).toBeNull();
 });
+
+test("reconstructs every original time, status, intensity and RGBA",()=>{
+  const input=[frame,{...frame,baseTime:"20261102110500",validTime:"20261102113500",rgba:null}, {...frame,status:"NO_RAIN",intensityClass:null,rgba:{r:0,g:0,b:0,a:0}}];
+  const decoded=unpackForecastEvidence(packForecastEvidence(input,3));
+  expect(decoded?.state).toBe("COMPLETE");
+  expect(decoded?.frames).toEqual(input);
+});
+test("missing or unusable frames round-trip without becoming no-rain",()=>{
+  const input=[{...frame,status:"FETCH_ERROR",rgba:null},{status:"UNKNOWN_PIXEL"}];
+  const encoded=packForecastEvidence(input,2);
+  expect(unpackForecastEvidence(encoded)?.frames).toEqual([input[0],{baseTime:undefined,validTime:undefined,status:"UNKNOWN_PIXEL",intensityClass:null,rgba:null}]);
+  expect(unpackForecastEvidence(encoded)?.state).toBe("PARTIAL");
+});
+test("rejects incompatible schema version and corrupted RGBA",()=>{
+  const packed=packForecastEvidence([frame],1);
+  expect(unpackForecastEvidence({...packed,schemaVersion:2})).toBeNull();
+  expect(unpackForecastEvidence({...packed,frames:[[frame.baseTime,frame.validTime,"RAIN","30_TO_50",[300,0,0,255]]]})).toBeNull();
+});
+test("rejects falsified completeness metadata",()=>{
+  const packed=packForecastEvidence([frame],1);
+  expect(unpackForecastEvidence({...packed,state:"PARTIAL"})).toBeNull();
+  expect(unpackForecastEvidence({...packed,receivedFrames:2})).toBeNull();
+});
