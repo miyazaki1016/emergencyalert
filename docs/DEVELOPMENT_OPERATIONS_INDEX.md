@@ -35,3 +35,33 @@
 - **安全境界。** アプリコード、DB、認証、Push、デプロイ、ブランチ削除は操作しない。GitHub Actionsの書込権限は台帳更新専用ジョブに限定し、既存のread-only棚卸しは維持する。
 
 この節は設計合意の記録であり、台帳の自動書込みが稼働していることを意味しない。
+
+<!-- OPERATIONS_INVENTORY_START -->
+## GitHub自動棚卸し（確認用の事実）
+
+> これはPRの状態だけを示し、開発完了・本番反映・実装重複を意味しません。
+
+開発台帳: [DEVELOPMENT_LEDGER.md](DEVELOPMENT_LEDGER.md)
+
+| Open PR | タイトル | Head branch |
+|---|---|---|
+| #25 | test: verify live JMA early rain data in CI | test-jma-early-live-smoke |
+| #59 | Add nationwide heavy-rain scan proof | feat/national-heavy-rain-preview |
+| #60 | docs: 美咲との気象・防災連携契約案（未実装） | docs/misaki-weather-integration-20261016 |
+| #61 | feat: LIVE JAPAN 生きている日本列島の体験試作 | feat/live-japan-experience-prototype |
+| #62 | test: measure real JMA Z4 stride-2 missed rain regions (read-only) | test/z4-stride-parity-20261016 |
+| #63 | WIP: MYアメふる通知履歴・実天気フィードバック・判定根拠（検証用） | feat/my-rain-notification-history-20261019 |
+| #73 | fix: retained notification history stays viewable beyond seven days | fix/archived-history-beyond-seven-days-20261023 |
+| #88 | docs: 通常雨通知の見直し仕様と検証条件 | docs/rain-notification-phase1-20261026 |
+| #93 | WIP: 通知重複防止・配信整合性の第1優先監査 | audit/push-concurrency-20261026 |
+| #94 | docs: 降るよ最優先の製品方針と研究所在を総覧へ | docs/rain-start-first-index-20261028 |
+| #95 | 設計: 前回通知を踏まえた雨接近メッセージ | research/contextual-rain-alerts-20261028 |
+| #96 | 外部AIレビュー用の安全な静的ページ（プレビュー専用） | docs/external-ai-review-preview-20261028 |
+| #97 | Preview only: 外部AIレビュー用の公開総覧 | review/external-ai-page-20261028 |
+| #98 | 研究: 通知予測と実況の自動答え合わせ基盤 設計 | research/notification-replay-20261029 |
+| #109 | 研究用: 大雨予測の継続性判定（通知ロジック非接続） | research/severe-rain-consistency-20261101 |
+
+全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
+既存案件ID・判断欄は変更しません。
+
+<!-- OPERATIONS_INVENTORY_END -->
