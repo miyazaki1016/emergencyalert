@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Read-only branch-to-main comparisons. Report evidence, never infer feature completion."""
 import json
+import hashlib
 import os
 import urllib.parse
 import urllib.request
@@ -38,7 +39,15 @@ def compare_rows(report, fetch, evidence=None):
                     "status": status,
                     "files_complete": len(files) < 300 and ahead != "?",
                     "paths": sorted({item["filename"] for item in files
-                                     if isinstance(item, dict) and isinstance(item.get("filename"), str)})
+                                     if isinstance(item, dict) and isinstance(item.get("filename"), str)}),
+                    "patch_sha256": {item["filename"]: hashlib.sha256(item["patch"].encode("utf-8")).hexdigest()
+                                     for item in files if isinstance(item, dict)
+                                     and isinstance(item.get("filename"), str)
+                                     and isinstance(item.get("patch"), str)
+                                     and item["patch"]},
+                    "patch_absence": [item["filename"] for item in files if isinstance(item, dict)
+                                      and isinstance(item.get("filename"), str)
+                                      and not isinstance(item.get("patch"), str)]
                 }
             sample = ", ".join(str(f.get("filename", "")) for f in files[:8] if isinstance(f, dict))
             rows.append((name, str(status), str(ahead), str(behind), coverage + ": " + sample))
@@ -60,6 +69,44 @@ def find_shared_paths(evidence):
                 continue
             by_file.setdefault(path, []).append(branch)
     return {path: sorted(names) for path, names in sorted(by_file.items()) if len(names) > 1}
+
+
+def find_equal_patches(evidence):
+    """Exact patch equality only. Hashes are evidence, not a duplicate-feature decision."""
+    matches = {}
+    groups = {}
+    for branch, info in sorted(evidence.items()):
+        if not isinstance(info, dict):
+            continue
+        hashes = info.get("patch_sha256", {})
+        if not isinstance(hashes, dict):
+            continue
+        for path, digest in hashes.items():
+            if not isinstance(digest, str) or len(digest) != 64:
+                continue
+            if path.startswith(("docs/", ".github/", "tests/")) or path.endswith((".md", ".lock")):
+                continue
+            groups.setdefault((path, digest), []).append(branch)
+    for (path, digest), branches in sorted(groups.items()):
+        if len(branches) >= 2:
+            matches.setdefault(path, []).append({"patch_sha256": digest, "branches": sorted(branches)})
+    return matches
+
+
+def render_equal_patches(matches):
+    lines = ["# Identical comparison patches (review only)", "",
+             "Matching GitHub compare patch text SHA-256 indicates identical API-returned diff hunks",
+             "for one file at the time of this snapshot. This is NOT proof of duplicate features,",
+             "commits, or merge safety. Missing/truncated patches cannot be assessed.", "",
+             "| Changed path | Matching branch heads | Patch SHA-256 |", "|---|---|---|"]
+    for path, groups in sorted(matches.items()):
+        for group in groups:
+            safe_path = path.replace("|", "&#124;").replace("\\n", " ")
+            names = ", ".join(branch.replace("|", "&#124;").replace("\\n", " ") for branch in group["branches"])
+            lines.append("| " + safe_path + " | " + names + " | " + group["patch_sha256"] + " |")
+    if not matches:
+        lines.append("| None observed in available patches | — | — |")
+    return "\\n".join(lines) + "\\n"
 
 
 def render_shared_paths(overlaps, evidence):
@@ -106,11 +153,14 @@ def main():
     rows = compare_rows(report, fetch, evidence=evidence)
     Path("inventory-output/branch-comparison.md").write_text(render(rows), encoding="utf-8")
     overlaps = find_shared_paths(evidence)
+    equal_patches = find_equal_patches(evidence)
     Path("inventory-output/branch-file-evidence.json").write_text(
-        json.dumps({"branches": evidence, "shared_paths": overlaps}, ensure_ascii=False, indent=2) + "\n",
+        json.dumps({"branches": evidence, "shared_paths": overlaps, "equal_patches": equal_patches}, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8")
     Path("inventory-output/shared-file-review.md").write_text(
         render_shared_paths(overlaps, evidence), encoding="utf-8")
+    Path("inventory-output/equal-patch-review.md").write_text(
+        render_equal_patches(equal_patches), encoding="utf-8")
     print("Recorded comparisons for " + str(len(rows)) + " branches in " + repo)
 
 if __name__ == "__main__":
