@@ -22,7 +22,7 @@ class QueueTests(unittest.TestCase):
         self.assertEqual(prioritize(self.handoff, self.evidence)[0]["priority"], "P2_review")
     def test_no_changes_still_review_only(self):
         self.evidence = {"shared_paths": {}, "equal_patches": {}}
-        row = prioritize(self.handoff, self.evidence)[0]
+        row = next(item for item in prioritize(self.handoff, self.evidence) if item["branch"] == "a")
         self.assertEqual(row["priority"], "P3_review")
     def test_missing_evidence_rejected(self):
         with self.assertRaises(ValueError):
