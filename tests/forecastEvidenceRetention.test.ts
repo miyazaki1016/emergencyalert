@@ -1,5 +1,5 @@
 import {expect,test} from "vitest";
-import {classifyEvidenceRetention,inspectStoredEvidenceRetention,type RetentionRecord} from "../lib/research/forecastEvidenceRetention";
+import {classifyEvidenceRetention,inspectStoredEvidenceRetention,summarizeEvidenceRetention,type RetentionRecord} from "../lib/research/forecastEvidenceRetention";
 const record:RetentionRecord={
   schemaVersion:1,recordedAt:"2026-11-01T00:00:00Z",expiresAt:"2026-11-08T00:00:00Z",
   notificationEvidenceLinked:false,preservationHold:false,
@@ -37,4 +37,15 @@ test("actual diagnostic schema without expiry is never eligible for deletion",()
 test("legacy or unknown-version diagnostic is preserved untouched",()=>{
   expect(inspectStoredEvidenceRetention({checked_at:"2026-10-01T00:00:00Z",diagnostic:null},"2026-12-01T00:00:00Z")).toBe("KEEP");
   expect(inspectStoredEvidenceRetention({checked_at:"2026-10-01T00:00:00Z",diagnostic:{forecastEvidenceCompact:{schemaVersion:2}}},"2026-12-01T00:00:00Z")).toBe("KEEP");
+});
+
+test("dry-run summary never marks actual schema rows as eligible",()=>{
+  const rows=[
+    {checked_at:"2026-10-01T00:00:00Z",diagnostic:null},
+    {checked_at:"2026-10-01T00:00:00Z",diagnostic:{forecastEvidenceCompact:{schemaVersion:1,frames:[]}}},
+    {checked_at:"2026-10-01T00:00:00Z",diagnostic:{forecastEvidenceCompact:{schemaVersion:99,frames:[]}}},
+  ];
+  expect(summarizeEvidenceRetention(rows,"2026-11-03T00:00:00Z")).toEqual({
+    total:3,keep:2,review:1,eligible:0,
+  });
 });
