@@ -12,9 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
           persist-credentials: false
-      - name: Test policy from trusted main
+      - name: Test policy (review-only; no promotion privileges)
         run: python3 -m unittest discover -s tests -p 'test_pr_promotion_policy.py' -v
       - name: Classify changed files (no approval or merge)
         env:
