@@ -47,7 +47,7 @@ export function compareStoredForecasts(
           if (typeof f.baseTime !== "string" || typeof f.validTime !== "string" || typeof f.status !== "string") return false;
           // Never accept an issuance timestamp later than the actual poll that
           // supposedly captured it, even if it precedes the overall asOf.
-          if (!/^\\d{14}$/.test(f.baseTime)) return false;
+          if (!/^\d{14}$/.test(f.baseTime)) return false;
           const issued = Date.UTC(+f.baseTime.slice(0,4),+f.baseTime.slice(4,6)-1,+f.baseTime.slice(6,8),
             +f.baseTime.slice(8,10),+f.baseTime.slice(10,12),+f.baseTime.slice(12,14));
           return Number.isFinite(issued) && issued <= collected;
