@@ -20,3 +20,29 @@ export function classifyEvidenceRetention(record: RetentionRecord, now: string):
   if (!Number.isFinite(expiry) || expiry<created) return "REVIEW";
   return clock>=expiry ? "ELIGIBLE" : "KEEP";
 }
+
+/**
+ * Read-only adapter for the ACTUAL rain_diagnostic_history schema.
+ * Currently there is no evidence-specific expiry or preservation flag in that
+ * table. Never infer expiry from checked_at: conservatively request review.
+ */
+export function inspectStoredEvidenceRetention(row: {
+  checked_at: string;
+  diagnostic: unknown;
+}, now: string): RetentionDecision {
+  if (!row.diagnostic || typeof row.diagnostic !== "object" || Array.isArray(row.diagnostic)) return "KEEP";
+  const object = row.diagnostic as Record<string, unknown>;
+  const evidence = object.forecastEvidenceCompact;
+  if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) return "KEEP";
+  const version = (evidence as Record<string, unknown>).schemaVersion;
+  if (version !== 1) return "KEEP";
+  // No expires_at, hold or verified notification linkage exists in this row.
+  // A real cleanup operation MUST use explicit, separately audited metadata.
+  return classifyEvidenceRetention({
+    schemaVersion: 1,
+    recordedAt: row.checked_at,
+    expiresAt: null,
+    notificationEvidenceLinked: false,
+    preservationHold: false,
+  }, now);
+}
