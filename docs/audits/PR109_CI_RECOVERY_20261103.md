@@ -14,3 +14,11 @@ Merge current main into the PR branch, preserving both sides of the two document
 
 ## Verification
 The recovery commit must be checked via a new automatic pull_request CI run whose head_sha equals the repaired branch head. Old successful runs do not verify this commit. Final results and run URLs are reported in the task completion response.
+
+## Additional failure uncovered by running current code
+- Local npm test/build exposed literal `\\n` sequences and an over-escaped `/\\\\D/g` in lib/research/forecastHistoryReplay.ts (line 58). This was introduced after the last successful CI, so old green checks hid a real syntax error.
+- Replace only those escapes with actual line breaks and the intended `/\\D/g` digit-stripping expression. Existing eight history-replay tests cover impossible calendar dates and missing pixel evidence. This research adapter is not connected to notification decisions.
+- After repair: npm test = 41 files / 343 tests passed; npm run build = success (Next.js compile, type checking, static generation).
+- Automatic pull_request runs appeared after conflict resolution while PR remained Draft: CI 41526228331 for 26b6900e62395ed045c2bb4037606c7b06f14bde; CI 41526291128 for syntax repair 96ae1b3540ba94dbf197d069ed54c58d2580f438. No manual rerun/dispatch was used.
+- main branch protection read returned 403 Resource not accessible by integration. Thus this audit cannot enumerate administrative required-status settings; verify all four ci.yml jobs plus the PR classification job on the final head.
+- No direct inspection of billing limits or GitHub incident history was needed to restore execution; successful automatic runs with unchanged settings are the operational evidence, not a claim that every account setting was readable.
