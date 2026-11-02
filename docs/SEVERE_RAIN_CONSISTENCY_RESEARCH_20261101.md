@@ -135,3 +135,9 @@
 - 実装照合で、`status=RAIN` かつ `intensityClass=null`、またはRGBA欠損を持つフレームが枚数一致だけでCOMPLETEになる余地を発見。実際のJMAプロバイダーは透明(NO_RAIN)にもRGBAを返すため、画素が欠けた場合は証拠を不完全として扱うべき。
 - `packForecastEvidence` と `extractForecastEvidence` を一致させ、雨量区分のないRAIN、RGBA欠損・RGBA異常値を `PARTIAL / INCOMPLETE_FRAME_EVIDENCE` とする。フレーム自体は保持し、欠損をNO_RAINへ置換しない。正常なRGBA付きの雨・透明NO_RAINはCOMPLETEのまま。
 - 追加の回帰テストを作成し、旧テストの「RGBAなしでもCOMPLETE」という不適切な期待値を修正。本番通知・Push・DB・Edge Functionは未変更。最新CI結果の確認が必要。
+
+## 2026-11-03 保持期限の安全な棚卸し（非破壊）
+- head `ab9dcd34` のCI verify / classify / phase1-feedback-http / phase1-feedback-rls / rain-delivery-concurrency は全件成功。
+- `summarizeEvidenceRetention` を追加。実DBに存在する `checked_at` と `diagnostic` だけを入力とする純粋関数で、KEEP/REVIEW/ELIGIBLEの件数を計算する。DB接続・DELETE/UPDATEは一切持たない。
+- 期限・保全情報が無い現在のスキーマでは新形式でも REVIEW、旧形式・不明版は KEEP となり、ELIGIBLE は0件のはず。単体テストで確認する。
+- 次の本番導入判断には専用の有効期限・通知関連証拠保護・容量上限・保存エラーの可観測性が必要。**現行の履歴テーブルを7日で一括削除しない**。この追加変更のCIは未確認。
