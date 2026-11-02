@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { extractForecastEvidence } from "../lib/research/forecastEvidence.ts";
-const frame = { baseTime: "20261031112500", validTime: "20261031113000", status: "RAIN", intensityClass: "30_TO_50" };
+const frame = { baseTime: "20261031112500", validTime: "20261031113000", status: "RAIN", intensityClass: "30_TO_50", rgba: { r: 12, g: 34, b: 56, a: 255 } };
 test("healthy API response with null diagnostic retains forecast", () => {
   const result = extractForecastEvidence({ diagnostic: null, forecast: [frame] }, 1);
   expect(result.state).toBe("COMPLETE");
@@ -37,5 +37,16 @@ test("healthy API contract includes expected count without diagnostic", () => {
 test("top-level expected count takes precedence over diagnostic fallback", () => {
   expect(extractForecastEvidence({ expectedForecastFrames: 2, diagnostic: { expectedForecastFrames: 1 }, forecast: [frame] })).toMatchObject({
     state: "PARTIAL", reason: "FRAME_COUNT_MISMATCH",
+  });
+});
+
+test("missing rain intensity cannot count as complete",()=>{
+  expect(extractForecastEvidence({forecast:[{...frame,intensityClass:null}],expectedForecastFrames:1})).toMatchObject({
+    state:"PARTIAL",reason:"INCOMPLETE_FRAME_EVIDENCE"
+  });
+});
+test("missing rgba cannot count as complete",()=>{
+  expect(extractForecastEvidence({forecast:[{...frame,rgba:null}],expectedForecastFrames:1})).toMatchObject({
+    state:"PARTIAL",reason:"INCOMPLETE_FRAME_EVIDENCE"
   });
 });
