@@ -11,6 +11,8 @@ on:
       - 'scripts/development_inventory_delta.py'
       - 'tests/test_development_inventory_delta.py'
       - 'tests/test_inventory_delta_string_details.py'
+      - 'scripts/pr_promotion_policy.py'
+      - 'tests/test_pr_promotion_policy.py'
       - 'scripts/development_ledger_proposal.py'
       - 'tests/test_development_ledger_proposal.py'
       - '.github/workflows/development-inventory.yml'
@@ -33,6 +35,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_development_inventory_delta.py' -v
       - name: Branch SHA and PR metadata regression tests
         run: python3 -m unittest discover -s tests -p 'test_inventory_delta_string_details.py' -v
+      - name: PR promotion policy tests (review only)
+        run: python3 -m unittest discover -s tests -p 'test_pr_promotion_policy.py' -v
       - name: Offline ledger proposal tests
         run: python3 -m unittest discover -s tests -p 'test_development_ledger_proposal.py' -v
       - name: Read-only inventory
