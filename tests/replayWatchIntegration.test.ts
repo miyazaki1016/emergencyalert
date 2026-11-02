@@ -7,7 +7,7 @@ import {packForecastEvidence} from '../supabase/functions/_shared/forecastEviden
 import * as episodes from '../supabase/functions/watch-rain/forecastEpisode';
 import {guardedPush} from '../supabase/functions/watch-rain/deliveryGuard';
 import * as decision from '../supabase/functions/watch-rain/notificationDecision';
-async function run(recordError=false,historyError=false,pushError=false,repeats=1,finishError=false,stateError=false,alreadyNotified=false){
+async function run(recordError=false,historyError=false,pushError=false,repeats=1,finishError=false,stateError=false,alreadyNotified=false,evidenceHistoryError=false){
  const order:string[]=[],writes:Array<{table:string;op:string;value:any}>=[];let handler:any;
  const time=new Date(),target=new Date(Math.ceil((time.getTime()+10*60000)/300000)*300000).toISOString();
  let runtime:any={},previous:any={last_notified_at:alreadyNotified?'2026-10-29T03:45:00Z':null,clear_streak:3,rain_streak:0,last_event:{sourceValidAt:'20261029034000',urgency:'LIFESTYLE_ACTION'}},locked=false;const intents=new Set<string>();
@@ -18,6 +18,7 @@ async function run(recordError=false,historyError=false,pushError=false,repeats=
  if(table==='watch_states'&&op==='select')result.data=previous;
  if(table==='rain_watch_runtime')result.data={episode:runtime};
  if(table==='rain_diagnostic_history'&&op==='select')result.data=[];
+ if(table==='rain_diagnostic_history'&&op==='insert'&&evidenceHistoryError)result={data:null,error:{code:'MOCK_STORAGE_ERROR'}};
  if(table==='push_subscriptions')result.data=[{id:'sub',endpoint:'private',p256dh:'private',auth:'private'}];
  if(table==='rain_notification_evaluations'&&op==='insert')result=recordError?{error:Error('record failed')}:{data:{id:'evaluation'}};
  if(table==='notification_deliveries')result=historyError?{error:Error('write failed')}:{data:{id:123}};
@@ -41,3 +42,15 @@ it('does not resend after the transport result cannot be saved',async()=>{const 
 it('does not resend if watch state persistence fails after accepted Push',async()=>{const r=await run(false,false,false,2,false,true);expect(r.order.filter(x=>x==='PUSH')).toHaveLength(1);});
 
 it('the real worker suppresses continued actionable forecasts despite a saturated dry streak',async()=>{const r=await run(false,false,false,2,false,false,true);expect(r.order.filter(x=>x==='PUSH')).toHaveLength(0);expect(r.body.results[0].suppressionReason).toBe('FORECAST_EPISODE_ALREADY_NOTIFIED');});
+
+it('evidence history write failure is observable but cannot suppress Push',async()=>{
+ const original=console.warn;const warnings:unknown[][]=[];
+ console.warn=(...args:unknown[])=>{warnings.push(args);};
+ try{
+   const r=await run(false,false,false,1,false,false,false,true);
+   expect(r.body.results[0].delivered).toBe(1);
+   expect(r.order.filter(x=>x==='PUSH')).toHaveLength(1);
+   expect(warnings.some(x=>x[0]==='RAIN_EVIDENCE_HISTORY_WRITE_FAILED' &&
+     (x[1] as {code:string}).code==='MOCK_STORAGE_ERROR')).toBe(true);
+ }finally{console.warn=original;}
+});
