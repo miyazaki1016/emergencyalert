@@ -118,3 +118,9 @@
 - 本番の `rain_diagnostic_history` 列を読み取りで確認。列は id/target_id/checked_at/source_valid_at/interpretation_enabled/event_type/urgency/current_status/diagnostic/created_at/current_rgba。**証拠専用のexpires_at、保全フラグ、通知評価との確実な連結は存在しない**。
 - `inspectStoredEvidenceRetention` を追加。実在の履歴形式から新形式の存在だけ認識するが、専用期限・保全情報が未確認なので自動削除候補には絶対にせず REVIEW を返す。旧形式・不明バージョンは KEEP。テスト2件を追加。
 - **安全判断**: 7日経過を `checked_at` から推測して歴史データを削除しない。独立の期限・通知証拠保全・容量予算・監査ログが備わるまで本番cleanupを導入しない。研究コードはDraft PRのみ。本番変更なし。
+
+## 2026-11-03 重複取得・矛盾フレームの安全判定
+- head `ad5c4026` のGitHubチェック（verify/classify/feedback HTTP/RLS/delivery concurrency/Preview）は全て成功。
+- 同一の発表時刻＋有効時刻の予測は監視cronにより複数回取得される。過去の研究関数は同一発表時刻で矛盾するRAIN/NO_RAINや異なる雨量区分を含むと「一つでも強雨なら強雨」と判定していた。
+- `analyzeSevereConsistency` を変更し、同一発表＋同一対象時刻で一致する重複は1発表として扱い、矛盾する取得結果やRAINの雨量区分欠落はUNKNOWNとして扱う。重複ポーリングだけでPERSISTENTを作らず、欠損・矛盾からNEWを作らない。
+- 正常な重複、矛盾する最新・直前発表、区分欠落の4テストを追加。**これらは研究分析のみ**で通知判定には未接続。最新CIは要確認。
