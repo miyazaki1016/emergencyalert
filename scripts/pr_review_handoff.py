@@ -5,7 +5,8 @@ from pathlib import Path
 
 def render(report):
     repo = report.get("repository", "")
-    prs = report.get("snapshot", {}).get("prs", {})
+    snapshot = report.get("snapshot")
+    prs = snapshot.get("prs") if isinstance(snapshot, dict) else None
     if not repo or not isinstance(prs, dict):
         raise ValueError("Missing repository or PR snapshot")
     lines = ["# 担当ソラへのPR確認待ち一覧", "",
