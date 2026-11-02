@@ -1,0 +1,44 @@
+/**
+ * Compact research history of every issued forecast frame.
+ * Tuples preserve base/valid time independently; no frame sampling.
+ * Not used for notification decisions.
+ */
+export type ForecastInput = {
+  baseTime?: string; validTime?: string; status?: string;
+  intensityClass?: string | null;
+  rgba?: {r:number;g:number;b:number;a:number} | null;
+};
+export type ForecastTuple = [string|null,string|null,string|null,string|null,[number,number,number,number]|null];
+export type CompactEvidence = {
+  schemaVersion: 1;
+  state: "COMPLETE" | "PARTIAL" | "MISSING";
+  reason: string | null;
+  expectedFrames: number | null;
+  receivedFrames: number;
+  usableFrames: number;
+  frames: ForecastTuple[];
+};
+export function packForecastEvidence(
+  forecast: ForecastInput[] | undefined,
+  expectedFrameCount: number | null | undefined,
+): CompactEvidence {
+  const input = forecast ?? [];
+  const expectedFrames = Number.isInteger(expectedFrameCount) && Number(expectedFrameCount)>0 ? Number(expectedFrameCount) : null;
+  const frames: ForecastTuple[] = input.map(f=>[
+    f.baseTime??null, f.validTime??null, f.status??null, f.intensityClass??null,
+    f.rgba ? [f.rgba.r,f.rgba.g,f.rgba.b,f.rgba.a] : null,
+  ]);
+  const fieldsComplete = input.every(f=>typeof f.baseTime==="string"&&f.baseTime.length>0&&typeof f.validTime==="string"&&f.validTime.length>0&&typeof f.status==="string");
+  const usableFrames = input.filter(f=>typeof f.baseTime==="string"&&f.baseTime.length>0&&typeof f.validTime==="string"&&f.validTime.length>0&&(f.status==="RAIN"||f.status==="NO_RAIN")).length;
+  let reason: string|null = null;
+  if (frames.length===0) reason="NO_FORECAST_FRAMES";
+  else if (!fieldsComplete) reason="INCOMPLETE_FRAME_FIELDS";
+  else if (expectedFrames===null) reason="EXPECTED_COUNT_UNKNOWN";
+  else if (frames.length!==expectedFrames) reason="FRAME_COUNT_MISMATCH";
+  else if (usableFrames!==frames.length) reason="UNUSABLE_FRAME_STATUS";
+  return {
+    schemaVersion:1,
+    state:frames.length===0?"MISSING":reason?"PARTIAL":"COMPLETE",
+    reason,expectedFrames,receivedFrames:frames.length,usableFrames,frames,
+  };
+}
