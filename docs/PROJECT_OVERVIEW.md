@@ -841,3 +841,7 @@ Production deployment afterward.
 - 11:25 JSTのwatch-rain定時処理は12地点・エラー0、11:27の評価定時実行はOK。新規実通知サンプルはまだ0件で、実通知の全行程と実端末表示は未検証。
 - 地点の中心画素が先行。半径1km画像・地上雨量・見逃し率・結果表示画面は未実装。Issue #64のPushクラッシュ／並行実行の課題も継続。
 - 詳細・本番確認・切り戻し：[本番実装記録](NOTIFICATION_REPLAY_PRODUCTION_20261029.md)。照会：[監視用SQL](sql/rain-replay-monitoring.sql)。
+
+### 2026-11-03 — PR #109 予測証拠の容量試算（研究中）
+- [研究記録](SEVERE_RAIN_CONSISTENCY_RESEARCH_20261101.md)・Draft PR #109。全予測フレームの保存・復元・重複発表照合・欠測判定を研究ブランチに実装。本番反映なし。
+- JSONB容量の概算関数を追加。DBディスク・WAL・TOAST・インデックスを含まないため、本番容量上限を保証するものではない。保持期限・保護情報・保存失敗の監視が整うまで本番Edge deployと削除は行わない。
