@@ -43,32 +43,6 @@ export function packForecastEvidence(
   };
 }
 
-/** Decode a stored evidence payload for research and replay; reject malformed versions. */
-export function unpackForecastEvidence(value: unknown): {
-  state: CompactEvidence["state"];
-  expectedFrames: number | null;
-  frames: Array<Required<Pick<ForecastInput,"baseTime"|"validTime"|"status">> & Pick<ForecastInput,"intensityClass"|"rgba">>;
-} | null {
-  if (!value || typeof value!=="object") return null;
-  const data=value as Partial<CompactEvidence>;
-  if (data.schemaVersion!==1 || !Array.isArray(data.frames) ||
-      !["COMPLETE","PARTIAL","MISSING"].includes(String(data.state))) return null;
-  const frames: Array<Required<Pick<ForecastInput,"baseTime"|"validTime"|"status">> & Pick<ForecastInput,"intensityClass"|"rgba">> = [];
-  for(const row of data.frames){
-    if(!Array.isArray(row)||row.length!==5) return null;
-    const [baseTime,validTime,status,intensityClass,rgba]=row;
-    if(baseTime!==null&&typeof baseTime!=="string"||validTime!==null&&typeof validTime!=="string"||
-       status!==null&&typeof status!=="string"||intensityClass!==null&&typeof intensityClass!=="string") return null;
-    if(rgba!==null&&(!Array.isArray(rgba)||rgba.length!==4||rgba.some(channel=>!Number.isInteger(channel)||channel<0||channel>255))) return null;
-    frames.push({
-      baseTime:baseTime??"",validTime:validTime??"",status:status??"",
-      intensityClass,rgba:rgba===null?null:{r:rgba[0],g:rgba[1],b:rgba[2],a:rgba[3]},
-    });
-  }
-  const expectedFrames = Number.isInteger(data.expectedFrames)&&Number(data.expectedFrames)>0 ? Number(data.expectedFrames) : null;
-  return {state:data.state as CompactEvidence["state"],expectedFrames,frames};
-}
-
 /** Decode only schema-v1 evidence; reject damaged tuples instead of treating missing data as dry. */
 export function unpackForecastEvidence(value: unknown): {
   state: CompactEvidence["state"];
