@@ -23,6 +23,8 @@ jobs:
           persist-credentials: true
       - name: Validate offline generator
         run: python3 -m unittest discover -s tests -p 'test_development_ledger_proposal.py' -v
+      - name: Validate index proposal generation
+        run: python3 -m unittest discover -s tests -p 'test_development_index_proposal.py' -v
       - name: Verify safe event triggers
         run: python3 -m unittest discover -s tests -p 'test_ledger_event_triggers.py' -v
       - name: Validate proposal safety checks
@@ -34,6 +36,7 @@ jobs:
           python3 scripts/development_inventory.py
           python3 scripts/development_ledger_proposal.py
           python3 scripts/verify_ledger_proposal.py
+          python3 scripts/development_index_proposal.py
       - name: Save generated proposal for inspection
         if: always()
         uses: actions/upload-artifact@v4
@@ -42,6 +45,7 @@ jobs:
           path: |
             inventory-output/report.json
             inventory-output/ledger-proposed.md
+            inventory-output/index-proposed.md
           if-no-files-found: warn
           retention-days: 7
       - name: Open review-only PR when needed
@@ -49,7 +53,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          cmp -s docs/DEVELOPMENT_LEDGER.md inventory-output/ledger-proposed.md && exit 0
+          if cmp -s docs/DEVELOPMENT_LEDGER.md inventory-output/ledger-proposed.md && cmp -s docs/DEVELOPMENT_OPERATIONS_INDEX.md inventory-output/index-proposed.md; then
+            echo 'No ledger or index changes; no PR required.'
+            exit 0
+          fi
           if gh pr list --state open --json headRefName --jq '[.[] | select(.headRefName | startswith("automation/ledger-facts-"))] | length' | grep -qv '^0$'; then
             echo 'An automation review PR is already open; leaving it for review.'
             exit 0
@@ -59,11 +66,12 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git checkout -b "$branch"
           cp inventory-output/ledger-proposed.md docs/DEVELOPMENT_LEDGER.md
-          git add docs/DEVELOPMENT_LEDGER.md
-          git commit -m 'docs: propose factual GitHub PR ledger snapshot'
+          cp inventory-output/index-proposed.md docs/DEVELOPMENT_OPERATIONS_INDEX.md
+          git add docs/DEVELOPMENT_LEDGER.md docs/DEVELOPMENT_OPERATIONS_INDEX.md
+          git commit -m 'docs: propose factual GitHub ledger and operations index snapshot'
           git push origin "$branch"
           if ! gh pr create --base main --head "$branch" \
-            --title 'docs: review GitHub PR facts in development ledger' \
+            --title 'docs: review GitHub facts in development ledger and operations index' \
             --body 'Automatically generated factual PR snapshot only. Review required; no automatic merge. Does not assert implementation, production deployment, or verification completion.'; then
             echo 'ERROR: GitHub Actions could not create the ledger PR. Check repository Actions permissions for PR creation.' >&2
             exit 1
