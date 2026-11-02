@@ -106,3 +106,9 @@
 - `lib/research/forecastEvidenceRetention.ts` に純粋関数 `classifyEvidenceRetention` を追加。schemaVersion=1の研究用証跡のみを対象とし、レガシー診断・通知に紐づく証跡・保全指定中のレコードは KEEP。期限なし、日時破損、期限逆転は REVIEW とし、削除候補にしない。期限到達した独立証跡だけ ELIGIBLE。
 - `tests/forecastEvidenceRetention.test.ts` に期限境界・旧形式保護・通知保護・保全指定・不正時刻の6テストを追加。削除のSQL/cron/Edge連携は **一切追加していない**。
 - 7日という期間は引き続き候補段階。実際の期限列・保存場所・監査ログ・DB権限・誤削除対策の設計が確定するまで本番 cleanup は実装しない。
+
+## 2026-11-02 新規：保存済み系列→強雨継続性への研究用再生
+- `lib/research/forecastHistoryReplay.ts` に `compareStoredForecasts` を追加。保存済み `diagnostic.forecastEvidenceCompact` を版管理付きで復元し、**同一対象時刻の発表更新**に渡す。対象地点IDを必須とし、他人・他地点の系列を混ぜない。 `checkedAt` が比較基準より後の記録を使わない。
+- データ不足・版違い・不正JSON・取得失敗は「降っていない」に置き換えず UNKNOWN。利用できたスナップショット数・欠落数・COMPLETE数を返す。
+- `tests/forecastHistoryReplay.test.ts` に持続強雨、初回強雨、地点分離・未来データ除外、欠測/壊れた版を試す4テストを追加。通知処理・本番UI・保存先には非接続。
+- **未解決**: 保持期限用の専用保存領域、実取得データでの再生、時刻重複の厳格な排除、データアクセス権限、履歴可視化。CI未確認の間は合格扱いにしない。
