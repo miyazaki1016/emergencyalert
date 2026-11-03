@@ -20,3 +20,13 @@ export function shouldCaptureForecastEvidence(
   if (end <= start || end - start > maxDurationMs) return false;
   return now >= start && now < end;
 }
+
+/** Reject oversized snapshots without truncating forecast frames. */
+export function limitForecastEvidencePayload<T>(value:T, maxUtf8Bytes=8192):T|null {
+  if(!Number.isSafeInteger(maxUtf8Bytes)||maxUtf8Bytes<1) throw Error("INVALID_EVIDENCE_BYTE_LIMIT");
+  try {
+    const serialized=JSON.stringify(value);
+    if(typeof serialized!=="string") return null;
+    return new TextEncoder().encode(serialized).byteLength<=maxUtf8Bytes?value:null;
+  } catch { return null; }
+}
