@@ -258,7 +258,7 @@
 | #105 | 予測通知の初期移行で直前の解消確認を正しく引き継ぐ | merged | `326f6d92485e0e158afcd62db5b37131e11dfc51` | 2026-10-29T08:23:10Z |
 | #107 | chore: 読み取り専用の開発忘れ物検出（両プロジェクト共通方式） | merged | `bd03ccc3b96855cfbba2b74409668ce206964f5c` | 2026-10-31T20:12:51Z |
 | #108 | 大雨通知をエピソード1回に制限し、30mm/h自動評価を追加 | merged | `9970fad666c6d863c8a9cf17044e141b85bb2596` | 2026-10-31T10:01:58Z |
-| #109 | 研究用: 大雨予測の継続性判定（通知ロジック非接続） | open | `a7e1928ed2a1dd85a65e9e9d0ea70b59c2120b9c` | 2026-11-02T16:25:04Z |
+| #109 | 研究用: 大雨予測の継続性判定（通知ロジック非接続） | open | `376cc93a3d2824e5322a1f79382bf2ff3e352696` | 2026-11-03T23:38:57Z |
 | #110 | docs: 2026-11-01棚卸し・調査結果を台帳へ保存 | merged | `b2ddc796abf2834b549f2c1056d204747e818535` | 2026-10-31T21:24:23Z |
 | #111 | docs: 旧監査ブランチの追加調査を台帳へ記録 | merged | `5b1d48d44666ccee5e845bb5cf0689379c42bd8d` | 2026-10-31T21:28:05Z |
 | #112 | docs: 未整理ブランチの保全・照合・整理候補を分類 | merged | `aee1b209c7f9dcc1e5803ec912ac72960d8fa237` | 2026-10-31T21:31:02Z |
@@ -294,4 +294,10 @@
 | #142 | Define full inventory, ledger and main index completion gates | merged | `11d491a12d25706a6b27182ecf5ca37b8539d8f3` | 2026-11-02T15:54:54Z |
 | #143 | Complete reviewed ledger and main operations-index fact proposals | merged | `88d196dc952cb4b1d86c7ae40cf3ce3386043ec5` | 2026-11-02T16:05:01Z |
 | #145 | fix: avoid proposal branch collisions on GitHub Actions reruns | merged | `73ca67612e27f6413a7f5a5c33a9c2620c8be144` | 2026-11-02T16:21:06Z |
+| #148 | Inventory: report shared changed-file paths across work branches | merged | `6485641e549dfb180fb5b4255087a8065eb0af55` | 2026-11-02T16:37:47Z |
+| #149 | Inventory: cross-reference branches, PR history and existing case IDs | merged | `8f577a38ef6d53b0e6877e5d3bcfc2f81160eaf6` | 2026-11-02T16:40:32Z |
+| #150 | Inventory: compare exact code patch evidence across branches | merged | `4aa5951483030f85ebc5697e0f25d0d23acbb486` | 2026-11-02T16:48:42Z |
+| #151 | Inventory: ranked, evidence-only human review queue | merged | `9c11b14192a5f4e2d214b6d51fc6bb51f844366f` | 2026-11-02T20:53:32Z |
+| #152 | fix: reuse existing ledger facts PR on repeated inventory runs | merged | `5e4acfac946cc17b4f216a5c0d962c453f05a869` | 2026-11-02T23:27:06Z |
+| #153 | fix: restore ledger facts workflow after invalid YAML merge | merged | `dec71eda8c9866709ac3a002481eaf14f0471a99` | 2026-11-03T23:40:09Z |
 <!-- INVENTORY_FACTS_END -->
