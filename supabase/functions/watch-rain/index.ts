@@ -46,6 +46,11 @@ Deno.serve(async(req:Request)=>{
   const evidence=captureEvidence
     ? limitForecastEvidencePayload(packForecastEvidence(rain.forecast,rain.expectedForecastFrames))
     : null;
+  // Oversized samples must be visible to operators, never silently truncated.
+  if(captureEvidence && evidence===null) console.warn("RAIN_EVIDENCE_CAPTURE_SKIPPED_OVERSIZE",{
+    maxUtf8Bytes:8192,
+    receivedFrames:rain.forecast?.length??0,
+  });
   const diagnostic=evidence?{...(legacyDiagnostic??{}),forecastEvidenceCompact:evidence}:legacyDiagnostic;
   const {error:evidenceWriteError}=await db.from("rain_diagnostic_history").insert({target_id:target.id,checked_at:checkedAt,source_valid_at:rain.sourceValidAt??rain.event?.sourceValidAt??null,interpretation_enabled:Boolean(rain.interpretationEnabled),event_type:rain.event?.eventType??null,urgency:rain.event?.urgency??null,current_status:rain.observation?.[0]?.status??null,current_rgba:rain.observation?.[0]?.rgba??null,diagnostic});
   // Best effort: capture errors must not block notifications or store raw location in logs.
