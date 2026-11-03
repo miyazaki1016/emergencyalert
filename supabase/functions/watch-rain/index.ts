@@ -5,7 +5,7 @@ import { advanceObservationStreak, nextLastNotifiedAt, nextRainEndingNotified } 
 import { makeSnapshot, timestamp, type Frame } from "../_shared/rainReplay.ts";
 import { bestEffort } from "../_shared/replayRecording.ts";
 import { packForecastEvidence } from "../_shared/forecastEvidenceCompact.ts";
-import { shouldCaptureForecastEvidence } from "../_shared/forecastEvidencePilot.ts";
+import { shouldCaptureForecastEvidence, limitForecastEvidencePayload } from "../_shared/forecastEvidencePilot.ts";
 
 type RainEvent = { schemaVersion:1; eventType:string; urgency:"INFO"|"LIFESTYLE_ACTION"; suggestedAction:string; startsAt:string|null; actionableAt:string|null; endingAt:string|null; source:string; checkedAt:string; sourceValidAt:string|null; };
 import {advanceForecastEpisode,forecastEpisodeDecision,forecastSignal,bootstrapForecastEpisode,severeForecast,type ForecastEpisode} from './forecastEpisode.ts';
@@ -43,7 +43,9 @@ Deno.serve(async(req:Request)=>{
   );
   const legacyDiagnostic=rain.diagnostic&&typeof rain.diagnostic==="object"
     ? rain.diagnostic as Record<string,unknown> : null;
-  const evidence=captureEvidence?packForecastEvidence(rain.forecast,rain.expectedForecastFrames):null;
+  const evidence=captureEvidence
+    ? limitForecastEvidencePayload(packForecastEvidence(rain.forecast,rain.expectedForecastFrames))
+    : null;
   const diagnostic=evidence?{...(legacyDiagnostic??{}),forecastEvidenceCompact:evidence}:legacyDiagnostic;
   const {error:evidenceWriteError}=await db.from("rain_diagnostic_history").insert({target_id:target.id,checked_at:checkedAt,source_valid_at:rain.sourceValidAt??rain.event?.sourceValidAt??null,interpretation_enabled:Boolean(rain.interpretationEnabled),event_type:rain.event?.eventType??null,urgency:rain.event?.urgency??null,current_status:rain.observation?.[0]?.status??null,current_rgba:rain.observation?.[0]?.rgba??null,diagnostic});
   // Best effort: capture errors must not block notifications or store raw location in logs.
