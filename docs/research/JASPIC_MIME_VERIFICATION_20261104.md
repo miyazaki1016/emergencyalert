@@ -116,6 +116,11 @@ MimeKit 4.12.0にはGHSA-g7hc-96xr-gvvxの既知警告がある。旧版再現�
 
 **移行時の重要な互換要件**：広島で成立した直接HTTP取得を滋賀にも無検証で適用しない。まず既存 `scripts/jaspic-source-probe.mjs` で滋賀のJSON・都市JSONの取得を検証し、直接GETが失敗する環境では、旧ChromeDriver経由との差を調査する。取得できない／不完全／文字化けの場合は**メール無送信・DB無変更のfail-closed**を維持。ユーザーのiPhoneではUQ Wi-Fi・4Gの両方で当該JSONが表示できている。
 
+
+### CI再確認（2026-11-04）
+
+Node標準テストとVitestのファイル名衝突を修正した後のコミット `f5940703fdcd2603cc4be6a6a3f38352f71f02a5` に紐づくGitHub Actionsを確認した結果、**CI／JASPIC isolated compatibility／PR promotion classification（review only）の3ワークフローすべて success**。これは合成データでのテストと既存CIの成功を示すものであり、**滋賀JSONの実ネットワーク疎通・本番Edge取得・実メール配送の成功は示さない**。引き続きDraft・無送信・本番変更なし。
+
 ## 広島 hppmaps.LINKKEY の意味
 
 旧HomeController（blob 49f2ab4233a00456b440ca1ac2072f36a7eee18e）の`Hpp_Map()` L2244付近はLINKKEYで既存確認し、新規なら旧sendmailを呼んだ後に旧一覧を保存する。ただしカテゴリ除外時や一部送信失敗時にも保存されるため、**hppmapsは送信成功の証明ではなく、旧地図方式で扱ったIDの一覧**と読むべきである。
