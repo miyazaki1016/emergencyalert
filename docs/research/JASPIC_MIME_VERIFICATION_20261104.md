@@ -103,10 +103,10 @@ MimeKit 4.12.0にはGHSA-g7hc-96xr-gvvxの既知警告がある。旧版再現�
 
 ### 滋賀JSONの既存診断コードを再利用（2026-11-04）
 
-- 既存の `scripts/jaspic-source-probe.mjs` と `scripts/jaspic-source-probe.test.mjs` を発見したため、**同じ用途の新規診断スクリプトとテストは削除**。既存成果を再利用し、重複実装を残さない。
+- 既存の `scripts/jaspic-source-probe.mjs` と `scripts/jaspic-source-probe.nodecheck.mjs` を発見したため、**同じ用途の新規診断スクリプトとテストは削除**。既存成果を再利用し、重複実装を残さない。
 - 既存診断は滋賀の事件JSONと都市JSONの両方に対して、**クエリなし＋Accept: application/json／クエリなし＋Accept: */*／時刻クエリあり＋Accept: application/json**の3条件を読取り専用で比較できる。リダイレクト禁止、20秒タイムアウト、12MB上限。
 - ログ出力はHTTPステータス、Content-Type、Content-Encoding、Cache-Control、取得バイト数、UTF-8妥当性、JSONパース可否、件数、必須キー欠落、Unicode置換文字数などの**メタデータのみ**。実事件の本文・個別ID・住所・人物情報・位置情報・レスポンス本文は記録しない。
-- 既存のオフラインテストに**不正UTF-8と、UTF-8自体は妥当でも文字列中にU+FFFDがある場合**を区別する合成ケースを追加した。CIワークフローは既にこのテストを実行する設定。
+- 既存のオフラインテストに**不正UTF-8と、UTF-8自体は妥当でも文字列中にU+FFFDがある場合**を区別する合成ケースを追加した。CIワークフローはこのNode標準テストを実行する設定。以前の `.test.mjs` 名は Vitest の `npm test` に拾われ、`node:test` のスイートを Vitest が認識できず **CI verify が失敗**したため、`.nodecheck.mjs` に改名し、ワークフロー参照を修正。今回の最新コミットでのCI成功はまだ未確認。
 - この作業環境で同URLへ直接GETを試みたが、**DNS名前解決失敗**でHTTP接続前に終了。過去の404とは区別する。既存診断の今回の**外部ネットワーク実測は未完了**。実行コマンドは `node scripts/jaspic-source-probe.mjs`。CIや他環境の実測なしにSupabase Edgeでの取得成功を認定しない。
 - ユーザーのiPhoneはUQ Wi-Fiと4GでJSON表示可能。したがって**回線固有の問題に限定できない**。次は既存診断を実行できるネットワーク環境で比較し、必要に応じて文字コード・データ取得の安全な修正を検討する。
 
