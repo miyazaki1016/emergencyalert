@@ -101,6 +101,14 @@ MimeKit 4.12.0にはGHSA-g7hc-96xr-gvvxの既知警告がある。旧版再現�
 
 次は**無送信・読取りのみ**で、同一URLに対して①DNS解決、②TLS接続、③HTTPステータス、④Content-Type/charset、⑤レスポンス先頭がJSONか、⑥UTF-8デコードと日本語の文字化け、⑦レコード数と必須フィールド、⑧旧C#の日時queryあり/なしを順に比較する。個人情報や本文はGitHubログへ保存せず、HTTPの結果と件数などメタデータのみ記録。アクセス制限の回避はしない。送信、本番DB変更、Edge deploy、cron、マージ禁止。
 
+### 読取り専用の滋賀JSON診断コード（2026-11-04）
+
+- `scripts/jaspic-shiga-diagnostic.mjs` を追加。**実メール送信・本番DB・Supabase APIへの書込み・認証情報は一切扱わない**。Node.jsから同一ホストの旧URL2本（事件 `suspicious_person_full.json` と都市 `cities.json`）を、**queryなし／旧C#同様の時刻queryあり**でそれぞれGETする。リダイレクトは禁止、20秒timeout、各レスポンス12MB上限。
+- ログ出力はDNS解決成否、HTTPステータス、Content-Type、取得バイト数、UTF-8妥当性、JSONパース可否、レコード件数、最初のオブジェクトの**キー名のみ**、Unicode置換文字数に限定。**事件本文、個別ID、住所、氏名、位置情報、レスポンス生データは出力・保存しない**。
+- `tests/jaspic/shiga-diagnostic.test.ts` に合成データのみでHTTP200、404、UTF-8不正、JSON不正、DNS/ネットワーク失敗、情報非露出を検証するテストを追加。外部サイトへ接続するテストではない。
+- この作業環境で同URLにGETを試みたが、**DNS名前解決失敗**でHTTP接続前に終了した。従来の404とは原因が異なるため混同しない。新診断コードの**実ネットワーク実行結果・CI結果は未確認**。実行例：`node scripts/jaspic-shiga-diagnostic.mjs`（公開GETのみ、ログに事件データなし）。
+- **文字化けについて**：スクリーンショットには置換文字が見えるが、レスポンスがUTF-8不正なのか、既に文字化けした文字列がJSONに格納されているのかは未判定。上記診断の `utf8` と `replacementChars` で切り分ける。勝手に文字コードを推定・変換して本番送信しない。
+
 ## 広島 hppmaps.LINKKEY の意味
 
 旧HomeController（blob 49f2ab4233a00456b440ca1ac2072f36a7eee18e）の`Hpp_Map()` L2244付近はLINKKEYで既存確認し、新規なら旧sendmailを呼んだ後に旧一覧を保存する。ただしカテゴリ除外時や一部送信失敗時にも保存されるため、**hppmapsは送信成功の証明ではなく、旧地図方式で扱ったIDの一覧**と読むべきである。
