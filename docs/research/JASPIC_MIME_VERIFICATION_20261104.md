@@ -187,3 +187,11 @@ PR #155 のJASPIC専用CI（GitHub-hosted Ubuntu runner、Node 22）に **公開
 旧C#は別ドメインのFromを設定し、Gmail SMTP認証で送信する。既存送信済みraw MIMEではFromとReturn-PathがGmailアカウントだった。この組み合わせはGmail側の差出人置換と整合するが、SMTPサーバーでの具体的な書換え段階やセンター側の最終受信原本は未確認。したがって推定として記録し、確定事項にしない。
 
 新システムのFrom値は今回変更しない。送信元設定変更・実メール送信・cron有効化・旧Windows停止・PRマージは禁止のまま。画面に表示された個人名や秘密情報は転載しない。
+
+## 互換性ゲートの再整理（2026-11-04、既存実装の再読取り）
+
+**確認済み**：旧MimeKitと新TypeScriptの合成18通は生成段階で全バイト一致。新mime.tsはunprepared / seven-bit / eight-bitの3モードを持ち、Date・Message-IDを外部指定し、送信APIやネットワークアクセスを持たない。実配送Gmail原本の2通では8bit・UTF-8・text/plainが観測され、旧ソースのFromと配送原本のFrom/Return-Pathには差がある。ユーザー提供のGmail設定画面では送信元はGmailアカウントのみだった。
+
+**未認定**：実事件入力からの新旧バイト一致、quoted-printableが選ばれる本文、`From `行、998バイト超の行、NUL・改行異常、Gmail SMTP送信時の書換え段階、SMTP envelope、センター最終受信原本、送信成功・受信互換。mime.tsは現在もEdge実行経路へ接続されていない。
+
+**判定**：現時点では「生成段階の限定プロファイル一致」のみPASS。「配送時の完全互換」「本番送信許可」はBLOCKED。旧Fromを配送観測値へ変更せず、既存テスト・旧実装を再利用する。今回の作業は資料更新のみで、送信・SMTP接続・Edge変更・cron・旧PC停止・マージなし。
