@@ -195,3 +195,11 @@ PR #155 のJASPIC専用CI（GitHub-hosted Ubuntu runner、Node 22）に **公開
 **未認定**：実事件入力からの新旧バイト一致、quoted-printableが選ばれる本文、`From `行、998バイト超の行、NUL・改行異常、Gmail SMTP送信時の書換え段階、SMTP envelope、センター最終受信原本、送信成功・受信互換。mime.tsは現在もEdge実行経路へ接続されていない。
 
 **判定**：現時点では「生成段階の限定プロファイル一致」のみPASS。「配送時の完全互換」「本番送信許可」はBLOCKED。旧Fromを配送観測値へ変更せず、既存テスト・旧実装を再利用する。今回の作業は資料更新のみで、送信・SMTP接続・Edge変更・cron・旧PC停止・マージなし。
+
+## 滋賀Cc受信済みraw MIMEの追加照合（2026-11-04、無送信）
+
+接続済みGmailで2026-11-04 09:08 JST付近の滋賀県警専用ツールCc受信メール2通を読み取り専用で確認した。双方とも `From` と `Return-Path` は旧SMTP認証のGmailアカウント、`To` はセンター宛て、`Cc` は滋賀の控えアカウント、`MIME-Version: 1.0`、`Content-Type: text/plain; charset=utf-8`、`Content-Transfer-Encoding: 8bit`。SubjectはRFC2047 UTF-8 base64、Message-IDあり、Senderヘッダーは見当たらなかった。受信原本にはReturn-Pathが2行存在したため、転送・配送ヘッダーの生成段階は断定しない。個別の事件本文・Message-ID・生MIME・住所等は記録しない。
+
+同時刻の滋賀完了通知は別送信者からのメールであり、センター宛て事案メールのMIMEとは混同しない。今回読んだ完了通知の本文先頭は `不審者 0/0（708） 件送信しました`。これは完了通知上の表示であり、実配送成功数を単独で保証しない。
+
+**判定**：滋賀の実Cc受信原本でも8bit/UTF-8と差出人書換えに整合する観測を追加。広島の送信済み原本と滋賀のCc受信原本は保存位置・配送経路が異なるため、両者を同一条件のバイト比較とは扱わない。センター側最終受信原本、SMTP envelope、実入力からの新旧本文完全一致は未確認。旧実装のFromを推測で変更しない。送信、SMTP接続、デプロイ、cron、旧Windows停止、マージなし。
