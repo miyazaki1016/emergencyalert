@@ -81,3 +81,12 @@ MimeKit 4.12.0にはGHSA-g7hc-96xr-gvvxの既知警告がある。旧版再現�
 - https://github.com/advisories/GHSA-g7hc-96xr-gvvx
 
 検証の実測結果・CIの最終コードSHAはPR #155へ追記する。
+
+## 最終コードの検証証拠
+
+- コードhead: `ec6cfeb1b5c080f4c8c323147eb9eddde6289908`。主実装 `da2eee72e27b645e1ac620d743ecbb3d5a77c2f9`、WindowsのNuGet復元条件修正が後続。
+- ローカル：39ファイル390テスト成功・失敗0、Next build成功、Edge/MIME strict TypeScript成功。従来81パターンの本文goldenは不変。新旧eml18通は全バイト一致。
+- 通常CI #1382（4ジョブ）：https://github.com/miyazaki1016/emergencyalert/actions/runs/41761205793 — success。
+- JASPIC CI #4（3ジョブ）：https://github.com/miyazaki1016/emergencyalert/actions/runs/41761205702 — success。Linuxの旧新MIME/本文/型、Windowsの.NET Framework実行＋18 golden不変＋19 MIMEテスト、隔離Postgresの権限/排他/重複防止を確認。
+- 初回Windows試験はNU1004で停止した。SDK/OSによる暗黙のruntime identifierとReferenceAssemblies追加の違いが原因。win-x64と参照パッケージを明示し、lockfileを再生成してlocked restore成功へ修正した。MIMEの差異を除外して通したものではない。
+- この検証記録追記は文書のみ。最終PR headでの結果もPR #155に記録する。実配送原本・滋賀データ取得・旧除外IDの実取得は引き続き未完了。実送信・SMTP接続・本番変更なし。
