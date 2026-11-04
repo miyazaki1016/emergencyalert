@@ -15,6 +15,7 @@ export type GmailWebSession = {
   codeVerifier: string;
   issuedAt: number;
   expiresAt: number;
+  ownerId?: string;
 };
 
 function decodeBase64Url(value: string): Uint8Array {
@@ -45,7 +46,8 @@ function validSession(value: unknown, now: number): value is GmailWebSession {
     typeof s.issuedAt === "number" && Number.isSafeInteger(s.issuedAt) &&
     typeof s.expiresAt === "number" && Number.isSafeInteger(s.expiresAt) &&
     s.issuedAt <= now && s.expiresAt > now &&
-    s.expiresAt - s.issuedAt <= SESSION_TTL_MS;
+    s.expiresAt - s.issuedAt <= SESSION_TTL_MS &&
+    (s.ownerId === undefined || (typeof s.ownerId === "string" && /^[A-Za-z0-9_-]{8,128}$/.test(s.ownerId)));
 }
 
 /** Creates encrypted, short-lived cookie payload; caller sets strict cookie attributes. */
@@ -54,8 +56,9 @@ export async function sealGmailWebSessionOffline(
   codeVerifier: string,
   key: string,
   now = Date.now(),
+  ownerId?: string,
 ): Promise<string> {
-  const session: GmailWebSession = { state, codeVerifier, issuedAt: now, expiresAt: now + SESSION_TTL_MS };
+  const session: GmailWebSession = { state, codeVerifier, issuedAt: now, expiresAt: now + SESSION_TTL_MS, ...(ownerId ? {ownerId} : {}) };
   if (!validSession(session, now)) throw new Error("Invalid OAuth session");
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const encoded = encoder.encode(JSON.stringify(session));
