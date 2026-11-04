@@ -172,3 +172,12 @@ Draft PR #155に `supabase/migrations/20261105074100_jaspic_oauth_once.sql` を�
 **未完成**：この準備関数は実HTTPルートで呼ばれていないため、Google画面が開く・iPhoneで認証できるとはまだ言えない。次段階は本人が使うSupabase Authログイン導線（サーバ側でgetUser(token)を確認）とPOST /jaspic/oauth/start、Google戻り時の安全な本人認証、コールバックの原子消費、暗号化トークンDB保存、セキュリティレビュー。認可開始URLはブラウザ画面に埋め込まず、管理者専用の認可成功後レスポンスとしてのみ渡すこと。
 
 本番で必要な環境変数やDBマイグレーションには一切触れない。Gmail認証・送信・18時cron・旧PC停止・PR #155マージは禁止のまま。
+
+
+## Supabase Authを接続したOAuth開始HTTP処理（2026-11-05、機能フラグ無効）
+
+`app/jaspic/oauth/start/route.ts` にPOSTを追加。デフォルトの `JASPIC_OAUTH_START_ENABLED` 未設定では最初に503応答し、通信・認証・Cookie保存を行わない。将来有効化する前提で、POSTのsame-origin、Authorization Bearer、Supabase Authの `getUser` 本人確認、管理者subject/verified email照合、service_roleを利用するワンタイムstateの登録、暗号化した短命HTTP-only Cookieの設定、Google consent URL返却を連結した。GETは常に無効。現行callbackは503のままなので、**本番でフラグを有効にしてはいけない**。HTTP POSTが返す認証URLはログに記録しない。
+
+未設定必須値：`JASPIC_OAUTH_START_ENABLED`、`NEXT_PUBLIC_SUPABASE_URL`、`NEXT_PUBLIC_SUPABASE_ANON_KEY`、`SUPABASE_SERVICE_ROLE_KEY`、`JASPIC_OAUTH_ADMIN_SUBJECT`、`JASPIC_OAUTH_ADMIN_EMAIL`、`JASPIC_GOOGLE_WEB_CLIENT_ID`、`JASPIC_OAUTH_COOKIE_KEY`。**どれもここでは作成・本番登録していない。** Supabase Authログイン画面、OTPのリダイレクト設定、Gmail OAuth callback本人性継承、Googleコード交換、token vaultへの保存、実DB migration適用、サーバ監査・認可レビューが済むまで開始フラグをONにしない。実際のテストはmock・デフォルト無効応答のみ。
+
+ここまでの変更はDraft PR #155内だけ。本番環境、Gmail送信、18時cron、旧Windows停止、PRマージは変更なし。
