@@ -33,3 +33,12 @@
 
 ## 次の実装の指示
 既存 Draft PR #155 から継続し、まず SMTP と API の技術的適合性を読み取り・公式資料ベースで検証する。可能なら選択した方式の **ネットワーク接続を伴わない**アダプターとテストを実装する。配送機能を本番 Edge に結線しない。認証・送信や SMTP 到達性を試験したと誤報告しない。
+
+
+## オフライン実装とCI結果（2026-11-04）
+
+送信不能な純粋関数 `supabase/functions/_shared/jaspic/gmail-dry-run.ts`（commit `25f1af17`）と専用テスト `tests/jaspic/gmail-dry-run.test.ts`（commit `efcfd480`）を Draft PR #155 のブランチに追加した。旧版 `generateEml` の MIME データから Gmail API 用 base64url `raw` を作成する前に、予期する旧 From のみを希望する Gmail From に差し替える。本文を保ち、想定外のヘッダーや改行形式は拒否する。**送信API・OAuth・fetch・SMTP・Secret読込機能はない**。この From 差し替えは送信仕様の最終確定やセンター互換PASSを意味しない。
+
+commit `efcfd480c24782af84345a657817b09c55181d87` に関連する GitHub Actions の読取り結果：通常 CI run **41848065946** = success、PR promotion classification run **41848066091** = success、JASPIC isolated compatibility run **41848065893** = success。これらはコードの CI 結果であり、Gmail API での送信、Google の認証、From の配送表示、センター最終受信を検証したものではない。CI とは独立に、追加コード単体の本番動作も確認していない。
+
+次の承認ゲートは認証方式（個人 Gmail OAuth2 同意、アクセストークン更新、資格情報保存とローテーション、権限 `gmail.send`）を確定し、実運用前に実送信を伴わないトランスポートモックと障害時の冪等動作を追加すること。実送信、SMTP/API 認証試行、本番変更、cron、旧 PC 停止、マージは引き続き禁止。
