@@ -138,3 +138,10 @@ Draft PR #155に `supabase/migrations/20261105074100_jaspic_oauth_once.sql` を�
 **これはSupabase Authの実リクエスト・管理者ログイン画面の実装完了ではない。** 模擬クライアント注入のみでテストし、本番接続、本人のログイン方式、管理者IDの設定と管理、CSRF防御、DBマイグレーション、トークン暗号化永続保管、Google callback本番公開は未完了。アクセストークンは将来のサーバハンドラーで適切なAuthorizationヘッダー/HttpOnly Cookieから厳密に取得し、発行者・プロジェクトの信頼境界を守る。OAuth本人認証後もAPIハンドラーの二重認可が必要である。
 
 今回もDraft PR #155のオフラインコードとテスト・文書のみ。Gmail送信、Google認証画面起動、実Supabase接続、Secrets更新、DBデプロイ、cron、旧PC停止、PRマージは行わない。
+
+
+## Gmailリフレッシュトークン暗号化封筒（2026-11-05、オフライン）
+
+`gmail-oauth-token-vault-offline.ts` と専用テストを追加。実トークンではなく合成文字列だけを用い、AES-256-GCMでrefresh tokenを暗号化・復号する純粋関数を実装。AADに管理者IDを結びつけて他アカウントへの誤用を拒否し、version・keyId・ランダムIV・暗号文だけを封筒として返す。鍵はランタイムの秘密設定から与える前提で、GitHub・UI・ログ・テストに本物の資格情報は入れない。
+
+**暗号化封筒と保管は別物。** 保存先テーブル、限定アクセス権、キーのローテーションと失効、トークン取り出しの認可・監査、Google交換の実通信、サーバ管理者認証の実接続はまだ未実装。今回も本番SupabaseのSecretsやDBは変更していない。現行OAuthコールバックは未公開で、Gmail送信・cron・旧PC停止・PRマージも未実施。
