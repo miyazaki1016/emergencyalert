@@ -77,3 +77,14 @@ Google公式資料を確認した結果、**個人利用のOAuth審査例外と�
 callbackを本番で実装する前に必要な安全要件：本人確認済み管理者のみ開始可能、stateとPKCE verifierを短命・署名付きHttpOnly Secure SameSite=Lax Cookieまたはサーバ側保存に結びつけること、コールバックでのワンタイム消費とCSRF拒否、セキュリティヘッダー/Cache-Control no-store、クエリ内の認可コードをログ・アクセス解析・Referrerへ残さないこと、refresh tokenのサーバ専用暗号化保存・明示的な回転/失効手順。**Supabase Secretsへの保存は既存ランタイムSecretの更新権限を伴うため、具体的保存方式を決めずに「自動保存」と断言しない。** Google Cloudのclient secret / refresh token / codeをチャット・GitHub・ログに投稿させない。
 
 本番にOAuthルートを公開する時は機能フラグで停止を初期値とし、送信モジュールには一切結線しない。公開ページ `/jaspic`, `/jaspic/privacy` は PR #156 にて独立管理されている。すでにmainへマージ済みの公開ページをPR #155で作り直さない。JASPIC 既存コードに関する変更はDraft PR #155に留め、実メール送信・SMTP/Google API接続・本番変更・cron有効化・旧PC停止・PRマージは行わない。
+
+
+## Web OAuth認可コード交換のオフライン設計（2026-11-05）
+
+ユーザーがGoogle Cloudでウェブアプリ用OAuthクライアントを作成済みと報告。クライアントID・シークレットそのものは受領しておらず、GitHubにも保存しない。
+
+`supabase/functions/_shared/jaspic/gmail-web-exchange-offline.ts` に、PKCE付き認可コード交換の **HTTPリクエスト記述子を作るだけの関数**と、受け取る想定のトークン応答を検証する純粋関数を追加した。デイリー運用前提で `refresh_token` 欠落や `gmail.send` スコープ欠落を拒否する。テストは合成値のみ使用。
+
+**未実装の重要ゲート**：本番 `/jaspic/oauth/callback` ルート（現行の公開サイトには未配置）、本人確認、HttpOnly短命state/PKCE検証・ワンタイム失効、Google認可コード交換の実通信、トークンの暗号化保存・更新/取消、監査用ログの秘密情報対策。サーバレスの並行実行時に再使用不能を保証するには永続トランザクションが必要。これらが完成する前に一般公開のOAuth開始導線を設置してはならない。
+
+今回の変更は **オフライン関数・テスト・文書のみ**で、Gmail APIへの接続、同意画面の起動、トークン取得、Supabase Secrets書込、実メール送信、cron、本番デプロイ、PRマージは行っていない。
