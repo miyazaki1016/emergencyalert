@@ -8,7 +8,7 @@ const item = {kind:"hiroshima-crime" as const,data:f.current,context:f};
 const req = (body: unknown, token = "local-test") => new Request("http://localhost",{method:"POST",headers:{"x-jaspic-token":token},body:JSON.stringify(body)});
 it("hard rejects send mode, unauthenticated requests and unapproved persistence", async () => {
   const load = vi.fn(); const commit = vi.fn();
-  const handler = createHandler("hiroshima",{token:"local-test",persistAllowed:false,store:{load,commit}});
+  const handler = createHandler("hiroshima",{token:"local-test",persistAllowed:false,store:{load,commit,legacyIds:async()=>new Set<string>()}});
   expect((await handler(req({mode:"send"}))).status).toBe(400);
   expect((await handler(req({mode:"dry-run"},"wrong"))).status).toBe(401);
   expect((await handler(req({mode:"dry-run",persist:true}))).status).toBe(403);
@@ -16,7 +16,7 @@ it("hard rejects send mode, unauthenticated requests and unapproved persistence"
 });
 it("two provinces run independently; failure cannot commit or leak source data", async () => {
   const load = vi.fn(async () => ({revision:0,baseline:false,records:{}}));
-  const commit = vi.fn(); const store={load,commit};
+  const commit = vi.fn(); const store={load,commit,legacyIds:async()=>new Set<string>()};
   const h = createHandler("hiroshima",{token:"local-test",persistAllowed:true,store,collect:async()=>[item]});
   const s = createHandler("shiga",{token:"local-test",persistAllowed:true,store,collect:async()=>{throw new Error("private source payload");}});
   const [a,b] = await Promise.all([h(req({mode:"dry-run",persist:true})),s(req({mode:"dry-run",persist:true}))]);
@@ -28,10 +28,10 @@ it("dry-run preview never writes, and large count drops leave previous baseline 
   const p = await plan("hiroshima",{revision:0,baseline:false,records:{}},[item]);
   const records = Object.fromEntries(Array.from({length:10},(_,i)=>[`hiroshima-crime:${i}`,item.data]));
   const commit=vi.fn();
-  const handler=createHandler("hiroshima",{token:"local-test",persistAllowed:true,store:{load:async()=>({revision:1,baseline:true,records}),commit},collect:async()=>[item]});
+  const handler=createHandler("hiroshima",{token:"local-test",persistAllowed:true,store:{load:async()=>({revision:1,baseline:true,records}),commit,legacyIds:async()=>new Set<string>()},collect:async()=>[item]});
   expect((await handler(req({mode:"dry-run",persist:true}))).status).toBe(503);
   expect(commit).not.toHaveBeenCalled();
-  const preview=createHandler("hiroshima",{token:"local-test",persistAllowed:true,store:{load:async()=>({...p,revision:1}),commit},collect:async()=>[item]});
+  const preview=createHandler("hiroshima",{token:"local-test",persistAllowed:true,store:{load:async()=>({...p,revision:1}),commit,legacyIds:async()=>new Set<string>()},collect:async()=>[item]});
   expect((await preview(req({mode:"dry-run"}))).status).toBe(200);
   expect(commit).not.toHaveBeenCalled();
 });
