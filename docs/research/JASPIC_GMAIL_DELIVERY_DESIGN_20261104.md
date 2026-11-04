@@ -113,3 +113,12 @@ Draft PR #155に `supabase/migrations/20261105074100_jaspic_oauth_once.sql` を�
 このSQLの静的テストを追加したが、**ローカルPostgresや本番SupabaseでのSQL実行テストは未実施**。SQL適用時の既存スキーマとの衝突・権限・並行トランザクション動作も未検証。旧supabase構成との照合、migration採番・運用順序の確認が必要。本人認証は未実装であるため、service_roleを利用するAPIに入る前に強い管理者認証・許可リストを実装し、サーバ鍵・認証コード・リフレッシュトークン等はDB表へ保存しない。期限切れ行の削除は将来の保守設計で、cronは追加していない。
 
 この追加によって認証ページが本番利用可能になったわけではない。今回もPR #155はDraftのままで、実行可能なOAuth callback・外部API通信・実メール送信・Secrets・cron・旧Windows停止・PRマージは行っていない。
+
+
+## OAuth管理者照合とcallback連結（2026-11-05、完全オフライン）
+
+`gmail-oauth-admin-offline.ts` で管理者のserver-side検証済みID（subject）・検証済みメール・issuerが設定値に完全一致することを要求する。ユーザー入力から得たIDを渡してはならない。実際のSupabase Auth検証・セッションの署名、issuer、audience、期限の検査は**未実装**であり、現段階のTrustedServerIdentityは信頼できるサーバアダプターを接続して初めて意味を持つ。
+
+`gmail-web-callback-offline.ts` に暗号化Cookie→CSRF照合→管理者照合→永続DBの一回限り消費という処理をまとめた純粋なオーケストレーションを追加。テスト内のみのMapで成功後の再利用拒否や本人不一致をテスト。**このMapは本番DBの排他性を示さない。** SQL migrationも未適用で、HTTP callbackルート、鍵・tokenの実保管、OAuth認可コード交換通信、セッション本人性の実検証はいずれも未完成。返り値に認可コードとverifierを含むため、HTML・JSON・ログへ返してはならない。
+
+送信、Gmail API/Google OAuthへの通信、cron、Secrets、本番デプロイ、既存Windowsの停止、Draft PR #155マージを引き続き行わない。
