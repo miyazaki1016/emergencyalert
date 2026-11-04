@@ -1,3 +1,10 @@
+## 2026-11-04 防犯情報メールの完全互換移行（研究段階）
+- 案件: [Issue #154](https://github.com/miyazaki1016/emergencyalert/issues/154)、Draft [PR #155](https://github.com/miyazaki1016/emergencyalert/pull/155)、ブランチ `research/jaspic-mail-compat-20261104`。
+- 詳細正本: `docs/research/JASPIC_MAIL_COMPATIBILITY_AUDIT_20261104.md`（PRブランチにのみ存在）。旧C#の `Home/Hpp_Map2`（広島）と `Home/Shiga`（滋賀）の読取監査。
+- 目的: 各県独立・毎日18:00 JST・JASPICメール形式を変更せず移管。初回baselineと重複送信防止、旧SQL Serverデータ移行なし。
+- 状態: **設計資料のみ。実装、メール送信、本番DB、cron、デプロイ、既存雨通知変更は未実施。** 既存コード中の資格情報は要ローテーション（値は台帳に記載しない）。
+- 次の一手: 新規/更新×3形式の合成golden fixture、旧実メールMIME原本との比較、警察データAPIのread-only調査。センターへの本番送信開始は別途明示承認。
+
 # アメふる 開発台帳
 
 > **最新の交通整理表**：[開発案件・担当・次の一手の運用索引](DEVELOPMENT_OPERATIONS_INDEX.md)（2026-11-01時点。実装・本番の完了認定ではない）。
@@ -300,5 +307,5 @@
 | #151 | Inventory: ranked, evidence-only human review queue | merged | `9c11b14192a5f4e2d214b6d51fc6bb51f844366f` | 2026-11-02T20:53:32Z |
 | #152 | fix: reuse existing ledger facts PR on repeated inventory runs | merged | `5e4acfac946cc17b4f216a5c0d962c453f05a869` | 2026-11-02T23:27:06Z |
 | #153 | fix: restore ledger facts workflow after invalid YAML merge | merged | `dec71eda8c9866709ac3a002481eaf14f0471a99` | 2026-11-03T23:40:09Z |
-| #155 | docs: 広島・滋賀のJASPICメール完全互換・移行監査 | open | `75683c215c18ef24b264360e87bde8b188e0debb` | 2026-11-04T01:29:45Z |
+| #155 | docs: 広島・滋賀のJASPICメール完全互換・移行監査 | open | `75683c215c18ef24b264360e87bde8b188e0debb` | 2026-11-04T01:30:06Z |
 <!-- INVENTORY_FACTS_END -->
