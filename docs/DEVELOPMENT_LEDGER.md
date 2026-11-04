@@ -1,3 +1,10 @@
+## 2026-11-04 防犯情報メールの完全互換移行（研究段階）
+- 案件: [Issue #154](https://github.com/miyazaki1016/emergencyalert/issues/154)、Draft [PR #155](https://github.com/miyazaki1016/emergencyalert/pull/155)、ブランチ `research/jaspic-mail-compat-20261104`。
+- 詳細正本: `docs/research/JASPIC_MAIL_COMPATIBILITY_AUDIT_20261104.md`（PRブランチにのみ存在）。旧C#の `Home/Hpp_Map2`（広島）と `Home/Shiga`（滋賀）の読取監査。
+- 目的: 各県独立・毎日18:00 JST・JASPICメール形式を変更せず移管。初回baselineと重複送信防止、旧SQL Serverデータ移行なし。
+- 状態: **設計資料のみ。実装、メール送信、本番DB、cron、デプロイ、既存雨通知変更は未実施。** 既存コード中の資格情報は要ローテーション（値は台帳に記載しない）。
+- 次の一手: 新規/更新×3形式の合成golden fixture、旧実メールMIME原本との比較、警察データAPIのread-only調査。センターへの本番送信開始は別途明示承認。
+
 # アメふる 開発台帳
 
 > **最新の交通整理表**：[開発案件・担当・次の一手の運用索引](DEVELOPMENT_OPERATIONS_INDEX.md)（2026-11-01時点。実装・本番の完了認定ではない）。
