@@ -50,3 +50,23 @@ it("Shiga direct JSON is supported without a browser and keeps original field st
   expect(items).toHaveLength(1); expect(items[0].data.latitude).toBe("34.0000");
   expect(mock).toHaveBeenCalledTimes(2);
 });
+
+it("fails closed when legacy Hiroshima ID history cannot be read, without committing or leaking details", async () => {
+  const commit = vi.fn();
+  const legacyIds = vi.fn(async () => { throw new Error("private database error"); });
+  const handler = createHandler("hiroshima", {
+    token: "local-test", persistAllowed: true,
+    store: {
+      load: async () => ({ revision: 0, baseline: false, records: {} }),
+      commit, legacyIds,
+    },
+    collect: async () => [item],
+  });
+  const response = await handler(req({ mode: "dry-run", persist: true }));
+  expect(response.status).toBe(503);
+  const text = await response.text();
+  expect(text).not.toContain("private");
+  expect(JSON.parse(text)).toMatchObject({ sent: 0, error: "JASPIC_RUN_FAILED" });
+  expect(legacyIds).toHaveBeenCalledWith("hiroshima");
+  expect(commit).not.toHaveBeenCalled();
+});
