@@ -1,7 +1,7 @@
 name: JASPIC isolated compatibility
 on:
   pull_request:
-    paths: ['lib/jaspic/**', 'supabase/functions/**/jaspic/**', 'supabase/functions/jaspic-*/**', 'tests/jaspic/**', 'docs/sql/jaspic-*', '.github/workflows/jaspic-compat.yml']
+    paths: ['lib/jaspic/**', 'supabase/functions/**/jaspic/**', 'supabase/functions/jaspic-*/**', 'tests/jaspic/**', 'scripts/*jaspic*', 'docs/research/JASPIC*', '.gitattributes', 'docs/sql/jaspic-*', '.github/workflows/jaspic-compat.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -21,9 +21,40 @@ jobs:
         run: dotnet run --project tests/jaspic/oracle -- tests/jaspic/fixtures.json tests/jaspic/expected.json
       - name: Golden output must remain identical to old C# execution
         run: git diff --exit-code -- tests/jaspic/expected.json
+      - name: Generate legacy MIME offline using pinned MimeKit
+        run: dotnet run --project tests/jaspic/oracle -- --mime tests/jaspic/mime-fixtures.json tests/jaspic/mime-golden
+      - run: git diff --exit-code -- tests/jaspic/mime-golden
+      - name: Generate new MIME files offline
+        run: node --experimental-strip-types scripts/jaspic-generate-eml.ts tests/jaspic/mime-fixtures.json /tmp/jaspic-new-eml
+      - name: Compare all six cases in all three stages
+        shell: bash
+        run: |
+          for file in tests/jaspic/mime-golden/*.eml; do
+            if [[ "$file" == *-unprepared.eml ]]; then
+              node scripts/compare-jaspic-eml.mjs "$file" "/tmp/jaspic-new-eml/$(basename "$file")" --unprepared
+            else
+              node scripts/compare-jaspic-eml.mjs "$file" "/tmp/jaspic-new-eml/$(basename "$file")"
+            fi
+          done
       - run: npx vitest run tests/jaspic
       - name: Check Edge entrypoints and shared modules
-        run: npx tsc --noEmit --strict --skipLibCheck --target es2022 --module esnext --moduleResolution bundler --allowImportingTsExtensions --lib esnext,dom supabase/functions/jaspic-hiroshima/index.ts supabase/functions/jaspic-shiga/index.ts
+        run: npx tsc --noEmit --strict --skipLibCheck --target es2022 --module esnext --moduleResolution bundler --allowImportingTsExtensions --lib esnext,dom supabase/functions/jaspic-hiroshima/index.ts supabase/functions/jaspic-shiga/index.ts supabase/functions/_shared/jaspic/mime.ts
+  windows-framework-mime:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: dotnet build tests/jaspic/legacy-framework -p:RestoreLockedMode=true
+      - name: Generate with Windows .NET Framework 4.7.2 target, no SMTP
+        run: '& ./tests/jaspic/legacy-framework/bin/Debug/net472/LegacyFramework.exe --mime tests/jaspic/mime-fixtures.json tests/jaspic/mime-golden'
+      - run: git diff --exit-code -- tests/jaspic/mime-golden
+      - run: npm ci
+      - run: npx vitest run tests/jaspic/mime.test.ts
   isolated-database:
     runs-on: ubuntu-latest
     services:

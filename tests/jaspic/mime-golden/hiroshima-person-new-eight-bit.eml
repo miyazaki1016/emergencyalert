@@ -1,0 +1,40 @@
+From: hppmap@kishibojim.online
+Date: Wed, 04 Nov 2026 18:00:00 +0900
+Subject: [JASPIC-NES] =?utf-8?b?5bqD5bO255yM6K2m5bCC55So44OE44O844Or?=
+Message-Id: <synthetic-jaspic@localhost.invalid>
+To: getter01@jaspic-nes.net
+Cc: miyazaki1016@me.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+----------------------------------------
+[JASPIC - NES] 広島県警アラート（新規）
+----------------------------------------
+
+広島県警が新しい不審者情報を公表した可能性があります。
+未配信情報の場合、県警サイトを確認して対応をお願いします。
+https://map.police.hiroshima.dsvc.jp/?lat=34.0000&lon=132.0000&zoom=14&mode=1&period=1&months=26.11
+
+{
+"id":"TEST-0001",　→管理番号
+"city_code":"架空city_code「Ａa&?」",　→架空市
+"address":"架空町１丁目 ＡＢＣ & < > " \ 空欄",　→発生場所
+"latitude":"34.0000",　→緯度（参考程度）
+"longitude":"132.0000",　→経度（参考程度）
+"police_station":"架空police_station「Ａa&?」",　→架空警察署
+"case_type":"声かけ",　→カテゴリ
+"crime_cd":"架空crime_cd「Ａa&?」",　→不明
+"occurrence_dt":"2026/11/04 12:03:00",　→発生日時
+"accident_situation":"架空accident_situation「Ａa&?」",　→事案概要
+"victim":"",　→被害者
+"criminal_age":"架空criminal_age「Ａa&?」",　→加害者年齢
+"criminal_feature":"",　→加害者特徴
+"resolution":"指導・警告",　→解決
+"resolution_info":"" →不明
+}
+
+---
+JASPIC - NES（広島県警専用ツール）
+↓ウェブサイト掲載情報とURLをここにコピペしてください↓
+---

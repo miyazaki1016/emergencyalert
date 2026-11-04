@@ -1,3 +1,10 @@
+## JASPIC継続：MIME無送信生成
+
+- PR #155 / Issue #154 / branch `research/jaspic-mail-compat-20261104`を継続。6ケース×3段階＝18通の旧新MIME全バイト比較、Windows net472実行試験、旧広島除外IDオプションを追加。
+- 詳細正本：`docs/research/JASPIC_MIME_VERIFICATION_20261104.md`。本文/ヘッダーの仕様は維持。実配送原本未確認のため完全互換は未認定。
+- 滋賀現行JSの公開fetch先も404。原因はアクセス制限と断定しない。旧hppmapsは更新も恒久除外、baselineのみでは代替できない。必要最小集合はdistinct LINKKEY。実SQL Serverには未アクセス。
+- Gmailパスワードを変更・失効しないのがユーザー最新方針。露出リスクは記録し、新系はSecrets管理を前提とする。送信/本番DB/デプロイ/cron/旧PC停止/PRマージなし。
+
 ## 2026-11-04 JASPIC独立ジョブ移植（Draft PR #155）
 
 - Issue #154 / branch `research/jaspic-mail-compat-20261104`。ユーザー許可はコード・テスト・PR更新まで。実送信・本番変更・旧PC停止・マージなし。

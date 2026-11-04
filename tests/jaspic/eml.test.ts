@@ -9,3 +9,9 @@ it("MIME comparator detects subject space, charset, CTE, folding and body mismat
   expect(compareEml(message,Buffer.from(message.toString().replace('Wed, 4 Nov','Thu, 5 Nov')))).toBe(true);
   expect(()=>compareEml(message,Buffer.from(message.toString().replaceAll('\r\n','\n')))).toThrow();
 });
+it("requires CTE after preparation, and preserves its absence before preparation",()=>{
+  const unprepared=Buffer.from(message.toString().replace('Content-Transfer-Encoding: base64\r\n',''));
+  expect(()=>compareEml(unprepared,unprepared)).toThrow();
+  expect(compareEml(unprepared,unprepared,{stage:'unprepared'})).toBe(true);
+  expect(compareEml(unprepared,message,{stage:'unprepared'})).toBe(false);
+});

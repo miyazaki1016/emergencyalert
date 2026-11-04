@@ -1,4 +1,9 @@
-using System; using System.IO; using System.Linq; using System.Collections.Generic; using System.Text.Json;
+using System; using System.IO; using System.Linq; using System.Collections.Generic;
+#if NETFRAMEWORK
+using JsonSerializer = FrameworkJson;
+#else
+using System.Text.Json;
+#endif
 class Data {
 public string? occurrence_date_from {get;set;}
 public string? latitude {get;set;}
@@ -31,8 +36,8 @@ class police_station {public string station_name {get;set;} = "";}
 class Properties {public string full_name {get;set;} = "";}
 class Feature1 {public Properties properties {get;set;} = new();}
 class Fixture { public string kind {get;set;} = ""; public Data current {get;set;} = new(); public Data? previous {get;set;} public string cityName {get;set;} = ""; public string stationName {get;set;} = ""; }
-class Program {
-static void Main(string[] args) { var fixtures = JsonSerializer.Deserialize<List<Fixture>>(File.ReadAllText(args[0]))!; var result = fixtures.Select(f => { var body = f.kind switch { "hiroshima-crime" => criminal_mail(f.previous,f.current,new city {city_name=f.cityName},new police_station {station_name=f.stationName}), "hiroshima-person" => suspicious_person_mail(f.previous,f.current,new city {city_name=f.cityName},new police_station {station_name=f.stationName}), _ => suspicious_person_shiga_mail(f.previous,f.current,new Feature1 {properties=new Properties {full_name=f.cityName}}) }; return new {body}; }); File.WriteAllText(args[1],JsonSerializer.Serialize(result)); }
+partial class Program {
+static void Main(string[] args) { if(args.Length == 3 && args[0] == "--mime") { WriteMimeFixtures(args[1],args[2]); return; } var fixtures = JsonSerializer.Deserialize<List<Fixture>>(File.ReadAllText(args[0]))!; var result = fixtures.Select(f => { var body = f.kind switch { "hiroshima-crime" => criminal_mail(f.previous,f.current,new city {city_name=f.cityName},new police_station {station_name=f.stationName}), "hiroshima-person" => suspicious_person_mail(f.previous,f.current,new city {city_name=f.cityName},new police_station {station_name=f.stationName}), _ => suspicious_person_shiga_mail(f.previous,f.current,new Feature1 {properties=new Properties {full_name=f.cityName}}) }; return new {body}; }); File.WriteAllText(args[1],JsonSerializer.Serialize(result)); }
 static string criminal_mail(Data? db, Data json, city city, police_station police_station)
         {
             var result = false;

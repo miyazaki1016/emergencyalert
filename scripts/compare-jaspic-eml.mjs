@@ -3,22 +3,24 @@ import { pathToFileURL } from 'node:url';
 // Deliberately strict: only explicitly volatile transport headers may be excluded.
 // Everything else, including folding, charset, CTE and encoded body bytes, must match.
 const volatile = new Set(['date','message-id','received','return-path','dkim-signature','authentication-results','received-spf','x-google-smtp-source','x-received','x-gm-message-state']);
-export function comparable(buffer) {
+export function comparable(buffer, {stage = 'prepared'} = {}) {
+  if (!['prepared','unprepared'].includes(stage)) throw new Error('Invalid MIME comparison stage');
   const raw=buffer.toString('latin1');
   if (raw.replaceAll('\r\n','').match(/[\r\n]/)) throw new Error('Non-CRLF message');
   const split=raw.indexOf('\r\n\r\n');
   if(split<0) throw new Error('Missing MIME header separator');
   const headers=raw.slice(0,split).split(/\r\n(?![ \t])/);
   const names=headers.map(h=>h.slice(0,h.indexOf(':')).toLowerCase());
-  for(const name of ['from','to','cc','subject','mime-version','content-type','content-transfer-encoding']) {
+  for(const name of ['from','to','cc','subject','mime-version','content-type',...(stage==='prepared'?['content-transfer-encoding']:[])]) {
     if(names.filter(n=>n===name).length!==1) throw new Error('Missing or duplicate required header');
   }
+  if(stage==='unprepared' && names.filter(n=>n==='content-transfer-encoding').length>1) throw new Error('Duplicate transfer encoding');
   return Buffer.from(headers.filter(h=>!volatile.has(h.slice(0,h.indexOf(':')).toLowerCase())).join('\r\n')+'\r\n\r\n'+raw.slice(split+4),'latin1');
 }
-export function compareEml(left,right) { return comparable(left).equals(comparable(right)); }
+export function compareEml(left,right, options) { return comparable(left,options).equals(comparable(right,options)); }
 if(process.argv[1] && import.meta.url===pathToFileURL(process.argv[1]).href) {
-  if(process.argv.length!==4) throw new Error('Usage: node scripts/compare-jaspic-eml.mjs old.eml new.eml');
-  const same=compareEml(readFileSync(process.argv[2]),readFileSync(process.argv[3]));
+  if(process.argv.length!==4 && !(process.argv.length===5 && process.argv[4]==='--unprepared')) throw new Error('Usage: node scripts/compare-jaspic-eml.mjs old.eml new.eml [--unprepared]');
+  const same=compareEml(readFileSync(process.argv[2]),readFileSync(process.argv[3]),{stage:process.argv[4]?'unprepared':'prepared'});
   console.log(same?'MATCH (volatile transport headers excluded)':'MISMATCH (no message contents printed)');
   process.exitCode=same?0:1;
 }

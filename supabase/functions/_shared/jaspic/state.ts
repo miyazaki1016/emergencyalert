@@ -24,7 +24,7 @@ function eligible(item: Item, previous: RecordData | null, all: Record<string, R
   return previous !== null || !Object.entries(all).some(([key, old]) => key.startsWith("hiroshima-crime:") &&
     old.occurrence_date_from === d.occurrence_date_from && old.occurrence_date_to === d.occurrence_date_to && d.id!.includes(old.id!));
 }
-export async function plan(province: Province, snapshot: Snapshot, items: Item[]) {
+export async function plan(province: Province, snapshot: Snapshot, items: Item[], options: {legacyHiroshimaPersonIds?: ReadonlySet<string>} = {}) {
   if (!items.length || items.some(i => !i.kind.startsWith(province))) throw new Error("Incomplete or mixed snapshot");
   const records = { ...snapshot.records }; const candidates: Candidate[] = []; const seen = new Set<string>();
   // Unknown removed records remain tombstones: reappearing historical IDs are never new.
@@ -35,7 +35,8 @@ export async function plan(province: Province, snapshot: Snapshot, items: Item[]
     const previous = records[key] ?? null;
     const changed = previous === null || compareFields(item.kind).some(f => previous[f] !== item.data[f]);
     if (!snapshot.baseline || changed) {
-      if (snapshot.baseline && eligible(item, previous, records)) {
+      const legacyExcluded = item.kind === "hiroshima-person" && options.legacyHiroshimaPersonIds?.has(item.data.id);
+      if (snapshot.baseline && !legacyExcluded && eligible(item, previous, records)) {
         const version = await digest(compareFields(item.kind).map(f => [f, item.data[f]]));
         candidates.push({ key, version, mail: generateMail(item.kind, item.data, previous, item.context) });
       }

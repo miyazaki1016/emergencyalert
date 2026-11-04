@@ -41,3 +41,20 @@ it("never retries UNKNOWN, SENT or a claimed delivery", () => {
   expect(transition(transition("PREPARED","claim"),"uncertain")).toBe("UNKNOWN");
   for (const status of ["SENDING","SENT","UNKNOWN","CANCELLED"] as const) expect(() => transition(status,"claim")).toThrow();
 });
+it("legacy Hiroshima IDs suppress both new and updated person records, without suppressing crime", async () => {
+  const f=fixtures.find(f=>f.kind==="hiroshima-person")!;
+  const person: Item={kind:"hiroshima-person",data:f.current,context:f};
+  const baseline=await plan("hiroshima",empty,[person,item]);
+  const snapshot={...baseline,revision:1};
+  const changed={...person,data:{...person.data,address:"架空更新"}};
+  expect((await plan("hiroshima",snapshot,[changed,item])).candidates).toHaveLength(1);
+  const options={legacyHiroshimaPersonIds:new Set([person.data.id!])};
+  const excluded=await plan("hiroshima",snapshot,[changed,item],options);
+  expect(excluded.candidates).toHaveLength(0);
+  expect(excluded.records["hiroshima-person:"+person.data.id].address).toBe("架空更新");
+  const newPerson={...person,data:{...person.data,id:"LEGACY-REAPPEARED"}};
+  const result=await plan("hiroshima",snapshot,[newPerson,{...item,data:{...item.data,address:"架空犯罪更新"}}],
+    {legacyHiroshimaPersonIds:new Set(["LEGACY-REAPPEARED",item.data.id!])});
+  expect(result.candidates).toHaveLength(1);
+  expect(result.candidates[0].key).toMatch(/^hiroshima-crime:/);
+});
