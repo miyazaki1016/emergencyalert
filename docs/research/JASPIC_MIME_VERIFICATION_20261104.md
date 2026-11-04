@@ -121,6 +121,23 @@ MimeKit 4.12.0にはGHSA-g7hc-96xr-gvvxの既知警告がある。旧版再現�
 
 Node標準テストとVitestのファイル名衝突を修正した後のコミット `f5940703fdcd2603cc4be6a6a3f38352f71f02a5` に紐づくGitHub Actionsを確認した結果、**CI／JASPIC isolated compatibility／PR promotion classification（review only）の3ワークフローすべて success**。これは合成データでのテストと既存CIの成功を示すものであり、**滋賀JSONの実ネットワーク疎通・本番Edge取得・実メール配送の成功は示さない**。引き続きDraft・無送信・本番変更なし。
 
+### 【実測】GitHub Actionsから滋賀県警JSON取得成功（2026-11-04）
+
+PR #155 のJASPIC専用CI（GitHub-hosted Ubuntu runner、Node 22）に **公開GETのみ・事件本文をログ出力しない** `node scripts/jaspic-source-probe.mjs` を追加し、ワークフローrun `41769185737` の `legacy-body-parity` ジョブログで実測を確認した。**GitHub ActionsからはDNS・HTTPS・HTTP・JSONパースまで成功**。従来こちらの調査環境で発生したDNS失敗は、少なくともGitHub Actionsでは再現しなかった。
+
+| 対象 | Accept / query | HTTP | Content-Type | Content-Encoding | JSON解析 | 件数 | UTF-8置換文字 |
+|---|---|---:|---|---|---|---:|---:|
+| 滋賀・都市 | application/json・なし | 200 | application/json | gzip | 成功 | 19 features | 0 |
+| 滋賀・都市 | */*・なし | 200 | application/json | gzip | 成功 | 19 features | 0 |
+| 滋賀・都市 | application/json・時刻あり | 200 | application/json | gzip | 成功 | 19 features | 0 |
+| 滋賀・不審者 | application/json・なし | 200 | application/json | gzip | 成功 | 708件 | 0 |
+| 滋賀・不審者 | */*・なし | 200 | application/json | gzip | 成功 | 708件 | 0 |
+| 滋賀・不審者 | application/json・時刻あり | 200 | application/json | gzip | 成功 | 708件 | 0 |
+
+不審者JSONの先頭レコードは必須キー欠落なし（`firstRecordMissingKeys: []`）。実測取得バイト数は都市JSON 2,779,561、不審者JSON 378,412（Nodeが展開後に読み取った値）。先頭以外の全件フィールド検証・都市コード突合・旧C#本文との完全一致は未実施。**置換文字0はUnicode U+FFFDがないことを示すのみで、別形式の文字化けがないことまでは証明しない**。
+
+**結論**：少なくともGitHub Actions環境では、旧ChromeDriverを使わず標準fetchで滋賀の2 JSONを取得可能。**Supabase Edge Functions実行環境からのDNS/HTTP疎通は未検証**。ChromeDriverの移行採用を急がず、次はSupabaseの読取り専用疎通確認を安全な方法で設計する。**実メール送信・本番DB変更・Edgeデプロイ・cron・マージは未実施**。この外部ネットワーク確認ステップはCIの既存機能テストを外部障害で失敗させないよう `continue-on-error: true` とし、結果の判定はログを直接確認する。
+
 ## 広島 hppmaps.LINKKEY の意味
 
 旧HomeController（blob 49f2ab4233a00456b440ca1ac2072f36a7eee18e）の`Hpp_Map()` L2244付近はLINKKEYで既存確認し、新規なら旧sendmailを呼んだ後に旧一覧を保存する。ただしカテゴリ除外時や一部送信失敗時にも保存されるため、**hppmapsは送信成功の証明ではなく、旧地図方式で扱ったIDの一覧**と読むべきである。
