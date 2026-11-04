@@ -129,3 +129,12 @@ Draft PR #155に `supabase/migrations/20261105074100_jaspic_oauth_once.sql` を�
 `supabase/functions/_shared/jaspic/gmail-oauth-supabase-store.ts` を追加。server-side専用Supabaseクライアントを注入して `jaspic_gmail_oauth_states` へstateダイジェストを保存し、`jaspic_consume_gmail_oauth_state` RPCで一度だけ消費する実装。DBエラー詳細や内部識別子はレスポンスに返さずフェイルクローズ。専用モックテストはinsert、RPC、再利用拒否、DBエラー拒否を検査。実際のサービスロール鍵、Supabase API呼び出し、migration適用は **一切実施していない**。
 
 本番に進む前にDB migrationが正しく適用されたことと実Postgresの行ロック排他をテストし、APIをadmin server auth (Supabase Authの署名・issuer・audience・期限を信頼できる認証サーバで検証) の背後に接続すること。RLSにservice_roleを付与していても、その鍵を持つサーバ処理自体の認可が必要。OAuth開始・callbackエンドポイント、Secret暗号化保管、Googleへの実OAuth通信は未実装であり、公開できる状態ではない。ドラフトPR #155をマージ・デプロイせず、既存のメール送信やcronを有効化しない。
+
+
+## Supabase Auth本人照合アダプター（2026-11-05、HTTP未接続）
+
+`supabase/functions/_shared/jaspic/gmail-oauth-supabase-auth.ts` と専用模擬テストを追加。将来のサーバ専用HTTPハンドラーからSupabase Authの `auth.getUser(accessToken)` に渡し、取得したサーバ検証済みID・メール・確認日時を前提に既存の管理者subject/email許可リストと照合できるようにした。設定するissuerは信頼するSupabaseプロジェクトのURLに限定し、クライアントが自己申告したemail/subは利用しない。空セッション・未確認メール・異なるID・認証エラーは拒否する。
+
+**これはSupabase Authの実リクエスト・管理者ログイン画面の実装完了ではない。** 模擬クライアント注入のみでテストし、本番接続、本人のログイン方式、管理者IDの設定と管理、CSRF防御、DBマイグレーション、トークン暗号化永続保管、Google callback本番公開は未完了。アクセストークンは将来のサーバハンドラーで適切なAuthorizationヘッダー/HttpOnly Cookieから厳密に取得し、発行者・プロジェクトの信頼境界を守る。OAuth本人認証後もAPIハンドラーの二重認可が必要である。
+
+今回もDraft PR #155のオフラインコードとテスト・文書のみ。Gmail送信、Google認証画面起動、実Supabase接続、Secrets更新、DBデプロイ、cron、旧PC停止、PRマージは行わない。
