@@ -12,12 +12,15 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 const headers = { "Cache-Control": "no-store, private", "Referrer-Policy": "no-referrer", "X-Robots-Tag": "noindex, nofollow" };
 
-function resultPage(status: 200 | 503, success: boolean) {
-  const response = NextResponse.json({
-    status: success ? "authorized" : "disabled",
-    message: success ? "JASPIC Gmail authorization stored. Mail sending remains disabled." : "JASPIC authentication is not ready.",
-  }, { status, headers });
-  response.cookies.delete(GMAIL_OAUTH_COOKIE_POLICY.name);
+function resultPage(success: boolean) {
+  // Redirect strips the authorization code and CSRF state from the browser URL.
+  const response = NextResponse.redirect(
+    "https://emergencyalert.news/jaspic/oauth/result?status=" + (success ? "ok" : "unavailable"),
+    { status: 303, headers },
+  );
+  response.cookies.set(GMAIL_OAUTH_COOKIE_POLICY.name, "", {
+    path: "/", httpOnly: true, secure: true, sameSite: "lax", maxAge: 0,
+  });
   return response;
 }
 
@@ -28,7 +31,7 @@ function resultPage(status: 200 | 503, success: boolean) {
  * encrypt the verified owner in the Secure HttpOnly cookie.
  */
 export async function GET(request: NextRequest) {
-  if (process.env.JASPIC_OAUTH_CALLBACK_ENABLED !== "true") return resultPage(503, false);
+  if (process.env.JASPIC_OAUTH_CALLBACK_ENABLED !== "true") return resultPage(false);
   const cookie = request.cookies.get(GMAIL_OAUTH_COOKIE_POLICY.name)?.value;
   const params = request.nextUrl.searchParams;
   const state = params.get("state");
@@ -43,7 +46,7 @@ export async function GET(request: NextRequest) {
   if (!cookie || !state || params.getAll("state").length !== 1 || params.getAll("code").length !== 1 ||
       !url || !serviceKey || !clientId || !clientSecret || !cookieKey || !vaultKey || !vaultKeyId ||
       !adminSubject || !/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url)) {
-    return resultPage(503, false);
+    return resultPage(false);
   }
   try {
     const session = await openGmailWebSessionOffline(cookie, state, cookieKey);
@@ -70,9 +73,9 @@ export async function GET(request: NextRequest) {
       token.refreshToken, session.ownerId, vaultKey, vaultKeyId,
     );
     await persistEncryptedRefreshToken(db as unknown as JaspicVaultDbClient, session.ownerId, encrypted);
-    return resultPage(200, true);
+    return resultPage(true);
   } catch {
     // Never expose/log the authorization code, tokens or secret-bearing URL.
-    return resultPage(503, false);
+    return resultPage(false);
   }
 }
