@@ -1,7 +1,7 @@
 import { collect, type Province, type Item } from "./collect.ts";
 import { plan, type Snapshot } from "./state.ts";
 
-export type Store = { load(province: Province): Promise<Snapshot>; commit(province: Province, result: Awaited<ReturnType<typeof plan>>): Promise<void> };
+export type Store = { load(province: Province): Promise<Snapshot>; commit(province: Province, result: Awaited<ReturnType<typeof plan>>): Promise<void>; legacyIds(province: Province): Promise<ReadonlySet<string>> };
 export function createHandler(province: Province, options: {
   token: string; persistAllowed: boolean; store: Store;
   collect?: (province: Province) => Promise<Item[]>;
@@ -21,7 +21,7 @@ export function createHandler(province: Province, options: {
         const oldCount = Object.keys(snapshot.records).filter(k => k.startsWith(kind + ":")).length;
         if (snapshot.baseline && items.filter(i => i.kind === kind).length < oldCount * 0.8) throw new Error("Source count dropped");
       }
-      const result = await plan(province, snapshot, items);
+      const result = await plan(province, snapshot, items, {legacyHiroshimaPersonIds: await options.store.legacyIds(province)});
       if (body.persist) await options.store.commit(province, result);
       return Response.json({ province, mode:"dry-run", persisted:!!body.persist,
         baseline:!snapshot.baseline, records:items.length, candidates:result.candidates.length, sent:0 });
@@ -40,6 +40,12 @@ export function restStore(url: string, key: string, request: typeof fetch = fetc
     return r.json();
   }
   return {
+    async legacyIds(province) {
+      if (province !== "hiroshima") return new Set<string>();
+      const ids = await rpc("jaspic_legacy_hiroshima_person_ids", {});
+      if (!Array.isArray(ids) || ids.some(id => typeof id !== "string")) throw new Error("Invalid legacy history");
+      return new Set<string>(ids);
+    },
     async load(province) {
       const s = await rpc("jaspic_snapshot",{p_province:province});
       if (!s || !Number.isSafeInteger(s.revision) || typeof s.baseline !== "boolean" || !s.records || typeof s.records !== "object" || Array.isArray(s.records)) throw new Error("Invalid persisted state");
