@@ -145,3 +145,10 @@ Draft PR #155に `supabase/migrations/20261105074100_jaspic_oauth_once.sql` を�
 `gmail-oauth-token-vault-offline.ts` と専用テストを追加。実トークンではなく合成文字列だけを用い、AES-256-GCMでrefresh tokenを暗号化・復号する純粋関数を実装。AADに管理者IDを結びつけて他アカウントへの誤用を拒否し、version・keyId・ランダムIV・暗号文だけを封筒として返す。鍵はランタイムの秘密設定から与える前提で、GitHub・UI・ログ・テストに本物の資格情報は入れない。
 
 **暗号化封筒と保管は別物。** 保存先テーブル、限定アクセス権、キーのローテーションと失効、トークン取り出しの認可・監査、Google交換の実通信、サーバ管理者認証の実接続はまだ未実装。今回も本番SupabaseのSecretsやDBは変更していない。現行OAuthコールバックは未公開で、Gmail送信・cron・旧PC停止・PRマージも未実施。
+
+
+## 暗号化トークン保管テーブルとアダプター（2026-11-05、未接続）
+
+レビュー用SQL `supabase/migrations/20261105074500_jaspic_gmail_token_vault.sql` と `supabase/functions/_shared/jaspic/gmail-oauth-vault-store.ts` を追加。ownerIdを主キーとする専用テーブルに暗号化済みenvelope（鍵識別子、ランダムIV、暗号文）のみ保持する。anon/authenticated/publicからの読み書きは禁止し、service_role経由でサーバ側だけ利用する。アダプターは暗号化封筒以外を受け付けず、失効済みレコードを通常取得から除外し、DBエラーを外部へ詳細表示しない。モックDBとの専用テストを追加。
+
+**本番適用・API接続はまだ許可されていないため未実施。** 実Supabase Auth・管理者用ログインUI・refresh token発行/取り込み・Googleコード交換・トークンの失効/ローテーション・暗号鍵の安全な設定・実DB integration testも未完了。専用データを読むサーバコードは必ず本人照合後にのみ呼ぶこと。モデル内のコードは単独では外部からの認証を行えない。PR #155 はDraftを維持し、メール実送信・cron・旧Windows停止・DB migration適用・Vercel本番公開は行わない。
