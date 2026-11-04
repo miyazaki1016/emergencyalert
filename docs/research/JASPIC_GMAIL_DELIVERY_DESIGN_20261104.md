@@ -51,3 +51,18 @@ commit `efcfd480c24782af84345a657817b09c55181d87` に関連する GitHub Actions
 - refresh tokenは権限取り消し、一定期間未使用、パスワード変更、発行数超過などで失効し得るため、秘密管理・再同意手順・異常通知の設計が必要。アカウントからの認証データをリポジトリ/PR/ログに出さず、チャットで認証コード/秘密文字列を要求しない。
 - 今回の `gmail-dry-run.ts` / `gmail-api-request-offline.ts` は純粋な準備関数のみで、実際の認可・通信・配送完了を保証しない。Google APIの結果からSMTP envelopeやセンターのReturn-Pathを事前に確定したとは扱わない。
 - ユーザー操作が必要になる段階：Google Cloudプロジェクト（Gmail API有効化・OAuth consent）とOAuth client作成、権限付与。すべて実送信許可とは別のゲートである。
+
+
+## Google一次資料による個人利用と7日制限の判断（2026-11-05）
+
+Google公式資料を確認した結果、**個人利用のOAuth審査例外と、External/Testingのrefresh token 7日失効は別の規則**である。個人利用で審査の提出が不要でも、Testingで発行するGmail送信scopeのrefresh tokenが長期有効になるわけではない。
+
+- Google OAuth policy: 個人利用（本人のみ、または個人的に知る少人数）には一部の本番要件の例外。https://developers.google.com/identity/protocols/oauth2/policies
+- Google sensitive scope verification: 個人利用は審査申請の例外になり得るが、未確認アプリの警告と人数制限は別に残る。https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification?hl=ja
+- Gmail `gmail.send` は sensitive scope。https://developers.google.com/workspace/gmail/api/auth/scopes?hl=ja
+- External + Testing の refresh token は、プロフィール系scopeのみの例外を除き、**発行後7日で失効**。本人利用だから免除とは記されていない。https://developers.google.com/identity/protocols/oauth2
+- Google Cloud Help: 外部アプリを Published にするにはホームページとプライバシーポリシー等のApp Domain情報が必要。ホームページのドメイン所有権確認が必要になる。https://support.google.com/cloud/answer/15549049?hl=en
+
+現在、本人のGoogle Cloud画面で「アプリを公開」が無効、ブランディングのホームページ・プライバシーポリシー欄が空欄だった。**Google Cloudの画面上で公開できること、審査例外が実際に適用されること、Refresh tokenが7日を超えて使えることは、まだ確認できていない。** ボタンの無効化がこの2項目だけに起因すると断定もしない。
+
+現実的な二択：(A) Testingで限定期間の無送信認証準備とモック実装を進める（長期18:00送信には使わない）、(B) ユーザーが所有・検証可能なドメインと正しいプライバシー文書を準備して公開の前提を満たす（公開や審査を保証しない）。今回、ドメインなしで7日失効を正式に回避する方法は公式一次資料では確認できなかった。**未確認の回避策や定期的な手動更新を恒久対策として採用しない**。公開ドメイン、OAuth client secret、refresh token、認証コード等はGitHubに保存しない。実送信・本番変更・cron起動・PRマージは行わない。
