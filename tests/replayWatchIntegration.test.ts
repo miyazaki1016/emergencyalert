@@ -3,10 +3,12 @@ import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 import {makeSnapshot} from '../supabase/functions/_shared/rainReplay';
 import {bestEffort} from '../supabase/functions/_shared/replayRecording';
+import {packForecastEvidence} from '../supabase/functions/_shared/forecastEvidenceCompact';
+import {shouldCaptureForecastEvidence,limitForecastEvidencePayload} from '../supabase/functions/_shared/forecastEvidencePilot';
 import * as episodes from '../supabase/functions/watch-rain/forecastEpisode';
 import {guardedPush} from '../supabase/functions/watch-rain/deliveryGuard';
 import * as decision from '../supabase/functions/watch-rain/notificationDecision';
-async function run(recordError=false,historyError=false,pushError=false,repeats=1,finishError=false,stateError=false,alreadyNotified=false){
+async function run(recordError=false,historyError=false,pushError=false,repeats=1,finishError=false,stateError=false,alreadyNotified=false,evidenceHistoryError=false,withForecast:boolean|'OVERSIZE'=false,pilotMode:'ENABLED'|'UNSET'|'EXPIRED'='ENABLED'){
  const order:string[]=[],writes:Array<{table:string;op:string;value:any}>=[];let handler:any;
  const time=new Date(),target=new Date(Math.ceil((time.getTime()+10*60000)/300000)*300000).toISOString();
  let runtime:any={},previous:any={last_notified_at:alreadyNotified?'2026-10-29T03:45:00Z':null,clear_streak:3,rain_streak:0,last_event:{sourceValidAt:'20261029034000',urgency:'LIFESTYLE_ACTION'}},locked=false;const intents=new Set<string>();
@@ -17,6 +19,7 @@ async function run(recordError=false,historyError=false,pushError=false,repeats=
  if(table==='watch_states'&&op==='select')result.data=previous;
  if(table==='rain_watch_runtime')result.data={episode:runtime};
  if(table==='rain_diagnostic_history'&&op==='select')result.data=[];
+ if(table==='rain_diagnostic_history'&&op==='insert'&&evidenceHistoryError)result={data:null,error:{code:'MOCK_STORAGE_ERROR'}};
  if(table==='push_subscriptions')result.data=[{id:'sub',endpoint:'private',p256dh:'private',auth:'private'}];
  if(table==='rain_notification_evaluations'&&op==='insert')result=recordError?{error:Error('record failed')}:{data:{id:'evaluation'}};
  if(table==='notification_deliveries')result=historyError?{error:Error('write failed')}:{data:{id:123}};
@@ -24,7 +27,7 @@ async function run(recordError=false,historyError=false,pushError=false,repeats=
  const source=readFileSync('supabase/functions/watch-rain/index.ts','utf8').replace(/^import .*;\n/gm,'');
  const code=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText;
  const {timestamp}=await import('../supabase/functions/_shared/rainReplay');
- const injected={createClient:()=>db,webpush:{setVapidDetails(){},async sendNotification(){order.push('PUSH');if(pushError)throw {statusCode:0};}},...decision,...episodes,guardedPush,makeSnapshot,timestamp,bestEffort,Deno:{env:{get:()=> 'config'},serve:(fn:any)=>handler=fn},fetch:async()=>({ok:true,json:async()=>({checkedAt:time.toISOString(),interpretationEnabled:true,event:{eventType:'ACTIONABLE_RAIN_APPROACHING',urgency:'LIFESTYLE_ACTION',suggestedAction:'BRING_LAUNDRY_INSIDE',actionableAt:target},observation:[],forecast:[]})})};
+ const injected={createClient:()=>db,webpush:{setVapidDetails(){},async sendNotification(){order.push('PUSH');if(pushError)throw {statusCode:0};}},...decision,...episodes,guardedPush,makeSnapshot,timestamp,bestEffort,packForecastEvidence,shouldCaptureForecastEvidence,limitForecastEvidencePayload,Deno:{env:{get:(key:string)=>key==='RAIN_EVIDENCE_CAPTURE_START'?(pilotMode==='UNSET'?undefined:new Date(time.getTime()-(pilotMode==='EXPIRED'?7200000:60000)).toISOString()):key==='RAIN_EVIDENCE_CAPTURE_END'?(pilotMode==='UNSET'?undefined:new Date(time.getTime()+(pilotMode==='EXPIRED'?-3600000:3600000)).toISOString()):'config'},serve:(fn:any)=>handler=fn},fetch:async()=>({ok:true,json:async()=>({checkedAt:time.toISOString(),interpretationEnabled:true,event:{eventType:'ACTIONABLE_RAIN_APPROACHING',urgency:'LIFESTYLE_ACTION',suggestedAction:'BRING_LAUNDRY_INSIDE',actionableAt:target},observation:[],expectedForecastFrames:withForecast==='OVERSIZE'?250:withForecast?1:undefined,forecast:withForecast==='OVERSIZE'?Array.from({length:250},(_,i)=>({baseTime:'20261103000000',validTime:'20261103000500',status:'RAIN',intensityClass:'30_TO_50',rgba:{r:i%256,g:34,b:56,a:255}})):withForecast?[{baseTime:'20261103000000',validTime:'20261103000500',status:'RAIN',intensityClass:'30_TO_50',rgba:{r:12,g:34,b:56,a:255}}]:[]})})};
  new Function(...Object.keys(injected),code)(...Object.values(injected));
  let response:any;for(let i=0;i<repeats;i++)response=await handler(new Request('https://test.invalid',{headers:{'x-watch-token':'config'}}));
  return {order,writes,body:await response.json()};
@@ -40,3 +43,51 @@ it('does not resend after the transport result cannot be saved',async()=>{const 
 it('does not resend if watch state persistence fails after accepted Push',async()=>{const r=await run(false,false,false,2,false,true);expect(r.order.filter(x=>x==='PUSH')).toHaveLength(1);});
 
 it('the real worker suppresses continued actionable forecasts despite a saturated dry streak',async()=>{const r=await run(false,false,false,2,false,false,true);expect(r.order.filter(x=>x==='PUSH')).toHaveLength(0);expect(r.body.results[0].suppressionReason).toBe('FORECAST_EPISODE_ALREADY_NOTIFIED');});
+
+it('evidence history write failure is observable but cannot suppress Push',async()=>{
+ const original=console.warn;const warnings:unknown[][]=[];
+ console.warn=(...args:unknown[])=>{warnings.push(args);};
+ try{
+   const r=await run(false,false,false,1,false,false,false,true);
+   expect(r.body.results[0].delivered).toBe(1);
+   expect(r.order.filter(x=>x==='PUSH')).toHaveLength(1);
+   expect(warnings.some(x=>x[0]==='RAIN_EVIDENCE_HISTORY_WRITE_FAILED' &&
+     (x[1] as {code:string}).code==='MOCK_STORAGE_ERROR')).toBe(true);
+ }finally{console.warn=original;}
+});
+
+it('persists every complete forecast frame even when API diagnostic is null',async()=>{
+ const r=await run(false,false,false,1,false,false,false,false,true);
+ const row=r.writes.find(x=>x.table==='rain_diagnostic_history'&&x.op==='insert')?.value;
+ expect(row?.diagnostic?.forecastEvidenceCompact).toMatchObject({
+   schemaVersion:1,state:'COMPLETE',expectedFrames:1,receivedFrames:1,
+   frames:[['20261103000000','20261103000500','RAIN','30_TO_50',[12,34,56,255]]],
+ });
+ expect(r.body.results[0].delivered).toBe(1);
+});
+
+it('does not capture compact evidence when pilot configuration is absent',async()=>{
+ const r=await run(false,false,false,1,false,false,false,false,true,'UNSET');
+ const row=r.writes.find(x=>x.table==='rain_diagnostic_history'&&x.op==='insert')?.value;
+ expect(row?.diagnostic).toBeNull();
+ expect(r.body.results[0].delivered).toBe(1);
+});
+it('stops new compact evidence writes automatically after pilot expiration',async()=>{
+ const r=await run(false,false,false,1,false,false,false,false,true,'EXPIRED');
+ const row=r.writes.find(x=>x.table==='rain_diagnostic_history'&&x.op==='insert')?.value;
+ expect(row?.diagnostic).toBeNull();
+ expect(r.body.results[0].delivered).toBe(1);
+});
+
+it('skips oversized pilot snapshots, logs the reason, and still delivers Push',async()=>{
+ const original=console.warn;const warnings:unknown[][]=[];
+ console.warn=(...args:unknown[])=>{warnings.push(args);};
+ try {
+  const r=await run(false,false,false,1,false,false,false,false,'OVERSIZE');
+  const row=r.writes.find(x=>x.table==='rain_diagnostic_history'&&x.op==='insert')?.value;
+  expect(row?.diagnostic).toBeNull();
+  expect(warnings.some(w=>w[0]==='RAIN_EVIDENCE_CAPTURE_SKIPPED_OVERSIZE' &&
+   (w[1] as {maxUtf8Bytes:number}).maxUtf8Bytes===8192)).toBe(true);
+  expect(r.body.results[0].delivered).toBe(1);
+ } finally {console.warn=original;}
+});

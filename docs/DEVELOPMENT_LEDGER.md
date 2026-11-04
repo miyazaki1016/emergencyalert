@@ -112,6 +112,10 @@
 - 最終：PR #105の移行補強を含むwatch-rain v34へ反映。272テスト・CI全4ジョブ成功。17:20自然cron14地点エラー0、lease全解放、ACCEPTED intent2件・未確定0、対象履歴11行維持。必要な自然通知552は購読別に各1回。
 - 観測中に継続ACTIONABLEの抑止対象がないため、実環境での重複減少効果・新たな再接近・強雨悪化の自然事例は継続確認。既存実装を作り直さず、比較元・共通母数を維持。詳細と読み取り専用監視SQLを総覧から辿れる。
 
+## 2026-11-03 PR #109 予測証拠保存の研究
+- Draft PR #109で予測フレームの全件コンパクト保存案、読み戻し、発表時刻整合、重複・欠測判定、削除を伴わない保持期限監査を追加。
+- 直前head `04ec017d` のCI 5ジョブ成功。新規の容量試算テストは最新CI未確認。
+- [詳細研究記録](SEVERE_RAIN_CONSISTENCY_RESEARCH_20261101.md)。本番DB・通知・Push変更なし。容量・保持・保存エラーの監視が未解決。
 ## 2026-11-01 作業単位索引（既存証拠を再利用）
 
 > 詳細本文は削除・要約置換しない。以下は美咲と同じID／状態／所在／証拠／main・本番・DB・実機／未確認／次の一手／更新日の入口。詳細照合は `docs/audits/DEVELOPMENT_INVENTORY_DIFF_20261101.md`。
@@ -302,3 +306,7 @@
 | #143 | Complete reviewed ledger and main operations-index fact proposals | merged | `88d196dc952cb4b1d86c7ae40cf3ce3386043ec5` | 2026-11-02T16:05:01Z |
 | #145 | fix: avoid proposal branch collisions on GitHub Actions reruns | merged | `73ca67612e27f6413a7f5a5c33a9c2620c8be144` | 2026-11-02T16:21:06Z |
 <!-- INVENTORY_FACTS_END -->
+
+## 2026-11-03 PR #109 CI起動復旧
+- mainとの総覧・台帳の追記競合がpull_request CIを抑止。両方の記録を保持してmainを研究ブランチへ取り込み。通知判定・Push・本番は変更しない。
+- [原因・証拠・検証方法](audits/PR109_CI_RECOVERY_20261103.md)。最新headの自動CI結果は完了報告で照合する。

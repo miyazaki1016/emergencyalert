@@ -846,6 +846,13 @@ Production deployment afterward.
 - 地点の中心画素が先行。半径1km画像・地上雨量・見逃し率・結果表示画面は未実装。Issue #64のPushクラッシュ／並行実行の課題も継続。
 - 詳細・本番確認・切り戻し：[本番実装記録](NOTIFICATION_REPLAY_PRODUCTION_20261029.md)。照会：[監視用SQL](sql/rain-replay-monitoring.sql)。
 
+### 2026-11-03 — PR #109 予測証拠の容量試算（研究中）
+- [研究記録](SEVERE_RAIN_CONSISTENCY_RESEARCH_20261101.md)・Draft PR #109。全予測フレームの保存・復元・重複発表照合・欠測判定を研究ブランチに実装。本番反映なし。
+- JSONB容量の概算関数を追加。DBディスク・WAL・TOAST・インデックスを含まないため、本番容量上限を保証するものではない。保持期限・保護情報・保存失敗の監視が整うまで本番Edge deployと削除は行わない。
 
 ## 2026-11-01 棚卸し・ブランチ差分調査
 - [調査証拠・判断・未解決事項](audits/INVENTORY_RECONCILIATION_20261101.md)（GitHub/本番DBの読み取り確認。アプリ・DB・Push・本番変更なし）。
+
+## 2026-11-03 PR #109 CI起動復旧
+- mainとの総覧・台帳の追記競合がpull_request CIを抑止。両方の記録を保持してmainを研究ブランチへ取り込み。通知判定・Push・本番は変更しない。
+- [原因・証拠・検証方法](audits/PR109_CI_RECOVERY_20261103.md)。最新headの自動CI結果は完了報告で照合する。
