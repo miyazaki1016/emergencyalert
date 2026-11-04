@@ -104,3 +104,12 @@ callbackを本番で実装する前に必要な安全要件：本人確認済み
 **これは並列DB環境での排他制御が証明されたことを意味しない。** 本番DBの一意制約＋単一DELETE ... RETURNING等の原子操作、アクセス権制限（service role専用）、管理者本人の認証と確認、適切なリプレイ耐性、トークン暗号化保管、実callbackとGoogle連携はすべて未実装。OAuthで認証できる公開URLは引き続き作らない。
 
 今回もDraft PR #155へのコード・テスト・設計書の追加のみ。本番送信、Gmail API通信、OAuth認可、Secrets、cron、Vercelデプロイ、既存Windows停止、PRマージは変更なし。
+
+
+## OAuth状態のDB排他用SQL案（2026-11-05、未適用）
+
+Draft PR #155に `supabase/migrations/20261105074100_jaspic_oauth_once.sql` を追加（**本番DBには実行していない**）。stateのSHA-256ダイジェストのみを主キーに保存し、ownerId・期限・消費時刻を持つ専用表を定義。RLS有効化、anon/authenticated/publicアクセス禁止、service_roleのみテーブル・関数を許可。サーバ側関数 `jaspic_consume_gmail_oauth_state(state_hash, owner_id)` は期限内かつ未消費の1行だけを原子的なUPDATEで消費し真偽を返すため、複数インスタンスからの二重消費防止を狙う。
+
+このSQLの静的テストを追加したが、**ローカルPostgresや本番SupabaseでのSQL実行テストは未実施**。SQL適用時の既存スキーマとの衝突・権限・並行トランザクション動作も未検証。旧supabase構成との照合、migration採番・運用順序の確認が必要。本人認証は未実装であるため、service_roleを利用するAPIに入る前に強い管理者認証・許可リストを実装し、サーバ鍵・認証コード・リフレッシュトークン等はDB表へ保存しない。期限切れ行の削除は将来の保守設計で、cronは追加していない。
+
+この追加によって認証ページが本番利用可能になったわけではない。今回もPR #155はDraftのままで、実行可能なOAuth callback・外部API通信・実メール送信・Secrets・cron・旧Windows停止・PRマージは行っていない。
