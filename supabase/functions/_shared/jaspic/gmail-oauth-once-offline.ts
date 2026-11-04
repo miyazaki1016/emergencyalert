@@ -11,11 +11,12 @@ export type OAuthOnceChallenge = {
   ownerId: string;
   expiresAt: number;
 };
+export type OAuthOnceConsumeRequest = { stateHash: string; ownerId: string; now: number };
 
 /** Database transaction semantics required by a future persistent implementation. */
 export interface OAuthOnceStore {
   /** Exactly one winner, even across instances and concurrent callbacks. */
-  consumeAtomically(input: OAuthOnceChallenge): Promise<OAuthOnceOutcome>;
+  consumeAtomically(input: OAuthOnceConsumeRequest): Promise<OAuthOnceOutcome>;
   /** Reject duplicate state hash, never overwrite an existing transaction. */
   create(input: OAuthOnceChallenge): Promise<void>;
 }
@@ -56,7 +57,7 @@ export async function consumeOAuthStateOffline(
   validateOAuthOwnerIdOffline(ownerId);
   if (!Number.isSafeInteger(now) || now <= 0) throw new Error("Invalid OAuth clock");
   const response = await store.consumeAtomically({
-    stateHash: await hashGmailOAuthStateOffline(state), ownerId, expiresAt: now,
+    stateHash: await hashGmailOAuthStateOffline(state), ownerId, now,
   });
   if (response !== "consumed" && response !== "invalid_or_expired") {
     throw new Error("Unexpected OAuth state store response");
