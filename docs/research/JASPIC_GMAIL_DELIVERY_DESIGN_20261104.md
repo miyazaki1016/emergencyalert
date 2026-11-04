@@ -95,3 +95,12 @@ callbackを本番で実装する前に必要な安全要件：本人確認済み
 `supabase/functions/_shared/jaspic/gmail-web-session-offline.ts` を追加。認証開始時に生成するstateとPKCE verifierを、サーバ側AES-256-GCMで暗号化して5分間のみ検証可能とするユーティリティ。Cookieポリシーは `__Host-jaspic-oauth`、HttpOnly、Secure、SameSite=Lax、Path=/。改ざん・期限切れ・state不一致を拒否する単体テストを用意した。暗号鍵はランタイム専用環境変数でのみ供給し、GitHub/チャット/画面へ露出させない。
 
 **まだ認証フローとして有効化できない**：本人の管理者認証、サーバ側のワンタイム状態消費（CSRF再利用対策）、Cookie設定を行う実際の認証開始ルートとcallback、Googleへの実通信、tokenの暗号化・永続保管、アカウント本人性確認、適切な失効・監査・運用監視は未実装。暗号化Cookieだけでは1回限りの認証フローを保証できないため、いずれも本番有効化前の必須条件として扱う。今回はGitHub Draft PR #155内の純粋関数・テスト・文書の追加だけを行い、Vercel/Supabaseの環境変数、公開ページ、メール送信、cron、旧Windows運用、PRマージに変更なし。
+
+
+## OAuth one-time state消費契約（2026-11-05、DB未接続）
+
+`supabase/functions/_shared/jaspic/gmail-oauth-once-offline.ts` と単体テストを追加。OAuth開始時はstateのSHA-256ダイジェスト、本人を表すownerId、有効期限だけを永続DBへ登録し、callback時は **ownerIdと期限も含めた原子的な一回限りの消費** を必須とする契約を定義した。再利用、不一致、期限切れを拒否。テスト内ではローカルな擬似実装を使って同時16件の呼び出しに対し成功が1件であることを検証する。
+
+**これは並列DB環境での排他制御が証明されたことを意味しない。** 本番DBの一意制約＋単一DELETE ... RETURNING等の原子操作、アクセス権制限（service role専用）、管理者本人の認証と確認、適切なリプレイ耐性、トークン暗号化保管、実callbackとGoogle連携はすべて未実装。OAuthで認証できる公開URLは引き続き作らない。
+
+今回もDraft PR #155へのコード・テスト・設計書の追加のみ。本番送信、Gmail API通信、OAuth認可、Secrets、cron、Vercelデプロイ、既存Windows停止、PRマージは変更なし。
