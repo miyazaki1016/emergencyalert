@@ -39,7 +39,7 @@ it("collection rejects HTTP errors, incomplete/empty/duplicate/schema-changed so
   await expect(collect("shiga",async()=>new Response("not found",{status:404}))).rejects.toThrow("404");
   const geo={features:[{properties:{city_code:f.current.city_code,full_name:"架空市"}}]};
   const source=fixtures.find(f=>f.kind==="shiga-person")!.current;
-  for (const data of [[],[source,source],[{...source, id:null}],[{id:"missing-fields"}]]) {
+  for (const data of [[],[source,source],[{...source, id:null}],[{id:"missing-fields"}],[{...source,latitude:34.0000}]]) {
     await expect(collect("shiga",async(url)=>Response.json(String(url).includes("geo")?geo:data))).rejects.toThrow();
   }
 });

@@ -39,7 +39,7 @@ function records(kind: Kind, value: unknown): RecordData[] {
   return rows(value).map(row => {
     const data: RecordData = {};
     for (const key of fields[kind]) {
-      if (!Object.hasOwn(row, key) || (row[key] !== null && typeof row[key] !== "string" && typeof row[key] !== "number")) throw new Error("Source schema changed");
+      if (!Object.hasOwn(row, key) || (row[key] !== null && typeof row[key] !== "string")) throw new Error("Source schema changed");
       data[key] = row[key] === null ? null : String(row[key]);
     }
     if (!data.id || seen.has(data.id)) throw new Error("Missing or duplicate source ID");
