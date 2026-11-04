@@ -109,6 +109,19 @@ MimeKit 4.12.0にはGHSA-g7hc-96xr-gvvxの既知警告がある。旧版再現�
 - この作業環境で同URLにGETを試みたが、**DNS名前解決失敗**でHTTP接続前に終了した。従来の404とは原因が異なるため混同しない。新診断コードの**実ネットワーク実行結果・CI結果は未確認**。実行例：`node scripts/jaspic-shiga-diagnostic.mjs`（公開GETのみ、ログに事件データなし）。
 - **文字化けについて**：スクリーンショットには置換文字が見えるが、レスポンスがUTF-8不正なのか、既に文字化けした文字列がJSONに格納されているのかは未判定。上記診断の `utf8` と `replacementChars` で切り分ける。勝手に文字コードを推定・変換して本番送信しない。
 
+### 無送信の滋賀ソース診断コード追加（2026-11-04）
+
+`scripts/jaspic-source-probe.mjs` と `scripts/jaspic-source-probe.test.mjs` をDraft PRへ追加。既存の `collect.ts` や本番Edge経路は変更せず、**明示実行時だけ**公開済みの正規2パス（cities / suspicious_person_full）をGETする。各パスについて `Accept: application/json` の素URL、`Accept: */*` の素URL、旧方式に近い時刻queryありを比較する。**ブラウザ偽装、プロキシ、認証回避、再試行ループなし**。
+
+出力はHTTPステータス、Content-Type、Content-Encoding、Cache-Control、応答サイズ、UTF-8/JSONの妥当性、レコード件数、先頭レコードの**欠落キー名だけ**。住所、事件内容、ID値、レスポンス本文、通信例外メッセージ、秘密値は出力しない。20秒タイムアウト、12MB上限、リダイレクト禁止、無送信・DBアクセスなし。ローカルでNode組込みtestの5ケース成功（HTTPエラー秘匿、JSON件数、スキーマ、パース/通信失敗、query/Accept差分）。CIに同じ**ネットワーク不使用**テストを追加。PR上のCI結果は別途確認する。
+
+再現コマンド（Node 22以降）：
+```bash
+node --test scripts/jaspic-source-probe.test.mjs
+node scripts/jaspic-source-probe.mjs
+```
+2行目は**公開サイトへのGETを計6回行う**ため、実行環境のネットワーク利用が許可されている場合だけ手動実行する。自動スケジュールには追加しない。ユーザー端末のWi-Fi/4G成功と、こちらの検証環境でのDNS失敗を切り分けることが目的で、**Supabase Edgeでの取得成功をまだ確認したわけではない**。次の判断は診断結果を確認してから行う。
+
 ## 広島 hppmaps.LINKKEY の意味
 
 旧HomeController（blob 49f2ab4233a00456b440ca1ac2072f36a7eee18e）の`Hpp_Map()` L2244付近はLINKKEYで既存確認し、新規なら旧sendmailを呼んだ後に旧一覧を保存する。ただしカテゴリ除外時や一部送信失敗時にも保存されるため、**hppmapsは送信成功の証明ではなく、旧地図方式で扱ったIDの一覧**と読むべきである。
