@@ -42,3 +42,12 @@
 commit `efcfd480c24782af84345a657817b09c55181d87` に関連する GitHub Actions の読取り結果：通常 CI run **41848065946** = success、PR promotion classification run **41848066091** = success、JASPIC isolated compatibility run **41848065893** = success。これらはコードの CI 結果であり、Gmail API での送信、Google の認証、From の配送表示、センター最終受信を検証したものではない。CI とは独立に、追加コード単体の本番動作も確認していない。
 
 次の承認ゲートは認証方式（個人 Gmail OAuth2 同意、アクセストークン更新、資格情報保存とローテーション、権限 `gmail.send`）を確定し、実運用前に実送信を伴わないトランスポートモックと障害時の冪等動作を追加すること。実送信、SMTP/API 認証試行、本番変更、cron、旧 PC 停止、マージは引き続き禁止。
+
+
+## Google公式資料によるOAuth運用上の制約（無接続調査）
+
+- Gmail API `users.messages.send` は `POST /gmail/v1/users/me/messages/send` と raw base64url MIME を使う。最小限の送信権限として `https://www.googleapis.com/auth/gmail.send` を要求する。閲覧・削除権限を必要以上に追加しない。公式： https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/send 、https://developers.google.com/workspace/gmail/api/guides/sending
+- 個人Gmailの定期送信には本人のOAuth2同意と、offline accessのrefresh tokenが必要。Google CloudのOAuth同意画面が **External / Testing** の場合、Gmail送信スコープで発行したrefresh tokenは通常 **7日で失効**。18:00の日次運用に使う前に公開状態・本人利用の可否・必要な審査/検証要件を必ず確認する。単なる「Testingで登録して終了」は不可。公式： https://developers.google.com/identity/protocols/oauth2
+- refresh tokenは権限取り消し、一定期間未使用、パスワード変更、発行数超過などで失効し得るため、秘密管理・再同意手順・異常通知の設計が必要。アカウントからの認証データをリポジトリ/PR/ログに出さず、チャットで認証コード/秘密文字列を要求しない。
+- 今回の `gmail-dry-run.ts` / `gmail-api-request-offline.ts` は純粋な準備関数のみで、実際の認可・通信・配送完了を保証しない。Google APIの結果からSMTP envelopeやセンターのReturn-Pathを事前に確定したとは扱わない。
+- ユーザー操作が必要になる段階：Google Cloudプロジェクト（Gmail API有効化・OAuth consent）とOAuth client作成、権限付与。すべて実送信許可とは別のゲートである。
