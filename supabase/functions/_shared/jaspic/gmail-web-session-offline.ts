@@ -60,7 +60,7 @@ export async function sealGmailWebSessionOffline(
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const encoded = encoder.encode(JSON.stringify(session));
   const ciphertext = await crypto.subtle.encrypt(
-    { name: "AES-GCM", iv, additionalData: encoder.encode(CONTEXT) },
+    { name: "AES-GCM", iv: iv as BufferSource, additionalData: encoder.encode(CONTEXT) as BufferSource },
     await sessionKey(key),
     encoded,
   );
@@ -81,7 +81,7 @@ export async function openGmailWebSessionOffline(
     const cipher = decodeBase64Url(parts[2]);
     if (iv.length !== 12 || cipher.length < 16) throw new Error();
     const result = await crypto.subtle.decrypt(
-      { name: "AES-GCM", iv, additionalData: encoder.encode(CONTEXT) },
+      { name: "AES-GCM", iv: iv as BufferSource, additionalData: encoder.encode(CONTEXT) as BufferSource },
       await sessionKey(key),
       cipher as BufferSource,
     );
