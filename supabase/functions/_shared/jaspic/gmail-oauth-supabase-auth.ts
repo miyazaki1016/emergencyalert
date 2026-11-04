@@ -48,7 +48,7 @@ export async function verifyJaspicSupabaseIdentity(
   if (!/^[0-9a-fA-F-]{36}$/.test(user.id) ||
       typeof user.email !== "string" ||
       !user.email_confirmed_at ||
-      Number.isNaN(Date.parse(user.email_confirmed_at))) deny();
+      Number.isNaN(Date.parse(user.email_confirmed_at))) throw new Error("JASPIC login required");
   return {
     subject: user.id,
     verifiedEmail: user.email,
