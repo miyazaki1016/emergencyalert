@@ -8,7 +8,8 @@ export function createHandler(province: Province, options: {
 }) {
   return async (request: Request): Promise<Response> => {
     if (request.method !== "POST") return new Response(null, {status:405});
-    if (!options.token || request.headers.get("x-jaspic-token") !== options.token) return new Response(null, {status:401});
+    if (!options.token) { console.warn("JASPIC_AUTH_REJECTED: token_secret_unavailable"); return new Response(null, {status:401}); }
+    if (request.headers.get("x-jaspic-token") !== options.token) { console.warn("JASPIC_AUTH_REJECTED: token_mismatch_or_missing_header"); return new Response(null, {status:401}); }
     try {
       const body = await request.json();
       // Hard safety barrier: this implementation contains no SMTP, sender API or send mode.
