@@ -1,6 +1,14 @@
 # JASPIC 独立処理：切替・ロールバック手順
 
-本書は準備資料。現在のコードはDry-run専用で送信実装なし。PRマージ、本番DB、Edgeデプロイ、cron設定、旧PC停止、実送信は実施していない。送信開始はユーザーの別途明示承認が必要。
+本書は準備・切替手順。現在のコードはDry-run専用で送信実装なし。**2026-11-04時点で本番DBのJASPIC専用テーブル・RPCを準備済み、初期baseline（広島6,043件／滋賀708件）と旧hppmaps LINKKEY 1,250件を登録済み、Edge Functionは広島v6／滋賀v5がACTIVE。** 旧LINKKEY除外は広島の不審者情報にのみ適用し、犯罪情報・滋賀には適用しない。GitHub CI／JASPIC互換性テストはコミット88749186で成功。**広島v6の実データDRY-RUNは未実施で、メール送信・18時cron・PRマージ・旧PC停止も未実施。** 送信開始はユーザーの別途明示承認が必要。
+
+### 最新の無送信DRY-RUN実行手順（要認証、秘密をURLに含めない）
+
+- 実行対象は `jaspic-hiroshima` と `jaspic-shiga`。それぞれのEdge Functionに対し、**POST**でJSON `{"mode":"dry-run","persist":false}` を送る。初回は必ず `persist:false` でプレビューし、結果確認後に承認済みの保存テストでのみ `persist:true` を使用する。
+- 認証には対応する `JASPIC_*_JOB_TOKEN` を **`x-jaspic-token` ヘッダー**に渡す。GatewayのJWT検証も有効なので、適切な `Authorization: Bearer ...` と `apikey` が必要。秘密をURLのクエリ文字列、ログ、GitHub Issue、チャットへ貼り付けない。
+- 成功応答の `province`、`records`、`candidates`、`persisted`、`sent` とHTTPステータスを県別に記録。正常系は `sent:0`。503なら候補を送らず原因を調査し、baselineを再作成しない。
+- 2026-11-04のログにトークンらしき値をクエリ文字列へ付けた401リクエストが確認された。**当該トークンは漏えいしたものとしてローテーションを推奨**。ログから値を転載しない。
+- この接続環境には認証付きEdge Functionを直接呼び出すツールがないため、現時点で最新DRY-RUNを実行したとは記録しない。実行後に候補数と旧Windows送信分を照合し、送信開始は別途判断する。
 
 ## 1. 承認前に完了させる検証
 
