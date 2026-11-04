@@ -36,7 +36,7 @@ test('Accept and query variants preserve exact source path', async () => {
 test('invalid UTF-8 and already-corrupted Unicode are distinct, without logging content', async () => {
   const invalid = await probeSource('persons', 'bare-json', respond(new Uint8Array([0xff, 0xfe])));
   assert.equal(invalid.outcome, 'invalid-utf8');
-  const preCorrupted = await probeSource('persons', 'bare-json', respond(JSON.stringify([{id:'private-id',address:'\\uFFFD'}])));
+  const preCorrupted = await probeSource('persons', 'bare-json', respond(JSON.stringify([{id:'private-id',address:String.fromCharCode(0xfffd)}])));
   assert.equal(preCorrupted.outcome, 'ok');
   assert.equal(preCorrupted.replacementChars, 1);
   assert.ok(!JSON.stringify(preCorrupted).includes('private-id'));
