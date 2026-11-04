@@ -91,9 +91,9 @@ MimeKit 4.12.0にはGHSA-g7hc-96xr-gvvxの既知警告がある。旧版再現�
 
 ### 追加観測：ユーザー端末では滋賀JSONが表示（2026-11-04）
 
-ユーザーがiPhoneブラウザで `map.police.shiga.dsvc.jp` のJSONらしい本文を表示できているスクリーンショットを提供。画面に `id`, `city_code`, `address`, `address_code`, `latitude`, `longitude`, `police_station`, `case_type`, `occurrence_dt`, `accident_situation`, `criminal_car`, `criminal_feature`, `resolution` 等が並ぶ**配列データ**が確認できる。画面のアドレス欄はドメインのみ表示で**完全なパス・queryは未確認**。本文の日本語は文字化けしており、原因（元データ／charset／ブラウザ表示）は未確定。
+ユーザーがiPhoneブラウザで `map.police.shiga.dsvc.jp` のJSONらしい本文を表示できているスクリーンショットを提供。画面に `id`, `city_code`, `address`, `address_code`, `latitude`, `longitude`, `police_station`, `case_type`, `occurrence_dt`, `accident_situation`, `criminal_car`, `criminal_feature`, `resolution` 等が並ぶ**配列データ**が確認できる。画面のアドレス欄はドメインのみ表示だったが、**ユーザーから完全URL `https://map.police.shiga.dsvc.jp/data/map/suspicious_person_full.json`（queryなし）を別途確認**。これは旧C#の `suspicious_person_full.json` と同じパスで、旧C#側だけ末尾に時刻queryを付けている。本文の日本語は文字化けしており、原因（元データ／charset／ブラウザ表示）は未確定。
 
-この証拠により「滋賀JSONが公開サイト上に存在しない」とは結論できない。従来の404は**検証環境・アクセス経路・要求URL/パラメータ・キャッシュ等に依存する可能性**がある。旧C# `Shiga()` は `/data/map/suspicious_person_full.json?yyyyMMddhhmmss` をChromeDriverで取得する（旧ソースL3298-3301）。**ユーザーにスクリーンショット表示時の完全なURLを共有してもらい、まずパスとqueryを照合する**。次にアクセスを許可された環境から読み取り専用でHTTPステータス・Content-Type・charset・件数・JSONパース・必須フィールド・都市対応表を検証する。データ本文やスクリーンショットをGitHubへ転記しない。アクセス制限回避や本番収集・送信は行わない。
+この証拠により「滋賀JSONが公開サイト上に存在しない」とは結論できない。従来の404は**検証環境・アクセス経路・要求URL/パラメータ・キャッシュ等に依存する可能性**がある。旧C# `Shiga()` は `/data/map/suspicious_person_full.json?yyyyMMddhhmmss` をChromeDriverで取得する（旧ソースL3298-3301）。**URL相違説は主因候補から外れた**。2026-11-04に当環境から当該URLを再取得しようとしたが、Web閲覧経路はcache miss、別の実行環境はDNS解決失敗となり、**この再試行ではHTTPステータス自体を確認できなかった**（過去の別環境の404とは区別する）。iPhoneでの表示は実在の有力証拠だが、取得元が常時公開・全環境から取得可能という証明ではない。次にアクセスを許可された環境から読み取り専用でHTTPステータス・Content-Type・charset・件数・JSONパース・必須フィールド・都市対応表を検証する。データ本文やスクリーンショットをGitHubへ転記しない。アクセス制限回避や本番収集・送信は行わない。
 
 ## 広島 hppmaps.LINKKEY の意味
 
