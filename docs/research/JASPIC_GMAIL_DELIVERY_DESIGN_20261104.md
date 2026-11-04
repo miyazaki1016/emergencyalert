@@ -152,3 +152,14 @@ Draft PR #155に `supabase/migrations/20261105074100_jaspic_oauth_once.sql` を�
 レビュー用SQL `supabase/migrations/20261105074500_jaspic_gmail_token_vault.sql` と `supabase/functions/_shared/jaspic/gmail-oauth-vault-store.ts` を追加。ownerIdを主キーとする専用テーブルに暗号化済みenvelope（鍵識別子、ランダムIV、暗号文）のみ保持する。anon/authenticated/publicからの読み書きは禁止し、service_role経由でサーバ側だけ利用する。アダプターは暗号化封筒以外を受け付けず、失効済みレコードを通常取得から除外し、DBエラーを外部へ詳細表示しない。モックDBとの専用テストを追加。
 
 **本番適用・API接続はまだ許可されていないため未実施。** 実Supabase Auth・管理者用ログインUI・refresh token発行/取り込み・Googleコード交換・トークンの失効/ローテーション・暗号鍵の安全な設定・実DB integration testも未完了。専用データを読むサーバコードは必ず本人照合後にのみ呼ぶこと。モデル内のコードは単独では外部からの認証を行えない。PR #155 はDraftを維持し、メール実送信・cron・旧Windows停止・DB migration適用・Vercel本番公開は行わない。
+
+
+## iPhone認証画面とHTTPルート（2026-11-05、停止状態で追加）
+
+`app/jaspic/oauth/page.tsx` を追加し、Safari向けのJASPIC認証準備画面を作成した。管理者しか利用できない認証開始は現在無効であることを明示し、実資格情報の入力欄やGoogleへのリンクは設けていない。
+
+`app/jaspic/oauth/start/route.ts` は常にHTTP 503・no-storeを返し、Googleへリダイレクトしない。`app/jaspic/oauth/callback/route.ts` も常にHTTP 503、no-store、no-referrer、制限CSPを返す。コールバックURLのcode/stateを取得・表示・ログ保存しない。専用テスト `tests/jaspic/gmail-web-http-locked.test.ts` はこの停止状態を検証する。**これは実OAuth認証フロー完成を意味しない。**
+
+本番有効化までの残要件：Supabase Authの管理者本人ログインUI実装（認証開始/完了の両方でサーバ検証）、OAuth stateのDB登録と原子消費、短命暗号化cookie設定/破棄、Google認可コード交換のサーバ実通信、暗号化トークンの永続保存および鍵設定・失効、実DBでの検証、安全な監査、Googleの本番OAuthスコープ制限確認。GoogleのWebクライアントID/Secretは環境変数でのみ使用し、ソースへ書かない。OAuthコールバックでコードをHTTPレスポンスやログ・解析ツールに送らない。
+
+本追加はDraft PR #155内のみ。アメふる本体の本番デプロイ・既存公開JASPIC紹介ページ・Gmail実送信・18時cron・旧Windows送信・PRマージには影響を与えない。
