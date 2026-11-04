@@ -7,7 +7,7 @@ const geo = { features: [{ properties: { city_code: "000", full_name: "架空市
 
 describe("Shiga read-only source diagnostic", () => {
   it("reports transport/UTF-8/schema metadata without exposing record values", async () => {
-    const mock = vi.fn(async (url: string) =>
+    const mock = vi.fn(async (url: string, _init?: RequestInit) =>
       Response.json(url.includes("/geo/") ? geo : incident));
     const result = await runDiagnostic({ request: mock, dns: async () => [{ address: "127.0.0.1" }], now: () => 123 });
     expect(result.dns).toBe("resolved");
@@ -18,7 +18,7 @@ describe("Shiga read-only source diagnostic", () => {
     expect(JSON.stringify(result)).not.toContain("synthetic-1");
     expect(JSON.stringify(result)).not.toContain("架空町");
     expect(mock.mock.calls.every(call => call[0].startsWith("https://map.police.shiga.dsvc.jp/"))).toBe(true);
-    expect(mock.mock.calls.every(call => call[1].redirect === "error")).toBe(true);
+    expect(mock.mock.calls.every(call => call[1]?.redirect === "error")).toBe(true);
   });
 
   it("distinguishes HTTP 404, invalid UTF-8, invalid JSON and DNS failure", async () => {
