@@ -39,6 +39,10 @@ jobs:
       - run: npx vitest run tests/jaspic
       - name: Test Shiga read-only diagnostics offline (no network)
         run: node --test scripts/jaspic-source-probe.nodecheck.mjs
+      - name: Probe Shiga public JSON from GitHub Actions (read-only, metadata only)
+        timeout-minutes: 3
+        continue-on-error: true
+        run: node scripts/jaspic-source-probe.mjs
       - name: Check Edge entrypoints and shared modules
         run: npx tsc --noEmit --strict --skipLibCheck --target es2022 --module esnext --moduleResolution bundler --allowImportingTsExtensions --lib esnext,dom supabase/functions/jaspic-hiroshima/index.ts supabase/functions/jaspic-shiga/index.ts supabase/functions/_shared/jaspic/mime.ts
   windows-framework-mime:
