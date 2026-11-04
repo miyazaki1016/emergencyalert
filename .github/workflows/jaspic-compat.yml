@@ -1,0 +1,46 @@
+name: JASPIC isolated compatibility
+on:
+  pull_request:
+    paths: ['lib/jaspic/**', 'supabase/functions/**/jaspic/**', 'supabase/functions/jaspic-*/**', 'tests/jaspic/**', 'docs/sql/jaspic-*', '.github/workflows/jaspic-compat.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  legacy-body-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Execute extracted legacy C# builders without SMTP
+        run: dotnet run --project tests/jaspic/oracle -- tests/jaspic/fixtures.json tests/jaspic/expected.json
+      - name: Golden output must remain identical to old C# execution
+        run: git diff --exit-code -- tests/jaspic/expected.json
+      - run: npx vitest run tests/jaspic
+      - name: Check Edge entrypoints and shared modules
+        run: npx tsc --noEmit --strict --skipLibCheck --target es2022 --module esnext --moduleResolution bundler --allowImportingTsExtensions --lib esnext,dom supabase/functions/jaspic-hiroshima/index.ts supabase/functions/jaspic-shiga/index.ts
+  isolated-database:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: local-test-only
+          POSTGRES_DB: jaspic_test
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: local-test-only
+      PGDATABASE: jaspic_test
+    steps:
+      - uses: actions/checkout@v4
+      - run: psql -v ON_ERROR_STOP=1 -f tests/jaspic/database.sql
+      - run: python tests/jaspic/concurrency.py

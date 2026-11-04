@@ -1,3 +1,5 @@
+> **2026-11-04 Work追記：実装・無送信検証へ進行（本番未変更）。** ユーザーからコード・テスト・PR更新を許可。旧本文C# oracleの81合成パターンと移植版のUTF-8バイト一致、広島ライブ6,048件のbaseline候補0・再実行0・合成更新1を確認。県別Edge準備・専用SQL案・排他/容量ガード・MIME差分検出を追加。**MIME原本照合・新sender実装・滋賀ライブ取得・旧hppmaps除外互換は未完了**。下記旧「未許可・未実施」は監査開始時点の履歴。最新の切替ゲート・ロールバックは [手順書](JASPIC_CUTOVER_RUNBOOK_20261104.md) を参照。実メール送信、本番DB、デプロイ、cron、旧PC停止、PRマージは未実施。
+
 # JASPIC-NES メール互換・独立収集移行監査（2026-11-04）
 > **設計・読み取り監査のみ。** 本書でメール送信、本番DB変更、定期起動、デプロイを許可しない。
 > 開発管理: [Issue #154](https://github.com/miyazaki1016/emergencyalert/issues/154)。旧コードの正本: private repository `miyazaki1016/fushinsha-joho.kishibojim.online` の `master:Controllers/HomeController.cs`。
@@ -57,3 +59,19 @@
 - 公開APIのライブ疎通 / 実データ件数
 - .eml原本との互換性比較 / コード変換 / テストの実行
 - SupabaseのDB移行・Edge deploy・cron作成 / メール送信
++
+## Work実装・検証記録（2026-11-04 JST）
+
+- 本文oracle：旧 HomeController.cs blob 49f2ab4233a00456b440ca1ac2072f36a7eee18e から3メソッドの本文式だけを抽出。資格情報・SMTP・DBアクセスなし。tests/jaspic/oracle/Program.csで同式を.NET SDK 8.0.427上実行。対象フィールドは旧JSONモデル同様string。合成入力81件のgoldenとTypeScript出力のUTF-8バイト比較を実施。件名・From/To/Ccも旧定数をテスト。**.NET Framework実環境とSMTP輸送MIMEの再現ではない**。
+- ローカル全体：38ファイル・369テスト成功。npm run build成功。両新規Edge entrypointのstrict TypeScriptチェック成功。専用SQLを隔離PGlite/Postgresエンジンで実行しRLS/権限/CAS/無送信baseline/重複版/lease/UNKNOWNを検証成功。実Postgresの並行競合は専用CIで検証予定。
+- 広島live GET：市町30、署321、不審者452、犯罪5,596件。メモリ内比較で初回候補0・再実行0・合成更新1。比較payload 2,628,526 bytes。公開情報GET以外の外部変更・本番DB保存・送信なし。
+- 滋賀live GET：旧cities.jsonとsuspicious_person_full.jsonは404。現行Nuxt公開JSにも不審者の同パスあり。address.json / suspicious_person_mail.jsonも404。User-Agent/Refererと時刻query付きGETでも不審者JSONは404。**ChromeDriver不要の本番取得を実証できていない**。
+- 滋賀公式案内 https://www.pref.shiga.lg.jp/police/pa01/15767.html に2025-10-01の犯罪/交通事故マップ統合の記載。現行JSから旧cities対応表は未確認。URLを推測して自動切替しない。
+- 利用条件：公開情報であることは確認したが、継続的な外部再配信に関する条件の最終確認は未完了。切替前に確認する。
+- 新MIME生成/SMTP送信実装は未実装。.eml厳格比較ツールと不一致検出テストのみ追加。旧実メール原本の照合なしに「完全互換」と認定しない。
+- 既存滋賀renderer入口を共通移植実装へ接続し重複実装を除去。nullと空文字の比較も旧C#に合わせた。既存4テスト成功。
+- DB/cronは自動適用しないSQL準備ファイル。UTC09:00＝JST18:00の独立2ジョブ案。実cron未作成。
+- Supabase changelogとEdge schedule/Vault公式資料を確認。2026-11-10予定のTLS CBC cipher廃止は現行HTTPSクライアント利用を前提とする。古い.NET SMTP接続の安全性の根拠とはしない。
+- セキュリティ記録：旧認証値を除く表示処理が不十分で初期ツール出力に旧認証情報が含まれた。ユーザーへ通知済み。生成コード・fixture・資料には値をコピーせず、認証コードパターンの走査でも混入なしを確認。旧資格情報の失効/再発行は未実施。
+- 未解決：旧hppmaps除外一覧、MIME/送信実装、滋賀の現行取得と都市参照表、利用条件、本番容量/Edge実行制限、承認後のDB適用と切替。切替手順書にゲートを記載。
+- CI：PR更新後に確認予定。ローカル成功とGitHub CI成功を混同しない。

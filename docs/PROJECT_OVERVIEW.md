@@ -1,3 +1,5 @@
+> **2026-11-04 JASPIC移植・無送信実装（Draft / 未統合）**：Issue #154 / PR #155、branch `research/jaspic-mail-compat-20261104`。詳細 `docs/research/JASPIC_MAIL_COMPATIBILITY_AUDIT_20261104.md`、切替手順 `docs/research/JASPIC_CUTOVER_RUNBOOK_20261104.md`。本文3種のC# oracle比較、独立Dry-run EdgeとDB/cron準備を追加。広島ライブ6,048件で初回0・再実行0・合成更新1。MIME/送信実装・滋賀404・旧除外データ互換は未解決。既存雨通知と本番DB/cron/送信は未変更。次は未解決ゲートの確認。最新のCI結果は専用監査資料を参照。
+
 # 🚨🚨🚨 最重要・永久運用ルール：main総覧は「索引」、詳細は各ブランチ！絶対に忘れるな！ 🚨🚨🚨
 
 > **開発管理の現況（2026-11-01確認）**：[開発台帳・棚卸し監査索引](DEVELOPMENT_LEDGER.md)／[共通運用規約](DEVELOPMENT_MANAGEMENT_STANDARD.md)。読み取り専用の自動棚卸しはPR #107でmainへ統合済み、PR #118で**毎日10:17 JST**に変更済み（`.github/workflows/development-inventory.yml`）。実行ごとの `report.json` と `summary.md` はGitHub Actionsの `development-inventory` artifactに30日間保存し、**mainの台帳へ日次自動追記はしない**。週次の詳細照合は別途行う管理作業で、自動実装済みとは扱わない。旧管理ブランチ `chore/development-inventory-automation-20261031` は歴史的な作業元であり、未統合・未稼働の現況ではない。

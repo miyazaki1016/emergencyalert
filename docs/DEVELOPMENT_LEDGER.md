@@ -1,3 +1,12 @@
+## 2026-11-04 JASPIC独立ジョブ移植（Draft PR #155）
+
+- Issue #154 / branch `research/jaspic-mail-compat-20261104`。ユーザー許可はコード・テスト・PR更新まで。実送信・本番変更・旧PC停止・マージなし。
+- 詳細：`docs/research/JASPIC_MAIL_COMPATIBILITY_AUDIT_20261104.md`、切替/復旧：`docs/research/JASPIC_CUTOVER_RUNBOOK_20261104.md`。
+- 旧C#本文81パターンを.NET 8で実行し、TypeScriptのUTF-8バイト一致を検証。From/To/Cc/件名は旧コード照合。MIME輸送互換は未認定。
+- 広島公開JSON：市町30・署321・不審者452・犯罪5,596。メモリ内baseline/再実行の候補0、合成更新1。比較payload 2,628,526 bytes、送信0・DB保存なし。
+- 県別Edge準備、service_role限定専用SQL、CAS/lease/UNKNOWN、容量ガード、Dry-run専用実行と独立18時JSTの非実行cron案。
+- 未完了：滋賀旧API404、旧hppmaps除外データ、新sender/MIME実装と.eml比較、承認後の本番適用。CIの最終結果は専用監査資料を参照。
+
 # アメふる 開発台帳
 
 > **最新の交通整理表**：[開発案件・担当・次の一手の運用索引](DEVELOPMENT_OPERATIONS_INDEX.md)（2026-11-01時点。実装・本番の完了認定ではない）。
