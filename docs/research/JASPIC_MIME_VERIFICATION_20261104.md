@@ -173,3 +173,9 @@ PR #155 のJASPIC専用CI（GitHub-hosted Ubuntu runner、Node 22）に **公開
 - JASPIC CI #4（3ジョブ）：https://github.com/miyazaki1016/emergencyalert/actions/runs/41761205702 — success。Linuxの旧新MIME/本文/型、Windowsの.NET Framework実行＋18 golden不変＋19 MIMEテスト、隔離Postgresの権限/排他/重複防止を確認。
 - 初回Windows試験はNU1004で停止した。SDK/OSによる暗黙のruntime identifierとReferenceAssemblies追加の違いが原因。win-x64と参照パッケージを明示し、lockfileを再生成してlocked restore成功へ修正した。MIMEの差異を除外して通したものではない。
 - この検証記録追記は文書のみ。最終PR headでの結果もPR #155に記録する。実配送原本・滋賀データ取得・旧除外IDの実取得は引き続き未完了。実送信・SMTP接続・本番変更なし。
+
+## 追加確認：既存Gmail送信済み原本のヘッダー（無送信）
+
+2026-11-04の広島送信済みメール2通を読み取り専用で確認した。両方ともFromとReturn-Pathは同じGmail送信アカウントで、Senderヘッダーなし、Receivedあり、Content-Typeはtext/plain・UTF-8、Content-Transfer-Encodingは8bitだった。個別事件本文、原本、識別子、秘密情報は記録しない。
+
+旧C#が生成するFromとは一致しない。Gmail送信済み原本だけではSMTP送信時の変換箇所やセンター最終受信時のヘッダーを断定できない。Gmailエイリアス設定の実測は未実施。メール送信、SMTP接続、cron、PRマージは未実施。
