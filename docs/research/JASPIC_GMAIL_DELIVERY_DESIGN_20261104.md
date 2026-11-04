@@ -122,3 +122,10 @@ Draft PR #155に `supabase/migrations/20261105074100_jaspic_oauth_once.sql` を�
 `gmail-web-callback-offline.ts` に暗号化Cookie→CSRF照合→管理者照合→永続DBの一回限り消費という処理をまとめた純粋なオーケストレーションを追加。テスト内のみのMapで成功後の再利用拒否や本人不一致をテスト。**このMapは本番DBの排他性を示さない。** SQL migrationも未適用で、HTTP callbackルート、鍵・tokenの実保管、OAuth認可コード交換通信、セッション本人性の実検証はいずれも未完成。返り値に認可コードとverifierを含むため、HTML・JSON・ログへ返してはならない。
 
 送信、Gmail API/Google OAuthへの通信、cron、Secrets、本番デプロイ、既存Windowsの停止、Draft PR #155マージを引き続き行わない。
+
+
+## Supabase OAuth stateアダプター（2026-11-05、接続未実行）
+
+`supabase/functions/_shared/jaspic/gmail-oauth-supabase-store.ts` を追加。server-side専用Supabaseクライアントを注入して `jaspic_gmail_oauth_states` へstateダイジェストを保存し、`jaspic_consume_gmail_oauth_state` RPCで一度だけ消費する実装。DBエラー詳細や内部識別子はレスポンスに返さずフェイルクローズ。専用モックテストはinsert、RPC、再利用拒否、DBエラー拒否を検査。実際のサービスロール鍵、Supabase API呼び出し、migration適用は **一切実施していない**。
+
+本番に進む前にDB migrationが正しく適用されたことと実Postgresの行ロック排他をテストし、APIをadmin server auth (Supabase Authの署名・issuer・audience・期限を信頼できる認証サーバで検証) の背後に接続すること。RLSにservice_roleを付与していても、その鍵を持つサーバ処理自体の認可が必要。OAuth開始・callbackエンドポイント、Secret暗号化保管、Googleへの実OAuth通信は未実装であり、公開できる状態ではない。ドラフトPR #155をマージ・デプロイせず、既存のメール送信やcronを有効化しない。
