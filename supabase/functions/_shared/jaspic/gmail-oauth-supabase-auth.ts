@@ -42,10 +42,7 @@ export async function verifyJaspicSupabaseIdentity(
   const deny = (): never => { throw new Error("JASPIC login required"); };
   if (!accessToken || accessToken.length > 8192 || /[\r\n\0]/.test(accessToken) ||
       !/^https:\/\/[a-z0-9-]+\.supabase\.co\/auth\/v1$/.test(config.issuer)) deny();
-  let result: AuthGetUserResponse;
-  try {
-    result = await supabase.auth.getUser(accessToken);
-  } catch { deny(); }
+  const result: AuthGetUserResponse = await supabase.auth.getUser(accessToken).catch(() => deny());
   if (result.error || !result.data?.user) deny();
   const user = result.data.user;
   if (!/^[0-9a-fA-F-]{36}$/.test(user.id) ||
