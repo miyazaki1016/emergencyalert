@@ -217,3 +217,12 @@ PR #155 のJASPIC専用CI（GitHub-hosted Ubuntu runner、Node 22）に **公開
 **未実施・非認定**：実事件レコードの値を新生成器に与えた再生成、本文の文字単位・バイト単位の完全一致、空白・改行・注釈文字列の全行比較、更新ケースの実メール照合。個人情報を含む実メール本文・ID・位置・Message-IDはGitHubへ転載しない。したがって今回の結果は**実メール本文の構造一致（限定的）**であり、実データによる完全互換PASSではない。
 
 読み取り・資料更新のみ。実メール送信、SMTP接続、本番DB/Edge変更、cron、旧Windows停止、PRマージなし。
+
+
+## 旧SMTPクライアント送信経路の追加読取り検証（無送信）
+
+旧リポジトリの C# `Controllers/HomeController.cs` の広島犯罪・不審者メール生成／送信箇所を、認証情報を出力せず読み取りで再確認した。両経路とも MailKit `SmtpClient` を利用し、SMTP サーバーの 465 番ポートへ `SecureSocketOptions.Auto` で接続、認証後に `MimeMessage` の `From` / `To` / `Cc` / `Subject` および `BodyBuilder.TextBody` を設定し、`smtp.Send(mail)` で送信する構造だった。明示的な envelope-from 引数を渡していない。読み取り箇所にある別の localhost SMTP 経路は、対象の通常メール送信経路と混同しない。
+
+新コードの `mail.ts` は旧ソースと同じ生成時 From を使い、`mime.ts` は送信機能を持たない。旧 Gmail 保存原本では From と Return-Path が Gmail 認証側のアドレスになっているという既存観測と合わせると、送信前 MIME と配送済み MIME の間の差が残る。**ただし SMTP における書換え主体・段階、実際の SMTP envelope、センター最終受信原本は未確認**。無送信の現段階で From を実配送観測値へ変更してはならない。
+
+次の無送信ゲート：旧SMTP経路と採用候補の送信サービスの差分を比較し、認証主体、送信者ポリシー、SMTP envelope、ヘッダー変更、8bit / UTF-8 保持について根拠を記録する。最終受信互換はセンター受信原本または承認済みの隔離試験がない限り PASS としない。実メール送信、SMTP 認証試行、本番変更、cron、旧 Windows 停止、マージは実施しない。
