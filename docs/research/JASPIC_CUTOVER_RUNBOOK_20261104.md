@@ -1,3 +1,11 @@
+## 2026-11-04 旧配送メールの再確認と無送信MIMEゲート
+
+接続Gmailの既存送信済みメールを読み取り専用検索（subject:JASPIC-NES after:2026/10/25）し、2026-11-04 09:11〜09:13 JSTにセンター宛の広島個別メールが複数存在することを再確認。表示される宛先はセンター、Ccは広島用Cc、件名は広島専用ツール。メールの個別本文、事件ID、資格情報、Message-ID、原本はGitHubへ転載しない。**これは既存送信の観測であり、新システムからの送信ではない。**
+
+既存監査 JASPIC_MIME_VERIFICATION_20261104.md で確認済みの旧C#生成Fromと配送済みGmail Fromの不一致は未解決。件名・本文の合成18通一致は旧SMTP輸送を再現しない。次の無送信検証は、既存のmime.ts / compare-jaspic-eml.mjs / oracleを再利用し、実配送ヘッダーのFrom、Sender、Return-Path、Received、DKIM-Signatureの有無・変化を**項目名と一致/不一致だけ**で照合する。センター向け新規送信・SMTP接続・資格情報参照はしない。Gmail設定のエイリアス有無は現在未確認のため推測でFromを書き換えない。
+
+送信コード、cron、旧PC停止、PRマージは引き続き承認ゲート外。旧実配送完全互換の認定も保留。
+
 ## 2026-11-04 実環境DRY-RUN完了記録（追記）
 
 ユーザーがSupabase Edge FunctionのTest画面で県別に認証付きPOSTを実行し、応答JSONを確認した。これは実メール送信の承認ではない。
