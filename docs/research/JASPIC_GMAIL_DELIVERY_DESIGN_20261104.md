@@ -66,3 +66,14 @@ Google公式資料を確認した結果、**個人利用のOAuth審査例外と�
 現在、本人のGoogle Cloud画面で「アプリを公開」が無効、ブランディングのホームページ・プライバシーポリシー欄が空欄だった。**Google Cloudの画面上で公開できること、審査例外が実際に適用されること、Refresh tokenが7日を超えて使えることは、まだ確認できていない。** ボタンの無効化がこの2項目だけに起因すると断定もしない。
 
 現実的な二択：(A) Testingで限定期間の無送信認証準備とモック実装を進める（長期18:00送信には使わない）、(B) ユーザーが所有・検証可能なドメインと正しいプライバシー文書を準備して公開の前提を満たす（公開や審査を保証しない）。今回、ドメインなしで7日失効を正式に回避する方法は公式一次資料では確認できなかった。**未確認の回避策や定期的な手動更新を恒久対策として採用しない**。公開ドメイン、OAuth client secret、refresh token、認証コード等はGitHubに保存しない。実送信・本番変更・cron起動・PRマージは行わない。
+
+
+## iPhone専用ウェブOAuth準備（2026-11-05、無認証・無送信）
+
+ユーザーは現在Windows PCを使えないため、所有する `emergencyalert.news` で本人がiPhoneのSafariからGoogleのOAuth同意を行う方式を採用する方向。既存の **デスクトップOAuthクライアントは削除しない**。代わりにGoogle Cloudで **Web application クライアントを別途作成**し、認可済みリダイレクトURIを正確に `https://emergencyalert.news/jaspic/oauth/callback` と登録する計画。現段階ではまだそのクライアントは作成されておらず、callback URLも本番で稼働していない。
+
+今回 `supabase/functions/_shared/jaspic/gmail-web-oauth-offline.ts` を追加。暗号学的乱数によるstateとPKCE verifier、S256 challenge、`gmail.send` 最小権限、`access_type=offline`、厳格なcallbackのホスト/パス/重複パラメータ/CSRF検査を**オフラインで**生成・検証する。専用テスト `tests/jaspic/gmail-web-oauth-offline.test.ts` も追加。**Googleとの認証通信、認可コード交換、Cookie設定、実トークン保存はまだ一切実装していない。**
+
+callbackを本番で実装する前に必要な安全要件：本人確認済み管理者のみ開始可能、stateとPKCE verifierを短命・署名付きHttpOnly Secure SameSite=Lax Cookieまたはサーバ側保存に結びつけること、コールバックでのワンタイム消費とCSRF拒否、セキュリティヘッダー/Cache-Control no-store、クエリ内の認可コードをログ・アクセス解析・Referrerへ残さないこと、refresh tokenのサーバ専用暗号化保存・明示的な回転/失効手順。**Supabase Secretsへの保存は既存ランタイムSecretの更新権限を伴うため、具体的保存方式を決めずに「自動保存」と断言しない。** Google Cloudのclient secret / refresh token / codeをチャット・GitHub・ログに投稿させない。
+
+本番にOAuthルートを公開する時は機能フラグで停止を初期値とし、送信モジュールには一切結線しない。公開ページ `/jaspic`, `/jaspic/privacy` は PR #156 にて独立管理されている。すでにmainへマージ済みの公開ページをPR #155で作り直さない。JASPIC 既存コードに関する変更はDraft PR #155に留め、実メール送信・SMTP/Google API接続・本番変更・cron有効化・旧PC停止・PRマージは行わない。
