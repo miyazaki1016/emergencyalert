@@ -23,7 +23,7 @@ describe("offline iPhone OAuth cookie session", () => {
   it("rejects a changed state, tampering, expiry and a wrong key", async () => {
     const cookie = await sealGmailWebSessionOffline(state, verifier, key, now);
     await expect(openGmailWebSessionOffline(cookie, "d".repeat(43), key, now + 20)).rejects.toThrow("Invalid OAuth session");
-    await expect(openGmailWebSessionOffline(cookie.slice(0, -1) + "x", state, key, now + 20)).rejects.toThrow("Invalid OAuth session");
+    await expect(openGmailWebSessionOffline(cookie.slice(0, cookie.lastIndexOf(".") + 1) + (cookie[cookie.lastIndexOf(".") + 1] === "A" ? "B" : "A") + cookie.slice(cookie.lastIndexOf(".") + 2), state, key, now + 20)).rejects.toThrow("Invalid OAuth session");
     await expect(openGmailWebSessionOffline(cookie, state, key, now + 300_001)).rejects.toThrow("Invalid OAuth session");
     await expect(openGmailWebSessionOffline(cookie, state, "e".repeat(43), now + 20)).rejects.toThrow("Invalid OAuth session");
   });
