@@ -31,8 +31,8 @@ describe('private raw mail verification', () => {
   it('keeps update projection separate from unavailable previous-value verification', () => {
     const old = { ...item.data, address: '合成更新前' };
     const updated = generateMail(item.kind, item.data, old, item.context);
-    expect(verifyRealMail(raw(updated.body), [item])).toMatchObject({ update: true, bodyBytesMatch: null, currentValuesAndStructureMatch: true, observedUpdateMarkers: 1, previousValuesVerified: false });
-    expect(verifyRealMail(raw(updated.body.replace('→発生場所●更新', '●更新→発生場所')), [item]).currentValuesAndStructureMatch).toBe(false);
+    expect(verifyRealMail(raw(updated.body), [item])).toMatchObject({ update: true, bodyBytesMatch: true, currentValuesAndStructureMatch: true, observedUpdateMarkers: 1, previousValuesVerified: false });
+    expect(() => verifyRealMail(raw(updated.body.replace('→発生場所●更新', '●更新→発生場所')), [item])).toThrow();
   });
   it('checks encoded Subject bytes separately from decoded text', () => {
     const eml = Buffer.from(generateEml(item.kind, item.data, null, item.context, 'eight-bit', { date: 'Wed, 04 Nov 2026 00:00:00 +0000', messageId: 'synthetic.invalid' }));
