@@ -74,4 +74,8 @@
 - Supabase changelogとEdge schedule/Vault公式資料を確認。2026-11-10予定のTLS CBC cipher廃止は現行HTTPSクライアント利用を前提とする。古い.NET SMTP接続の安全性の根拠とはしない。
 - セキュリティ記録：旧認証値を除く表示処理が不十分で初期ツール出力に旧認証情報が含まれた。ユーザーへ通知済み。生成コード・fixture・資料には値をコピーせず、認証コードパターンの走査でも混入なしを確認。旧資格情報の失効/再発行は未実施。
 - 未解決：旧hppmaps除外一覧、MIME/送信実装、滋賀の現行取得と都市参照表、利用条件、本番容量/Edge実行制限、承認後のDB適用と切替。切替手順書にゲートを記載。
-- CI：PR更新後に確認予定。ローカル成功とGitHub CI成功を混同しない。
+- GitHub検証済みコードhead: `dc39ac480bd6ba78888b03143c9e2b487e6d19a5`。通常CI #1379の4ジョブ、専用JASPIC CI #1の2ジョブ、review-only分類 #96がすべてsuccess。
+  - 通常CI: https://github.com/miyazaki1016/emergencyalert/actions/runs/41757454401
+  - JASPIC CI: https://github.com/miyazaki1016/emergencyalert/actions/runs/41757454509
+  - 実Postgres16で専用SQLと並行baseline/CAS・送信権claimの競合テストも成功。旧C#をCI上で再実行してgoldenの不変性を確認し、本文バイト比較・新Edge型チェックも成功。
+  - この証拠追記は文書のみの後続更新。送信・DB・cron・デプロイ・マージは未実施。雨の実装差分がないこともmain比較で確認。
