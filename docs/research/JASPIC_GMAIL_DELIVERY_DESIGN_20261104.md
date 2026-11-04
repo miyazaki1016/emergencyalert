@@ -88,3 +88,10 @@ callbackを本番で実装する前に必要な安全要件：本人確認済み
 **未実装の重要ゲート**：本番 `/jaspic/oauth/callback` ルート（現行の公開サイトには未配置）、本人確認、HttpOnly短命state/PKCE検証・ワンタイム失効、Google認可コード交換の実通信、トークンの暗号化保存・更新/取消、監査用ログの秘密情報対策。サーバレスの並行実行時に再使用不能を保証するには永続トランザクションが必要。これらが完成する前に一般公開のOAuth開始導線を設置してはならない。
 
 今回の変更は **オフライン関数・テスト・文書のみ**で、Gmail APIへの接続、同意画面の起動、トークン取得、Supabase Secrets書込、実メール送信、cron、本番デプロイ、PRマージは行っていない。
+
+
+## iPhone OAuth短命セッションCookie（2026-11-05、オフライン準備）
+
+`supabase/functions/_shared/jaspic/gmail-web-session-offline.ts` を追加。認証開始時に生成するstateとPKCE verifierを、サーバ側AES-256-GCMで暗号化して5分間のみ検証可能とするユーティリティ。Cookieポリシーは `__Host-jaspic-oauth`、HttpOnly、Secure、SameSite=Lax、Path=/。改ざん・期限切れ・state不一致を拒否する単体テストを用意した。暗号鍵はランタイム専用環境変数でのみ供給し、GitHub/チャット/画面へ露出させない。
+
+**まだ認証フローとして有効化できない**：本人の管理者認証、サーバ側のワンタイム状態消費（CSRF再利用対策）、Cookie設定を行う実際の認証開始ルートとcallback、Googleへの実通信、tokenの暗号化・永続保管、アカウント本人性確認、適切な失効・監査・運用監視は未実装。暗号化Cookieだけでは1回限りの認証フローを保証できないため、いずれも本番有効化前の必須条件として扱う。今回はGitHub Draft PR #155内の純粋関数・テスト・文書の追加だけを行い、Vercel/Supabaseの環境変数、公開ページ、メール送信、cron、旧Windows運用、PRマージに変更なし。
