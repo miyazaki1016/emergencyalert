@@ -203,3 +203,11 @@ PR #155 のJASPIC専用CI（GitHub-hosted Ubuntu runner、Node 22）に **公開
 同時刻の滋賀完了通知は別送信者からのメールであり、センター宛て事案メールのMIMEとは混同しない。今回読んだ完了通知の本文先頭は `不審者 0/0（708） 件送信しました`。これは完了通知上の表示であり、実配送成功数を単独で保証しない。
 
 **判定**：滋賀の実Cc受信原本でも8bit/UTF-8と差出人書換えに整合する観測を追加。広島の送信済み原本と滋賀のCc受信原本は保存位置・配送経路が異なるため、両者を同一条件のバイト比較とは扱わない。センター側最終受信原本、SMTP envelope、実入力からの新旧本文完全一致は未確認。旧実装のFromを推測で変更しない。送信、SMTP接続、デプロイ、cron、旧Windows停止、マージなし。
+
+## 滋賀・実Ccメール本文の構造照合（2026-11-04、無送信）
+
+2026-11-04 09:08 JSTの滋賀Cc受信メール2通の復号本文を読み取り専用で解析し、`supabase/functions/_shared/jaspic/mail.ts` の `shiga-person` 本文テンプレートと**構造だけ**照合した。双方とも31行、冒頭の区切り線・「滋賀県警アラート（新規）」見出し、13項目のフィールド名と順序（id, city_code, address, address_code, latitude, longitude, police_station, case_type, occurrence_dt, accident_situation, criminal_car, criminal_feature, resolution）、Google Maps参照行、末尾のサイト掲載依頼文を確認。既存テンプレートとこれらの構造要素は整合する。
+
+**未実施・非認定**：実事件レコードの値を新生成器に与えた再生成、本文の文字単位・バイト単位の完全一致、空白・改行・注釈文字列の全行比較、更新ケースの実メール照合。個人情報を含む実メール本文・ID・位置・Message-IDはGitHubへ転載しない。したがって今回の結果は**実メール本文の構造一致（限定的）**であり、実データによる完全互換PASSではない。
+
+読み取り・資料更新のみ。実メール送信、SMTP接続、本番DB/Edge変更、cron、旧Windows停止、PRマージなし。
