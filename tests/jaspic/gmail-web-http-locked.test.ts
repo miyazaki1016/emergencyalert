@@ -23,8 +23,9 @@ describe("JASPIC iPhone OAuth HTTP endpoints remain locked", () => {
   });
 
   it("does not echo a returned authorization code or callback state", async () => {
-    const response = await callback();
-    expect(response.status).toBe(503);
+    const response = await callback(new NextRequest("https://emergencyalert.news/jaspic/oauth/callback?code=synthetic-secret-value&state=" + "s".repeat(43)));
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe("https://emergencyalert.news/jaspic/oauth/result?status=unavailable");
     expect(response.headers.get("cache-control")).toContain("no-store");
     expect(response.headers.get("referrer-policy")).toBe("no-referrer");
     const body = await response.text();
