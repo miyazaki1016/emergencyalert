@@ -22,10 +22,22 @@ export function createHandler(province: Province, options: {
         const oldCount = Object.keys(snapshot.records).filter(k => k.startsWith(kind + ":")).length;
         if (snapshot.baseline && items.filter(i => i.kind === kind).length < oldCount * 0.8) throw new Error("Source count dropped");
       }
-      const result = await plan(province, snapshot, items, {legacyHiroshimaPersonIds: await options.store.legacyIds(province)});
+      const legacyIds = await options.store.legacyIds(province);
+      const result = await plan(province, snapshot, items, {legacyHiroshimaPersonIds: legacyIds});
+      const candidateBreakdown: Record<string, {new: number; updated: number}> = {};
+      for (const candidate of result.candidates) {
+        const kind = candidate.key.slice(0, candidate.key.indexOf(":"));
+        const counts = candidateBreakdown[kind] ??= {new: 0, updated: 0};
+        counts[snapshot.records[candidate.key] ? "updated" : "new"]++;
+      }
+      const legacyExcluded = province === "hiroshima" && snapshot.baseline
+        ? items.filter(item => item.kind === "hiroshima-person" && legacyIds.has(item.data.id ?? "") &&
+          (!snapshot.records[`hiroshima-person:${item.data.id}`] ||
+          Object.entries(item.data).some(([field, value]) => field !== "latitude" && field !== "longitude" && snapshot.records[`hiroshima-person:${item.data.id}`]?.[field] !== value))).length
+        : 0;
       if (body.persist) await options.store.commit(province, result);
       return Response.json({ province, mode:"dry-run", persisted:!!body.persist,
-        baseline:!snapshot.baseline, records:items.length, candidates:result.candidates.length, sent:0 });
+        baseline:!snapshot.baseline, records:items.length, candidates:result.candidates.length, candidateBreakdown, legacyExcluded, sent:0 });
     } catch {
       // Do not expose source text, tokens, HTTP authorization headers, addresses or stack traces.
       return Response.json({province,mode:"dry-run",sent:0,error:"JASPIC_RUN_FAILED"},{status:503});
