@@ -258,7 +258,7 @@
 | #105 | 予測通知の初期移行で直前の解消確認を正しく引き継ぐ | merged | `326f6d92485e0e158afcd62db5b37131e11dfc51` | 2026-10-29T08:23:10Z |
 | #107 | chore: 読み取り専用の開発忘れ物検出（両プロジェクト共通方式） | merged | `bd03ccc3b96855cfbba2b74409668ce206964f5c` | 2026-10-31T20:12:51Z |
 | #108 | 大雨通知をエピソード1回に制限し、30mm/h自動評価を追加 | merged | `9970fad666c6d863c8a9cf17044e141b85bb2596` | 2026-10-31T10:01:58Z |
-| #109 | 研究用: 大雨予測の継続性判定（通知ロジック非接続） | open | `376cc93a3d2824e5322a1f79382bf2ff3e352696` | 2026-11-03T23:38:57Z |
+| #109 | 研究用: 大雨予測の継続性判定（通知ロジック非接続） | open | `6e650705260825c33a9905bbd3802919ba341cc4` | 2026-11-03T23:54:32Z |
 | #110 | docs: 2026-11-01棚卸し・調査結果を台帳へ保存 | merged | `b2ddc796abf2834b549f2c1056d204747e818535` | 2026-10-31T21:24:23Z |
 | #111 | docs: 旧監査ブランチの追加調査を台帳へ記録 | merged | `5b1d48d44666ccee5e845bb5cf0689379c42bd8d` | 2026-10-31T21:28:05Z |
 | #112 | docs: 未整理ブランチの保全・照合・整理候補を分類 | merged | `aee1b209c7f9dcc1e5803ec912ac72960d8fa237` | 2026-10-31T21:31:02Z |
@@ -300,4 +300,5 @@
 | #151 | Inventory: ranked, evidence-only human review queue | merged | `9c11b14192a5f4e2d214b6d51fc6bb51f844366f` | 2026-11-02T20:53:32Z |
 | #152 | fix: reuse existing ledger facts PR on repeated inventory runs | merged | `5e4acfac946cc17b4f216a5c0d962c453f05a869` | 2026-11-02T23:27:06Z |
 | #153 | fix: restore ledger facts workflow after invalid YAML merge | merged | `dec71eda8c9866709ac3a002481eaf14f0471a99` | 2026-11-03T23:40:09Z |
+| #155 | docs: 広島・滋賀のJASPICメール完全互換・移行監査 | open | `75683c215c18ef24b264360e87bde8b188e0debb` | 2026-11-04T01:29:45Z |
 <!-- INVENTORY_FACTS_END -->
