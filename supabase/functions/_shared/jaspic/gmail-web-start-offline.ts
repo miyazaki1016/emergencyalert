@@ -37,7 +37,7 @@ export async function prepareAdminGmailOAuthStart(
   const { state, codeVerifier, authorizationUrl } =
     await prepareGmailWebConsentOffline(request.clientId);
   const sealedCookie = await sealGmailWebSessionOffline(
-    state, codeVerifier, request.sessionEncryptionKey, now,
+    state, codeVerifier, request.sessionEncryptionKey, now, admin.ownerId,
   );
   await registerOAuthStateOffline(
     request.stateStore, state, admin.ownerId, now + GMAIL_OAUTH_COOKIE_POLICY.maxAge * 1000,
