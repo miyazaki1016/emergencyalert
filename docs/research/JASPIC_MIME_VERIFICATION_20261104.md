@@ -89,6 +89,12 @@ MimeKit 4.12.0にはGHSA-g7hc-96xr-gvvxの既知警告がある。旧版再現�
 
 旧cities.json、不審者full.json、現行address.jsonは今回の環境から404 / text/html。トップやJSが200でも、データ不存在かアクセス制限かは断定できない。旧ChromeDriverの利用理由がアクセス制限だったというユーザーの記憶と整合する可能性はあるが、原因を証明したものではない。認証回避、ブラウザ偽装による突破、推測URLの追加は行わない。市町参照スキーマも未確認。公開取得が確認できるまでは既存collectorを失敗扱いのまま維持する。
 
+### 追加観測：ユーザー端末では滋賀JSONが表示（2026-11-04）
+
+ユーザーがiPhoneブラウザで `map.police.shiga.dsvc.jp` のJSONらしい本文を表示できているスクリーンショットを提供。画面に `id`, `city_code`, `address`, `address_code`, `latitude`, `longitude`, `police_station`, `case_type`, `occurrence_dt`, `accident_situation`, `criminal_car`, `criminal_feature`, `resolution` 等が並ぶ**配列データ**が確認できる。画面のアドレス欄はドメインのみ表示で**完全なパス・queryは未確認**。本文の日本語は文字化けしており、原因（元データ／charset／ブラウザ表示）は未確定。
+
+この証拠により「滋賀JSONが公開サイト上に存在しない」とは結論できない。従来の404は**検証環境・アクセス経路・要求URL/パラメータ・キャッシュ等に依存する可能性**がある。旧C# `Shiga()` は `/data/map/suspicious_person_full.json?yyyyMMddhhmmss` をChromeDriverで取得する（旧ソースL3298-3301）。**ユーザーにスクリーンショット表示時の完全なURLを共有してもらい、まずパスとqueryを照合する**。次にアクセスを許可された環境から読み取り専用でHTTPステータス・Content-Type・charset・件数・JSONパース・必須フィールド・都市対応表を検証する。データ本文やスクリーンショットをGitHubへ転記しない。アクセス制限回避や本番収集・送信は行わない。
+
 ## 広島 hppmaps.LINKKEY の意味
 
 旧HomeController（blob 49f2ab4233a00456b440ca1ac2072f36a7eee18e）の`Hpp_Map()` L2244付近はLINKKEYで既存確認し、新規なら旧sendmailを呼んだ後に旧一覧を保存する。ただしカテゴリ除外時や一部送信失敗時にも保存されるため、**hppmapsは送信成功の証明ではなく、旧地図方式で扱ったIDの一覧**と読むべきである。
