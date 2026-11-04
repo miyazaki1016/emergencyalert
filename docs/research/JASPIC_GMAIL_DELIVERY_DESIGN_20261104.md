@@ -163,3 +163,12 @@ Draft PR #155に `supabase/migrations/20261105074100_jaspic_oauth_once.sql` を�
 本番有効化までの残要件：Supabase Authの管理者本人ログインUI実装（認証開始/完了の両方でサーバ検証）、OAuth stateのDB登録と原子消費、短命暗号化cookie設定/破棄、Google認可コード交換のサーバ実通信、暗号化トークンの永続保存および鍵設定・失効、実DBでの検証、安全な監査、Googleの本番OAuthスコープ制限確認。GoogleのWebクライアントID/Secretは環境変数でのみ使用し、ソースへ書かない。OAuthコールバックでコードをHTTPレスポンスやログ・解析ツールに送らない。
 
 本追加はDraft PR #155内のみ。アメふる本体の本番デプロイ・既存公開JASPIC紹介ページ・Gmail実送信・18時cron・旧Windows送信・PRマージには影響を与えない。
+
+
+## OAuth開始フローの連結（2026-11-05、オフライン）
+
+`gmail-web-start-offline.ts` と専用テストを追加。本人認証済み管理者を既存の厳格なadmin許可リストで照合 → PKCE+CSRF state生成 → AES-GCM暗号化した短命Cookieの作成 → 永続DB adapterへのstateダイジェスト登録 → 成功後のみGoogleの認可URLを呼び出し側に返す順序を一つの操作に連結した。DB登録失敗時は認可URLを返さず停止する。無権限者にはDB登録を開始しない。テストでは合成したユーザー・鍵・Google client IDとモックDBのみを使用する。
+
+**未完成**：この準備関数は実HTTPルートで呼ばれていないため、Google画面が開く・iPhoneで認証できるとはまだ言えない。次段階は本人が使うSupabase Authログイン導線（サーバ側でgetUser(token)を確認）とPOST /jaspic/oauth/start、Google戻り時の安全な本人認証、コールバックの原子消費、暗号化トークンDB保存、セキュリティレビュー。認可開始URLはブラウザ画面に埋め込まず、管理者専用の認可成功後レスポンスとしてのみ渡すこと。
+
+本番で必要な環境変数やDBマイグレーションには一切触れない。Gmail認証・送信・18時cron・旧PC停止・PR #155マージは禁止のまま。
