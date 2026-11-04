@@ -101,26 +101,14 @@ MimeKit 4.12.0にはGHSA-g7hc-96xr-gvvxの既知警告がある。旧版再現�
 
 次は**無送信・読取りのみ**で、同一URLに対して①DNS解決、②TLS接続、③HTTPステータス、④Content-Type/charset、⑤レスポンス先頭がJSONか、⑥UTF-8デコードと日本語の文字化け、⑦レコード数と必須フィールド、⑧旧C#の日時queryあり/なしを順に比較する。個人情報や本文はGitHubログへ保存せず、HTTPの結果と件数などメタデータのみ記録。アクセス制限の回避はしない。送信、本番DB変更、Edge deploy、cron、マージ禁止。
 
-### 読取り専用の滋賀JSON診断コード（2026-11-04）
+### 滋賀JSONの既存診断コードを再利用（2026-11-04）
 
-- `scripts/jaspic-shiga-diagnostic.mjs` を追加。**実メール送信・本番DB・Supabase APIへの書込み・認証情報は一切扱わない**。Node.jsから同一ホストの旧URL2本（事件 `suspicious_person_full.json` と都市 `cities.json`）を、**queryなし／旧C#同様の時刻queryあり**でそれぞれGETする。リダイレクトは禁止、20秒timeout、各レスポンス12MB上限。
-- ログ出力はDNS解決成否、HTTPステータス、Content-Type、取得バイト数、UTF-8妥当性、JSONパース可否、レコード件数、最初のオブジェクトの**キー名のみ**、Unicode置換文字数に限定。**事件本文、個別ID、住所、氏名、位置情報、レスポンス生データは出力・保存しない**。
-- `tests/jaspic/shiga-diagnostic.test.ts` に合成データのみでHTTP200、404、UTF-8不正、JSON不正、DNS/ネットワーク失敗、情報非露出を検証するテストを追加。外部サイトへ接続するテストではない。
-- この作業環境で同URLにGETを試みたが、**DNS名前解決失敗**でHTTP接続前に終了した。従来の404とは原因が異なるため混同しない。新診断コードの**実ネットワーク実行結果・CI結果は未確認**。実行例：`node scripts/jaspic-shiga-diagnostic.mjs`（公開GETのみ、ログに事件データなし）。
-- **文字化けについて**：スクリーンショットには置換文字が見えるが、レスポンスがUTF-8不正なのか、既に文字化けした文字列がJSONに格納されているのかは未判定。上記診断の `utf8` と `replacementChars` で切り分ける。勝手に文字コードを推定・変換して本番送信しない。
-
-### 無送信の滋賀ソース診断コード追加（2026-11-04）
-
-`scripts/jaspic-source-probe.mjs` と `scripts/jaspic-source-probe.test.mjs` をDraft PRへ追加。既存の `collect.ts` や本番Edge経路は変更せず、**明示実行時だけ**公開済みの正規2パス（cities / suspicious_person_full）をGETする。各パスについて `Accept: application/json` の素URL、`Accept: */*` の素URL、旧方式に近い時刻queryありを比較する。**ブラウザ偽装、プロキシ、認証回避、再試行ループなし**。
-
-出力はHTTPステータス、Content-Type、Content-Encoding、Cache-Control、応答サイズ、UTF-8/JSONの妥当性、レコード件数、先頭レコードの**欠落キー名だけ**。住所、事件内容、ID値、レスポンス本文、通信例外メッセージ、秘密値は出力しない。20秒タイムアウト、12MB上限、リダイレクト禁止、無送信・DBアクセスなし。ローカルでNode組込みtestの5ケース成功（HTTPエラー秘匿、JSON件数、スキーマ、パース/通信失敗、query/Accept差分）。CIに同じ**ネットワーク不使用**テストを追加。PR上のCI結果は別途確認する。
-
-再現コマンド（Node 22以降）：
-```bash
-node --test scripts/jaspic-source-probe.test.mjs
-node scripts/jaspic-source-probe.mjs
-```
-2行目は**公開サイトへのGETを計6回行う**ため、実行環境のネットワーク利用が許可されている場合だけ手動実行する。自動スケジュールには追加しない。ユーザー端末のWi-Fi/4G成功と、こちらの検証環境でのDNS失敗を切り分けることが目的で、**Supabase Edgeでの取得成功をまだ確認したわけではない**。次の判断は診断結果を確認してから行う。
+- 既存の `scripts/jaspic-source-probe.mjs` と `scripts/jaspic-source-probe.test.mjs` を発見したため、**同じ用途の新規診断スクリプトとテストは削除**。既存成果を再利用し、重複実装を残さない。
+- 既存診断は滋賀の事件JSONと都市JSONの両方に対して、**クエリなし＋Accept: application/json／クエリなし＋Accept: */*／時刻クエリあり＋Accept: application/json**の3条件を読取り専用で比較できる。リダイレクト禁止、20秒タイムアウト、12MB上限。
+- ログ出力はHTTPステータス、Content-Type、Content-Encoding、Cache-Control、取得バイト数、UTF-8妥当性、JSONパース可否、件数、必須キー欠落、Unicode置換文字数などの**メタデータのみ**。実事件の本文・個別ID・住所・人物情報・位置情報・レスポンス本文は記録しない。
+- 既存のオフラインテストに**不正UTF-8と、UTF-8自体は妥当でも文字列中にU+FFFDがある場合**を区別する合成ケースを追加した。CIワークフローは既にこのテストを実行する設定。
+- この作業環境で同URLへ直接GETを試みたが、**DNS名前解決失敗**でHTTP接続前に終了。過去の404とは区別する。既存診断の今回の**外部ネットワーク実測は未完了**。実行コマンドは `node scripts/jaspic-source-probe.mjs`。CIや他環境の実測なしにSupabase Edgeでの取得成功を認定しない。
+- ユーザーのiPhoneはUQ Wi-Fiと4GでJSON表示可能。したがって**回線固有の問題に限定できない**。次は既存診断を実行できるネットワーク環境で比較し、必要に応じて文字コード・データ取得の安全な修正を検討する。
 
 ## 広島 hppmaps.LINKKEY の意味
 
