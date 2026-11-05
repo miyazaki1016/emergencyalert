@@ -2,6 +2,9 @@
 
 # 🚨🚨🚨 最重要・永久運用ルール：main総覧は「索引」、詳細は各ブランチ！絶対に忘れるな！ 🚨🚨🚨
 
+> **2026-11-05 美咲 × アメふる開発管理システムの共通入口**：[開発管理システム総覧（美咲main）](https://github.com/miyazaki1016/misaki/blob/main/docs/DEVELOPMENT_MANAGEMENT_OVERVIEW.md)。両リポジトリの毎日10:17 JSTの自動棚卸し、台帳更新提案、承認ボード、担当ソラへの引き継ぎ、直接マージの未有効状態をまとめた**管理用索引**。アメふる本体の実装・監査の正本は引き続きこのリポジトリのmain総覧・各専用ブランチ。引き継ぎキューは2026-11-04時点の一次仕分けであり、作業完了や本番反映を示さない。
+
+
 > **開発管理の現況（2026-11-01確認）**：[開発台帳・棚卸し監査索引](DEVELOPMENT_LEDGER.md)／[共通運用規約](DEVELOPMENT_MANAGEMENT_STANDARD.md)。読み取り専用の自動棚卸しはPR #107でmainへ統合済み、PR #118で**毎日10:17 JST**に変更済み（`.github/workflows/development-inventory.yml`）。実行ごとの `report.json` と `summary.md` はGitHub Actionsの `development-inventory` artifactに30日間保存し、**mainの台帳へ日次自動追記はしない**。週次の詳細照合は別途行う管理作業で、自動実装済みとは扱わない。旧管理ブランチ `chore/development-inventory-automation-20261031` は歴史的な作業元であり、未統合・未稼働の現況ではない。
 
 - **最優先・予測通知の重複修正**：branch `fix/forecast-notification-episodes-20261029` → [実装・検証・本番結果と再開地点](FORECAST_EPISODE_FIX_20261029.md)。現況と予測エピソードを分離し、購読別intentで並行／クラッシュ再送を抑止。PR #104・#105で管理。本番v34、17:20自然cron14地点エラー0、272テスト・CI全4ジョブ成功。自然な継続接近での重複減少効果はまだ未観測。次は詳細の監視SQLで追跡。面判定は本番へ採用しない。
