@@ -78,45 +78,7 @@ WITH params AS (
 ), ordered AS (
  SELECT *,
    count(*) OVER(PARTITION BY evaluation_id,base_time,valid_time) AS point_matches,
-   CASE WHEN prev_valid_time~'^[0-9]{14}
- FROM typed
-), classified AS (
- SELECT *,
- CASE
-   WHEN point_matches<>1 OR area_matches<>1 OR combined_matches<>1 OR feature_matches<>1 THEN 'DATA_MULTIPLICITY'
-   WHEN area_reason IS DISTINCT FROM 'EXPERIMENTAL_RULE' OR fraction IS NULL THEN 'RULE_OR_FEATURE_UNVERIFIED'
-   WHEN area_state='RAIN' AND fraction>=0.4 THEN 'THRESHOLD_RAIN'
-   WHEN area_state='RAIN' AND fraction>0.2 AND fraction<0.4
-     AND prev_area='RAIN' AND valid_at-prev_at=interval '5 minutes' THEN 'CARRIED_RAIN'
-   WHEN area_state='NO_RAIN' AND fraction<=0.2 THEN 'RELEASED_DRY'
-   ELSE 'OTHER'
- END AS attribution
- FROM ordered CROSS JOIN params p
- WHERE valid_at IS NOT NULL
-   AND decided_at IS NOT NULL
-   AND valid_at>decided_at::timestamptz
-   AND valid_at<=p.as_of
-   AND radar_actual IN ('RAIN','NO_RAIN')
-   AND point_state IN ('RAIN','NO_RAIN')
-   AND area_state IN ('RAIN','NO_RAIN')
-   AND combined_state IN ('RAIN','NO_RAIN')
-)
-SELECT attribution,radar_actual,count(*) AS frames
-FROM classified
-GROUP BY attribution,radar_actual
-ORDER BY attribution,radar_actual;
-
--- Caveats:
--- 1. Do not equate radar center with on-site ground truth.
--- 2. A single UI snapshot may have a different as_of and selected set.
--- 3. Malformed timestamps may cause a cast error; inspect source data before execution.
--- 4. A repeated group/variant can duplicate rows; audit group and variant keys separately.
--- 5. This classifies 40% area frames only, not a causal counterfactual.
--- 6. Previous state is read from FULL area.series, including pre-decision frames.
--- 7. This query has not been run against the production DB.
--- 8. This audit requires SQL syntax and live schema validation before treating results as evidence.
--- 9. Snapshot and comparison versions may change; archive the exact evaluation IDs for reproducibility.
- THEN
+   CASE WHEN prev_valid_time~'^[0-9]{14}$' THEN
      (substr(prev_valid_time,1,4)||'-'||substr(prev_valid_time,5,2)||'-'||
       substr(prev_valid_time,7,2)||' '||substr(prev_valid_time,9,2)||':'||
       substr(prev_valid_time,11,2)||':'||substr(prev_valid_time,13,2)||'+00')::timestamptz
@@ -149,9 +111,10 @@ GROUP BY attribution,radar_actual
 ORDER BY attribution,radar_actual;
 
 -- Caveats:
--- 1. Do not equate radar center with on-site ground truth.
--- 2. A single UI snapshot may have a different as_of and selected set.
--- 3. Malformed timestamps may cause a cast error; inspect source data before execution.
--- 4. A repeated group/variant can duplicate rows; audit group and variant keys separately.
--- 5. This classifies 40% area frames only, not a causal counterfactual.
--- 6. This query has not been run against the production DB.
+-- 1. Radar center is NOT on-site ground truth.
+-- 2. To reproduce UI, use the same owner, as_of and selected evaluation IDs.
+-- 3. Malformed timestamps can cause a cast error; validate first.
+-- 4. Duplicated groups/variants must be separately checked.
+-- 5. This attributes area 40% states; it is NOT a causal counterfactual.
+-- 6. Prior state comes from the full area series, including pre-decision frames.
+-- 7. This SQL has NOT been executed or schema-validated against live DB.
