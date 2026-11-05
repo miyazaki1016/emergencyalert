@@ -31,6 +31,7 @@ WITH params AS (
         p.value->>'predicted' AS point_state,
         p.value->>'actual' AS radar_actual,
         a.n AS area_matches,a.state AS area_state,a.reason AS area_reason,
+        a.prev_state AS prev_area,a.prev_time AS prev_valid_time,
         c.n AS combined_matches,c.state AS combined_state,
         f.n AS feature_matches,f.fraction,
         p.ordinality AS point_ordinal
@@ -39,10 +40,18 @@ WITH params AS (
    WITH ORDINALITY p(value,ordinality)
  CROSS JOIN LATERAL (
    SELECT count(*) AS n,
-          CASE WHEN count(*)=1 THEN max(x->>'state') END AS state,
-          CASE WHEN count(*)=1 THEN max(x->>'reason') END AS reason
-   FROM jsonb_array_elements(r.area_series) x
-   WHERE x->>'validTime'=p.value->>'validTime'
+          CASE WHEN count(*)=1 THEN max(z.state) END AS state,
+          CASE WHEN count(*)=1 THEN max(z.reason) END AS reason,
+          CASE WHEN count(*)=1 THEN max(z.prev_state) END AS prev_state,
+          CASE WHEN count(*)=1 THEN max(z.prev_time) END AS prev_time
+   FROM (
+     SELECT x->>'validTime' AS valid_time,x->>'state' AS state,
+            x->>'reason' AS reason,
+            lag(x->>'state') OVER(ORDER BY ord) AS prev_state,
+            lag(x->>'validTime') OVER(ORDER BY ord) AS prev_time
+     FROM jsonb_array_elements(r.area_series) WITH ORDINALITY t(x,ord)
+   ) z
+   WHERE z.valid_time=p.value->>'validTime'
  ) a
  CROSS JOIN LATERAL (
    SELECT count(*) AS n,
@@ -69,8 +78,47 @@ WITH params AS (
 ), ordered AS (
  SELECT *,
    count(*) OVER(PARTITION BY evaluation_id,base_time,valid_time) AS point_matches,
-   lag(area_state) OVER(PARTITION BY evaluation_id,base_time ORDER BY valid_at,point_ordinal) AS prev_area,
-   lag(valid_at) OVER(PARTITION BY evaluation_id,base_time ORDER BY valid_at,point_ordinal) AS prev_at
+   CASE WHEN prev_valid_time~'^[0-9]{14}
+ FROM typed
+), classified AS (
+ SELECT *,
+ CASE
+   WHEN point_matches<>1 OR area_matches<>1 OR combined_matches<>1 OR feature_matches<>1 THEN 'DATA_MULTIPLICITY'
+   WHEN area_reason IS DISTINCT FROM 'EXPERIMENTAL_RULE' OR fraction IS NULL THEN 'RULE_OR_FEATURE_UNVERIFIED'
+   WHEN area_state='RAIN' AND fraction>=0.4 THEN 'THRESHOLD_RAIN'
+   WHEN area_state='RAIN' AND fraction>0.2 AND fraction<0.4
+     AND prev_area='RAIN' AND valid_at-prev_at=interval '5 minutes' THEN 'CARRIED_RAIN'
+   WHEN area_state='NO_RAIN' AND fraction<=0.2 THEN 'RELEASED_DRY'
+   ELSE 'OTHER'
+ END AS attribution
+ FROM ordered CROSS JOIN params p
+ WHERE valid_at IS NOT NULL
+   AND decided_at IS NOT NULL
+   AND valid_at>decided_at::timestamptz
+   AND valid_at<=p.as_of
+   AND radar_actual IN ('RAIN','NO_RAIN')
+   AND point_state IN ('RAIN','NO_RAIN')
+   AND area_state IN ('RAIN','NO_RAIN')
+   AND combined_state IN ('RAIN','NO_RAIN')
+)
+SELECT attribution,radar_actual,count(*) AS frames
+FROM classified
+GROUP BY attribution,radar_actual
+ORDER BY attribution,radar_actual;
+
+-- Caveats:
+-- 1. Do not equate radar center with on-site ground truth.
+-- 2. A single UI snapshot may have a different as_of and selected set.
+-- 3. Malformed timestamps may cause a cast error; inspect source data before execution.
+-- 4. A repeated group/variant can duplicate rows; audit group and variant keys separately.
+-- 5. This classifies 40% area frames only, not a causal counterfactual.
+-- 6. Previous state is read from FULL area.series, including pre-decision frames.
+-- 7. This query has not been run against the production DB.
+ THEN
+     (substr(prev_valid_time,1,4)||'-'||substr(prev_valid_time,5,2)||'-'||
+      substr(prev_valid_time,7,2)||' '||substr(prev_valid_time,9,2)||':'||
+      substr(prev_valid_time,11,2)||':'||substr(prev_valid_time,13,2)||'+00')::timestamptz
+   END AS prev_at
  FROM typed
 ), classified AS (
  SELECT *,
