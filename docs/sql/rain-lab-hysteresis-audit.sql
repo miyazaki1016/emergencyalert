@@ -114,6 +114,8 @@ ORDER BY attribution,radar_actual;
 -- 5. This classifies 40% area frames only, not a causal counterfactual.
 -- 6. Previous state is read from FULL area.series, including pre-decision frames.
 -- 7. This query has not been run against the production DB.
+-- 8. This audit requires SQL syntax and live schema validation before treating results as evidence.
+-- 9. Snapshot and comparison versions may change; archive the exact evaluation IDs for reproducibility.
  THEN
      (substr(prev_valid_time,1,4)||'-'||substr(prev_valid_time,5,2)||'-'||
       substr(prev_valid_time,7,2)||' '||substr(prev_valid_time,9,2)||':'||
