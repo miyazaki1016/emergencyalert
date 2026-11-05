@@ -336,3 +336,49 @@ LEFT JOIN LATERAL (
 ただし、`point_scores`・`area_series`・`combined_series`自体の同一時刻重複も独立に監査し、重複があれば評価グループ全体を検証保留にする。さらに、研究画面の集計コードは`find`で最初の同一時刻を採用するため、SQLで厳格に重複排除した結果と一致しない可能性を明記する。前節SQLはまだ**実行可能な確定版ではなく、修正指示付きのレビュー案**である。
 
 現在はDBへの追加照合を実施していない。新しい170コマ再現・空振り実測の結果はない。本番変更・Vercelビルドなし。
+
+## 判定系列の重複検査：実行前ゲート（2026-11-05）
+
+特徴量の重複だけでなく、point/area/combinedの各系列が同一 `evaluation_id/baseTime/validTime` に重複を持つ場合も、`LEFT JOIN LATERAL` の積で件数が増える。**先に次の診断SQLを実行し、重複が0件であることを確認する**。診断は研究管理者本人の対象評価集合に限定し、個人情報を出力しない。以下の `selected` は前節の `params` と `selected` CTEをそのまま使用する。
+
+```sql
+, series_rows AS (
+ SELECT s.evaluation_id,g->>'baseTime' AS base_time,
+        v->>'threshold' AS threshold,
+        'point' AS method,p->>'validTime' AS valid_time
+ FROM selected e JOIN public.rain_area_shadow_results s
+   ON s.evaluation_id=e.id AND s.algorithm_version='area-shadow-v1'
+ CROSS JOIN LATERAL jsonb_array_elements(s.comparison->'groups') g
+ CROSS JOIN LATERAL jsonb_array_elements(g->'point'->'scores') p
+ CROSS JOIN LATERAL jsonb_array_elements(g->'variants') v
+ WHERE abs((v->>'threshold')::numeric-0.4)<0.0001
+ UNION ALL
+ SELECT s.evaluation_id,g->>'baseTime',v->>'threshold',
+        'area',a->>'validTime'
+ FROM selected e JOIN public.rain_area_shadow_results s
+   ON s.evaluation_id=e.id AND s.algorithm_version='area-shadow-v1'
+ CROSS JOIN LATERAL jsonb_array_elements(s.comparison->'groups') g
+ CROSS JOIN LATERAL jsonb_array_elements(g->'variants') v
+ CROSS JOIN LATERAL jsonb_array_elements(v->'area'->'series') a
+ WHERE abs((v->>'threshold')::numeric-0.4)<0.0001
+ UNION ALL
+ SELECT s.evaluation_id,g->>'baseTime',v->>'threshold',
+        'combined',c->>'validTime'
+ FROM selected e JOIN public.rain_area_shadow_results s
+   ON s.evaluation_id=e.id AND s.algorithm_version='area-shadow-v1'
+ CROSS JOIN LATERAL jsonb_array_elements(s.comparison->'groups') g
+ CROSS JOIN LATERAL jsonb_array_elements(g->'variants') v
+ CROSS JOIN LATERAL jsonb_array_elements(v->'combined'->'series') c
+ WHERE abs((v->>'threshold')::numeric-0.4)<0.0001
+), duplicates AS (
+ SELECT evaluation_id,base_time,threshold,method,valid_time,count(*) AS n
+ FROM series_rows
+ GROUP BY 1,2,3,4,5
+ HAVING count(*)>1
+)
+SELECT method,count(*) AS duplicate_keys,
+       coalesce(sum(n-1),0) AS excess_rows
+FROM duplicates GROUP BY method ORDER BY method;
+```
+
+**検査条件**：このSQLは前節の`params`と`selected`を含めた**単一WITH文**に結合して実行すること。結果が0行なら、抽出した系列について重複キーなし。重複があれば当該比較グループを分析対象から除外して原因を調査する（勝手に先頭1件へ丸めない）。`point`系列にscore欠損がある場合やvariant重複の検査は別途必要。これも**未実行**であり、結果が0件だったと主張しない。
