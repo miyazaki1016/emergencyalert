@@ -18,10 +18,6 @@ describe("Google sender identity is checked before token persistence (offline on
       { ...valid, sub: null }, { ...valid, sub: "" }, { ...valid, sub: "spoofed" },
       { ...valid, email: "owner@example.com " },
     ]) {
-      if (typeof response === "object" && response !== null && !Array.isArray(response) && response.email === "owner@example.com ") {
-        // A trailing whitespace in provider data must not be silently accepted.
-        continue;
-      }
       expect(() => validateGoogleSenderIdentityOffline(response, expected)).toThrow();
     }
     expect(() => validateGoogleSenderIdentityOffline(valid, "bad-email")).toThrow();
