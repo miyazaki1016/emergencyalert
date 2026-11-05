@@ -396,3 +396,16 @@ FROM duplicates GROUP BY method ORDER BY method;
 7. 先に作成したSQL診断は**異常データ検知のための予防策**。生成元の静的検証により、点・面・併用系列の重複は通常生成フローでは構造的に排除されていると判断できる。ただし実DBに重複がないと実測確認したわけではない。
 
 **実務上の結論**：次の実データ検証は `features` 重複検査と、固定した評価ID集合に対する同一時刻の判定分類を優先する。系列重複は異常検知として実施。新規SQL実行・テスト実行・本番変更・Vercelビルドなし。
+
+## 生成・保存経路の監査：20画像上限と順序不定（2026-11-06）
+
+`supabase/functions/shadow-rain/index.ts` を静的監査した。
+
+- 画像取得は `rain_evaluation_images` に対し `.eq('evaluation_id',row.id).limit(20)` のみで、**明示的なORDER BYがない**。対象画像が20件を超える評価では、どの20件が特徴量化されるかをコードだけでは保証できない。これは既存の比較結果の保留増加・欠測・時刻偏りの潜在要因であり、実際に20件超過が発生したと確認したわけではない。
+- 画像行の `metadata.kind/baseTime/validTime` と行の `frame_kind/base_time/valid_time` は一致検査される。画像解析失敗時はfeatureを生成せず `imageErrors` に記録される。
+- 生成した `features` をそのまま `compareShadow` に渡す。正常生成では、画像テーブルに同一kind/baseTime/validTimeの重複が存在しなければfeature重複も生じないが、**この関数自体にfeature重複の拒否処理はない**。
+- 保存は `(evaluation_id,algorithm_version)` の複合キーでupsert。1評価1バージョンの結果行はDB制約で保証される。
+- **実データ検証の優先順位**：①対象評価ごとの画像件数が20件超か、②同一kind/baseTime/validTime画像の重複があるか、③features件数とFORECAST時刻の欠落・imageErrorsの関係、④最後に継続判定の空振り寄与を計数。20件上限・順序不定の影響を確かめずに閾値差の優劣を結論しない。
+- `limit(20)` を直ちに本番変更する提案ではない。画像数・実行時間・データ容量の制約を測ってから、明示的な順序・対象選択の仕様を別途設計すること。
+
+この監査はコード閲覧のみ。DB実測、テスト実行、通知設定変更、Vercelビルドは行っていない。
