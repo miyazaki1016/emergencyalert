@@ -48,7 +48,7 @@ export async function prepareGmailWebConsentOffline(clientId: string): Promise<O
     client_id: clientId,
     redirect_uri: JASPIC_GOOGLE_CALLBACK,
     response_type: "code",
-    scope: GMAIL_SEND_SCOPE,
+    scope: "openid email " + GMAIL_SEND_SCOPE,
     access_type: "offline",
     prompt: "consent",
     state,
