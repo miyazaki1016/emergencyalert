@@ -10,6 +10,6 @@
 - GitHub Actions tests and GitHub Pages are independent and remain enabled.
 - This reduces future builds; it does not reset an existing Vercel rate limit.
 
-Verification: node --test tests/vercel-build-guard.test.mjs
+Verification: npm test -- tests/vercel-build-guard.test.mjs
 
 Caution: Ignored Build Step cancellations still count toward Vercel deployment quotas. Disabling automatic previews is the main rate-limit reduction; the documentation filter reduces build work on main.
