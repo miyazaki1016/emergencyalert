@@ -1,4 +1,4 @@
-import {groundAt,parseTime,percent,REASONS,tokyo,type Evaluation,type GroundReport,type Shadow} from './rainLab';
+import {parseTime,percent,REASONS,tokyo,type Evaluation,type GroundReport,type Shadow} from './rainLab';
 
 type Frame={baseTime?:string;validTime?:string;status?:string;intensityClass?:string|null;capturedAt?:string;kind?:string};
 export type Explanation={code:string;kind:'difference'|'hold'|'context';title:string;detail:string};
@@ -9,8 +9,8 @@ export const PATTERNS:Record<string,string>={
  END_EARLY:'雨色が消えた時刻が予測より早い',END_LATE:'雨色が消えた時刻が予測より遅い',END_UNSTABLE:'止む予測後に雨色が残る・戻る',
  STRONGER_FORECAST:'予測の雨量区分が実況より強い',WEAKER_FORECAST:'予測の雨量区分が実況より弱い',
  AREA_SHRINK:'予測より実況の雨域が狭い',AREA_EXPAND:'予測より実況の雨域が広い',POINT_AREA_SPLIT:'中心と周辺の判定が分かれる',
- GROUND_DIFFERENCE:'現地確認とレーダー中心が異なる',METRIC_DIFFERENCE:'通知と評価で雨の基準が異なる',
- DATA_HOLD:'データ不足・対象外で判定保留',SOURCE_HOLD:'当時入力との対応が未確認',GROUND_HOLD:'現地の正解が未確認',
+ METRIC_DIFFERENCE:'通知と評価で雨の基準が異なる',
+ DATA_HOLD:'データ不足・対象外で判定保留',SOURCE_HOLD:'当時入力との対応が未確認',
 };
 const bins=['LT_1','1_TO_5','5_TO_10','10_TO_20','20_TO_30','30_TO_50','50_TO_80','GTE_80'];
 const binLabels=['1mm/h未満','1〜5mm/h','5〜10mm/h','10〜20mm/h','20〜30mm/h','30〜50mm/h','50〜80mm/h','80mm/h以上'];
@@ -40,9 +40,7 @@ export function explainCase(e:Evaluation,shadow:Shadow|undefined,valid:string,ba
    const p=bins.indexOf(predicted.intensityClass??''),a=bins.indexOf(actual.intensityClass??'');
    if(p>=0&&a>=0&&p!==a)add(p>a?'STRONGER_FORECAST':'WEAKER_FORECAST',`${tokyo(valid)}：当時予測=${binLabels[p]}、実況中心=${binLabels[a]}。両方とも雨色で、雨の有無は一致しています。地上雨量の測定ではありません。`);
   }
-  const ground=groundAt(reports,e.id,valid,now);if(ground!=='INDETERMINATE'&&ground!==actual.status)add('GROUND_DIFFERENCE',`${tokyo(valid)}前後2分30秒の地点確認=${ground==='RAIN'?'雨':'雨なし'}、実況中心=${actual.status==='RAIN'?'雨色':'雨色なし'}。地点・時刻・確認方法を確認してください。レーダーの見逃し等の原因は未確定です。`);
  }
- if(groundAt(reports,e.id,valid,now)==='INDETERMINATE')add('GROUND_HOLD','この対象時刻に使える現地・地点カメラの確認がない、未来、または記録が相反しています。近隣の参考情報では正解を代用しません。','hold');
  // A transition needs adjacent five-minute observations. A stop additionally needs 10 minutes of persistence.
  if(target!==null&&target<=now){
   const ending=e.event_type==='RAIN_ENDING';const transitions=[...obs].filter(([at,f])=>{
@@ -63,6 +61,6 @@ export function explainCase(e:Evaluation,shadow:Shadow|undefined,valid:string,ba
   if(p.usableCoverage<.95||a.usableCoverage<.95||p.rainFraction===null||a.rainFraction===null){add('DATA_HOLD',`${radius}m円：予測／実況の分類可能範囲=${percent(p.usableCoverage)}／${percent(a.usableCoverage)}。欠測や未知色で面積差を比較できません。`,'hold');continue;}
   const delta=a.rainFraction-p.rainFraction;if(Math.abs(delta)>=.01)add(delta<0?'AREA_SHRINK':'AREA_EXPAND',`${radius===1000?'1km':radius+'m'}円：予測=${percent(p.rainFraction)}、実況=${percent(a.rainFraction)}（${Math.abs(delta*100).toFixed(1)}ポイント${delta<0?'減少':'増加'}）。分類可能範囲はいずれも95%以上。雨雲の移動・消散など、物理的な原因は未確定です。`);
  }
- if(known(predicted)&&area&&area.state!=='INDETERMINATE'&&area.state!==predicted.status)add('POINT_AREA_SPLIT',`${tokyo(valid)}：当時の中心=${predicted.status==='RAIN'?'雨':'雨色なし'}、500m面候補=${area.state==='RAIN'?'雨':'雨なし'}、開始閾値=${percent(threshold)}。中心と周辺の範囲・ヒステリシスの違いを含むため、どちらが正しいかは現地確認が必要です。`,'context');
+ if(known(predicted)&&area&&area.state!=='INDETERMINATE'&&area.state!==predicted.status)add('POINT_AREA_SPLIT',`${tokyo(valid)}：当時の中心=${predicted.status==='RAIN'?'雨':'雨色なし'}、500m面候補=${area.state==='RAIN'?'雨':'雨なし'}、開始閾値=${percent(threshold)}。中心と周辺の範囲・ヒステリシスの違いを含むため、レーダー中心と周辺のどちらを通知基準にするかは別途検証が必要です。`,'context');
  return out;
 }
