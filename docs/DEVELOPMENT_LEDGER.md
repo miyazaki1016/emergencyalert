@@ -9,7 +9,7 @@
 | 案件 | 確認すること | 根拠・入口 |
 | --- | --- | --- |
 | 雨の判定ラボ・自動照合 | PR #159はmainに統合済み。以降のPR、本番、実機状態は個別に確認 | [PR #159](https://github.com/miyazaki1016/emergencyalert/pull/159) · [判定ラボ](RAIN_RESEARCH_DASHBOARD_20261029.md) |
-| 雨の判定ラボ・保留表示改善 | PR #160はブランチ実装済み、CI・main・本番・実機は未確認 | [PR #160](https://github.com/miyazaki1016/emergencyalert/pull/160) · A-07 |
+| 雨の判定ラボ・保留表示改善 | PR #160はブランチ実装済み、CI成功。main・本番・実機は未確認 | [PR #160](https://github.com/miyazaki1016/emergencyalert/pull/160) · A-07 |
 | 予測通知の重複抑制 | 自然接近での重複減少の確認は旧記録から追跡。実装の証拠と運用観測を分ける | [実装・検証記録](FORECAST_EPISODE_FIX_20261029.md) · A-01 |
 | 防犯情報メール | 雨通知とは独立。PRと本番設定の状態を確認して再開 | [Issue #154](https://github.com/miyazaki1016/emergencyalert/issues/154) · [PR #155](https://github.com/miyazaki1016/emergencyalert/pull/155) |
 
@@ -26,7 +26,7 @@
 | A-05 | 雨域研究・旧通知テスト | 旧資産保全・照合待ち | アメふる担当ソラ | [TEST_CASE_RECONCILIATION_20261101.md](audits/TEST_CASE_RECONCILIATION_20261101.md) | 現行実装との重複確認は担当へ引継ぎ |
 | A-06 | 匿名認証・旧監査証拠 | 保全 | 棚卸し担当ソラ | [LEGACY_AUDIT_FOLLOWUP_20261101.md](audits/LEGACY_AUDIT_FOLLOWUP_20261101.md) | 旧資料を保全し無断で認証復元しない |
 
-| A-07 | 雨の判定ラボ・保留表示改善（PR #160） | 2026-11-05確認：B ブランチ実装・main未統合。CI未確認／本番未反映／実機未確認 | アメふる担当ソラ | [PR #160](https://github.com/miyazaki1016/emergencyalert/pull/160) · `fix/rain-lab-hold-copy-20261105` · head `c5a46647e183eb00e335cefc3af4054733db9bd7` · `lib/research/rainMismatch.ts` / `app/dev/rain-lab/RainLab.tsx` / `tests/rainMismatch.test.ts` | CI確認 → 必要なプレビュー → main統合 → 本番READY確認 → iPhone実機確認。Vercel build-rate-limitの解除を確認し、未確認を完了扱いしない |
+| A-07 | 雨の判定ラボ・保留表示改善（PR #160） | 2026-11-05確認：B ブランチ実装・main未統合。CI成功（run 41965440350）／Vercelプレビューはbuild-rate-limit／本番未反映／実機未確認 | アメふる担当ソラ | [PR #160](https://github.com/miyazaki1016/emergencyalert/pull/160) · `fix/rain-lab-hold-copy-20261105` · head `c5a46647e183eb00e335cefc3af4054733db9bd7` · `lib/research/rainMismatch.ts` / `app/dev/rain-lab/RainLab.tsx` / `tests/rainMismatch.test.ts` | Vercel build-rate-limit解除確認 → 必要なプレビュー → main統合 → 本番READY確認 → iPhone実機確認。CI成功済み。制限の解除を確認し、未確認を完了扱いしない |
 
 ## 更新手順
 
