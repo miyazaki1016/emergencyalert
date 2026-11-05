@@ -310,4 +310,5 @@
 | #155 | Draft: JASPIC無送信MIME互換・Windows旧版比較と独立移植 | open | `d7b3e44fe885d775057301f27a11e7c9e10b7f55` | 2026-11-05T00:21:54Z |
 | #156 | docs(web): JASPIC OAuth向け公開説明・プライバシーページ | merged | `e15cb16a477ab7def56a6d696632dc246590018d` | 2026-11-04T16:47:10Z |
 | #157 | JASPIC: iPhone email-login preview only (Gmail OAuth disabled) | merged | `29e257b0c69559f9b3fae7873ca1876366ae957b` | 2026-11-05T00:27:22Z |
+| #158 | docs: link common development management overview in main project overview | merged | `66fcb2c47a00825796bc351bd17eee5a22148bdd` | 2026-11-05T02:12:00Z |
 <!-- INVENTORY_FACTS_END -->
