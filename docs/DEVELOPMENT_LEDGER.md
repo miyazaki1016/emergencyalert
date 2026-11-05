@@ -311,4 +311,5 @@
 | #156 | docs(web): JASPIC OAuth向け公開説明・プライバシーページ | merged | `e15cb16a477ab7def56a6d696632dc246590018d` | 2026-11-04T16:47:10Z |
 | #157 | JASPIC: iPhone email-login preview only (Gmail OAuth disabled) | merged | `29e257b0c69559f9b3fae7873ca1876366ae957b` | 2026-11-05T00:27:22Z |
 | #158 | docs: link common development management overview in main project overview | merged | `66fcb2c47a00825796bc351bd17eee5a22148bdd` | 2026-11-05T02:12:00Z |
+| #159 | 雨の判定ラボ：レーダー自動評価を主役にし現地報告を任意参考へ | merged | `5eaa58836e6da80b1536351bb05496cdefc905be` | 2026-11-05T03:52:37Z |
 <!-- INVENTORY_FACTS_END -->
