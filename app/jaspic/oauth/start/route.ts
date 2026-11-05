@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Login required" }, { status: 401, headers: responseHeaders });
   }
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const anonKey = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const adminId = process.env.JASPIC_OAUTH_ADMIN_SUBJECT;
   const adminEmail = process.env.JASPIC_OAUTH_ADMIN_EMAIL;
