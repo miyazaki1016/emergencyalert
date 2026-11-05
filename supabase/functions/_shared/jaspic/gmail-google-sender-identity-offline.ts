@@ -18,7 +18,7 @@ export function validateGoogleSenderIdentityOffline(
   if (typeof data.sub !== "string" || !/^[0-9]{1,255}$/.test(data.sub) ||
       data.email_verified !== true ||
       typeof data.email !== "string" || data.email.length > 254 ||
-      data.email.trim().toLowerCase() !== expectedEmail.toLowerCase()) {
+      data.email.toLowerCase() !== expectedEmail.toLowerCase()) {
     throw new Error("Google account identity unavailable");
   }
   return { googleSubject: data.sub, verifiedEmail: data.email };
