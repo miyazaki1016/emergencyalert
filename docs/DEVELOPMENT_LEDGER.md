@@ -1,9 +1,18 @@
-## 2026-11-04 防犯情報メールの完全互換移行（研究段階）
-- 案件: [Issue #154](https://github.com/miyazaki1016/emergencyalert/issues/154)、Draft [PR #155](https://github.com/miyazaki1016/emergencyalert/pull/155)、ブランチ `research/jaspic-mail-compat-20261104`。
-- 詳細正本: `docs/research/JASPIC_MAIL_COMPATIBILITY_AUDIT_20261104.md`（PRブランチにのみ存在）。旧C#の `Home/Hpp_Map2`（広島）と `Home/Shiga`（滋賀）の読取監査。
-- 目的: 各県独立・毎日18:00 JST・JASPICメール形式を変更せず移管。初回baselineと重複送信防止、旧SQL Serverデータ移行なし。
-- 状態: **設計資料のみ。実装、メール送信、本番DB、cron、デプロイ、既存雨通知変更は未実施。** 既存コード中の資格情報は要ローテーション（値は台帳に記載しない）。
-- 次の一手: 新規/更新×3形式の合成golden fixture、旧実メールMIME原本との比較、警察データAPIのread-only調査。センターへの本番送信開始は別途明示承認。
+## JASPIC継続：MIME無送信生成
+
+- PR #155 / Issue #154 / branch `research/jaspic-mail-compat-20261104`を継続。6ケース×3段階＝18通の旧新MIME全バイト比較、Windows net472実行試験、旧広島除外IDオプションを追加。
+- 詳細正本：`docs/research/JASPIC_MIME_VERIFICATION_20261104.md`。本文/ヘッダーの仕様は維持。実配送原本未確認のため完全互換は未認定。
+- 滋賀現行JSの公開fetch先も404。原因はアクセス制限と断定しない。旧hppmapsは更新も恒久除外、baselineのみでは代替できない。必要最小集合はdistinct LINKKEY。実SQL Serverには未アクセス。
+- Gmailパスワードを変更・失効しないのがユーザー最新方針。露出リスクは記録し、新系はSecrets管理を前提とする。送信/本番DB/デプロイ/cron/旧PC停止/PRマージなし。
+
+## 2026-11-04 JASPIC独立ジョブ移植（Draft PR #155）
+
+- Issue #154 / branch `research/jaspic-mail-compat-20261104`。ユーザー許可はコード・テスト・PR更新まで。実送信・本番変更・旧PC停止・マージなし。
+- 詳細：`docs/research/JASPIC_MAIL_COMPATIBILITY_AUDIT_20261104.md`、切替/復旧：`docs/research/JASPIC_CUTOVER_RUNBOOK_20261104.md`。
+- 旧C#本文81パターンを.NET 8で実行し、TypeScriptのUTF-8バイト一致を検証。From/To/Cc/件名は旧コード照合。MIME輸送互換は未認定。
+- 広島公開JSON：市町30・署321・不審者452・犯罪5,596。メモリ内baseline/再実行の候補0、合成更新1。比較payload 2,628,526 bytes、送信0・DB保存なし。
+- 県別Edge準備、service_role限定専用SQL、CAS/lease/UNKNOWN、容量ガード、Dry-run専用実行と独立18時JSTの非実行cron案。
+- 未完了：滋賀旧API404、旧hppmaps除外データ、新sender/MIME実装と.eml比較、承認後の本番適用。CIの最終結果は専用監査資料を参照。
 
 # アメふる 開発台帳
 

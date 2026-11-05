@@ -1,0 +1,40 @@
+From: hppmap@kishibojim.online
+Date: Wed, 04 Nov 2026 18:00:00 +0900
+Subject: [JASPIC-NES] =?utf-8?b?5ruL6LOA55yM6K2m5bCC55So44OE44O844Or?=
+Message-Id: <synthetic-jaspic@localhost.invalid>
+To: getter01@jaspic-nes.net
+Cc: kishibojim@gmail.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+----------------------------------------
+[JASPIC - NES] 滋賀県警アラート（新規）
+----------------------------------------
+
+滋賀県警が新しい不審者情報を公表した可能性があります。
+https://map.police.shiga.dsvc.jp
+
+{
+"id":"TEST-0001"　→管理番号
+"city_code":"架空city_code「Ａa&?」"　→架空市
+"address":"架空町１丁目 ＡＢＣ & < > " \ 空欄"　→発生場所
+"address_code":"架空address_code「Ａa&?」"　→発生場所
+"latitude":"34.0000"　→緯度（参考程度）
+"longitude":"132.0000"　→経度（参考程度）
+"police_station":"架空police_station「Ａa&?」"　→管轄警察署
+"case_type":"9"　→その他
+"occurrence_dt":"2026/11/04 12:03:00"　→発生日時
+"accident_situation":"架空accident_situation「Ａa&?」"　→発生状況
+"criminal_car":""　→不審者の移動手段
+"criminal_feature":""　→不審者の特徴
+"resolution":"2"　→解決済み
+}
+
+データ中の緯度経度をグーグルマップで開く
+https://www.google.com/maps?q=34.0000,132.0000
+
+---
+JASPIC - NES（滋賀県警専用ツール）
+↓ウェブサイト掲載情報とURLをここにコピペしてください↓
+---
+https://map.police.shiga.dsvc.jp

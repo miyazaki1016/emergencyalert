@@ -1,4 +1,6 @@
-> **2026-11-04 新規・防犯情報センター向けメール移行（研究のみ）**：広島・滋賀の旧C#プログラムをアメふると同じ基盤の**独立ジョブ**に移す案。[Issue #154](https://github.com/miyazaki1016/emergencyalert/issues/154)、Draft [PR #155](https://github.com/miyazaki1016/emergencyalert/pull/155)、branch `research/jaspic-mail-compat-20261104`、詳細 `docs/research/JASPIC_MAIL_COMPATIBILITY_AUDIT_20261104.md`。件名/本文/CRLF/MIMEの完全互換・初回baseline無送信・各県独立・18時JST予定。**コード実装/本番DB/cron/メール送信は未着手・未許可**。次は合成golden fixtureとAPI read-only疎通。雨通知とは無関係。
+> **JASPIC継続・MIME無送信検証**：PR #155で旧MimeKitと新実装の6ケース×3段階＝18通の全バイト比較を追加。[詳細](research/JASPIC_MIME_VERIFICATION_20261104.md)。Windows net472試験をCI追加。実配送原本・滋賀公開JSON・旧除外ID取得は未完了。パスワード変更、送信、本番操作、マージは行わない。
+
+> **2026-11-04 JASPIC移植・無送信実装（Draft / 未統合）**：Issue #154 / PR #155、branch `research/jaspic-mail-compat-20261104`。詳細 `docs/research/JASPIC_MAIL_COMPATIBILITY_AUDIT_20261104.md`、切替手順 `docs/research/JASPIC_CUTOVER_RUNBOOK_20261104.md`。本文3種のC# oracle比較、独立Dry-run EdgeとDB/cron準備を追加。広島ライブ6,048件で初回0・再実行0・合成更新1。MIME/送信実装・滋賀404・旧除外データ互換は未解決。既存雨通知と本番DB/cron/送信は未変更。次は未解決ゲートの確認。最新のCI結果は専用監査資料を参照。
 
 # 🚨🚨🚨 最重要・永久運用ルール：main総覧は「索引」、詳細は各ブランチ！絶対に忘れるな！ 🚨🚨🚨
 

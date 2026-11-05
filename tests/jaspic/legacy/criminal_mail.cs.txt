@@ -1,0 +1,38 @@
+// Extracted body builder only; SMTP/authentication deliberately omitted.
+// Source blob 49f2ab4233a00456b440ca1ac2072f36a7eee18e
+private bool criminal_mail(criminal db, criminal_json json, city city, police_station police_station)
+        {
+            var result = false;
+            var months = DateTime.Parse(json.occurrence_date_from).Year.ToString().Substring(2, 2) + "." + String.Format("{0:D2}", DateTime.Parse(json.occurrence_date_from).Month);
+
+            var mailbody = "----------------------------------------\r\n";
+            mailbody += "[JASPIC - NES] 広島県警アラート（" + (db == null ? "新規" : "更新") + "）" + (db == null ? "" : "●") + "\r\n";
+            mailbody += "----------------------------------------\r\n";
+            mailbody += "\r\n";
+            mailbody += "広島県警が新しい犯罪情報を公表した可能性があります。\r\n";
+            mailbody += "未配信情報の場合、県警サイトを確認して対応をお願いします。\r\n";
+            mailbody += "https://map.police.hiroshima.dsvc.jp/?lat=" + json.latitude + "&lon=" + json.longitude + "&zoom=14&mode=0&period=1&months=" + months + "\r\n";
+            mailbody += "\r\n";
+            mailbody += "{\r\n";
+            mailbody += "\"id\":\"" + json.id + "\",　→管理番号" + (db != null && db.id != json.id ? "●更新" : "") + "\r\n";
+            mailbody += "\"city_code\":\"" + json.city_code + "\",　→" + city.city_name + (db != null && db.city_code != json.city_code ? "●更新" : "") + "\r\n";
+            mailbody += "\"address\":\"" + json.address + "\",　→町域" + (db != null && db.address != json.address ? "●更新" : "") + "\r\n";
+            mailbody += "\"latitude\":\"" + json.latitude + "\",　→緯度（参考程度）" + (db != null && db.latitude != json.latitude ? "●更新" : "") + "\r\n";
+            mailbody += "\"longitude\":\"" + json.longitude + "\",　→経度（参考程度）" + (db != null && db.longitude != json.longitude ? "●更新" : "") + "\r\n";
+            mailbody += "\"police_station\":\"" + json.police_station + "\",　→" + police_station.station_name + (!police_station.station_name.Contains("警察署") ? "警察署" : "") + (db != null && db.police_station != json.police_station ? "●更新" : "") + "\r\n";
+            mailbody += "\"crime_cd\":\"" + json.crime_cd + "\",　→不明" + (db != null && db.crime_cd != json.crime_cd ? "●更新" : "") + "\r\n";
+            mailbody += "\"case_type\":\"" + json.case_type + "\",　→カテゴリ" + (db != null && db.case_type != json.case_type ? "●更新" : "") + "\r\n";
+            mailbody += "\"location_type\":\"" + json.location_type + "\",　→発生場所かな？" + (db != null && db.location_type != json.location_type ? "●更新" : "") + "\r\n";
+            mailbody += "\"damage_goods\":\"" + json.damage_goods + "\",　→被害品かな？" + (db != null && db.damage_goods != json.damage_goods ? "●更新" : "") + "\r\n";
+            mailbody += "\"occurrences\":\"" + json.occurrences + "\",　→被害品" + (db != null && db.occurrences != json.occurrences ? "●更新" : "") + "\r\n";
+            mailbody += "\"offender\":\"" + json.offender + "\",　→加害者" + (db != null && db.offender != json.offender ? "●更新" : "") + "\r\n";
+            mailbody += "\"occurrence_date_from\":\"" + json.occurrence_date_from + "\",　→発生日時（から）" + (db != null && db.occurrence_date_from != json.occurrence_date_from ? "●更新" : "") + "\r\n";
+            mailbody += "\"occurrence_date_to\":\"" + json.occurrence_date_to + "\",　→発生日時（まで）" + (db != null && db.occurrence_date_to != json.occurrence_date_to ? "●更新" : "") + "\r\n";
+            mailbody += "\"date_from_format\":\"" + json.date_from_format + "\",　→不明" + (db != null && db.date_from_format != json.date_from_format ? "●更新" : "") + "\r\n";
+            mailbody += "\"date_to_format\":\"" + json.date_to_format + "\" →不明" + (db != null && db.date_to_format != json.date_to_format ? "●更新" : "") + "\r\n";
+            mailbody += "}\r\n";
+            mailbody += "\r\n";
+            mailbody += "---\r\n";
+            mailbody += "JASPIC - NES（広島県警専用ツール）\r\n";
+            mailbody += "↓ウェブサイト掲載情報とURLをここにコピペしてください↓\r\n";
+            mailbody += "---\r\n";
