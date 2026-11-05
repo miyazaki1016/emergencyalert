@@ -382,3 +382,17 @@ FROM duplicates GROUP BY method ORDER BY method;
 ```
 
 **検査条件**：このSQLは前節の`params`と`selected`を含めた**単一WITH文**に結合して実行すること。結果が0行なら、抽出した系列について重複キーなし。重複があれば当該比較グループを分析対象から除外して原因を調査する（勝手に先頭1件へ丸めない）。`point`系列にscore欠損がある場合やvariant重複の検査は別途必要。これも**未実行**であり、結果が0件だったと主張しない。
+
+## 生成元コードによる重複の静的検証（2026-11-05）
+
+`supabase/functions/_shared/areaShadow.ts` の `compareShadow` を再監査した結果：
+
+1. 予測入力 `snapshot.forecast` は `baseTime/validTime` の重複を `Set` で検査し、重複があれば `SHADOW_DUPLICATE_FORECAST` 例外を投げて比較結果を作らない。
+2. `groups` は `baseTime` の `Set` から生成されるため、同じ発表時刻のグループは一つ。
+3. `point.series` はグループの `source` から一対一生成、`point.scores` はその未来時刻へのフィルタ。 `area.series` と `combined.series` も同じ `source` の一対一写像。よって**正常に生成された単一の比較結果**では、同一グループ内の各系列に同じ `validTime` が重複しない。
+4. `THRESHOLDS=[0.2,0.4,0.6]` の定数配列を使うため、正常生成では40% variantは1つ。DB破損・旧バージョン・手動変更などの異常検出用に前節の重複診断は残すが、通常データに重複がある前提で集計する必要はない。
+5. **未解消の重複リスクは `features`**：`compareShadow` は `features.find(...)` で最初の一致だけ採用し、feature配列の重複を例外にしない。SQL側の `feature_matches>1` は実装との差を検出する保守的な品質ゲート。もし重複があればSQLと画面の結果が食い違う可能性があるので要調査。
+6. `reason='EXPERIMENTAL_RULE'` でも、250m・500m両方の`rainFraction`が非NULLであることは `classifyCandidate` 側で再確認される。雨域割合は降水確率ではなく面積比。
+7. 先に作成したSQL診断は**異常データ検知のための予防策**。生成元の静的検証により、点・面・併用系列の重複は通常生成フローでは構造的に排除されていると判断できる。ただし実DBに重複がないと実測確認したわけではない。
+
+**実務上の結論**：次の実データ検証は `features` 重複検査と、固定した評価ID集合に対する同一時刻の判定分類を優先する。系列重複は異常検知として実施。新規SQL実行・テスト実行・本番変更・Vercelビルドなし。
