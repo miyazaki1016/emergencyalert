@@ -312,4 +312,6 @@
 | #157 | JASPIC: iPhone email-login preview only (Gmail OAuth disabled) | merged | `29e257b0c69559f9b3fae7873ca1876366ae957b` | 2026-11-05T00:27:22Z |
 | #158 | docs: link common development management overview in main project overview | merged | `66fcb2c47a00825796bc351bd17eee5a22148bdd` | 2026-11-05T02:12:00Z |
 | #159 | 雨の判定ラボ：レーダー自動評価を主役にし現地報告を任意参考へ | merged | `5eaa58836e6da80b1536351bb05496cdefc905be` | 2026-11-05T03:52:37Z |
+| #160 | 雨の判定ラボ：現地保留を主判定から外し、降り始め不明を補足表示 | open | `c5a46647e183eb00e335cefc3af4054733db9bd7` | 2026-11-05T04:04:38Z |
+| #161 | ci: stop automatic previews and skip documentation-only builds | merged | `8ee8edff9b9c2fd5ce9d19eea2d408b51c768cab` | 2026-11-05T04:43:39Z |
 <!-- INVENTORY_FACTS_END -->
