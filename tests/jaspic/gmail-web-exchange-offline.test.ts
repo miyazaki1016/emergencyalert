@@ -19,5 +19,13 @@ describe("offline OAuth exchange preparation", () => {
       clientId: "invalid", clientSecret: "example", code: "example", codeVerifier: "x".repeat(64),
     })).toThrow();
     expect(() => validateWebOAuthTokenOffline({})).toThrow();
+    const token = {
+      access_token: "synthetic-access", refresh_token: "synthetic-refresh",
+      expires_in: 3600, token_type: "Bearer",
+      scope: "openid email https://www.googleapis.com/auth/gmail.send",
+    };
+    expect(validateWebOAuthTokenOffline(token).refreshToken).toBe("synthetic-refresh");
+    expect(() => validateWebOAuthTokenOffline({ ...token, scope: "https://www.googleapis.com/auth/gmail.send" })).toThrow();
+    expect(() => validateWebOAuthTokenOffline({ ...token, scope: "openid email" })).toThrow();
   });
 });
