@@ -48,7 +48,20 @@ class MonitorTests(unittest.TestCase):
         _, result, _ = self.run_monitor([{"deployments": records}])
         self.assertEqual(result["status"], "warning")
 
-    def test_default_scope_requires_verified_project_membership(self):\n        from unittest.mock import MagicMock\n        from urllib.error import URLError\n        with patch.object(monitor, "TOKEN", "test"), patch.object(monitor, "TEAM", None), \\\n             patch.object(monitor, "PROJECTS", {"misaki", "emergencyalert"}), \\\n             patch.object(monitor.urllib.request, "urlopen") as urlopen:\n            response = MagicMock()\n            response.__enter__.return_value = io.BytesIO(json.dumps({"projects": [\n                {"name": "misaki", "accountId": monitor.EXPECTED_TEAM}\n            ]}).encode())\n            urlopen.return_value = response\n            with self.assertRaisesRegex(RuntimeError, "membership not verified"):\n                monitor.main()\n\n    def test_missing_credentials(self):
+    def test_default_scope_requires_verified_project_membership(self):
+        from unittest.mock import MagicMock
+        with patch.object(monitor, "TOKEN", "test"), patch.object(monitor, "TEAM", None), \
+             patch.object(monitor, "PROJECTS", {"misaki", "emergencyalert"}), \
+             patch.object(monitor.urllib.request, "urlopen") as urlopen:
+            response = MagicMock()
+            response.__enter__.return_value = io.BytesIO(json.dumps({"projects": [
+                {"name": "misaki", "accountId": monitor.EXPECTED_TEAM}
+            ]}).encode())
+            urlopen.return_value = response
+            with self.assertRaisesRegex(RuntimeError, "membership not verified"):
+                monitor.main()
+
+    def test_missing_credentials(self):
         err = io.StringIO()
         with patch.object(monitor, "TOKEN", None), patch.object(monitor, "TEAM", None), contextlib.redirect_stderr(err):
             self.assertEqual(monitor.main(), 2)
