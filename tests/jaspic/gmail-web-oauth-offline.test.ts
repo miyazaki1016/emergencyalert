@@ -10,7 +10,7 @@ describe("iPhone-compatible Gmail web OAuth PKCE, offline only", () => {
     expect(u.origin).toBe("https://accounts.google.com");
     expect(u.searchParams.get("client_id")).toBe(clientId);
     expect(u.searchParams.get("redirect_uri")).toBe(JASPIC_GOOGLE_CALLBACK);
-    expect(u.searchParams.get("scope")).toBe("https://www.googleapis.com/auth/gmail.send");
+    expect(u.searchParams.get("scope")).toBe("openid email https://www.googleapis.com/auth/gmail.send");
     expect(u.searchParams.get("code_challenge_method")).toBe("S256");
     expect(u.searchParams.get("code_challenge")).toMatch(/^[A-Za-z0-9_-]{43}$/);
     expect(u.searchParams.get("access_type")).toBe("offline");
