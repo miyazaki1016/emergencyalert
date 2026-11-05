@@ -192,3 +192,14 @@ ORDER BY classification,radar_actual;
 ```
 
 **レビュー注意**：`s.features` がJSONB配列であること、`v->>'threshold'` の文字列表現が `0.4` であること、日時をUTCとして扱うこと、同一評価内の発表時刻が複数存在することを実DBで確認する必要がある。さらに、対象集合は画面の最新100件制限を再現していないので、既存170コマと直接比較しない。これは監査案であり実測ではない。
+
+## SQL案のレビュー：画面と170コマに揃えるための修正点（2026-11-05）
+
+- `supabase/migrations/20261029030141_rain_area_shadow.sql` により、`features` はJSONB配列、`comparison` はJSONBオブジェクト、`evaluation_id` と `algorithm_version` が複合主キーと確認。前節のJSON展開自体はスキーマに適合。
+- `lib/research/rainLabRepository.ts` の画面取得条件は、**研究管理者本人のowner_id、accepted_count>0、created_at>=画面取得時点から7日、created_at降順、最大100件**。前節SQLにはowner条件と最大100件の適用がなく、画面と同一母集団にはならない。対象評価ID集合を先に確定するCTEが必要。
+- **重要なSQL修正**：前節の `to_timestamp(text,'YYYYMMDDHH24MISS')` はタイムゾーン設定の影響を受け得る。JMAの14桁時刻はUTCとしてパースする実装なので、DBのセッションタイムゾーンを固定するか、UTCを明示して5分差を比較する。日時の文字列差やJSTとしての解釈は禁止。
+- 前節の`LEFT JOIN LATERAL jsonb_array_elements(... ) ... ON`は、同じvalidTimeにFORECAST featureが重複していると行が増える。データ整合性の検査（評価ID/baseTime/validTimeごとのfeature件数）を先行させ、重複時は結果を保留する。
+- 画面の共通170コマと突き合わせるには、**レーダーactualがRAIN/NO_RAIN、点・面・併用がすべて確定**した同一validTimeのみに絞る必要がある。前節SQLは保留を含む全コマを対象としているので、件数を直接比較できない。
+- `rainLab.ts` は同じvalidTimeをpoint scoresとarea/combined scoresで照合する。SQL側もbaseTimeとvalidTimeの両方を保持し、閾値40%に固定して一致条件を適用する。
+- さらに画面の170コマは**取得時刻が変われば7日境界が動く**。当時の集計と厳密に比較するには画面の基準時刻と評価ID集合のスナップショットが必要。現時点の新しい7日窓で再計算した数と170が異なっても、直ちに異常とは言えない。
+- この節はGitHubコード／migrationの**静的レビュー結果**。前節のSQL案はそのまま実行可能な確定版ではなく、上記修正が済むまで未承認とする。本番DB・通知・Vercel変更なし。
