@@ -307,6 +307,7 @@
 | #151 | Inventory: ranked, evidence-only human review queue | merged | `9c11b14192a5f4e2d214b6d51fc6bb51f844366f` | 2026-11-02T20:53:32Z |
 | #152 | fix: reuse existing ledger facts PR on repeated inventory runs | merged | `5e4acfac946cc17b4f216a5c0d962c453f05a869` | 2026-11-02T23:27:06Z |
 | #153 | fix: restore ledger facts workflow after invalid YAML merge | merged | `dec71eda8c9866709ac3a002481eaf14f0471a99` | 2026-11-03T23:40:09Z |
-| #155 | Draft: JASPIC無送信MIME互換・Windows旧版比較と独立移植 | open | `a08ac3dc04b7d780f51a2797921a1562871b9b73` | 2026-11-04T15:21:17Z |
+| #155 | Draft: JASPIC無送信MIME互換・Windows旧版比較と独立移植 | open | `d7b3e44fe885d775057301f27a11e7c9e10b7f55` | 2026-11-05T00:21:54Z |
 | #156 | docs(web): JASPIC OAuth向け公開説明・プライバシーページ | merged | `e15cb16a477ab7def56a6d696632dc246590018d` | 2026-11-04T16:47:10Z |
+| #157 | JASPIC: iPhone email-login preview only (Gmail OAuth disabled) | merged | `29e257b0c69559f9b3fae7873ca1876366ae957b` | 2026-11-05T00:27:22Z |
 <!-- INVENTORY_FACTS_END -->
