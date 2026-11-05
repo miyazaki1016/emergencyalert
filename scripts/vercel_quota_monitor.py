@@ -2,7 +2,8 @@
 """Read-only Vercel deployment activity monitor. Never changes deployments.
 
 Usage: VERCEL_TOKEN=... VERCEL_PROJECT_IDS=misaki,emergencyalert python scripts/vercel_quota_monitor.py
-Optional: VERCEL_API_BASE for tests, VERCEL_TEAM_ID for explicit team scope.\nWhen team scope is omitted, verify all named projects belong to VERCEL_EXPECTED_TEAM_ID.
+Optional: VERCEL_API_BASE for tests, VERCEL_TEAM_ID for explicit team scope.
+When team scope is omitted, verify all named projects belong to VERCEL_EXPECTED_TEAM_ID.
 Outputs JSON; deployment records are an *estimate*, not authoritative quota usage.
 """
 import datetime as dt
@@ -15,7 +16,8 @@ import urllib.request
 
 BASE = os.getenv("VERCEL_API_BASE", "https://api.vercel.com").rstrip("/")
 TOKEN = os.getenv("VERCEL_TOKEN")
-TEAM = os.getenv("VERCEL_TEAM_ID")\nEXPECTED_TEAM = os.getenv("VERCEL_EXPECTED_TEAM_ID", "team_VIfp8TXktY4DegRNpPhFb5uT")
+TEAM = os.getenv("VERCEL_TEAM_ID")
+EXPECTED_TEAM = os.getenv("VERCEL_EXPECTED_TEAM_ID", "team_VIfp8TXktY4DegRNpPhFb5uT")
 PROJECTS = {p.strip() for p in os.getenv("VERCEL_PROJECT_IDS", "").split(",") if p.strip()}
 PAGE_LIMIT = 100
 
@@ -29,14 +31,23 @@ def main():
     if not TOKEN or not TEAM:
         print("VERCEL_TOKEN and VERCEL_TEAM_ID are required", file=sys.stderr)
         return 2
-    if not TEAM:\n        req = urllib.request.Request(BASE + "/v9/projects?limit=100", headers={"Authorization": "Bearer " + TOKEN, "Accept": "application/json"})\n        with urllib.request.urlopen(req, timeout=20) as response:\n            projects_response = json.load(response)\n        known = {p.get("name"): p.get("accountId") for p in projects_response.get("projects", [])}\n        if any(known.get(name) != EXPECTED_TEAM for name in PROJECTS):\n            raise RuntimeError("project membership not verified for expected team; monitoring incomplete")\n    now = dt.datetime.now(dt.timezone.utc)
+    if not TEAM:
+        req = urllib.request.Request(BASE + "/v9/projects?limit=100", headers={"Authorization": "Bearer " + TOKEN, "Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=20) as response:
+            projects_response = json.load(response)
+        known = {p.get("name"): p.get("accountId") for p in projects_response.get("projects", [])}
+        if any(known.get(name) != EXPECTED_TEAM for name in PROJECTS):
+            raise RuntimeError("project membership not verified for expected team; monitoring incomplete")
+    now = dt.datetime.now(dt.timezone.utc)
     cutoff = int((now - dt.timedelta(hours=24)).timestamp() * 1000)
     hour = int((now - dt.timedelta(hours=1)).timestamp() * 1000)
     seen = set()
     deployments = []
     before = None
     for _ in range(100):  # hard stop prevents unbounded API traffic
-        params = {"limit": PAGE_LIMIT, "since": cutoff}\n        if TEAM:\n            params["teamId"] = TEAM
+        params = {"limit": PAGE_LIMIT, "since": cutoff}
+        if TEAM:
+            params["teamId"] = TEAM
         if before is not None:
             params["until"] = before
         page = fetch(params)
