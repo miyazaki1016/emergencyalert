@@ -41,7 +41,7 @@ without posting values to GitHub, chat, issue comments or screenshots:
 | Variable | Source | Secret? |
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | public |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase publishable/anon key | public |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Existing EmergencyAlert publishable key (preferred; `NEXT_PUBLIC_SUPABASE_ANON_KEY` fallback) | public |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role secret | **yes** |
 | `JASPIC_OAUTH_ADMIN_SUBJECT` | Verified Supabase Auth user UUID | confidential |
 | `JASPIC_OAUTH_ADMIN_EMAIL` | Verified Supabase Auth email | confidential |
@@ -83,3 +83,7 @@ the Windows process, or merge the entire Draft PR #155.
 - Sensitive callback URLs may be logged automatically by the hosting infrastructure; verify redaction and request-log policy before activation.
 - OTP/login screen and OAuth start endpoint must undergo rate-limit and CSRF/security review.
 - No automated key rotation/refresh-token invalidation procedure has been deployed.
+
+## Environment inventory (2026-11-05)
+
+Vercel production environment variable **names only** checked: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_VAPID_PUBLIC_KEY`. The JASPIC OAuth-specific variables and `SUPABASE_SERVICE_ROLE_KEY` are not currently configured in that environment. Therefore both OAuth feature flags remain OFF and the flow cannot be activated. The iPhone login and start route were adjusted to reuse the existing publishable-key variable rather than requesting duplicate credentials. No secret values were retrieved and no environment entries were changed.
