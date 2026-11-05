@@ -311,3 +311,28 @@ ORDER BY class,radar_actual;
 ```
 
 **重要な残留注意**：`lag` は全判定コマから計算した後に共通判定コマへ絞っているので、保留コマの前後関係を失わない。ただし上記 `frames` は予測特徴量重複があるとGROUP BYで行が分裂し得るため、`feature_matches<>1` だけで全重複を検出できるとは限らない。実行前に `evaluation_id/base_time/valid_time` ごとの行数を別途検査すること。さらに`NULL::uuid`のままでは0件になる設計で、**実IDを明示せず他ユーザーの結果を横断取得しない**。画面の完全再現には`as_of`と対象IDのスナップショット一致が必要。現時点では**未実行の調査案**であり、170コマ再現を保証しない。
+
+## SQL重複対策の確定修正（2026-11-05）
+
+前節のSQL案には、`features` を展開してから `GROUP BY` しているため、同一時刻に異なる`rainFraction`を持つ特徴量が重複した場合に行が分裂し、`lag` の前後関係を壊す欠点がある。**前節のSQLをそのまま実行しないこと**。以下の置換方式を採用する。
+
+```sql
+-- 前節SQLの frames CTE の中で、featuresのLEFT JOIN LATERAL展開を
+-- 以下の「1時刻1行」の集約LATERALに置換する。
+LEFT JOIN LATERAL (
+ SELECT count(*) AS feature_matches,
+        CASE WHEN count(*)=1
+             THEN max((x->'metrics'->'circles'->'500'->>'rainFraction')::numeric)
+             ELSE NULL END AS fraction
+ FROM jsonb_array_elements(r.features) AS x
+ WHERE x->>'kind'='FORECAST'
+   AND x->>'baseTime'=r.base_time
+   AND x->>'validTime'=p->>'validTime'
+) fm ON true
+```
+
+この集約は該当featureが0件・1件・複数件でも1行だけ返し、複数件のときは割合をNULLにして判定保留へ分類する。前節`frames`のSELECTでは`fm.feature_matches`と`fm.fraction`を直接採用し、元の`count(f)`、`f->...`、全`GROUP BY`を削除する。これにより特徴量の重複による行増殖を防ぐ。
+
+ただし、`point_scores`・`area_series`・`combined_series`自体の同一時刻重複も独立に監査し、重複があれば評価グループ全体を検証保留にする。さらに、研究画面の集計コードは`find`で最初の同一時刻を採用するため、SQLで厳格に重複排除した結果と一致しない可能性を明記する。前節SQLはまだ**実行可能な確定版ではなく、修正指示付きのレビュー案**である。
+
+現在はDBへの追加照合を実施していない。新しい170コマ再現・空振り実測の結果はない。本番変更・Vercelビルドなし。
