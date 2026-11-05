@@ -10,7 +10,7 @@ export const PATTERNS:Record<string,string>={
  STRONGER_FORECAST:'予測の雨量区分が実況より強い',WEAKER_FORECAST:'予測の雨量区分が実況より弱い',
  AREA_SHRINK:'予測より実況の雨域が狭い',AREA_EXPAND:'予測より実況の雨域が広い',POINT_AREA_SPLIT:'中心と周辺の判定が分かれる',
  METRIC_DIFFERENCE:'通知と評価で雨の基準が異なる',
- DATA_HOLD:'データ不足・対象外で判定保留',SOURCE_HOLD:'当時入力との対応が未確認',
+ DATA_HOLD:'比較に必要なデータが不足',START_TIME_UNKNOWN:'降り始め時刻：判定できません',SOURCE_HOLD:'当時入力との対応が未確認',
 };
 const bins=['LT_1','1_TO_5','5_TO_10','10_TO_20','20_TO_30','30_TO_50','50_TO_80','GTE_80'];
 const binLabels=['1mm/h未満','1〜5mm/h','5〜10mm/h','10〜20mm/h','20〜30mm/h','30〜50mm/h','50〜80mm/h','80mm/h以上'];
@@ -50,7 +50,7 @@ export function explainCase(e:Evaluation,shadow:Shadow|undefined,valid:string,ba
   }).map(([at])=>at).filter(at=>Math.abs(at-target)<=30*60000).sort((a,b)=>Math.abs(a-target)-Math.abs(b-target)||a-b);
   const at=transitions[0];if(at!==undefined&&at!==target){const delta=Math.round((at-target)/60000);add(ending?(delta<0?'END_EARLY':'END_LATE'):(delta<0?'START_EARLY':'START_LATE'),`予測対象=${tokyo(iso(target))}、記録で確認できた${ending?'雨色なしへの切替（10分持続）':'雨色への切替'}=${tokyo(iso(at))}。${Math.abs(delta)}分${delta<0?'早い':'遅い'}差です。観測範囲内で対象に最も近い切替を表示し、通知時の実況も補助情報に含みます。`);}
   if(ending){const states=[0,5,10].map(n=>obs.get(target+n*60000));if(states.some(f=>f?.status==='RAIN'))add('END_UNSTABLE',`${tokyo(iso(target))}から10分後までの実況中心に雨色が残る／戻るコマがあります。終了の10分持続条件を満たしません。`);else if(states.some(f=>!known(f)))add('DATA_HOLD','終了判定に必要な対象時刻・5分後・10分後の実況が揃っていません。','hold');}
-  if(!ending&&at===undefined&&obs.get(target)?.status==='RAIN'&&obs.get(target-300000)?.status==='RAIN')add('DATA_HOLD',`対象${tokyo(iso(target))}の5分前にも雨色があります。雨の有無は確認できますが、隣接する雨なしコマがないため降り始めの時刻は断定できません。`,'hold');
+  if(!ending&&at===undefined&&obs.get(target)?.status==='RAIN'&&obs.get(target-300000)?.status==='RAIN')add('START_TIME_UNKNOWN',`対象${tokyo(iso(target))}の5分前にも雨色が観測されています。雨の有無は確認できますが、隣接する雨なしコマがないため降り始めの時刻を特定できません。`,'context');
  }
  if(e.event_type==='ACTIONABLE_RAIN_APPROACHING')add('METRIC_DIFFERENCE','通知対象は生活行動向けの雨の開始、現行の自動評価は弱雨を含む雨色への切替です。基準の差があるため、時刻の不一致だけで通知の空振りと断定しません。','context');
  const feature=shadow?.features.find(f=>f.kind==='FORECAST'&&f.validTime===valid&&(!base||f.baseTime===base)),observation=shadow?.features.find(f=>f.kind==='OBSERVATION'&&f.validTime===valid);
