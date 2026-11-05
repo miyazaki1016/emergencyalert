@@ -28,8 +28,8 @@ def fetch(params):
         return json.load(response)
 
 def main():
-    if not TOKEN or not TEAM:
-        print("VERCEL_TOKEN and VERCEL_TEAM_ID are required", file=sys.stderr)
+    if not TOKEN or (not TEAM and not PROJECTS):
+        print("VERCEL_TOKEN and either VERCEL_TEAM_ID or VERCEL_PROJECT_IDS are required", file=sys.stderr)
         return 2
     if not TEAM:
         req = urllib.request.Request(BASE + "/v9/projects?limit=100", headers={"Authorization": "Bearer " + TOKEN, "Accept": "application/json"})
