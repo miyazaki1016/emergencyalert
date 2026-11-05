@@ -27,3 +27,24 @@ The owner has set the Supabase redirect URL and Site URL; the intended email acc
 ## Immediate operator action
 
 No new invitation is needed. Owner can wait for independent OAuth security review, and then set server-only variables privately and explicitly approve isolated schema/deployment steps. Keep BOTH OAuth flags false; no live Google authorization or Gmail API mail sending.
+
+## 2026-11-06 offline follow-up (not deployed)
+
+A sender-identity guard has now been added to the **Draft #155 source only**:
+request `openid email gmail.send`, require these scopes in the token response,
+GET the fixed Google OIDC UserInfo endpoint using the short-lived access token,
+and refuse vault persistence unless `email_verified === true` and the
+Google email exactly matches the server-side expected sender (case-insensitive).
+The verified Google subject is parsed for potential future pinning but is not
+yet durably pinned; consider first-time administrative enrollment controls.
+Tests cover wrong/unverified/missing Google identity and missing scopes.
+This is **not** permission to activate consent. No network Google call was run.
+
+The owner authorized and the Supabase migration API successfully created both
+OAuth tables in production on 2026-11-06 (see
+`JASPIC_OAUTH_DB_APPLIED_20261106.md`). Their RLS/grants and empty initial
+rows were verified. The earlier blocker “schema unapplied” is now resolved;
+production UI deploy and callback security review are still outstanding.
+
+Google documentation used for OIDC userinfo design:
+https://developers.google.com/identity/openid-connect/reference
