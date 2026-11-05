@@ -41,7 +41,7 @@ export default function JaspicOauthLoginClient() {
     try {
       const {error} = await supabase.auth.signInWithOtp({
         email: email.trim(),
-        options: { emailRedirectTo: "https://emergencyalert.news/jaspic/oauth" },
+        options: { emailRedirectTo: "https://emergencyalert.news/jaspic/oauth", shouldCreateUser: false },
       });
       setMessage(error ? "ログイン用メールを送信できませんでした。設定を確認してください。" :
         "ログイン用メールを送ったよ。メール内のリンクをSafariで開いてね。");
