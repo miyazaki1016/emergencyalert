@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { GOOGLE_USERINFO_ENDPOINT, validateGoogleSenderIdentityOffline } from "../../../../supabase/functions/_shared/jaspic/gmail-google-sender-identity-offline";
 import { NextRequest, NextResponse } from "next/server";
 import { openGmailWebSessionOffline, GMAIL_OAUTH_COOKIE_POLICY } from "../../../../supabase/functions/_shared/jaspic/gmail-web-session-offline";
 import { validateGmailWebCallbackOffline } from "../../../../supabase/functions/_shared/jaspic/gmail-web-oauth-offline";
@@ -43,9 +44,10 @@ export async function GET(request: NextRequest) {
   const vaultKey = process.env.JASPIC_OAUTH_TOKEN_KEY;
   const vaultKeyId = process.env.JASPIC_OAUTH_TOKEN_KEY_ID;
   const adminSubject = process.env.JASPIC_OAUTH_ADMIN_SUBJECT;
+  const expectedGoogleEmail = process.env.JASPIC_OAUTH_ADMIN_EMAIL;
   if (!cookie || !state || params.getAll("state").length !== 1 || params.getAll("code").length !== 1 ||
       !url || !serviceKey || !clientId || !clientSecret || !cookieKey || !vaultKey || !vaultKeyId ||
-      !adminSubject || !/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url)) {
+      !adminSubject || !expectedGoogleEmail || !/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url)) {
     return resultPage(false);
   }
   try {
@@ -69,6 +71,15 @@ export async function GET(request: NextRequest) {
     if (!exchange.ok) throw new Error("OAuth exchange failed");
     const body: unknown = await exchange.json();
     const token = validateWebOAuthTokenOffline(body);
+    // Never store a refresh token granted by a different Google account.
+    // OIDC userinfo uses the authorization-code exchange access token and
+    // requires only the additional openid/email identity scopes.
+    const identityResponse = await fetch(GOOGLE_USERINFO_ENDPOINT, {
+      headers: { Authorization: "Bearer " + token.accessToken },
+      method: "GET", cache: "no-store", signal: AbortSignal.timeout(10000),
+    });
+    if (!identityResponse.ok) throw new Error("Google identity verification failed");
+    validateGoogleSenderIdentityOffline(await identityResponse.json(), expectedGoogleEmail);
     const encrypted = await encryptGmailRefreshTokenOffline(
       token.refreshToken, session.ownerId, vaultKey, vaultKeyId,
     );
