@@ -124,3 +124,71 @@ GitHub上のロジック確認とユーザー提供iPhone画面からの整理�
 - さらに20%と40%の**同一評価ID・同一baseTime・同一validTime**で、RAIN→NO_RAIN、NO_RAIN→RAIN、保留遷移を全件比較する。空振り総数が35対35でも、個別の増減が相殺する可能性がある。
 - 期間・最大100通知・閾値・保留・実況欠測を固定し、日別内訳を確認。実況中心の雨色は地上の降雨実測ではないため、これだけで本番閾値を変更しない。
 - 現時点でDB追加照合は安全性チェックにより実施できない。**この節は再実行可能な監査手順の記録であり、追加の実測結果ではない**。本番コード・DB・Vercel無変更。
+
+## 再開時に使う読み取り専用SQL案：40%継続判定の空振り内訳（2026-11-05）
+
+以下は**未実行・未検証の調査用SQL案**。個別の通知ID・地点・利用者IDを結果として出力せず、同じ比較グループの時系列と500m予測特徴量を結合して件数だけを返す。安全性チェックが許可する環境で、列・JSON形状を再確認してから実行すること。
+
+```sql
+WITH cases AS (
+  SELECT s.evaluation_id, g->>'baseTime' AS base_time,
+         v->>'threshold' AS threshold,
+         v->'area'->'series' AS area_series,
+         s.features AS features,
+         g->'point'->'scores' AS point_scores
+  FROM public.rain_area_shadow_results s
+  JOIN public.rain_notification_evaluations e ON e.id=s.evaluation_id
+  CROSS JOIN LATERAL jsonb_array_elements(s.comparison->'groups') g
+  CROSS JOIN LATERAL jsonb_array_elements(g->'variants') v
+  WHERE e.accepted_count>0
+    AND e.created_at >= now() - interval '7 days'
+    AND s.algorithm_version='area-shadow-v1'
+    AND v->>'threshold'='0.4'
+), frames AS (
+  SELECT c.evaluation_id,c.base_time,c.threshold,
+         a->>'validTime' AS valid_time,
+         a->>'state' AS area_state,
+         a->>'reason' AS area_reason,
+         (f->'metrics'->'circles'->'500'->>'rainFraction')::numeric AS fraction,
+         p->>'actual' AS radar_actual
+  FROM cases c
+  CROSS JOIN LATERAL jsonb_array_elements(c.area_series) a
+  LEFT JOIN LATERAL jsonb_array_elements(c.features) f
+    ON f->>'kind'='FORECAST'
+   AND f->>'baseTime'=c.base_time
+   AND f->>'validTime'=a->>'validTime'
+  LEFT JOIN LATERAL jsonb_array_elements(c.point_scores) p
+    ON p->>'validTime'=a->>'validTime'
+), ordered AS (
+  SELECT *,
+         lag(area_state) OVER (
+           PARTITION BY evaluation_id,base_time,threshold
+           ORDER BY valid_time
+         ) AS prev_state,
+         lag(valid_time) OVER (
+           PARTITION BY evaluation_id,base_time,threshold
+           ORDER BY valid_time
+         ) AS prev_time
+  FROM frames
+), classified AS (
+  SELECT *,
+    CASE
+      WHEN area_reason<>'EXPERIMENTAL_RULE' OR fraction IS NULL THEN 'HOLD_OR_INVALID'
+      WHEN area_state='RAIN' AND fraction>=0.4 THEN 'THRESHOLD_RAIN'
+      WHEN area_state='RAIN' AND fraction>0.2 AND fraction<0.4
+       AND prev_state='RAIN'
+       AND to_timestamp(valid_time,'YYYYMMDDHH24MISS')
+         - to_timestamp(prev_time,'YYYYMMDDHH24MISS')=interval '5 minutes'
+       THEN 'CARRIED_RAIN'
+      WHEN area_state='NO_RAIN' AND fraction<=0.2 THEN 'RELEASED_DRY'
+      ELSE 'OTHER'
+    END AS classification
+  FROM ordered
+)
+SELECT classification,radar_actual, count(*) AS frames
+FROM classified
+GROUP BY classification,radar_actual
+ORDER BY classification,radar_actual;
+```
+
+**レビュー注意**：`s.features` がJSONB配列であること、`v->>'threshold'` の文字列表現が `0.4` であること、日時をUTCとして扱うこと、同一評価内の発表時刻が複数存在することを実DBで確認する必要がある。さらに、対象集合は画面の最新100件制限を再現していないので、既存170コマと直接比較しない。これは監査案であり実測ではない。
