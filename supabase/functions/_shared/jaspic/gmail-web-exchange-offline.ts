@@ -66,7 +66,9 @@ export function validateWebOAuthTokenOffline(input: unknown): WebOAuthTokenRespo
       typeof obj.expires_in !== "number" || !Number.isSafeInteger(obj.expires_in) ||
       obj.expires_in < 1 || obj.expires_in > 86400 || obj.token_type !== "Bearer" ||
       typeof obj.scope !== "string" ||
-      !obj.scope.split(" ").includes("https://www.googleapis.com/auth/gmail.send")) {
+      (!obj.scope.split(" ").includes("https://www.googleapis.com/auth/gmail.send") ||
+       !obj.scope.split(" ").includes("openid") ||
+       !obj.scope.split(" ").includes("email"))) {
     throw new Error("Invalid web OAuth token response");
   }
   return {
