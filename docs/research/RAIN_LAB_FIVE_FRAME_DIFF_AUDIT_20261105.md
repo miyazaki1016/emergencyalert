@@ -203,3 +203,111 @@ ORDER BY classification,radar_actual;
 - `rainLab.ts` は同じvalidTimeをpoint scoresとarea/combined scoresで照合する。SQL側もbaseTimeとvalidTimeの両方を保持し、閾値40%に固定して一致条件を適用する。
 - さらに画面の170コマは**取得時刻が変われば7日境界が動く**。当時の集計と厳密に比較するには画面の基準時刻と評価ID集合のスナップショットが必要。現時点の新しい7日窓で再計算した数と170が異なっても、直ちに異常とは言えない。
 - この節はGitHubコード／migrationの**静的レビュー結果**。前節のSQL案はそのまま実行可能な確定版ではなく、上記修正が済むまで未承認とする。本番DB・通知・Vercel変更なし。
+
+## 画面条件に揃えたSQL完成案（未実行、2026-11-05）
+
+下記は**画面と同じ集計条件を再現するためのレビュー済みSQL案**。実DBでの実行・結果照合は未実施。先頭の `owner_id` と `as_of` を実際の研究管理者・比較時刻に置き換えてから使う。個人IDを公開資料へ記録しないこと。出力は分類別の件数のみ。
+
+```sql
+WITH params AS (
+ SELECT NULL::uuid AS owner_id,
+        '2026-11-05 09:05:14+00'::timestamptz AS as_of
+), selected AS (
+ SELECT e.id,e.snapshot,e.shadow_state
+ FROM public.rain_notification_evaluations e
+ CROSS JOIN params p
+ WHERE e.owner_id=p.owner_id
+   AND e.accepted_count>0
+   AND e.created_at>=p.as_of-interval '7 days'
+   AND e.created_at<=p.as_of
+ ORDER BY e.created_at DESC
+ LIMIT 100
+), raw AS (
+ SELECT e.id AS evaluation_id,
+        e.snapshot->>'decidedAt' AS decided_at,
+        g->>'baseTime' AS base_time,
+        g->'point'->'scores' AS point_scores,
+        v->'area'->'series' AS area_series,
+        v->'combined'->'series' AS combined_series,
+        s.features
+ FROM selected e
+ JOIN public.rain_area_shadow_results s
+   ON s.evaluation_id=e.id AND s.algorithm_version='area-shadow-v1'
+ CROSS JOIN LATERAL jsonb_array_elements(s.comparison->'groups') g
+ CROSS JOIN LATERAL jsonb_array_elements(g->'variants') v
+ WHERE e.shadow_state<>'PENDING'
+   AND abs((v->>'threshold')::numeric-0.4)<0.0001
+), frames AS (
+ SELECT r.evaluation_id,r.base_time,r.decided_at,
+        a->>'validTime' AS valid_time,
+        a->>'state' AS area_state,
+        a->>'reason' AS area_reason,
+        p->>'predicted' AS point_state,
+        p->>'actual' AS radar_actual,
+        c->>'state' AS combined_state,
+        (f->'metrics'->'circles'->'500'->>'rainFraction')::numeric AS fraction,
+        count(f) AS feature_matches
+ FROM raw r
+ CROSS JOIN LATERAL jsonb_array_elements(r.point_scores) p
+ LEFT JOIN LATERAL jsonb_array_elements(r.area_series) a
+   ON a->>'validTime'=p->>'validTime'
+ LEFT JOIN LATERAL jsonb_array_elements(r.combined_series) c
+   ON c->>'validTime'=p->>'validTime'
+ LEFT JOIN LATERAL jsonb_array_elements(r.features) f
+   ON f->>'kind'='FORECAST'
+  AND f->>'baseTime'=r.base_time
+  AND f->>'validTime'=p->>'validTime'
+ GROUP BY r.evaluation_id,r.base_time,r.decided_at,
+          a->>'validTime',a->>'state',a->>'reason',
+          p->>'predicted',p->>'actual',c->>'state',
+          f->'metrics'->'circles'->'500'->>'rainFraction'
+), parsed AS (
+ SELECT *,
+   (substr(valid_time,1,4)||'-'||substr(valid_time,5,2)||'-'||
+    substr(valid_time,7,2)||' '||substr(valid_time,9,2)||':'||
+    substr(valid_time,11,2)||':'||substr(valid_time,13,2)||'+00')::timestamptz AS valid_at
+ FROM frames
+ WHERE valid_time~'^\\d{14}$'
+), ordered AS (
+ SELECT *,
+   lag(area_state) OVER (
+     PARTITION BY evaluation_id,base_time ORDER BY valid_at
+   ) AS previous_area,
+   lag(valid_at) OVER (
+     PARTITION BY evaluation_id,base_time ORDER BY valid_at
+   ) AS previous_at
+ FROM parsed
+), common AS (
+ SELECT o.*
+ FROM ordered o CROSS JOIN params p
+ WHERE o.valid_at>o.decided_at::timestamptz
+   AND o.valid_at<=p.as_of
+   AND o.radar_actual IN ('RAIN','NO_RAIN')
+   AND o.point_state IN ('RAIN','NO_RAIN')
+   AND o.area_state IN ('RAIN','NO_RAIN')
+   AND o.combined_state IN ('RAIN','NO_RAIN')
+), classified AS (
+ SELECT *,
+   CASE
+     WHEN feature_matches<>1 THEN 'FEATURE_COUNT_UNVERIFIED'
+     WHEN area_reason<>'EXPERIMENTAL_RULE' OR fraction IS NULL
+       THEN 'UNVERIFIED_RULE'
+     WHEN area_state='RAIN' AND fraction>=0.4
+       THEN 'THRESHOLD_RAIN'
+     WHEN area_state='RAIN' AND fraction>0.2 AND fraction<0.4
+       AND previous_area='RAIN'
+       AND valid_at-previous_at=interval '5 minutes'
+       THEN 'CARRIED_RAIN'
+     WHEN area_state='NO_RAIN' AND fraction<=0.2
+       THEN 'RELEASED_DRY'
+     ELSE 'OTHER'
+   END AS class
+ FROM common
+)
+SELECT class,radar_actual,count(*) AS frame_count
+FROM classified
+GROUP BY class,radar_actual
+ORDER BY class,radar_actual;
+```
+
+**重要な残留注意**：`lag` は全判定コマから計算した後に共通判定コマへ絞っているので、保留コマの前後関係を失わない。ただし上記 `frames` は予測特徴量重複があるとGROUP BYで行が分裂し得るため、`feature_matches<>1` だけで全重複を検出できるとは限らない。実行前に `evaluation_id/base_time/valid_time` ごとの行数を別途検査すること。さらに`NULL::uuid`のままでは0件になる設計で、**実IDを明示せず他ユーザーの結果を横断取得しない**。画面の完全再現には`as_of`と対象IDのスナップショット一致が必要。現時点では**未実行の調査案**であり、170コマ再現を保証しない。
