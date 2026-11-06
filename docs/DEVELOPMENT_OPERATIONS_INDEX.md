@@ -37,6 +37,10 @@
 | #97 | Preview only: 外部AIレビュー用の公開総覧 | review/external-ai-page-20261028 |
 | #98 | 研究: 通知予測と実況の自動答え合わせ基盤 設計 | research/notification-replay-20261029 |
 | #109 | 研究用: 大雨予測の継続性判定（通知ロジック非接続） | research/severe-rain-consistency-20261101 |
+| #155 | Draft: JASPIC無送信MIME互換・Windows旧版比較と独立移植 | research/jaspic-mail-compat-20261104 |
+| #160 | 雨の判定ラボ：現地保留を主判定から外し、降り始め不明を補足表示 | fix/rain-lab-hold-copy-20261105 |
+| #164 | feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階） | feat/vercel-quota-monitor-20261105 |
+| #165 | docs: 雨の判定ラボ173コマの方式差分・未検証事項を整理 | research/rain-lab-five-frame-differences-20261105 |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。

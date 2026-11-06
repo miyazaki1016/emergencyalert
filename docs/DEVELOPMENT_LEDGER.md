@@ -147,7 +147,7 @@
 | #105 | 予測通知の初期移行で直前の解消確認を正しく引き継ぐ | merged | `326f6d92485e0e158afcd62db5b37131e11dfc51` | 2026-10-29T08:23:10Z |
 | #107 | chore: 読み取り専用の開発忘れ物検出（両プロジェクト共通方式） | merged | `bd03ccc3b96855cfbba2b74409668ce206964f5c` | 2026-10-31T20:12:51Z |
 | #108 | 大雨通知をエピソード1回に制限し、30mm/h自動評価を追加 | merged | `9970fad666c6d863c8a9cf17044e141b85bb2596` | 2026-10-31T10:01:58Z |
-| #109 | 研究用: 大雨予測の継続性判定（通知ロジック非接続） | open | `2a733283299876a2a6ab482833f4190f477629c3` | 2026-11-02T16:18:54Z |
+| #109 | 研究用: 大雨予測の継続性判定（通知ロジック非接続） | open | `6e650705260825c33a9905bbd3802919ba341cc4` | 2026-11-03T23:54:32Z |
 | #110 | docs: 2026-11-01棚卸し・調査結果を台帳へ保存 | merged | `b2ddc796abf2834b549f2c1056d204747e818535` | 2026-10-31T21:24:23Z |
 | #111 | docs: 旧監査ブランチの追加調査を台帳へ記録 | merged | `5b1d48d44666ccee5e845bb5cf0689379c42bd8d` | 2026-10-31T21:28:05Z |
 | #112 | docs: 未整理ブランチの保全・照合・整理候補を分類 | merged | `aee1b209c7f9dcc1e5803ec912ac72960d8fa237` | 2026-10-31T21:31:02Z |
@@ -183,4 +183,26 @@
 | #142 | Define full inventory, ledger and main index completion gates | merged | `11d491a12d25706a6b27182ecf5ca37b8539d8f3` | 2026-11-02T15:54:54Z |
 | #143 | Complete reviewed ledger and main operations-index fact proposals | merged | `88d196dc952cb4b1d86c7ae40cf3ce3386043ec5` | 2026-11-02T16:05:01Z |
 | #145 | fix: avoid proposal branch collisions on GitHub Actions reruns | merged | `73ca67612e27f6413a7f5a5c33a9c2620c8be144` | 2026-11-02T16:21:06Z |
+| #148 | Inventory: report shared changed-file paths across work branches | merged | `6485641e549dfb180fb5b4255087a8065eb0af55` | 2026-11-02T16:37:47Z |
+| #149 | Inventory: cross-reference branches, PR history and existing case IDs | merged | `8f577a38ef6d53b0e6877e5d3bcfc2f81160eaf6` | 2026-11-02T16:40:32Z |
+| #150 | Inventory: compare exact code patch evidence across branches | merged | `4aa5951483030f85ebc5697e0f25d0d23acbb486` | 2026-11-02T16:48:42Z |
+| #151 | Inventory: ranked, evidence-only human review queue | merged | `9c11b14192a5f4e2d214b6d51fc6bb51f844366f` | 2026-11-02T20:53:32Z |
+| #152 | fix: reuse existing ledger facts PR on repeated inventory runs | merged | `5e4acfac946cc17b4f216a5c0d962c453f05a869` | 2026-11-02T23:27:06Z |
+| #153 | fix: restore ledger facts workflow after invalid YAML merge | merged | `dec71eda8c9866709ac3a002481eaf14f0471a99` | 2026-11-03T23:40:09Z |
+| #155 | Draft: JASPIC無送信MIME互換・Windows旧版比較と独立移植 | open | `a83e3f018e60daba771bf832fdfb05d480c58549` | 2026-11-05T21:52:36Z |
+| #156 | docs(web): JASPIC OAuth向け公開説明・プライバシーページ | merged | `e15cb16a477ab7def56a6d696632dc246590018d` | 2026-11-04T16:47:10Z |
+| #157 | JASPIC: iPhone email-login preview only (Gmail OAuth disabled) | merged | `29e257b0c69559f9b3fae7873ca1876366ae957b` | 2026-11-05T00:27:22Z |
+| #158 | docs: link common development management overview in main project overview | merged | `66fcb2c47a00825796bc351bd17eee5a22148bdd` | 2026-11-05T02:12:00Z |
+| #159 | 雨の判定ラボ：レーダー自動評価を主役にし現地報告を任意参考へ | merged | `5eaa58836e6da80b1536351bb05496cdefc905be` | 2026-11-05T03:52:37Z |
+| #160 | 雨の判定ラボ：現地保留を主判定から外し、降り始め不明を補足表示 | open | `c5a46647e183eb00e335cefc3af4054733db9bd7` | 2026-11-05T04:04:38Z |
+| #161 | ci: stop automatic previews and skip documentation-only builds | merged | `8ee8edff9b9c2fd5ce9d19eea2d408b51c768cab` | 2026-11-05T04:43:39Z |
+| #162 | docs: 総覧を短くし、案件管理を開発台帳へ集約 | merged | `77d576da3d309f65b8f7292c16d8d5a71201adf9` | 2026-11-05T04:58:11Z |
+| #164 | feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階） | open | `900497857cfb4f960057459f0489c31ea1961787` | 2026-11-06T03:16:25Z |
+| #165 | docs: 雨の判定ラボ173コマの方式差分・未検証事項を整理 | open | `9aeb900dc4f8f3635a5a3025f7d2b867b15387cd` | 2026-11-06T03:21:59Z |
+| #166 | fix(jaspic): accept trailing slash in Supabase URL | merged | `776fe24e8199cd565625c859b58cf6e1d067284b` | 2026-11-06T04:45:07Z |
+| #167 | style(jaspic): improve iPhone login page layout | merged | `37efdbc992e3a63ea0c91c0b1a267e24742ee875` | 2026-11-06T05:45:33Z |
+| #168 | Draft: JASPIC Gmail OAuth isolation and safe rollout audit (no activation) | merged | `17ef79e93311c4c1c557e523566a18f625f62f4a` | 2026-11-06T07:45:19Z |
+| #169 | fix(jaspic): handle Google token response without scope field | merged | `6517de34477c8f658271d582b2ba9baf10f8e7ef` | 2026-11-06T08:18:16Z |
+| #170 | feat(jaspic): prepare Gmail send-only consent offline | merged | `492c363dca14816bcfba2d88d601b6f29d7d8317` | 2026-11-06T08:29:03Z |
+| #171 | feat(jaspic): save verified Gmail OAuth credentials in encrypted vault | merged | `e48e8a60568f0e5ee8ab1bffb120864091e431de` | 2026-11-06T08:56:23Z |
 <!-- INVENTORY_FACTS_END -->
