@@ -11,6 +11,11 @@ describe("JASPIC admin authorization (deny by default)", () => {
     expect(isJaspicAdmin({ id, app_metadata: {} }, id)).toBe(false);
     expect(isJaspicAdmin({ id: "11111111-1111-1111-1111-111111111111", app_metadata: { jaspic_role: "admin" } }, id)).toBe(false);
   });
+  it("rejects malformed admin configuration and spoofed user metadata", () => {
+    expect(isJaspicAdmin({ id, app_metadata: { jaspic_role: "admin" } }, "not-a-uuid")).toBe(false);
+    expect(isJaspicAdmin({ id, app_metadata: { jaspic_role: "user" } }, id)).toBe(false);
+    expect(isJaspicAdmin({ id, user_metadata: { jaspic_role: "admin" } } as unknown as { id: string; app_metadata: Record<string, unknown> }, id)).toBe(false);
+  });
   it("permits only matching ID with server-controlled app metadata", () => {
     expect(isJaspicAdmin({ id, app_metadata: { jaspic_role: "admin" } }, id)).toBe(true);
   });
