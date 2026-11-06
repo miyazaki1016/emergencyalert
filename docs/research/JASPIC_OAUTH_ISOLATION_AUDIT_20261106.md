@@ -43,3 +43,10 @@ Keep `JASPIC_GMAIL_OAUTH_ENABLED` default false. Disabling OAuth must immediatel
 3. Enforce one-use state, PKCE, exact callback URL, verified Google sender and encrypted token storage.
 4. Keep all flags false and browser Gmail button disabled during extraction; tests should prove GET/POST remain 503 by default.
 5. Never copy PR #155 mail transport, cron, or unrelated schema/code into the isolated PR.
+
+
+## CI verification — 2026-11-06
+- Dedicated branch commit `e193ef28dbd12366f7531693ae24c480bd36474b` passed GitHub Actions **CI** (run 42172337990) and **PR promotion classification** (run 42172338012).
+- An earlier CI build failed on a malformed URL-normalization regular expression in `app/jaspic/oauth/start/route.ts`; this was corrected, and the Supabase URL host validation was tightened before the successful run.
+- This confirms the current branch CI checks passed, **not** that live Google OAuth consent or callback works. The start endpoint still returns HTTP 503 after authorization, and the Gmail button remains disabled.
+- Draft PR #168 remains unmerged. No Gmail send, scheduling, production OAuth activation, or production deployment is authorized by these checks.
