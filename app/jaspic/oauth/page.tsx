@@ -3,7 +3,7 @@ import Link from "next/link";
 import JaspicOauthLoginClient from "./login-client";
 
 export const metadata: Metadata = {
-  title: "JASPIC | Gmail認証の準備",
+  title: "JASPIC | Gmail認証",
   robots: { index: false, follow: false },
 };
 
@@ -14,7 +14,7 @@ export default function JaspicOAuthPage() {
       <h1 style={{ fontSize: "clamp(24px, 6vw, 32px)", lineHeight: 1.3 }}>Gmail認証</h1>
       <p>Gmail APIの認証は管理者本人だけが行えます。ログインにはSupabase Authを使用します。</p>
       <p style={{ border: "1px solid #c6d4e2", borderRadius: 12, padding: 16, background: "#f3f7fc", fontSize: 15 }}>
-        Google認証は開発中のため現在停止しています。安全確認と管理者設定が完了するまで利用できません。
+        GoogleのGmail送信権限を再認証し、認証情報を暗号化して保存できます。
         メールの実送信・18時の自動配信も開始されません。
       </p>
       <JaspicOauthLoginClient />

@@ -16,6 +16,7 @@ export type GmailWebSession = {
   issuedAt: number;
   expiresAt: number;
   ownerId?: string;
+  purpose?: "gmail-send";
 };
 
 function decodeBase64Url(value: string): Uint8Array {
@@ -47,6 +48,7 @@ function validSession(value: unknown, now: number): value is GmailWebSession {
     typeof s.expiresAt === "number" && Number.isSafeInteger(s.expiresAt) &&
     s.issuedAt <= now && s.expiresAt > now &&
     s.expiresAt - s.issuedAt <= SESSION_TTL_MS &&
+    (s.purpose === undefined || s.purpose === "gmail-send") &&
     (s.ownerId === undefined || (typeof s.ownerId === "string" && /^[A-Za-z0-9_-]{8,128}$/.test(s.ownerId)));
 }
 
@@ -57,8 +59,9 @@ export async function sealGmailWebSessionOffline(
   key: string,
   now = Date.now(),
   ownerId?: string,
+  purpose?: GmailWebSession["purpose"],
 ): Promise<string> {
-  const session: GmailWebSession = { state, codeVerifier, issuedAt: now, expiresAt: now + SESSION_TTL_MS, ...(ownerId ? {ownerId} : {}) };
+  const session: GmailWebSession = { state, codeVerifier, issuedAt: now, expiresAt: now + SESSION_TTL_MS, ...(ownerId ? {ownerId} : {}), ...(purpose ? { purpose } : {}) };
   if (!validSession(session, now)) throw new Error("Invalid OAuth session");
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const encoded = encoder.encode(JSON.stringify(session));
@@ -95,6 +98,8 @@ export async function openGmailWebSessionOffline(
     throw new Error("Invalid OAuth session");
   }
 }
+
+export const GMAIL_SEND_COOKIE_NAME = "__Host-jaspic-send-consent";
 
 /** Config for server to set alongside OAuth start. Never set from client JS. */
 export const GMAIL_OAUTH_COOKIE_POLICY = {

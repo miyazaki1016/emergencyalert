@@ -33,6 +33,20 @@ describe("identity callback staging", () => {
     })).rejects.toThrow();
     expect(consumeAtomically).not.toHaveBeenCalled();
   });
+  it("rejects an identity cookie for Gmail consent and a Gmail cookie for identity", async () => {
+    const consumeAtomically = vi.fn(async () => "consumed" as const);
+    const input = { callbackUrl, cookieEncryptionKey: key, adminUserId: owner,
+      stateStore: { create: async () => {}, consumeAtomically },
+      clientId, clientSecret: "test_secret", now };
+    const identity = await sealGmailWebSessionOffline(state, verifier, key, now, owner);
+    const gmail = await sealGmailWebSessionOffline(state, verifier, key, now, owner, "gmail-send");
+    await expect(prepareJaspicIdentityCallback({ ...input, sealedCookie: identity, purpose: "gmail-send" })).rejects.toThrow();
+    await expect(prepareJaspicIdentityCallback({ ...input, sealedCookie: gmail })).rejects.toThrow();
+    expect(consumeAtomically).not.toHaveBeenCalled();
+    await expect(prepareJaspicIdentityCallback({ ...input, sealedCookie: gmail, purpose: "gmail-send" })).resolves.toBeDefined();
+    expect(consumeAtomically).toHaveBeenCalledOnce();
+  });
+
   it("fails closed on replay", async () => {
     const sealedCookie = await sealGmailWebSessionOffline(state, verifier, key, now, owner);
     await expect(prepareJaspicIdentityCallback({
