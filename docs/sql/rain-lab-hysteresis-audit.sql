@@ -92,7 +92,8 @@ WITH params AS (
    WHEN area_state='RAIN' AND fraction>=0.4 THEN 'THRESHOLD_RAIN'
    WHEN area_state='RAIN' AND fraction>0.2 AND fraction<0.4
      AND prev_area='RAIN' AND valid_at-prev_at=interval '5 minutes' THEN 'CARRIED_RAIN'
-   WHEN area_state='NO_RAIN' AND fraction<=0.2 THEN 'RELEASED_DRY'
+   WHEN area_state='NO_RAIN' AND fraction<=0.2 AND prev_area='RAIN' AND valid_at-prev_at=interval '5 minutes' THEN 'RELEASED_DRY'
+   WHEN area_state='NO_RAIN' AND fraction<=0.2 THEN 'THRESHOLD_DRY'
    ELSE 'OTHER'
  END AS attribution
  FROM ordered CROSS JOIN params p
@@ -118,3 +119,4 @@ ORDER BY attribution,radar_actual;
 -- 5. This attributes area 40% states; it is NOT a causal counterfactual.
 -- 6. Prior state comes from the full area series, including pre-decision frames.
 -- 7. This SQL has NOT been executed or schema-validated against live DB.
+-- 8. RELEASED_DRY requires a preceding contiguous RAIN frame; THRESHOLD_DRY does not.
