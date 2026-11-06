@@ -1,3 +1,4 @@
+import { verifyJaspicGmailSendConsent } from "../../../../lib/jaspic/oauth-gmail-send-callback-server";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { prepareJaspicIdentityCallback } from "../../../../lib/jaspic/oauth-identity-callback";
@@ -20,6 +21,13 @@ function result(success: boolean) {
 
 /** Identity-only Google callback. Tokens are not persisted or sent to clients. */
 export async function GET(request: NextRequest) {
+  const sendCookie = request.cookies.get("__Host-jaspic-send-consent")?.value;
+  if (sendCookie) {
+    const success = await verifyJaspicGmailSendConsent(request.url, sendCookie);
+    const response = NextResponse.redirect("https://emergencyalert.news/jaspic/oauth/result?status=" + (success ? "send-consent-ok" : "send-consent-failed"), { status: 303, headers: { "Cache-Control": "no-store, private" } });
+    response.cookies.set("__Host-jaspic-send-consent", "", { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 0 });
+    return response;
+  }
   if (process.env.JASPIC_OAUTH_START_ENABLED !== "true" ||
       process.env.JASPIC_OAUTH_CALLBACK_ENABLED !== "true") return result(false);
   const cookie = request.cookies.get(GMAIL_OAUTH_COOKIE_POLICY.name)?.value;
