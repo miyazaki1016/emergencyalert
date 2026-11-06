@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   if (!token) return NextResponse.json({ authorized: false }, { status: 401, headers });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replaceAll(/\/$/g, "");
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key || !url.startsWith("https://") || !url.endsWith(".supabase.co")) return disabled();
+  if (!url || !key || !/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url)) return disabled();
   try {
     const client = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
     const { data, error } = await client.auth.getUser(token);
