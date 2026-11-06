@@ -20,6 +20,7 @@ export default function JaspicOauthLoginClient() {
   const supabase = useMemo(getBrowserClient, []);
   const [email, setEmail] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
+  const [adminStatus, setAdminStatus] = useState<"checking" | "authorized" | "denied">("checking");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   useEffect(() => {
@@ -33,6 +34,28 @@ export default function JaspicOauthLoginClient() {
     });
     return () => { active = false; subscription.unsubscribe(); };
   }, [supabase]);
+
+  useEffect(() => {
+    if (!supabase || !loggedIn) {
+      setAdminStatus("checking");
+      return;
+    }
+    let active = true;
+    void (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { if (active) setAdminStatus("denied"); return; }
+        const response = await fetch("/jaspic/oauth/status", {
+          headers: { authorization: "Bearer " + session.access_token },
+          cache: "no-store",
+        });
+        if (active) setAdminStatus(response.ok ? "authorized" : "denied");
+      } catch {
+        if (active) setAdminStatus("denied");
+      }
+    })();
+    return () => { active = false; };
+  }, [supabase, loggedIn]);
 
   async function emailLogin() {
     if (!supabase || busy || !email.trim()) return;
@@ -90,6 +113,11 @@ export default function JaspicOauthLoginClient() {
       </>}
       {supabase && loggedIn && <>
         <p>Supabase Authにログイン済みです。管理者本人であることは、次の操作でサーバー側でも確認されます。</p>
+        <p role="status" aria-live="polite">{adminStatus === "checking"
+          ? "管理者権限を確認しています。"
+          : adminStatus === "authorized"
+            ? "管理者権限を確認しました。Google認証は引き続き停止中です。"
+            : "管理者権限は未確認です。管理者設定の完了をお待ちください。"}</p>
         <button type="button" onClick={()=>void beginGoogle()} disabled={true}
           style={{fontSize:16,padding:"12px 18px",borderRadius:8}}>Google Gmailの認証を開始</button>
         <button type="button" onClick={()=>void supabase.auth.signOut()} disabled={busy}
