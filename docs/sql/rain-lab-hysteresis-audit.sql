@@ -16,6 +16,7 @@ WITH params AS (
  SELECT e.id AS evaluation_id,e.snapshot->>'decidedAt' AS decided_at,
         g->>'baseTime' AS base_time,g->'point'->'scores' AS point_scores,
         v->'area'->'series' AS area_series,
+        v->'area'->'scores' AS area_scores,
         v->'combined'->'series' AS combined_series,
         s.features
  FROM chosen e
@@ -31,6 +32,7 @@ WITH params AS (
         p.value->>'predicted' AS point_state,
         p.value->>'actual' AS radar_actual,
         a.n AS area_matches,a.state AS area_state,a.reason AS area_reason,
+        axs.n AS area_score_matches,axs.actual AS area_radar_actual,
         a.prev_state AS prev_area,a.prev_time AS prev_valid_time,
         c.n AS combined_matches,c.state AS combined_state,
         f.n AS feature_matches,f.fraction,
@@ -53,6 +55,12 @@ WITH params AS (
    ) z
    WHERE z.valid_time=p.value->>'validTime'
  ) a
+ CROSS JOIN LATERAL (
+   SELECT count(*) AS n,
+          CASE WHEN count(*)=1 THEN max(x->>'actual') END AS actual
+   FROM jsonb_array_elements(r.area_scores) x
+   WHERE x->>'validTime'=p.value->>'validTime'
+ ) axs
  CROSS JOIN LATERAL (
    SELECT count(*) AS n,
           CASE WHEN count(*)=1 THEN max(x->>'state') END AS state
@@ -87,7 +95,7 @@ WITH params AS (
 ), classified AS (
  SELECT *,
  CASE
-   WHEN point_matches<>1 OR area_matches<>1 OR combined_matches<>1 OR feature_matches<>1 THEN 'DATA_MULTIPLICITY'
+   WHEN point_matches<>1 OR area_matches<>1 OR area_score_matches<>1 OR combined_matches<>1 OR feature_matches<>1 THEN 'DATA_MULTIPLICITY'
    WHEN area_reason IS DISTINCT FROM 'EXPERIMENTAL_RULE' OR fraction IS NULL THEN 'RULE_OR_FEATURE_UNVERIFIED'
    WHEN area_state='RAIN' AND fraction>=0.4 THEN 'THRESHOLD_RAIN'
    WHEN area_state='RAIN' AND fraction>0.2 AND fraction<0.4
@@ -102,6 +110,7 @@ WITH params AS (
    AND valid_at>decided_at::timestamptz
    AND valid_at<=p.as_of
    AND radar_actual IN ('RAIN','NO_RAIN')
+   AND area_radar_actual=radar_actual
    AND point_state IN ('RAIN','NO_RAIN')
    AND area_state IN ('RAIN','NO_RAIN')
    AND combined_state IN ('RAIN','NO_RAIN')
@@ -127,3 +136,6 @@ ORDER BY attribution,radar_actual;
 
 -- This audit covers the 40% variant only. Do not infer the 20%-only
 -- false-positive count from these results; a separate paired-key comparison is needed.
+
+-- Exclude point/area truth mismatches rather than silently treating differing
+-- stored radar labels as equivalent; audit mismatches separately if any.
