@@ -116,9 +116,9 @@ export default function JaspicOauthLoginClient() {
         <p role="status" aria-live="polite">{adminStatus === "checking"
           ? "管理者権限を確認しています。"
           : adminStatus === "authorized"
-            ? "管理者権限を確認しました。Google認証は引き続き停止中です。"
+            ? "管理者権限を確認しました。Google認証の開始はサーバー設定によって制御されています。"
             : "管理者権限は未確認です。管理者設定の完了をお待ちください。"}</p>
-        <button type="button" onClick={()=>void beginGoogle()} disabled={true}
+        <button type="button" onClick={()=>void beginGoogle()} disabled={busy || adminStatus !== "authorized"}
           style={{fontSize:16,padding:"12px 18px",borderRadius:8}}>Google Gmailの認証を開始</button>
         <button type="button" onClick={()=>void supabase.auth.signOut()} disabled={busy}
           style={{fontSize:16,padding:"12px 18px",marginLeft:8,borderRadius:8}}>ログアウト</button>
