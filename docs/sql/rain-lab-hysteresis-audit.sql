@@ -106,7 +106,11 @@ WITH params AS (
    AND area_state IN ('RAIN','NO_RAIN')
    AND combined_state IN ('RAIN','NO_RAIN')
 )
-SELECT attribution,radar_actual,count(*) AS frames
+SELECT attribution,radar_actual,count(*) AS frames,
+       count(*) FILTER (WHERE area_state='RAIN' AND radar_actual='NO_RAIN') AS area_false_rain,
+       count(*) FILTER (WHERE area_state='NO_RAIN' AND radar_actual='RAIN') AS area_missed_rain,
+       count(*) FILTER (WHERE point_state='RAIN' AND radar_actual='NO_RAIN') AS point_false_rain,
+       count(*) FILTER (WHERE point_state='NO_RAIN' AND radar_actual='RAIN') AS point_missed_rain
 FROM classified
 GROUP BY attribution,radar_actual
 ORDER BY attribution,radar_actual;
@@ -120,3 +124,6 @@ ORDER BY attribution,radar_actual;
 -- 6. Prior state comes from the full area series, including pre-decision frames.
 -- 7. This SQL has NOT been executed or schema-validated against live DB.
 -- 8. RELEASED_DRY requires a preceding contiguous RAIN frame; THRESHOLD_DRY does not.
+
+-- This audit covers the 40% variant only. Do not infer the 20%-only
+-- false-positive count from these results; a separate paired-key comparison is needed.
