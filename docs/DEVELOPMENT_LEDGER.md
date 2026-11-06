@@ -204,4 +204,5 @@
 | #168 | Draft: JASPIC Gmail OAuth isolation and safe rollout audit (no activation) | merged | `17ef79e93311c4c1c557e523566a18f625f62f4a` | 2026-11-06T07:45:19Z |
 | #169 | fix(jaspic): handle Google token response without scope field | merged | `6517de34477c8f658271d582b2ba9baf10f8e7ef` | 2026-11-06T08:18:16Z |
 | #170 | feat(jaspic): prepare Gmail send-only consent offline | merged | `492c363dca14816bcfba2d88d601b6f29d7d8317` | 2026-11-06T08:29:03Z |
+| #171 | feat(jaspic): save verified Gmail OAuth credentials in encrypted vault | merged | `e48e8a60568f0e5ee8ab1bffb120864091e431de` | 2026-11-06T08:56:23Z |
 <!-- INVENTORY_FACTS_END -->
