@@ -1,10 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
-import { authorizeJaspicOAuthStart } from "../../../../../lib/jaspic/oauth-start-authorization";
-import { prepareJaspicGmailSendConsentOffline } from "../../../../../lib/jaspic/oauth-gmail-send-consent-offline";
-import { sealGmailWebSessionOffline } from "../../../../../lib/jaspic/oauth-session-offline";
-import { registerOAuthStateOffline } from "../../../../../lib/jaspic/oauth-once-offline";
-import { createSupabaseOAuthOnceStore, type JaspicOAuthDbClient } from "../../../../../lib/jaspic/oauth-supabase-store";
+import { authorizeJaspicOAuthStart } from "../../../../lib/jaspic/oauth-start-authorization";
+import { prepareJaspicGmailSendConsentOffline } from "../../../../lib/jaspic/oauth-gmail-send-consent-offline";
+import { sealGmailWebSessionOffline } from "../../../../lib/jaspic/oauth-session-offline";
+import { registerOAuthStateOffline } from "../../../../lib/jaspic/oauth-once-offline";
+import { createSupabaseOAuthOnceStore, type JaspicOAuthDbClient } from "../../../../lib/jaspic/oauth-supabase-store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
