@@ -57,6 +57,30 @@ export default function JaspicOauthLoginClient() {
     return () => { active = false; };
   }, [supabase, loggedIn]);
 
+  async function beginSendConsent() {
+    if (!supabase || busy || adminStatus !== "authorized") return;
+    setBusy(true);
+    setMessage("");
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { setMessage("先にメールでログインしてね。"); return; }
+      const response = await fetch("/jaspic/oauth/send-start", {
+        method: "POST", credentials: "same-origin",
+        headers: { authorization: "Bearer " + session.access_token },
+        cache: "no-store",
+      });
+      if (!response.ok) { setMessage("送信権限のテストは現在準備中です。"); return; }
+      const body: unknown = await response.json();
+      if (!body || typeof body !== "object" || !("authorizationUrl" in body) ||
+          typeof body.authorizationUrl !== "string") throw new Error("Unavailable");
+      const target = new URL(body.authorizationUrl);
+      if (target.origin !== "https://accounts.google.com" || target.pathname !== "/o/oauth2/v2/auth")
+        throw new Error("Unavailable");
+      window.location.assign(target.href);
+    } catch { setMessage("送信権限の確認を開始できませんでした。"); }
+    finally { setBusy(false); }
+  }
+
   async function emailLogin() {
     if (!supabase || busy || !email.trim()) return;
     setBusy(true);
@@ -120,6 +144,9 @@ export default function JaspicOauthLoginClient() {
             : "管理者権限は未確認です。管理者設定の完了をお待ちください。"}</p>
         <button type="button" onClick={()=>void beginGoogle()} disabled={busy || adminStatus !== "authorized"}
           style={{fontSize:16,padding:"12px 18px",borderRadius:8}}>Google Gmailの認証を開始</button>
+        <p>送信権限の確認テスト（メール送信なし・トークン保存なし）</p>
+        <button type="button" onClick={()=>void beginSendConsent()} disabled={busy || adminStatus !== "authorized"}
+          style={{fontSize:16,padding:"12px 18px",borderRadius:8}}>Gmail送信権限を確認（送信しない）</button>
         <button type="button" onClick={()=>void supabase.auth.signOut()} disabled={busy}
           style={{fontSize:16,padding:"12px 18px",marginLeft:8,borderRadius:8}}>ログアウト</button>
       </>}
