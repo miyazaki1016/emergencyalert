@@ -17,16 +17,14 @@ export function validateJaspicGmailSendTokenOffline(value: unknown): JaspicGmail
   }
   const data = value as Record<string, unknown>;
   const scopes = typeof data.scope === "string" ? data.scope.trim().split(/\s+/) : [];
-  const forbidden = scopes.some(scope =>
-    scope === "https://mail.google.com/" ||
-    (scope.startsWith("https://www.googleapis.com/auth/gmail.") && scope !== JASPIC_GMAIL_SEND_SCOPE)
-  );
+  const allowed = new Set([JASPIC_GMAIL_SEND_SCOPE, "openid", "email",
+    "https://www.googleapis.com/auth/userinfo.email"]);
   if (typeof data.access_token !== "string" || data.access_token.length < 8 ||
       typeof data.refresh_token !== "string" || data.refresh_token.length < 8 ||
       data.token_type !== "Bearer" ||
       !Number.isSafeInteger(data.expires_in) || (data.expires_in as number) < 1 ||
       (data.expires_in as number) > 86400 ||
-      !scopes.includes(JASPIC_GMAIL_SEND_SCOPE) || forbidden) {
+      !scopes.includes(JASPIC_GMAIL_SEND_SCOPE) || scopes.some(scope => !allowed.has(scope))) {
     throw new Error("Invalid Gmail send-only grant");
   }
   return {

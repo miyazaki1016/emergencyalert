@@ -21,6 +21,7 @@ export default function JaspicOauthLoginClient() {
   const [email, setEmail] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
   const [adminStatus, setAdminStatus] = useState<"checking" | "authorized" | "denied">("checking");
+  const [vault, setVault] = useState<"empty" | "saved" | "unavailable">("unavailable");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   useEffect(() => {
@@ -49,7 +50,11 @@ export default function JaspicOauthLoginClient() {
           headers: { authorization: "Bearer " + session.access_token },
           cache: "no-store",
         });
-        if (active) setAdminStatus(response.ok ? "authorized" : "denied");
+        const result = await response.json();
+        if (active) {
+          setAdminStatus(response.ok ? "authorized" : "denied");
+          setVault(result.vault === "saved" || result.vault === "empty" ? result.vault : "unavailable");
+        }
       } catch {
         if (active) setAdminStatus("denied");
       }
@@ -69,7 +74,7 @@ export default function JaspicOauthLoginClient() {
         headers: { authorization: "Bearer " + session.access_token },
         cache: "no-store",
       });
-      if (!response.ok) { setMessage("送信権限のテストは現在準備中です。"); return; }
+      if (!response.ok) { setMessage("Gmail認証を開始できませんでした。管理者のログイン状態と設定を確認してください。"); return; }
       const body: unknown = await response.json();
       if (!body || typeof body !== "object" || !("authorizationUrl" in body) ||
           typeof body.authorizationUrl !== "string") throw new Error("Unavailable");
@@ -78,6 +83,26 @@ export default function JaspicOauthLoginClient() {
         throw new Error("Unavailable");
       window.location.assign(target.href);
     } catch { setMessage("送信権限の確認を開始できませんでした。"); }
+    finally { setBusy(false); }
+  }
+
+  async function removeSavedConsent() {
+    if (!supabase || busy || adminStatus !== "authorized" ||
+        !window.confirm("このサイトに保存したGmail認証情報を削除しますか？")) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Unavailable");
+      const response = await fetch("/jaspic/oauth/status", {
+        method: "DELETE", credentials: "same-origin",
+        headers: { authorization: "Bearer " + session.access_token },
+        cache: "no-store",
+      });
+      if (!response.ok) throw new Error("Unavailable");
+      setVault("empty");
+      setMessage("このサイトに保存したGmail認証情報を削除しました。");
+    } catch { setMessage("Gmail認証情報を削除できませんでした。"); }
     finally { setBusy(false); }
   }
 
@@ -144,9 +169,14 @@ export default function JaspicOauthLoginClient() {
             : "管理者権限は未確認です。管理者設定の完了をお待ちください。"}</p>
         <button type="button" onClick={()=>void beginGoogle()} disabled={busy || adminStatus !== "authorized"}
           style={{fontSize:16,padding:"12px 18px",borderRadius:8}}>Google Gmailの認証を開始</button>
-        <p>送信権限の確認テスト（メール送信なし・トークン保存なし）</p>
+        {adminStatus === "authorized" && <p role="status">{vault === "saved"
+          ? "Gmail認証情報は暗号化して保存済みです。"
+          : vault === "empty" ? "Gmail認証情報は未保存です。" : "Gmail認証情報の保存状態を確認できません。"}</p>}
         <button type="button" onClick={()=>void beginSendConsent()} disabled={busy || adminStatus !== "authorized"}
-          style={{fontSize:16,padding:"12px 18px",borderRadius:8}}>Gmail送信権限を確認（送信しない）</button>
+          style={{fontSize:16,padding:"12px 18px",borderRadius:8}}>Gmailを再認証して暗号化保存</button>
+        {adminStatus === "authorized" && vault !== "empty" && <button type="button"
+          onClick={()=>void removeSavedConsent()} disabled={busy}
+          style={{fontSize:16,padding:"12px 18px",borderRadius:8}}>保存情報を削除</button>}
         <button type="button" onClick={()=>void supabase.auth.signOut()} disabled={busy}
           style={{fontSize:16,padding:"12px 18px",marginLeft:8,borderRadius:8}}>ログアウト</button>
       </>}

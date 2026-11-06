@@ -1,9 +1,9 @@
-import { verifyJaspicGmailSendConsent } from "../../../../lib/jaspic/oauth-gmail-send-callback-server";
+import { saveJaspicGmailSendConsent } from "../../../../lib/jaspic/oauth-gmail-send-callback-server";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { prepareJaspicIdentityCallback } from "../../../../lib/jaspic/oauth-identity-callback";
 import { createSupabaseOAuthOnceStore, type JaspicOAuthDbClient } from "../../../../lib/jaspic/oauth-supabase-store";
-import { GMAIL_OAUTH_COOKIE_POLICY } from "../../../../lib/jaspic/oauth-session-offline";
+import { GMAIL_OAUTH_COOKIE_POLICY, GMAIL_SEND_COOKIE_NAME } from "../../../../lib/jaspic/oauth-session-offline";
 import { validateJaspicIdentityTokenResponse } from "../../../../lib/jaspic/oauth-identity-token-validation";
 
 export const runtime = "nodejs";
@@ -19,13 +19,13 @@ function result(success: boolean) {
   return response;
 }
 
-/** Identity-only Google callback. Tokens are not persisted or sent to clients. */
+/** Dispatches identity and Gmail consent using their purpose-bound cookies. */
 export async function GET(request: NextRequest) {
-  const sendCookie = request.cookies.get("__Host-jaspic-send-consent")?.value;
+  const sendCookie = request.cookies.get(GMAIL_SEND_COOKIE_NAME)?.value;
   if (sendCookie) {
-    const success = await verifyJaspicGmailSendConsent(request.url, sendCookie);
-    const response = NextResponse.redirect("https://emergencyalert.news/jaspic/oauth/result?status=" + (success ? "send-consent-ok" : "send-consent-failed"), { status: 303, headers: { "Cache-Control": "no-store, private" } });
-    response.cookies.set("__Host-jaspic-send-consent", "", { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 0 });
+    const success = await saveJaspicGmailSendConsent(request.url, sendCookie);
+    const response = NextResponse.redirect("https://emergencyalert.news/jaspic/oauth/result?status=" + (success ? "gmail-vault-check" : "send-consent-failed"), { status: 303, headers: { "Cache-Control": "no-store, private", "Referrer-Policy": "no-referrer" } });
+    response.cookies.set(GMAIL_SEND_COOKIE_NAME, "", { httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 0 });
     return response;
   }
   if (process.env.JASPIC_OAUTH_START_ENABLED !== "true" ||

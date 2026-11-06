@@ -17,6 +17,7 @@ export async function prepareJaspicIdentityCallback(input: {
   clientId: string;
   clientSecret: string;
   now?: number;
+  purpose?: "gmail-send";
 }) {
   const url = new URL(input.callbackUrl);
   if (url.searchParams.getAll("state").length !== 1) throw new Error("Invalid callback state");
@@ -24,7 +25,7 @@ export async function prepareJaspicIdentityCallback(input: {
   const session = await openGmailWebSessionOffline(
     input.sealedCookie, state, input.cookieEncryptionKey, input.now,
   );
-  if (!input.adminUserId || session.ownerId !== input.adminUserId) {
+  if (!input.adminUserId || session.ownerId !== input.adminUserId || session.purpose !== input.purpose) {
     throw new Error("Unauthorized callback owner");
   }
   const { code } = validateJaspicOAuthCallback(input.callbackUrl, state);

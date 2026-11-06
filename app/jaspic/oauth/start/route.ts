@@ -4,6 +4,8 @@ import { authorizeJaspicOAuthStart } from "../../../../lib/jaspic/oauth-start-au
 import { prepareJaspicAdminIdentityStart } from "../../../../lib/jaspic/oauth-identity-start";
 import { createSupabaseOAuthOnceStore, type JaspicOAuthDbClient } from "../../../../lib/jaspic/oauth-supabase-store";
 
+import { GMAIL_SEND_COOKIE_NAME } from "../../../../lib/jaspic/oauth-session-offline";
+
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 const headers = { "Cache-Control": "no-store, private", "Referrer-Policy": "no-referrer", "X-Robots-Tag": "noindex, nofollow" };
@@ -49,6 +51,7 @@ export async function POST(request: NextRequest) {
     });
     const response = NextResponse.json({ authorizationUrl: prepared.authorizationUrl }, { headers });
     response.cookies.set(prepared.cookiePolicy.name, prepared.sealedCookie, prepared.cookiePolicy);
+    response.cookies.set(GMAIL_SEND_COOKIE_NAME, "", { ...prepared.cookiePolicy, maxAge: 0 });
     return response;
   } catch {
     return disabled();
