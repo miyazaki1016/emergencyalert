@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { isJaspicAdmin } from "../../lib/jaspic/admin-authorization";
 
-const id = "2cac0aeb-df49-471f-8d8f-9b68b0b0a75f";
+const id = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 describe("JASPIC admin authorization (deny by default)", () => {
   it("denies missing config and missing user", () => {
     expect(isJaspicAdmin(null, id)).toBe(false);
