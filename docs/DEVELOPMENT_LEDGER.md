@@ -202,4 +202,5 @@
 | #166 | fix(jaspic): accept trailing slash in Supabase URL | merged | `776fe24e8199cd565625c859b58cf6e1d067284b` | 2026-11-06T04:45:07Z |
 | #167 | style(jaspic): improve iPhone login page layout | merged | `37efdbc992e3a63ea0c91c0b1a267e24742ee875` | 2026-11-06T05:45:33Z |
 | #168 | Draft: JASPIC Gmail OAuth isolation and safe rollout audit (no activation) | merged | `17ef79e93311c4c1c557e523566a18f625f62f4a` | 2026-11-06T07:45:19Z |
+| #169 | fix(jaspic): handle Google token response without scope field | merged | `6517de34477c8f658271d582b2ba9baf10f8e7ef` | 2026-11-06T08:18:16Z |
 <!-- INVENTORY_FACTS_END -->
