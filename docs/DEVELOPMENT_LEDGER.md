@@ -200,4 +200,5 @@
 | #164 | feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階） | open | `900497857cfb4f960057459f0489c31ea1961787` | 2026-11-06T03:16:25Z |
 | #165 | docs: 雨の判定ラボ173コマの方式差分・未検証事項を整理 | open | `9aeb900dc4f8f3635a5a3025f7d2b867b15387cd` | 2026-11-06T03:21:59Z |
 | #166 | fix(jaspic): accept trailing slash in Supabase URL | merged | `776fe24e8199cd565625c859b58cf6e1d067284b` | 2026-11-06T04:45:07Z |
+| #167 | style(jaspic): improve iPhone login page layout | merged | `37efdbc992e3a63ea0c91c0b1a267e24742ee875` | 2026-11-06T05:45:33Z |
 <!-- INVENTORY_FACTS_END -->
