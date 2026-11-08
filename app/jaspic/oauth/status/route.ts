@@ -63,7 +63,20 @@ async function handle(request: NextRequest, remove: boolean) {
       const deliveryStatus = delivery && ["attempting", "sent", "failed"].includes(delivery.status)
         ? { status: delivery.status, errorCode: delivery.error_code, updatedAt: delivery.updated_at }
         : null;
-      return respond({ authorized: true, vault: saved ? "saved" : "empty", oauthExpiry, deliveryStatus });
+      // Read-only operational overview. This does not activate or change delivery.
+      const { data: prefectureRows, error: prefectureError } = await access.db
+        .from("jaspic_deliveries").select("province,status").in("province", ["hiroshima", "shiga"]);
+      const prefectureDelivery = prefectureError || !prefectureRows ? null :
+        Object.fromEntries(["hiroshima", "shiga"].map(province => {
+          const rows = prefectureRows.filter(row => row.province === province);
+          const statuses: Record<string, number> = {};
+          for (const row of rows) {
+            const key = typeof row.status === "string" ? row.status : "unknown";
+            statuses[key] = (statuses[key] ?? 0) + 1;
+          }
+          return [province, { total: rows.length, statuses }];
+        }));
+      return respond({ authorized: true, vault: saved ? "saved" : "empty", oauthExpiry, deliveryStatus, prefectureDelivery });
     } catch {
       return respond({ authorized: true, vault: "unavailable" }, remove ? 503 : 200);
     }
