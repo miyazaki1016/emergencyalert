@@ -28,3 +28,9 @@ Scope: KISHIBOJIM Hobby team, projects `misaki` and `emergencyalert`. This is an
 3. Measured counts reconciled against Vercel's authoritative quota.
 4. Stop/resume behavior tested in a non-production simulation, including concurrent requests, API errors, and emergency override.
 5. Explicit approval before modifying production deployment settings or enabling automatic gates.
+
+## Verification update (2026-11-09)
+- The user confirmed that production deployment creation is no longer being rejected. Treat the prior permission incident as resolved; do not change team roles or deployment settings to address it.
+- Vercel team membership API confirms the connected account is OWNER of KISHIBOJIM. This verifies role, not available deployment quota.
+- Both projects are visible via the Vercel connector. The deployment history endpoint is available, but no authoritative remaining-quota value has yet been verified.
+- Keep automated gating disabled. Do not infer remaining quota from the count of deployment records or from project `live` flags.
