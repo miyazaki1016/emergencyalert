@@ -43,7 +43,22 @@ async function handle(request: NextRequest, remove: boolean) {
       }
       if (!encryptionKey) return respond({ authorized: true, vault: "unavailable" });
       const saved = (await readEncryptedGmailRefreshToken({ ...access, encryptionKey })) !== null;
-      return respond({ authorized: true, vault: saved ? "saved" : "empty" });
+      // Advisory only: Google Testing refresh tokens may expire after seven days.
+      // A timestamp is not proof of token validity or a delivery failure.
+      let oauthExpiry: "unknown" | "normal" | "approaching" | "possibly-expired" = "unknown";
+      if (saved) {
+        const { data: row, error: timestampError } = await access.db
+          .from("jaspic_gmail_token_vault").select("updated_at")
+          .eq("owner_id", data.user.id).eq("provider", "google").maybeSingle();
+        if (!timestampError && typeof row?.updated_at === "string") {
+          const age = Date.now() - new Date(row.updated_at).getTime();
+          if (Number.isFinite(age) && age >= 0) {
+            oauthExpiry = age >= 7 * 86400000 ? "possibly-expired" :
+              age >= 6 * 86400000 ? "approaching" : "normal";
+          }
+        }
+      }
+      return respond({ authorized: true, vault: saved ? "saved" : "empty", oauthExpiry });
     } catch {
       return respond({ authorized: true, vault: "unavailable" }, remove ? 503 : 200);
     }
