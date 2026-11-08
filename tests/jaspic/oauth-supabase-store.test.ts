@@ -4,7 +4,7 @@ const ownerId = "12345678-1234-1234-1234-123456789abc";
 const stateHash = "a".repeat(64);
 describe("Supabase OAuth one-time state adapter (mock only)", () => {
   it("registers a hashed state and consumes it using the atomic RPC", async () => {
-    const insert = vi.fn(async () => ({ data: null, error: null }));
+    const insert = vi.fn(async (_row: {state_hash:string}) => ({ data: null, error: null }));
     const rpc = vi.fn(async () => ({ data: true, error: null }));
     const db = { from: () => ({ insert }), rpc } as unknown as JaspicOAuthDbClient;
     const store = createSupabaseOAuthOnceStore(db);
