@@ -64,13 +64,24 @@ export async function POST(request: NextRequest) {
     const { error: claimError } = await db.from("jaspic_single_test_send_once")
       .insert({ id: "admin-gmail-v1" });
     if (claimError) return reply(409, "already-claimed-or-unavailable");
+    await db.from("jaspic_gmail_delivery_status").upsert({
+      id: "admin-test", status: "attempting", error_code: null, updated_at: new Date().toISOString(),
+    });
     const send = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
       method: "POST",
       headers: { Authorization: "Bearer " + tokenData.access_token, "Content-Type": "application/json" },
       body: JSON.stringify({ raw }), cache: "no-store", redirect: "error",
       signal: AbortSignal.timeout(10000),
     });
-    if (!send.ok) return reply(502, "gmail-send-failed");
+    if (!send.ok) {
+      await db.from("jaspic_gmail_delivery_status").upsert({
+        id: "admin-test", status: "failed", error_code: "gmail-send-failed", updated_at: new Date().toISOString(),
+      });
+      return reply(502, "gmail-send-failed");
+    }
+    await db.from("jaspic_gmail_delivery_status").upsert({
+      id: "admin-test", status: "sent", error_code: null, updated_at: new Date().toISOString(),
+    });
     return reply(200, "sent");
   } catch {
     return reply(503, "test-send-unavailable");
