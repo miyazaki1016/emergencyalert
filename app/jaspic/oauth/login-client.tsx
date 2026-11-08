@@ -149,31 +149,6 @@ export default function JaspicOauthLoginClient() {
     finally { setBusy(false); }
   }
 
-  async function beginGoogle() {
-    if (!supabase || busy) return;
-    setBusy(true);
-    setMessage("");
-    try {
-      const {data:{session}} = await supabase.auth.getSession();
-      if (!session) { setMessage("先にメールでログインしてね。"); return; }
-      const response = await fetch("/jaspic/oauth/start", {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { authorization: "Bearer " + session.access_token },
-        cache: "no-store",
-      });
-      if (!response.ok) { setMessage("Google認証は現在停止中です。管理者設定を確認してね。"); return; }
-      const body: unknown = await response.json();
-      if (!body || typeof body !== "object" || !("authorizationUrl" in body) ||
-          typeof body.authorizationUrl !== "string") throw new Error("Unavailable");
-      const target = new URL(body.authorizationUrl);
-      if (target.origin !== "https://accounts.google.com" || target.pathname !== "/o/oauth2/v2/auth") {
-        throw new Error("Unavailable");
-      }
-      window.location.assign(target.href);
-    } catch { setMessage("認証開始に失敗しました。"); }
-    finally { setBusy(false); }
-  }
 
   return (
     <section>
@@ -195,8 +170,6 @@ export default function JaspicOauthLoginClient() {
           : adminStatus === "authorized"
             ? "管理者権限を確認しました。Google認証の開始はサーバー設定によって制御されています。"
             : "管理者権限は未確認です。管理者設定の完了をお待ちください。"}</p>
-        <button type="button" onClick={()=>void beginGoogle()} disabled={busy || adminStatus !== "authorized"}
-          style={{fontSize:16,padding:"12px 18px",borderRadius:8}}>Google Gmailの認証を開始</button>
         {adminStatus === "authorized" && <p role="status">{vault === "saved"
           ? "Gmail認証情報は暗号化して保存済みです。"
           : vault === "empty" ? "Gmail認証情報は未保存です。" : "Gmail認証情報の保存状態を確認できません。"}</p>}
@@ -230,8 +203,14 @@ export default function JaspicOauthLoginClient() {
               : "Gmail認証の有効期限を確認できません。送信エラーがあれば再認証してください。"}
           <br />※これは保存日時による推定で、実際の送信失敗を確認した表示ではありません。
         </p>}
-        <button type="button" onClick={()=>void beginSendConsent()} disabled={busy || adminStatus !== "authorized"}
-          style={{fontSize:16,padding:"12px 18px",borderRadius:8}}>Gmailを再認証して暗号化保存</button>
+        {adminStatus === "authorized" && (vault !== "saved" || oauthExpiry !== "normal") && <button
+          type="button" onClick={()=>void beginSendConsent()} disabled={busy}
+          style={{fontSize:16,padding:"12px 18px",borderRadius:8}}>
+          {vault === "empty" ? "Gmailを認証して暗号化保存" :
+            oauthExpiry === "approaching" ? "Gmailの期限が近づいています・再認証" :
+            oauthExpiry === "possibly-expired" ? "Gmailの再認証が必要な可能性があります" :
+            "Gmailの認証状態を確認・再認証"}
+        </button>}
         {adminStatus === "authorized" && vault === "saved" && <button type="button"
           onClick={()=>void sendSingleTest()} disabled={busy}
           style={{fontSize:16,padding:"12px 18px",borderRadius:8,marginTop:12}}>管理者宛てにテストメールを1通送信</button>}
