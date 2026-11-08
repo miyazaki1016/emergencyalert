@@ -23,6 +23,7 @@ export default function JaspicOauthLoginClient() {
   const [adminStatus, setAdminStatus] = useState<"checking" | "authorized" | "denied">("checking");
   const [vault, setVault] = useState<"empty" | "saved" | "unavailable">("unavailable");
   const [oauthExpiry, setOauthExpiry] = useState<"unknown" | "normal" | "approaching" | "possibly-expired">("unknown");
+  const [oauthDates, setOauthDates] = useState<{lastSavedAt:string;recommendedAt:string;estimatedExpiryAt:string} | null>(null);
   const [prefectureDelivery, setPrefectureDelivery] = useState<Record<string, {total:number;statuses:Record<string,number>}> | null>(null);
   const [deliveryStatus, setDeliveryStatus] = useState<{status: string; errorCode: string | null; updatedAt: string} | null>(null);
   const [message, setMessage] = useState("");
@@ -58,6 +59,8 @@ export default function JaspicOauthLoginClient() {
           setAdminStatus(response.ok ? "authorized" : "denied");
           setVault(result.vault === "saved" || result.vault === "empty" ? result.vault : "unavailable");
           setOauthExpiry(["normal", "approaching", "possibly-expired"].includes(result.oauthExpiry) ? result.oauthExpiry : "unknown");
+          const dates = result.oauthDates;
+          setOauthDates(dates && [dates.lastSavedAt, dates.recommendedAt, dates.estimatedExpiryAt].every((v:unknown) => typeof v === "string" && Number.isFinite(Date.parse(v))) ? dates : null);
           setDeliveryStatus(result.deliveryStatus ?? null);
           setPrefectureDelivery(result.prefectureDelivery ?? null);
         }
@@ -173,6 +176,17 @@ export default function JaspicOauthLoginClient() {
         {adminStatus === "authorized" && <p role="status">{vault === "saved"
           ? "Gmail認証情報は暗号化して保存済みです。"
           : vault === "empty" ? "Gmail認証情報は未保存です。" : "Gmail認証情報の保存状態を確認できません。"}</p>}
+        {adminStatus === "authorized" && vault === "saved" && <div role="status"
+          style={{padding:12,border:"1px solid #a5bbd0",borderRadius:8,margin:"12px 0",
+            background:oauthExpiry === "possibly-expired" ? "#fff0ef" : oauthExpiry === "approaching" ? "#fff8e7" : "#f0faf3"}}>
+          <strong>Gmail認証の期限目安</strong>
+          {oauthDates ? <>
+            <p>最終保存日：{new Date(oauthDates.lastSavedAt).toLocaleString("ja-JP",{timeZone:"Asia/Tokyo"})}</p>
+            <p>再認証の推奨日：{new Date(oauthDates.recommendedAt).toLocaleDateString("ja-JP",{timeZone:"Asia/Tokyo"})}</p>
+            <p>推定有効期限：{new Date(oauthDates.estimatedExpiryAt).toLocaleDateString("ja-JP",{timeZone:"Asia/Tokyo"})}</p>
+          </> : <p>日時を確認できません。</p>}
+          <small>※Google OAuthがテストモードの場合の7日間を仮定した目安です。保存日時を起点としており、Googleが保証する有効期限や送信可否ではありません。</small>
+        </div>}
         {adminStatus === "authorized" && prefectureDelivery && <div role="status"
           style={{padding:12,border:"1px solid #a5bbd0",borderRadius:8,margin:"12px 0"}}>
           <strong>広島・滋賀 配信台帳（読み取り専用）</strong>
