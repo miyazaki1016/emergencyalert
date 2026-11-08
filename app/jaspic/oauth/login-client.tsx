@@ -106,6 +106,28 @@ export default function JaspicOauthLoginClient() {
     finally { setBusy(false); }
   }
 
+  async function sendSingleTest() {
+    if (!supabase || busy || adminStatus !== "authorized" || vault !== "saved" ||
+        !window.confirm("管理者本人宛てにテストメールを1通だけ送信します。よろしいですか？")) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Unavailable");
+      const response = await fetch("/jaspic/oauth/test-send", {
+        method: "POST", credentials: "same-origin",
+        headers: { authorization: "Bearer " + session.access_token },
+        cache: "no-store",
+      });
+      const result: unknown = await response.json();
+      const code = result && typeof result === "object" && "result" in result ? String(result.result) : "";
+      setMessage(response.ok ? "テストメールを1通送信しました。Gmailの受信箱を確認してください。" :
+        code === "already-claimed-or-unavailable" ? "テスト送信はすでに実行済み、または利用できません。再送しません。" :
+        "テスト送信できませんでした（" + (code || response.status) + "）。再送はせず、状況を確認してください。");
+    } catch { setMessage("送信結果を確認できません。重複防止のため再操作せず、管理者に確認してください。"); }
+    finally { setBusy(false); }
+  }
+
   async function emailLogin() {
     if (!supabase || busy || !email.trim()) return;
     setBusy(true);
@@ -174,6 +196,9 @@ export default function JaspicOauthLoginClient() {
           : vault === "empty" ? "Gmail認証情報は未保存です。" : "Gmail認証情報の保存状態を確認できません。"}</p>}
         <button type="button" onClick={()=>void beginSendConsent()} disabled={busy || adminStatus !== "authorized"}
           style={{fontSize:16,padding:"12px 18px",borderRadius:8}}>Gmailを再認証して暗号化保存</button>
+        {adminStatus === "authorized" && vault === "saved" && <button type="button"
+          onClick={()=>void sendSingleTest()} disabled={busy}
+          style={{fontSize:16,padding:"12px 18px",borderRadius:8,marginTop:12}}>管理者宛てにテストメールを1通送信</button>}
         {adminStatus === "authorized" && vault !== "empty" && <button type="button"
           onClick={()=>void removeSavedConsent()} disabled={busy}
           style={{fontSize:16,padding:"12px 18px",borderRadius:8}}>保存情報を削除</button>}
