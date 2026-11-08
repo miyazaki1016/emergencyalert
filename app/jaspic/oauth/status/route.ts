@@ -46,6 +46,7 @@ async function handle(request: NextRequest, remove: boolean) {
       // Advisory only: Google Testing refresh tokens may expire after seven days.
       // A timestamp is not proof of token validity or a delivery failure.
       let oauthExpiry: "unknown" | "normal" | "approaching" | "possibly-expired" = "unknown";
+      let oauthDates: { lastSavedAt: string; recommendedAt: string; estimatedExpiryAt: string } | null = null;
       if (saved) {
         const { data: row, error: timestampError } = await access.db
           .from("jaspic_gmail_token_vault").select("updated_at")
@@ -53,6 +54,8 @@ async function handle(request: NextRequest, remove: boolean) {
         if (!timestampError && typeof row?.updated_at === "string") {
           const age = Date.now() - new Date(row.updated_at).getTime();
           if (Number.isFinite(age) && age >= 0) {
+            const savedAt = new Date(row.updated_at).getTime();
+            oauthDates = { lastSavedAt: row.updated_at, recommendedAt: new Date(savedAt + 6 * 86400000).toISOString(), estimatedExpiryAt: new Date(savedAt + 7 * 86400000).toISOString() };
             oauthExpiry = age >= 7 * 86400000 ? "possibly-expired" :
               age >= 6 * 86400000 ? "approaching" : "normal";
           }
@@ -76,7 +79,7 @@ async function handle(request: NextRequest, remove: boolean) {
           }
           return [province, { total: rows.length, statuses }];
         }));
-      return respond({ authorized: true, vault: saved ? "saved" : "empty", oauthExpiry, deliveryStatus, prefectureDelivery });
+      return respond({ authorized: true, vault: saved ? "saved" : "empty", oauthExpiry, oauthDates, deliveryStatus, prefectureDelivery });
     } catch {
       return respond({ authorized: true, vault: "unavailable" }, remove ? 503 : 200);
     }
