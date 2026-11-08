@@ -58,7 +58,12 @@ async function handle(request: NextRequest, remove: boolean) {
           }
         }
       }
-      return respond({ authorized: true, vault: saved ? "saved" : "empty", oauthExpiry });
+      const { data: delivery } = await access.db.from("jaspic_gmail_delivery_status")
+        .select("status,error_code,updated_at").eq("id", "admin-test").maybeSingle();
+      const deliveryStatus = delivery && ["attempting", "sent", "failed"].includes(delivery.status)
+        ? { status: delivery.status, errorCode: delivery.error_code, updatedAt: delivery.updated_at }
+        : null;
+      return respond({ authorized: true, vault: saved ? "saved" : "empty", oauthExpiry, deliveryStatus });
     } catch {
       return respond({ authorized: true, vault: "unavailable" }, remove ? 503 : 200);
     }
