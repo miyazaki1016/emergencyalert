@@ -207,4 +207,5 @@
 | #171 | feat(jaspic): save verified Gmail OAuth credentials in encrypted vault | merged | `e48e8a60568f0e5ee8ab1bffb120864091e431de` | 2026-11-06T08:56:23Z |
 | #172 | fix(jaspic): diagnose Gmail OAuth vault failures without logging secrets | merged | `22e5d3d4a5c81c2f2ca8a04fac2c668e202885fa` | 2026-11-08T04:45:57Z |
 | #173 | fix(jaspic): resolve diagnostic stage TypeScript build error | merged | `aee2ec75d98b733f1688c85a0fed60e8c192cf25` | 2026-11-08T07:00:50Z |
+| #174 | feat(jaspic): gated single-recipient Gmail test send | merged | `af6fcb14906a8fa271f6a165b5b26ad08821cc66` | 2026-11-08T10:46:07Z |
 <!-- INVENTORY_FACTS_END -->
