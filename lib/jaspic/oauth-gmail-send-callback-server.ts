@@ -19,7 +19,8 @@ export async function saveJaspicGmailSendConsent(requestUrl: string, sealedCooki
   const owner = process.env.JASPIC_ADMIN_USER_ID;
   const expectedEmail = process.env.JASPIC_OAUTH_ADMIN_EMAIL;
   if (!url || !/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url) ||
-      !service || !clientId || !clientSecret || !cookieKey || !owner || !expectedEmail || !encryptionKey) return false;
+      !service || !clientId || !clientSecret || !cookieKey || !owner || !expectedEmail || !encryptionKey) { console.warn("[jaspic-gmail-oauth] missing-config"); return false; }
+  let stage = "vault-key";
   try {
     assertGmailVaultKey(encryptionKey);
     stage = "oauth-state";
