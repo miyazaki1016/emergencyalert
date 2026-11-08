@@ -59,6 +59,11 @@ export async function POST(request: NextRequest) {
       "Content-Transfer-Encoding: base64\r\n\r\n" +
       Buffer.from(body).toString("base64") + "\r\n"
     ).toString("base64url");
+    // Atomic one-shot claim, persisted before sending: concurrent/repeated requests cannot send twice.
+    // A failed Gmail request still consumes the claim; manual recovery requires a reviewed reset.
+    const { error: claimError } = await db.from("jaspic_single_test_send_once")
+      .insert({ id: "admin-gmail-v1" });
+    if (claimError) return reply(409, "already-claimed-or-unavailable");
     const send = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
       method: "POST",
       headers: { Authorization: "Bearer " + tokenData.access_token, "Content-Type": "application/json" },
