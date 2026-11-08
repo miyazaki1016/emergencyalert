@@ -22,6 +22,7 @@ export default function JaspicOauthLoginClient() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [adminStatus, setAdminStatus] = useState<"checking" | "authorized" | "denied">("checking");
   const [vault, setVault] = useState<"empty" | "saved" | "unavailable">("unavailable");
+  const [oauthExpiry, setOauthExpiry] = useState<"unknown" | "normal" | "approaching" | "possibly-expired">("unknown");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   useEffect(() => {
@@ -54,6 +55,7 @@ export default function JaspicOauthLoginClient() {
         if (active) {
           setAdminStatus(response.ok ? "authorized" : "denied");
           setVault(result.vault === "saved" || result.vault === "empty" ? result.vault : "unavailable");
+          setOauthExpiry(["normal", "approaching", "possibly-expired"].includes(result.oauthExpiry) ? result.oauthExpiry : "unknown");
         }
       } catch {
         if (active) setAdminStatus("denied");
@@ -194,6 +196,15 @@ export default function JaspicOauthLoginClient() {
         {adminStatus === "authorized" && <p role="status">{vault === "saved"
           ? "Gmail認証情報は暗号化して保存済みです。"
           : vault === "empty" ? "Gmail認証情報は未保存です。" : "Gmail認証情報の保存状態を確認できません。"}</p>}
+        {adminStatus === "authorized" && vault === "saved" && oauthExpiry !== "normal" && <p role="alert"
+          style={{padding:12,border:"1px solid #e8a34e",borderRadius:8,background:"#fff8e7",color:"#6c4100"}}>
+          {oauthExpiry === "approaching"
+            ? "⚠️ Gmail認証から約6日経過。テストモードでは間もなく再認証が必要になる可能性があります。"
+            : oauthExpiry === "possibly-expired"
+              ? "⚠️ Gmail認証から7日以上経過。送信できない可能性があります。下のボタンから再認証してください。"
+              : "Gmail認証の有効期限を確認できません。送信エラーがあれば再認証してください。"}
+          <br />※これは保存日時による推定で、実際の送信失敗を確認した表示ではありません。
+        </p>}
         <button type="button" onClick={()=>void beginSendConsent()} disabled={busy || adminStatus !== "authorized"}
           style={{fontSize:16,padding:"12px 18px",borderRadius:8}}>Gmailを再認証して暗号化保存</button>
         {adminStatus === "authorized" && vault === "saved" && <button type="button"
