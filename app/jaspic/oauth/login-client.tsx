@@ -23,6 +23,7 @@ export default function JaspicOauthLoginClient() {
   const [adminStatus, setAdminStatus] = useState<"checking" | "authorized" | "denied">("checking");
   const [vault, setVault] = useState<"empty" | "saved" | "unavailable">("unavailable");
   const [oauthExpiry, setOauthExpiry] = useState<"unknown" | "normal" | "approaching" | "possibly-expired">("unknown");
+  const [prefectureDelivery, setPrefectureDelivery] = useState<Record<string, {total:number;statuses:Record<string,number>}> | null>(null);
   const [deliveryStatus, setDeliveryStatus] = useState<{status: string; errorCode: string | null; updatedAt: string} | null>(null);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -58,6 +59,7 @@ export default function JaspicOauthLoginClient() {
           setVault(result.vault === "saved" || result.vault === "empty" ? result.vault : "unavailable");
           setOauthExpiry(["normal", "approaching", "possibly-expired"].includes(result.oauthExpiry) ? result.oauthExpiry : "unknown");
           setDeliveryStatus(result.deliveryStatus ?? null);
+          setPrefectureDelivery(result.prefectureDelivery ?? null);
         }
       } catch {
         if (active) setAdminStatus("denied");
@@ -198,6 +200,17 @@ export default function JaspicOauthLoginClient() {
         {adminStatus === "authorized" && <p role="status">{vault === "saved"
           ? "Gmail認証情報は暗号化して保存済みです。"
           : vault === "empty" ? "Gmail認証情報は未保存です。" : "Gmail認証情報の保存状態を確認できません。"}</p>}
+        {adminStatus === "authorized" && prefectureDelivery && <div role="status"
+          style={{padding:12,border:"1px solid #a5bbd0",borderRadius:8,margin:"12px 0"}}>
+          <strong>広島・滋賀 配信台帳（読み取り専用）</strong>
+          {(["hiroshima", "shiga"] as const).map(province => <p key={province}>
+            {province === "hiroshima" ? "広島" : "滋賀"}：
+            {prefectureDelivery[province]?.total ?? 0}件
+            {" ／ "}{Object.entries(prefectureDelivery[province]?.statuses ?? {})
+              .map(([status,count]) => status + " " + count + "件").join("、") || "記録なし"}
+          </p>)}
+          <small>※台帳上の状態であり、Gmail送信成功・受信成功を保証するものではありません。配信は開始しません。</small>
+        </div>}
         {adminStatus === "authorized" && deliveryStatus && <p role="status"
           style={{padding:12,border:"1px solid #a5bbd0",borderRadius:8}}>
           Gmailテスト送信の最終記録：
