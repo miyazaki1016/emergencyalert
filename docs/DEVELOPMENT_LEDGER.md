@@ -189,7 +189,7 @@
 | #151 | Inventory: ranked, evidence-only human review queue | merged | `9c11b14192a5f4e2d214b6d51fc6bb51f844366f` | 2026-11-02T20:53:32Z |
 | #152 | fix: reuse existing ledger facts PR on repeated inventory runs | merged | `5e4acfac946cc17b4f216a5c0d962c453f05a869` | 2026-11-02T23:27:06Z |
 | #153 | fix: restore ledger facts workflow after invalid YAML merge | merged | `dec71eda8c9866709ac3a002481eaf14f0471a99` | 2026-11-03T23:40:09Z |
-| #155 | Draft: JASPIC無送信MIME互換・Windows旧版比較と独立移植 | open | `a83e3f018e60daba771bf832fdfb05d480c58549` | 2026-11-05T21:52:36Z |
+| #155 | Draft: JASPIC無送信MIME互換・Windows旧版比較と独立移植 | open | `a83e3f018e60daba771bf832fdfb05d480c58549` | 2026-11-06T22:35:50Z |
 | #156 | docs(web): JASPIC OAuth向け公開説明・プライバシーページ | merged | `e15cb16a477ab7def56a6d696632dc246590018d` | 2026-11-04T16:47:10Z |
 | #157 | JASPIC: iPhone email-login preview only (Gmail OAuth disabled) | merged | `29e257b0c69559f9b3fae7873ca1876366ae957b` | 2026-11-05T00:27:22Z |
 | #158 | docs: link common development management overview in main project overview | merged | `66fcb2c47a00825796bc351bd17eee5a22148bdd` | 2026-11-05T02:12:00Z |
@@ -198,11 +198,12 @@
 | #161 | ci: stop automatic previews and skip documentation-only builds | merged | `8ee8edff9b9c2fd5ce9d19eea2d408b51c768cab` | 2026-11-05T04:43:39Z |
 | #162 | docs: 総覧を短くし、案件管理を開発台帳へ集約 | merged | `77d576da3d309f65b8f7292c16d8d5a71201adf9` | 2026-11-05T04:58:11Z |
 | #164 | feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階） | open | `900497857cfb4f960057459f0489c31ea1961787` | 2026-11-06T03:16:25Z |
-| #165 | docs: 雨の判定ラボ173コマの方式差分・未検証事項を整理 | open | `9aeb900dc4f8f3635a5a3025f7d2b867b15387cd` | 2026-11-06T03:21:59Z |
+| #165 | docs: 雨の判定ラボ173コマの方式差分・未検証事項を整理 | open | `33f5d0348e6db11dc21e0d04233f17395eb1aa56` | 2026-11-06T21:43:15Z |
 | #166 | fix(jaspic): accept trailing slash in Supabase URL | merged | `776fe24e8199cd565625c859b58cf6e1d067284b` | 2026-11-06T04:45:07Z |
 | #167 | style(jaspic): improve iPhone login page layout | merged | `37efdbc992e3a63ea0c91c0b1a267e24742ee875` | 2026-11-06T05:45:33Z |
 | #168 | Draft: JASPIC Gmail OAuth isolation and safe rollout audit (no activation) | merged | `17ef79e93311c4c1c557e523566a18f625f62f4a` | 2026-11-06T07:45:19Z |
 | #169 | fix(jaspic): handle Google token response without scope field | merged | `6517de34477c8f658271d582b2ba9baf10f8e7ef` | 2026-11-06T08:18:16Z |
 | #170 | feat(jaspic): prepare Gmail send-only consent offline | merged | `492c363dca14816bcfba2d88d601b6f29d7d8317` | 2026-11-06T08:29:03Z |
 | #171 | feat(jaspic): save verified Gmail OAuth credentials in encrypted vault | merged | `e48e8a60568f0e5ee8ab1bffb120864091e431de` | 2026-11-06T08:56:23Z |
+| #172 | fix(jaspic): diagnose Gmail OAuth vault failures without logging secrets | merged | `22e5d3d4a5c81c2f2ca8a04fac2c668e202885fa` | 2026-11-08T04:45:57Z |
 <!-- INVENTORY_FACTS_END -->
