@@ -225,4 +225,5 @@
 | #189 | docs(history): 着手前自動照合の実測と再利用判断を保存 | merged | `e0b050d6dd7bd7cf05fc37c17d3b58acdf0afd18` | 2026-11-09T09:51:32Z |
 | #190 | fix(jaspic): quarantine unreconciled historical IDs without dispatching them | merged | `eb3136ff0efc13a7e98205c31e56c17a7807fa00` | 2026-11-09T20:37:57Z |
 | #191 | fix(jaspic): deliver nine verified post-migration alerts exactly once | merged | `5bec7803eea833327f74e3b1bfaee565cfbe1e44` | 2026-11-09T21:00:45Z |
+| #192 | fix(jaspic): 自転車盗は通知対象外のまま隔離件数から除外 | merged | `9f59c19e9e23c730e2906c55720d12277194d6d6` | 2026-11-09T21:17:34Z |
 <!-- INVENTORY_FACTS_END -->
