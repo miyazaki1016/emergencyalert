@@ -22,7 +22,7 @@ function score(samples:RainSample[],targetMinute:number,kind:'onset'|'actionable
  let first:number|null=null;
  for(let i=1;i<s.length;i++){
   if(!known(s[i].rain)||!known(s[i-1].rain))continue;
-  if(wet(s[i].rain)&&!wet(s[i-1].rain)){
+  if(s[i].minute-s[i-1].minute===5&&wet(s[i].rain)&&!wet(s[i-1].rain)){
    let sustained=true;
    for(let j=1;j<persistence;j++){
     if(i+j>=s.length){sustained=false;break}
