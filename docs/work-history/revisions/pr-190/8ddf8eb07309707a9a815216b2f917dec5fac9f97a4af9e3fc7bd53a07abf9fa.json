@@ -1,0 +1,410 @@
+{
+  "id": "pr-190",
+  "number": 190,
+  "title": "fix(jaspic): quarantine unreconciled historical IDs without dispatching them",
+  "topics": [
+    "通知・配信"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "## 目的\n11/9 18:00 JSTのJASPIC自動配信失敗（`HISTORICAL_ID_REQUIRES_RECONCILIATION`）を、安全な未照合ID隔離へ変更する。**送信開始・本番反映ではないDraft**。\n\n## 事実と再利用\n- 本番runはFAILED、広島0件・滋賀0件、配送キュー0件。\n- 広島公式JSONとDBを読取照合し未登録23 ID（不審者4、犯罪19）、うち発生日が基準日以前22 ID。犯罪13件は自転車盗で通知対象外。\n- 事件発生日は公開日時ではないため、古い発生日の未登録IDだけを理由に全件停止するのは過剰。ただし旧送信済みかどうかは未確定。\n- [既存PR #155](https://github.com/miyazaki1016/emergencyalert/pull/155) の旧C#・非可逆LINKKEY・滋賀404の知見を再利用。MIME互換試験は繰り返さない。\n- 日本語開発履歴 `development-history`（2026-11-09 10:10 UTC生成、183 PR・201ブランチ、収集エラー0）を参照。Vercel Sandbox上で最新mainのCLI preflightを実行し、PR #155の原本再利用判断を記録した `REVIEW_RECORDED` を確認。GitHub Actionsのpreflightも成功。\n\n## 変更\n- `productionPlan` で、未照合の古い発生日を持つ新規map IDを `quarantined` として除外。配送候補にもbaselineにも保存しない。\n- 他の既知ID更新・新しい発生日の候補は計画可能。\n- 原本全件でsource count guardを評価。実行結果に県別隔離件数を記録。\n- 隔離の継続・安全な更新・件数ガードをVitestで検証するテストを追加。\n- 詳細調査・未解決ゲート: `docs/research/JASPIC_HISTORICAL_ID_QUARANTINE_20261110.md`。\n\n## 未解決（本番化の前提）\n1. **Supabase `pg_net` からは滋賀JSONが404**だが、Vercel Sandbox `iad1` からは両URLが200（滋賀716件）。本番Vercel Functionの実取得は未確認のため、配信前の全県事前検査で確認する。\n2. 旧Windowsの送信成功台帳と新map IDの照合は未完了。隔離分は自動配信しない。\n3. GitHub Actions CI・preflight・分類は既存headで成功。追加の調査資料更新後のCIを再確認する。\n4. 手動無送信検証、対象0件/新規/更新/再掲/通信失敗/UNKNOWNの確認後にのみ本番化判断。\n\n## 安全性\nこのDraft段階ではmainへのマージなし、本番デプロイなし、Supabase DB・cron・認証・通知送信の変更なし。Vercelは非mainデプロイ無効の設定を維持。\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-155\",\"decision\":\"extend\",\"reason\":\"既存PRの旧C#送信互換と滋賀JSON404およびLINKKEY非可逆の原本を再利用し、今回の未登録古い発生日IDの隔離だけを追加する。既存MIME実験を繰り返さない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/155\"}]}\n-->",
+  "snapshot_head": "eb3136ff0efc13a7e98205c31e56c17a7807fa00",
+  "snapshot_consistent": true,
+  "head": "eb3136ff0efc13a7e98205c31e56c17a7807fa00",
+  "base": "99547abd5f63765d0e2ea1ebcf039e43f7b73b39",
+  "base_ref": "main",
+  "head_ref": "fix/jaspic-quarantine-historical-ids-20261110",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-09T20:37:57Z",
+  "merge_commit_sha": "bda04f4e986b7db040367ef91395b7c925886c07",
+  "updated_at": "2026-11-09T20:37:57Z",
+  "code_facts": [
+    {
+      "file": "lib/jaspic/production-plan.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (previous && fields[item.kind].some(f => !Object.hasOwn(previous,f))) throw new Error(\"BASELINE_FIELDS_MISSING\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/lib/jaspic/production-plan.ts"
+    },
+    {
+      "file": "lib/jaspic/production-plan.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!previous && !legacyPerson) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/lib/jaspic/production-plan.ts"
+    },
+    {
+      "file": "lib/jaspic/production-plan.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (date.slice(0,10).replaceAll(\"/\",\"-\") <= \"2026-11-06\") {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/lib/jaspic/production-plan.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { describe, expect, it } from \"vitest\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function crime(id: string, date = \"2026-11-01 10:00:00\", address = \"テスト地点\"): Item {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function person(id: string): Item {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function baseline() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "...Array.from({ length: 10 }, (_, n) => crime(String(1126001001 + n))),",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "...Array.from({ length: 10 }, (_, n) => person(String(45701 + n))),",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"JASPIC historical ID quarantine\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"does not send or baseline unseen historical IDs, while planning a safe recent event\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(result.quarantined).toEqual([\"hiroshima-crime:1126001011\"]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(result.candidates.map(c => c.key)).toEqual([\"hiroshima-crime:1126001012\"]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(result.records).not.toHaveProperty(\"hiroshima-crime:1126001011\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(result.records).toHaveProperty(\"hiroshima-crime:1126001012\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic/production-delivery.test.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "it(\"quarantines a historical unknown ID without treating it as sent\",async()=>{const base=Array.from({length:10},(_,i)=>item(String(i)));const records=Object.fromEntries(base.map(i=>[\"shiga-person:\"+i.data.id,i.data]));const result=await productionPlan(\"shiga\",{revision:4,baseline:true,records},[...base,item(\"unknown\",\"2026-10-01 12:00:00\")],new Se",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/tests/jaspic/production-delivery.test.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/dispatch/route.ts",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "diff --git a/app/jaspic/dispatch/route.ts b/app/jaspic/dispatch/route.ts\nindex 80568af..0db3e79 100644\n--- a/app/jaspic/dispatch/route.ts\n+++ b/app/jaspic/dispatch/route.ts\n@@ -63,7 +63,7 @@ export async function POST(request:Request) {\n       if(outcome.status!==\"SENT\")throw new Error(outcome.error??\"SEND_FAILED\");\n       sent[delivery.province as Province]++;\n     }\n-    const result={runId:id,status:\"SUCCEEDED\",sent,candidates:plans.map(p=>({province:p.province,count:p.result.candidates.length}))};\n+    const result={runId:id,status:\"SUCCEEDED\",sent,candidates:plans.map(p=>({province:p.province,count:p.result.candidates.length})),quarantined:plans.map(p=>({province:p.province,count:p.result.quarantined.length}))};\n     const saved=await db.from(\"jaspic_runs\").update({status:\"SUCCEEDED\",finished_at:new Date().toISOString(),result}).eq(\"id\",id).eq(\"status\",\"RUNNING\").select(\"id\");\n     if(saved.error||saved.data.length!==1)throw new Error(\"RUN_RESULT_NOT_SAVED\");\n     return response(result);\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/app/jaspic/dispatch/route.ts",
+      "source": {
+        "path": "app/jaspic/dispatch/route.ts",
+        "coverage": "全文",
+        "text": "import {createClient} from \"@supabase/supabase-js\";\nimport {timingSafeEqual,randomUUID} from \"node:crypto\";\nimport {readEncryptedGmailRefreshToken} from \"../../../lib/jaspic/oauth-gmail-token-store-server\";\nimport {collect, type Province} from \"../../../supabase/functions/_shared/jaspic/collect\";\nimport {productionPlan} from \"../../../lib/jaspic/production-plan\";\nimport {sendProductionMail} from \"../../../lib/jaspic/production-gmail\";\n\nexport const runtime=\"nodejs\";\nexport const dynamic=\"force-dynamic\";\nexport const maxDuration=300;\nconst response=(data:unknown,status=200)=>Response.json(data,{status,headers:{\"Cache-Control\":\"no-store, private\"}});\n\nexport async function POST(request:Request) {\n  const secret=process.env.JASPIC_DISPATCH_TOKEN;\n  const supplied=request.headers.get(\"authorization\")?.replace(/^Bearer /,\"\")??\"\";\n  if (!secret||supplied.length!==secret.length||!timingSafeEqual(Buffer.from(supplied),Buffer.from(secret))) return response({error:\"UNAUTHORIZED\"},401);\n  if (process.env.JASPIC_PRODUCTION_SEND_ENABLED!==\"true\") return response({error:\"DISABLED\"},503);\n  const url=process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/,\"\");\n  const key=process.env.SUPABASE_SERVICE_ROLE_KEY;\n  const ownerId=process.env.JASPIC_ADMIN_USER_ID;\n  const encryptionKey=process.env.JASPIC_GMAIL_TOKEN_VAULT_KEY;\n  const clientId=process.env.JASPIC_GOOGLE_WEB_CLIENT_ID;\n  const clientSecret=process.env.JASPIC_GOOGLE_WEB_CLIENT_SECRET;\n  if (!url||!key||!ownerId||!encryptionKey||!clientId||!clientSecret) return response({error:\"NOT_CONFIGURED\"},503);\n  const db=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});\n  async function rpc(name:string,args:Record<string,unknown>={}) {const r=await db.rpc(name,args);if(r.error)throw new Error(\"DATABASE_GUARD\");return r.data;}\n  const id=randomUUID(); let started=false;\n  const sent={hiroshima:0,shiga:0};\n  try {\n    if (!await rpc(\"jaspic_begin_run\",{p_id:id})) return response({error:\"RUN_LOCKED\"},409);\n    started=true;\n    // Preflight both complete sources before persisting or sending either province.\n    const provinces:Province[]=[\"hiroshima\",\"shiga\"];\n    const legacy=await rpc(\"jaspic_legacy_hiroshima_person_ids\");\n    if(!Array.isArray(legacy)||legacy.some(x=>typeof x!==\"string\"))throw new Error(\"LEGACY_HISTORY_INVALID\");\n    const plans=await Promise.all(provinces.map(async province=>{\n      const snapshot=await rpc(\"jaspic_snapshot\",{p_province:province});\n      const items=await collect(province);\n      return {province,result:await productionPlan(province,snapshot,items,new Set(province===\"hiroshima\"?legacy:[]))};\n    }));\n    if(plans.reduce((n,p)=>n+p.result.candidates.length,0)>20)throw new Error(\"DIFFERENCE_LIMIT\");\n    const unresolved=await db.from(\"jaspic_deliveries\").select(\"status\").in(\"status\",[\"PREPARED\",\"SENDING\",\"UNKNOWN\",\"FAILED\"]).limit(1);\n    if(unresolved.error||unresolved.data.length)throw new Error(\"UNRESOLVED_DELIVERY\");\n    // Refresh validates the existing encrypted OAuth credential even for a zero-item run.\n    const refresh=await readEncryptedGmailRefreshToken({db,ownerId,expectedAdminId:ownerId,encryptionKey});\n    if(!refresh)throw new Error(\"GMAIL_NOT_CONNECTED\");\n    const tokenResponse=await fetch(\"https://oauth2.googleapis.com/token\",{method:\"POST\",headers:{\"Content-Type\":\"application/x-www-form-urlencoded\"},body:new URLSearchParams({client_id:clientId,client_secret:clientSecret,refresh_token:refresh,grant_type:\"refresh_token\"}),redirect:\"error\",cache:\"no-store\",signal:AbortSignal.timeout(10_000)});\n    if(!tokenResponse.ok)throw new Error(\"GMAIL_REFRESH_FAILED\");\n    const token=await tokenResponse.json();\n    if(typeof token.access_token!==\"string\"||token.access_token.length<8)throw new Error(\"GMAIL_TOKEN_INVALID\");\n    for(const {province,result} of plans){\n      const candidates=result.candidates.map(c=>({...c,mail:{...c.mail,from:\"miyazaki1016@gmail.com\",to:\"getter01@jaspic-nes.net\",cc:null}}));\n      await rpc(\"jaspic_prepare_production\",{p_id:id,p_province:province,p_revision:result.expectedRevision,p_records:result.records,p_candidates:candidates});\n    }\n    // Read immutable queued payloads, never regenerate mail after observation was committed.\n    const queue=await db.from(\"jaspic_deliveries\").select(\"province,record_key,version,mail\").eq(\"run_id\",id).eq(\"status\",\"PREPARED\");\n    if(queue.error)throw new Error(\"QUEUE_READ_FAILED\");\n    for(const delivery of queue.data){\n      const lease=randomUUID();\n      if(!await rpc(\"jaspic_claim\",{p_province:delivery.province,p_key:delivery.record_key,p_version:delivery.version,p_token:lease}))throw new Error(\"CLAIM_REJECTED\");\n      const outcome=await sendProductionMail(token.access_token,delivery.mail);\n      if(!await rpc(\"jaspic_finish_production\",{p_id:id,p_province:delivery.province,p_key:delivery.record_key,p_version:delivery.version,p_token:lease,p_status:outcome.status,p_message:outcome.message,p_error:outcome.error}))throw new Error(\"OUTCOME_NOT_SAVED\");\n      if(outcome.status!==\"SENT\")throw new Error(outcome.error??\"SEND_FAILED\");\n      sent[delivery.province as Province]++;\n    }\n    const result={runId:id,status:\"SUCCEEDED\",sent,candidates:plans.map(p=>({province:p.province,count:p.result.candidates.length})),quarantined:plans.map(p=>({province:p.province,count:p.result.quarantined.length}))};\n    const saved=await db.from(\"jaspic_runs\").update({status:\"SUCCEEDED\",finished_at:new Date().toISOString(),result}).eq(\"id\",id).eq(\"status\",\"RUNNING\").select(\"id\");\n    if(saved.error||saved.data.length!==1)throw new Error(\"RUN_RESULT_NOT_SAVED\");\n    return response(result);\n  } catch(error) {\n    const code=error instanceof Error&&/^[A-Z_]+$/.test(error.message)?error.message:\"JASPIC_RUN_FAILED\";\n    if(started){\n      // A process crash remains RUNNING. Network uncertainty remains non-retryable SENDING/UNKNOWN.\n      await db.from(\"jaspic_deliveries\").update({status:\"UNKNOWN\",error_code:\"RUN_INTERRUPTED\",finished_at:new Date().toISOString()}).eq(\"run_id\",id).eq(\"status\",\"SENDING\");\n      await db.from(\"jaspic_runs\").update({status:\"FAILED\",finished_at:new Date().toISOString(),error_code:code,result:{sent}}).eq(\"id\",id).eq(\"status\",\"RUNNING\");\n    }\n    return response({runId:id,status:\"FAILED\",error:code,sent},503);\n  }\n}\n",
+        "sha256": "a89330ee6b9bfa006c7866709ec3f25230d9088b947f0642d5edac13c2712a4a"
+      }
+    },
+    {
+      "path": "docs/research/JASPIC_HISTORICAL_ID_QUARANTINE_20261110.md",
+      "status": "modified",
+      "additions": 42,
+      "deletions": 0,
+      "patch": "diff --git a/docs/research/JASPIC_HISTORICAL_ID_QUARANTINE_20261110.md b/docs/research/JASPIC_HISTORICAL_ID_QUARANTINE_20261110.md\nnew file mode 100644\nindex 0000000..4408059\n--- /dev/null\n+++ b/docs/research/JASPIC_HISTORICAL_ID_QUARANTINE_20261110.md\n@@ -0,0 +1,42 @@\n+# JASPIC 2026-11-09 18:00 JST 障害調査と未照合IDの隔離案\n+\n+## 実行結果（本番DB読取）\n+- 18:00 JSTのSupabase cronは起動（cron job 5、`0 9 * * *` UTC）。\n+- `jaspic_runs` の当該実行は `FAILED / HISTORICAL_ID_REQUIRES_RECONCILIATION`。広島・滋賀とも送信0件。\n+- `jaspic_deliveries` は空。誤送信・二重送信の記録はない。\n+- 手動0件成功と、翌日の本番自動実行成功は別の検証である。\n+\n+## 再現可能な原因\n+- 旧 `productionPlan` は未登録のmap IDで事件発生日が `2026-11-06` 以前の場合、無条件で実行全体を失敗させる。\n+- 事件発生日と公開・更新日時は異なるため、古い発生日だけでは再掲載・未送信・新規公開を区別できない。\n+- 2026-11-09夜の広島公式JSON読取では、DB未登録のmap IDが23件（不審者4件、犯罪19件）。22件は発生日が11月6日以前。犯罪19件中13件は自転車盗で通知対象外。\n+- 不審者4件の公開JSONの `updated_at` は11月9日。ただし現在のcollectorはこの項目を保持せず、送信履歴の証明にもならない。\n+- 未登録IDは当時のDB同系統の最大IDより大きいが、**番号の大小だけで旧送信済みと未送信を証明できない**。\n+- 旧portalのLINKKEYとmap IDは非可逆。既存の `jaspic_legacy_hiroshima_linkkeys` を直接照合して送信可否を決めてはならない。\n+- Gmail送信済みメールのID文字列検索では、今回の通知対象候補10件に一致するメールは見つからなかった。ただし、送信経路・検索対象・過去データが完全とは限らず、**未送信の証明には使えない**。\n+\n+## 滋賀県警の取得先\n+- Supabase `pg_net` からの直接HTTP取得では `suspicious_person_full.json` と `/data/geo/cities.json` が404。一方、2026-11-10のVercel Sandbox（本番関数と同じ `iad1` リージョン、Node.js `fetch`、読み取り専用）では**両URLともHTTP 200**で、滋賀716件・市区町村19件を取得した。Sandboxと本番Functionの通信経路が完全同一である証明ではないため、本番の取得成功は手動実行で別途確認する。\n+- これは既存の [JASPIC移植PR #155](https://github.com/miyazaki1016/emergencyalert/pull/155) にも記録された未解決課題。URL推測・認証回避・別ソースへの無検証切替を行わない。\n+- dispatcherは両県の完全な事前取得が成功するまでDB更新・メール送信をしない設計。**滋賀404はSupabaseの取得元に依存している可能性が高い**が、本番Vercel Functionでの再検証が必要。\n+\n+## この変更の範囲\n+- 未照合で発生日が基準日以前の新規map IDは、メール候補にもbaselineにも登録せず `quarantined` に保持する。\n+- 既存IDの安全な更新と新しい発生日の候補は従来どおり計画可能。\n+- ソース件数ガードは隔離前の完全な原本件数に対して評価する。\n+- 実行結果に県別隔離件数を記録する。隔離されたIDは次回以降も再評価するため、永久に既送信扱いにはならない。\n+- 既存のGmail送信、SENT/UNKNOWN、DBのclaim/finish、cron設定、OAuth、雨通知には変更を加えない。\n+\n+## 未解決の受入ゲート\n+1. 滋賀県警の**正規の公開データソース**を確認し、同一ID・同一フィールド・完全性を比較する。復旧するまで本番の全県事前検査は失敗する。\n+2. 旧Windowsの送信成功台帳と新map IDの照合根拠を確立し、隔離IDの再送/未送判定をレビューする。古い事件の新規公開を見逃さない運用ルールを定義する。\n+3. Vitest・TypeScript・既存JASPIC互換CIを確認し、DBを変更しない再現テストを追加する。\n+4. 本番切替前に新規・更新・対象外・再掲・通信失敗・UNKNOWNの受入テストを完了し、手動実行を確認する。\n+\n+## 既存成果の再利用判断\n+- [PR #155](https://github.com/miyazaki1016/emergencyalert/pull/155) の旧C#照合・Shiga 404・LINKKEY非可逆の調査を再利用。MIME互換実験を繰り返さず、今回の障害に固有の安全な隔離処理だけを追加。\n+- 本番DB・OAuth・メール送信・Vercel本番デプロイは**このブランチでは一切変更しない**。\n+\n+## 2026-11-10 着手前照合の追検証\n+- Vercel Sandbox内で最新mainの `scripts/development_preflight.py` を依頼文全体・対象3パスで実行。PR #155を原本照合し、再利用判断 `extend` を記録した再実行で `REVIEW_RECORDED`（終了0）。履歴版 `2b3054a89ff8aa8fad465e7d4dce04d39e3b8405`、183 PR・201ブランチ、収集エラー0。\n+- 同Sandboxの独立試験ではVitest 330件成功、TypeScript `npx tsc --noEmit` 成功（main起点の隔離案。PR #190 headはGitHub Actions CIで別途確認）。\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/docs/research/JASPIC_HISTORICAL_ID_QUARANTINE_20261110.md",
+      "source": {
+        "path": "docs/research/JASPIC_HISTORICAL_ID_QUARANTINE_20261110.md",
+        "coverage": "全文",
+        "text": "# JASPIC 2026-11-09 18:00 JST 障害調査と未照合IDの隔離案\n\n## 実行結果（本番DB読取）\n- 18:00 JSTのSupabase cronは起動（cron job 5、`0 9 * * *` UTC）。\n- `jaspic_runs` の当該実行は `FAILED / HISTORICAL_ID_REQUIRES_RECONCILIATION`。広島・滋賀とも送信0件。\n- `jaspic_deliveries` は空。誤送信・二重送信の記録はない。\n- 手動0件成功と、翌日の本番自動実行成功は別の検証である。\n\n## 再現可能な原因\n- 旧 `productionPlan` は未登録のmap IDで事件発生日が `2026-11-06` 以前の場合、無条件で実行全体を失敗させる。\n- 事件発生日と公開・更新日時は異なるため、古い発生日だけでは再掲載・未送信・新規公開を区別できない。\n- 2026-11-09夜の広島公式JSON読取では、DB未登録のmap IDが23件（不審者4件、犯罪19件）。22件は発生日が11月6日以前。犯罪19件中13件は自転車盗で通知対象外。\n- 不審者4件の公開JSONの `updated_at` は11月9日。ただし現在のcollectorはこの項目を保持せず、送信履歴の証明にもならない。\n- 未登録IDは当時のDB同系統の最大IDより大きいが、**番号の大小だけで旧送信済みと未送信を証明できない**。\n- 旧portalのLINKKEYとmap IDは非可逆。既存の `jaspic_legacy_hiroshima_linkkeys` を直接照合して送信可否を決めてはならない。\n- Gmail送信済みメールのID文字列検索では、今回の通知対象候補10件に一致するメールは見つからなかった。ただし、送信経路・検索対象・過去データが完全とは限らず、**未送信の証明には使えない**。\n\n## 滋賀県警の取得先\n- Supabase `pg_net` からの直接HTTP取得では `suspicious_person_full.json` と `/data/geo/cities.json` が404。一方、2026-11-10のVercel Sandbox（本番関数と同じ `iad1` リージョン、Node.js `fetch`、読み取り専用）では**両URLともHTTP 200**で、滋賀716件・市区町村19件を取得した。Sandboxと本番Functionの通信経路が完全同一である証明ではないため、本番の取得成功は手動実行で別途確認する。\n- これは既存の [JASPIC移植PR #155](https://github.com/miyazaki1016/emergencyalert/pull/155) にも記録された未解決課題。URL推測・認証回避・別ソースへの無検証切替を行わない。\n- dispatcherは両県の完全な事前取得が成功するまでDB更新・メール送信をしない設計。**滋賀404はSupabaseの取得元に依存している可能性が高い**が、本番Vercel Functionでの再検証が必要。\n\n## この変更の範囲\n- 未照合で発生日が基準日以前の新規map IDは、メール候補にもbaselineにも登録せず `quarantined` に保持する。\n- 既存IDの安全な更新と新しい発生日の候補は従来どおり計画可能。\n- ソース件数ガードは隔離前の完全な原本件数に対して評価する。\n- 実行結果に県別隔離件数を記録する。隔離されたIDは次回以降も再評価するため、永久に既送信扱いにはならない。\n- 既存のGmail送信、SENT/UNKNOWN、DBのclaim/finish、cron設定、OAuth、雨通知には変更を加えない。\n\n## 未解決の受入ゲート\n1. 滋賀県警の**正規の公開データソース**を確認し、同一ID・同一フィールド・完全性を比較する。復旧するまで本番の全県事前検査は失敗する。\n2. 旧Windowsの送信成功台帳と新map IDの照合根拠を確立し、隔離IDの再送/未送判定をレビューする。古い事件の新規公開を見逃さない運用ルールを定義する。\n3. Vitest・TypeScript・既存JASPIC互換CIを確認し、DBを変更しない再現テストを追加する。\n4. 本番切替前に新規・更新・対象外・再掲・通信失敗・UNKNOWNの受入テストを完了し、手動実行を確認する。\n\n## 既存成果の再利用判断\n- [PR #155](https://github.com/miyazaki1016/emergencyalert/pull/155) の旧C#照合・Shiga 404・LINKKEY非可逆の調査を再利用。MIME互換実験を繰り返さず、今回の障害に固有の安全な隔離処理だけを追加。\n- 本番DB・OAuth・メール送信・Vercel本番デプロイは**このブランチでは一切変更しない**。\n\n## 2026-11-10 着手前照合の追検証\n- Vercel Sandbox内で最新mainの `scripts/development_preflight.py` を依頼文全体・対象3パスで実行。PR #155を原本照合し、再利用判断 `extend` を記録した再実行で `REVIEW_RECORDED`（終了0）。履歴版 `2b3054a89ff8aa8fad465e7d4dce04d39e3b8405`、183 PR・201ブランチ、収集エラー0。\n- 同Sandboxの独立試験ではVitest 330件成功、TypeScript `npx tsc --noEmit` 成功（main起点の隔離案。PR #190 headはGitHub Actions CIで別途確認）。\n",
+        "sha256": "d2eb802087f0711b458662a51de3417baec1214efa9c823c54fc9b2fd372f75a"
+      }
+    },
+    {
+      "path": "lib/jaspic/production-plan.ts",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 8,
+      "patch": "diff --git a/lib/jaspic/production-plan.ts b/lib/jaspic/production-plan.ts\nindex 77fad57..496e601 100644\n--- a/lib/jaspic/production-plan.ts\n+++ b/lib/jaspic/production-plan.ts\n@@ -10,17 +10,30 @@ export async function productionPlan(province: Province, snapshot: Snapshot, ite\n     const currentCount = items.filter(i => i.kind === kind).length;\n     if (!oldCount || currentCount < oldCount * .8 || currentCount > oldCount * 1.2) throw new Error(\"SOURCE_COUNT_GUARD\");\n   }\n-  // The legacy portal LINKKEY is not a reversible encoding of the current map ID.\n-  // Never guess a mapping or dispatch a historical reappearance as a new event.\n+  // LINKKEY from the legacy portal cannot be mapped back to the map ID.\n+  // An old occurrence date is NOT a publication date. Keep unseen historical\n+  // IDs out of both the delivery queue and the committed baseline until the\n+  // historical send ledger is reconciled. This must not suppress safe changes\n+  // to already-known IDs or prevent newly occurring events from being planned.\n+  const quarantined: string[] = [];\n+  const eligibleItems: Item[] = [];\n   for (const item of items) {\n-    const previous = snapshot.records[`${item.kind}:${item.data.id}`];\n-    if (!previous && !legacy.has(item.data.id ?? \"\")) {\n+    const key = `${item.kind}:${item.data.id}`;\n+    const previous = snapshot.records[key];\n+    if (previous && fields[item.kind].some(f => !Object.hasOwn(previous,f))) throw new Error(\"BASELINE_FIELDS_MISSING\");\n+    const legacyPerson = item.kind === \"hiroshima-person\" && legacy.has(item.data.id ?? \"\");\n+    if (!previous && !legacyPerson) {\n       const date = item.data.occurrence_dt ?? item.data.occurrence_date_from ?? \"\";\n-      if (date.slice(0,10).replaceAll(\"/\",\"-\") <= \"2026-11-06\") throw new Error(\"HISTORICAL_ID_REQUIRES_RECONCILIATION\");\n+      if (date.slice(0,10).replaceAll(\"/\",\"-\") <= \"2026-11-06\") {\n+        quarantined.push(key);\n+        continue;\n+      }\n     }\n-    if (previous && fields[item.kind].some(f => !Object.hasOwn(previous,f))) throw new Error(\"BASELINE_FIELDS_MISSING\");\n+    eligibleItems.push(item);\n   }\n-  const result = await plan(province, snapshot, items, {legacyHiroshimaPersonIds:legacy});\n+  // The source-count guard above always uses the COMPLETE source, not this\n+  // reduced planning set. Quarantined records are reconsidered on each run.\n+  const result = await plan(province, snapshot, eligibleItems, {legacyHiroshimaPersonIds:legacy});\n   if (result.candidates.length > 20) throw new Error(\"DIFFERENCE_LIMIT\");\n-  return result;\n+  return {...result, quarantined};\n }\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/lib/jaspic/production-plan.ts",
+      "source": {
+        "path": "lib/jaspic/production-plan.ts",
+        "coverage": "全文",
+        "text": "import { fields } from \"../../supabase/functions/_shared/jaspic/mail\";\nimport { plan, type Snapshot } from \"../../supabase/functions/_shared/jaspic/state\";\nimport type { Item, Province } from \"../../supabase/functions/_shared/jaspic/collect\";\n\nexport async function productionPlan(province: Province, snapshot: Snapshot, items: Item[], legacy: ReadonlySet<string>) {\n  if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\");\n  const kinds = province === \"hiroshima\" ? [\"hiroshima-person\", \"hiroshima-crime\"] as const : [\"shiga-person\"] as const;\n  for (const kind of kinds) {\n    const oldCount = Object.keys(snapshot.records).filter(k => k.startsWith(kind+\":\")).length;\n    const currentCount = items.filter(i => i.kind === kind).length;\n    if (!oldCount || currentCount < oldCount * .8 || currentCount > oldCount * 1.2) throw new Error(\"SOURCE_COUNT_GUARD\");\n  }\n  // LINKKEY from the legacy portal cannot be mapped back to the map ID.\n  // An old occurrence date is NOT a publication date. Keep unseen historical\n  // IDs out of both the delivery queue and the committed baseline until the\n  // historical send ledger is reconciled. This must not suppress safe changes\n  // to already-known IDs or prevent newly occurring events from being planned.\n  const quarantined: string[] = [];\n  const eligibleItems: Item[] = [];\n  for (const item of items) {\n    const key = `${item.kind}:${item.data.id}`;\n    const previous = snapshot.records[key];\n    if (previous && fields[item.kind].some(f => !Object.hasOwn(previous,f))) throw new Error(\"BASELINE_FIELDS_MISSING\");\n    const legacyPerson = item.kind === \"hiroshima-person\" && legacy.has(item.data.id ?? \"\");\n    if (!previous && !legacyPerson) {\n      const date = item.data.occurrence_dt ?? item.data.occurrence_date_from ?? \"\";\n      if (date.slice(0,10).replaceAll(\"/\",\"-\") <= \"2026-11-06\") {\n        quarantined.push(key);\n        continue;\n      }\n    }\n    eligibleItems.push(item);\n  }\n  // The source-count guard above always uses the COMPLETE source, not this\n  // reduced planning set. Quarantined records are reconsidered on each run.\n  const result = await plan(province, snapshot, eligibleItems, {legacyHiroshimaPersonIds:legacy});\n  if (result.candidates.length > 20) throw new Error(\"DIFFERENCE_LIMIT\");\n  return {...result, quarantined};\n}\n",
+        "sha256": "a32e00a65fe0001b79eff142e716ab9d1f01fdaa2427f81a974957acd9c4a12b"
+      }
+    },
+    {
+      "path": "tests/jaspic-production-plan-quarantine.test.ts",
+      "status": "modified",
+      "additions": 67,
+      "deletions": 0,
+      "patch": "diff --git a/tests/jaspic-production-plan-quarantine.test.ts b/tests/jaspic-production-plan-quarantine.test.ts\nnew file mode 100644\nindex 0000000..e816913\n--- /dev/null\n+++ b/tests/jaspic-production-plan-quarantine.test.ts\n@@ -0,0 +1,67 @@\n+import { describe, expect, it } from \"vitest\";\n+import { productionPlan } from \"../lib/jaspic/production-plan\";\n+import { fields, type RecordData } from \"../supabase/functions/_shared/jaspic/mail\";\n+import type { Item } from \"../supabase/functions/_shared/jaspic/collect\";\n+import type { Snapshot } from \"../supabase/functions/_shared/jaspic/state\";\n+\n+function crime(id: string, date = \"2026-11-01 10:00:00\", address = \"テスト地点\"): Item {\n+  const data: RecordData = Object.fromEntries(fields[\"hiroshima-crime\"].map(field => [field, \"\"]));\n+  Object.assign(data, {\n+    id, occurrence_date_from: date, occurrence_date_to: date,\n+    case_type: \"住居侵入\", address, latitude: \"34.0\", longitude: \"132.0\",\n+    city_code: \"101\", police_station: \"1\",\n+  });\n+  return { kind: \"hiroshima-crime\", data, context: { cityName: \"テスト市\", stationName: \"テスト警察署\" } };\n+}\n+\n+function person(id: string): Item {\n+  const data: RecordData = Object.fromEntries(fields[\"hiroshima-person\"].map(field => [field, \"\"]));\n+  Object.assign(data, {\n+    id, occurrence_dt: \"2026-11-01 10:00:00\",\n+    case_type: \"声掛け\", latitude: \"34.0\", longitude: \"132.0\",\n+    city_code: \"101\", police_station: \"1\",\n+  });\n+  return { kind: \"hiroshima-person\", data, context: { cityName: \"テスト市\", stationName: \"テスト警察署\" } };\n+}\n+\n+function baseline() {\n+  const existing = [\n+    ...Array.from({ length: 10 }, (_, n) => crime(String(1126001001 + n))),\n+    ...Array.from({ length: 10 }, (_, n) => person(String(45701 + n))),\n+  ];\n+  const records = Object.fromEntries(existing.map(item => [`${item.kind}:${item.data.id}`, item.data]));\n+  return { existing, snapshot: { revision: 5, baseline: true, records } satisfies Snapshot };\n+}\n+\n+describe(\"JASPIC historical ID quarantine\", () => {\n+  it(\"does not send or baseline unseen historical IDs, while planning a safe recent event\", async () => {\n+    const { existing, snapshot } = baseline();\n+    const historical = crime(\"1126001011\", \"2026-10-15 09:00:00\");\n+    const recent = crime(\"1126001012\", \"2026-11-08 16:20:00\");\n+    const result = await productionPlan(\"hiroshima\", snapshot, [...existing, historical, recent], new Set());\n+    expect(result.quarantined).toEqual([\"hiroshima-crime:1126001011\"]);\n+    expect(result.candidates.map(c => c.key)).toEqual([\"hiroshima-crime:1126001012\"]);\n+    expect(result.records).not.toHaveProperty(\"hiroshima-crime:1126001011\");\n+    expect(result.records).toHaveProperty(\"hiroshima-crime:1126001012\");\n+\n+    const second = await productionPlan(\"hiroshima\", { ...snapshot, revision: 6, records: result.records },\n+      [...existing, historical, recent], new Set());\n+    expect(second.candidates).toHaveLength(0);\n+    expect(second.quarantined).toEqual([\"hiroshima-crime:1126001011\"]);\n+  });\n+\n+  it(\"allows an update to a known ID without releasing an unreconciled historical ID\", async () => {\n+    const { existing, snapshot } = baseline();\n+    const changed = crime(String(1126001001), \"2026-11-01 10:00:00\", \"更新された場所\");\n+    const historical = crime(\"1126001011\", \"2026-10-15 09:00:00\");\n+    const result = await productionPlan(\"hiroshima\", snapshot, [...existing.slice(1), changed, historical], new Set());\n+    expect(result.candidates.map(c => c.key)).toEqual([\"hiroshima-crime:1126001001\"]);\n+    expect(result.quarantined).toEqual([\"hiroshima-crime:1126001011\"]);\n+  });\n+\n+  it(\"preserves the complete-source count guard\", async () => {\n+    const { existing, snapshot } = baseline();\n+    await expect(productionPlan(\"hiroshima\", snapshot, [...existing.slice(0, 7), ...existing.slice(10)], new Set()))\n+      .rejects.toThrow(\"SOURCE_COUNT_GUARD\");\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/tests/jaspic-production-plan-quarantine.test.ts",
+      "source": {
+        "path": "tests/jaspic-production-plan-quarantine.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { productionPlan } from \"../lib/jaspic/production-plan\";\nimport { fields, type RecordData } from \"../supabase/functions/_shared/jaspic/mail\";\nimport type { Item } from \"../supabase/functions/_shared/jaspic/collect\";\nimport type { Snapshot } from \"../supabase/functions/_shared/jaspic/state\";\n\nfunction crime(id: string, date = \"2026-11-01 10:00:00\", address = \"テスト地点\"): Item {\n  const data: RecordData = Object.fromEntries(fields[\"hiroshima-crime\"].map(field => [field, \"\"]));\n  Object.assign(data, {\n    id, occurrence_date_from: date, occurrence_date_to: date,\n    case_type: \"住居侵入\", address, latitude: \"34.0\", longitude: \"132.0\",\n    city_code: \"101\", police_station: \"1\",\n  });\n  return { kind: \"hiroshima-crime\", data, context: { cityName: \"テスト市\", stationName: \"テスト警察署\" } };\n}\n\nfunction person(id: string): Item {\n  const data: RecordData = Object.fromEntries(fields[\"hiroshima-person\"].map(field => [field, \"\"]));\n  Object.assign(data, {\n    id, occurrence_dt: \"2026-11-01 10:00:00\",\n    case_type: \"声掛け\", latitude: \"34.0\", longitude: \"132.0\",\n    city_code: \"101\", police_station: \"1\",\n  });\n  return { kind: \"hiroshima-person\", data, context: { cityName: \"テスト市\", stationName: \"テスト警察署\" } };\n}\n\nfunction baseline() {\n  const existing = [\n    ...Array.from({ length: 10 }, (_, n) => crime(String(1126001001 + n))),\n    ...Array.from({ length: 10 }, (_, n) => person(String(45701 + n))),\n  ];\n  const records = Object.fromEntries(existing.map(item => [`${item.kind}:${item.data.id}`, item.data]));\n  return { existing, snapshot: { revision: 5, baseline: true, records } satisfies Snapshot };\n}\n\ndescribe(\"JASPIC historical ID quarantine\", () => {\n  it(\"does not send or baseline unseen historical IDs, while planning a safe recent event\", async () => {\n    const { existing, snapshot } = baseline();\n    const historical = crime(\"1126001011\", \"2026-10-15 09:00:00\");\n    const recent = crime(\"1126001012\", \"2026-11-08 16:20:00\");\n    const result = await productionPlan(\"hiroshima\", snapshot, [...existing, historical, recent], new Set());\n    expect(result.quarantined).toEqual([\"hiroshima-crime:1126001011\"]);\n    expect(result.candidates.map(c => c.key)).toEqual([\"hiroshima-crime:1126001012\"]);\n    expect(result.records).not.toHaveProperty(\"hiroshima-crime:1126001011\");\n    expect(result.records).toHaveProperty(\"hiroshima-crime:1126001012\");\n\n    const second = await productionPlan(\"hiroshima\", { ...snapshot, revision: 6, records: result.records },\n      [...existing, historical, recent], new Set());\n    expect(second.candidates).toHaveLength(0);\n    expect(second.quarantined).toEqual([\"hiroshima-crime:1126001011\"]);\n  });\n\n  it(\"allows an update to a known ID without releasing an unreconciled historical ID\", async () => {\n    const { existing, snapshot } = baseline();\n    const changed = crime(String(1126001001), \"2026-11-01 10:00:00\", \"更新された場所\");\n    const historical = crime(\"1126001011\", \"2026-10-15 09:00:00\");\n    const result = await productionPlan(\"hiroshima\", snapshot, [...existing.slice(1), changed, historical], new Set());\n    expect(result.candidates.map(c => c.key)).toEqual([\"hiroshima-crime:1126001001\"]);\n    expect(result.quarantined).toEqual([\"hiroshima-crime:1126001011\"]);\n  });\n\n  it(\"preserves the complete-source count guard\", async () => {\n    const { existing, snapshot } = baseline();\n    await expect(productionPlan(\"hiroshima\", snapshot, [...existing.slice(0, 7), ...existing.slice(10)], new Set()))\n      .rejects.toThrow(\"SOURCE_COUNT_GUARD\");\n  });\n});\n",
+        "sha256": "dad77c794711c7e63124a025d92d0762dafe779b446233f6c47d83898b0cffe0"
+      }
+    },
+    {
+      "path": "tests/jaspic/production-delivery.test.ts",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "diff --git a/tests/jaspic/production-delivery.test.ts b/tests/jaspic/production-delivery.test.ts\nindex 96c94f7..7a7ec96 100644\n--- a/tests/jaspic/production-delivery.test.ts\n+++ b/tests/jaspic/production-delivery.test.ts\n@@ -13,7 +13,7 @@ describe(\"production safety\",()=>{\n  it(\"distinguishes rejection from ambiguous server failure\",async()=>{expect((await sendProductionMail(\"s\",mail,async()=>new Response(null,{status:403}))).status).toBe(\"FAILED\");expect((await sendProductionMail(\"s\",mail,async()=>new Response(null,{status:500}))).status).toBe(\"UNKNOWN\")});\n  it(\"records confirmed acceptance\",async()=>{expect(await sendProductionMail(\"s\",mail,async()=>Response.json({id:\"abc123\"}))).toEqual({status:\"SENT\",message:\"abc123\",error:null})});\n  it(\"never backfills an established baseline\",async()=>{const i=item(\"1\");expect((await productionPlan(\"shiga\",{revision:4,baseline:true,records:{\"shiga-person:1\":i.data}},[i],new Set())).candidates).toHaveLength(0)});\n- it(\"blocks a historical unknown ID\",async()=>{const base=Array.from({length:10},(_,i)=>item(String(i)));const records=Object.fromEntries(base.map(i=>[\"shiga-person:\"+i.data.id,i.data]));await expect(productionPlan(\"shiga\",{revision:4,baseline:true,records},[...base,item(\"unknown\",\"2026-10-01 12:00:00\")],new Set())).rejects.toThrow(\"HISTORICAL_ID\")});\n+ it(\"quarantines a historical unknown ID without treating it as sent\",async()=>{const base=Array.from({length:10},(_,i)=>item(String(i)));const records=Object.fromEntries(base.map(i=>[\"shiga-person:\"+i.data.id,i.data]));const result=await productionPlan(\"shiga\",{revision:4,baseline:true,records},[...base,item(\"unknown\",\"2026-10-01 12:00:00\")],new Set());expect(result.quarantined).toEqual([\"shiga-person:unknown\"]);expect(result.candidates).toHaveLength(0);expect(result.records).not.toHaveProperty(\"shiga-person:unknown\")});\n  it(\"detects a missing source kind\",async()=>{await expect(productionPlan(\"hiroshima\",{revision:4,baseline:true,records:{\"hiroshima-person:1\":{},\"hiroshima-crime:1\":{}}},[],new Set())).rejects.toThrow(\"SOURCE_COUNT\")});\n  it(\"does not apply legacy initial-only exclusion to updates\",async()=>{const i=item(\"1\");i.kind=\"hiroshima-person\";i.data={...Object.fromEntries(fields[i.kind].map(f=>[f,\"\"])),id:\"1\",occurrence_dt:\"2026-11-08 12:00:00\",case_type:\"声かけ\"};const old={...i.data,address:\"old\"};const r=await plan(\"hiroshima\",{revision:4,baseline:true,records:{\"hiroshima-person:1\":old}},[i],{legacyHiroshimaPersonIds:new Set([\"1\"])});expect(r.candidates).toHaveLength(1)});\n });\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/tests/jaspic/production-delivery.test.ts",
+      "source": {
+        "path": "tests/jaspic/production-delivery.test.ts",
+        "coverage": "全文",
+        "text": "import {describe,it,expect} from \"vitest\";\nimport {sendProductionMail,productionRaw} from \"../../lib/jaspic/production-gmail\";\nimport {productionPlan} from \"../../lib/jaspic/production-plan\";\nimport {fields} from \"../../supabase/functions/_shared/jaspic/mail\";\nimport {plan} from \"../../supabase/functions/_shared/jaspic/state\";\nimport type {Item} from \"../../supabase/functions/_shared/jaspic/collect\";\nconst mail={subject:\" [JASPIC-NES] 滋賀県警専用ツール\",body:\"本文\\r\\n\"};\nconst item=(id:string,date=\"2026-11-08 12:00:00\"):Item=>({kind:\"shiga-person\",data:{...Object.fromEntries(fields[\"shiga-person\"].map(f=>[f,\"\"])),id,occurrence_dt:date,case_type:\"1\"},context:{cityName:\"大津市\",stationName:\"\"}});\ndescribe(\"production safety\",()=>{\n it(\"uses a fixed recipient and no Cc while preserving body bytes\",()=>{const raw=Buffer.from(productionRaw(mail),\"base64url\").toString();expect(raw).toContain(\"To: getter01@jaspic-nes.net\\r\\n\");expect(raw).not.toContain(\"Cc:\");expect(Buffer.from(raw.split(\"\\r\\n\\r\\n\")[1],\"base64\").toString()).toBe(mail.body)});\n it(\"requires Gmail acceptance ID\",async()=>{expect((await sendProductionMail(\"secret\",mail,async()=>Response.json({}))).status).toBe(\"UNKNOWN\")});\n it(\"records network uncertainty without retry\",async()=>{let calls=0;expect((await sendProductionMail(\"secret\",mail,async()=>{calls++;throw new Error(\"timeout\")})).status).toBe(\"UNKNOWN\");expect(calls).toBe(1)});\n it(\"distinguishes rejection from ambiguous server failure\",async()=>{expect((await sendProductionMail(\"s\",mail,async()=>new Response(null,{status:403}))).status).toBe(\"FAILED\");expect((await sendProductionMail(\"s\",mail,async()=>new Response(null,{status:500}))).status).toBe(\"UNKNOWN\")});\n it(\"records confirmed acceptance\",async()=>{expect(await sendProductionMail(\"s\",mail,async()=>Response.json({id:\"abc123\"}))).toEqual({status:\"SENT\",message:\"abc123\",error:null})});\n it(\"never backfills an established baseline\",async()=>{const i=item(\"1\");expect((await productionPlan(\"shiga\",{revision:4,baseline:true,records:{\"shiga-person:1\":i.data}},[i],new Set())).candidates).toHaveLength(0)});\n it(\"quarantines a historical unknown ID without treating it as sent\",async()=>{const base=Array.from({length:10},(_,i)=>item(String(i)));const records=Object.fromEntries(base.map(i=>[\"shiga-person:\"+i.data.id,i.data]));const result=await productionPlan(\"shiga\",{revision:4,baseline:true,records},[...base,item(\"unknown\",\"2026-10-01 12:00:00\")],new Set());expect(result.quarantined).toEqual([\"shiga-person:unknown\"]);expect(result.candidates).toHaveLength(0);expect(result.records).not.toHaveProperty(\"shiga-person:unknown\")});\n it(\"detects a missing source kind\",async()=>{await expect(productionPlan(\"hiroshima\",{revision:4,baseline:true,records:{\"hiroshima-person:1\":{},\"hiroshima-crime:1\":{}}},[],new Set())).rejects.toThrow(\"SOURCE_COUNT\")});\n it(\"does not apply legacy initial-only exclusion to updates\",async()=>{const i=item(\"1\");i.kind=\"hiroshima-person\";i.data={...Object.fromEntries(fields[i.kind].map(f=>[f,\"\"])),id:\"1\",occurrence_dt:\"2026-11-08 12:00:00\",case_type:\"声かけ\"};const old={...i.data,address:\"old\"};const r=await plan(\"hiroshima\",{revision:4,baseline:true,records:{\"hiroshima-person:1\":old}},[i],{legacyHiroshimaPersonIds:new Set([\"1\"])});expect(r.candidates).toHaveLength(1)});\n});\n",
+        "sha256": "ed6023f826ad6b2e0236e24064f4cd220bc342679c49fb05e9b61bb6367fa894"
+      }
+    }
+  ],
+  "file_count": 5,
+  "reported_file_count": 5,
+  "commits": [
+    {
+      "sha": "dde1e69c9fca1c1861aa78ee0ba82628974aed87",
+      "message": "fix(jaspic): quarantine unreconciled historical IDs without blocking safe changes\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/dde1e69c9fca1c1861aa78ee0ba82628974aed87"
+    },
+    {
+      "sha": "e7e436174a6988008c9b438935fa5427fa24fd24",
+      "message": "fix(jaspic): report quarantined historical records in run result\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/e7e436174a6988008c9b438935fa5427fa24fd24"
+    },
+    {
+      "sha": "ee450c7b69baa4df92a9cae5b2b9939ae893aa89",
+      "message": "test(jaspic): cover quarantine, idempotency, updates and source guard\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/ee450c7b69baa4df92a9cae5b2b9939ae893aa89"
+    },
+    {
+      "sha": "9bf0c1f97fa2b6dad8f04ea321deb88b40c2adaa",
+      "message": "test(jaspic): include both required Hiroshima source kinds in fixtures\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/9bf0c1f97fa2b6dad8f04ea321deb88b40c2adaa"
+    },
+    {
+      "sha": "94c64047c08d41f0971a93fb7dca0b8567ff92db",
+      "message": "docs(jaspic): record 18:00 failure, evidence and remaining safety gates\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/94c64047c08d41f0971a93fb7dca0b8567ff92db"
+    },
+    {
+      "sha": "96daf0aa2052179c9eb87d0fd349f67f3f98c0cc",
+      "message": "test(jaspic): align existing production safety test with fail-closed quarantine\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/96daf0aa2052179c9eb87d0fd349f67f3f98c0cc"
+    },
+    {
+      "sha": "eb3136ff0efc13a7e98205c31e56c17a7807fa00",
+      "message": "docs(jaspic): distinguish Supabase 404 from successful Vercel-region read-only fetch\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/eb3136ff0efc13a7e98205c31e56c17a7807fa00"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "eb3136ff0efc13a7e98205c31e56c17a7807fa00",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42694801193",
+      "id": 42694801193,
+      "updated_at": "2026-11-09T20:38:03Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "eb3136ff0efc13a7e98205c31e56c17a7807fa00",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42694800683",
+      "id": 42694800683,
+      "updated_at": "2026-11-09T20:38:03Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "eb3136ff0efc13a7e98205c31e56c17a7807fa00",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42694598486",
+      "id": 42694598486,
+      "updated_at": "2026-11-09T20:36:46Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "eb3136ff0efc13a7e98205c31e56c17a7807fa00",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42694560630",
+      "id": 42694560630,
+      "updated_at": "2026-11-09T20:36:33Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "eb3136ff0efc13a7e98205c31e56c17a7807fa00",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42694560198",
+      "id": 42694560198,
+      "updated_at": "2026-11-09T20:36:31Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "eb3136ff0efc13a7e98205c31e56c17a7807fa00",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42694560942",
+      "id": 42694560942,
+      "updated_at": "2026-11-09T20:37:25Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "bda04f4e986b7db040367ef91395b7c925886c07",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42694823927",
+      "id": 42694823927,
+      "updated_at": "2026-11-09T20:38:04Z",
+      "event": "push"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "bda04f4e986b7db040367ef91395b7c925886c07",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42694823912",
+      "id": 42694823912,
+      "updated_at": "2026-11-09T20:38:04Z",
+      "event": "push"
+    },
+    {
+      "name": "CI",
+      "head_sha": "bda04f4e986b7db040367ef91395b7c925886c07",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42694823239",
+      "id": 42694823239,
+      "updated_at": "2026-11-09T20:38:09Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "POST",
+    "base",
+    "baseline",
+    "calls",
+    "candidates",
+    "changed",
+    "clientId",
+    "clientSecret",
+    "code",
+    "crime",
+    "currentCount",
+    "data",
+    "date",
+    "db",
+    "delivery",
+    "dynamic",
+    "eligibleItems",
+    "encryptionKey",
+    "existing",
+    "historical",
+    "i",
+    "id",
+    "item",
+    "items",
+    "key",
+    "kind",
+    "kinds",
+    "lease",
+    "legacy",
+    "legacyPerson",
+    "mail",
+    "maxDuration",
+    "old",
+    "oldCount",
+    "outcome",
+    "ownerId",
+    "person",
+    "plans",
+    "previous",
+    "productionPlan",
+    "provinces",
+    "quarantined",
+    "queue",
+    "r",
+    "raw",
+    "recent",
+    "records",
+    "refresh",
+    "response",
+    "result",
+    "rpc",
+    "runtime",
+    "saved",
+    "second",
+    "secret",
+    "sent",
+    "snapshot",
+    "started",
+    "supplied",
+    "token"
+  ],
+  "related_sources": [
+    {
+      "path": "scripts/development_preflight.py",
+      "coverage": "全文",
+      "text": "#!/usr/bin/env python3\n\"\"\"Read-only, evidence-backed check BEFORE implementation. No AI API or app calls.\n\nPR checks repeat the same check as a second line of defence. A candidate is not\na duplicate verdict: the agent must read its evidence and record reuse/extend/\ndistinct. Text from history and event payloads is data, never executed.\n\"\"\"\nimport argparse\nfrom collections import Counter\nimport datetime as dt\nimport hashlib\nimport html\nimport json\nimport math\nimport os\nfrom pathlib import Path\nimport re\nimport subprocess\nimport unicodedata\n\nfrom development_history_evidence import clean\n\nVERSION = 1\nCONCEPTS = {\n    '画素の間引き': ['間引', 'ピクセル飛ば', '画素おき', '画素飛ば', 'ピクセルおき', 'stride', 'stride2', 'stride-2', 'stride 2', 'even/even'],\n    '全画素走査': ['全画素', '全ピクセル', 'full-pixel', 'full pixel', 'stride1', 'stride-1', 'stride 1', 'exhaustive'],\n    'ズーム4': ['ズーム4', 'zoom4', 'zoom 4', 'z4'],\n    '全国雨量': ['全国', 'national', '大雨候補', 'coarse candidate'],\n    '雨の検知': ['雨雲', '雨量', '降水', 'heavy rain', 'rain', 'レーダー', 'jma'],\n    '比較検証': ['比較', '実測', '検証', '測定', 'benchmark', 'parity', 'proof', 'experiment'],\n    '性能': ['高速化', '軽量化', '軽く', '処理時間', 'performance', 'scanms', 'decode', '復号', 'メモリ使用'],\n    '会話記憶': ['記憶', '想い出', 'memory', 'memories', 'recall'],\n    '会話履歴': ['会話履歴', 'チャット履歴', 'conversation history', 'chat history', 'history sync'],\n    '匿名の引継ぎ': ['匿名', 'anonymous', 'temporary', 'メール保存', 'email save'],\n    '関係性': ['関係性', 'relationship', '親密', '信頼', 'intimacy'],\n    '自発会話': ['自発', 'proactive', '自律', 'autonomy', 'body clock', '生活時間'],\n    '通知配信': ['通知', '配信', 'notification', 'delivery', 'push'],\n    '雨の開始': ['降り始め', '雨の始まり', 'rain onset', 'rain approach'],\n    '雨の強まり': ['強まり', 'strengthening'],\n    '判定ラボ': ['判定ラボ', 'rainlab', 'rain lab', 'rain-lab'],\n    'テスト検出': ['テスト検出', 'テストを認識', 'no test suite', 'vitest', 'node:test'],\n    'メール認証': ['gmail', 'oauth', 'メール認証'],\n    '開発履歴': ['開発履歴', '作業履歴', '重複開発', 'preflight', 'development history', 'work history'],\n    '棚卸し': ['棚卸', 'inventory'],\n    '承認': ['承認', 'approval', 'promotion'],\n    'ビルド制限': ['ビルド制限', 'ビルド回数', 'build guard', 'quota', 'vercel'],\n}\nSTOP = {'する', 'した', 'して', 'たい', 'ため', 'こと', 'よう', 'ます', 'です', 'ある', 'ない', 'これ', 'それ',\n        '修正', '実装', '追加', '確認', '変更', '開発', '対応', '処理', '機能', 'test', 'tests', 'feat', 'fix', 'docs',\n        'the', 'and', 'for', 'with', 'from', 'this', 'that', 'into', 'report', 'main', '未確認', '原本'}\nACK_RE = re.compile(r'<!--\\s*history-preflight\\s*(\\{.*?\\})\\s*-->', re.S)\nREPO_RE = re.compile(r'^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$')\n\n\ndef normal(text):\n    return unicodedata.normalize('NFKC', str(text or '')).lower()\n\n\ndef concepts(text):\n    value = normal(text)\n    found = {name for name, aliases in CONCEPTS.items() if any(normal(alias) in value for alias in aliases)}\n    if re.search(r'テスト.{0,12}(?:認識|検出)', value):\n        found.add('テスト検出')\n    return found\n\n\ndef tokens(text):\n    value = normal(text)\n    out = set(re.findall(r'[a-z][a-z0-9_:-]{2,}', value)) - STOP\n    for run in re.findall(r'[一-龯ぁ-んァ-ヶー0-9]+', value):\n        for size in (2, 3):\n            out.update(run[i:i+size] for i in range(len(run)-size+1) if run[i:i+size] not in STOP)\n    return out\n\n\ndef case_text(case):\n    curated = case.get('curated') or {}\n    primary = ' '.join([case.get('title', ''), curated.get('summary', ''), curated.get('conclusion', '')])\n    # Long PRs must not win merely because they contain every project keyword.\n    secondary = ' '.join([case.get('body', '')[:12000], ' '.join(case.get('symbols', [])),\n                          ' '.join(f['path'] for f in case.get('files', []))])\n    return primary, secondary\n\n\ndef evidence_links(case, repo):\n    root = 'https://github.com/' + repo\n    result = [root+'/blob/development-history/docs/work-history/cases/'+case['id']+'.md']\n    if case.get('number'):\n        result.append(root+'/pull/'+str(case['number']))\n    result.extend((case.get('curated') or {}).get('evidence', []))\n    result.extend(f.get('url') for f in case.get('files', []) if f.get('url'))\n    return list(dict.fromkeys(u for u in result if isinstance(u, str) and u.startswith(root+'/')))\n\n\ndef match_cases(state, task, paths=(), exclude=None, limit=8):\n    excluded = {exclude} if isinstance(exclude, str) else set(exclude or [])\n    cases = [c for c in state['cases'].values() if c['id'] not in excluded]\n    query = tokens(task)\n    query_concepts = concepts(task)\n    if not query and not paths:\n        return []\n    documents = [(c, *case_text(c)) for c in cases]\n    document_tokens = [(c, p, s, tokens(p), tokens(s)) for c, p, s in documents]\n    frequency = Counter(t for _, _, _, p, s in document_tokens for t in (p | s))\n    weights = {t: math.log(1 + (len(cases)+1)/(frequency[t]+1)) for t in query}\n    total = sum(weights.values()) or 1\n    results = []\n    for c, primary, secondary, pt, st in document_tokens:\n        common = query & (pt | st)\n        # Primary findings count in full; body and filenames contribute 30%.\n        score = 70*sum(weights[t]*(1 if t in pt else .3) for t in common)/total\n        matched_concepts = query_concepts & concepts(primary+' '+secondary)\n        primary_concepts = query_concepts & concepts(primary)\n        score += min(30, 10*len(primary_concepts))\n        overlap = sorted(set(paths) & {f['path'] for f in c.get('files', [])})\n        if overlap:\n            score += 38\n        explicit = bool(c.get('number') and re.search(r'(?:pr\\s*#?\\s*|#)'+str(c['number'])+r'(?![0-9])', normal(task)))\n        if explicit:\n            score += 80\n        # A generic topic alone (e.g. \"notification\") is not enough to block work.\n        specific = matched_concepts - {'比較検証', '性能', '雨の検知', '通知配信', '承認'}\n        required = explicit or bool(overlap) or (score >= 24 and len(primary_concepts) >= 2 and bool(specific))\n        if score < 13 and not required:\n            continue\n        links = evidence_links(c, state['repository'])\n        results.append({'id':c['id'], 'title':clean(c['title']), 'score':round(score, 2),\n                        'review_required':required, 'matched_concepts':sorted(matched_concepts),\n                        'matched_paths':overlap, 'matched_terms':sorted(common, key=lambda t:-weights[t])[:12],\n                        'summary':clean((c.get('curated') or {}).get('summary') or c.get('purpose') or c['title']),\n                        'conclusion':clean((c.get('curated') or {}).get('conclusion') or '結論未確認。根拠のコード・検証資料を読む'),\n                        'remaining':clean(c.get('remaining') or 'PR・検証資料の未解決事項を確認'),\n                        'next':clean(c.get('next') or '関連PRと既存実装を照合する'),\n                        'state':c.get('state'), 'main_status':c.get('main_status', '未確認'),\n                        'production':c.get('production', '未確認'), 'archived':c.get('archived', False),\n                        'evidence':links[:12],\n                        'runs':[{'name':r.get('name'), 'head_sha':r.get('head_sha'), 'conclusion':r.get('conclusion'), 'url':r.get('url')} for r in c.get('runs', [])][:8]})\n    results.sort(key=lambda c:(-c['score'], not c['id'].startswith('pr-'), c['id']))\n    # Same-HEAD branches reuse their PR evidence; don't demand duplicate decisions.\n    seen_heads = set()\n    pr_heads = {state['cases'][c['id']].get('head') for c in results if c['id'].startswith('pr-')}\n    output = []\n    for item in results:\n        head = state['cases'][item['id']].get('head')\n        if head and item['id'].startswith('branch-') and head in pr_heads:\n            continue\n        if head and head in seen_heads:\n            continue\n        if head:\n            seen_heads.add(head)\n        output.append(item)\n        if len(output) >= limit:\n            break\n    return output\n\n\ndef coverage_problems(state, now=None, max_age_hours=48):\n    now = now or dt.datetime.now(dt.timezone.utc)\n    issues = []\n    try:\n        generated = dt.datetime.fromisoformat(state['generated_at'].replace('Z', '+00:00'))\n        age = (now-generated).total_seconds()/3600\n        if age > max_age_hours or age < -1:\n            issues.append('履歴の更新日時が古い、または未来。日次棚卸しを更新して再照合する')\n    except (KeyError, TypeError, ValueError):\n        issues.append('履歴の更新日時を確認できない')\n    cov = state.get('coverage') or {}\n    if cov.get('errors') or not isinstance(cov.get('errors'), list):\n        issues.append('履歴の収集エラーまたは収集状態不明')\n    active = [c for c in state.get('cases', {}).values() if not c.get('archived')]\n    prs = sum(c['id'].startswith('pr-') for c in active)\n    if not prs or prs != cov.get('prs'):\n        issues.append('全PRの収録件数が一致しない、またはPRがない')\n    if sum(c['id'].startswith('branch-') for c in active) != cov.get('branches'):\n        issues.append('全作業ブランチの収録件数が一致しない')\n    if any(c.get('error') or c.get('state') == '取得不能' for c in active):\n        issues.append('証拠取得に失敗した案件がある')\n    return issues\n\n\ndef inspect(state, task, paths=(), decisions=(), exclude=None, now=None, max_age_hours=48, revision=None):\n    matches = match_cases(state, task, paths, exclude)\n    # At most the first three strong candidates must be read; the rest remain visible.\n    required = [c for c in matches if c['review_required']][:3]\n    supplied = {d.get('id'):d for d in decisions if isinstance(d, dict)}\n    unresolved = []\n    for case in required:\n        decision = supplied.get(case['id'], {})\n        if decision.get('decision') not in ('reuse', 'extend', 'distinct') or len(decision.get('reason', '').strip()) < 12 or decision.get('evidence') not in case['evidence']:\n            unresolved.append(case['id'])\n    problems = coverage_problems(state, now, max_age_hours)\n    status = 'INCOMPLETE' if problems else 'REVIEW_REQUIRED' if unresolved else 'REVIEW_RECORDED' if required else 'NO_STRONG_MATCH'\n    return {'schema_version':VERSION, 'repository':state['repository'], 'task':clean(task),\n            'task_sha256':hashlib.sha256(task.encode()).hexdigest(), 'paths':list(paths),\n            'history_generated_at':state.get('generated_at'), 'history_revision':revision,\n            'checked_at':dt.datetime.now(dt.timezone.utc).isoformat(), 'coverage':state.get('coverage'),\n            'status':status, 'problems':problems, 'required_ids':[c['id'] for c in required],\n            'unresolved':unresolved, 'decisions':[{k:clean(v) for k,v in d.items() if k in ('id','decision','reason','evidence')} for d in decisions if isinstance(d,dict)],\n            'candidates':matches,\n            'notice':'類似度は重複・完成・本番反映の認定ではない。候補なしも新規実装の安全証明ではない。原本を読んで判断する。'}\n\n\ndef markdown(report):\n    def esc(s): return html.escape(clean(s)).replace('|', '&#124;')\n    lines = ['# 着手前の既存成果自動照合', '', '**結果：'+report['status']+'**', '', esc(report['task']), '',\n             '履歴更新：'+str(report['history_generated_at'])+' ／ 履歴版：'+str(report.get('history_revision') or '指定ファイル'), '', report['notice'], '']\n    for problem in report['problems']:\n        lines += ['- 未確認：'+esc(problem)]\n    if report['unresolved']:\n        lines += ['', '**実装・再測定を始める前に読む候補：** '+', '.join(report['unresolved']), '',\n                  'コード・結論・数値・検証の対象SHA・未解決事項を読み、再利用／追加検証／別案件の理由を記録する。承認依頼ではなく担当AI自身の根拠確認。']\n    for c in report['candidates']:\n        lines += ['', '## '+esc(c['id']+'：'+c['summary']), '',\n                  '一致根拠：'+esc('、'.join(c['matched_concepts']+c['matched_paths']+c['matched_terms'][:5])), '',\n                  '**過去の結論：** '+esc(c['conclusion']), '', '**残課題：** '+esc(c['remaining']), '',\n                  '**次の作業：** '+esc(c['next']), '',\n                  'PR／ブランチ状態：'+esc(c['state'])+' ／ main：'+esc(c['main_status'])+' ／ 本番：'+esc(c['production']), '']\n        lines += ['- [原本・コード・検証根拠]('+url+')' for url in c['evidence']]\n        for r in c['runs']:\n            lines += ['- 検証実行：'+esc(r['name'])+'／'+esc(r['conclusion'])+'／SHA `'+esc(r['head_sha'])+'`（[実行元]('+str(r['url'])+')）']\n    if not report['candidates']:\n        lines += ['照合候補なし。コード検索・台帳・未収録資料も確認し、再実装の必要性を判断する。']\n    if report['decisions']:\n        lines += ['', '## 担当AIが確認した再利用判断', '']\n        for d in report['decisions']:\n            lines += ['- '+esc(d.get('id'))+'：'+esc(d.get('decision'))+'／'+esc(d.get('reason'))+'（[読んだ根拠]('+str(d.get('evidence'))+')）']\n    return '\\n'.join(lines)+'\\n'\n\n\ndef git(*args):\n    return subprocess.check_output(['git', *args], text=True, stderr=subprocess.DEVNULL, timeout=120)\n\n\ndef load_history(path=None, repo=None, refresh=True):\n    if path:\n        return json.loads(Path(path).read_text()), None\n    if refresh:\n        git('fetch', '--quiet', '--no-tags', 'origin', '+refs/heads/development-history:refs/remotes/origin/development-history')\n    revision = git('rev-parse', 'origin/development-history').strip()\n    state = json.loads(git('show', revision+':docs/work-history/state.json'))\n    if repo and state.get('repository') != repo:\n        raise ValueError('Repository/history mismatch')\n    return state, revision\n\n\ndef event_task(event):\n    item = event.get('pull_request') or event.get('issue') or {}\n    body = item.get('body') or ''\n    ack = ACK_RE.search(body)\n    decisions = json.loads(ack.group(1)).get('decisions', []) if ack else []\n    # Never rank the acknowledgment's candidate IDs/URLs as part of the task.\n    task = item.get('title', '')+'\\n'+ACK_RE.sub('', body)\n    exclude = 'pr-'+str(item['number']) if event.get('pull_request') else None\n    return task.strip(), decisions, exclude\n\n\ndef event_paths(event):\n    pr = event.get('pull_request')\n    if not pr:\n        return []\n    base, head = pr['base']['sha'], pr['head']['sha']\n    if not all(re.fullmatch(r'[0-9a-f]{40}', sha) for sha in (base, head)):\n        raise ValueError('Invalid commit SHA')\n    for sha in (base, head):\n        try:\n            git('cat-file', '-e', sha+'^{commit}')\n        except subprocess.CalledProcessError:\n            git('fetch', '--quiet', '--no-tags', 'origin', sha)\n    return git('diff', '--name-only', '--no-renames', base+'...'+head).splitlines()\n\n\ndef main():\n    parser = argparse.ArgumentParser(description=__doc__)\n    parser.add_argument('--task'); parser.add_argument('--event'); parser.add_argument('--history')\n    parser.add_argument('--paths', nargs='*', default=[]); parser.add_argument('--decisions')\n    parser.add_argument('--repo', default=os.environ.get('GITHUB_REPOSITORY'))\n    parser.add_argument('--output', default='/tmp/development-preflight')\n    parser.add_argument('--no-refresh', action='store_true'); parser.add_argument('--max-age-hours', type=int, default=48)\n    args = parser.parse_args()\n    output = Path(args.output); output.mkdir(parents=True, exist_ok=True)\n    try:\n        decisions = json.loads(Path(args.decisions).read_text()) if args.decisions else []\n        exclude = None\n        if args.event:\n            event = json.loads(Path(args.event).read_text())\n            task, event_decisions, exclude = event_task(event)\n            args.paths = event_paths(event)\n            decisions = event_decisions\n        else:\n            task = args.task or ''\n        if len(task.strip()) < 8:\n            raise ValueError('Task description too short')\n        state, revision = load_history(args.history, args.repo, not args.no_refresh)\n        if not REPO_RE.fullmatch(state.get('repository', '')):\n            raise ValueError('Invalid repository')\n        if args.repo and state['repository'] != args.repo:\n            raise ValueError('Repository/history mismatch')\n        if args.event and event.get('pull_request'):\n            branch = event['pull_request']['head'].get('ref')\n            exclude = [exclude]+[c['id'] for c in state['cases'].values()\n                                 if c['id'].startswith('branch-') and branch and (c.get('head_ref') or c.get('title')) == branch]\n        report = inspect(state, task, args.paths, decisions, exclude, max_age_hours=args.max_age_hours, revision=revision)\n    except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):\n        # No exception messages: command arguments/event content can contain secrets.\n        report = {'status':'INCOMPLETE', 'problems':['履歴または作業内容を取得・検証できない。成功扱いせず復旧後に再照合する']}\n        (output/'preflight.json').write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\\n')\n        (output/'preflight.md').write_text('# 着手前の既存成果自動照合\\n\\nINCOMPLETE：'+report['problems'][0]+'\\n')\n        print('INCOMPLETE: '+str(output/'preflight.md'))\n        return 2\n    (output/'preflight.json').write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\\n')\n    (output/'preflight.md').write_text(markdown(report))\n    print(markdown(report))\n    return 2 if report['status']=='INCOMPLETE' else 3 if report['status']=='REVIEW_REQUIRED' else 0\n\n\nif __name__ == '__main__':\n    raise SystemExit(main())\n",
+      "sha256": "2ac991f1cee33338a7971b1f579bd9065990642dc2351d6a919c2a2a3a5b2bfd"
+    }
+  ],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "2dc351592f439e65e9bdd6fdd7886c6f1aac067525be3b3277c2eb5f7ae308bc",
+  "ci_digest": "4e733e14a5661a8d1581dda69239b737e849ad51977743af2f7cf03db1353afa",
+  "collected_at": "2026-11-09T20:38:09.113666+00:00"
+}

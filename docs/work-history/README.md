@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-09T10:10:15.580056+00:00
+更新 (UTC): 2026-11-09T20:38:09.113666+00:00
 
 ## 全案件
 
@@ -95,6 +95,7 @@
 | [docs/sakikuru-product-charter-20261109](cases/branch-63d99a0850795bc5.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [test/z4-stride-parity-20261016](cases/branch-64503a3847e876c9.md) | 雨量・全国検知・開発管理・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/forecast-bootstrap-20261029](cases/branch-64ca0e6187e12d53.md) | 雨量・全国検知・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [fix/jaspic-quarantine-historical-ids-20261110](cases/branch-68a04500a5ab7038.md) | 通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat-early-rain-forecast-api-v2](cases/branch-68f33791ab263e2e.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/auth-storage-metadata-diagnostics-20261024](cases/branch-6a8121b2550dbe9c.md) | 認証・安全性：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/dry-forecast-boundary](cases/branch-6ba19657c1ae6c55.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -309,6 +310,7 @@
 | [feat(history): 着手前に「以前の実装・検証」を自動提示して再利用判断を確認](cases/pr-188.md) | 開発管理・画面・表示：新規作業の依頼文から過去の実装・未統合研究を自動照合し、原本の再利用判断を着手前に記録する。 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [docs(history): 着手前自動照合の実測と再利用判断を保存](cases/pr-189.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [docs: define living emergency and laundry alert direction](cases/pr-19.md) | その他の開発：生活防災・洗濯通知の製品方針を記録 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [fix(jaspic): quarantine unreconciled historical IDs without dispatching them](cases/pr-190.md) | 通知・配信：通知・メール配信とその運用に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add PWA foundation for iPhone and Android](cases/pr-2.md) | その他の開発：iPhone・Android向けPWAの基盤を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add early rain forecast provider](cases/pr-20.md) | 雨量・全国検知：早期の雨予測データ取得処理を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: expose early rain forecast prototype API](cases/pr-21.md) | 雨量・全国検知：早期雨予測の試作APIを公開する変更案 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
@@ -418,6 +420,7 @@
 - app/dev/rain-lab/page.tsx：[branch-dbcfae267568d52d](cases/branch-dbcfae267568d52d.md), [pr-102](cases/pr-102.md)
 - app/external-ai-review/page.tsx：[branch-31d6803113173639](cases/branch-31d6803113173639.md), [pr-97](cases/pr-97.md)
 - app/icon.tsx：[branch-d8037f3cde5d4713](cases/branch-d8037f3cde5d4713.md), [pr-3](cases/pr-3.md)
+- app/jaspic/dispatch/route.ts：[branch-68a04500a5ab7038](cases/branch-68a04500a5ab7038.md), [pr-190](cases/pr-190.md)
 - app/jaspic/oauth/callback/route.ts：[branch-ae94438b6e247b91](cases/branch-ae94438b6e247b91.md), [branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [branch-dddc96894dde5a85](cases/branch-dddc96894dde5a85.md), [branch-f4ebc6c16c3885bc](cases/branch-f4ebc6c16c3885bc.md), [pr-155](cases/pr-155.md), [pr-168](cases/pr-168.md), [pr-170](cases/pr-170.md), [pr-171](cases/pr-171.md)
 - app/jaspic/oauth/login-client.tsx：[branch-8c6a80e8f4c87a06](cases/branch-8c6a80e8f4c87a06.md), [branch-ae94438b6e247b91](cases/branch-ae94438b6e247b91.md), [branch-b84bde7f845491a7](cases/branch-b84bde7f845491a7.md), [branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [branch-dddc96894dde5a85](cases/branch-dddc96894dde5a85.md), [branch-e532c526e0c8a49b](cases/branch-e532c526e0c8a49b.md), [branch-f257789f539b6669](cases/branch-f257789f539b6669.md), [branch-f4ebc6c16c3885bc](cases/branch-f4ebc6c16c3885bc.md), [pr-155](cases/pr-155.md), [pr-157](cases/pr-157.md), [pr-166](cases/pr-166.md), [pr-167](cases/pr-167.md), [pr-168](cases/pr-168.md), [pr-170](cases/pr-170.md), [pr-171](cases/pr-171.md), [pr-174](cases/pr-174.md)
 - app/jaspic/oauth/page.tsx：[branch-b84bde7f845491a7](cases/branch-b84bde7f845491a7.md), [branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [branch-dddc96894dde5a85](cases/branch-dddc96894dde5a85.md), [branch-e532c526e0c8a49b](cases/branch-e532c526e0c8a49b.md), [pr-155](cases/pr-155.md), [pr-157](cases/pr-157.md), [pr-167](cases/pr-167.md), [pr-171](cases/pr-171.md)
@@ -455,6 +458,7 @@
 - lib/jaspic/oauth-session-offline.ts：[branch-dddc96894dde5a85](cases/branch-dddc96894dde5a85.md), [branch-f4ebc6c16c3885bc](cases/branch-f4ebc6c16c3885bc.md), [pr-168](cases/pr-168.md), [pr-171](cases/pr-171.md)
 - lib/jaspic/oauth-start-authorization.ts：[branch-f4ebc6c16c3885bc](cases/branch-f4ebc6c16c3885bc.md), [pr-168](cases/pr-168.md)
 - lib/jaspic/oauth-supabase-store.ts：[branch-f4ebc6c16c3885bc](cases/branch-f4ebc6c16c3885bc.md), [pr-168](cases/pr-168.md)
+- lib/jaspic/production-plan.ts：[branch-68a04500a5ab7038](cases/branch-68a04500a5ab7038.md), [pr-190](cases/pr-190.md)
 - lib/jaspic/shigaMail.ts：[branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [pr-155](cases/pr-155.md)
 - lib/places/searchPlaces.ts：[branch-04c8f793320315f9](cases/branch-04c8f793320315f9.md), [branch-309a089ee15503d2](cases/branch-309a089ee15503d2.md), [branch-8408fe81c12a3d3e](cases/branch-8408fe81c12a3d3e.md), [branch-b075504ef7a80661](cases/branch-b075504ef7a80661.md), [pr-30](cases/pr-30.md), [pr-4](cases/pr-4.md), [pr-5](cases/pr-5.md), [pr-7](cases/pr-7.md)
 - lib/research/forecastEvidence.ts：[branch-e887abe92356f2f8](cases/branch-e887abe92356f2f8.md), [pr-109](cases/pr-109.md)
