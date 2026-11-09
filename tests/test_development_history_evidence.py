@@ -18,10 +18,18 @@ class FakeAPI:
         return {'title':'Stride experiment','body':'47 regions missed','head':{'sha':'a'*40,'ref':'research'},'base':{'sha':'b'*40,'ref':'feature'},'state':'closed','merged_at':'2026-01-01','merge_commit_sha':'c'*40,'updated_at':'2026-01-02','draft':False}
 
 class HistoryTests(unittest.TestCase):
+    def test_checkout_race_fetches_exact_missing_pr_head(self):
+        import subprocess
+        sha='a'*40
+        with patch.object(history,'git',side_effect=[subprocess.CalledProcessError(1,'git'),'', '']) as run:
+            history.ensure_commit(sha)
+            self.assertEqual(run.call_args_list[1].args,('fetch','--quiet','--no-tags','origin',sha))
+        with self.assertRaises(ValueError):history.ensure_commit('main; echo secret')
+
     def test_merged_into_feature_is_not_main_or_production(self):
         api=FakeAPI();api.main_sha='d'*40
         import subprocess
-        with patch.object(history,'local_files',return_value=[]),patch.object(history,'local_commits',return_value=[]),patch.object(history.subprocess,'check_call',side_effect=subprocess.CalledProcessError(1,'git')):
+        with patch.object(history,'ensure_commit'),patch.object(history,'local_files',return_value=[]),patch.object(history,'local_commits',return_value=[]),patch.object(history.subprocess,'check_call',side_effect=subprocess.CalledProcessError(1,'git')):
             case=history.collect_pr(api,'62',{}, {},{})
         self.assertEqual(case['state'],'merged')
         self.assertIn('main祖先として未確認',case['main_status'])

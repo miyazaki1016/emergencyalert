@@ -17,7 +17,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-VERSION = 2
+VERSION = 3
 SAFE_SUFFIXES = {'.py','.ts','.tsx','.js','.mjs','.cjs','.json','.md','.yml','.yaml','.sql','.css','.sh'}
 SECRET_PATH = re.compile(r'(^|[/._-])(env|secret|credential|private[-_]?key|token)([./_-]|$)', re.I)
 REDACTIONS = [r'(?i)\b(?:sk-proj-|sk-|ghp_|github_pat_|ghs_|sb_secret_)[A-Za-z0-9_\-]{15,}',
@@ -80,6 +80,16 @@ class API:
 
 def git(*args):
     return subprocess.check_output(['git',*args],text=True,stderr=subprocess.DEVNULL)
+
+def ensure_commit(sha):
+    """PR metadata can advance after checkout/fetch (e.g. the ledger bot)."""
+    if not isinstance(sha,str) or not re.fullmatch(r'[0-9a-f]{40}',sha):
+        raise ValueError('Invalid commit SHA')
+    try: git('cat-file','-e',sha+'^{commit}')
+    except subprocess.CalledProcessError:
+        # Fetch the exact observed object, never a moving ref or arbitrary URL.
+        git('fetch','--quiet','--no-tags','origin',sha)
+        git('cat-file','-e',sha+'^{commit}')
 
 def source(sha,path):
     if SECRET_PATH.search(path) or Path(path).suffix not in SAFE_SUFFIXES:
@@ -155,6 +165,7 @@ def code_facts(files):
 
 def collect_pr(api,num,meta,run_index,curated):
     pr=api.get('/pulls/'+num)
+    ensure_commit(pr['base']['sha']); ensure_commit(pr['head']['sha'])
     files=local_files(pr['base']['sha'],pr['head']['sha'])
     commits=local_commits(pr['base']['sha'],pr['head']['sha'],api.repo)
     comments=api.pages('/issues/'+num+'/comments')
@@ -191,7 +202,7 @@ def collect_pr(api,num,meta,run_index,curated):
     curated_entry=curated.get('prs',{}).get(num,{})
     return {'id':'pr-'+num,'number':int(num),'title':clean(pr['title']), 'topics':topic,'purpose':purpose,
             'purpose_basis':'変更パスと表題による分類（意味の確定には原文を確認）',
-            'body':clean(pr.get('body')), 'head':head,'base':pr['base']['sha'],'base_ref':pr['base']['ref'],
+            'body':clean(pr.get('body')), 'snapshot_head':meta.get('head'), 'snapshot_consistent':not meta.get('head') or meta.get('head')==head, 'head':head,'base':pr['base']['sha'],'base_ref':pr['base']['ref'],
             'head_ref':pr['head']['ref'],'state':'merged' if pr.get('merged_at') else pr['state'],
             'main_status':main_status,'draft':pr.get('draft',False),'merged_at':pr.get('merged_at'),'merge_commit_sha':merge,'updated_at':pr['updated_at'],
             'code_facts':code_facts(evidence),'files':evidence,'file_count':len(files),'reported_file_count':pr.get('changed_files'),
@@ -339,7 +350,7 @@ def build(report,api,out,previous=None,curated=None):
         try:
             c=collect_pr(api,num,meta,run_index,curated); c['fingerprint']=fingerprint; c['ci_digest']=ci_digest; c['collected_at']=report['generated_at']; cases[key]=c
         except Missing: continue
-        except (RuntimeError,ValueError,KeyError,OSError) as error:
+        except (RuntimeError,ValueError,KeyError,OSError,subprocess.CalledProcessError) as error:
             errors.append({'id':key,'error':type(error).__name__})
             cases[key]=dict(oldcase or {'id':key,'title':clean(meta.get('title')),'state':meta.get('state'),'files':[]})
             cases[key]['error']='今回の証拠収集に失敗。旧結果を保持、再収集が必要'
