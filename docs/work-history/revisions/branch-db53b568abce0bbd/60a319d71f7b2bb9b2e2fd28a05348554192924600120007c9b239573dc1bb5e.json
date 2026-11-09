@@ -1,0 +1,29 @@
+{
+  "id": "branch-db53b568abce0bbd",
+  "title": "feature/push-registration-status-20261024",
+  "head": "14294fbf960c5dd0bc38e81c96904faa194ab38f",
+  "head_ref": "feature/push-registration-status-20261024",
+  "linked_prs": [
+    78
+  ],
+  "files": [
+    {
+      "path": "app/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/14294fbf960c5dd0bc38e81c96904faa194ab38f/app/page.tsx"
+    }
+  ],
+  "commits": "14294fbf960c5dd0bc38e81c96904faa194ab38f feat: expose safe push registration check in notification section\n40b442dae1a8a1d967480f72a6dff4da08e29230 feat: add read-only push subscription ownership verification",
+  "topics": [
+    "通知・配信",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "eba5e09bf61e38c383519f6c8de773059f9cf049c614dc9e831aa0732e4560dd",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

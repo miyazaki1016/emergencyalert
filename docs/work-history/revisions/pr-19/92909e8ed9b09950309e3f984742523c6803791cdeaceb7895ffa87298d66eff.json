@@ -1,0 +1,81 @@
+{
+  "id": "pr-19",
+  "number": 19,
+  "title": "docs: define living emergency and laundry alert direction",
+  "topics": [
+    "その他の開発"
+  ],
+  "purpose": "変更対象ファイルに関する開発。具体的な目的は原文・差分を確認",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "アメくるの設計思想と洗濯物の先回り通知を総覧へ追記します。\n\n- 暮らしのEmergencyを困る前に先回り\n- 前日夕方の翌日洗濯判定を保存\n- 朝に最新予報で再判定し、前日との差分を通知\n- 天気マークではなく洗濯判断の変化を重視\n- 朝の外干し確認 → 日中の数時間前警戒 → 30分前ナウキャスト警告\n- 既存の30分前通知は維持",
+  "snapshot_head": "80d09c1bcd31ff5c5c3fb82daead0bd92220cde5",
+  "snapshot_consistent": true,
+  "head": "80d09c1bcd31ff5c5c3fb82daead0bd92220cde5",
+  "base": "b25d7e74026d6e132e9f4fc244fe60f60aa2e1ef",
+  "base_ref": "main",
+  "head_ref": "docs-living-emergency-concept",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-09-24T13:58:46Z",
+  "merge_commit_sha": "12bc595cc160910d0a34e8491919e8e1822c1622",
+  "updated_at": "2026-09-24T13:58:46Z",
+  "code_facts": [],
+  "files": [
+    {
+      "path": "PROJECT_OVERVIEW.md",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 0,
+      "patch": "diff --git a/PROJECT_OVERVIEW.md b/PROJECT_OVERVIEW.md\nindex 08938f8..5b134ec 100644\n--- a/PROJECT_OVERVIEW.md\n+++ b/PROJECT_OVERVIEW.md\n@@ -49,3 +49,21 @@ EmergencyAlert の仕様・実装方針・運用上の決定事項を、次の\n - クライアント側で applicationServerKey の不一致を検出し、自動で購読し直せるようにしてから鍵を切り替える。\n - `watch-rain` の VAPID subject は仮の mailto ではなく管理下の HTTPS origin に変更する。\n - Supabase Edge Function の本番ソースをGitHubで正本管理できる構成へ移す。\n+\n+## プロダクトの設計思想\n+\n+- Emergency は災害だけを意味しない。その人にとって「今すぐ何とかしたい暮らしの困りごと」も対象にする。\n+- 中心コンセプトは「必要な人に、必要になる少し前に知らせる」「暮らしのEmergencyを、困る前に先回りして知らせる」。\n+- 洗濯物の雨濡れを最初の日常ユースケースとし、日常的に使う入口から大雨・熱中症・地震・特別警報・避難情報などへ広げる。\n+- 通知は単なる気象データの転送ではなく、「今どう行動すると困りにくいか」が分かる生活の言葉に変換する。\n+\n+## 洗濯物・先回り通知の方向性\n+\n+- 前日17〜18時ごろ: 翌日の予報から「外干しOK / 早めならOK / 部屋干し推奨」などを通知し、その時点の洗濯判定を保存する。\n+- 当日朝: 最新予報で再判定し、前日夕方の判定と比較する。天気マークの差ではなく「洗濯の判断が変わったか」を重視する。\n+- 朝に判断が悪化した場合は「昨日の予報から変わったよ」と明示し、外出前に間に合う行動を案内する。改善した場合も、外干し可能になったことを知らせる。\n+- 朝の再判定後に「今日は外干しする？」を確認し、ユーザーが外干しを選んだ地点は洗濯物見張りモードとして扱う。\n+- 日中: 朝の予報が晴れでも、その後の予報変化を追跡する。数時間先の雨リスクが高まったら、外出中でも間に合う早期通知を行う。\n+- 直前: 現行の高解像度降水ナウキャストを使い、5mm/h以上の雨が30分以内なら取り込みを促す通知を行う。\n+- 目的は「雨を知らせる」ことではなく「洗濯物を濡らさないために先回りする」こと。\n+- 次工程は、翌日予報・数時間先予報に利用できる気象庁データの調査 → 判定ロジック設計 → 実装。既存の30分前通知は維持する。\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/80d09c1bcd31ff5c5c3fb82daead0bd92220cde5/PROJECT_OVERVIEW.md",
+      "source": {
+        "path": "PROJECT_OVERVIEW.md",
+        "coverage": "全文",
+        "text": "# EmergencyAlert 総覧\n\n最終更新: 2026-09-24\n\n## この文書の役割\n\nEmergencyAlert の仕様・実装方針・運用上の決定事項を、次の作業でも迷わないために残す正本メモ。重要な仕様変更や運用ルールを決めたら随時更新する。\n\n## 作業コミュニケーション\n\n- ユーザーの「りょ」は「進めて」の意味。\n- 「りょ」と来たら、返事だけで止まらず、直前まで合意している作業の次工程を実行する。\n- ただし、本番データ破壊・秘密情報の露出・不可逆な操作など、新たな重要判断が必要な場合は勝手に進めない。\n- 実装は、差分確認 → テスト/CI → Preview確認 → 必要に応じてマージ → Production確認、の順を基本とする。\n- 実際に確認できていない状態を「成功」「反映済み」と断定しない。\n\n## 現在の基本構成\n\n- GitHub: miyazaki1016/emergencyalert\n- Vercel project: emergencyalert\n- Supabase project: EmergencyAlert\n- 雨監視は Supabase Edge Function `watch-rain` が担当。\n- Web Push 購読情報は `push_subscriptions` に保存。\n- 場所ごとの監視状態は `watch_targets` / `watch_states` で管理。\n- iPhone はホーム画面に追加した PWA から通知許可・Push購読を行う。\n\n## 雨通知の現行仕様\n\n- 気象庁高解像度降水ナウキャストを判定元にする。\n- 現在は雨が降っておらず、5mm/h以上の雨が30分以内に来る場合を `ACTIONABLE_RAIN` とする。\n- semantic event の urgency が `LIFESTYLE_ACTION` のときだけ Push 候補になる。\n- 場所ごとの `notifications_enabled` が ON であることが必要。\n- 未配信の actionable event は再試行し、すでに配信済みの同一 actionable 状態は重複通知しない。\n- 5mm/h・30分境界と通知判定ロジックは CI の回帰テストで固定している。\n\n## Web Push 現在地\n\n- iPhone Home Screen PWA で通知許可 → PushSubscription → Supabase保存まで確認済み。\n- 認証済みテスト送信で、Supabase Edge Function → Web Push → iPhone通知センターへの実配信を確認済み。\n- テスト用UIは Production から撤去済み。\n- `test-push` / `test-push-once` は 410 Gone のみ返す無害なFunctionへ置換済み。\n- 本番 `watch-rain` はテストのために変更せず稼働を継続。\n- 自然発生した実際の気象条件で `watch-rain` 自身からiPhoneへ通知された実績は、まだ未確認。\n\n## 残る本番ハードニング\n\n- 現在の VAPID 秘密鍵は開発中にチャットへ露出したため、最終リリース前にローテーションする。\n- ローテーション時は Supabase秘密鍵、Vercel公開鍵、Edge Function側公開鍵を同時更新する。\n- クライアント側で applicationServerKey の不一致を検出し、自動で購読し直せるようにしてから鍵を切り替える。\n- `watch-rain` の VAPID subject は仮の mailto ではなく管理下の HTTPS origin に変更する。\n- Supabase Edge Function の本番ソースをGitHubで正本管理できる構成へ移す。\n\n## プロダクトの設計思想\n\n- Emergency は災害だけを意味しない。その人にとって「今すぐ何とかしたい暮らしの困りごと」も対象にする。\n- 中心コンセプトは「必要な人に、必要になる少し前に知らせる」「暮らしのEmergencyを、困る前に先回りして知らせる」。\n- 洗濯物の雨濡れを最初の日常ユースケースとし、日常的に使う入口から大雨・熱中症・地震・特別警報・避難情報などへ広げる。\n- 通知は単なる気象データの転送ではなく、「今どう行動すると困りにくいか」が分かる生活の言葉に変換する。\n\n## 洗濯物・先回り通知の方向性\n\n- 前日17〜18時ごろ: 翌日の予報から「外干しOK / 早めならOK / 部屋干し推奨」などを通知し、その時点の洗濯判定を保存する。\n- 当日朝: 最新予報で再判定し、前日夕方の判定と比較する。天気マークの差ではなく「洗濯の判断が変わったか」を重視する。\n- 朝に判断が悪化した場合は「昨日の予報から変わったよ」と明示し、外出前に間に合う行動を案内する。改善した場合も、外干し可能になったことを知らせる。\n- 朝の再判定後に「今日は外干しする？」を確認し、ユーザーが外干しを選んだ地点は洗濯物見張りモードとして扱う。\n- 日中: 朝の予報が晴れでも、その後の予報変化を追跡する。数時間先の雨リスクが高まったら、外出中でも間に合う早期通知を行う。\n- 直前: 現行の高解像度降水ナウキャストを使い、5mm/h以上の雨が30分以内なら取り込みを促す通知を行う。\n- 目的は「雨を知らせる」ことではなく「洗濯物を濡らさないために先回りする」こと。\n- 次工程は、翌日予報・数時間先予報に利用できる気象庁データの調査 → 判定ロジック設計 → 実装。既存の30分前通知は維持する。\n",
+        "sha256": "1c8e588e7584fcc2d1a42151621abdd6280c859b27ff61b2ef4d6a4c6d76a1e3"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "80d09c1bcd31ff5c5c3fb82daead0bd92220cde5",
+      "message": "docs: define living emergency and laundry alert direction\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/80d09c1bcd31ff5c5c3fb82daead0bd92220cde5"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "80d09c1bcd31ff5c5c3fb82daead0bd92220cde5",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/36009173555",
+      "id": 36009173555,
+      "updated_at": "2026-09-24T13:57:09Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [],
+  "related_sources": [],
+  "curated": {
+    "summary": "生活防災・洗濯通知の製品方針を記録",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/19"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "3d03daebe8d17c2437c3ea19bb435ef12460539db9bc287bc14bfdcd5b4ae1ea",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

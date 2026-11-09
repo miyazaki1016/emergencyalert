@@ -1,0 +1,109 @@
+{
+  "id": "pr-32",
+  "number": 32,
+  "title": "Log withheld rain diagnostics",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Logs the existing diagnostic payload when `/api/rain` withholds a user-facing interpretation. No rain classification, Push, database, or UI behavior changes.",
+  "snapshot_head": "43e869da7fb4d1199fb1074d39b0648cc8a28115",
+  "snapshot_consistent": true,
+  "head": "43e869da7fb4d1199fb1074d39b0648cc8a28115",
+  "base": "2aea06d32f1750f9bbb43f0e602fb83e0d028e24",
+  "base_ref": "main",
+  "head_ref": "chore/log-rain-diagnostics",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-09-25T21:36:49Z",
+  "merge_commit_sha": "c8f0ea3bb9c59bd7f49a6aea203411467e06fd2d",
+  "updated_at": "2026-09-25T21:36:49Z",
+  "code_facts": [
+    {
+      "file": "app/api/rain/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (diagnostic) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/43e869da7fb4d1199fb1074d39b0648cc8a28115/app/api/rain/route.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/api/rain/route.ts",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 0,
+      "patch": "diff --git a/app/api/rain/route.ts b/app/api/rain/route.ts\nindex 1e13327..f840728 100644\n--- a/app/api/rain/route.ts\n+++ b/app/api/rain/route.ts\n@@ -44,6 +44,15 @@ export async function GET(request: NextRequest) {\n       expectedForecastFrames: forecastSeries.expectedFrames,\n     };\n \n+    if (diagnostic) {\n+      console.warn(\"[rain-diagnostic]\", JSON.stringify({\n+        checkedAt: now.toISOString(),\n+        location: { lat, lon },\n+        sourceValidAt: observation[0]?.validTime ?? null,\n+        ...diagnostic,\n+      }));\n+    }\n+\n     return NextResponse.json({\n       source: \"JMA high-resolution precipitation nowcast public imagery\",\n       checkedAt: now.toISOString(),\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/43e869da7fb4d1199fb1074d39b0648cc8a28115/app/api/rain/route.ts",
+      "source": {
+        "path": "app/api/rain/route.ts",
+        "coverage": "全文",
+        "text": "import { NextRequest, NextResponse } from \"next/server\";\nimport { JmaPublicImageProvider } from \"@/lib/weather/providers/jma/JmaPublicImageProvider\";\nimport { interpretRainSeries } from \"@/lib/weather/rain/RainInterpretationEngine\";\nimport { formatRainMessage } from \"@/lib/weather/rain/formatRainMessage\";\nimport { toRainSemanticEvent } from \"@/lib/weather/rain/toRainSemanticEvent\";\nimport { canPublishRainInterpretation } from \"@/lib/weather/rain/canPublishRainInterpretation\";\n\nexport const dynamic = \"force-dynamic\";\n\nexport async function GET(request: NextRequest) {\n  const lat = Number(request.nextUrl.searchParams.get(\"lat\"));\n  const lon = Number(request.nextUrl.searchParams.get(\"lon\"));\n\n  if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {\n    return NextResponse.json({ error: \"valid lat and lon are required\" }, { status: 400 });\n  }\n\n  try {\n    const provider = new JmaPublicImageProvider();\n    const [observation, forecastSeries] = await Promise.all([\n      provider.getObservationFrames(lat, lon),\n      provider.getForecastSeries(lat, lon),\n    ]);\n    const forecast = forecastSeries.frames;\n\n    const now = new Date();\n    const interpretation = interpretRainSeries({\n      now,\n      current: observation[0] ?? null,\n      forecast,\n      expectedForecastFrames: forecastSeries.expectedFrames,\n    });\n\n    const interpretationEnabled = canPublishRainInterpretation(\n      interpretation,\n      observation,\n      forecast,\n    );\n    const diagnostic = interpretationEnabled ? null : {\n      interpretationState: interpretation.state,\n      currentStatus: observation[0]?.status ?? \"MISSING\",\n      observationFrames: observation.length,\n      forecastFrames: forecast.length,\n      expectedForecastFrames: forecastSeries.expectedFrames,\n    };\n\n    if (diagnostic) {\n      console.warn(\"[rain-diagnostic]\", JSON.stringify({\n        checkedAt: now.toISOString(),\n        location: { lat, lon },\n        sourceValidAt: observation[0]?.validTime ?? null,\n        ...diagnostic,\n      }));\n    }\n\n    return NextResponse.json({\n      source: \"JMA high-resolution precipitation nowcast public imagery\",\n      checkedAt: now.toISOString(),\n      sourceValidAt: observation[0]?.validTime ?? null,\n      location: { lat, lon },\n      observation,\n      forecast,\n      interpretation: interpretationEnabled ? interpretation : null,\n      event: interpretationEnabled ? toRainSemanticEvent(interpretation, now, observation[0]?.validTime ?? null) : null,\n      message: interpretationEnabled ? formatRainMessage(interpretation, now) : null,\n      interpretationEnabled,\n      diagnostic,\n      note: interpretationEnabled\n        ? \"Interpretation uses only usable frames and currently verified JMA PNG colors.\"\n        : \"Interpretation withheld: palette, coverage, fetch, or forecast completeness is not yet sufficient for a safe user-facing claim.\",\n    });\n  } catch {\n    return NextResponse.json(\n      { error: \"JMA_DATA_UNAVAILABLE\", message: \"最新の雨情報を確認できません。\" },\n      { status: 503 },\n    );\n  }\n}\n",
+        "sha256": "909ccc7ec07e80e6b3b2ce24fc676238c143ccdd2d4ce5cfb67ee9f308daa6cb"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "8fabcc894369b649f4e85e65ebaae60d1d51d14a",
+      "message": "Log withheld rain diagnostics\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/8fabcc894369b649f4e85e65ebaae60d1d51d14a"
+    },
+    {
+      "sha": "1e0bc086e5ccaaa51dcc7716e817d6764e454b3d",
+      "message": "Fix diagnostic source timestamp\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/1e0bc086e5ccaaa51dcc7716e817d6764e454b3d"
+    },
+    {
+      "sha": "43e869da7fb4d1199fb1074d39b0648cc8a28115",
+      "message": "Place rain diagnostic log after interpretation\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/43e869da7fb4d1199fb1074d39b0648cc8a28115"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "43e869da7fb4d1199fb1074d39b0648cc8a28115",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/36192321805",
+      "id": 36192321805,
+      "updated_at": "2026-09-25T21:35:44Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "GET",
+    "diagnostic",
+    "dynamic",
+    "forecast",
+    "interpretation",
+    "interpretationEnabled",
+    "lat",
+    "lon",
+    "now",
+    "provider"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "送信を見送った雨判定の診断を記録",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/32"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "13cad2e576726fb4388d14c744c108db7405b9b213bea318113892d8fa042c18",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

@@ -1,0 +1,687 @@
+{
+  "id": "pr-171",
+  "number": 171,
+  "title": "feat(jaspic): save verified Gmail OAuth credentials in encrypted vault",
+  "topics": [
+    "通知・配信",
+    "認証・安全性",
+    "画面・表示"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更／認証・アクセス制御に関する変更／画面表示や操作に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "## Scope\n- Continues #170 and the existing vault work. Gmail consent uses the existing Google callback, PKCE S256, a purpose-bound HttpOnly cookie, and atomic one-use Supabase state.\n- Requires the configured, confirmed Supabase administrator and a matching verified Google account. The sole Gmail permission is gmail.send; OpenID/email only identify the account.\n- Persists only the refresh token, encrypted with AES-256-GCM and bound to the administrator UUID and Google subject. The administrative status checks successful decryption and returns only a status. Reauthorization atomically replaces the owner row. The admin can delete the local row. To invalidate the Google grant itself, revoke the app in Google Account and remove the local row.\n- Uses public.jaspic_gmail_token_vault. The earlier public.jaspic_gmail_oauth_vault has a different envelope and no current main consumer. Both tables were empty during audit. No old table changes or data migration.\n- Production needs JASPIC_GMAIL_TOKEN_VAULT_KEY, a dedicated 32-byte base64url Secret separate from the OAuth cookie key. Replacing the vault key requires fresh consent for existing rows.\n\n## Verification\n- 318 local tests passed and Next production build succeeded. The callback integration tests use synthetic data and mock all Google traffic.\n- Supabase production RLS and ACL audit confirmed both vault tables and the state table deny anon/authenticated access and the consume RPC is executable by service_role only.\n- No Gmail send endpoint, real mail, scheduled sending, rain notification code, or deployment configuration changes. #155 remains independent.\n- After CI and production deployment, an administrator must complete consent in iPhone Safari and confirm saved status.",
+  "snapshot_head": "e48e8a60568f0e5ee8ab1bffb120864091e431de",
+  "snapshot_consistent": true,
+  "head": "e48e8a60568f0e5ee8ab1bffb120864091e431de",
+  "base": "875dddb6cf746e3e561e09478bf49252ac30f715",
+  "base_ref": "main",
+  "head_ref": "research/jaspic-token-vault-offline-20261106",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-06T08:56:22Z",
+  "merge_commit_sha": "56b74eacffab1a7f54811efe3aab00d62789a9c2",
+  "updated_at": "2026-11-06T08:56:23Z",
+  "code_facts": [
+    {
+      "file": "app/jaspic/oauth/login-client.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (active) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/login-client.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/login-client.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!response.ok) { setMessage(\"Gmail認証を開始できませんでした。管理者のログイン状態と設定を確認してください。\"); return; }",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/login-client.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/login-client.tsx",
+      "kind": "関数・クラス定義",
+      "expression": "async function removeSavedConsent() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/login-client.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/login-client.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!supabase || busy || adminStatus !== \"authorized\" ||",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/login-client.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/login-client.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!session) throw new Error(\"Unavailable\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/login-client.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/login-client.tsx",
+      "kind": "HTTP要求",
+      "expression": "const response = await fetch(\"/jaspic/oauth/status\", {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/login-client.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/login-client.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!response.ok) throw new Error(\"Unavailable\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/login-client.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/send-start/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (error || !data.user?.email_confirmed_at ||",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/send-start/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/status/route.ts",
+      "kind": "関数・クラス定義",
+      "expression": "async function handle(request: NextRequest, remove: boolean) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/status/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/status/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (remove && request.headers.get(\"origin\") !== \"https://emergencyalert.news\") {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/status/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/status/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!token) return respond({ authorized: false }, 401);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/status/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/status/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (error || !data.user) return respond({ authorized: false }, 401);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/status/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/status/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!expectedAdminId || !isJaspicAdmin(data.user, expectedAdminId)) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/status/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/status/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!serviceKey || (!remove && !encryptionKey)) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/status/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/status/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (remove) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/status/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/status/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!encryptionKey) return respond({ authorized: true, vault: \"unavailable\" });",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/status/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/status/route.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export async function GET(request: NextRequest) { return handle(request, false); }",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/status/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/status/route.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export async function DELETE(request: NextRequest) { return handle(request, true); }",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/status/route.ts"
+    },
+    {
+      "file": "lib/jaspic/oauth-gmail-send-callback-server.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export async function saveJaspicGmailSendConsent(requestUrl: string, sealedCookie: string): Promise<boolean> {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/lib/jaspic/oauth-gmail-send-callback-server.ts"
+    },
+    {
+      "file": "lib/jaspic/oauth-gmail-send-callback-server.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (error || !admin || !isJaspicAdmin(admin, owner) || !admin.email_confirmed_at ||",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/lib/jaspic/oauth-gmail-send-callback-server.ts"
+    },
+    {
+      "file": "lib/jaspic/oauth-gmail-send-callback-server.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (user.email_verified !== true || typeof user.sub !== \"string\" ||",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/lib/jaspic/oauth-gmail-send-callback-server.ts"
+    },
+    {
+      "file": "lib/jaspic/oauth-gmail-send-callback-server.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "!/^[0-9]{8,32}$/.test(user.sub) || typeof user.email !== \"string\" ||",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/lib/jaspic/oauth-gmail-send-callback-server.ts"
+    },
+    {
+      "file": "lib/jaspic/oauth-identity-callback.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!input.adminUserId || session.ownerId !== input.adminUserId || session.purpose !== input.purpose) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/lib/jaspic/oauth-identity-callback.ts"
+    },
+    {
+      "file": "lib/jaspic/oauth-session-offline.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "export const GMAIL_SEND_COOKIE_NAME = \"__Host-jaspic-send-consent\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/lib/jaspic/oauth-session-offline.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-gmail-send-callback.test.ts",
+      "kind": "関数・クラス定義",
+      "expression": "async function fixture({ googleEmail = email, role = \"admin\" } = {}) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-gmail-send-callback.test.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-gmail-send-callback.test.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (url === \"https://oauth2.googleapis.com/token\") {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-gmail-send-callback.test.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-gmail-send-callback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(new URLSearchParams(String(options.body)).get(\"code_verifier\")).toBe(verifier);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-gmail-send-callback.test.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-gmail-send-callback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(url).toBe(\"https://openidconnect.googleapis.com/v1/userinfo\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-gmail-send-callback.test.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-gmail-send-callback.test.ts",
+      "kind": "実行する検証コマンド",
+      "expression": "return { fetch, run: () => saveJaspicGmailSendConsent(redirect, cookie) };",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-gmail-send-callback.test.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-gmail-send-callback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"Gmail OAuth callback without mail delivery\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-gmail-send-callback.test.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-gmail-send-callback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"stores the verified grant once, encrypted for its owner and Google account\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-gmail-send-callback.test.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-gmail-send-callback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(await run()).toBe(true);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-gmail-send-callback.test.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-gmail-send-callback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(await run()).toBe(false);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-gmail-send-callback.test.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-gmail-send-callback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(fetch).toHaveBeenCalledTimes(2);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-gmail-send-callback.test.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-gmail-send-callback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(db.upsert).toHaveBeenCalledOnce();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-gmail-send-callback.test.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-gmail-send-callback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(row.owner_id).toBe(owner);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-gmail-send-callback.test.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-identity-callback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"rejects an identity cookie for Gmail consent and a Gmail cookie for identity\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-identity-callback.test.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-identity-callback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "await expect(prepareJaspicIdentityCallback({ ...input, sealedCookie: identity, purpose: \"gmail-send\" })).rejects.toThrow();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-identity-callback.test.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-identity-callback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "await expect(prepareJaspicIdentityCallback({ ...input, sealedCookie: gmail })).rejects.toThrow();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-identity-callback.test.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-identity-callback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(consumeAtomically).not.toHaveBeenCalled();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-identity-callback.test.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-identity-callback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "await expect(prepareJaspicIdentityCallback({ ...input, sealedCookie: gmail, purpose: \"gmail-send\" })).resolves.toBeDefined();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-identity-callback.test.ts"
+    },
+    {
+      "file": "tests/jaspic/oauth-identity-callback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(consumeAtomically).toHaveBeenCalledOnce();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-identity-callback.test.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/oauth/callback/route.ts",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 7,
+      "patch": "diff --git a/app/jaspic/oauth/callback/route.ts b/app/jaspic/oauth/callback/route.ts\nindex 7e21b0b..8d00437 100644\n--- a/app/jaspic/oauth/callback/route.ts\n+++ b/app/jaspic/oauth/callback/route.ts\n@@ -1,9 +1,9 @@\n-import { verifyJaspicGmailSendConsent } from \"../../../../lib/jaspic/oauth-gmail-send-callback-server\";\n+import { saveJaspicGmailSendConsent } from \"../../../../lib/jaspic/oauth-gmail-send-callback-server\";\n import { NextRequest, NextResponse } from \"next/server\";\n import { createClient } from \"@supabase/supabase-js\";\n import { prepareJaspicIdentityCallback } from \"../../../../lib/jaspic/oauth-identity-callback\";\n import { createSupabaseOAuthOnceStore, type JaspicOAuthDbClient } from \"../../../../lib/jaspic/oauth-supabase-store\";\n-import { GMAIL_OAUTH_COOKIE_POLICY } from \"../../../../lib/jaspic/oauth-session-offline\";\n+import { GMAIL_OAUTH_COOKIE_POLICY, GMAIL_SEND_COOKIE_NAME } from \"../../../../lib/jaspic/oauth-session-offline\";\n import { validateJaspicIdentityTokenResponse } from \"../../../../lib/jaspic/oauth-identity-token-validation\";\n \n export const runtime = \"nodejs\";\n@@ -19,13 +19,13 @@ function result(success: boolean) {\n   return response;\n }\n \n-/** Identity-only Google callback. Tokens are not persisted or sent to clients. */\n+/** Dispatches identity and Gmail consent using their purpose-bound cookies. */\n export async function GET(request: NextRequest) {\n-  const sendCookie = request.cookies.get(\"__Host-jaspic-send-consent\")?.value;\n+  const sendCookie = request.cookies.get(GMAIL_SEND_COOKIE_NAME)?.value;\n   if (sendCookie) {\n-    const success = await verifyJaspicGmailSendConsent(request.url, sendCookie);\n-    const response = NextResponse.redirect(\"https://emergencyalert.news/jaspic/oauth/result?status=\" + (success ? \"send-consent-ok\" : \"send-consent-failed\"), { status: 303, headers: { \"Cache-Control\": \"no-store, private\" } });\n-    response.cookies.set(\"__Host-jaspic-send-consent\", \"\", { httpOnly: true, secure: true, sameSite: \"lax\", path: \"/\", maxAge: 0 });\n+    const success = await saveJaspicGmailSendConsent(request.url, sendCookie);\n+    const response = NextResponse.redirect(\"https://emergencyalert.news/jaspic/oauth/result?status=\" + (success ? \"gmail-vault-check\" : \"send-consent-failed\"), { status: 303, headers: { \"Cache-Control\": \"no-store, private\", \"Referrer-Policy\": \"no-referrer\" } });\n+    response.cookies.set(GMAIL_SEND_COOKIE_NAME, \"\", { httpOnly: true, secure: true, sameSite: \"lax\", path: \"/\", maxAge: 0 });\n     return response;\n   }\n   if (process.env.JASPIC_OAUTH_START_ENABLED !== \"true\" ||\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/callback/route.ts",
+      "source": {
+        "path": "app/jaspic/oauth/callback/route.ts",
+        "coverage": "全文",
+        "text": "import { saveJaspicGmailSendConsent } from \"../../../../lib/jaspic/oauth-gmail-send-callback-server\";\nimport { NextRequest, NextResponse } from \"next/server\";\nimport { createClient } from \"@supabase/supabase-js\";\nimport { prepareJaspicIdentityCallback } from \"../../../../lib/jaspic/oauth-identity-callback\";\nimport { createSupabaseOAuthOnceStore, type JaspicOAuthDbClient } from \"../../../../lib/jaspic/oauth-supabase-store\";\nimport { GMAIL_OAUTH_COOKIE_POLICY, GMAIL_SEND_COOKIE_NAME } from \"../../../../lib/jaspic/oauth-session-offline\";\nimport { validateJaspicIdentityTokenResponse } from \"../../../../lib/jaspic/oauth-identity-token-validation\";\n\nexport const runtime = \"nodejs\";\nexport const dynamic = \"force-dynamic\";\nfunction result(success: boolean) {\n  const response = NextResponse.redirect(\n    \"https://emergencyalert.news/jaspic/oauth/result?status=\" + (success ? \"ok\" : \"unavailable\"),\n    { status: 303, headers: { \"Cache-Control\": \"no-store, private\", \"Referrer-Policy\": \"no-referrer\" } },\n  );\n  response.cookies.set(GMAIL_OAUTH_COOKIE_POLICY.name, \"\", {\n    httpOnly: true, secure: true, sameSite: \"lax\", path: \"/\", maxAge: 0,\n  });\n  return response;\n}\n\n/** Dispatches identity and Gmail consent using their purpose-bound cookies. */\nexport async function GET(request: NextRequest) {\n  const sendCookie = request.cookies.get(GMAIL_SEND_COOKIE_NAME)?.value;\n  if (sendCookie) {\n    const success = await saveJaspicGmailSendConsent(request.url, sendCookie);\n    const response = NextResponse.redirect(\"https://emergencyalert.news/jaspic/oauth/result?status=\" + (success ? \"gmail-vault-check\" : \"send-consent-failed\"), { status: 303, headers: { \"Cache-Control\": \"no-store, private\", \"Referrer-Policy\": \"no-referrer\" } });\n    response.cookies.set(GMAIL_SEND_COOKIE_NAME, \"\", { httpOnly: true, secure: true, sameSite: \"lax\", path: \"/\", maxAge: 0 });\n    return response;\n  }\n  if (process.env.JASPIC_OAUTH_START_ENABLED !== \"true\" ||\n      process.env.JASPIC_OAUTH_CALLBACK_ENABLED !== \"true\") return result(false);\n  const cookie = request.cookies.get(GMAIL_OAUTH_COOKIE_POLICY.name)?.value;\n  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/, \"\");\n  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;\n  const clientId = process.env.JASPIC_GOOGLE_WEB_CLIENT_ID;\n  const clientSecret = process.env.JASPIC_GOOGLE_WEB_CLIENT_SECRET;\n  const cookieKey = process.env.JASPIC_OAUTH_COOKIE_KEY;\n  const owner = process.env.JASPIC_ADMIN_USER_ID;\n  const expectedEmail = process.env.JASPIC_OAUTH_ADMIN_EMAIL;\n  if (!cookie || !url || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url) ||\n      !serviceKey || !clientId || !clientSecret || !cookieKey || !owner || !expectedEmail) return result(false);\n  try {\n    const db = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });\n    const exchange = await prepareJaspicIdentityCallback({\n      callbackUrl: request.url, sealedCookie: cookie, cookieEncryptionKey: cookieKey,\n      adminUserId: owner, clientId, clientSecret,\n      stateStore: createSupabaseOAuthOnceStore(db as unknown as JaspicOAuthDbClient),\n    });\n    const response = await fetch(exchange.url, {\n      method: exchange.method, headers: exchange.headers, body: exchange.body,\n      cache: \"no-store\", signal: AbortSignal.timeout(10000),\n    });\n    if (!response.ok) return result(false);\n    const token = validateJaspicIdentityTokenResponse(await response.json());\n    const profileResponse = await fetch(\"https://openidconnect.googleapis.com/v1/userinfo\", {\n      headers: { Authorization: \"Bearer \" + token.accessToken },\n      cache: \"no-store\", signal: AbortSignal.timeout(10000),\n    });\n    if (!profileResponse.ok) return result(false);\n    const profile: unknown = await profileResponse.json();\n    if (!profile || typeof profile !== \"object\" || Array.isArray(profile)) return result(false);\n    const user = profile as Record<string, unknown>;\n    if (user.email_verified !== true || typeof user.sub !== \"string\" ||\n        !/^[0-9]{8,32}$/.test(user.sub) ||\n        typeof user.email !== \"string\" ||\n        user.email.toLowerCase() !== expectedEmail.toLowerCase()) return result(false);\n    return result(true);\n  } catch {\n    return result(false);\n  }\n}\n",
+        "sha256": "fafefd3454072a688ace75046af400cd9ca0452bcc828c709fb4545de22d3cb2"
+      }
+    },
+    {
+      "path": "app/jaspic/oauth/login-client.tsx",
+      "status": "modified",
+      "additions": 34,
+      "deletions": 4,
+      "patch": "diff --git a/app/jaspic/oauth/login-client.tsx b/app/jaspic/oauth/login-client.tsx\nindex c9fd550..2bb48b6 100644\n--- a/app/jaspic/oauth/login-client.tsx\n+++ b/app/jaspic/oauth/login-client.tsx\n@@ -21,6 +21,7 @@ export default function JaspicOauthLoginClient() {\n   const [email, setEmail] = useState(\"\");\n   const [loggedIn, setLoggedIn] = useState(false);\n   const [adminStatus, setAdminStatus] = useState<\"checking\" | \"authorized\" | \"denied\">(\"checking\");\n+  const [vault, setVault] = useState<\"empty\" | \"saved\" | \"unavailable\">(\"unavailable\");\n   const [message, setMessage] = useState(\"\");\n   const [busy, setBusy] = useState(false);\n   useEffect(() => {\n@@ -49,7 +50,11 @@ export default function JaspicOauthLoginClient() {\n           headers: { authorization: \"Bearer \" + session.access_token },\n           cache: \"no-store\",\n         });\n-        if (active) setAdminStatus(response.ok ? \"authorized\" : \"denied\");\n+        const result = await response.json();\n+        if (active) {\n+          setAdminStatus(response.ok ? \"authorized\" : \"denied\");\n+          setVault(result.vault === \"saved\" || result.vault === \"empty\" ? result.vault : \"unavailable\");\n+        }\n       } catch {\n         if (active) setAdminStatus(\"denied\");\n       }\n@@ -69,7 +74,7 @@ export default function JaspicOauthLoginClient() {\n         headers: { authorization: \"Bearer \" + session.access_token },\n         cache: \"no-store\",\n       });\n-      if (!response.ok) { setMessage(\"送信権限のテストは現在準備中です。\"); return; }\n+      if (!response.ok) { setMessage(\"Gmail認証を開始できませんでした。管理者のログイン状態と設定を確認してください。\"); return; }\n       const body: unknown = await response.json();\n       if (!body || typeof body !== \"object\" || !(\"authorizationUrl\" in body) ||\n           typeof body.authorizationUrl !== \"string\") throw new Error(\"Unavailable\");\n@@ -81,6 +86,26 @@ export default function JaspicOauthLoginClient() {\n     finally { setBusy(false); }\n   }\n \n+  async function removeSavedConsent() {\n+    if (!supabase || busy || adminStatus !== \"authorized\" ||\n+        !window.confirm(\"このサイトに保存したGmail認証情報を削除しますか？\")) return;\n+    setBusy(true);\n+    setMessage(\"\");\n+    try {\n+      const { data: { session } } = await supabase.auth.getSession();\n+      if (!session) throw new Error(\"Unavailable\");\n+      const response = await fetch(\"/jaspic/oauth/status\", {\n+        method: \"DELETE\", credentials: \"same-origin\",\n+        headers: { authorization: \"Bearer \" + session.access_token },\n+        cache: \"no-store\",\n+      });\n+      if (!response.ok) throw new Error(\"Unavailable\");\n+      setVault(\"empty\");\n+      setMessage(\"このサイトに保存したGmail認証情報を削除しました。\");\n+    } catch { setMessage(\"Gmail認証情報を削除できませんでした。\"); }\n+    finally { setBusy(false); }\n+  }\n+\n   async function emailLogin() {\n     if (!supabase || busy || !email.trim()) return;\n     setBusy(true);\n@@ -144,9 +169,14 @@ export default function JaspicOauthLoginClient() {\n             : \"管理者権限は未確認です。管理者設定の完了をお待ちください。\"}</p>\n         <button type=\"button\" onClick={()=>void beginGoogle()} disabled={busy || adminStatus !== \"authorized\"}\n           style={{fontSize:16,padding:\"12px 18px\",borderRadius:8}}>Google Gmailの認証を開始</button>\n-        <p>送信権限の確認テスト（メール送信なし・トークン保存なし）</p>\n+        {adminStatus === \"authorized\" && <p role=\"status\">{vault === \"saved\"\n+          ? \"Gmail認証情報は暗号化して保存済みです。\"\n+          : vault === \"empty\" ? \"Gmail認証情報は未保存です。\" : \"Gmail認証情報の保存状態を確認できません。\"}</p>}\n         <button type=\"button\" onClick={()=>void beginSendConsent()} disabled={busy || adminStatus !== \"authorized\"}\n-          style={{fontSize:16,padding:\"12px 18px\",borderRadius:8}}>Gmail送信権限を確認（送信しない）</button>\n+          style={{fontSize:16,padding:\"12px 18px\",borderRadius:8}}>Gmailを再認証して暗号化保存</button>\n+        {adminStatus === \"authorized\" && vault !== \"empty\" && <button type=\"button\"\n+          onClick={()=>void removeSavedConsent()} disabled={busy}\n+          style={{fontSize:16,padding:\"12px 18px\",borderRadius:8}}>保存情報を削除</button>}\n         <button type=\"button\" onClick={()=>void supabase.auth.signOut()} disabled={busy}\n           style={{fontSize:16,padding:\"12px 18px\",marginLeft:8,borderRadius:8}}>ログアウト</button>\n       </>}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/login-client.tsx",
+      "source": {
+        "path": "app/jaspic/oauth/login-client.tsx",
+        "coverage": "全文",
+        "text": "\"use client\";\n\nimport { createClient, type SupabaseClient } from \"@supabase/supabase-js\";\nimport { useEffect, useMemo, useState } from \"react\";\n\nfunction getBrowserClient(): SupabaseClient | null {\n  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/, \"\");\n  const key = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);\n  if (!url || !key || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url)) return null;\n  return createClient(url, key, {\n    auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true },\n  });\n}\n\n/**\n * iPhone Safari email OTP login. No OAuth client secret or refresh token is\n * ever exposed to JS. The auth start route must recheck the user on the server.\n */\nexport default function JaspicOauthLoginClient() {\n  const supabase = useMemo(getBrowserClient, []);\n  const [email, setEmail] = useState(\"\");\n  const [loggedIn, setLoggedIn] = useState(false);\n  const [adminStatus, setAdminStatus] = useState<\"checking\" | \"authorized\" | \"denied\">(\"checking\");\n  const [vault, setVault] = useState<\"empty\" | \"saved\" | \"unavailable\">(\"unavailable\");\n  const [message, setMessage] = useState(\"\");\n  const [busy, setBusy] = useState(false);\n  useEffect(() => {\n    if (!supabase) return;\n    let active = true;\n    void supabase.auth.getUser().then(({data}) => {\n      if (active) setLoggedIn(Boolean(data.user));\n    }).catch(() => { if (active) setLoggedIn(false); });\n    const {data:{subscription}} = supabase.auth.onAuthStateChange((_event,session) => {\n      if (active) setLoggedIn(Boolean(session?.user));\n    });\n    return () => { active = false; subscription.unsubscribe(); };\n  }, [supabase]);\n\n  useEffect(() => {\n    if (!supabase || !loggedIn) {\n      setAdminStatus(\"checking\");\n      return;\n    }\n    let active = true;\n    void (async () => {\n      try {\n        const { data: { session } } = await supabase.auth.getSession();\n        if (!session) { if (active) setAdminStatus(\"denied\"); return; }\n        const response = await fetch(\"/jaspic/oauth/status\", {\n          headers: { authorization: \"Bearer \" + session.access_token },\n          cache: \"no-store\",\n        });\n        const result = await response.json();\n        if (active) {\n          setAdminStatus(response.ok ? \"authorized\" : \"denied\");\n          setVault(result.vault === \"saved\" || result.vault === \"empty\" ? result.vault : \"unavailable\");\n        }\n      } catch {\n        if (active) setAdminStatus(\"denied\");\n      }\n    })();\n    return () => { active = false; };\n  }, [supabase, loggedIn]);\n\n  async function beginSendConsent() {\n    if (!supabase || busy || adminStatus !== \"authorized\") return;\n    setBusy(true);\n    setMessage(\"\");\n    try {\n      const { data: { session } } = await supabase.auth.getSession();\n      if (!session) { setMessage(\"先にメールでログインしてね。\"); return; }\n      const response = await fetch(\"/jaspic/oauth/send-start\", {\n        method: \"POST\", credentials: \"same-origin\",\n        headers: { authorization: \"Bearer \" + session.access_token },\n        cache: \"no-store\",\n      });\n      if (!response.ok) { setMessage(\"Gmail認証を開始できませんでした。管理者のログイン状態と設定を確認してください。\"); return; }\n      const body: unknown = await response.json();\n      if (!body || typeof body !== \"object\" || !(\"authorizationUrl\" in body) ||\n          typeof body.authorizationUrl !== \"string\") throw new Error(\"Unavailable\");\n      const target = new URL(body.authorizationUrl);\n      if (target.origin !== \"https://accounts.google.com\" || target.pathname !== \"/o/oauth2/v2/auth\")\n        throw new Error(\"Unavailable\");\n      window.location.assign(target.href);\n    } catch { setMessage(\"送信権限の確認を開始できませんでした。\"); }\n    finally { setBusy(false); }\n  }\n\n  async function removeSavedConsent() {\n    if (!supabase || busy || adminStatus !== \"authorized\" ||\n        !window.confirm(\"このサイトに保存したGmail認証情報を削除しますか？\")) return;\n    setBusy(true);\n    setMessage(\"\");\n    try {\n      const { data: { session } } = await supabase.auth.getSession();\n      if (!session) throw new Error(\"Unavailable\");\n      const response = await fetch(\"/jaspic/oauth/status\", {\n        method: \"DELETE\", credentials: \"same-origin\",\n        headers: { authorization: \"Bearer \" + session.access_token },\n        cache: \"no-store\",\n      });\n      if (!response.ok) throw new Error(\"Unavailable\");\n      setVault(\"empty\");\n      setMessage(\"このサイトに保存したGmail認証情報を削除しました。\");\n    } catch { setMessage(\"Gmail認証情報を削除できませんでした。\"); }\n    finally { setBusy(false); }\n  }\n\n  async function emailLogin() {\n    if (!supabase || busy || !email.trim()) return;\n    setBusy(true);\n    setMessage(\"\");\n    try {\n      const {error} = await supabase.auth.signInWithOtp({\n        email: email.trim(),\n        options: { emailRedirectTo: \"https://emergencyalert.news/jaspic/oauth\", shouldCreateUser: false },\n      });\n      setMessage(error ? \"ログイン用メールを送信できませんでした。設定を確認してください。\" :\n        \"ログイン用メールを送ったよ。メール内のリンクをSafariで開いてね。\");\n    } catch { setMessage(\"ログインの準備ができていません。\"); }\n    finally { setBusy(false); }\n  }\n\n  async function beginGoogle() {\n    if (!supabase || busy) return;\n    setBusy(true);\n    setMessage(\"\");\n    try {\n      const {data:{session}} = await supabase.auth.getSession();\n      if (!session) { setMessage(\"先にメールでログインしてね。\"); return; }\n      const response = await fetch(\"/jaspic/oauth/start\", {\n        method: \"POST\",\n        credentials: \"same-origin\",\n        headers: { authorization: \"Bearer \" + session.access_token },\n        cache: \"no-store\",\n      });\n      if (!response.ok) { setMessage(\"Google認証は現在停止中です。管理者設定を確認してね。\"); return; }\n      const body: unknown = await response.json();\n      if (!body || typeof body !== \"object\" || !(\"authorizationUrl\" in body) ||\n          typeof body.authorizationUrl !== \"string\") throw new Error(\"Unavailable\");\n      const target = new URL(body.authorizationUrl);\n      if (target.origin !== \"https://accounts.google.com\" || target.pathname !== \"/o/oauth2/v2/auth\") {\n        throw new Error(\"Unavailable\");\n      }\n      window.location.assign(target.href);\n    } catch { setMessage(\"認証開始に失敗しました。\"); }\n    finally { setBusy(false); }\n  }\n\n  return (\n    <section>\n      {!supabase && <p role=\"status\">ログイン設定はまだ完了していません。</p>}\n      {supabase && !loggedIn && <>\n        <label htmlFor=\"jaspic-email\">管理者のメールアドレス</label>\n        <div style={{display:\"flex\",gap:8,flexWrap:\"wrap\",margin:\"10px 0\"}}>\n          <input id=\"jaspic-email\" type=\"email\" value={email}\n            onChange={(e)=>setEmail(e.target.value)} autoComplete=\"email\"\n            style={{fontSize:16,padding:12,minWidth:230,border:\"1px solid #a5bbd0\",borderRadius:8}} />\n          <button type=\"button\" onClick={()=>void emailLogin()} disabled={busy || !email.trim()}\n            style={{fontSize:16,padding:\"12px 16px\",borderRadius:8}}>ログイン用メールを送る</button>\n        </div>\n      </>}\n      {supabase && loggedIn && <>\n        <p>Supabase Authにログイン済みです。管理者本人であることは、次の操作でサーバー側でも確認されます。</p>\n        <p role=\"status\" aria-live=\"polite\">{adminStatus === \"checking\"\n          ? \"管理者権限を確認しています。\"\n          : adminStatus === \"authorized\"\n            ? \"管理者権限を確認しました。Google認証の開始はサーバー設定によって制御されています。\"\n            : \"管理者権限は未確認です。管理者設定の完了をお待ちください。\"}</p>\n        <button type=\"button\" onClick={()=>void beginGoogle()} disabled={busy || adminStatus !== \"authorized\"}\n          style={{fontSize:16,padding:\"12px 18px\",borderRadius:8}}>Google Gmailの認証を開始</button>\n        {adminStatus === \"authorized\" && <p role=\"status\">{vault === \"saved\"\n          ? \"Gmail認証情報は暗号化して保存済みです。\"\n          : vault === \"empty\" ? \"Gmail認証情報は未保存です。\" : \"Gmail認証情報の保存状態を確認できません。\"}</p>}\n        <button type=\"button\" onClick={()=>void beginSendConsent()} disabled={busy || adminStatus !== \"authorized\"}\n          style={{fontSize:16,padding:\"12px 18px\",borderRadius:8}}>Gmailを再認証して暗号化保存</button>\n        {adminStatus === \"authorized\" && vault !== \"empty\" && <button type=\"button\"\n          onClick={()=>void removeSavedConsent()} disabled={busy}\n          style={{fontSize:16,padding:\"12px 18px\",borderRadius:8}}>保存情報を削除</button>}\n        <button type=\"button\" onClick={()=>void supabase.auth.signOut()} disabled={busy}\n          style={{fontSize:16,padding:\"12px 18px\",marginLeft:8,borderRadius:8}}>ログアウト</button>\n      </>}\n      {message && <p role=\"status\" aria-live=\"polite\">{message}</p>}\n    </section>\n  );\n}\n",
+        "sha256": "634048df519dd02127fc87c6667d415985fd12372c9637ac87ba6fc138b841b2"
+      }
+    },
+    {
+      "path": "app/jaspic/oauth/page.tsx",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "patch": "diff --git a/app/jaspic/oauth/page.tsx b/app/jaspic/oauth/page.tsx\nindex caf0cd9..8879758 100644\n--- a/app/jaspic/oauth/page.tsx\n+++ b/app/jaspic/oauth/page.tsx\n@@ -3,7 +3,7 @@ import Link from \"next/link\";\n import JaspicOauthLoginClient from \"./login-client\";\n \n export const metadata: Metadata = {\n-  title: \"JASPIC | Gmail認証の準備\",\n+  title: \"JASPIC | Gmail認証\",\n   robots: { index: false, follow: false },\n };\n \n@@ -14,7 +14,7 @@ export default function JaspicOAuthPage() {\n       <h1 style={{ fontSize: \"clamp(24px, 6vw, 32px)\", lineHeight: 1.3 }}>Gmail認証</h1>\n       <p>Gmail APIの認証は管理者本人だけが行えます。ログインにはSupabase Authを使用します。</p>\n       <p style={{ border: \"1px solid #c6d4e2\", borderRadius: 12, padding: 16, background: \"#f3f7fc\", fontSize: 15 }}>\n-        Google認証は開発中のため現在停止しています。安全確認と管理者設定が完了するまで利用できません。\n+        GoogleのGmail送信権限を再認証し、認証情報を暗号化して保存できます。\n         メールの実送信・18時の自動配信も開始されません。\n       </p>\n       <JaspicOauthLoginClient />\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/page.tsx",
+      "source": {
+        "path": "app/jaspic/oauth/page.tsx",
+        "coverage": "全文",
+        "text": "import type { Metadata } from \"next\";\nimport Link from \"next/link\";\nimport JaspicOauthLoginClient from \"./login-client\";\n\nexport const metadata: Metadata = {\n  title: \"JASPIC | Gmail認証\",\n  robots: { index: false, follow: false },\n};\n\nexport default function JaspicOAuthPage() {\n  return (\n    <main style={{ maxWidth: 700, margin: \"24px auto\", padding: \"clamp(18px, 5vw, 32px)\", borderRadius: 16, background: \"#fff\", color: \"#162436\", lineHeight: 1.65, fontSize: 16, overflowWrap: \"anywhere\" }}>\n      <p style={{ fontSize: 13, color: \"#476280\" }}>JASPIC / 運営者本人専用</p>\n      <h1 style={{ fontSize: \"clamp(24px, 6vw, 32px)\", lineHeight: 1.3 }}>Gmail認証</h1>\n      <p>Gmail APIの認証は管理者本人だけが行えます。ログインにはSupabase Authを使用します。</p>\n      <p style={{ border: \"1px solid #c6d4e2\", borderRadius: 12, padding: 16, background: \"#f3f7fc\", fontSize: 15 }}>\n        GoogleのGmail送信権限を再認証し、認証情報を暗号化して保存できます。\n        メールの実送信・18時の自動配信も開始されません。\n      </p>\n      <JaspicOauthLoginClient />\n      <p style={{fontSize:13}}>クライアントシークレットやリフレッシュトークンはこの画面に入力しないでください。</p>\n      <p style={{ fontSize: 15 }}><Link href=\"/jaspic\">JASPICの説明ページに戻る</Link></p>\n    </main>\n  );\n}\n",
+        "sha256": "d2631292ed0fdf63a64e44af5883c75fb01f4edc2dff1947223121b6ed4e562b"
+      }
+    },
+    {
+      "path": "app/jaspic/oauth/result/page.tsx",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 3,
+      "patch": "diff --git a/app/jaspic/oauth/result/page.tsx b/app/jaspic/oauth/result/page.tsx\nindex b5dbfc9..32c4330 100644\n--- a/app/jaspic/oauth/result/page.tsx\n+++ b/app/jaspic/oauth/result/page.tsx\n@@ -2,10 +2,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s\n   const params = await searchParams;\n   return <main style={{maxWidth:640,margin:\"48px auto\",padding:24}}>\n     <h1>Google本人確認</h1>\n-    <p role=\"status\">{params.status === \"send-consent-ok\"\n-      ? \"Gmail送信権限の確認テストに成功しました。認証情報は保存せず破棄しました。メールは送信していません。\"\n+    <p role=\"status\">{params.status === \"gmail-vault-check\"\n+      ? \"Google認証から戻りました。管理者画面で保存状態を確認してください。メールは送信していません。\"\n       : params.status === \"send-consent-failed\"\n-      ? \"Gmail送信権限の確認を完了できませんでした。メールは送信していません。\"\n+      ? \"Gmail認証情報を保存できませんでした。メールは送信していません。\"\n       : params.status === \"ok\"\n       ? \"本人確認が完了しました。メール送信は有効化されていません。\"\n       : \"本人確認を完了できませんでした。もう一度お試しください。\"}</p>\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/result/page.tsx",
+      "source": {
+        "path": "app/jaspic/oauth/result/page.tsx",
+        "coverage": "全文",
+        "text": "export default async function Page({ searchParams }: { searchParams: Promise<{ status?: string }> }) {\n  const params = await searchParams;\n  return <main style={{maxWidth:640,margin:\"48px auto\",padding:24}}>\n    <h1>Google本人確認</h1>\n    <p role=\"status\">{params.status === \"gmail-vault-check\"\n      ? \"Google認証から戻りました。管理者画面で保存状態を確認してください。メールは送信していません。\"\n      : params.status === \"send-consent-failed\"\n      ? \"Gmail認証情報を保存できませんでした。メールは送信していません。\"\n      : params.status === \"ok\"\n      ? \"本人確認が完了しました。メール送信は有効化されていません。\"\n      : \"本人確認を完了できませんでした。もう一度お試しください。\"}</p>\n    <a href=\"/jaspic/oauth\">管理者画面に戻る</a>\n  </main>;\n}\n",
+        "sha256": "08f132edb0367e18e440176887829f2ca73856c4503e27ae1a0d38390cb7ec6d"
+      }
+    },
+    {
+      "path": "app/jaspic/oauth/send-start/route.ts",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 5,
+      "patch": "diff --git a/app/jaspic/oauth/send-start/route.ts b/app/jaspic/oauth/send-start/route.ts\nindex b2d6ed3..922d14b 100644\n--- a/app/jaspic/oauth/send-start/route.ts\n+++ b/app/jaspic/oauth/send-start/route.ts\n@@ -2,7 +2,8 @@ import { createClient } from \"@supabase/supabase-js\";\n import { NextRequest, NextResponse } from \"next/server\";\n import { authorizeJaspicOAuthStart } from \"../../../../lib/jaspic/oauth-start-authorization\";\n import { prepareJaspicGmailSendConsentOffline } from \"../../../../lib/jaspic/oauth-gmail-send-consent-offline\";\n-import { sealGmailWebSessionOffline } from \"../../../../lib/jaspic/oauth-session-offline\";\n+import { assertGmailVaultKey } from \"../../../../lib/jaspic/oauth-gmail-token-vault-offline\";\n+import { GMAIL_OAUTH_COOKIE_POLICY, GMAIL_SEND_COOKIE_NAME, sealGmailWebSessionOffline } from \"../../../../lib/jaspic/oauth-session-offline\";\n import { registerOAuthStateOffline } from \"../../../../lib/jaspic/oauth-once-offline\";\n import { createSupabaseOAuthOnceStore, type JaspicOAuthDbClient } from \"../../../../lib/jaspic/oauth-supabase-store\";\n \n@@ -21,20 +22,26 @@ export async function POST(request: NextRequest) {\n   const service = process.env.SUPABASE_SERVICE_ROLE_KEY;\n   const clientId = process.env.JASPIC_GOOGLE_WEB_CLIENT_ID;\n   const cookieKey = process.env.JASPIC_OAUTH_COOKIE_KEY;\n+  const encryptionKey = process.env.JASPIC_GMAIL_TOKEN_VAULT_KEY;\n+  const expectedEmail = process.env.JASPIC_OAUTH_ADMIN_EMAIL;\n   if (!url || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url) ||\n-      !key || !service || !clientId || !cookieKey) return unavailable();\n+      !key || !service || !clientId || !cookieKey || !encryptionKey || !expectedEmail ||\n+      !process.env.JASPIC_GOOGLE_WEB_CLIENT_SECRET) return unavailable();\n   try {\n+    assertGmailVaultKey(encryptionKey);\n     const auth = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });\n     const { data, error } = await auth.auth.getUser(token);\n-    if (error || !data.user || !authorizeJaspicOAuthStart(data.user, process.env.JASPIC_ADMIN_USER_ID, \"true\"))\n+    if (error || !data.user?.email_confirmed_at ||\n+        data.user.email?.toLowerCase() !== expectedEmail.toLowerCase() || !authorizeJaspicOAuthStart(data.user, process.env.JASPIC_ADMIN_USER_ID, \"true\"))\n       return NextResponse.json({ authorized: false }, { status: 403, headers });\n     const consent = await prepareJaspicGmailSendConsentOffline(clientId);\n-    const sealed = await sealGmailWebSessionOffline(consent.state, consent.codeVerifier, cookieKey, Date.now(), data.user.id);\n+    const sealed = await sealGmailWebSessionOffline(consent.state, consent.codeVerifier, cookieKey, Date.now(), data.user.id, \"gmail-send\");\n     const db = createClient(url, service, { auth: { persistSession: false, autoRefreshToken: false } });\n     await registerOAuthStateOffline(createSupabaseOAuthOnceStore(db as unknown as JaspicOAuthDbClient),\n       consent.state, data.user.id, Date.now() + 300000);\n     const response = NextResponse.json({ authorizationUrl: consent.authorizationUrl }, { headers });\n-    response.cookies.set(\"__Host-jaspic-send-consent\", sealed, {\n+    response.cookies.set(GMAIL_OAUTH_COOKIE_POLICY.name, \"\", { ...GMAIL_OAUTH_COOKIE_POLICY, maxAge: 0 });\n+    response.cookies.set(GMAIL_SEND_COOKIE_NAME, sealed, {\n       path: \"/\", httpOnly: true, secure: true, sameSite: \"lax\", maxAge: 300,\n     });\n     return response;\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/send-start/route.ts",
+      "source": {
+        "path": "app/jaspic/oauth/send-start/route.ts",
+        "coverage": "全文",
+        "text": "import { createClient } from \"@supabase/supabase-js\";\nimport { NextRequest, NextResponse } from \"next/server\";\nimport { authorizeJaspicOAuthStart } from \"../../../../lib/jaspic/oauth-start-authorization\";\nimport { prepareJaspicGmailSendConsentOffline } from \"../../../../lib/jaspic/oauth-gmail-send-consent-offline\";\nimport { assertGmailVaultKey } from \"../../../../lib/jaspic/oauth-gmail-token-vault-offline\";\nimport { GMAIL_OAUTH_COOKIE_POLICY, GMAIL_SEND_COOKIE_NAME, sealGmailWebSessionOffline } from \"../../../../lib/jaspic/oauth-session-offline\";\nimport { registerOAuthStateOffline } from \"../../../../lib/jaspic/oauth-once-offline\";\nimport { createSupabaseOAuthOnceStore, type JaspicOAuthDbClient } from \"../../../../lib/jaspic/oauth-supabase-store\";\n\nexport const runtime = \"nodejs\";\nexport const dynamic = \"force-dynamic\";\nconst headers = { \"Cache-Control\": \"no-store, private\", \"Referrer-Policy\": \"no-referrer\" };\nconst unavailable = () => NextResponse.json({ status: \"unavailable\" }, { status: 503, headers });\nexport async function GET() { return unavailable(); }\nexport async function POST(request: NextRequest) {\n  if (process.env.JASPIC_GMAIL_SEND_CONSENT_ENABLED !== \"true\" ||\n      request.headers.get(\"origin\") !== \"https://emergencyalert.news\") return unavailable();\n  const token = /^Bearer ([A-Za-z0-9_.-]{16,8192})$/.exec(request.headers.get(\"authorization\") ?? \"\")?.[1];\n  if (!token) return NextResponse.json({ authorized: false }, { status: 401, headers });\n  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/, \"\");\n  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;\n  const service = process.env.SUPABASE_SERVICE_ROLE_KEY;\n  const clientId = process.env.JASPIC_GOOGLE_WEB_CLIENT_ID;\n  const cookieKey = process.env.JASPIC_OAUTH_COOKIE_KEY;\n  const encryptionKey = process.env.JASPIC_GMAIL_TOKEN_VAULT_KEY;\n  const expectedEmail = process.env.JASPIC_OAUTH_ADMIN_EMAIL;\n  if (!url || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url) ||\n      !key || !service || !clientId || !cookieKey || !encryptionKey || !expectedEmail ||\n      !process.env.JASPIC_GOOGLE_WEB_CLIENT_SECRET) return unavailable();\n  try {\n    assertGmailVaultKey(encryptionKey);\n    const auth = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });\n    const { data, error } = await auth.auth.getUser(token);\n    if (error || !data.user?.email_confirmed_at ||\n        data.user.email?.toLowerCase() !== expectedEmail.toLowerCase() || !authorizeJaspicOAuthStart(data.user, process.env.JASPIC_ADMIN_USER_ID, \"true\"))\n      return NextResponse.json({ authorized: false }, { status: 403, headers });\n    const consent = await prepareJaspicGmailSendConsentOffline(clientId);\n    const sealed = await sealGmailWebSessionOffline(consent.state, consent.codeVerifier, cookieKey, Date.now(), data.user.id, \"gmail-send\");\n    const db = createClient(url, service, { auth: { persistSession: false, autoRefreshToken: false } });\n    await registerOAuthStateOffline(createSupabaseOAuthOnceStore(db as unknown as JaspicOAuthDbClient),\n      consent.state, data.user.id, Date.now() + 300000);\n    const response = NextResponse.json({ authorizationUrl: consent.authorizationUrl }, { headers });\n    response.cookies.set(GMAIL_OAUTH_COOKIE_POLICY.name, \"\", { ...GMAIL_OAUTH_COOKIE_POLICY, maxAge: 0 });\n    response.cookies.set(GMAIL_SEND_COOKIE_NAME, sealed, {\n      path: \"/\", httpOnly: true, secure: true, sameSite: \"lax\", maxAge: 300,\n    });\n    return response;\n  } catch { return unavailable(); }\n}\n",
+        "sha256": "9002e80b70fa99d5b8ac9d10866c3c5addaf908d11b3b0e0160a22e72310b371"
+      }
+    },
+    {
+      "path": "app/jaspic/oauth/start/route.ts",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "patch": "diff --git a/app/jaspic/oauth/start/route.ts b/app/jaspic/oauth/start/route.ts\nindex af4c114..c1e7088 100644\n--- a/app/jaspic/oauth/start/route.ts\n+++ b/app/jaspic/oauth/start/route.ts\n@@ -4,6 +4,8 @@ import { authorizeJaspicOAuthStart } from \"../../../../lib/jaspic/oauth-start-au\n import { prepareJaspicAdminIdentityStart } from \"../../../../lib/jaspic/oauth-identity-start\";\n import { createSupabaseOAuthOnceStore, type JaspicOAuthDbClient } from \"../../../../lib/jaspic/oauth-supabase-store\";\n \n+import { GMAIL_SEND_COOKIE_NAME } from \"../../../../lib/jaspic/oauth-session-offline\";\n+\n export const dynamic = \"force-dynamic\";\n export const runtime = \"nodejs\";\n const headers = { \"Cache-Control\": \"no-store, private\", \"Referrer-Policy\": \"no-referrer\", \"X-Robots-Tag\": \"noindex, nofollow\" };\n@@ -49,6 +51,7 @@ export async function POST(request: NextRequest) {\n     });\n     const response = NextResponse.json({ authorizationUrl: prepared.authorizationUrl }, { headers });\n     response.cookies.set(prepared.cookiePolicy.name, prepared.sealedCookie, prepared.cookiePolicy);\n+    response.cookies.set(GMAIL_SEND_COOKIE_NAME, \"\", { ...prepared.cookiePolicy, maxAge: 0 });\n     return response;\n   } catch {\n     return disabled();\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/start/route.ts",
+      "source": {
+        "path": "app/jaspic/oauth/start/route.ts",
+        "coverage": "全文",
+        "text": "import { createClient } from \"@supabase/supabase-js\";\nimport { NextRequest, NextResponse } from \"next/server\";\nimport { authorizeJaspicOAuthStart } from \"../../../../lib/jaspic/oauth-start-authorization\";\nimport { prepareJaspicAdminIdentityStart } from \"../../../../lib/jaspic/oauth-identity-start\";\nimport { createSupabaseOAuthOnceStore, type JaspicOAuthDbClient } from \"../../../../lib/jaspic/oauth-supabase-store\";\n\nimport { GMAIL_SEND_COOKIE_NAME } from \"../../../../lib/jaspic/oauth-session-offline\";\n\nexport const dynamic = \"force-dynamic\";\nexport const runtime = \"nodejs\";\nconst headers = { \"Cache-Control\": \"no-store, private\", \"Referrer-Policy\": \"no-referrer\", \"X-Robots-Tag\": \"noindex, nofollow\" };\n\nfunction disabled() {\n  return NextResponse.json({ status: \"disabled\", message: \"Gmail OAuth is not yet enabled.\" }, { status: 503, headers });\n}\n\n// GET never starts consent, including when the flag is enabled.\nexport async function GET() { return disabled(); }\n\n/**\n * Admin-authenticated staging gate only. This route intentionally NEVER\n * returns a Google authorization URL or writes state/cookies/tokens.\n * Enabling the flag alone cannot activate Gmail consent or mail sending.\n */\nexport async function POST(request: NextRequest) {\n  if (process.env.JASPIC_OAUTH_START_ENABLED !== \"true\" || process.env.JASPIC_OAUTH_CALLBACK_ENABLED !== \"true\") return disabled();\n  if (request.headers.get(\"origin\") !== \"https://emergencyalert.news\") {\n    return NextResponse.json({ authorized: false }, { status: 403, headers });\n  }\n  const token = /^Bearer ([A-Za-z0-9_.-]{16,8192})$/.exec(request.headers.get(\"authorization\") ?? \"\")?.[1];\n  if (!token) return NextResponse.json({ authorized: false }, { status: 401, headers });\n  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replaceAll(/\\/$/g, \"\");\n  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;\n  if (!url || !key || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url)) return disabled();\n  try {\n    const client = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });\n    const { data, error } = await client.auth.getUser(token);\n    if (error || !data.user) return NextResponse.json({ authorized: false }, { status: 401, headers });\n    if (!authorizeJaspicOAuthStart(data.user, process.env.JASPIC_ADMIN_USER_ID, process.env.JASPIC_OAUTH_START_ENABLED)) {\n      return NextResponse.json({ authorized: false }, { status: 403, headers });\n    }\n    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;\n    const clientId = process.env.JASPIC_GOOGLE_WEB_CLIENT_ID;\n    const cookieKey = process.env.JASPIC_OAUTH_COOKIE_KEY;\n    if (!serviceKey || !clientId || !cookieKey) return disabled();\n    const db = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });\n    const prepared = await prepareJaspicAdminIdentityStart({\n      verifiedOwnerId: data.user.id, adminUserId: process.env.JASPIC_ADMIN_USER_ID,\n      clientId, cookieEncryptionKey: cookieKey,\n      stateStore: createSupabaseOAuthOnceStore(db as unknown as JaspicOAuthDbClient),\n    });\n    const response = NextResponse.json({ authorizationUrl: prepared.authorizationUrl }, { headers });\n    response.cookies.set(prepared.cookiePolicy.name, prepared.sealedCookie, prepared.cookiePolicy);\n    response.cookies.set(GMAIL_SEND_COOKIE_NAME, \"\", { ...prepared.cookiePolicy, maxAge: 0 });\n    return response;\n  } catch {\n    return disabled();\n  }\n}\n",
+        "sha256": "d9f2374125763e18a7c67a55b09ecdedf11694df9ed9a29ceea8cde74a279d6b"
+      }
+    },
+    {
+      "path": "app/jaspic/oauth/status/route.ts",
+      "status": "modified",
+      "additions": 45,
+      "deletions": 11,
+      "patch": "diff --git a/app/jaspic/oauth/status/route.ts b/app/jaspic/oauth/status/route.ts\nindex 8d2a674..ef229a9 100644\n--- a/app/jaspic/oauth/status/route.ts\n+++ b/app/jaspic/oauth/status/route.ts\n@@ -1,22 +1,56 @@\n import { createClient } from \"@supabase/supabase-js\";\n import { NextRequest, NextResponse } from \"next/server\";\n import { isJaspicAdmin } from \"../../../../lib/jaspic/admin-authorization\";\n+import {\n+  deleteEncryptedGmailRefreshToken,\n+  readEncryptedGmailRefreshToken,\n+} from \"../../../../lib/jaspic/oauth-gmail-token-store-server\";\n \n export const dynamic = \"force-dynamic\";\n+export const runtime = \"nodejs\";\n+const headers = { \"Cache-Control\": \"no-store, private\" };\n+const respond = (body: object, status = 200) => NextResponse.json(body, { status, headers });\n \n-/** Read-only status. Does not enable Google OAuth or send email. */\n-export async function GET(request: NextRequest) {\n-  const headers = { \"Cache-Control\": \"no-store, private\" };\n-  const token = request.headers.get(\"authorization\")?.match(/^Bearer ([^\\s]+)$/)?.[1];\n-  if (!token) return NextResponse.json({ authorized: false }, { status: 401, headers });\n+async function handle(request: NextRequest, remove: boolean) {\n+  if (remove && request.headers.get(\"origin\") !== \"https://emergencyalert.news\") {\n+    return respond({ authorized: false }, 403);\n+  }\n+  const token = /^Bearer ([A-Za-z0-9_.-]{16,8192})$/.exec(request.headers.get(\"authorization\") ?? \"\")?.[1];\n+  if (!token) return respond({ authorized: false }, 401);\n   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/, \"\");\n   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;\n   if (!url || !key || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url)) {\n-    return NextResponse.json({ authorized: false }, { status: 503, headers });\n+    return respond({ authorized: false }, 503);\n+  }\n+  const authOptions = { auth: { persistSession: false, autoRefreshToken: false } };\n+  try {\n+    const { data, error } = await createClient(url, key, authOptions).auth.getUser(token);\n+    if (error || !data.user) return respond({ authorized: false }, 401);\n+    const expectedAdminId = process.env.JASPIC_ADMIN_USER_ID;\n+    if (!expectedAdminId || !isJaspicAdmin(data.user, expectedAdminId)) {\n+      return respond({ authorized: false }, 403);\n+    }\n+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;\n+    const encryptionKey = process.env.JASPIC_GMAIL_TOKEN_VAULT_KEY;\n+    if (!serviceKey || (!remove && !encryptionKey)) {\n+      return respond({ authorized: true, vault: \"unavailable\" }, remove ? 503 : 200);\n+    }\n+    const access = { db: createClient(url, serviceKey, authOptions), ownerId: data.user.id, expectedAdminId };\n+    try {\n+      if (remove) {\n+        await deleteEncryptedGmailRefreshToken(access);\n+        return respond({ authorized: true, vault: \"empty\" });\n+      }\n+      if (!encryptionKey) return respond({ authorized: true, vault: \"unavailable\" });\n+      const saved = (await readEncryptedGmailRefreshToken({ ...access, encryptionKey })) !== null;\n+      return respond({ authorized: true, vault: saved ? \"saved\" : \"empty\" });\n+    } catch {\n+      return respond({ authorized: true, vault: \"unavailable\" }, remove ? 503 : 200);\n+    }\n+  } catch {\n+    return respond({ authorized: false }, 503);\n   }\n-  const client = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });\n-  const { data, error } = await client.auth.getUser(token);\n-  if (error || !data.user) return NextResponse.json({ authorized: false }, { status: 401, headers });\n-  const authorized = isJaspicAdmin(data.user, process.env.JASPIC_ADMIN_USER_ID);\n-  return NextResponse.json({ authorized }, { status: authorized ? 200 : 403, headers });\n }\n+\n+export async function GET(request: NextRequest) { return handle(request, false); }\n+export async function DELETE(request: NextRequest) { return handle(request, true); }\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/app/jaspic/oauth/status/route.ts",
+      "source": {
+        "path": "app/jaspic/oauth/status/route.ts",
+        "coverage": "全文",
+        "text": "import { createClient } from \"@supabase/supabase-js\";\nimport { NextRequest, NextResponse } from \"next/server\";\nimport { isJaspicAdmin } from \"../../../../lib/jaspic/admin-authorization\";\nimport {\n  deleteEncryptedGmailRefreshToken,\n  readEncryptedGmailRefreshToken,\n} from \"../../../../lib/jaspic/oauth-gmail-token-store-server\";\n\nexport const dynamic = \"force-dynamic\";\nexport const runtime = \"nodejs\";\nconst headers = { \"Cache-Control\": \"no-store, private\" };\nconst respond = (body: object, status = 200) => NextResponse.json(body, { status, headers });\n\nasync function handle(request: NextRequest, remove: boolean) {\n  if (remove && request.headers.get(\"origin\") !== \"https://emergencyalert.news\") {\n    return respond({ authorized: false }, 403);\n  }\n  const token = /^Bearer ([A-Za-z0-9_.-]{16,8192})$/.exec(request.headers.get(\"authorization\") ?? \"\")?.[1];\n  if (!token) return respond({ authorized: false }, 401);\n  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/, \"\");\n  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;\n  if (!url || !key || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url)) {\n    return respond({ authorized: false }, 503);\n  }\n  const authOptions = { auth: { persistSession: false, autoRefreshToken: false } };\n  try {\n    const { data, error } = await createClient(url, key, authOptions).auth.getUser(token);\n    if (error || !data.user) return respond({ authorized: false }, 401);\n    const expectedAdminId = process.env.JASPIC_ADMIN_USER_ID;\n    if (!expectedAdminId || !isJaspicAdmin(data.user, expectedAdminId)) {\n      return respond({ authorized: false }, 403);\n    }\n    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;\n    const encryptionKey = process.env.JASPIC_GMAIL_TOKEN_VAULT_KEY;\n    if (!serviceKey || (!remove && !encryptionKey)) {\n      return respond({ authorized: true, vault: \"unavailable\" }, remove ? 503 : 200);\n    }\n    const access = { db: createClient(url, serviceKey, authOptions), ownerId: data.user.id, expectedAdminId };\n    try {\n      if (remove) {\n        await deleteEncryptedGmailRefreshToken(access);\n        return respond({ authorized: true, vault: \"empty\" });\n      }\n      if (!encryptionKey) return respond({ authorized: true, vault: \"unavailable\" });\n      const saved = (await readEncryptedGmailRefreshToken({ ...access, encryptionKey })) !== null;\n      return respond({ authorized: true, vault: saved ? \"saved\" : \"empty\" });\n    } catch {\n      return respond({ authorized: true, vault: \"unavailable\" }, remove ? 503 : 200);\n    }\n  } catch {\n    return respond({ authorized: false }, 503);\n  }\n}\n\nexport async function GET(request: NextRequest) { return handle(request, false); }\nexport async function DELETE(request: NextRequest) { return handle(request, true); }\n",
+        "sha256": "6b2ca58db541586adcfce83850f4fc07df34f81e21effaa6a1c76a34052e53a7"
+      }
+    },
+    {
+      "path": "lib/jaspic/oauth-gmail-send-callback-server.ts",
+      "status": "modified",
+      "additions": 24,
+      "deletions": 13,
+      "patch": "diff --git a/lib/jaspic/oauth-gmail-send-callback-server.ts b/lib/jaspic/oauth-gmail-send-callback-server.ts\nindex a37cc6d..7fa14dc 100644\n--- a/lib/jaspic/oauth-gmail-send-callback-server.ts\n+++ b/lib/jaspic/oauth-gmail-send-callback-server.ts\n@@ -1,48 +1,59 @@\n-/**\n- * Gmail consent dry-run callback. No token persistence or mail delivery.\n- * Caller must provide the owner-bound HttpOnly session cookie.\n- */\n+import \"server-only\";\n import { createClient } from \"@supabase/supabase-js\";\n import { prepareJaspicIdentityCallback } from \"./oauth-identity-callback\";\n import { createSupabaseOAuthOnceStore, type JaspicOAuthDbClient } from \"./oauth-supabase-store\";\n import { validateJaspicGmailSendTokenOffline } from \"./oauth-gmail-send-token-validation-offline\";\n \n-export async function verifyJaspicGmailSendConsent(requestUrl: string, sealedCookie: string): Promise<boolean> {\n+import { isJaspicAdmin } from \"./admin-authorization\";\n+import { saveEncryptedGmailRefreshToken } from \"./oauth-gmail-token-store-server\";\n+import { assertGmailVaultKey } from \"./oauth-gmail-token-vault-offline\";\n+\n+export async function saveJaspicGmailSendConsent(requestUrl: string, sealedCookie: string): Promise<boolean> {\n   if (process.env.JASPIC_GMAIL_SEND_CONSENT_ENABLED !== \"true\") return false;\n   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/, \"\");\n   const service = process.env.SUPABASE_SERVICE_ROLE_KEY;\n   const clientId = process.env.JASPIC_GOOGLE_WEB_CLIENT_ID;\n   const clientSecret = process.env.JASPIC_GOOGLE_WEB_CLIENT_SECRET;\n   const cookieKey = process.env.JASPIC_OAUTH_COOKIE_KEY;\n+  const encryptionKey = process.env.JASPIC_GMAIL_TOKEN_VAULT_KEY;\n   const owner = process.env.JASPIC_ADMIN_USER_ID;\n   const expectedEmail = process.env.JASPIC_OAUTH_ADMIN_EMAIL;\n   if (!url || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url) ||\n-      !service || !clientId || !clientSecret || !cookieKey || !owner || !expectedEmail) return false;\n+      !service || !clientId || !clientSecret || !cookieKey || !owner || !expectedEmail || !encryptionKey) return false;\n   try {\n+    assertGmailVaultKey(encryptionKey);\n     const db = createClient(url, service, { auth: { persistSession: false, autoRefreshToken: false } });\n     const exchange = await prepareJaspicIdentityCallback({\n       callbackUrl: requestUrl, sealedCookie, cookieEncryptionKey: cookieKey,\n-      adminUserId: owner, clientId, clientSecret,\n+      adminUserId: owner, clientId, clientSecret, purpose: \"gmail-send\",\n       stateStore: createSupabaseOAuthOnceStore(db as unknown as JaspicOAuthDbClient),\n     });\n+    const { data, error } = await db.auth.admin.getUserById(owner);\n+    const admin = data?.user;\n+    if (error || !admin || !isJaspicAdmin(admin, owner) || !admin.email_confirmed_at ||\n+        admin.email?.toLowerCase() !== expectedEmail.toLowerCase()) return false;\n     const response = await fetch(exchange.url, {\n       method: exchange.method, headers: exchange.headers, body: exchange.body,\n-      cache: \"no-store\", signal: AbortSignal.timeout(10000),\n+      cache: \"no-store\", redirect: \"error\", signal: AbortSignal.timeout(10000),\n     });\n     if (!response.ok) return false;\n     const raw: unknown = await response.json();\n     const token = validateJaspicGmailSendTokenOffline(raw);\n     const profileResponse = await fetch(\"https://openidconnect.googleapis.com/v1/userinfo\", {\n       headers: { Authorization: \"Bearer \" + token.accessToken },\n-      cache: \"no-store\", signal: AbortSignal.timeout(10000),\n+      cache: \"no-store\", redirect: \"error\", signal: AbortSignal.timeout(10000),\n     });\n     if (!profileResponse.ok) return false;\n     const profile: unknown = await profileResponse.json();\n     if (!profile || typeof profile !== \"object\" || Array.isArray(profile)) return false;\n     const user = profile as Record<string, unknown>;\n-    return user.email_verified === true && typeof user.sub === \"string\" &&\n-      /^[0-9]{8,32}$/.test(user.sub) && typeof user.email === \"string\" &&\n-      user.email.toLowerCase() === expectedEmail.toLowerCase();\n-    // Both access and refresh tokens are discarded here; no durable authorization.\n+    if (user.email_verified !== true || typeof user.sub !== \"string\" ||\n+        !/^[0-9]{8,32}$/.test(user.sub) || typeof user.email !== \"string\" ||\n+        user.email.toLowerCase() !== expectedEmail.toLowerCase()) return false;\n+    await saveEncryptedGmailRefreshToken({\n+      db, ownerId: admin.id, expectedAdminId: owner, googleSubject: user.sub,\n+      refreshToken: token.refreshToken, encryptionKey,\n+    });\n+    return true;\n   } catch { return false; }\n }\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/lib/jaspic/oauth-gmail-send-callback-server.ts",
+      "source": {
+        "path": "lib/jaspic/oauth-gmail-send-callback-server.ts",
+        "coverage": "全文",
+        "text": "import \"server-only\";\nimport { createClient } from \"@supabase/supabase-js\";\nimport { prepareJaspicIdentityCallback } from \"./oauth-identity-callback\";\nimport { createSupabaseOAuthOnceStore, type JaspicOAuthDbClient } from \"./oauth-supabase-store\";\nimport { validateJaspicGmailSendTokenOffline } from \"./oauth-gmail-send-token-validation-offline\";\n\nimport { isJaspicAdmin } from \"./admin-authorization\";\nimport { saveEncryptedGmailRefreshToken } from \"./oauth-gmail-token-store-server\";\nimport { assertGmailVaultKey } from \"./oauth-gmail-token-vault-offline\";\n\nexport async function saveJaspicGmailSendConsent(requestUrl: string, sealedCookie: string): Promise<boolean> {\n  if (process.env.JASPIC_GMAIL_SEND_CONSENT_ENABLED !== \"true\") return false;\n  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/, \"\");\n  const service = process.env.SUPABASE_SERVICE_ROLE_KEY;\n  const clientId = process.env.JASPIC_GOOGLE_WEB_CLIENT_ID;\n  const clientSecret = process.env.JASPIC_GOOGLE_WEB_CLIENT_SECRET;\n  const cookieKey = process.env.JASPIC_OAUTH_COOKIE_KEY;\n  const encryptionKey = process.env.JASPIC_GMAIL_TOKEN_VAULT_KEY;\n  const owner = process.env.JASPIC_ADMIN_USER_ID;\n  const expectedEmail = process.env.JASPIC_OAUTH_ADMIN_EMAIL;\n  if (!url || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url) ||\n      !service || !clientId || !clientSecret || !cookieKey || !owner || !expectedEmail || !encryptionKey) return false;\n  try {\n    assertGmailVaultKey(encryptionKey);\n    const db = createClient(url, service, { auth: { persistSession: false, autoRefreshToken: false } });\n    const exchange = await prepareJaspicIdentityCallback({\n      callbackUrl: requestUrl, sealedCookie, cookieEncryptionKey: cookieKey,\n      adminUserId: owner, clientId, clientSecret, purpose: \"gmail-send\",\n      stateStore: createSupabaseOAuthOnceStore(db as unknown as JaspicOAuthDbClient),\n    });\n    const { data, error } = await db.auth.admin.getUserById(owner);\n    const admin = data?.user;\n    if (error || !admin || !isJaspicAdmin(admin, owner) || !admin.email_confirmed_at ||\n        admin.email?.toLowerCase() !== expectedEmail.toLowerCase()) return false;\n    const response = await fetch(exchange.url, {\n      method: exchange.method, headers: exchange.headers, body: exchange.body,\n      cache: \"no-store\", redirect: \"error\", signal: AbortSignal.timeout(10000),\n    });\n    if (!response.ok) return false;\n    const raw: unknown = await response.json();\n    const token = validateJaspicGmailSendTokenOffline(raw);\n    const profileResponse = await fetch(\"https://openidconnect.googleapis.com/v1/userinfo\", {\n      headers: { Authorization: \"Bearer \" + token.accessToken },\n      cache: \"no-store\", redirect: \"error\", signal: AbortSignal.timeout(10000),\n    });\n    if (!profileResponse.ok) return false;\n    const profile: unknown = await profileResponse.json();\n    if (!profile || typeof profile !== \"object\" || Array.isArray(profile)) return false;\n    const user = profile as Record<string, unknown>;\n    if (user.email_verified !== true || typeof user.sub !== \"string\" ||\n        !/^[0-9]{8,32}$/.test(user.sub) || typeof user.email !== \"string\" ||\n        user.email.toLowerCase() !== expectedEmail.toLowerCase()) return false;\n    await saveEncryptedGmailRefreshToken({\n      db, ownerId: admin.id, expectedAdminId: owner, googleSubject: user.sub,\n      refreshToken: token.refreshToken, encryptionKey,\n    });\n    return true;\n  } catch { return false; }\n}\n",
+        "sha256": "1a43f690172abed94e8094d2d497077e8545dfb6aa3678ca8b98162c39094d8a"
+      }
+    },
+    {
+      "path": "lib/jaspic/oauth-gmail-send-token-validation-offline.ts",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 5,
+      "patch": "",
+      "patch_coverage": "差分なし／対象外",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/lib/jaspic/oauth-gmail-send-token-validation-offline.ts",
+      "source": {
+        "path": "lib/jaspic/oauth-gmail-send-token-validation-offline.ts",
+        "coverage": "対象外（秘密情報候補／非テキスト）"
+      }
+    },
+    {
+      "path": "lib/jaspic/oauth-gmail-token-store-server.ts",
+      "status": "modified",
+      "additions": 55,
+      "deletions": 0,
+      "patch": "",
+      "patch_coverage": "差分なし／対象外",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/lib/jaspic/oauth-gmail-token-store-server.ts",
+      "source": {
+        "path": "lib/jaspic/oauth-gmail-token-store-server.ts",
+        "coverage": "対象外（秘密情報候補／非テキスト）"
+      }
+    },
+    {
+      "path": "lib/jaspic/oauth-gmail-token-vault-offline.ts",
+      "status": "modified",
+      "additions": 47,
+      "deletions": 0,
+      "patch": "",
+      "patch_coverage": "差分なし／対象外",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/lib/jaspic/oauth-gmail-token-vault-offline.ts",
+      "source": {
+        "path": "lib/jaspic/oauth-gmail-token-vault-offline.ts",
+        "coverage": "対象外（秘密情報候補／非テキスト）"
+      }
+    },
+    {
+      "path": "lib/jaspic/oauth-identity-callback.ts",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "patch": "diff --git a/lib/jaspic/oauth-identity-callback.ts b/lib/jaspic/oauth-identity-callback.ts\nindex 94b1098..92d3d65 100644\n--- a/lib/jaspic/oauth-identity-callback.ts\n+++ b/lib/jaspic/oauth-identity-callback.ts\n@@ -17,6 +17,7 @@ export async function prepareJaspicIdentityCallback(input: {\n   clientId: string;\n   clientSecret: string;\n   now?: number;\n+  purpose?: \"gmail-send\";\n }) {\n   const url = new URL(input.callbackUrl);\n   if (url.searchParams.getAll(\"state\").length !== 1) throw new Error(\"Invalid callback state\");\n@@ -24,7 +25,7 @@ export async function prepareJaspicIdentityCallback(input: {\n   const session = await openGmailWebSessionOffline(\n     input.sealedCookie, state, input.cookieEncryptionKey, input.now,\n   );\n-  if (!input.adminUserId || session.ownerId !== input.adminUserId) {\n+  if (!input.adminUserId || session.ownerId !== input.adminUserId || session.purpose !== input.purpose) {\n     throw new Error(\"Unauthorized callback owner\");\n   }\n   const { code } = validateJaspicOAuthCallback(input.callbackUrl, state);\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/lib/jaspic/oauth-identity-callback.ts",
+      "source": {
+        "path": "lib/jaspic/oauth-identity-callback.ts",
+        "coverage": "全文",
+        "text": "import { openGmailWebSessionOffline } from \"./oauth-session-offline\";\nimport { consumeOAuthStateOffline, type OAuthOnceStore } from \"./oauth-once-offline\";\nimport { validateJaspicOAuthCallback } from \"./oauth-callback-validation\";\nimport { prepareJaspicIdentityCodeExchange } from \"./oauth-identity-exchange\";\n\n/**\n * Server-only callback preparation. Validates a sealed owner-bound session,\n * consumes durable state atomically, then prepares a code exchange.\n * Does not execute HTTP, store tokens, grant Gmail scopes, or send mail.\n */\nexport async function prepareJaspicIdentityCallback(input: {\n  callbackUrl: string;\n  sealedCookie: string;\n  cookieEncryptionKey: string;\n  adminUserId: string | undefined;\n  stateStore: OAuthOnceStore;\n  clientId: string;\n  clientSecret: string;\n  now?: number;\n  purpose?: \"gmail-send\";\n}) {\n  const url = new URL(input.callbackUrl);\n  if (url.searchParams.getAll(\"state\").length !== 1) throw new Error(\"Invalid callback state\");\n  const state = url.searchParams.get(\"state\") ?? \"\";\n  const session = await openGmailWebSessionOffline(\n    input.sealedCookie, state, input.cookieEncryptionKey, input.now,\n  );\n  if (!input.adminUserId || session.ownerId !== input.adminUserId || session.purpose !== input.purpose) {\n    throw new Error(\"Unauthorized callback owner\");\n  }\n  const { code } = validateJaspicOAuthCallback(input.callbackUrl, state);\n  if (!await consumeOAuthStateOffline(input.stateStore, state, session.ownerId, input.now)) {\n    throw new Error(\"OAuth state already used or expired\");\n  }\n  return prepareJaspicIdentityCodeExchange({\n    clientId: input.clientId, clientSecret: input.clientSecret,\n    code, codeVerifier: session.codeVerifier,\n  });\n}\n",
+        "sha256": "99586b3c9454d772123af3eb9363951d2565d3c273693699ad4926bcd7930aa0"
+      }
+    },
+    {
+      "path": "lib/jaspic/oauth-session-offline.ts",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 1,
+      "patch": "diff --git a/lib/jaspic/oauth-session-offline.ts b/lib/jaspic/oauth-session-offline.ts\nindex d030c68..1b70c36 100644\n--- a/lib/jaspic/oauth-session-offline.ts\n+++ b/lib/jaspic/oauth-session-offline.ts\n@@ -16,6 +16,7 @@ export type GmailWebSession = {\n   issuedAt: number;\n   expiresAt: number;\n   ownerId?: string;\n+  purpose?: \"gmail-send\";\n };\n \n function decodeBase64Url(value: string): Uint8Array {\n@@ -47,6 +48,7 @@ function validSession(value: unknown, now: number): value is GmailWebSession {\n     typeof s.expiresAt === \"number\" && Number.isSafeInteger(s.expiresAt) &&\n     s.issuedAt <= now && s.expiresAt > now &&\n     s.expiresAt - s.issuedAt <= SESSION_TTL_MS &&\n+    (s.purpose === undefined || s.purpose === \"gmail-send\") &&\n     (s.ownerId === undefined || (typeof s.ownerId === \"string\" && /^[A-Za-z0-9_-]{8,128}$/.test(s.ownerId)));\n }\n \n@@ -57,8 +59,9 @@ export async function sealGmailWebSessionOffline(\n   key: string,\n   now = Date.now(),\n   ownerId?: string,\n+  purpose?: GmailWebSession[\"purpose\"],\n ): Promise<string> {\n-  const session: GmailWebSession = { state, codeVerifier, issuedAt: now, expiresAt: now + SESSION_TTL_MS, ...(ownerId ? {ownerId} : {}) };\n+  const session: GmailWebSession = { state, codeVerifier, issuedAt: now, expiresAt: now + SESSION_TTL_MS, ...(ownerId ? {ownerId} : {}), ...(purpose ? { purpose } : {}) };\n   if (!validSession(session, now)) throw new Error(\"Invalid OAuth session\");\n   const iv = crypto.getRandomValues(new Uint8Array(12));\n   const encoded = encoder.encode(JSON.stringify(session));\n@@ -96,6 +99,8 @@ export async function openGmailWebSessionOffline(\n   }\n }\n \n+export const GMAIL_SEND_COOKIE_NAME = \"__Host-jaspic-send-consent\";\n+\n /** Config for server to set alongside OAuth start. Never set from client JS. */\n export const GMAIL_OAUTH_COOKIE_POLICY = {\n   name: \"__Host-jaspic-oauth\",\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/lib/jaspic/oauth-session-offline.ts",
+      "source": {
+        "path": "lib/jaspic/oauth-session-offline.ts",
+        "coverage": "全文",
+        "text": "/**\n * Server-side, offline OAuth session-cookie sealing for browser-based Gmail\n * consent. No Google request, secret persistence, or email delivery.\n *\n * MUST NOT be used as a complete OAuth callback: durable one-time replay\n * prevention and owner authentication are required before production.\n */\nconst SESSION_TTL_MS = 5 * 60 * 1000;\nconst CONTEXT = \"jaspic-gmail-oauth-v1\";\nconst encoder = new TextEncoder();\nconst decoder = new TextDecoder();\n\nexport type GmailWebSession = {\n  state: string;\n  codeVerifier: string;\n  issuedAt: number;\n  expiresAt: number;\n  ownerId?: string;\n  purpose?: \"gmail-send\";\n};\n\nfunction decodeBase64Url(value: string): Uint8Array {\n  if (!/^[A-Za-z0-9_-]+$/.test(value)) throw new Error(\"Invalid session cookie\");\n  const base = value.replace(/-/g, \"+\").replace(/_/g, \"/\");\n  const decoded = atob(base + \"=\".repeat((4 - base.length % 4) % 4));\n  return Uint8Array.from(decoded, (c) => c.charCodeAt(0));\n}\n\nfunction encodeBase64Url(bytes: Uint8Array): string {\n  let s = \"\";\n  for (const byte of bytes) s += String.fromCharCode(byte);\n  return btoa(s).replace(/\\+/g, \"-\").replace(/\\//g, \"_\").replace(/=+$/g, \"\");\n}\n\nasync function sessionKey(secret: string): Promise<CryptoKey> {\n  // The deployment must provide 32 bytes of key material, encoded as base64url.\n  const bytes = decodeBase64Url(secret);\n  if (bytes.length !== 32) throw new Error(\"Invalid OAuth session key\");\n  return crypto.subtle.importKey(\"raw\", bytes as BufferSource, { name: \"AES-GCM\" }, false, [\"encrypt\", \"decrypt\"]);\n}\n\nfunction validSession(value: unknown, now: number): value is GmailWebSession {\n  if (!value || typeof value !== \"object\" || Array.isArray(value)) return false;\n  const s = value as Record<string, unknown>;\n  return typeof s.state === \"string\" && /^[A-Za-z0-9_-]{40,100}$/.test(s.state) &&\n    typeof s.codeVerifier === \"string\" && /^[A-Za-z0-9_-]{43,128}$/.test(s.codeVerifier) &&\n    typeof s.issuedAt === \"number\" && Number.isSafeInteger(s.issuedAt) &&\n    typeof s.expiresAt === \"number\" && Number.isSafeInteger(s.expiresAt) &&\n    s.issuedAt <= now && s.expiresAt > now &&\n    s.expiresAt - s.issuedAt <= SESSION_TTL_MS &&\n    (s.purpose === undefined || s.purpose === \"gmail-send\") &&\n    (s.ownerId === undefined || (typeof s.ownerId === \"string\" && /^[A-Za-z0-9_-]{8,128}$/.test(s.ownerId)));\n}\n\n/** Creates encrypted, short-lived cookie payload; caller sets strict cookie attributes. */\nexport async function sealGmailWebSessionOffline(\n  state: string,\n  codeVerifier: string,\n  key: string,\n  now = Date.now(),\n  ownerId?: string,\n  purpose?: GmailWebSession[\"purpose\"],\n): Promise<string> {\n  const session: GmailWebSession = { state, codeVerifier, issuedAt: now, expiresAt: now + SESSION_TTL_MS, ...(ownerId ? {ownerId} : {}), ...(purpose ? { purpose } : {}) };\n  if (!validSession(session, now)) throw new Error(\"Invalid OAuth session\");\n  const iv = crypto.getRandomValues(new Uint8Array(12));\n  const encoded = encoder.encode(JSON.stringify(session));\n  const ciphertext = await crypto.subtle.encrypt(\n    { name: \"AES-GCM\", iv: iv as BufferSource, additionalData: encoder.encode(CONTEXT) as BufferSource },\n    await sessionKey(key),\n    encoded,\n  );\n  return \"v1.\" + encodeBase64Url(iv) + \".\" + encodeBase64Url(new Uint8Array(ciphertext));\n}\n\n/** Rejects malformed, tampered, expired and mismatched OAuth state cookies. */\nexport async function openGmailWebSessionOffline(\n  cookie: string,\n  expectedState: string,\n  key: string,\n  now = Date.now(),\n): Promise<GmailWebSession> {\n  try {\n    const parts = cookie.split(\".\");\n    if (parts.length !== 3 || parts[0] !== \"v1\" || cookie.length > 4096) throw new Error();\n    const iv = decodeBase64Url(parts[1]);\n    const cipher = decodeBase64Url(parts[2]);\n    if (iv.length !== 12 || cipher.length < 16) throw new Error();\n    const result = await crypto.subtle.decrypt(\n      { name: \"AES-GCM\", iv: iv as BufferSource, additionalData: encoder.encode(CONTEXT) as BufferSource },\n      await sessionKey(key),\n      cipher as BufferSource,\n    );\n    const session: unknown = JSON.parse(decoder.decode(result));\n    if (!validSession(session, now) || session.state !== expectedState) throw new Error();\n    return session;\n  } catch {\n    throw new Error(\"Invalid OAuth session\");\n  }\n}\n\nexport const GMAIL_SEND_COOKIE_NAME = \"__Host-jaspic-send-consent\";\n\n/** Config for server to set alongside OAuth start. Never set from client JS. */\nexport const GMAIL_OAUTH_COOKIE_POLICY = {\n  name: \"__Host-jaspic-oauth\",\n  path: \"/\",\n  httpOnly: true,\n  secure: true,\n  sameSite: \"lax\",\n  maxAge: 300,\n} as const;\n",
+        "sha256": "b444b16d931191422f140b2cc779f2a3fbca9e08cc51e78e3ebd45fc9c93e9a9"
+      }
+    },
+    {
+      "path": "package.json",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "patch": "diff --git a/package.json b/package.json\nindex 727adba..ee877bb 100644\n--- a/package.json\n+++ b/package.json\n@@ -17,7 +17,8 @@\n     \"pngjs\": \"^7.0.0\",\n     \"@supabase/supabase-js\": \"^2.57.4\",\n     \"@geolonia/normalize-japanese-addresses\": \"^3.1.0\",\n-    \"leaflet\": \"^1.9.4\"\n+    \"leaflet\": \"^1.9.4\",\n+    \"server-only\": \"0.0.1\"\n   },\n   \"devDependencies\": {\n     \"@types/node\": \"^22.0.0\",\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/package.json",
+      "source": {
+        "path": "package.json",
+        "coverage": "全文",
+        "text": "{\n  \"name\": \"emergencyalert\",\n  \"version\": \"0.1.0\",\n  \"private\": true,\n  \"scripts\": {\n    \"dev\": \"next dev\",\n    \"build\": \"next build\",\n    \"start\": \"next start\",\n    \"test\": \"vitest run\",\n    \"test:watch\": \"vitest\",\n    \"palette:watch\": \"node scripts/watch-jma-palette.mjs\"\n  },\n  \"dependencies\": {\n    \"next\": \"^15.5.0\",\n    \"react\": \"^19.1.0\",\n    \"react-dom\": \"^19.1.0\",\n    \"pngjs\": \"^7.0.0\",\n    \"@supabase/supabase-js\": \"^2.57.4\",\n    \"@geolonia/normalize-japanese-addresses\": \"^3.1.0\",\n    \"leaflet\": \"^1.9.4\",\n    \"server-only\": \"0.0.1\"\n  },\n  \"devDependencies\": {\n    \"@types/node\": \"^22.0.0\",\n    \"@types/pngjs\": \"^6.0.5\",\n    \"@types/react\": \"^19.0.0\",\n    \"@types/react-dom\": \"^19.0.0\",\n    \"typescript\": \"^5.8.0\",\n    \"vitest\": \"^3.2.0\",\n    \"@types/leaflet\": \"^1.9.20\"\n  }\n}\n",
+        "sha256": "247f9c51bd4c68d6e9db9f54bf7e3f4a528c72d4960540d7a8a4d126a250965c"
+      }
+    },
+    {
+      "path": "tests/jaspic-gmail-token-vault.test.ts",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 0,
+      "patch": "",
+      "patch_coverage": "差分なし／対象外",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic-gmail-token-vault.test.ts",
+      "source": {
+        "path": "tests/jaspic-gmail-token-vault.test.ts",
+        "coverage": "対象外（秘密情報候補／非テキスト）"
+      }
+    },
+    {
+      "path": "tests/jaspic/oauth-gmail-send-callback.test.ts",
+      "status": "modified",
+      "additions": 92,
+      "deletions": 0,
+      "patch": "diff --git a/tests/jaspic/oauth-gmail-send-callback.test.ts b/tests/jaspic/oauth-gmail-send-callback.test.ts\nnew file mode 100644\nindex 0000000..601577d\n--- /dev/null\n+++ b/tests/jaspic/oauth-gmail-send-callback.test.ts\n@@ -0,0 +1,92 @@\n+import { afterEach, describe, expect, it, vi } from \"vitest\";\n+import { saveJaspicGmailSendConsent } from \"../../lib/jaspic/oauth-gmail-send-callback-server\";\n+import { sealGmailWebSessionOffline } from \"../../lib/jaspic/oauth-session-offline\";\n+import { openRefreshTokenOffline } from \"../../lib/jaspic/oauth-gmail-token-vault-offline\";\n+\n+const db = vi.hoisted(() => ({ getUserById: vi.fn(), rpc: vi.fn(), upsert: vi.fn() }));\n+vi.mock(\"server-only\", () => ({}));\n+vi.mock(\"@supabase/supabase-js\", () => ({\n+  createClient: () => ({\n+    auth: { admin: { getUserById: db.getUserById } },\n+    rpc: db.rpc,\n+    from: () => ({ upsert: db.upsert }),\n+  }),\n+}));\n+\n+const owner = \"12345678-1234-1234-1234-123456789abc\";\n+const email = \"admin@example.test\";\n+const googleSubject = \"123456789012\";\n+const state = \"a\".repeat(43);\n+const verifier = \"b\".repeat(64);\n+const cookieKey = Buffer.alloc(32, 5).toString(\"base64url\");\n+const vaultKey = Buffer.alloc(32, 9).toString(\"base64url\");\n+const redirect = \"https://emergencyalert.news/jaspic/oauth/callback?state=\" + state + \"&code=synthetic_code\";\n+const [REDACTED];\n+\n+async function fixture({ googleEmail = email, role = \"admin\" } = {}) {\n+  for (const [name, value] of Object.entries({\n+    JASPIC_GMAIL_SEND_CONSENT_ENABLED: \"true\",\n+    NEXT_PUBLIC_SUPABASE_URL: \"https://example.supabase.co\",\n+    SUPABASE_SERVICE_ROLE_KEY: \"synthetic-service-role\",\n+    JASPIC_GOOGLE_WEB_CLIENT_ID: \"123.apps.googleusercontent.com\",\n+    JASPIC_GOOGLE_WEB_[REDACTED],\n+    JASPIC_OAUTH_COOKIE_KEY: cookieKey,\n+    JASPIC_ADMIN_USER_ID: owner,\n+    JASPIC_OAUTH_ADMIN_EMAIL: email,\n+    JASPIC_GMAIL_TOKEN_VAULT_KEY: vaultKey,\n+  })) vi.stubEnv(name, value);\n+\n+  db.rpc.mockReset().mockResolvedValueOnce({ data: true, error: null }).mockResolvedValue({ data: false, error: null });\n+  db.getUserById.mockResolvedValue({ data: { user: {\n+    id: owner, email, email_confirmed_at: \"2026-11-06T00:00:00Z\", app_metadata: { jaspic_role: role },\n+  } }, error: null });\n+  db.upsert.mockResolvedValue({ error: null });\n+  const fetch = vi.fn(async (url: string, options: RequestInit) => {\n+    if (url === \"https://oauth2.googleapis.com/token\") {\n+      expect(new URLSearchParams(String(options.body)).get(\"code_verifier\")).toBe(verifier);\n+      return Response.json({\n+        [REDACTED], refresh_token: refreshToken,\n+        token_type: \"Bearer\", expires_in: 3600,\n+        scope: \"openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.send\",\n+      });\n+    }\n+    expect(url).toBe(\"https://openidconnect.googleapis.com/v1/userinfo\");\n+    return Response.json({ email: googleEmail, email_verified: true, sub: googleSubject });\n+  });\n+  vi.stubGlobal(\"fetch\", fetch);\n+  const cookie = await sealGmailWebSessionOffline(state, verifier, cookieKey, Date.now(), owner, \"gmail-send\");\n+  return { fetch, run: () => saveJaspicGmailSendConsent(redirect, cookie) };\n+}\n+\n+afterEach(() => {\n+  vi.clearAllMocks();\n+  vi.unstubAllEnvs();\n+  vi.unstubAllGlobals();\n+});\n+\n+describe(\"Gmail OAuth callback without mail delivery\", () => {\n+  it(\"stores the verified grant once, encrypted for its owner and Google account\", async () => {\n+    const { run, fetch } = await fixture();\n+    expect(await run()).toBe(true);\n+    expect(await run()).toBe(false);\n+    expect(fetch).toHaveBeenCalledTimes(2);\n+    expect(db.upsert).toHaveBeenCalledOnce();\n+    const [row] = db.upsert.mock.calls[0];\n+    expect(row.owner_id).toBe(owner);\n+    expect(JSON.stringify(row)).not.toContain(refreshToken);\n+    expect(openRefreshTokenOffline(row.encrypted_refresh_token, vaultKey, [owner, googleSubject])).toBe(refreshToken);\n+  });\n+\n+  it(\"discards a grant for a different Google account\", async () => {\n+    const { run } = await fixture({ googleEmail: \"other@example.test\" });\n+    expect(await run()).toBe(false);\n+    expect(db.upsert).not.toHaveBeenCalled();\n+  });\n+\n+  it(\"blocks a removed administrator before contacting Google\", async () => {\n+    const { run, fetch } = await fixture({ role: \"viewer\" });\n+    expect(await run()).toBe(false);\n+    expect(fetch).not.toHaveBeenCalled();\n+    expect(db.upsert).not.toHaveBeenCalled();\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-gmail-send-callback.test.ts",
+      "source": {
+        "path": "tests/jaspic/oauth-gmail-send-callback.test.ts",
+        "coverage": "全文",
+        "text": "import { afterEach, describe, expect, it, vi } from \"vitest\";\nimport { saveJaspicGmailSendConsent } from \"../../lib/jaspic/oauth-gmail-send-callback-server\";\nimport { sealGmailWebSessionOffline } from \"../../lib/jaspic/oauth-session-offline\";\nimport { openRefreshTokenOffline } from \"../../lib/jaspic/oauth-gmail-token-vault-offline\";\n\nconst db = vi.hoisted(() => ({ getUserById: vi.fn(), rpc: vi.fn(), upsert: vi.fn() }));\nvi.mock(\"server-only\", () => ({}));\nvi.mock(\"@supabase/supabase-js\", () => ({\n  createClient: () => ({\n    auth: { admin: { getUserById: db.getUserById } },\n    rpc: db.rpc,\n    from: () => ({ upsert: db.upsert }),\n  }),\n}));\n\nconst owner = \"12345678-1234-1234-1234-123456789abc\";\nconst email = \"admin@example.test\";\nconst googleSubject = \"123456789012\";\nconst state = \"a\".repeat(43);\nconst verifier = \"b\".repeat(64);\nconst cookieKey = Buffer.alloc(32, 5).toString(\"base64url\");\nconst vaultKey = Buffer.alloc(32, 9).toString(\"base64url\");\nconst redirect = \"https://emergencyalert.news/jaspic/oauth/callback?state=\" + state + \"&code=synthetic_code\";\nconst [REDACTED];\n\nasync function fixture({ googleEmail = email, role = \"admin\" } = {}) {\n  for (const [name, value] of Object.entries({\n    JASPIC_GMAIL_SEND_CONSENT_ENABLED: \"true\",\n    NEXT_PUBLIC_SUPABASE_URL: \"https://example.supabase.co\",\n    SUPABASE_SERVICE_ROLE_KEY: \"synthetic-service-role\",\n    JASPIC_GOOGLE_WEB_CLIENT_ID: \"123.apps.googleusercontent.com\",\n    JASPIC_GOOGLE_WEB_[REDACTED],\n    JASPIC_OAUTH_COOKIE_KEY: cookieKey,\n    JASPIC_ADMIN_USER_ID: owner,\n    JASPIC_OAUTH_ADMIN_EMAIL: email,\n    JASPIC_GMAIL_TOKEN_VAULT_KEY: vaultKey,\n  })) vi.stubEnv(name, value);\n\n  db.rpc.mockReset().mockResolvedValueOnce({ data: true, error: null }).mockResolvedValue({ data: false, error: null });\n  db.getUserById.mockResolvedValue({ data: { user: {\n    id: owner, email, email_confirmed_at: \"2026-11-06T00:00:00Z\", app_metadata: { jaspic_role: role },\n  } }, error: null });\n  db.upsert.mockResolvedValue({ error: null });\n  const fetch = vi.fn(async (url: string, options: RequestInit) => {\n    if (url === \"https://oauth2.googleapis.com/token\") {\n      expect(new URLSearchParams(String(options.body)).get(\"code_verifier\")).toBe(verifier);\n      return Response.json({\n        [REDACTED], refresh_token: refreshToken,\n        token_type: \"Bearer\", expires_in: 3600,\n        scope: \"openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.send\",\n      });\n    }\n    expect(url).toBe(\"https://openidconnect.googleapis.com/v1/userinfo\");\n    return Response.json({ email: googleEmail, email_verified: true, sub: googleSubject });\n  });\n  vi.stubGlobal(\"fetch\", fetch);\n  const cookie = await sealGmailWebSessionOffline(state, verifier, cookieKey, Date.now(), owner, \"gmail-send\");\n  return { fetch, run: () => saveJaspicGmailSendConsent(redirect, cookie) };\n}\n\nafterEach(() => {\n  vi.clearAllMocks();\n  vi.unstubAllEnvs();\n  vi.unstubAllGlobals();\n});\n\ndescribe(\"Gmail OAuth callback without mail delivery\", () => {\n  it(\"stores the verified grant once, encrypted for its owner and Google account\", async () => {\n    const { run, fetch } = await fixture();\n    expect(await run()).toBe(true);\n    expect(await run()).toBe(false);\n    expect(fetch).toHaveBeenCalledTimes(2);\n    expect(db.upsert).toHaveBeenCalledOnce();\n    const [row] = db.upsert.mock.calls[0];\n    expect(row.owner_id).toBe(owner);\n    expect(JSON.stringify(row)).not.toContain(refreshToken);\n    expect(openRefreshTokenOffline(row.encrypted_refresh_token, vaultKey, [owner, googleSubject])).toBe(refreshToken);\n  });\n\n  it(\"discards a grant for a different Google account\", async () => {\n    const { run } = await fixture({ googleEmail: \"other@example.test\" });\n    expect(await run()).toBe(false);\n    expect(db.upsert).not.toHaveBeenCalled();\n  });\n\n  it(\"blocks a removed administrator before contacting Google\", async () => {\n    const { run, fetch } = await fixture({ role: \"viewer\" });\n    expect(await run()).toBe(false);\n    expect(fetch).not.toHaveBeenCalled();\n    expect(db.upsert).not.toHaveBeenCalled();\n  });\n});\n",
+        "sha256": "82f949d1db41faf1acf9d69fd4d1165be205669f5def51c3249b04e84ece9c1c"
+      }
+    },
+    {
+      "path": "tests/jaspic/oauth-gmail-token-store.test.ts",
+      "status": "modified",
+      "additions": 69,
+      "deletions": 0,
+      "patch": "",
+      "patch_coverage": "差分なし／対象外",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-gmail-token-store.test.ts",
+      "source": {
+        "path": "tests/jaspic/oauth-gmail-token-store.test.ts",
+        "coverage": "対象外（秘密情報候補／非テキスト）"
+      }
+    },
+    {
+      "path": "tests/jaspic/oauth-identity-callback.test.ts",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "patch": "diff --git a/tests/jaspic/oauth-identity-callback.test.ts b/tests/jaspic/oauth-identity-callback.test.ts\nindex 84070e8..6046c50 100644\n--- a/tests/jaspic/oauth-identity-callback.test.ts\n+++ b/tests/jaspic/oauth-identity-callback.test.ts\n@@ -33,6 +33,20 @@ describe(\"identity callback staging\", () => {\n     })).rejects.toThrow();\n     expect(consumeAtomically).not.toHaveBeenCalled();\n   });\n+  it(\"rejects an identity cookie for Gmail consent and a Gmail cookie for identity\", async () => {\n+    const consumeAtomically = vi.fn(async () => \"consumed\" as const);\n+    const input = { callbackUrl, cookieEncryptionKey: key, adminUserId: owner,\n+      stateStore: { create: async () => {}, consumeAtomically },\n+      clientId, [REDACTED], now };\n+    const identity = await sealGmailWebSessionOffline(state, verifier, key, now, owner);\n+    const gmail = await sealGmailWebSessionOffline(state, verifier, key, now, owner, \"gmail-send\");\n+    await expect(prepareJaspicIdentityCallback({ ...input, sealedCookie: identity, purpose: \"gmail-send\" })).rejects.toThrow();\n+    await expect(prepareJaspicIdentityCallback({ ...input, sealedCookie: gmail })).rejects.toThrow();\n+    expect(consumeAtomically).not.toHaveBeenCalled();\n+    await expect(prepareJaspicIdentityCallback({ ...input, sealedCookie: gmail, purpose: \"gmail-send\" })).resolves.toBeDefined();\n+    expect(consumeAtomically).toHaveBeenCalledOnce();\n+  });\n+\n   it(\"fails closed on replay\", async () => {\n     const sealedCookie = await sealGmailWebSessionOffline(state, verifier, key, now, owner);\n     await expect(prepareJaspicIdentityCallback({\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e48e8a60568f0e5ee8ab1bffb120864091e431de/tests/jaspic/oauth-identity-callback.test.ts",
+      "source": {
+        "path": "tests/jaspic/oauth-identity-callback.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it, vi } from \"vitest\";\nimport { prepareJaspicIdentityCallback } from \"../../lib/jaspic/oauth-identity-callback\";\nimport { sealGmailWebSessionOffline } from \"../../lib/jaspic/oauth-session-offline\";\nimport type { OAuthOnceStore } from \"../../lib/jaspic/oauth-once-offline\";\nconst owner = \"12345678-1234-1234-1234-123456789abc\";\nconst state = \"a\".repeat(43);\nconst verifier = \"b\".repeat(64);\nconst key = Buffer.alloc(32, 5).toString(\"base64url\");\nconst now = Date.now();\nconst callbackUrl = \"https://emergencyalert.news/jaspic/oauth/callback?state=\" + state + \"&code=sample_code\";\nconst clientId = \"123.apps.googleusercontent.com\";\ndescribe(\"identity callback staging\", () => {\n  it(\"consumes owner-bound state once before preparing Google code exchange\", async () => {\n    const sealedCookie = await sealGmailWebSessionOffline(state, verifier, key, now, owner);\n    const consumeAtomically = vi.fn(async () => \"consumed\" as const);\n    const stateStore: OAuthOnceStore = { create: async () => {}, consumeAtomically };\n    const result = await prepareJaspicIdentityCallback({\n      callbackUrl, sealedCookie, cookieEncryptionKey: key, adminUserId: owner,\n      stateStore, clientId, [REDACTED], now: now + 1000,\n    });\n    expect(consumeAtomically).toHaveBeenCalledOnce();\n    expect(result.url).toBe(\"https://oauth2.googleapis.com/token\");\n    expect(new URLSearchParams(result.body).get(\"code_verifier\")).toBe(verifier);\n  });\n  it(\"rejects a different owner before consuming state\", async () => {\n    const sealedCookie = await sealGmailWebSessionOffline(state, verifier, key, now, owner);\n    const consumeAtomically = vi.fn(async () => \"consumed\" as const);\n    await expect(prepareJaspicIdentityCallback({\n      callbackUrl, sealedCookie, cookieEncryptionKey: key,\n      adminUserId: \"00000000-0000-0000-0000-000000000000\",\n      stateStore: { create: async () => {}, consumeAtomically },\n      clientId, [REDACTED], now: now + 1000,\n    })).rejects.toThrow();\n    expect(consumeAtomically).not.toHaveBeenCalled();\n  });\n  it(\"rejects an identity cookie for Gmail consent and a Gmail cookie for identity\", async () => {\n    const consumeAtomically = vi.fn(async () => \"consumed\" as const);\n    const input = { callbackUrl, cookieEncryptionKey: key, adminUserId: owner,\n      stateStore: { create: async () => {}, consumeAtomically },\n      clientId, [REDACTED], now };\n    const identity = await sealGmailWebSessionOffline(state, verifier, key, now, owner);\n    const gmail = await sealGmailWebSessionOffline(state, verifier, key, now, owner, \"gmail-send\");\n    await expect(prepareJaspicIdentityCallback({ ...input, sealedCookie: identity, purpose: \"gmail-send\" })).rejects.toThrow();\n    await expect(prepareJaspicIdentityCallback({ ...input, sealedCookie: gmail })).rejects.toThrow();\n    expect(consumeAtomically).not.toHaveBeenCalled();\n    await expect(prepareJaspicIdentityCallback({ ...input, sealedCookie: gmail, purpose: \"gmail-send\" })).resolves.toBeDefined();\n    expect(consumeAtomically).toHaveBeenCalledOnce();\n  });\n\n  it(\"fails closed on replay\", async () => {\n    const sealedCookie = await sealGmailWebSessionOffline(state, verifier, key, now, owner);\n    await expect(prepareJaspicIdentityCallback({\n      callbackUrl, sealedCookie, cookieEncryptionKey: key, adminUserId: owner,\n      stateStore: { create: async () => {}, consumeAtomically: async () => \"invalid_or_expired\" },\n      clientId, [REDACTED], now: now + 1000,\n    })).rejects.toThrow();\n  });\n});\n",
+        "sha256": "d16313c478f7168fd461aa85c5ceea95e98c115c1cbef747435b315bc080e165"
+      }
+    }
+  ],
+  "file_count": 18,
+  "reported_file_count": 18,
+  "commits": [
+    {
+      "sha": "1e7e667ca9768731641ee40c50ffe8544064aab4",
+      "message": "feat(jaspic): add isolated AES-GCM refresh-token encryption helper\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/1e7e667ca9768731641ee40c50ffe8544064aab4"
+    },
+    {
+      "sha": "cf54146f799c1fafe370f27fdb6a926e09fa81f9",
+      "message": "test(jaspic): verify token vault encryption, tamper detection and key isolation\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/cf54146f799c1fafe370f27fdb6a926e09fa81f9"
+    },
+    {
+      "sha": "3b6a8f702716b396f02fb5973e322b80848f9eff",
+      "message": "feat(jaspic): add server-only encrypted refresh-token persistence adapter\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/3b6a8f702716b396f02fb5973e322b80848f9eff"
+    },
+    {
+      "sha": "e48e8a60568f0e5ee8ab1bffb120864091e431de",
+      "message": "feat(jaspic): persist verified Gmail consent in encrypted token vault\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/e48e8a60568f0e5ee8ab1bffb120864091e431de"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "56b74eacffab1a7f54811efe3aab00d62789a9c2",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42445646101",
+      "id": 42445646101,
+      "updated_at": "2026-11-08T04:11:41Z",
+      "event": "create"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "e48e8a60568f0e5ee8ab1bffb120864091e431de",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42191269873",
+      "id": 42191269873,
+      "updated_at": "2026-11-06T08:56:34Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "e48e8a60568f0e5ee8ab1bffb120864091e431de",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42191055522",
+      "id": 42191055522,
+      "updated_at": "2026-11-06T08:54:44Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "e48e8a60568f0e5ee8ab1bffb120864091e431de",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42191055567",
+      "id": 42191055567,
+      "updated_at": "2026-11-06T08:55:36Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "CONTEXT",
+    "DELETE",
+    "GET",
+    "GMAIL_OAUTH_COOKIE_POLICY",
+    "GMAIL_SEND_COOKIE_NAME",
+    "JaspicOAuthPage",
+    "JaspicOauthLoginClient",
+    "POST",
+    "Page",
+    "SESSION_TTL_MS",
+    "access",
+    "active",
+    "admin",
+    "auth",
+    "authOptions",
+    "authorized",
+    "base",
+    "beginGoogle",
+    "beginSendConsent",
+    "body",
+    "byte",
+    "bytes",
+    "callbackUrl",
+    "cipher",
+    "ciphertext",
+    "client",
+    "clientId",
+    "clientSecret",
+    "consent",
+    "consumeAtomically",
+    "cookie",
+    "cookieKey",
+    "db",
+    "decodeBase64Url",
+    "decoded",
+    "decoder",
+    "disabled",
+    "dynamic",
+    "email",
+    "emailLogin",
+    "encodeBase64Url",
+    "encoded",
+    "encoder",
+    "encryptionKey",
+    "exchange",
+    "expectedAdminId",
+    "expectedEmail",
+    "fetch",
+    "fixture",
+    "getBrowserClient",
+    "gmail",
+    "googleSubject",
+    "handle",
+    "headers",
+    "identity",
+    "input",
+    "iv",
+    "key",
+    "metadata",
+    "now"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "検証済みGmail OAuth資格情報を暗号化保管庫へ保存",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/171"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "70a7bf8891eda6a4c7d7427a367f825152b94dacc8a5e40573aa7d78c2a2fa2a",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

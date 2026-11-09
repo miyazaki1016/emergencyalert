@@ -1,0 +1,446 @@
+{
+  "id": "pr-164",
+  "number": 164,
+  "title": "feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階）",
+  "topics": [
+    "雨量・全国検知",
+    "開発管理"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更／開発資産の把握・引継ぎ・レビューを支援する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Closes none; relates to #163.\n\n- Vercel APIから指定チームの直近24時間・1時間のデプロイ履歴件数を読み取り専用で集計\n- ページング、重複除去、API失敗時のunknown表示\n- **重要:** 取得したデプロイ記録件数は公式ビルド利用枠とは限らない。自動停止・再開には使用しない\n- 必要な環境変数: `VERCEL_TOKEN`, `VERCEL_TEAM_ID`。オプション: `VERCEL_PROJECT_IDS`\n- Vercel/GitHub Actionsの自動実行設定は変更していない。本番への影響なし\n\n次段階: モックAPIでページング・境界値をテスト、公式制限カウントと照合、チームの全プロジェクトのAPI可視性を確認後にゲート設計。",
+  "snapshot_head": "7e61e6c7fc653735dcc327fa2e1ade34beb4dab1",
+  "snapshot_consistent": true,
+  "head": "7e61e6c7fc653735dcc327fa2e1ade34beb4dab1",
+  "base": "a11630a208595fa97401db25c21753eab5f9deef",
+  "base_ref": "main",
+  "head_ref": "feat/vercel-quota-monitor-20261105",
+  "state": "open",
+  "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+  "draft": true,
+  "merged_at": null,
+  "merge_commit_sha": null,
+  "updated_at": "2026-11-09T06:59:28Z",
+  "code_facts": [
+    {
+      "file": ".github/workflows/vercel-quota-monitor-tests.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "run: python -m unittest discover -s tests -p 'test_vercel_quota_monitor.py' -v",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/.github/workflows/vercel-quota-monitor-tests.yml"
+    },
+    {
+      "file": "docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md",
+      "kind": "テストの期待値・条件",
+      "expression": "- API requests with explicit `teamId` have returned 403/404 in this connector; omitting it can work. This is an observed connector behavior, not a guarantee for other tokens.",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md"
+    },
+    {
+      "file": "docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md",
+      "kind": "テストの期待値・条件",
+      "expression": "- The user confirmed that production deployment creation is no longer being rejected. Treat the prior permission incident as resolved; do not change team roles or deployment settings to address it.",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md"
+    },
+    {
+      "file": "docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md",
+      "kind": "テストの期待値・条件",
+      "expression": "- On commit `7d40a5997e100f3bb6495870993a811d80b7d484`, dedicated quota-monitor tests and PR classification succeeded, but general CI run 42568247397 failed: Vitest discovered `tests/rainLabGrade.test.ts` using `node:test` and reported `No test suite found`. The other 49 test files and 327 tests passed. This failure is outside the quota-monitor cha",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "HTTP要求",
+      "expression": "def fetch(params):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "HTTP要求",
+      "expression": "with urllib.request.urlopen(req, timeout=20) as response:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def main():",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not TOKEN or (not TEAM and not PROJECTS):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not TEAM:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "HTTP要求",
+      "expression": "with urllib.request.urlopen(req, timeout=20) as response:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if any(known.get(name) != EXPECTED_TEAM for name in PROJECTS):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if TEAM:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if before is not None:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "HTTP要求",
+      "expression": "page = fetch(params)",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not isinstance(items, list):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not items:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { strict as assert } from 'node:assert';",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { test } from 'vitest';",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "test('highest precision match wins', () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MATCH', 'MATCH', 'MATCH')), 'exact');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MISMATCH', 'MATCH', 'MATCH')), 'within5');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MISMATCH', 'MISMATCH', 'MATCH')), 'within10');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "test('red only when every window is definitively mismatched', () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MISMATCH', 'MISMATCH', 'MISMATCH')), 'mismatch');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MISMATCH', 'INDETERMINATE', 'MISMATCH')), 'pending');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('INDETERMINATE', 'MISMATCH', 'MISMATCH')), 'pending');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MISMATCH', 'INDETERMINATE', 'MATCH')), 'within10');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade({ state: 'PENDING' }), 'pending');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "class MonitorTests(unittest.TestCase):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def run_monitor(self, pages, projects=None):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_empty(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_counts_and_project_filter(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_warning_threshold(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_default_scope_requires_verified_project_membership(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_invalid_deployment_response_is_not_treated_as_zero(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_missing_credentials(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if __name__ == \"__main__\":",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/test_vercel_quota_monitor.py"
+    }
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/vercel-quota-monitor-tests.yml",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 0,
+      "patch": "diff --git a/.github/workflows/vercel-quota-monitor-tests.yml b/.github/workflows/vercel-quota-monitor-tests.yml\nnew file mode 100644\nindex 0000000..09c48a6\n--- /dev/null\n+++ b/.github/workflows/vercel-quota-monitor-tests.yml\n@@ -0,0 +1,20 @@\n+name: Vercel quota monitor unit tests\n+on:\n+  pull_request:\n+    paths:\n+      - 'scripts/vercel_quota_monitor.py'\n+      - 'tests/test_vercel_quota_monitor.py'\n+      - '.github/workflows/vercel-quota-monitor-tests.yml'\n+  workflow_dispatch:\n+permissions:\n+  contents: read\n+jobs:\n+  offline-tests:\n+    runs-on: ubuntu-latest\n+    steps:\n+      - uses: actions/checkout@v4\n+      - uses: actions/setup-python@v5\n+        with:\n+          python-version: '3.12'\n+      - name: Run offline tests (no Vercel credentials)\n+        run: python -m unittest discover -s tests -p 'test_vercel_quota_monitor.py' -v\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/.github/workflows/vercel-quota-monitor-tests.yml",
+      "source": {
+        "path": ".github/workflows/vercel-quota-monitor-tests.yml",
+        "coverage": "全文",
+        "text": "name: Vercel quota monitor unit tests\non:\n  pull_request:\n    paths:\n      - 'scripts/vercel_quota_monitor.py'\n      - 'tests/test_vercel_quota_monitor.py'\n      - '.github/workflows/vercel-quota-monitor-tests.yml'\n  workflow_dispatch:\npermissions:\n  contents: read\njobs:\n  offline-tests:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: '3.12'\n      - name: Run offline tests (no Vercel credentials)\n        run: python -m unittest discover -s tests -p 'test_vercel_quota_monitor.py' -v\n",
+        "sha256": "a035d0f16bd244b4b06d65fa6e041fdaab6970f346775194861464d3809085b1"
+      }
+    },
+    {
+      "path": "docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md",
+      "status": "modified",
+      "additions": 42,
+      "deletions": 0,
+      "patch": "diff --git a/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md b/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md\nnew file mode 100644\nindex 0000000..ac590db\n--- /dev/null\n+++ b/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md\n@@ -0,0 +1,42 @@\n+# Vercel shared deployment operating policy (draft, 2026-11-06)\n+\n+Scope: KISHIBOJIM Hobby team, projects `misaki` and `emergencyalert`. This is an operational proposal, not an enabled gate.\n+\n+## Separation of duties\n+- Develop and review on GitHub branches; run offline tests with GitHub Actions. Do not trigger Vercel preview builds by default.\n+- Do not equate GitHub CI success with deployed-site verification.\n+- Batch approved production changes; deploy only when needed, with rollback plan and a reserved emergency margin.\n+- Changes to `main` may trigger production builds. Docs-only changes should use existing build guards, but confirm behavior rather than assuming no quota impact.\n+- Keep production service available when deployment automation is paused. Never delete or roll back a live deployment just to conserve quota.\n+\n+## Observability before enforcement\n+- Use read-only API requests. Verify that both project IDs belong to team `team_VIfp8TXktY4DegRNpPhFb5uT`.\n+- Known project IDs: `misaki=prj_71NgSxGkNXkKECXc9jJRrJHdAkDS`, `emergencyalert=prj_LDqpPAqNGDaY4Aaix8ulwPc8oXmu`.\n+- API requests with explicit `teamId` have returned 403/404 in this connector; omitting it can work. This is an observed connector behavior, not a guarantee for other tokens.\n+- Deployment records (including CANCELED/ERROR) are **not** authoritative Vercel usage; verify the actual plan quota, counting semantics, and rolling windows from Vercel's usage/billing UI or authoritative API before gating.\n+- If team membership, pagination, API access, or quota semantics cannot be verified, mark monitoring `unknown` and do not automatically release deployments.\n+\n+## Proposed escalation levels (not enabled)\n+- 70%: notify and batch nonurgent releases.\n+- 85%: pause routine releases after verified quota measurement.\n+- 95%: reserve emergency capacity; require manual approval.\n+- Resume only after confirmed capacity recovery, green CI, and an explicit check that the queued commit is still the latest approved SHA. Never replay every queued deployment.\n+\n+## Release prerequisites\n+1. Read-only monitor tests green.\n+2. Live data verified for both projects, with pagination and cross-project totals.\n+3. Measured counts reconciled against Vercel's authoritative quota.\n+4. Stop/resume behavior tested in a non-production simulation, including concurrent requests, API errors, and emergency override.\n+5. Explicit approval before modifying production deployment settings or enabling automatic gates.\n+\n+## Verification update (2026-11-09)\n+- The user confirmed that production deployment creation is no longer being rejected. Treat the prior permission incident as resolved; do not change team roles or deployment settings to address it.\n+- Vercel team membership API confirms the connected account is OWNER of KISHIBOJIM. This verifies role, not available deployment quota.\n+- Both projects are visible via the Vercel connector. The deployment history endpoint is available, but no authoritative remaining-quota value has yet been verified.\n+- Keep automated gating disabled. Do not infer remaining quota from the count of deployment records or from project `live` flags.\n+\n+## Official limit validation and CI triage (2026-11-09)\n+- Vercel documentation (https://vercel.com/docs/limits, last updated Feb 3, 2026) confirms Hobby: **100 deployments created per 86,400 seconds** and **32 deployment builds per 3,600 seconds**. These are different counters; a deployment-history total cannot be interpreted as the build counter.\n+- `X-RateLimit-Remaining` in Vercel REST API responses measures **API request** rate limits, not the above deployment/build limits (https://vercel.com/docs/rest-api).\n+- Live remaining allocation and quota counter semantics are **not yet verified** for KISHIBOJIM; keep `quota_verified=false` and `safe_to_gate=false`. Do not activate automation based only on the official maximum limits.\n+- On commit `7d40a5997e100f3bb6495870993a811d80b7d484`, dedicated quota-monitor tests and PR classification succeeded, but general CI run 42568247397 failed: Vitest discovered `tests/rainLabGrade.test.ts` using `node:test` and reported `No test suite found`. The other 49 test files and 327 tests passed. This failure is outside the quota-monitor change; resolve it separately before PR promotion, not by weakening the CI requirement.\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md",
+      "source": {
+        "path": "docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md",
+        "coverage": "全文",
+        "text": "# Vercel shared deployment operating policy (draft, 2026-11-06)\n\nScope: KISHIBOJIM Hobby team, projects `misaki` and `emergencyalert`. This is an operational proposal, not an enabled gate.\n\n## Separation of duties\n- Develop and review on GitHub branches; run offline tests with GitHub Actions. Do not trigger Vercel preview builds by default.\n- Do not equate GitHub CI success with deployed-site verification.\n- Batch approved production changes; deploy only when needed, with rollback plan and a reserved emergency margin.\n- Changes to `main` may trigger production builds. Docs-only changes should use existing build guards, but confirm behavior rather than assuming no quota impact.\n- Keep production service available when deployment automation is paused. Never delete or roll back a live deployment just to conserve quota.\n\n## Observability before enforcement\n- Use read-only API requests. Verify that both project IDs belong to team `team_VIfp8TXktY4DegRNpPhFb5uT`.\n- Known project IDs: `misaki=prj_71NgSxGkNXkKECXc9jJRrJHdAkDS`, `emergencyalert=prj_LDqpPAqNGDaY4Aaix8ulwPc8oXmu`.\n- API requests with explicit `teamId` have returned 403/404 in this connector; omitting it can work. This is an observed connector behavior, not a guarantee for other tokens.\n- Deployment records (including CANCELED/ERROR) are **not** authoritative Vercel usage; verify the actual plan quota, counting semantics, and rolling windows from Vercel's usage/billing UI or authoritative API before gating.\n- If team membership, pagination, API access, or quota semantics cannot be verified, mark monitoring `unknown` and do not automatically release deployments.\n\n## Proposed escalation levels (not enabled)\n- 70%: notify and batch nonurgent releases.\n- 85%: pause routine releases after verified quota measurement.\n- 95%: reserve emergency capacity; require manual approval.\n- Resume only after confirmed capacity recovery, green CI, and an explicit check that the queued commit is still the latest approved SHA. Never replay every queued deployment.\n\n## Release prerequisites\n1. Read-only monitor tests green.\n2. Live data verified for both projects, with pagination and cross-project totals.\n3. Measured counts reconciled against Vercel's authoritative quota.\n4. Stop/resume behavior tested in a non-production simulation, including concurrent requests, API errors, and emergency override.\n5. Explicit approval before modifying production deployment settings or enabling automatic gates.\n\n## Verification update (2026-11-09)\n- The user confirmed that production deployment creation is no longer being rejected. Treat the prior permission incident as resolved; do not change team roles or deployment settings to address it.\n- Vercel team membership API confirms the connected account is OWNER of KISHIBOJIM. This verifies role, not available deployment quota.\n- Both projects are visible via the Vercel connector. The deployment history endpoint is available, but no authoritative remaining-quota value has yet been verified.\n- Keep automated gating disabled. Do not infer remaining quota from the count of deployment records or from project `live` flags.\n\n## Official limit validation and CI triage (2026-11-09)\n- Vercel documentation (https://vercel.com/docs/limits, last updated Feb 3, 2026) confirms Hobby: **100 deployments created per 86,400 seconds** and **32 deployment builds per 3,600 seconds**. These are different counters; a deployment-history total cannot be interpreted as the build counter.\n- `X-RateLimit-Remaining` in Vercel REST API responses measures **API request** rate limits, not the above deployment/build limits (https://vercel.com/docs/rest-api).\n- Live remaining allocation and quota counter semantics are **not yet verified** for KISHIBOJIM; keep `quota_verified=false` and `safe_to_gate=false`. Do not activate automation based only on the official maximum limits.\n- On commit `7d40a5997e100f3bb6495870993a811d80b7d484`, dedicated quota-monitor tests and PR classification succeeded, but general CI run 42568247397 failed: Vitest discovered `tests/rainLabGrade.test.ts` using `node:test` and reported `No test suite found`. The other 49 test files and 327 tests passed. This failure is outside the quota-monitor change; resolve it separately before PR promotion, not by weakening the CI requirement.\n",
+        "sha256": "df8f421d60c84d062c462c42b32602a28366224ae5841071f8601c792fa5a69d"
+      }
+    },
+    {
+      "path": "scripts/vercel_quota_monitor.py",
+      "status": "modified",
+      "additions": 95,
+      "deletions": 0,
+      "patch": "diff --git a/scripts/vercel_quota_monitor.py b/scripts/vercel_quota_monitor.py\nnew file mode 100644\nindex 0000000..12e1838\n--- /dev/null\n+++ b/scripts/vercel_quota_monitor.py\n@@ -0,0 +1,95 @@\n+#!/usr/bin/env python3\n+\"\"\"Read-only Vercel deployment activity monitor. Never changes deployments.\n+\n+Usage: VERCEL_TOKEN=... VERCEL_PROJECT_IDS=misaki,emergencyalert python scripts/vercel_quota_monitor.py\n+Optional: VERCEL_API_BASE for tests, VERCEL_TEAM_ID for explicit team scope.\n+When team scope is omitted, verify all named projects belong to VERCEL_EXPECTED_TEAM_ID.\n+Outputs JSON; deployment records are an *estimate*, not authoritative quota usage.\n+\"\"\"\n+import datetime as dt\n+import json\n+import os\n+import sys\n+import urllib.error\n+import urllib.parse\n+import urllib.request\n+\n+BASE = os.getenv(\"VERCEL_API_BASE\", \"https://api.vercel.com\").rstrip(\"/\")\n+TOKEN = os.getenv(\"VERCEL_TOKEN\")\n+TEAM = os.getenv(\"VERCEL_TEAM_ID\")\n+EXPECTED_TEAM = os.getenv(\"VERCEL_EXPECTED_TEAM_ID\", \"team_VIfp8TXktY4DegRNpPhFb5uT\")\n+PROJECTS = {p.strip() for p in os.getenv(\"VERCEL_PROJECT_IDS\", \"\").split(\",\") if p.strip()}\n+PAGE_LIMIT = 100\n+\n+def fetch(params):\n+    url = BASE + \"/v6/deployments?\" + urllib.parse.urlencode(params)\n+    req = urllib.request.Request(url, headers={\"Authorization\": \"Bearer \" + TOKEN, \"Accept\": \"application/json\"})\n+    with urllib.request.urlopen(req, timeout=20) as response:\n+        return json.load(response)\n+\n+def main():\n+    if not TOKEN or (not TEAM and not PROJECTS):\n+        print(\"VERCEL_TOKEN and either VERCEL_TEAM_ID or VERCEL_PROJECT_IDS are required\", file=sys.stderr)\n+        return 2\n+    if not TEAM:\n+        req = urllib.request.Request(BASE + \"/v9/projects?limit=100\", headers={\"Authorization\": \"Bearer \" + TOKEN, \"Accept\": \"application/json\"})\n+        with urllib.request.urlopen(req, timeout=20) as response:\n+            projects_response = json.load(response)\n+        known = {p.get(\"name\"): p.get(\"accountId\") for p in projects_response.get(\"projects\", [])}\n+        if any(known.get(name) != EXPECTED_TEAM for name in PROJECTS):\n+            raise RuntimeError(\"project membership not verified for expected team; monitoring incomplete\")\n+    now = dt.datetime.now(dt.timezone.utc)\n+    cutoff = int((now - dt.timedelta(hours=24)).timestamp() * 1000)\n+    hour = int((now - dt.timedelta(hours=1)).timestamp() * 1000)\n+    seen = set()\n+    deployments = []\n+    before = None\n+    for _ in range(100):  # hard stop prevents unbounded API traffic\n+        params = {\"limit\": PAGE_LIMIT, \"since\": cutoff}\n+        if TEAM:\n+            params[\"teamId\"] = TEAM\n+        if before is not None:\n+            params[\"until\"] = before\n+        page = fetch(params)\n+        items = page.get(\"deployments\")\n+        if not isinstance(items, list):\n+            raise RuntimeError(\"invalid deployments response; monitoring incomplete\")\n+        if not items:\n+            break\n+        new = 0\n+        for item in items:\n+            created = item.get(\"created\") or item.get(\"createdAt\")\n+            key = item.get(\"uid\") or item.get(\"id\")\n+            if not isinstance(created, (int, float)) or not key or key in seen:\n+                continue\n+            seen.add(key)\n+            if created >= cutoff and (not PROJECTS or item.get(\"projectId\") in PROJECTS or item.get(\"name\") in PROJECTS):\n+                deployments.append(item)\n+            new += 1\n+        oldest = min((i.get(\"created\") or i.get(\"createdAt\") or 0) for i in items)\n+        if len(items) < PAGE_LIMIT or oldest < cutoff or new == 0:\n+            break\n+        before = oldest - 1\n+    else:\n+        raise RuntimeError(\"pagination safety limit reached; count incomplete\")\n+    count24 = len(deployments)\n+    count1 = sum(1 for item in deployments if (item.get(\"created\") or item.get(\"createdAt\")) >= hour)\n+    print(json.dumps({\n+        \"team_id\": TEAM or EXPECTED_TEAM, \"scope\": \"explicit\" if TEAM else \"verified_default\", \"observed_at\": now.isoformat(),\n+        \"window\": \"rolling\", \"deployment_records_24h\": count24,\n+        \"deployment_records_1h\": count1,\n+        \"status\": \"warning\" if count24 >= 70 else \"normal\",\n+        \"status_basis\": \"observed_deployment_records_not_quota\",\n+        \"safe_to_gate\": False,\n+        \"quota_verified\": False,\n+        \"note\": \"Observed deployment records only. NOT authoritative Vercel build/quota usage; canceled/skipped records may differ. No automated gating.\",\n+        \"projects_filter\": sorted(PROJECTS),\n+    }, ensure_ascii=False))\n+    return 0\n+\n+if __name__ == \"__main__\":\n+    try:\n+        sys.exit(main())\n+    except (urllib.error.URLError, ValueError, RuntimeError, KeyError) as exc:\n+        print(json.dumps({\"status\": \"unknown\", \"error\": str(exc), \"safe_to_gate\": False}), file=sys.stderr)\n+        sys.exit(1)\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/scripts/vercel_quota_monitor.py",
+      "source": {
+        "path": "scripts/vercel_quota_monitor.py",
+        "coverage": "全文",
+        "text": "#!/usr/bin/env python3\n\"\"\"Read-only Vercel deployment activity monitor. Never changes deployments.\n\nUsage: VERCEL_TOKEN=... VERCEL_PROJECT_IDS=misaki,emergencyalert python scripts/vercel_quota_monitor.py\nOptional: VERCEL_API_BASE for tests, VERCEL_TEAM_ID for explicit team scope.\nWhen team scope is omitted, verify all named projects belong to VERCEL_EXPECTED_TEAM_ID.\nOutputs JSON; deployment records are an *estimate*, not authoritative quota usage.\n\"\"\"\nimport datetime as dt\nimport json\nimport os\nimport sys\nimport urllib.error\nimport urllib.parse\nimport urllib.request\n\nBASE = os.getenv(\"VERCEL_API_BASE\", \"https://api.vercel.com\").rstrip(\"/\")\nTOKEN = os.getenv(\"VERCEL_TOKEN\")\nTEAM = os.getenv(\"VERCEL_TEAM_ID\")\nEXPECTED_TEAM = os.getenv(\"VERCEL_EXPECTED_TEAM_ID\", \"team_VIfp8TXktY4DegRNpPhFb5uT\")\nPROJECTS = {p.strip() for p in os.getenv(\"VERCEL_PROJECT_IDS\", \"\").split(\",\") if p.strip()}\nPAGE_LIMIT = 100\n\ndef fetch(params):\n    url = BASE + \"/v6/deployments?\" + urllib.parse.urlencode(params)\n    req = urllib.request.Request(url, headers={\"Authorization\": \"Bearer \" + TOKEN, \"Accept\": \"application/json\"})\n    with urllib.request.urlopen(req, timeout=20) as response:\n        return json.load(response)\n\ndef main():\n    if not TOKEN or (not TEAM and not PROJECTS):\n        print(\"VERCEL_TOKEN and either VERCEL_TEAM_ID or VERCEL_PROJECT_IDS are required\", file=sys.stderr)\n        return 2\n    if not TEAM:\n        req = urllib.request.Request(BASE + \"/v9/projects?limit=100\", headers={\"Authorization\": \"Bearer \" + TOKEN, \"Accept\": \"application/json\"})\n        with urllib.request.urlopen(req, timeout=20) as response:\n            projects_response = json.load(response)\n        known = {p.get(\"name\"): p.get(\"accountId\") for p in projects_response.get(\"projects\", [])}\n        if any(known.get(name) != EXPECTED_TEAM for name in PROJECTS):\n            raise RuntimeError(\"project membership not verified for expected team; monitoring incomplete\")\n    now = dt.datetime.now(dt.timezone.utc)\n    cutoff = int((now - dt.timedelta(hours=24)).timestamp() * 1000)\n    hour = int((now - dt.timedelta(hours=1)).timestamp() * 1000)\n    seen = set()\n    deployments = []\n    before = None\n    for _ in range(100):  # hard stop prevents unbounded API traffic\n        params = {\"limit\": PAGE_LIMIT, \"since\": cutoff}\n        if TEAM:\n            params[\"teamId\"] = TEAM\n        if before is not None:\n            params[\"until\"] = before\n        page = fetch(params)\n        items = page.get(\"deployments\")\n        if not isinstance(items, list):\n            raise RuntimeError(\"invalid deployments response; monitoring incomplete\")\n        if not items:\n            break\n        new = 0\n        for item in items:\n            created = item.get(\"created\") or item.get(\"createdAt\")\n            key = item.get(\"uid\") or item.get(\"id\")\n            if not isinstance(created, (int, float)) or not key or key in seen:\n                continue\n            seen.add(key)\n            if created >= cutoff and (not PROJECTS or item.get(\"projectId\") in PROJECTS or item.get(\"name\") in PROJECTS):\n                deployments.append(item)\n            new += 1\n        oldest = min((i.get(\"created\") or i.get(\"createdAt\") or 0) for i in items)\n        if len(items) < PAGE_LIMIT or oldest < cutoff or new == 0:\n            break\n        before = oldest - 1\n    else:\n        raise RuntimeError(\"pagination safety limit reached; count incomplete\")\n    count24 = len(deployments)\n    count1 = sum(1 for item in deployments if (item.get(\"created\") or item.get(\"createdAt\")) >= hour)\n    print(json.dumps({\n        \"team_id\": TEAM or EXPECTED_TEAM, \"scope\": \"explicit\" if TEAM else \"verified_default\", \"observed_at\": now.isoformat(),\n        \"window\": \"rolling\", \"deployment_records_24h\": count24,\n        \"deployment_records_1h\": count1,\n        \"status\": \"warning\" if count24 >= 70 else \"normal\",\n        \"status_basis\": \"observed_deployment_records_not_quota\",\n        \"safe_to_gate\": False,\n        \"quota_verified\": False,\n        \"note\": \"Observed deployment records only. NOT authoritative Vercel build/quota usage; canceled/skipped records may differ. No automated gating.\",\n        \"projects_filter\": sorted(PROJECTS),\n    }, ensure_ascii=False))\n    return 0\n\nif __name__ == \"__main__\":\n    try:\n        sys.exit(main())\n    except (urllib.error.URLError, ValueError, RuntimeError, KeyError) as exc:\n        print(json.dumps({\"status\": \"unknown\", \"error\": str(exc), \"safe_to_gate\": False}), file=sys.stderr)\n        sys.exit(1)\n",
+        "sha256": "759f4d3437f8d79f914d3dab61420a3deff2927edfac4f7c552019b66e73b25b"
+      }
+    },
+    {
+      "path": "tests/rainLabGrade.test.ts",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 0,
+      "patch": "diff --git a/tests/rainLabGrade.test.ts b/tests/rainLabGrade.test.ts\nnew file mode 100644\nindex 0000000..0cdf7f2\n--- /dev/null\n+++ b/tests/rainLabGrade.test.ts\n@@ -0,0 +1,22 @@\n+import { strict as assert } from 'node:assert';\n+import { test } from 'vitest';\n+import { matchGrade } from '../lib/research/rainLab';\n+\n+const make = (exact: string, within5: string, within10: string, state = 'COMPLETE') => ({\n+  state,\n+  radar_result: { exact, within5, within10 },\n+});\n+\n+test('highest precision match wins', () => {\n+  assert.equal(matchGrade(make('MATCH', 'MATCH', 'MATCH')), 'exact');\n+  assert.equal(matchGrade(make('MISMATCH', 'MATCH', 'MATCH')), 'within5');\n+  assert.equal(matchGrade(make('MISMATCH', 'MISMATCH', 'MATCH')), 'within10');\n+});\n+\n+test('red only when every window is definitively mismatched', () => {\n+  assert.equal(matchGrade(make('MISMATCH', 'MISMATCH', 'MISMATCH')), 'mismatch');\n+  assert.equal(matchGrade(make('MISMATCH', 'INDETERMINATE', 'MISMATCH')), 'pending');\n+  assert.equal(matchGrade(make('INDETERMINATE', 'MISMATCH', 'MISMATCH')), 'pending');\n+  assert.equal(matchGrade(make('MISMATCH', 'INDETERMINATE', 'MATCH')), 'within10');\n+  assert.equal(matchGrade({ state: 'PENDING' }), 'pending');\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/rainLabGrade.test.ts",
+      "source": {
+        "path": "tests/rainLabGrade.test.ts",
+        "coverage": "全文",
+        "text": "import { strict as assert } from 'node:assert';\nimport { test } from 'vitest';\nimport { matchGrade } from '../lib/research/rainLab';\n\nconst make = (exact: string, within5: string, within10: string, state = 'COMPLETE') => ({\n  state,\n  radar_result: { exact, within5, within10 },\n});\n\ntest('highest precision match wins', () => {\n  assert.equal(matchGrade(make('MATCH', 'MATCH', 'MATCH')), 'exact');\n  assert.equal(matchGrade(make('MISMATCH', 'MATCH', 'MATCH')), 'within5');\n  assert.equal(matchGrade(make('MISMATCH', 'MISMATCH', 'MATCH')), 'within10');\n});\n\ntest('red only when every window is definitively mismatched', () => {\n  assert.equal(matchGrade(make('MISMATCH', 'MISMATCH', 'MISMATCH')), 'mismatch');\n  assert.equal(matchGrade(make('MISMATCH', 'INDETERMINATE', 'MISMATCH')), 'pending');\n  assert.equal(matchGrade(make('INDETERMINATE', 'MISMATCH', 'MISMATCH')), 'pending');\n  assert.equal(matchGrade(make('MISMATCH', 'INDETERMINATE', 'MATCH')), 'within10');\n  assert.equal(matchGrade({ state: 'PENDING' }), 'pending');\n});\n",
+        "sha256": "d1657389867e80b607452d8d5c540786f7fa51dac28df788cc7065478d2b7c11"
+      }
+    },
+    {
+      "path": "tests/test_vercel_quota_monitor.py",
+      "status": "modified",
+      "additions": 78,
+      "deletions": 0,
+      "patch": "diff --git a/tests/test_vercel_quota_monitor.py b/tests/test_vercel_quota_monitor.py\nnew file mode 100644\nindex 0000000..ba399be\n--- /dev/null\n+++ b/tests/test_vercel_quota_monitor.py\n@@ -0,0 +1,78 @@\n+\"\"\"Offline unit tests for the read-only monitor; no Vercel credentials required.\"\"\"\n+import contextlib\n+import datetime as dt\n+import importlib.util\n+import io\n+import json\n+from pathlib import Path\n+import unittest\n+from unittest.mock import patch\n+\n+MODULE = Path(__file__).resolve().parents[1] / \"scripts\" / \"vercel_quota_monitor.py\"\n+spec = importlib.util.spec_from_file_location(\"vercel_quota_monitor\", MODULE)\n+monitor = importlib.util.module_from_spec(spec)\n+spec.loader.exec_module(monitor)\n+\n+class MonitorTests(unittest.TestCase):\n+    def run_monitor(self, pages, projects=None):\n+        out = io.StringIO()\n+        with patch.object(monitor, \"TOKEN\", \"test\"), patch.object(monitor, \"TEAM\", \"team_test\"), \\\n+             patch.object(monitor, \"PROJECTS\", projects or set()), \\\n+             patch.object(monitor, \"fetch\", side_effect=pages) as fetch, \\\n+             contextlib.redirect_stdout(out):\n+            code = monitor.main()\n+        return code, json.loads(out.getvalue()), fetch\n+\n+    def test_empty(self):\n+        code, result, fetch = self.run_monitor([{\"deployments\": []}])\n+        self.assertEqual(code, 0)\n+        self.assertEqual(result[\"deployment_records_24h\"], 0)\n+        self.assertIs(result[\"safe_to_gate\"], False)\n+        self.assertIs(result[\"quota_verified\"], False)\n+        self.assertEqual(fetch.call_count, 1)\n+\n+    def test_counts_and_project_filter(self):\n+        now = int(dt.datetime.now(dt.timezone.utc).timestamp() * 1000)\n+        records = [\n+            {\"uid\": \"a\", \"created\": now - 1000, \"name\": \"misaki\"},\n+            {\"uid\": \"b\", \"created\": now - 2 * 3600 * 1000, \"name\": \"emergencyalert\"},\n+            {\"uid\": \"c\", \"created\": now - 25 * 3600 * 1000, \"name\": \"misaki\"},\n+            {\"uid\": \"a\", \"created\": now - 1000, \"name\": \"misaki\"},\n+        ]\n+        code, result, _ = self.run_monitor([{\"deployments\": records}], {\"misaki\"})\n+        self.assertEqual(code, 0)\n+        self.assertEqual(result[\"deployment_records_24h\"], 1)\n+        self.assertEqual(result[\"deployment_records_1h\"], 1)\n+\n+    def test_warning_threshold(self):\n+        now = int(dt.datetime.now(dt.timezone.utc).timestamp() * 1000)\n+        records = [{\"uid\": str(i), \"created\": now - 1000, \"name\": \"misaki\"} for i in range(70)]\n+        _, result, _ = self.run_monitor([{\"deployments\": records}])\n+        self.assertEqual(result[\"status\"], \"warning\")\n+        self.assertEqual(result[\"status_basis\"], \"observed_deployment_records_not_quota\")\n+        self.assertIs(result[\"safe_to_gate\"], False)\n+\n+    def test_default_scope_requires_verified_project_membership(self):\n+        from unittest.mock import MagicMock\n+        with patch.object(monitor, \"TOKEN\", \"test\"), patch.object(monitor, \"TEAM\", None), \\\n+             patch.object(monitor, \"PROJECTS\", {\"misaki\", \"emergencyalert\"}), \\\n+             patch.object(monitor.urllib.request, \"urlopen\") as urlopen:\n+            response = MagicMock()\n+            response.__enter__.return_value = io.BytesIO(json.dumps({\"projects\": [\n+                {\"name\": \"misaki\", \"accountId\": monitor.EXPECTED_TEAM}\n+            ]}).encode())\n+            urlopen.return_value = response\n+            with self.assertRaisesRegex(RuntimeError, \"membership not verified\"):\n+                monitor.main()\n+\n+    def test_invalid_deployment_response_is_not_treated_as_zero(self):\n+        with self.assertRaisesRegex(RuntimeError, \"invalid deployments response\"):\n+            self.run_monitor([{\"unexpected\": []}])\n+\n+    def test_missing_credentials(self):\n+        err = io.StringIO()\n+        with patch.object(monitor, \"TOKEN\", None), patch.object(monitor, \"TEAM\", None), contextlib.redirect_stderr(err):\n+            self.assertEqual(monitor.main(), 2)\n+\n+if __name__ == \"__main__\":\n+    unittest.main()\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/test_vercel_quota_monitor.py",
+      "source": {
+        "path": "tests/test_vercel_quota_monitor.py",
+        "coverage": "全文",
+        "text": "\"\"\"Offline unit tests for the read-only monitor; no Vercel credentials required.\"\"\"\nimport contextlib\nimport datetime as dt\nimport importlib.util\nimport io\nimport json\nfrom pathlib import Path\nimport unittest\nfrom unittest.mock import patch\n\nMODULE = Path(__file__).resolve().parents[1] / \"scripts\" / \"vercel_quota_monitor.py\"\nspec = importlib.util.spec_from_file_location(\"vercel_quota_monitor\", MODULE)\nmonitor = importlib.util.module_from_spec(spec)\nspec.loader.exec_module(monitor)\n\nclass MonitorTests(unittest.TestCase):\n    def run_monitor(self, pages, projects=None):\n        out = io.StringIO()\n        with patch.object(monitor, \"TOKEN\", \"test\"), patch.object(monitor, \"TEAM\", \"team_test\"), \\\n             patch.object(monitor, \"PROJECTS\", projects or set()), \\\n             patch.object(monitor, \"fetch\", side_effect=pages) as fetch, \\\n             contextlib.redirect_stdout(out):\n            code = monitor.main()\n        return code, json.loads(out.getvalue()), fetch\n\n    def test_empty(self):\n        code, result, fetch = self.run_monitor([{\"deployments\": []}])\n        self.assertEqual(code, 0)\n        self.assertEqual(result[\"deployment_records_24h\"], 0)\n        self.assertIs(result[\"safe_to_gate\"], False)\n        self.assertIs(result[\"quota_verified\"], False)\n        self.assertEqual(fetch.call_count, 1)\n\n    def test_counts_and_project_filter(self):\n        now = int(dt.datetime.now(dt.timezone.utc).timestamp() * 1000)\n        records = [\n            {\"uid\": \"a\", \"created\": now - 1000, \"name\": \"misaki\"},\n            {\"uid\": \"b\", \"created\": now - 2 * 3600 * 1000, \"name\": \"emergencyalert\"},\n            {\"uid\": \"c\", \"created\": now - 25 * 3600 * 1000, \"name\": \"misaki\"},\n            {\"uid\": \"a\", \"created\": now - 1000, \"name\": \"misaki\"},\n        ]\n        code, result, _ = self.run_monitor([{\"deployments\": records}], {\"misaki\"})\n        self.assertEqual(code, 0)\n        self.assertEqual(result[\"deployment_records_24h\"], 1)\n        self.assertEqual(result[\"deployment_records_1h\"], 1)\n\n    def test_warning_threshold(self):\n        now = int(dt.datetime.now(dt.timezone.utc).timestamp() * 1000)\n        records = [{\"uid\": str(i), \"created\": now - 1000, \"name\": \"misaki\"} for i in range(70)]\n        _, result, _ = self.run_monitor([{\"deployments\": records}])\n        self.assertEqual(result[\"status\"], \"warning\")\n        self.assertEqual(result[\"status_basis\"], \"observed_deployment_records_not_quota\")\n        self.assertIs(result[\"safe_to_gate\"], False)\n\n    def test_default_scope_requires_verified_project_membership(self):\n        from unittest.mock import MagicMock\n        with patch.object(monitor, \"TOKEN\", \"test\"), patch.object(monitor, \"TEAM\", None), \\\n             patch.object(monitor, \"PROJECTS\", {\"misaki\", \"emergencyalert\"}), \\\n             patch.object(monitor.urllib.request, \"urlopen\") as urlopen:\n            response = MagicMock()\n            response.__enter__.return_value = io.BytesIO(json.dumps({\"projects\": [\n                {\"name\": \"misaki\", \"accountId\": monitor.EXPECTED_TEAM}\n            ]}).encode())\n            urlopen.return_value = response\n            with self.assertRaisesRegex(RuntimeError, \"membership not verified\"):\n                monitor.main()\n\n    def test_invalid_deployment_response_is_not_treated_as_zero(self):\n        with self.assertRaisesRegex(RuntimeError, \"invalid deployments response\"):\n            self.run_monitor([{\"unexpected\": []}])\n\n    def test_missing_credentials(self):\n        err = io.StringIO()\n        with patch.object(monitor, \"TOKEN\", None), patch.object(monitor, \"TEAM\", None), contextlib.redirect_stderr(err):\n            self.assertEqual(monitor.main(), 2)\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+        "sha256": "05f408f5ffbd1fe16ba8c675ae9fb4163661d355615166d904b0f6366c25ea98"
+      }
+    }
+  ],
+  "file_count": 5,
+  "reported_file_count": 5,
+  "commits": [
+    {
+      "sha": "24c8e1e73623db259702a99c50c001bb8789e8c6",
+      "message": "feat: add read-only Vercel deployment activity monitor\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/24c8e1e73623db259702a99c50c001bb8789e8c6"
+    },
+    {
+      "sha": "e1306f89bd5773f2c3403052c2d94c07b34eb5c8",
+      "message": "test: cover Vercel monitor windows and failure handling\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/e1306f89bd5773f2c3403052c2d94c07b34eb5c8"
+    },
+    {
+      "sha": "2b77505b751674f8c6dd204adf4c574bfb2fba50",
+      "message": "ci: test read-only Vercel quota monitor without credentials\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/2b77505b751674f8c6dd204adf4c574bfb2fba50"
+    },
+    {
+      "sha": "9f2bcc7eb1fd3a5907db02fee2ac33e1bd24386d",
+      "message": "fix: verify both projects when Vercel default scope is used\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/9f2bcc7eb1fd3a5907db02fee2ac33e1bd24386d"
+    },
+    {
+      "sha": "0070c34941498704e7c0a183e4ddfcd8025a9cd2",
+      "message": "test: fail closed if either project is missing from default Vercel scope\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/0070c34941498704e7c0a183e4ddfcd8025a9cd2"
+    },
+    {
+      "sha": "08876bf1fa60b7badf6fcb11c35ddb0d8b449e70",
+      "message": "fix: repair malformed test source after CI syntax error\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/08876bf1fa60b7badf6fcb11c35ddb0d8b449e70"
+    },
+    {
+      "sha": "5ed0ef9c67f5f498c51bde10b2a6851cca949953",
+      "message": "fix: replace escaped newline literals in quota monitor\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/5ed0ef9c67f5f498c51bde10b2a6851cca949953"
+    },
+    {
+      "sha": "a05ecc3146c59c55f6b77f7d152c434e7231302d",
+      "message": "fix: permit verified default scope when team ID omitted\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/a05ecc3146c59c55f6b77f7d152c434e7231302d"
+    },
+    {
+      "sha": "900497857cfb4f960057459f0489c31ea1961787",
+      "message": "docs: define safe shared Vercel deployment policy and release gates\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/900497857cfb4f960057459f0489c31ea1961787"
+    },
+    {
+      "sha": "b098bf90f1cf73d606d8e4be476b1ee22a88f2ca",
+      "message": "docs: mark production permission issue resolved and keep quota gate disabled\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/b098bf90f1cf73d606d8e4be476b1ee22a88f2ca"
+    },
+    {
+      "sha": "358ab030929dc3a2d42e08d30dd807c2cf222a3c",
+      "message": "fix: explicitly prohibit quota gating from deployment record counts\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/358ab030929dc3a2d42e08d30dd807c2cf222a3c"
+    },
+    {
+      "sha": "c8cfb4fd5ab49d0c6e78c3a6c66f3c4178947d57",
+      "message": "fix: restore Python newlines in explicit quota safety flags\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/c8cfb4fd5ab49d0c6e78c3a6c66f3c4178947d57"
+    },
+    {
+      "sha": "7d40a5997e100f3bb6495870993a811d80b7d484",
+      "message": "test: ensure monitor never authorizes automatic production gating\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/7d40a5997e100f3bb6495870993a811d80b7d484"
+    },
+    {
+      "sha": "96d1b7244f8e75b73fdb2485e8c30a964ebd273a",
+      "message": "docs: verify Vercel Hobby limits and record unrelated CI blocker\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/96d1b7244f8e75b73fdb2485e8c30a964ebd273a"
+    },
+    {
+      "sha": "61f58b4efc5debbc101eec59c99821eb4ff81992",
+      "message": "test: run rain lab grade checks under Vitest in PR CI\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/61f58b4efc5debbc101eec59c99821eb4ff81992"
+    },
+    {
+      "sha": "f36105513c1015f21952623427f6bbd52c3bcc44",
+      "message": "fix: fail closed when Vercel deployments API returns malformed data\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/f36105513c1015f21952623427f6bbd52c3bcc44"
+    },
+    {
+      "sha": "7e61e6c7fc653735dcc327fa2e1ade34beb4dab1",
+      "message": "test: malformed Vercel response must not appear as zero activity\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [],
+  "symbols": [
+    "MonitorTests",
+    "fetch",
+    "main",
+    "make",
+    "run_monitor",
+    "test_counts_and_project_filter",
+    "test_default_scope_requires_verified_project_membership",
+    "test_empty",
+    "test_invalid_deployment_response_is_not_treated_as_zero",
+    "test_missing_credentials",
+    "test_warning_threshold"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "Vercelデプロイ履歴を読み取り専用で監視する準備",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/164"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "307d97e5fd8478f6d10c14a67530c6062b1eb17954d25d9c4256bf5a732304ed",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

@@ -1,0 +1,232 @@
+{
+  "id": "pr-16",
+  "number": 16,
+  "title": "chore: source-control production watch-rain",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Copies the currently deployed Supabase `watch-rain` v8 source into the repository without changing production behavior, and documents the PR-first workflow for future Edge Function changes. No Supabase deployment is performed by this PR.",
+  "snapshot_head": "0aac1241eb6852512f6a03b788f4d85df14e9881",
+  "snapshot_consistent": true,
+  "head": "0aac1241eb6852512f6a03b788f4d85df14e9881",
+  "base": "52d966444d807288326a49be95ec44f26f05ea8f",
+  "base_ref": "main",
+  "head_ref": "chore-source-control-watch-rain",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-09-24T11:13:14Z",
+  "merge_commit_sha": "59a4041711415ea758e5bb6cd825c36b01e8ce1a",
+  "updated_at": "2026-09-24T11:13:14Z",
+  "code_facts": [
+    {
+      "file": "supabase/functions/watch-rain/README.md",
+      "kind": "関数・クラス定義",
+      "expression": "- The current production function uses custom `WATCH_CRON_TOKEN` authentication and therefore has Supabase `verify_jwt=false`.",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0aac1241eb6852512f6a03b788f4d85df14e9881/supabase/functions/watch-rain/README.md"
+    },
+    {
+      "file": "supabase/functions/watch-rain/README.md",
+      "kind": "関数・クラス定義",
+      "expression": "The VAPID public key is currently present in the function source because that matches deployed v8. A later hardening step will rotate VAPID credentials and remove the historical exposed private key from active use.",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0aac1241eb6852512f6a03b788f4d85df14e9881/supabase/functions/watch-rain/README.md"
+    },
+    {
+      "file": "supabase/functions/watch-rain/index.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "const VAPID_PUBLIC_KEY = \"BBOurfjBkBMea0Hx90WiF83hmif8qv8LI1hFOx6AthWJQhkIWnhnUUZ0LYm7tyYg_3q1Aq3YP6mbJOtKjWA-Nec\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0aac1241eb6852512f6a03b788f4d85df14e9881/supabase/functions/watch-rain/index.ts"
+    },
+    {
+      "file": "supabase/functions/watch-rain/index.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!expected || req.headers.get(\"x-watch-token\") !== expected) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0aac1241eb6852512f6a03b788f4d85df14e9881/supabase/functions/watch-rain/index.ts"
+    },
+    {
+      "file": "supabase/functions/watch-rain/index.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!url || !serviceKey || !vapidPrivateKey) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0aac1241eb6852512f6a03b788f4d85df14e9881/supabase/functions/watch-rain/index.ts"
+    },
+    {
+      "file": "supabase/functions/watch-rain/index.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": ".from(\"watch_targets\")",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0aac1241eb6852512f6a03b788f4d85df14e9881/supabase/functions/watch-rain/index.ts"
+    },
+    {
+      "file": "supabase/functions/watch-rain/index.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (error) return Response.json({ error: \"target_query_failed\" }, { status: 500 });",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0aac1241eb6852512f6a03b788f4d85df14e9881/supabase/functions/watch-rain/index.ts"
+    },
+    {
+      "file": "supabase/functions/watch-rain/index.ts",
+      "kind": "HTTP要求",
+      "expression": "const response = await fetch(rainUrl, { headers: { accept: \"application/json\" } });",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0aac1241eb6852512f6a03b788f4d85df14e9881/supabase/functions/watch-rain/index.ts"
+    },
+    {
+      "file": "supabase/functions/watch-rain/index.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!response.ok) throw new Error(\"rain_unavailable\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0aac1241eb6852512f6a03b788f4d85df14e9881/supabase/functions/watch-rain/index.ts"
+    },
+    {
+      "file": "supabase/functions/watch-rain/index.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!rain.interpretationEnabled || !rain.event) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0aac1241eb6852512f6a03b788f4d85df14e9881/supabase/functions/watch-rain/index.ts"
+    },
+    {
+      "file": "supabase/functions/watch-rain/index.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "await db.from(\"watch_states\").upsert({",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0aac1241eb6852512f6a03b788f4d85df14e9881/supabase/functions/watch-rain/index.ts"
+    },
+    {
+      "file": "supabase/functions/watch-rain/index.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": ".from(\"watch_states\")",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0aac1241eb6852512f6a03b788f4d85df14e9881/supabase/functions/watch-rain/index.ts"
+    },
+    {
+      "file": "supabase/functions/watch-rain/index.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (shouldNotify) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0aac1241eb6852512f6a03b788f4d85df14e9881/supabase/functions/watch-rain/index.ts"
+    },
+    {
+      "file": "supabase/functions/watch-rain/index.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": ".from(\"push_subscriptions\")",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0aac1241eb6852512f6a03b788f4d85df14e9881/supabase/functions/watch-rain/index.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "supabase/functions/watch-rain/README.md",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "patch": "diff --git a/supabase/functions/watch-rain/README.md b/supabase/functions/watch-rain/README.md\nnew file mode 100644\nindex 0000000..33de4a7\n--- /dev/null\n+++ b/supabase/functions/watch-rain/README.md\n@@ -0,0 +1,14 @@\n+# watch-rain\n+\n+This directory mirrors the production Supabase Edge Function source.\n+\n+Baseline: deployed production `watch-rain` v8, captured 2026-09-24.\n+\n+Operational rule:\n+- GitHub is the source of truth for future changes.\n+- Do not edit the production Edge Function ad hoc.\n+- Change here via PR and tests first, then deploy the reviewed source to Supabase.\n+- The current production function uses custom `WATCH_CRON_TOKEN` authentication and therefore has Supabase `verify_jwt=false`.\n+- Never commit secret values such as `WATCH_CRON_TOKEN` or `VAPID_PRIVATE_KEY`.\n+\n+The VAPID public key is currently present in the function source because that matches deployed v8. A later hardening step will rotate VAPID credentials and remove the historical exposed private key from active use.\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0aac1241eb6852512f6a03b788f4d85df14e9881/supabase/functions/watch-rain/README.md",
+      "source": {
+        "path": "supabase/functions/watch-rain/README.md",
+        "coverage": "全文",
+        "text": "# watch-rain\n\nThis directory mirrors the production Supabase Edge Function source.\n\nBaseline: deployed production `watch-rain` v8, captured 2026-09-24.\n\nOperational rule:\n- GitHub is the source of truth for future changes.\n- Do not edit the production Edge Function ad hoc.\n- Change here via PR and tests first, then deploy the reviewed source to Supabase.\n- The current production function uses custom `WATCH_CRON_TOKEN` authentication and therefore has Supabase `verify_jwt=false`.\n- Never commit secret values such as `WATCH_CRON_TOKEN` or `VAPID_PRIVATE_KEY`.\n\nThe VAPID public key is currently present in the function source because that matches deployed v8. A later hardening step will rotate VAPID credentials and remove the historical exposed private key from active use.\n",
+        "sha256": "a5759e6474bc8ec525c50a000c257b8474343fbc45aab2a1acf488ff861ced68"
+      }
+    },
+    {
+      "path": "supabase/functions/watch-rain/index.ts",
+      "status": "modified",
+      "additions": 124,
+      "deletions": 0,
+      "patch": "diff --git a/supabase/functions/watch-rain/index.ts b/supabase/functions/watch-rain/index.ts\nnew file mode 100644\nindex 0000000..47564df\n--- /dev/null\n+++ b/supabase/functions/watch-rain/index.ts\n@@ -0,0 +1,124 @@\n+import { createClient } from \"jsr:@supabase/supabase-js@2\";\n+import webpush from \"npm:web-push@3.6.7\";\n+\n+type RainEvent = {\n+  schemaVersion: 1;\n+  eventType: string;\n+  urgency: \"INFO\" | \"LIFESTYLE_ACTION\";\n+  suggestedAction: string;\n+  startsAt: string | null;\n+  actionableAt: string | null;\n+  endingAt: string | null;\n+  source: string;\n+  checkedAt: string;\n+  sourceValidAt: string | null;\n+};\n+\n+const VAPID_PUBLIC_KEY = \"BBOurfjBkBMea0Hx90WiF83hmif8qv8LI1hFOx6AthWJQhkIWnhnUUZ0LYm7tyYg_3q1Aq3YP6mbJOtKjWA-Nec\";\n+\n+Deno.serve(async (req: Request) => {\n+  const expected = Deno.env.get(\"WATCH_CRON_TOKEN\");\n+  if (!expected || req.headers.get(\"x-watch-token\") !== expected) {\n+    return Response.json({ error: \"unauthorized\" }, { status: 401 });\n+  }\n+\n+  const url = Deno.env.get(\"SUPABASE_URL\");\n+  const serviceKey = Deno.env.get(\"SUPABASE_SERVICE_ROLE_KEY\");\n+  const vapidPrivateKey = Deno.env.get(\"VAPID_PRIVATE_KEY\");\n+  if (!url || !serviceKey || !vapidPrivateKey) {\n+    return Response.json({ error: \"server_config\" }, { status: 500 });\n+  }\n+\n+  webpush.setVapidDetails(\"mailto:emergencyalert@example.com\", VAPID_PUBLIC_KEY, vapidPrivateKey);\n+\n+  const db = createClient(url, serviceKey, { auth: { persistSession: false } });\n+  const { data: targets, error } = await db\n+    .from(\"watch_targets\")\n+    .select(\"id,owner_id,label,latitude,longitude,notifications_enabled\")\n+    .eq(\"enabled\", true)\n+    .limit(100);\n+  if (error) return Response.json({ error: \"target_query_failed\" }, { status: 500 });\n+\n+  const results = [];\n+  for (const target of targets ?? []) {\n+    try {\n+      const rainUrl = new URL(\"https://emergencyalert-gilt.vercel.app/api/rain\");\n+      rainUrl.searchParams.set(\"lat\", String(target.latitude));\n+      rainUrl.searchParams.set(\"lon\", String(target.longitude));\n+      const response = await fetch(rainUrl, { headers: { accept: \"application/json\" } });\n+      if (!response.ok) throw new Error(\"rain_unavailable\");\n+      const rain = await response.json() as { checkedAt?: string; event?: RainEvent | null; interpretationEnabled?: boolean };\n+\n+      if (!rain.interpretationEnabled || !rain.event) {\n+        await db.from(\"watch_states\").upsert({\n+          target_id: target.id,\n+          last_checked_at: rain.checkedAt ?? new Date().toISOString(),\n+          updated_at: new Date().toISOString(),\n+        }, { onConflict: \"target_id\" });\n+        results.push({ id: target.id, status: \"UNKNOWN\" });\n+        continue;\n+      }\n+\n+      const { data: previous } = await db\n+        .from(\"watch_states\")\n+        .select(\"last_event,last_notified_at\")\n+        .eq(\"target_id\", target.id)\n+        .maybeSingle();\n+\n+      const previousEvent = previous?.last_event as RainEvent | null | undefined;\n+      const actionable = rain.event.urgency === \"LIFESTYLE_ACTION\";\n+      const becameActionable = actionable && previousEvent?.urgency !== \"LIFESTYLE_ACTION\";\n+      const retryPending = actionable && !previous?.last_notified_at;\n+      const shouldNotify = Boolean(target.notifications_enabled) && (becameActionable || retryPending);\n+\n+      let delivered = 0;\n+      let failed = 0;\n+      if (shouldNotify) {\n+        const { data: subscriptions } = await db\n+          .from(\"push_subscriptions\")\n+          .select(\"id,endpoint,p256dh,auth\")\n+          .eq(\"owner_id\", target.owner_id);\n+\n+        const payload = JSON.stringify({\n+          title: \"EmergencyAlert\",\n+          body: target.label ? `${target.label}：${rain.event.suggestedAction}` : rain.event.suggestedAction,\n+          url: \"/\",\n+          data: { targetId: target.id, eventType: rain.event.eventType },\n+        });\n+\n+        for (const sub of subscriptions ?? []) {\n+          try {\n+            await webpush.sendNotification({\n+              endpoint: sub.endpoint,\n+              keys: { p256dh: sub.p256dh, auth: sub.auth },\n+            }, payload);\n+            delivered += 1;\n+          } catch (err) {\n+            const statusCode = Number((err as { statusCode?: number })?.statusCode ?? 0);\n+            if (statusCode === 404 || statusCode === 410) {\n+              await db.from(\"push_subscriptions\").delete().eq(\"id\", sub.id);\n+            } else {\n+              failed += 1;\n+            }\n+          }\n+        }\n+      }\n+\n+      const now = new Date().toISOString();\n+      const notifiedAt = delivered > 0 ? now : (actionable ? (previous?.last_notified_at ?? null) : null);\n+      await db.from(\"watch_states\").upsert({\n+        target_id: target.id,\n+        last_event: rain.event,\n+        last_checked_at: rain.checkedAt ?? now,\n+        last_notified_at: notifiedAt,\n+        updated_at: now,\n+      }, { onConflict: \"target_id\" });\n+\n+      results.push({ id: target.id, status: rain.event.eventType, shouldNotify, delivered, failed });\n+    } catch (err) {\n+      results.push({ id: target.id, status: \"CHECK_FAILED\", error: String((err as Error)?.message ?? err) });\n+    }\n+  }\n+\n+  return Response.json({ ok: true, checked: results.length, results });\n+});\n\\ No newline at end of file\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0aac1241eb6852512f6a03b788f4d85df14e9881/supabase/functions/watch-rain/index.ts",
+      "source": {
+        "path": "supabase/functions/watch-rain/index.ts",
+        "coverage": "全文",
+        "text": "import { createClient } from \"jsr:@supabase/supabase-js@2\";\nimport webpush from \"npm:web-push@3.6.7\";\n\ntype RainEvent = {\n  schemaVersion: 1;\n  eventType: string;\n  urgency: \"INFO\" | \"LIFESTYLE_ACTION\";\n  suggestedAction: string;\n  startsAt: string | null;\n  actionableAt: string | null;\n  endingAt: string | null;\n  source: string;\n  checkedAt: string;\n  sourceValidAt: string | null;\n};\n\nconst VAPID_PUBLIC_KEY = \"BBOurfjBkBMea0Hx90WiF83hmif8qv8LI1hFOx6AthWJQhkIWnhnUUZ0LYm7tyYg_3q1Aq3YP6mbJOtKjWA-Nec\";\n\nDeno.serve(async (req: Request) => {\n  const expected = Deno.env.get(\"WATCH_CRON_TOKEN\");\n  if (!expected || req.headers.get(\"x-watch-token\") !== expected) {\n    return Response.json({ error: \"unauthorized\" }, { status: 401 });\n  }\n\n  const url = Deno.env.get(\"SUPABASE_URL\");\n  const serviceKey = Deno.env.get(\"SUPABASE_SERVICE_ROLE_KEY\");\n  const vapidPrivateKey = Deno.env.get(\"VAPID_PRIVATE_KEY\");\n  if (!url || !serviceKey || !vapidPrivateKey) {\n    return Response.json({ error: \"server_config\" }, { status: 500 });\n  }\n\n  webpush.setVapidDetails(\"mailto:emergencyalert@example.com\", VAPID_PUBLIC_KEY, vapidPrivateKey);\n\n  const db = createClient(url, serviceKey, { auth: { persistSession: false } });\n  const { data: targets, error } = await db\n    .from(\"watch_targets\")\n    .select(\"id,owner_id,label,latitude,longitude,notifications_enabled\")\n    .eq(\"enabled\", true)\n    .limit(100);\n  if (error) return Response.json({ error: \"target_query_failed\" }, { status: 500 });\n\n  const results = [];\n  for (const target of targets ?? []) {\n    try {\n      const rainUrl = new URL(\"https://emergencyalert-gilt.vercel.app/api/rain\");\n      rainUrl.searchParams.set(\"lat\", String(target.latitude));\n      rainUrl.searchParams.set(\"lon\", String(target.longitude));\n      const response = await fetch(rainUrl, { headers: { accept: \"application/json\" } });\n      if (!response.ok) throw new Error(\"rain_unavailable\");\n      const rain = await response.json() as { checkedAt?: string; event?: RainEvent | null; interpretationEnabled?: boolean };\n\n      if (!rain.interpretationEnabled || !rain.event) {\n        await db.from(\"watch_states\").upsert({\n          target_id: target.id,\n          last_checked_at: rain.checkedAt ?? new Date().toISOString(),\n          updated_at: new Date().toISOString(),\n        }, { onConflict: \"target_id\" });\n        results.push({ id: target.id, status: \"UNKNOWN\" });\n        continue;\n      }\n\n      const { data: previous } = await db\n        .from(\"watch_states\")\n        .select(\"last_event,last_notified_at\")\n        .eq(\"target_id\", target.id)\n        .maybeSingle();\n\n      const previousEvent = previous?.last_event as RainEvent | null | undefined;\n      const actionable = rain.event.urgency === \"LIFESTYLE_ACTION\";\n      const becameActionable = actionable && previousEvent?.urgency !== \"LIFESTYLE_ACTION\";\n      const retryPending = actionable && !previous?.last_notified_at;\n      const shouldNotify = Boolean(target.notifications_enabled) && (becameActionable || retryPending);\n\n      let delivered = 0;\n      let failed = 0;\n      if (shouldNotify) {\n        const { data: subscriptions } = await db\n          .from(\"push_subscriptions\")\n          .select(\"id,endpoint,p256dh,auth\")\n          .eq(\"owner_id\", target.owner_id);\n\n        const payload = JSON.stringify({\n          title: \"EmergencyAlert\",\n          body: target.label ? `${target.label}：${rain.event.suggestedAction}` : rain.event.suggestedAction,\n          url: \"/\",\n          data: { targetId: target.id, eventType: rain.event.eventType },\n        });\n\n        for (const sub of subscriptions ?? []) {\n          try {\n            await webpush.sendNotification({\n              endpoint: sub.endpoint,\n              keys: { p256dh: sub.p256dh, auth: sub.auth },\n            }, payload);\n            delivered += 1;\n          } catch (err) {\n            const statusCode = Number((err as { statusCode?: number })?.statusCode ?? 0);\n            if (statusCode === 404 || statusCode === 410) {\n              await db.from(\"push_subscriptions\").delete().eq(\"id\", sub.id);\n            } else {\n              failed += 1;\n            }\n          }\n        }\n      }\n\n      const now = new Date().toISOString();\n      const notifiedAt = delivered > 0 ? now : (actionable ? (previous?.last_notified_at ?? null) : null);\n      await db.from(\"watch_states\").upsert({\n        target_id: target.id,\n        last_event: rain.event,\n        last_checked_at: rain.checkedAt ?? now,\n        last_notified_at: notifiedAt,\n        updated_at: now,\n      }, { onConflict: \"target_id\" });\n\n      results.push({ id: target.id, status: rain.event.eventType, shouldNotify, delivered, failed });\n    } catch (err) {\n      results.push({ id: target.id, status: \"CHECK_FAILED\", error: String((err as Error)?.message ?? err) });\n    }\n  }\n\n  return Response.json({ ok: true, checked: results.length, results });\n});",
+        "sha256": "ae53a7ce728257dabdf701dfd7cfecbd1ce0fc9cd2578cabe264df9813c112a6"
+      }
+    },
+    {
+      "path": "tsconfig.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "diff --git a/tsconfig.json b/tsconfig.json\nindex 25a72b4..2d05559 100644\n--- a/tsconfig.json\n+++ b/tsconfig.json\n@@ -17,5 +17,5 @@\n     \"paths\": { \"@/*\": [\"./*\"] }\n   },\n   \"include\": [\"next-env.d.ts\", \"**/*.ts\", \"**/*.tsx\", \".next/types/**/*.ts\"],\n-  \"exclude\": [\"node_modules\"]\n+  \"exclude\": [\"node_modules\", \"supabase/functions/**\"]\n }\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0aac1241eb6852512f6a03b788f4d85df14e9881/tsconfig.json",
+      "source": {
+        "path": "tsconfig.json",
+        "coverage": "全文",
+        "text": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"lib\": [\"dom\", \"dom.iterable\", \"esnext\"],\n    \"allowJs\": false,\n    \"skipLibCheck\": true,\n    \"strict\": true,\n    \"noEmit\": true,\n    \"esModuleInterop\": true,\n    \"module\": \"esnext\",\n    \"moduleResolution\": \"bundler\",\n    \"resolveJsonModule\": true,\n    \"isolatedModules\": true,\n    \"jsx\": \"preserve\",\n    \"incremental\": true,\n    \"plugins\": [{ \"name\": \"next\" }],\n    \"paths\": { \"@/*\": [\"./*\"] }\n  },\n  \"include\": [\"next-env.d.ts\", \"**/*.ts\", \"**/*.tsx\", \".next/types/**/*.ts\"],\n  \"exclude\": [\"node_modules\", \"supabase/functions/**\"]\n}\n",
+        "sha256": "c4f0a87beea7a2fc39c465fdb5d9952b8907f9a095a2870d67cdb68195c2416b"
+      }
+    }
+  ],
+  "file_count": 3,
+  "reported_file_count": 3,
+  "commits": [
+    {
+      "sha": "4cc4a66946ee80a79f52815506bfb8e6dc82feb3",
+      "message": "chore: source-control deployed watch-rain v8\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/4cc4a66946ee80a79f52815506bfb8e6dc82feb3"
+    },
+    {
+      "sha": "ef94da22a9db3d4e4342fd77765263be56c9d9df",
+      "message": "docs: define watch-rain source-control workflow\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/ef94da22a9db3d4e4342fd77765263be56c9d9df"
+    },
+    {
+      "sha": "0aac1241eb6852512f6a03b788f4d85df14e9881",
+      "message": "fix: exclude Supabase Deno functions from Next build\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/0aac1241eb6852512f6a03b788f4d85df14e9881"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "0aac1241eb6852512f6a03b788f4d85df14e9881",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/35991462597",
+      "id": 35991462597,
+      "updated_at": "2026-09-24T11:11:13Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "VAPID_PUBLIC_KEY",
+    "actionable",
+    "becameActionable",
+    "db",
+    "delivered",
+    "expected",
+    "failed",
+    "notifiedAt",
+    "now",
+    "payload",
+    "previousEvent",
+    "rain",
+    "rainUrl",
+    "response",
+    "results",
+    "retryPending",
+    "serviceKey",
+    "shouldNotify",
+    "source",
+    "statusCode",
+    "sub",
+    "target",
+    "url",
+    "uses",
+    "vapidPrivateKey"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "本番watch-rainのソースをGit管理へ保存",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/16"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "d671208b3545a8251dfea6a692440b2be7548db9c10ae5e4c82efced8454cb29",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

@@ -1,0 +1,141 @@
+{
+  "id": "pr-81",
+  "number": 81,
+  "title": "diagnostics: show presence of PWA auth storage key safely",
+  "topics": [
+    "認証・安全性"
+  ],
+  "purpose": "認証・アクセス制御に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Opt-in, read-only auth storage metadata diagnostic. Does not read token values, create anonymous accounts, or modify DB. Distinguishes absent stored auth key from existing key with missing session. Includes incident checkpoint.",
+  "snapshot_head": "61d9a8303b0004c77b13327ca1c759e20b5bf9ae",
+  "snapshot_consistent": true,
+  "head": "61d9a8303b0004c77b13327ca1c759e20b5bf9ae",
+  "base": "c64d8c5393f88b709fd2648b6bdc3505e58626dd",
+  "base_ref": "main",
+  "head_ref": "feat/auth-storage-metadata-diagnostics-20261024",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-10-23T18:49:46Z",
+  "merge_commit_sha": "dcea2448cf53ba96a8fc157794fc4a047ecb1748",
+  "updated_at": "2026-10-23T18:49:47Z",
+  "code_facts": [
+    {
+      "file": "app/components/ResumeDiagnosticsPanel.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!url) { setAuthStorageStatus(\"設定なし\"); return; }",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/61d9a8303b0004c77b13327ca1c759e20b5bf9ae/app/components/ResumeDiagnosticsPanel.tsx"
+    },
+    {
+      "file": "app/components/ResumeDiagnosticsPanel.tsx",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const exists = Array.from({ length: window.localStorage.length }, (_, i) => window.localStorage.key(i)).includes(key);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/61d9a8303b0004c77b13327ca1c759e20b5bf9ae/app/components/ResumeDiagnosticsPanel.tsx"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/components/ResumeDiagnosticsPanel.tsx",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 1,
+      "patch": "diff --git a/app/components/ResumeDiagnosticsPanel.tsx b/app/components/ResumeDiagnosticsPanel.tsx\nindex 4b24dc5..42a71ec 100644\n--- a/app/components/ResumeDiagnosticsPanel.tsx\n+++ b/app/components/ResumeDiagnosticsPanel.tsx\n@@ -12,6 +12,7 @@ export default function ResumeDiagnosticsPanel() {\n   const [runtimeStatus, setRuntimeStatus] = useState(\"確認中\");\n   const [swEvents, setSwEvents] = useState<string[]>([]);\n   const [authStatus, setAuthStatus] = useState(\"未観測\");\n+  const [authStorageStatus, setAuthStorageStatus] = useState(\"未確認\");\n   const [copyStatus, setCopyStatus] = useState(\"\");\n   const [clearStatus, setClearStatus] = useState(\"\");\n   const [snapshotPaused, setSnapshotPaused] = useState(false);\n@@ -54,7 +55,21 @@ export default function ResumeDiagnosticsPanel() {\n     } catch {\n       setStorageStatus(\"利用不可\");\n     }\n+    const checkAuthStorage = () => {\n+      // Inspect key existence only. Never read, parse, log or copy auth token values.\n+      try {\n+        const url = process.env.NEXT_PUBLIC_SUPABASE_URL;\n+        if (!url) { setAuthStorageStatus(\"設定なし\"); return; }\n+        const ref = new URL(url).hostname.split(\".\")[0];\n+        const key = `sb-${ref}-auth-token`;\n+        const exists = Array.from({ length: window.localStorage.length }, (_, i) => window.localStorage.key(i)).includes(key);\n+        setAuthStorageStatus(exists ? \"認証保存キーあり（内容は未確認）\" : \"認証保存キーなし\");\n+      } catch {\n+        setAuthStorageStatus(\"保存領域を確認できない\");\n+      }\n+    };\n     const update = () => {\n+      checkAuthStorage();\n       setEvents([...handle.events]);\n       // Read-only metadata. Never create an auth client or read credentials.\n       const sw = \"serviceWorker\" in navigator\n@@ -108,6 +123,7 @@ export default function ResumeDiagnosticsPanel() {\n       \"取得時刻: \" + new Date().toISOString(),\n       \"履歴枠: \" + (document.querySelector(\"[data-amefuru-feedback-history]\") ? \"あり\" : \"なし\"),\n       \"認証状態: \" + authStatus,\n+      \"認証保存キー: \" + authStorageStatus,\n       \"診断保存: \" + storageStatus,\n       \"直近イベント:\",\n       ...events.slice(-30).map(e => e.at.slice(11, 19) + \" \" + e.type),\n@@ -160,6 +176,7 @@ export default function ResumeDiagnosticsPanel() {\n       <div>診断保存: {storageStatus} ／ 前回の記録: {previous.length}件</div>\n       <div>{runtimeStatus}</div>\n       <div>認証状態（既存の履歴読込から）: {authStatus}</div>\n+      <div>認証保存キー（有無のみ）: {authStorageStatus}</div>\n       <details>\n         <summary>SWイベント: {swEvents.length}件</summary>\n         <pre style={{ whiteSpace: \"pre-wrap\" }}>{swEvents.map(x => x + \"\\\\n\")}</pre>\n@@ -185,7 +202,7 @@ export default function ResumeDiagnosticsPanel() {\n       {snapshotPaused && <button type=\"button\" onClick={resumeSnapshot}>保存を再開</button>}\n       <span role=\"status\">{clearStatus}</span></div>\n       <br />\n-      <small>画面撮影時は位置情報などが映らないよう注意。再読み込み後は前回のイベント名と時刻のみ復元します。診断用sessionStorage以外は変更しません。</small>\n+      <small>画面撮影時は位置情報などが映らないよう注意。再読み込み後は前回のイベント名と時刻のみ復元します。診断用sessionStorage以外は変更しません。認証保存キーは名前の有無だけを調べ、トークンやIDは読み取りません。</small>\n     </aside>\n   );\n }\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/61d9a8303b0004c77b13327ca1c759e20b5bf9ae/app/components/ResumeDiagnosticsPanel.tsx",
+      "source": {
+        "path": "app/components/ResumeDiagnosticsPanel.tsx",
+        "coverage": "全文",
+        "text": "\"use client\";\n\nimport { useEffect, useState } from \"react\";\nimport { installPwaResumeDiagnostics, type ResumeEvent } from \"../../lib/diagnostics/pwaResumeDiagnostics\";\n\n/** Opt-in diagnostics; local-only and never sends diagnostic events. */\nexport default function ResumeDiagnosticsPanel() {\n  const [enabled, setEnabled] = useState(false);\n  const [events, setEvents] = useState<ResumeEvent[]>([]);\n  const [previous, setPrevious] = useState<{at:string;type:string}[]>([]);\n  const [storageStatus, setStorageStatus] = useState(\"未確認\");\n  const [runtimeStatus, setRuntimeStatus] = useState(\"確認中\");\n  const [swEvents, setSwEvents] = useState<string[]>([]);\n  const [authStatus, setAuthStatus] = useState(\"未観測\");\n  const [authStorageStatus, setAuthStorageStatus] = useState(\"未確認\");\n  const [copyStatus, setCopyStatus] = useState(\"\");\n  const [clearStatus, setClearStatus] = useState(\"\");\n  const [snapshotPaused, setSnapshotPaused] = useState(false);\n\n  useEffect(() => {\n    const queryEnabled = new URLSearchParams(window.location.search).get(\"resume_debug\") === \"1\";\n    const inAppEnabled = (() => {\n      try { return window.sessionStorage.getItem(\"amefuru:resume-debug:enabled:v1\") === \"1\"; }\n      catch { return false; }\n    })();\n    if (!queryEnabled && !inAppEnabled) return;\n    setEnabled(true);\n    const onAuthDiagnostic = (event: Event) => {\n      const status = (event as CustomEvent<{ status?: string }>).detail?.status;\n      if (status === \"present\") setAuthStatus(\"セッションあり\");\n      else if (status === \"absent\") setAuthStatus(\"セッションなし\");\n      else if (status === \"error\") setAuthStatus(\"確認エラー\");\n    };\n    window.addEventListener(\"amefuru:diagnostic-auth-state\", onAuthDiagnostic);\n    const handle = installPwaResumeDiagnostics();\n    try {\n      setSnapshotPaused(window.sessionStorage.getItem(\"amefuru:resume-debug:paused:v1\") === \"1\");\n    } catch {\n      setStorageStatus(\"利用不可\");\n    }\n    // Diagnostic-only sessionStorage key. Never access auth/session keys.\n    const key = \"amefuru:resume-debug:snapshot:v1\";\n    try {\n      const raw = window.sessionStorage.getItem(key);\n      if (raw) {\n        const parsed: unknown = JSON.parse(raw);\n        if (Array.isArray(parsed)) {\n          setPrevious(parsed.filter((e): e is {at:string;type:string} =>\n            !!e && typeof e === \"object\" && typeof e.at === \"string\" &&\n            typeof e.type === \"string\" && e.at.length <= 30 &&\n            e.type.length <= 40).slice(-30));\n        }\n      }\n      setStorageStatus(\"利用可\");\n    } catch {\n      setStorageStatus(\"利用不可\");\n    }\n    const checkAuthStorage = () => {\n      // Inspect key existence only. Never read, parse, log or copy auth token values.\n      try {\n        const url = process.env.NEXT_PUBLIC_SUPABASE_URL;\n        if (!url) { setAuthStorageStatus(\"設定なし\"); return; }\n        const ref = new URL(url).hostname.split(\".\")[0];\n        const key = `sb-${ref}-auth-token`;\n        const exists = Array.from({ length: window.localStorage.length }, (_, i) => window.localStorage.key(i)).includes(key);\n        setAuthStorageStatus(exists ? \"認証保存キーあり（内容は未確認）\" : \"認証保存キーなし\");\n      } catch {\n        setAuthStorageStatus(\"保存領域を確認できない\");\n      }\n    };\n    const update = () => {\n      checkAuthStorage();\n      setEvents([...handle.events]);\n      // Read-only metadata. Never create an auth client or read credentials.\n      const sw = \"serviceWorker\" in navigator\n        ? (navigator.serviceWorker.controller ? \"制御あり\" : \"制御なし\")\n        : \"非対応\";\n      const standalone = window.matchMedia(\"(display-mode: standalone)\").matches;\n      setRuntimeStatus(\"PWA: \" + (standalone ? \"ホーム画面\" : \"ブラウザ\") +\n        \" ／ SW: \" + sw +\n        \" ／ 通信: \" + (navigator.onLine ? \"オンライン\" : \"オフライン\") +\n        \" ／ 表示: \" + document.visibilityState);\n\n      try {\n        if (window.sessionStorage.getItem(\"amefuru:resume-debug:paused:v1\") === \"1\") return;\n        window.sessionStorage.setItem(key, JSON.stringify(\n          handle.events.slice(-30).map(e => ({ at: e.at, type: e.type }))\n        ));\n      } catch {\n        setStorageStatus(\"保存不可\");\n      }\n    };\n    update();\n    const sw = \"serviceWorker\" in navigator ? navigator.serviceWorker : null;\n    const record = (name: string) => setSwEvents(old =>\n      [...old, new Date().toISOString().slice(11, 19) + \" \" + name].slice(-12));\n    const onChange = () => record(\"controllerchange\");\n    const onUpdate = () => record(\"updatefound\");\n    let active = true;\n    let observed: ServiceWorkerRegistration | undefined;\n    sw?.addEventListener(\"controllerchange\", onChange);\n    if (sw) {\n      void sw.getRegistration().then(reg => {\n        if (!active || !reg) return;\n        observed = reg;\n        reg.addEventListener(\"updatefound\", onUpdate);\n      }).catch(() => {});\n    }\n    const timer = window.setInterval(update, 700);\n    return () => {\n      active = false;\n      window.removeEventListener(\"amefuru:diagnostic-auth-state\", onAuthDiagnostic);\n      window.clearInterval(timer);\n      sw?.removeEventListener(\"controllerchange\", onChange);\n      observed?.removeEventListener(\"updatefound\", onUpdate);\n    };\n  }, []);\n\n  const copyReport = async () => {\n    // Allowlisted diagnostic summary only. No URLs, user IDs, tokens or event details.\n    const report = [\n      \"アメふる 診断レポート\",\n      \"取得時刻: \" + new Date().toISOString(),\n      \"履歴枠: \" + (document.querySelector(\"[data-amefuru-feedback-history]\") ? \"あり\" : \"なし\"),\n      \"認証状態: \" + authStatus,\n      \"認証保存キー: \" + authStorageStatus,\n      \"診断保存: \" + storageStatus,\n      \"直近イベント:\",\n      ...events.slice(-30).map(e => e.at.slice(11, 19) + \" \" + e.type),\n      \"前回イベント:\",\n      ...previous.map(e => e.at.slice(11, 19) + \" \" + e.type),\n      \"SWイベント:\",\n      ...swEvents,\n    ].join(\"\\n\");\n    try {\n      await navigator.clipboard.writeText(report);\n      setCopyStatus(\"コピーしました\");\n    } catch {\n      setCopyStatus(\"コピーできませんでした\");\n    }\n  };\n\n  const clearSnapshot = () => {\n    try {\n      sessionStorage.setItem(\"amefuru:resume-debug:paused:v1\", \"1\");\n      sessionStorage.removeItem(\"amefuru:resume-debug:snapshot:v1\");\n      setSnapshotPaused(true);\n      setPrevious([]);\n      setClearStatus(\"保存した診断記録を削除しました\");\n    } catch {\n      setClearStatus(\"削除できませんでした\");\n    }\n  };\n\n  const resumeSnapshot = () => {\n    try {\n      sessionStorage.removeItem(\"amefuru:resume-debug:paused:v1\");\n      setSnapshotPaused(false);\n      setClearStatus(\"診断記録の保存を再開しました\");\n    } catch {\n      setClearStatus(\"保存を再開できませんでした\");\n    }\n  };\n\n  if (!enabled) return null;\n  return (\n    <aside aria-label=\"復帰診断（研究用）\" style={{\n      position: \"fixed\", bottom: 8, left: 8, right: 8, zIndex: 2147483647,\n      width: \"auto\", maxWidth: 380, marginLeft: \"auto\", boxSizing: \"border-box\",\n      maxHeight: \"38vh\", overflowX: \"hidden\", overflowY: \"auto\",\n      padding: 12, background: \"#111827\", color: \"#fff\", border: \"2px solid #fbbf24\",\n      borderRadius: 12, fontSize: 12, boxShadow: \"0 4px 24px #0008\"\n    }}>\n      <strong>🔍 復帰診断（研究用・端末内のみ）</strong>\n      <div>履歴枠: {typeof document !== \"undefined\" && document.querySelector('[data-amefuru-feedback-history]') ? \"あり\" : \"なし\"} ／ 記録: {events.length}件</div>\n      <div>診断保存: {storageStatus} ／ 前回の記録: {previous.length}件</div>\n      <div>{runtimeStatus}</div>\n      <div>認証状態（既存の履歴読込から）: {authStatus}</div>\n      <div>認証保存キー（有無のみ）: {authStorageStatus}</div>\n      <details>\n        <summary>SWイベント: {swEvents.length}件</summary>\n        <pre style={{ whiteSpace: \"pre-wrap\" }}>{swEvents.map(x => x + \"\\\\n\")}</pre>\n      </details>\n      <details>\n        <summary>前回のページ記録（最大30件）</summary>\n        <pre style={{ whiteSpace: \"pre-wrap\", overflowWrap: \"anywhere\", maxHeight: \"20vh\", overflow: \"auto\" }}>\n          {previous.map(e => e.at.slice(11, 19) + \" \" + e.type).join(\"\\n\") || \"記録なし\"}\n        </pre>\n      </details>\n      <details>\n        <summary>直近イベントを表示</summary>\n        <pre style={{ whiteSpace: \"pre-wrap\", overflowWrap: \"anywhere\", maxHeight: \"24vh\", overflow: \"auto\" }}>\n          {events.slice(-18).map(e => `${e.at.slice(11, 19)} ${e.type} ${JSON.stringify(e.details ?? {})}`).join(\"\\n\")}\n        </pre>\n      </details>\n      <button type=\"button\" onClick={() => void copyReport()}\n        style={{ marginTop: 8, padding: \"6px 10px\", borderRadius: 6, background: \"#fbbf24\", color: \"#111827\" }}>\n        診断レポートをコピー\n      </button>\n      <span role=\"status\" style={{ marginLeft: 8 }}>{copyStatus}</span>\n      <div><button type=\"button\" onClick={clearSnapshot}>保存した診断記録を削除・保存停止</button>\n      {snapshotPaused && <button type=\"button\" onClick={resumeSnapshot}>保存を再開</button>}\n      <span role=\"status\">{clearStatus}</span></div>\n      <br />\n      <small>画面撮影時は位置情報などが映らないよう注意。再読み込み後は前回のイベント名と時刻のみ復元します。診断用sessionStorage以外は変更しません。認証保存キーは名前の有無だけを調べ、トークンやIDは読み取りません。</small>\n    </aside>\n  );\n}\n",
+        "sha256": "20146fe71bca6964b8a0a0de7dca405a0e93b2436ed68e43e7a2d729078e157b"
+      }
+    },
+    {
+      "path": "docs/PWA_AUTH_STORAGE_DIAGNOSIS_20261024.md",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "patch": "diff --git a/docs/PWA_AUTH_STORAGE_DIAGNOSIS_20261024.md b/docs/PWA_AUTH_STORAGE_DIAGNOSIS_20261024.md\nnew file mode 100644\nindex 0000000..bafcb31\n--- /dev/null\n+++ b/docs/PWA_AUTH_STORAGE_DIAGNOSIS_20261024.md\n@@ -0,0 +1,15 @@\n+# PWA anonymous session: read-only storage-key diagnosis (2026-10-24)\n+\n+Observed: home-screen iPhone PWA is online, service worker controlled, history component mounted, but its Supabase getSession returns no session. Push registration verification also reports no auth session. Current owner still has five targets in database.\n+\n+The earlier browser-client singleton fix is in production but did not recover the session.\n+\n+New diagnostic: while opt-in panel is open, inspect **only the presence of the expected Supabase localStorage auth key**. Never call localStorage.getItem on auth key, parse tokens, reveal user IDs, send telemetry, sign in, sign out, or mutate Supabase data. Display \"key present\", \"key absent\" or \"unavailable\" next to the already existing session state. Include status in allowlisted copied report.\n+\n+Interpretation:\n+- No key + no session: local persisted session missing from this PWA storage scope. Do not create a new anonymous account; design verified recovery.\n+- Key present + no session: possible expired/invalid credentials, refresh failure, or storage-client mismatch. Requires more diagnostics; key presence is not proof of valid session.\n+- Browser and standalone PWA may have distinct storage; inspect only the installed PWA.\n+- Keep old account data and current five targets untouched until resolved.\n+\n+Acceptance: CI passes, production deployed, user opens panel and shares the two statuses. Avoid capturing sensitive details.\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/61d9a8303b0004c77b13327ca1c759e20b5bf9ae/docs/PWA_AUTH_STORAGE_DIAGNOSIS_20261024.md",
+      "source": {
+        "path": "docs/PWA_AUTH_STORAGE_DIAGNOSIS_20261024.md",
+        "coverage": "全文",
+        "text": "# PWA anonymous session: read-only storage-key diagnosis (2026-10-24)\n\nObserved: home-screen iPhone PWA is online, service worker controlled, history component mounted, but its Supabase getSession returns no session. Push registration verification also reports no auth session. Current owner still has five targets in database.\n\nThe earlier browser-client singleton fix is in production but did not recover the session.\n\nNew diagnostic: while opt-in panel is open, inspect **only the presence of the expected Supabase localStorage auth key**. Never call localStorage.getItem on auth key, parse tokens, reveal user IDs, send telemetry, sign in, sign out, or mutate Supabase data. Display \"key present\", \"key absent\" or \"unavailable\" next to the already existing session state. Include status in allowlisted copied report.\n\nInterpretation:\n- No key + no session: local persisted session missing from this PWA storage scope. Do not create a new anonymous account; design verified recovery.\n- Key present + no session: possible expired/invalid credentials, refresh failure, or storage-client mismatch. Requires more diagnostics; key presence is not proof of valid session.\n- Browser and standalone PWA may have distinct storage; inspect only the installed PWA.\n- Keep old account data and current five targets untouched until resolved.\n\nAcceptance: CI passes, production deployed, user opens panel and shares the two statuses. Avoid capturing sensitive details.\n",
+        "sha256": "c1c1065e51fd54eb9d365d150b0787d43178c750d0ebdc1114bf6c14d3ae6922"
+      }
+    }
+  ],
+  "file_count": 2,
+  "reported_file_count": 2,
+  "commits": [
+    {
+      "sha": "76c497a7d80ec0ee07704e8bbc6a351119d9e083",
+      "message": "feat: diagnose Supabase auth storage key presence without reading credentials\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/76c497a7d80ec0ee07704e8bbc6a351119d9e083"
+    },
+    {
+      "sha": "61d9a8303b0004c77b13327ca1c759e20b5bf9ae",
+      "message": "docs: preserve auth storage investigation checkpoint\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/61d9a8303b0004c77b13327ca1c759e20b5bf9ae"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "61d9a8303b0004c77b13327ca1c759e20b5bf9ae",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/40006012408",
+      "id": 40006012408,
+      "updated_at": "2026-10-23T18:47:17Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "ResumeDiagnosticsPanel",
+    "active",
+    "checkAuthStorage",
+    "clearSnapshot",
+    "copyReport",
+    "exists",
+    "handle",
+    "inAppEnabled",
+    "key",
+    "observed",
+    "onAuthDiagnostic",
+    "onChange",
+    "onUpdate",
+    "parsed",
+    "queryEnabled",
+    "raw",
+    "record",
+    "ref",
+    "report",
+    "resumeSnapshot",
+    "standalone",
+    "status",
+    "sw",
+    "timer",
+    "update",
+    "url"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "認証保存キーの有無を安全に診断表示",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/81"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "30b879b21d0285d8203c12c1b4ccf1ff3bb10f5e204b0f1f0d5bf39dc72838f7",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

@@ -1,0 +1,141 @@
+{
+  "id": "pr-156",
+  "number": 156,
+  "title": "docs(web): JASPIC OAuth向け公開説明・プライバシーページ",
+  "topics": [
+    "通知・配信",
+    "認証・安全性",
+    "画面・表示"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更／認証・アクセス制御に関する変更／画面表示や操作に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "## 目的\nGoogle Auth Platformのブランディングで必要なアプリ説明ページとプライバシーポリシー候補を、既存の `emergencyalert.news` に追加します。\n\n## 変更\n- `/jaspic` — 本人専用JASPICメール自動化の説明（送信開始していない旨、非公式である旨）\n- `/jaspic/privacy` — Gmail `gmail.send` の利用目的とデータ取扱い（本番運用前の見直し事項を明記）\n\n## 安全条件\n- アメふる本体・既存ページ・API・データベース・cron・既存PR #155を変更しません。\n- 公開用ページのみ。OAuth資格情報、警察の事件レコード、実メールは公開しません。\n- **Draftのまま維持し、マージと本番デプロイはユーザーの承認まで禁止**。\n- Googleの認証審査やドメイン確認を保証するものではありません。\n\n## 公開後にGoogleへ登録する候補\n- Homepage: `https://emergencyalert.news/jaspic`\n- Privacy policy: `https://emergencyalert.news/jaspic/privacy`\n- Authorized domain: `emergencyalert.news`\n\n## マージ前確認\n- CIとVercelプレビュー、スマホ表示\n- 公開する記載内容をユーザーが確認\n- OAuthの運用内容に応じてポリシー内容を修正",
+  "snapshot_head": "e15cb16a477ab7def56a6d696632dc246590018d",
+  "snapshot_consistent": true,
+  "head": "e15cb16a477ab7def56a6d696632dc246590018d",
+  "base": "fe3c96a66cde948292e7c3acdd805ca229ae2cff",
+  "base_ref": "main",
+  "head_ref": "feat/jaspic-oauth-public-pages-20261105",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-04T16:47:10Z",
+  "merge_commit_sha": "14063adc31f6aa37a794e9319b80f0e339942dda",
+  "updated_at": "2026-11-04T16:47:10Z",
+  "code_facts": [
+    {
+      "file": "app/jaspic/page.tsx",
+      "kind": "関数・クラス定義",
+      "expression": "export default function JaspicOverviewPage() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e15cb16a477ab7def56a6d696632dc246590018d/app/jaspic/page.tsx"
+    },
+    {
+      "file": "app/jaspic/privacy/page.tsx",
+      "kind": "関数・クラス定義",
+      "expression": "export default function JaspicPrivacyPage() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e15cb16a477ab7def56a6d696632dc246590018d/app/jaspic/privacy/page.tsx"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/page.tsx",
+      "status": "modified",
+      "additions": 30,
+      "deletions": 0,
+      "patch": "diff --git a/app/jaspic/page.tsx b/app/jaspic/page.tsx\nnew file mode 100644\nindex 0000000..6c9692e\n--- /dev/null\n+++ b/app/jaspic/page.tsx\n@@ -0,0 +1,30 @@\n+import type { Metadata } from \"next\";\n+import Link from \"next/link\";\n+\n+export const metadata: Metadata = {\n+  title: \"JASPIC Mail Automation | サービス概要\",\n+  description: \"警察が公開する情報の確認と、指定された受信先へのメール連絡を補助する個人利用のツールについて。\",\n+  alternates: { canonical: \"https://emergencyalert.news/jaspic\" },\n+};\n+\n+const panel = { maxWidth: 740, margin: \"52px auto\", padding: \"32px 26px\", background: \"#fff\", borderRadius: 16, color: \"#162436\", lineHeight: 1.8, boxShadow: \"0 8px 30px rgba(0,0,0,.14)\" } as const;\n+\n+export default function JaspicOverviewPage() {\n+  return (\n+    <main style={panel}>\n+      <p style={{ fontSize: 13, color: \"#476280\", margin: 0 }}>EmergencyAlert / 個人利用ツールの案内</p>\n+      <h1 style={{ fontSize: 30, lineHeight: 1.4, marginTop: 12 }}>JASPIC Mail Automation</h1>\n+      <p>JASPIC Mail Automationは、広島県警・滋賀県警が公開する防犯関連情報を確認し、指定された受信先へのメール連絡を補助するための、運営者本人専用のシステムです。</p>\n+      <h2 style={{ fontSize: 20, marginTop: 30 }}>利用目的</h2>\n+      <p>公開情報の取得、前回取得分との差分確認、必要な通知文面の生成を行います。Google Gmail APIの送信権限は、運営者が管理するGmailアカウントから所定の相手へ通知メールを送信する目的のみに使用する予定です。</p>\n+      <h2 style={{ fontSize: 20, marginTop: 30 }}>利用対象と現況</h2>\n+      <p>不特定多数に提供するサービスではなく、個人管理用です。メール送信機能は現在準備・検証中であり、このページを公開することによって送信が開始されることはありません。</p>\n+      <h2 style={{ fontSize: 20, marginTop: 30 }}>公式機関との関係</h2>\n+      <p>本ツールは各警察機関やGoogleの公式サービスではなく、これらの組織による承認・保証を示すものではありません。</p>\n+      <h2 style={{ fontSize: 20, marginTop: 30 }}>プライバシーについて</h2>\n+      <p>Googleアカウントへのアクセス権限と情報の取り扱いについては、<Link href=\"/jaspic/privacy\">プライバシーポリシー</Link>をご覧ください。</p>\n+      <hr style={{ border: 0, borderTop: \"1px solid #dce3ea\", margin: \"32px 0 20px\" }} />\n+      <p style={{ fontSize: 14 }}>本ページは <a href=\"https://emergencyalert.news\">emergencyalert.news</a> に設置した、個人運営のツール案内です。</p>\n+    </main>\n+  );\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e15cb16a477ab7def56a6d696632dc246590018d/app/jaspic/page.tsx",
+      "source": {
+        "path": "app/jaspic/page.tsx",
+        "coverage": "全文",
+        "text": "import type { Metadata } from \"next\";\nimport Link from \"next/link\";\n\nexport const metadata: Metadata = {\n  title: \"JASPIC Mail Automation | サービス概要\",\n  description: \"警察が公開する情報の確認と、指定された受信先へのメール連絡を補助する個人利用のツールについて。\",\n  alternates: { canonical: \"https://emergencyalert.news/jaspic\" },\n};\n\nconst panel = { maxWidth: 740, margin: \"52px auto\", padding: \"32px 26px\", background: \"#fff\", borderRadius: 16, color: \"#162436\", lineHeight: 1.8, boxShadow: \"0 8px 30px rgba(0,0,0,.14)\" } as const;\n\nexport default function JaspicOverviewPage() {\n  return (\n    <main style={panel}>\n      <p style={{ fontSize: 13, color: \"#476280\", margin: 0 }}>EmergencyAlert / 個人利用ツールの案内</p>\n      <h1 style={{ fontSize: 30, lineHeight: 1.4, marginTop: 12 }}>JASPIC Mail Automation</h1>\n      <p>JASPIC Mail Automationは、広島県警・滋賀県警が公開する防犯関連情報を確認し、指定された受信先へのメール連絡を補助するための、運営者本人専用のシステムです。</p>\n      <h2 style={{ fontSize: 20, marginTop: 30 }}>利用目的</h2>\n      <p>公開情報の取得、前回取得分との差分確認、必要な通知文面の生成を行います。Google Gmail APIの送信権限は、運営者が管理するGmailアカウントから所定の相手へ通知メールを送信する目的のみに使用する予定です。</p>\n      <h2 style={{ fontSize: 20, marginTop: 30 }}>利用対象と現況</h2>\n      <p>不特定多数に提供するサービスではなく、個人管理用です。メール送信機能は現在準備・検証中であり、このページを公開することによって送信が開始されることはありません。</p>\n      <h2 style={{ fontSize: 20, marginTop: 30 }}>公式機関との関係</h2>\n      <p>本ツールは各警察機関やGoogleの公式サービスではなく、これらの組織による承認・保証を示すものではありません。</p>\n      <h2 style={{ fontSize: 20, marginTop: 30 }}>プライバシーについて</h2>\n      <p>Googleアカウントへのアクセス権限と情報の取り扱いについては、<Link href=\"/jaspic/privacy\">プライバシーポリシー</Link>をご覧ください。</p>\n      <hr style={{ border: 0, borderTop: \"1px solid #dce3ea\", margin: \"32px 0 20px\" }} />\n      <p style={{ fontSize: 14 }}>本ページは <a href=\"https://emergencyalert.news\">emergencyalert.news</a> に設置した、個人運営のツール案内です。</p>\n    </main>\n  );\n}\n",
+        "sha256": "9f00d292515c7a6348e2ee198d42cea3f19bda63b2e0a722c26f16e48f3fa28a"
+      }
+    },
+    {
+      "path": "app/jaspic/privacy/page.tsx",
+      "status": "modified",
+      "additions": 33,
+      "deletions": 0,
+      "patch": "diff --git a/app/jaspic/privacy/page.tsx b/app/jaspic/privacy/page.tsx\nnew file mode 100644\nindex 0000000..6ef1c54\n--- /dev/null\n+++ b/app/jaspic/privacy/page.tsx\n@@ -0,0 +1,33 @@\n+import type { Metadata } from \"next\";\n+import Link from \"next/link\";\n+\n+export const metadata: Metadata = {\n+  title: \"プライバシーポリシー | JASPIC Mail Automation\",\n+  description: \"JASPIC Mail AutomationにおけるGoogleユーザーデータと警察公開情報の取り扱いについて。\",\n+  alternates: { canonical: \"https://emergencyalert.news/jaspic/privacy\" },\n+};\n+\n+const panel = { maxWidth: 740, margin: \"52px auto\", padding: \"32px 26px\", background: \"#fff\", borderRadius: 16, color: \"#162436\", lineHeight: 1.8, boxShadow: \"0 8px 30px rgba(0,0,0,.14)\" } as const;\n+\n+export default function JaspicPrivacyPage() {\n+  return (\n+    <main style={panel}>\n+      <p style={{ fontSize: 13, color: \"#476280\" }}><Link href=\"/jaspic\">JASPIC Mail Automation</Link></p>\n+      <h1 style={{ fontSize: 29, lineHeight: 1.4 }}>プライバシーポリシー</h1>\n+      <p>最終更新日：2026年11月5日</p>\n+      <h2 style={{ fontSize: 20 }}>1. 運営と利用範囲</h2>\n+      <p>JASPIC Mail Automation（以下「本ツール」）は、運営者本人が管理する、警察公開情報を用いたメール連絡の補助ツールです。一般向けのアカウント登録や第三者への利用提供は想定していません。</p>\n+      <h2 style={{ fontSize: 20 }}>2. 取得・利用する情報</h2>\n+      <p>本ツールは、広島県警・滋賀県警が公開する防犯関連データを取得・比較します。Googleアカウントについては、本人による許可を得た場合に限り、Gmail APIの <code>gmail.send</code> 権限を使用して通知メールを送信する設計です。Gmailの受信メールを閲覧・検索・削除する権限は、本ツールの送信機能には必要ありません。</p>\n+      <h2 style={{ fontSize: 20 }}>3. 利用目的と共有先</h2>\n+      <p>Googleから取得した認証情報は、運営者が指定した通知メールをGmail経由で送信する認証に使用します。生成した通知文は指定された受信先に送付することを想定しており、広告、販売、利用者の行動追跡などには利用しません。</p>\n+      <h2 style={{ fontSize: 20 }}>4. 保管と安全対策</h2>\n+      <p>OAuth認証情報は、ソースコードや公開ページに記載せず、送信機能を稼働させる場合はサーバー側の秘密情報管理機能で保護します。取得した公開情報と送信処理の状態は、業務上必要な範囲で管理します。保管期間や削除手順の詳細は、本番運用設計の確定時に更新します。</p>\n+      <h2 style={{ fontSize: 20 }}>5. Googleユーザーデータ</h2>\n+      <p>Googleユーザーデータへのアクセスは、本人が許可した送信目的に限定します。取得した認証情報を広告用途に提供したり、第三者に販売したりしません。権限の取り消しは、Googleアカウントのセキュリティ設定から行えます。</p>\n+      <h2 style={{ fontSize: 20 }}>6. ポリシーの変更</h2>\n+      <p>送信機能やデータ保管方法が変わった場合は、実際の運用に合わせて本ページを更新します。</p>\n+      <p style={{ marginTop: 32 }}><Link href=\"/jaspic\">← サービス概要へ戻る</Link></p>\n+    </main>\n+  );\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e15cb16a477ab7def56a6d696632dc246590018d/app/jaspic/privacy/page.tsx",
+      "source": {
+        "path": "app/jaspic/privacy/page.tsx",
+        "coverage": "全文",
+        "text": "import type { Metadata } from \"next\";\nimport Link from \"next/link\";\n\nexport const metadata: Metadata = {\n  title: \"プライバシーポリシー | JASPIC Mail Automation\",\n  description: \"JASPIC Mail AutomationにおけるGoogleユーザーデータと警察公開情報の取り扱いについて。\",\n  alternates: { canonical: \"https://emergencyalert.news/jaspic/privacy\" },\n};\n\nconst panel = { maxWidth: 740, margin: \"52px auto\", padding: \"32px 26px\", background: \"#fff\", borderRadius: 16, color: \"#162436\", lineHeight: 1.8, boxShadow: \"0 8px 30px rgba(0,0,0,.14)\" } as const;\n\nexport default function JaspicPrivacyPage() {\n  return (\n    <main style={panel}>\n      <p style={{ fontSize: 13, color: \"#476280\" }}><Link href=\"/jaspic\">JASPIC Mail Automation</Link></p>\n      <h1 style={{ fontSize: 29, lineHeight: 1.4 }}>プライバシーポリシー</h1>\n      <p>最終更新日：2026年11月5日</p>\n      <h2 style={{ fontSize: 20 }}>1. 運営と利用範囲</h2>\n      <p>JASPIC Mail Automation（以下「本ツール」）は、運営者本人が管理する、警察公開情報を用いたメール連絡の補助ツールです。一般向けのアカウント登録や第三者への利用提供は想定していません。</p>\n      <h2 style={{ fontSize: 20 }}>2. 取得・利用する情報</h2>\n      <p>本ツールは、広島県警・滋賀県警が公開する防犯関連データを取得・比較します。Googleアカウントについては、本人による許可を得た場合に限り、Gmail APIの <code>gmail.send</code> 権限を使用して通知メールを送信する設計です。Gmailの受信メールを閲覧・検索・削除する権限は、本ツールの送信機能には必要ありません。</p>\n      <h2 style={{ fontSize: 20 }}>3. 利用目的と共有先</h2>\n      <p>Googleから取得した認証情報は、運営者が指定した通知メールをGmail経由で送信する認証に使用します。生成した通知文は指定された受信先に送付することを想定しており、広告、販売、利用者の行動追跡などには利用しません。</p>\n      <h2 style={{ fontSize: 20 }}>4. 保管と安全対策</h2>\n      <p>OAuth認証情報は、ソースコードや公開ページに記載せず、送信機能を稼働させる場合はサーバー側の秘密情報管理機能で保護します。取得した公開情報と送信処理の状態は、業務上必要な範囲で管理します。保管期間や削除手順の詳細は、本番運用設計の確定時に更新します。</p>\n      <h2 style={{ fontSize: 20 }}>5. Googleユーザーデータ</h2>\n      <p>Googleユーザーデータへのアクセスは、本人が許可した送信目的に限定します。取得した認証情報を広告用途に提供したり、第三者に販売したりしません。権限の取り消しは、Googleアカウントのセキュリティ設定から行えます。</p>\n      <h2 style={{ fontSize: 20 }}>6. ポリシーの変更</h2>\n      <p>送信機能やデータ保管方法が変わった場合は、実際の運用に合わせて本ページを更新します。</p>\n      <p style={{ marginTop: 32 }}><Link href=\"/jaspic\">← サービス概要へ戻る</Link></p>\n    </main>\n  );\n}\n",
+        "sha256": "b7c1fdbfdf5a804507c1c50cb5b2cb309d2225eafd95ffd84274f6cf3dd7aba0"
+      }
+    }
+  ],
+  "file_count": 2,
+  "reported_file_count": 2,
+  "commits": [
+    {
+      "sha": "a9dd691632155faa30dedcc23bdade36ab530432",
+      "message": "feat(jaspic): add static OAuth public overview page\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/a9dd691632155faa30dedcc23bdade36ab530432"
+    },
+    {
+      "sha": "e15cb16a477ab7def56a6d696632dc246590018d",
+      "message": "feat(jaspic): add static OAuth public privacy policy page\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/e15cb16a477ab7def56a6d696632dc246590018d"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "e15cb16a477ab7def56a6d696632dc246590018d",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/41870934339",
+      "id": 41870934339,
+      "updated_at": "2026-11-04T16:47:17Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "e15cb16a477ab7def56a6d696632dc246590018d",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/41857616231",
+      "id": 41857616231,
+      "updated_at": "2026-11-04T15:25:54Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "e15cb16a477ab7def56a6d696632dc246590018d",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/41857616102",
+      "id": 41857616102,
+      "updated_at": "2026-11-04T15:26:40Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "JaspicOverviewPage",
+    "JaspicPrivacyPage",
+    "metadata",
+    "panel"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "docs(web): JASPIC OAuth向け公開説明・プライバシーページ",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/156"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "ac15cbe19ea9c3304c6909dc16eb34cfcf4dcfecc399b91725d2402ca4603031",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

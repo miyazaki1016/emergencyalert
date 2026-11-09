@@ -1,0 +1,1677 @@
+{
+  ".gitattributes": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "app/api/rain/early/route.test.ts": [
+    "branch-e4759b653b6f36d2",
+    "pr-24"
+  ],
+  "app/api/rain/early/route.ts": [
+    "branch-68f33791ab263e2e",
+    "branch-89ed93054e66b5e1",
+    "pr-21",
+    "pr-23"
+  ],
+  "app/api/rain/national-preview/route.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "pr-181"
+  ],
+  "app/api/rain/national-preview/route.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-181",
+    "pr-59"
+  ],
+  "app/api/rain/national-queue/route.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-181",
+    "pr-59"
+  ],
+  "app/api/rain/national-queue/route.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-181",
+    "pr-59"
+  ],
+  "app/api/rain/national-worker/route.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "app/api/rain/national-worker/route.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "app/api/rain/route.ts": [
+    "branch-628f136aaac0ca36",
+    "branch-7243c32c4aada456",
+    "branch-9ee36a6124cd667e",
+    "branch-e887abe92356f2f8",
+    "pr-109",
+    "pr-31",
+    "pr-32",
+    "pr-34"
+  ],
+  "app/components/DeveloperLabLink.tsx": [
+    "branch-dbcfae267568d52d",
+    "pr-102"
+  ],
+  "app/components/NotificationFeedbackHistory.tsx": [
+    "branch-091c543ebb50d507",
+    "branch-5437e621b3e2f897",
+    "branch-5c8dd10b120b7b96",
+    "branch-60bf0fe58994b8d1",
+    "branch-7cf91be9fae8af1b",
+    "branch-7d74693488d68979",
+    "branch-87d4561c05ed70fb",
+    "branch-8d4b5b57bc91e1f1",
+    "branch-978ef60235fbbf68",
+    "branch-9bfa97f866ff8bc0",
+    "branch-a5f2511bf36597a1",
+    "branch-b5bac1644f15f8e7",
+    "pr-65",
+    "pr-66",
+    "pr-68",
+    "pr-69",
+    "pr-71",
+    "pr-72",
+    "pr-73",
+    "pr-74",
+    "pr-76",
+    "pr-77",
+    "pr-83"
+  ],
+  "app/components/PwaDiagnosticsToggle.tsx": [
+    "branch-b5bac1644f15f8e7",
+    "pr-77"
+  ],
+  "app/components/ResumeDiagnosticsPanel.tsx": [
+    "branch-1df54a47e158f2ad",
+    "branch-6a8121b2550dbe9c",
+    "branch-705f3ba77d283676",
+    "branch-7cf91be9fae8af1b",
+    "branch-a5f2511bf36597a1",
+    "branch-b5bac1644f15f8e7",
+    "branch-c05c32337717821c",
+    "branch-d6fc6f60ebda9d5a",
+    "pr-76",
+    "pr-77",
+    "pr-81",
+    "pr-82",
+    "pr-83",
+    "pr-85",
+    "pr-86",
+    "pr-87"
+  ],
+  "app/dev/rain-lab/RainLab.tsx": [
+    "branch-22f64fc517bd98c8",
+    "branch-62efc69d0291dcce",
+    "branch-80c56aa91b391a23",
+    "branch-98720101eac846e9",
+    "branch-adfd5936a62983f3",
+    "branch-d25ed7ecfeb9cfe5",
+    "branch-d60839d7bd6952a6",
+    "branch-dbcfae267568d52d",
+    "branch-dfd42da398610013",
+    "pr-102",
+    "pr-103",
+    "pr-104",
+    "pr-159",
+    "pr-160",
+    "pr-175",
+    "pr-176",
+    "pr-177",
+    "pr-178"
+  ],
+  "app/dev/rain-lab/lab.module.css": [
+    "branch-22f64fc517bd98c8",
+    "branch-62efc69d0291dcce",
+    "branch-dbcfae267568d52d",
+    "branch-dfd42da398610013",
+    "pr-102",
+    "pr-103",
+    "pr-175",
+    "pr-176"
+  ],
+  "app/dev/rain-lab/page.tsx": [
+    "branch-dbcfae267568d52d",
+    "pr-102"
+  ],
+  "app/external-ai-review/page.tsx": [
+    "branch-31d6803113173639",
+    "pr-97"
+  ],
+  "app/icon.tsx": [
+    "branch-d8037f3cde5d4713",
+    "pr-3"
+  ],
+  "app/jaspic/oauth/callback/route.ts": [
+    "branch-ae94438b6e247b91",
+    "branch-c32f0f97af1ba1b5",
+    "branch-dddc96894dde5a85",
+    "branch-f4ebc6c16c3885bc",
+    "pr-155",
+    "pr-168",
+    "pr-170",
+    "pr-171"
+  ],
+  "app/jaspic/oauth/login-client.tsx": [
+    "branch-8c6a80e8f4c87a06",
+    "branch-ae94438b6e247b91",
+    "branch-b84bde7f845491a7",
+    "branch-c32f0f97af1ba1b5",
+    "branch-dddc96894dde5a85",
+    "branch-e532c526e0c8a49b",
+    "branch-f257789f539b6669",
+    "branch-f4ebc6c16c3885bc",
+    "pr-155",
+    "pr-157",
+    "pr-166",
+    "pr-167",
+    "pr-168",
+    "pr-170",
+    "pr-171",
+    "pr-174"
+  ],
+  "app/jaspic/oauth/page.tsx": [
+    "branch-b84bde7f845491a7",
+    "branch-c32f0f97af1ba1b5",
+    "branch-dddc96894dde5a85",
+    "branch-e532c526e0c8a49b",
+    "pr-155",
+    "pr-157",
+    "pr-167",
+    "pr-171"
+  ],
+  "app/jaspic/oauth/result/page.tsx": [
+    "branch-ae94438b6e247b91",
+    "branch-c32f0f97af1ba1b5",
+    "branch-dddc96894dde5a85",
+    "branch-f4ebc6c16c3885bc",
+    "pr-155",
+    "pr-168",
+    "pr-170",
+    "pr-171"
+  ],
+  "app/jaspic/oauth/send-start/route.ts": [
+    "branch-ae94438b6e247b91",
+    "branch-dddc96894dde5a85",
+    "pr-170",
+    "pr-171"
+  ],
+  "app/jaspic/oauth/start/route.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "branch-dddc96894dde5a85",
+    "branch-e532c526e0c8a49b",
+    "branch-f4ebc6c16c3885bc",
+    "pr-155",
+    "pr-157",
+    "pr-168",
+    "pr-171"
+  ],
+  "app/jaspic/oauth/status/route.ts": [
+    "branch-b84bde7f845491a7",
+    "branch-dddc96894dde5a85",
+    "pr-167",
+    "pr-171"
+  ],
+  "app/jaspic/oauth/test-send/route.ts": [
+    "branch-f257789f539b6669",
+    "pr-174"
+  ],
+  "app/jaspic/page.tsx": [
+    "branch-00f0c673fc11e028",
+    "pr-156"
+  ],
+  "app/jaspic/privacy/page.tsx": [
+    "branch-00f0c673fc11e028",
+    "pr-156"
+  ],
+  "app/layout.tsx": [
+    "branch-50e63eed8ecf47eb",
+    "branch-8850eea2b9e8ed04",
+    "pr-2",
+    "pr-42",
+    "pr-43",
+    "pr-44",
+    "pr-55"
+  ],
+  "app/live-japan/event-contract.ts": [
+    "branch-153fab71251172b0",
+    "pr-61"
+  ],
+  "app/live-japan/lifecycle-scenario.ts": [
+    "branch-153fab71251172b0",
+    "pr-61"
+  ],
+  "app/live-japan/page.tsx": [
+    "branch-153fab71251172b0",
+    "pr-61"
+  ],
+  "app/live-japan/priority.ts": [
+    "branch-153fab71251172b0",
+    "pr-61"
+  ],
+  "app/manifest.ts": [
+    "branch-8850eea2b9e8ed04",
+    "branch-d8037f3cde5d4713",
+    "pr-2",
+    "pr-3"
+  ],
+  "app/my/page.tsx": [
+    "branch-153fab71251172b0",
+    "pr-61"
+  ],
+  "app/page.tsx": [
+    "branch-137eb0d47116605a",
+    "branch-1472cf746702250d",
+    "branch-153fab71251172b0",
+    "branch-15e527c001981f05",
+    "branch-28cc10b2d6d01d4c",
+    "branch-50e63eed8ecf47eb",
+    "branch-57dd9197ee251797",
+    "branch-5ae89a497357326f",
+    "branch-827c5e290502cb7e",
+    "branch-87d4561c05ed70fb",
+    "branch-91ead96821aaeff5",
+    "branch-a5f2511bf36597a1",
+    "branch-aeef70603b294028",
+    "branch-b5bac1644f15f8e7",
+    "branch-b71ab24ac30a1cb5",
+    "branch-db53b568abce0bbd",
+    "branch-dbcfae267568d52d",
+    "branch-ed8571ecfbfa4b90",
+    "branch-f0d1cc348ec11a37",
+    "branch-f481c53a0ffb9f36",
+    "pr-10",
+    "pr-102",
+    "pr-11",
+    "pr-14",
+    "pr-15",
+    "pr-22",
+    "pr-27",
+    "pr-29",
+    "pr-36",
+    "pr-41",
+    "pr-42",
+    "pr-43",
+    "pr-44",
+    "pr-45",
+    "pr-46",
+    "pr-49",
+    "pr-54",
+    "pr-55",
+    "pr-56",
+    "pr-6",
+    "pr-61",
+    "pr-63",
+    "pr-65",
+    "pr-76",
+    "pr-77",
+    "pr-78",
+    "pr-79",
+    "pr-8",
+    "pr-9"
+  ],
+  "app/pwa-register.tsx": [
+    "branch-8850eea2b9e8ed04",
+    "pr-2"
+  ],
+  "lib/diagnostics/pwaResumeDiagnostics.ts": [
+    "branch-a5f2511bf36597a1",
+    "pr-76"
+  ],
+  "lib/jaspic/admin-authorization.ts": [
+    "branch-b84bde7f845491a7",
+    "pr-167"
+  ],
+  "lib/jaspic/delivery-routing.ts": [
+    "branch-f257789f539b6669",
+    "pr-174"
+  ],
+  "lib/jaspic/oauth-callback-validation.ts": [
+    "branch-f4ebc6c16c3885bc",
+    "pr-168"
+  ],
+  "lib/jaspic/oauth-consent-preparation.ts": [
+    "branch-f4ebc6c16c3885bc",
+    "pr-168"
+  ],
+  "lib/jaspic/oauth-gmail-send-callback-server.ts": [
+    "branch-5471c028848cfd01",
+    "branch-ae94438b6e247b91",
+    "branch-ce2746b8f1b60391",
+    "branch-dddc96894dde5a85",
+    "pr-170",
+    "pr-171",
+    "pr-172",
+    "pr-173"
+  ],
+  "lib/jaspic/oauth-gmail-send-consent-offline.ts": [
+    "branch-ae94438b6e247b91",
+    "pr-170"
+  ],
+  "lib/jaspic/oauth-gmail-send-token-validation-offline.ts": [
+    "branch-ae94438b6e247b91",
+    "branch-dddc96894dde5a85",
+    "pr-170",
+    "pr-171"
+  ],
+  "lib/jaspic/oauth-gmail-token-store-server.ts": [
+    "branch-dddc96894dde5a85",
+    "pr-171"
+  ],
+  "lib/jaspic/oauth-gmail-token-vault-offline.ts": [
+    "branch-dddc96894dde5a85",
+    "pr-171"
+  ],
+  "lib/jaspic/oauth-identity-callback.ts": [
+    "branch-dddc96894dde5a85",
+    "branch-f4ebc6c16c3885bc",
+    "pr-168",
+    "pr-171"
+  ],
+  "lib/jaspic/oauth-identity-exchange.ts": [
+    "branch-f4ebc6c16c3885bc",
+    "pr-168"
+  ],
+  "lib/jaspic/oauth-identity-start.ts": [
+    "branch-f4ebc6c16c3885bc",
+    "pr-168"
+  ],
+  "lib/jaspic/oauth-identity-token-validation.ts": [
+    "branch-8e34b82c3ff2a9ac",
+    "branch-f4ebc6c16c3885bc",
+    "pr-168",
+    "pr-169"
+  ],
+  "lib/jaspic/oauth-once-offline.ts": [
+    "branch-f4ebc6c16c3885bc",
+    "pr-168"
+  ],
+  "lib/jaspic/oauth-session-offline.ts": [
+    "branch-dddc96894dde5a85",
+    "branch-f4ebc6c16c3885bc",
+    "pr-168",
+    "pr-171"
+  ],
+  "lib/jaspic/oauth-start-authorization.ts": [
+    "branch-f4ebc6c16c3885bc",
+    "pr-168"
+  ],
+  "lib/jaspic/oauth-supabase-store.ts": [
+    "branch-f4ebc6c16c3885bc",
+    "pr-168"
+  ],
+  "lib/jaspic/shigaMail.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "lib/places/searchPlaces.ts": [
+    "branch-04c8f793320315f9",
+    "branch-309a089ee15503d2",
+    "branch-8408fe81c12a3d3e",
+    "branch-b075504ef7a80661",
+    "pr-30",
+    "pr-4",
+    "pr-5",
+    "pr-7"
+  ],
+  "lib/research/forecastEvidence.ts": [
+    "branch-e887abe92356f2f8",
+    "pr-109"
+  ],
+  "lib/research/forecastEvidenceBudgetGate.ts": [
+    "branch-e887abe92356f2f8",
+    "pr-109"
+  ],
+  "lib/research/forecastEvidenceCapacity.ts": [
+    "branch-e887abe92356f2f8",
+    "pr-109"
+  ],
+  "lib/research/forecastEvidenceFailureMonitor.ts": [
+    "branch-e887abe92356f2f8",
+    "pr-109"
+  ],
+  "lib/research/forecastEvidenceRetention.ts": [
+    "branch-e887abe92356f2f8",
+    "pr-109"
+  ],
+  "lib/research/forecastHistoryReplay.ts": [
+    "branch-e887abe92356f2f8",
+    "pr-109"
+  ],
+  "lib/research/rainLab.ts": [
+    "branch-22f64fc517bd98c8",
+    "branch-62efc69d0291dcce",
+    "branch-98720101eac846e9",
+    "branch-dbcfae267568d52d",
+    "branch-dfd42da398610013",
+    "pr-102",
+    "pr-103",
+    "pr-104",
+    "pr-175",
+    "pr-176"
+  ],
+  "lib/research/rainLabRepository.ts": [
+    "branch-62efc69d0291dcce",
+    "branch-dbcfae267568d52d",
+    "pr-102",
+    "pr-103"
+  ],
+  "lib/research/rainMismatch.ts": [
+    "branch-62efc69d0291dcce",
+    "branch-80c56aa91b391a23",
+    "branch-d60839d7bd6952a6",
+    "pr-103",
+    "pr-159",
+    "pr-160"
+  ],
+  "lib/research/severeRainConsistency.ts": [
+    "branch-e887abe92356f2f8",
+    "pr-109"
+  ],
+  "lib/supabase/browser.ts": [
+    "branch-b3e8dd2806e3ba6e",
+    "pr-80"
+  ],
+  "lib/weather/providers/jma/JmaEarlyRainForecastProvider.ts": [
+    "branch-d157f5472723004f",
+    "pr-20"
+  ],
+  "lib/weather/providers/jma/JmaPublicImageProvider.measurement.test.ts": [
+    "branch-06febc013000a880",
+    "pr-98"
+  ],
+  "lib/weather/providers/jma/JmaPublicImageProvider.test.ts": [
+    "branch-60fdc910109714c5",
+    "branch-c8b61bf965f00d0f",
+    "pr-1",
+    "pr-33",
+    "pr-47"
+  ],
+  "lib/weather/providers/jma/JmaPublicImageProvider.ts": [
+    "branch-06febc013000a880",
+    "pr-98"
+  ],
+  "lib/weather/providers/jma/classifyPixel.test.ts": [
+    "branch-60fdc910109714c5",
+    "branch-c8b61bf965f00d0f",
+    "pr-1",
+    "pr-33",
+    "pr-47"
+  ],
+  "lib/weather/providers/jma/classifyPixel.ts": [
+    "branch-60fdc910109714c5",
+    "pr-33"
+  ],
+  "lib/weather/providers/jma/earlyForecastTargetTimes.ts": [
+    "branch-d157f5472723004f",
+    "pr-20"
+  ],
+  "lib/weather/providers/jma/earlyForecastTileUrl.test.ts": [
+    "branch-5c92b4faabfdb401",
+    "branch-94d665cd64c44050",
+    "branch-d157f5472723004f",
+    "pr-20",
+    "pr-25",
+    "pr-26"
+  ],
+  "lib/weather/providers/jma/earlyForecastTileUrl.ts": [
+    "branch-5c92b4faabfdb401",
+    "branch-94d665cd64c44050",
+    "branch-d157f5472723004f",
+    "pr-20",
+    "pr-25",
+    "pr-26"
+  ],
+  "lib/weather/providers/jma/paletteWatcher.test.ts": [
+    "branch-c8b61bf965f00d0f",
+    "pr-1",
+    "pr-47"
+  ],
+  "lib/weather/providers/jma/pngPalette.test.ts": [
+    "branch-c8b61bf965f00d0f",
+    "pr-1",
+    "pr-47"
+  ],
+  "lib/weather/providers/jma/pngPalette.ts": [
+    "branch-c8b61bf965f00d0f",
+    "pr-1",
+    "pr-47"
+  ],
+  "lib/weather/providers/jma/readPixel.measurement.test.ts": [
+    "branch-06febc013000a880",
+    "pr-98"
+  ],
+  "lib/weather/providers/jma/readPixel.ts": [
+    "branch-06febc013000a880",
+    "pr-98"
+  ],
+  "lib/weather/providers/jma/tileSizeCollector.test.ts": [
+    "branch-06febc013000a880",
+    "pr-98"
+  ],
+  "lib/weather/providers/jma/tileSizeCollector.ts": [
+    "branch-06febc013000a880",
+    "pr-98"
+  ],
+  "lib/weather/rain/RainInterpretationEngine.test.ts": [
+    "branch-2d4d1257bf897e74",
+    "branch-5f7ce5cfce85c051",
+    "branch-6ba19657c1ae6c55",
+    "branch-d8764d3bc33c1caa",
+    "pr-12",
+    "pr-28",
+    "pr-35",
+    "pr-89"
+  ],
+  "lib/weather/rain/RainInterpretationEngine.ts": [
+    "branch-2d4d1257bf897e74",
+    "branch-6ba19657c1ae6c55",
+    "branch-d8764d3bc33c1caa",
+    "pr-28",
+    "pr-35",
+    "pr-89"
+  ],
+  "lib/weather/rain/administrativeAreas.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/administrativeAreas.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/auditEndingRadarProxy.ts": [
+    "branch-f481c53a0ffb9f36",
+    "pr-63"
+  ],
+  "lib/weather/rain/boundedChunkCache.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/boundedChunkCache.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/canPublishRainInterpretation.test.ts": [
+    "branch-2d4d1257bf897e74",
+    "pr-89"
+  ],
+  "lib/weather/rain/feedbackObservationTime.ts": [
+    "branch-60bf0fe58994b8d1",
+    "pr-71"
+  ],
+  "lib/weather/rain/feedbackPhase1.ts": [
+    "branch-091c543ebb50d507",
+    "branch-5437e621b3e2f897",
+    "branch-7d74693488d68979",
+    "branch-87d4561c05ed70fb",
+    "branch-8d4b5b57bc91e1f1",
+    "branch-978ef60235fbbf68",
+    "branch-9bfa97f866ff8bc0",
+    "pr-65",
+    "pr-66",
+    "pr-68",
+    "pr-69",
+    "pr-72",
+    "pr-73"
+  ],
+  "lib/weather/rain/feedbackPhase1Repository.ts": [
+    "branch-60bf0fe58994b8d1",
+    "branch-87d4561c05ed70fb",
+    "pr-65",
+    "pr-71"
+  ],
+  "lib/weather/rain/feedbackTiming.ts": [
+    "branch-f481c53a0ffb9f36",
+    "pr-63"
+  ],
+  "lib/weather/rain/japanPrefectures.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/n03AdministrativeAreas.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/n03AdministrativeAreas.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/n03BoundedPartitionResolver.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/n03BoundedPartitionResolver.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/n03Dataset.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/n03Dataset.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/n03PartitionStorage.integration.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/n03PartitionStorage.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/n03PartitionStorage.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/n03PrefectureIndex2026.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/n03Prefectures.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/n03Prefectures.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/n03PreparedStorageContract.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/n03PreparedStorageLoader.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/n03PreparedStorageLoader.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/nationalHeavyRain.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/nationalHeavyRain.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/nationalRainCycle.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/nationalRainCycle.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/nationalRainMunicipalities.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/nationalRainMunicipalities.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/nationalRainMunicipalityResolver.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/nationalRainMunicipalityResolver.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/nationalRainQueue.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/nationalRainQueue.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/nationalRainWorker.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/nationalRainWorker.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/notificationHistory.ts": [
+    "branch-f481c53a0ffb9f36",
+    "pr-63"
+  ],
+  "lib/weather/rain/offlineProductionParity.ts": [
+    "branch-18dd3fe9c679357b",
+    "pr-179"
+  ],
+  "lib/weather/rain/offlineRainGrading.ts": [
+    "branch-18dd3fe9c679357b",
+    "pr-179"
+  ],
+  "lib/weather/rain/persistNotificationFeedback.ts": [
+    "branch-f481c53a0ffb9f36",
+    "pr-63"
+  ],
+  "lib/weather/rain/previewCapabilities.ts": [
+    "branch-f481c53a0ffb9f36",
+    "pr-63"
+  ],
+  "lib/weather/rain/rainPipeline.test.ts": [
+    "branch-2d4d1257bf897e74",
+    "pr-89"
+  ],
+  "lib/weather/rain/townBoundaryDatasetValidation.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/townBoundaryDatasetValidation.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/townBoundaryGeometry.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/townBoundaryGeometry.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/townBoundaryManifest.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/townBoundaryManifest.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "lib/weather/rain/watchNotificationDecision.test.ts": [
+    "branch-2bdb21c9ebdedc36",
+    "branch-2d4d1257bf897e74",
+    "branch-62efc69d0291dcce",
+    "branch-6f858d7bdec005b4",
+    "branch-b9691c1437f39bb8",
+    "branch-f28e11c53b06fa5f",
+    "pr-103",
+    "pr-13",
+    "pr-17",
+    "pr-58",
+    "pr-89"
+  ],
+  "public/external-ai-review.html": [
+    "branch-ba3b4daa8793346b",
+    "pr-96"
+  ],
+  "public/sw.js": [
+    "branch-8850eea2b9e8ed04",
+    "branch-ed8571ecfbfa4b90",
+    "pr-2",
+    "pr-8"
+  ],
+  "scripts/audit-ending-radar.mjs": [
+    "branch-f481c53a0ffb9f36",
+    "pr-63"
+  ],
+  "scripts/audit-rain-images.cjs": [
+    "branch-62efc69d0291dcce",
+    "pr-103"
+  ],
+  "scripts/benchmark_rain_tile.py": [
+    "branch-06febc013000a880",
+    "pr-98"
+  ],
+  "scripts/census-town-boundary-benchmark.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/census-town-boundary-benchmark.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/census-town-boundary-topojson-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/check-jma-early-rain.ts": [
+    "branch-94d665cd64c44050",
+    "pr-25"
+  ],
+  "scripts/compare-jaspic-eml.mjs": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "scripts/development_branch_case_handoff.py": [
+    "branch-f4a34127c79a783d",
+    "pr-149"
+  ],
+  "scripts/development_branch_compare.py": [
+    "branch-35677a391b35c95c",
+    "branch-b23be022a75304ba",
+    "branch-ed894c05ef854553",
+    "pr-142",
+    "pr-148",
+    "pr-150"
+  ],
+  "scripts/development_branch_review_queue.py": [
+    "branch-2f842ea0ac1d18a4",
+    "pr-151"
+  ],
+  "scripts/development_history_evidence.py": [
+    "branch-02f9f023f7c9991c",
+    "branch-412ffa2ddbe80074",
+    "pr-183",
+    "pr-184"
+  ],
+  "scripts/development_index_proposal.py": [
+    "branch-436bd6babf91e34f",
+    "pr-143"
+  ],
+  "scripts/development_index_review.py": [
+    "branch-35677a391b35c95c",
+    "pr-142"
+  ],
+  "scripts/development_inventory.py": [
+    "branch-b5b1d46a6468bd59",
+    "branch-d92ca54cbab20357",
+    "branch-f54fba9240a4e12b",
+    "pr-107",
+    "pr-122",
+    "pr-128"
+  ],
+  "scripts/development_inventory_delta.py": [
+    "branch-1601ee37d65ba186",
+    "branch-4fd3d1bdc2b892c1",
+    "branch-7ea3560ec516692d",
+    "branch-b30df8ff98a54148",
+    "branch-b34c306bc7fd0b72",
+    "branch-b5b1d46a6468bd59",
+    "branch-d5f02538fc12def5",
+    "branch-f54fba9240a4e12b",
+    "pr-122",
+    "pr-124",
+    "pr-125",
+    "pr-126",
+    "pr-127",
+    "pr-128",
+    "pr-129",
+    "pr-136"
+  ],
+  "scripts/development_ledger_proposal.py": [
+    "branch-08e76fdd73cd4686",
+    "branch-3ab6bf48d6ece55f",
+    "branch-7b4c2cf2503a3179",
+    "branch-ac4d9f4766a37ec1",
+    "pr-130",
+    "pr-131",
+    "pr-132",
+    "pr-134"
+  ],
+  "scripts/development_work_history.py": [
+    "branch-a05fbbad807e392f",
+    "pr-182"
+  ],
+  "scripts/jaspic-dry-run.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "scripts/jaspic-generate-eml.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "scripts/jaspic-source-probe.mjs": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "scripts/jaspic-source-probe.nodecheck.mjs": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "scripts/jaspic-update-observation.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "scripts/jaspic-verify-real-mail.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "scripts/jma-404-delayed-retry-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/jma-404-reproduction-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/jma-sparse-tile-existence-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-administrative-area-benchmark.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-all47-polygon-inventory.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-bounded-partition-loader.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-bounded-partition-loader.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-clipped-js-equivalence.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-clipped-resolver-equivalence.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-hokkaido-partition-design-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-hokkaido-target-comparison.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-hokkaido-z8-feasibility.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-http-worker-readiness-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-national-index-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-oversized-clip-proof.py": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-package-all-local.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-package-all-local.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-parallel-invocation-readiness-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-partition-design-core.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-partition-design-core.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-partition-package.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-partition-package.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-prefecture-index.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-readiness-common.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-representative-readiness-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-selected-prefectures-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-sustained-worker-readiness-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-tokyo-live-rain-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/n03-tokyo-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-all47-ownership-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-deadline-worker.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-deadline-worker.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-forecast-lowzoom-validation.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-forecast-refinement-zoom-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-forecast-z4-screening-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-lowzoom-max-rank-proof.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-lowzoom-max-rank-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-ownership-summary.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-queue-aware-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-rain-budget-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-rain-live-throughput-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-rain-proof-n03.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-rain-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-rain-readiness-scheduler-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-rain-scheduler-replay.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-rain-scheduler-replay.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-rain-stress-throughput-proof.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-rain-throughput-harness.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-rain-throughput-harness.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-region-ownership.test.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/national-region-ownership.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/pr_approval_routing.py": [
+    "branch-7ae456f5639d43f4",
+    "pr-140"
+  ],
+  "scripts/pr_promotion_policy.py": [
+    "branch-f70b38dbc740ec35",
+    "pr-137"
+  ],
+  "scripts/pr_promotion_review.py": [
+    "branch-a448d35df12eb780",
+    "pr-138"
+  ],
+  "scripts/pr_review_handoff.py": [
+    "branch-136d018fe1cd5ebc",
+    "pr-139"
+  ],
+  "scripts/prepare-n03-storage-data.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/upload-n03-storage-data.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/vercel-build-guard.mjs": [
+    "branch-eecb7d45ce962418",
+    "pr-161"
+  ],
+  "scripts/vercel_build_guard.py": [
+    "branch-2fcb912568edd503",
+    "pr-141"
+  ],
+  "scripts/vercel_quota_monitor.py": [
+    "branch-2b0a1b21c1150676",
+    "pr-164"
+  ],
+  "scripts/verify-n03-storage-data.ts": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "scripts/verify_ledger_proposal.py": [
+    "branch-7b4c2cf2503a3179",
+    "pr-134"
+  ],
+  "scripts/z4-stride-parity-proof.ts": [
+    "branch-64503a3847e876c9",
+    "pr-62"
+  ],
+  "scripts/z4-stride-performance-proof.ts": [
+    "branch-64503a3847e876c9",
+    "pr-62"
+  ],
+  "supabase/functions/_shared/areaShadow.ts": [
+    "branch-1c306ab3b54ce69d",
+    "pr-101"
+  ],
+  "supabase/functions/_shared/areaShadowImage.ts": [
+    "branch-1c306ab3b54ce69d",
+    "pr-101"
+  ],
+  "supabase/functions/_shared/forecastEvidenceCompact.ts": [
+    "branch-e887abe92356f2f8",
+    "pr-109"
+  ],
+  "supabase/functions/_shared/forecastEvidencePilot.ts": [
+    "branch-e887abe92356f2f8",
+    "pr-109"
+  ],
+  "supabase/functions/_shared/jaspic/collect.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/gmail-api-request-offline.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/gmail-auth-offline.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/gmail-dry-run.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/gmail-google-sender-identity-offline.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/gmail-oauth-admin-offline.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/gmail-oauth-once-offline.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/gmail-oauth-supabase-auth.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/gmail-oauth-supabase-store.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/gmail-oauth-token-vault-offline.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/gmail-oauth-vault-store.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/gmail-transport-simulator.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/gmail-web-callback-offline.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/gmail-web-exchange-offline.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/gmail-web-oauth-offline.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/gmail-web-session-offline.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/gmail-web-start-offline.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/handler.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/mail.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/mime.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/jaspic/state.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/_shared/rainArea.ts": [
+    "branch-f1539ac5fd589c69",
+    "pr-100"
+  ],
+  "supabase/functions/_shared/rainReplay.ts": [
+    "branch-577eb66443e37651",
+    "branch-e35c9eb31cd3459b",
+    "pr-108",
+    "pr-99"
+  ],
+  "supabase/functions/_shared/replayAreaReader.ts": [
+    "branch-f1539ac5fd589c69",
+    "pr-100"
+  ],
+  "supabase/functions/_shared/replayJma.ts": [
+    "branch-e35c9eb31cd3459b",
+    "pr-99"
+  ],
+  "supabase/functions/_shared/replayRecording.ts": [
+    "branch-e35c9eb31cd3459b",
+    "pr-99"
+  ],
+  "supabase/functions/archive-rain/index.ts": [
+    "branch-f1539ac5fd589c69",
+    "pr-100"
+  ],
+  "supabase/functions/evaluate-rain/index.ts": [
+    "branch-e35c9eb31cd3459b",
+    "pr-99"
+  ],
+  "supabase/functions/jaspic-hiroshima/index.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/jaspic-shiga/index.ts": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/functions/shadow-rain/index.ts": [
+    "branch-1c306ab3b54ce69d",
+    "pr-101"
+  ],
+  "supabase/functions/watch-rain/decisionEvidence.ts": [
+    "branch-f481c53a0ffb9f36",
+    "pr-63"
+  ],
+  "supabase/functions/watch-rain/deliveryAttemptSafety.ts": [
+    "branch-f481c53a0ffb9f36",
+    "pr-63"
+  ],
+  "supabase/functions/watch-rain/deliveryFinalization.ts": [
+    "branch-f481c53a0ffb9f36",
+    "pr-63"
+  ],
+  "supabase/functions/watch-rain/deliveryGuard.ts": [
+    "branch-98720101eac846e9",
+    "pr-104"
+  ],
+  "supabase/functions/watch-rain/deliverySchemaCompat.ts": [
+    "branch-f481c53a0ffb9f36",
+    "pr-63"
+  ],
+  "supabase/functions/watch-rain/endingNoticeCandidate.ts": [
+    "branch-f481c53a0ffb9f36",
+    "pr-63"
+  ],
+  "supabase/functions/watch-rain/endingShadow.ts": [
+    "branch-f481c53a0ffb9f36",
+    "pr-63"
+  ],
+  "supabase/functions/watch-rain/forecastEpisode.baseline.test.ts": [
+    "branch-22f64fc517bd98c8",
+    "pr-175"
+  ],
+  "supabase/functions/watch-rain/forecastEpisode.ts": [
+    "branch-577eb66443e37651",
+    "branch-64ca0e6187e12d53",
+    "branch-98720101eac846e9",
+    "pr-104",
+    "pr-105",
+    "pr-108"
+  ],
+  "supabase/functions/watch-rain/index.ts": [
+    "branch-1171601f37b8e19d",
+    "branch-2d4d1257bf897e74",
+    "branch-577eb66443e37651",
+    "branch-64ca0e6187e12d53",
+    "branch-6f858d7bdec005b4",
+    "branch-98720101eac846e9",
+    "branch-9aa299e0ae564704",
+    "branch-b9691c1437f39bb8",
+    "branch-e2f0df54260ffb77",
+    "branch-e35c9eb31cd3459b",
+    "branch-e887abe92356f2f8",
+    "branch-f28e11c53b06fa5f",
+    "branch-f481c53a0ffb9f36",
+    "pr-104",
+    "pr-105",
+    "pr-108",
+    "pr-109",
+    "pr-16",
+    "pr-17",
+    "pr-37",
+    "pr-38",
+    "pr-39",
+    "pr-40",
+    "pr-48",
+    "pr-50",
+    "pr-52",
+    "pr-57",
+    "pr-58",
+    "pr-63",
+    "pr-89",
+    "pr-91",
+    "pr-99"
+  ],
+  "supabase/functions/watch-rain/notificationDecision.ts": [
+    "branch-2d4d1257bf897e74",
+    "branch-6f858d7bdec005b4",
+    "branch-b9691c1437f39bb8",
+    "branch-f28e11c53b06fa5f",
+    "pr-17",
+    "pr-53",
+    "pr-58",
+    "pr-89"
+  ],
+  "supabase/migrations/20260929_create_national_rain_refinement_jobs.sql": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "supabase/migrations/20260930_create_national_rain_proof_cron.sql": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "supabase/migrations/20261006_create_national_rain_scan_cycles.sql": [
+    "branch-2d0caa2b5330cf58",
+    "branch-377b0cfa46ba51e5",
+    "branch-64503a3847e876c9",
+    "pr-59"
+  ],
+  "supabase/migrations/20261029021418_notification_radar_replay.sql": [
+    "branch-e35c9eb31cd3459b",
+    "pr-99"
+  ],
+  "supabase/migrations/20261029022421_notification_radar_replay_schedule.sql": [
+    "branch-e35c9eb31cd3459b",
+    "pr-99"
+  ],
+  "supabase/migrations/20261029023607_replay_area_images.sql": [
+    "branch-f1539ac5fd589c69",
+    "pr-100"
+  ],
+  "supabase/migrations/20261029024650_replay_area_schedule.sql": [
+    "branch-f1539ac5fd589c69",
+    "pr-100"
+  ],
+  "supabase/migrations/20261029030141_rain_area_shadow.sql": [
+    "branch-1c306ab3b54ce69d",
+    "pr-101"
+  ],
+  "supabase/migrations/20261029032004_rain_area_shadow_schedule.sql": [
+    "branch-1c306ab3b54ce69d",
+    "pr-101"
+  ],
+  "supabase/migrations/20261029034246_rain_research_dashboard.sql": [
+    "branch-dbcfae267568d52d",
+    "pr-102"
+  ],
+  "supabase/migrations/20261029075241_forecast_notification_episodes.sql": [
+    "branch-98720101eac846e9",
+    "pr-104"
+  ],
+  "supabase/migrations/20261105074100_jaspic_oauth_once.sql": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ],
+  "supabase/migrations/20261105074500_jaspic_gmail_token_vault.sql": [
+    "branch-c32f0f97af1ba1b5",
+    "pr-155"
+  ]
+}

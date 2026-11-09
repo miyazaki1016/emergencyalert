@@ -1,0 +1,79 @@
+{
+  "id": "branch-ae94438b6e247b91",
+  "title": "research/jaspic-gmail-send-consent-20261106",
+  "head": "492c363dca14816bcfba2d88d601b6f29d7d8317",
+  "head_ref": "research/jaspic-gmail-send-consent-20261106",
+  "linked_prs": [
+    170
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/oauth/callback/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/492c363dca14816bcfba2d88d601b6f29d7d8317/app/jaspic/oauth/callback/route.ts"
+    },
+    {
+      "path": "app/jaspic/oauth/login-client.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/492c363dca14816bcfba2d88d601b6f29d7d8317/app/jaspic/oauth/login-client.tsx"
+    },
+    {
+      "path": "app/jaspic/oauth/result/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/492c363dca14816bcfba2d88d601b6f29d7d8317/app/jaspic/oauth/result/page.tsx"
+    },
+    {
+      "path": "app/jaspic/oauth/send-start/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/492c363dca14816bcfba2d88d601b6f29d7d8317/app/jaspic/oauth/send-start/route.ts"
+    },
+    {
+      "path": "lib/jaspic/oauth-gmail-send-callback-server.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/492c363dca14816bcfba2d88d601b6f29d7d8317/lib/jaspic/oauth-gmail-send-callback-server.ts"
+    },
+    {
+      "path": "lib/jaspic/oauth-gmail-send-consent-offline.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/492c363dca14816bcfba2d88d601b6f29d7d8317/lib/jaspic/oauth-gmail-send-consent-offline.ts"
+    },
+    {
+      "path": "lib/jaspic/oauth-gmail-send-token-validation-offline.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/492c363dca14816bcfba2d88d601b6f29d7d8317/lib/jaspic/oauth-gmail-send-token-validation-offline.ts"
+    },
+    {
+      "path": "tests/jaspic-gmail-send-token-validation.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/492c363dca14816bcfba2d88d601b6f29d7d8317/tests/jaspic-gmail-send-token-validation.test.ts"
+    }
+  ],
+  "commits": "492c363dca14816bcfba2d88d601b6f29d7d8317 fix(jaspic): correct send-start route module paths\n64f652b51e87a76bf57cacb6736c5bce73505974 feat(jaspic): show send-consent dry-run results\na987464802a79744cf313198067e5f518ab5ed7c feat(jaspic): expose admin-only Gmail permission dry-run button\ne158a27800a9dfb76addbbde56394ad0d6e62902 feat(jaspic): route send-only consent callback to dry-run verification\nff30d87d6e3f5a382d097d41c63ab7fb3186bb2b feat(jaspic): verify Gmail consent then discard tokens without sending\n099fa2d3ee7c0fef4ea2b7e6dc3972d90538ba98 feat(jaspic): add admin-only dry-run Gmail send consent start\n04e9cec2277654c73f430abb07f78341bbed8dcc test(jaspic): reject missing refresh token and excessive Gmail permissions\nd36d62d3b128e2873b48231775a60c9255e433ca feat(jaspic): validate send-only OAuth token grants without persistence\nd68045cac5f783f8ae287b09d6e34707f6f81c14 feat(jaspic): prepare isolated Gmail send consent offline",
+  "topics": [
+    "通知・配信",
+    "認証・安全性",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "d7d98fec75c98621b47ad40b72c60cb0c8860f67afd65a600d689c00f73654d4",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

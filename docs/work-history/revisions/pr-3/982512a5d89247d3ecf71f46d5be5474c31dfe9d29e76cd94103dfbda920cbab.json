@@ -1,0 +1,113 @@
+{
+  "id": "pr-3",
+  "number": 3,
+  "title": "fix: add PWA install icons",
+  "topics": [
+    "その他の開発"
+  ],
+  "purpose": "変更対象ファイルに関する開発。具体的な目的は原文・差分を確認",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Android/iPhoneのホーム画面追加で必要なPWAアイコンを追加します。\n\n- Next.js generated app icon `/icon`\n- manifest icons (any + maskable)\n\nインストール実機テスト前のPWA基盤補完です。",
+  "snapshot_head": "bb6c7ae27a4bf1cbb6e1e0d60f9c1630f9f6080f",
+  "snapshot_consistent": true,
+  "head": "bb6c7ae27a4bf1cbb6e1e0d60f9c1630f9f6080f",
+  "base": "97af064dfee162b4df1d4a10cc6defe1f1fe0e23",
+  "base_ref": "main",
+  "head_ref": "feat/pwa-icons",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-09-23T22:41:40Z",
+  "merge_commit_sha": "589d7eeea60b49ee30ee8cc247963a77aa3732a7",
+  "updated_at": "2026-09-23T22:41:40Z",
+  "code_facts": [
+    {
+      "file": "app/icon.tsx",
+      "kind": "関数・クラス定義",
+      "expression": "export default function Icon() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/bb6c7ae27a4bf1cbb6e1e0d60f9c1630f9f6080f/app/icon.tsx"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/icon.tsx",
+      "status": "modified",
+      "additions": 40,
+      "deletions": 0,
+      "patch": "diff --git a/app/icon.tsx b/app/icon.tsx\nnew file mode 100644\nindex 0000000..fbcb2d4\n--- /dev/null\n+++ b/app/icon.tsx\n@@ -0,0 +1,40 @@\n+import { ImageResponse } from \"next/og\";\n+\n+export const size = { width: 512, height: 512 };\n+export const contentType = \"image/png\";\n+\n+export default function Icon() {\n+  return new ImageResponse(\n+    (\n+      <div\n+        style={{\n+          width: \"100%\",\n+          height: \"100%\",\n+          display: \"flex\",\n+          alignItems: \"center\",\n+          justifyContent: \"center\",\n+          background: \"#ffffff\",\n+          borderRadius: 112,\n+        }}\n+      >\n+        <div\n+          style={{\n+            width: 330,\n+            height: 330,\n+            display: \"flex\",\n+            alignItems: \"center\",\n+            justifyContent: \"center\",\n+            borderRadius: \"50%\",\n+            background: \"#0b6cff\",\n+            color: \"#ffffff\",\n+            fontSize: 210,\n+            fontWeight: 800,\n+          }}\n+        >\n+          !\n+        </div>\n+      </div>\n+    ),\n+    size,\n+  );\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/bb6c7ae27a4bf1cbb6e1e0d60f9c1630f9f6080f/app/icon.tsx",
+      "source": {
+        "path": "app/icon.tsx",
+        "coverage": "全文",
+        "text": "import { ImageResponse } from \"next/og\";\n\nexport const size = { width: 512, height: 512 };\nexport const contentType = \"image/png\";\n\nexport default function Icon() {\n  return new ImageResponse(\n    (\n      <div\n        style={{\n          width: \"100%\",\n          height: \"100%\",\n          display: \"flex\",\n          alignItems: \"center\",\n          justifyContent: \"center\",\n          background: \"#ffffff\",\n          borderRadius: 112,\n        }}\n      >\n        <div\n          style={{\n            width: 330,\n            height: 330,\n            display: \"flex\",\n            alignItems: \"center\",\n            justifyContent: \"center\",\n            borderRadius: \"50%\",\n            background: \"#0b6cff\",\n            color: \"#ffffff\",\n            fontSize: 210,\n            fontWeight: 800,\n          }}\n        >\n          !\n        </div>\n      </div>\n    ),\n    size,\n  );\n}\n",
+        "sha256": "791ee09a8b123cd9b069d71627a570afa486b7429d9eec1560be83ee29f96680"
+      }
+    },
+    {
+      "path": "app/manifest.ts",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 0,
+      "patch": "diff --git a/app/manifest.ts b/app/manifest.ts\nindex aad389c..ad14f4f 100644\n--- a/app/manifest.ts\n+++ b/app/manifest.ts\n@@ -12,5 +12,19 @@ export default function manifest(): MetadataRoute.Manifest {\n     theme_color: \"#ffffff\",\n     lang: \"ja\",\n     orientation: \"portrait\",\n+    icons: [\n+      {\n+        src: \"/icon\",\n+        sizes: \"512x512\",\n+        type: \"image/png\",\n+        purpose: \"any\",\n+      },\n+      {\n+        src: \"/icon\",\n+        sizes: \"512x512\",\n+        type: \"image/png\",\n+        purpose: \"maskable\",\n+      },\n+    ],\n   };\n }\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/bb6c7ae27a4bf1cbb6e1e0d60f9c1630f9f6080f/app/manifest.ts",
+      "source": {
+        "path": "app/manifest.ts",
+        "coverage": "全文",
+        "text": "import type { MetadataRoute } from \"next\";\n\nexport default function manifest(): MetadataRoute.Manifest {\n  return {\n    name: \"EmergencyAlert\",\n    short_name: \"EmergencyAlert\",\n    description: \"暮らしを、少し先回りする。\",\n    start_url: \"/\",\n    scope: \"/\",\n    display: \"standalone\",\n    background_color: \"#ffffff\",\n    theme_color: \"#ffffff\",\n    lang: \"ja\",\n    orientation: \"portrait\",\n    icons: [\n      {\n        src: \"/icon\",\n        sizes: \"512x512\",\n        type: \"image/png\",\n        purpose: \"any\",\n      },\n      {\n        src: \"/icon\",\n        sizes: \"512x512\",\n        type: \"image/png\",\n        purpose: \"maskable\",\n      },\n    ],\n  };\n}\n",
+        "sha256": "d6ce3387e76c14803827fd6c2899b3b0b38c70630bdf64dc84219dc0a0796cdf"
+      }
+    }
+  ],
+  "file_count": 2,
+  "reported_file_count": 2,
+  "commits": [
+    {
+      "sha": "98a30a2df345152c669082aeb8d8ac018924072c",
+      "message": "fix: add installable PWA icon metadata\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/98a30a2df345152c669082aeb8d8ac018924072c"
+    },
+    {
+      "sha": "bb6c7ae27a4bf1cbb6e1e0d60f9c1630f9f6080f",
+      "message": "feat: add generated PWA app icon\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/bb6c7ae27a4bf1cbb6e1e0d60f9c1630f9f6080f"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "bb6c7ae27a4bf1cbb6e1e0d60f9c1630f9f6080f",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/35929474094",
+      "id": 35929474094,
+      "updated_at": "2026-09-23T22:39:32Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "Icon",
+    "contentType",
+    "manifest",
+    "size"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "PWAのインストール用アイコンを修正",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/3"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "c0f11c502f0eb898a773bb7798c391ea3f7f6faf9aeb626755d821511a1d58c9",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

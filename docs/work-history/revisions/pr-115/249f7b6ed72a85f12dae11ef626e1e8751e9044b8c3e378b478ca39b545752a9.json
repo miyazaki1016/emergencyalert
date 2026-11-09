@@ -1,0 +1,88 @@
+{
+  "id": "pr-115",
+  "number": 115,
+  "title": "docs: 旧テスト・計測コードのmain照合を記録",
+  "topics": [
+    "その他の開発"
+  ],
+  "purpose": "変更対象ファイルに関する開発。具体的な目的は原文・差分を確認",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "旧ブランチのソース・回帰テストをmainと比較した調査記録のみ。実装・DB・Push・本番変更なし。",
+  "snapshot_head": "56cccb600dff30c43bc362140c28b31e5272c047",
+  "snapshot_consistent": true,
+  "head": "56cccb600dff30c43bc362140c28b31e5272c047",
+  "base": "73b5f405651844467849f1554bfd636aa57bfe1d",
+  "base_ref": "main",
+  "head_ref": "docs/test-case-reconciliation-20261101",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-10-31T23:11:15Z",
+  "merge_commit_sha": "43d07ce6faedd38e0bf36d8c0dc31e2bf5573c0d",
+  "updated_at": "2026-10-31T23:11:15Z",
+  "code_facts": [
+    {
+      "file": "docs/audits/TEST_CASE_RECONCILIATION_20261101.md",
+      "kind": "テストの期待値・条件",
+      "expression": "`test/watch-rain-notification-regression-20261018` とmainの `lib/weather/rain/watchNotificationDecision.test.ts` を読み比べた。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/56cccb600dff30c43bc362140c28b31e5272c047/docs/audits/TEST_CASE_RECONCILIATION_20261101.md"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/audits/TEST_CASE_RECONCILIATION_20261101.md",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 0,
+      "patch": "diff --git a/docs/audits/TEST_CASE_RECONCILIATION_20261101.md b/docs/audits/TEST_CASE_RECONCILIATION_20261101.md\nnew file mode 100644\nindex 0000000..11fae45\n--- /dev/null\n+++ b/docs/audits/TEST_CASE_RECONCILIATION_20261101.md\n@@ -0,0 +1,16 @@\n+# 旧通知回帰テストのケース単位照合（2026-11-01）\n+\n+`test/watch-rain-notification-regression-20261018` とmainの `lib/weather/rain/watchNotificationDecision.test.ts` を読み比べた。\n+\n+## mainにすでに存在する観点\n+- 通知済みイベントの重複防止、再送、通知OFF、INFO/UNKNOWN遷移。\n+- 雨終了通知のヒステリシス。\n+- 観測時刻の重複やUNKNOWNを連続観測として数えないテスト。\n+- 10月29日の重複通知原因の再現テスト：3回目の雨なし観測で送信済み状態が解除され、未来の雨予測がactionableでも再通知可能になる挙動を記録している。**再現テストの存在は修正済みの証明ではない。**\n+\n+## 旧ブランチで確認した追加観点\n+- 弱い接近通知が抑制された後に雨終了通知のみが発生するケース。\n+- JMA 14桁時刻の30分・35分境界と不正時刻。\n+- `isWithinRainNotificationHorizon` の30分以内・超過・期限切れ判定。\n+\n+これらが現在の別テストに存在するか、現行workerの通知条件に接続されているかは未検証。旧workerの一括取り込みは行わない。コード・DB・Push・デプロイは無変更。\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/56cccb600dff30c43bc362140c28b31e5272c047/docs/audits/TEST_CASE_RECONCILIATION_20261101.md",
+      "source": {
+        "path": "docs/audits/TEST_CASE_RECONCILIATION_20261101.md",
+        "coverage": "全文",
+        "text": "# 旧通知回帰テストのケース単位照合（2026-11-01）\n\n`test/watch-rain-notification-regression-20261018` とmainの `lib/weather/rain/watchNotificationDecision.test.ts` を読み比べた。\n\n## mainにすでに存在する観点\n- 通知済みイベントの重複防止、再送、通知OFF、INFO/UNKNOWN遷移。\n- 雨終了通知のヒステリシス。\n- 観測時刻の重複やUNKNOWNを連続観測として数えないテスト。\n- 10月29日の重複通知原因の再現テスト：3回目の雨なし観測で送信済み状態が解除され、未来の雨予測がactionableでも再通知可能になる挙動を記録している。**再現テストの存在は修正済みの証明ではない。**\n\n## 旧ブランチで確認した追加観点\n- 弱い接近通知が抑制された後に雨終了通知のみが発生するケース。\n- JMA 14桁時刻の30分・35分境界と不正時刻。\n- `isWithinRainNotificationHorizon` の30分以内・超過・期限切れ判定。\n\nこれらが現在の別テストに存在するか、現行workerの通知条件に接続されているかは未検証。旧workerの一括取り込みは行わない。コード・DB・Push・デプロイは無変更。\n",
+        "sha256": "b548ce8e1608622d2ea834bae2dba3f0d051fd1814d5dae29d5f0fca01b44098"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "56cccb600dff30c43bc362140c28b31e5272c047",
+      "message": "docs: compare legacy notification regression cases with main\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/56cccb600dff30c43bc362140c28b31e5272c047"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "56cccb600dff30c43bc362140c28b31e5272c047",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/41251438213",
+      "id": 41251438213,
+      "updated_at": "2026-10-31T23:11:54Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [],
+  "related_sources": [],
+  "curated": {
+    "summary": "docs: 旧テスト・計測コードのmain照合を記録",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/115"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "0470fb3b5f34d546e162da1e5a3dda2cb81f84cb1784679939223ca2c5785900",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

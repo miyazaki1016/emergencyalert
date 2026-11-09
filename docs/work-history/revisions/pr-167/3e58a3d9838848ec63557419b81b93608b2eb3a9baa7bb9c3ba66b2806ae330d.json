@@ -1,0 +1,374 @@
+{
+  "id": "pr-167",
+  "number": 167,
+  "title": "style(jaspic): improve iPhone login page layout",
+  "topics": [
+    "通知・配信",
+    "認証・安全性",
+    "画面・表示"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更／認証・アクセス制御に関する変更／画面表示や操作に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Adjust responsive spacing, typography, and wrapping for JASPIC login page. UI-only change; no auth behavior, Gmail OAuth enablement, mail transport, or scheduler changes.\n\nAudit: Supabase Auth login only establishes identity. Server-side admin authorization has NOT been verified; `/jaspic/oauth/start` is deliberately 503 for GET/POST. Do not treat this as admin authorization success.\n\nReview and validate mobile rendering before merging; no deployment requested.",
+  "snapshot_head": "37efdbc992e3a63ea0c91c0b1a267e24742ee875",
+  "snapshot_consistent": true,
+  "head": "37efdbc992e3a63ea0c91c0b1a267e24742ee875",
+  "base": "686c1dae5171eb3b61811f3528fede44eff09fb7",
+  "base_ref": "main",
+  "head_ref": "fix/jaspic-mobile-layout-20261106",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-06T05:45:33Z",
+  "merge_commit_sha": "06d84080cd93d2ceafaf1fcaa34845832617f3f6",
+  "updated_at": "2026-11-06T05:45:33Z",
+  "code_facts": [
+    {
+      "file": "app/jaspic/oauth/login-client.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!supabase || !loggedIn) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/app/jaspic/oauth/login-client.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/login-client.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!session) { if (active) setAdminStatus(\"denied\"); return; }",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/app/jaspic/oauth/login-client.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/login-client.tsx",
+      "kind": "HTTP要求",
+      "expression": "const response = await fetch(\"/jaspic/oauth/status\", {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/app/jaspic/oauth/login-client.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/login-client.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (active) setAdminStatus(response.ok ? \"authorized\" : \"denied\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/app/jaspic/oauth/login-client.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/login-client.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (active) setAdminStatus(\"denied\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/app/jaspic/oauth/login-client.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/status/route.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export async function GET(request: NextRequest) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/app/jaspic/oauth/status/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/status/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!token) return NextResponse.json({ authorized: false }, { status: 401, headers });",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/app/jaspic/oauth/status/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/status/route.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "if (!url || !key || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url)) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/app/jaspic/oauth/status/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/status/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (error || !data.user) return NextResponse.json({ authorized: false }, { status: 401, headers });",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/app/jaspic/oauth/status/route.ts"
+    },
+    {
+      "file": "lib/jaspic/admin-authorization.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function isJaspicAdmin(user: {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/lib/jaspic/admin-authorization.ts"
+    },
+    {
+      "file": "lib/jaspic/admin-authorization.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "if (!user || !configuredAdminId || !/^[0-9a-f-]{36}$/i.test(configuredAdminId)) return false;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/lib/jaspic/admin-authorization.ts"
+    },
+    {
+      "file": "tests/jaspic/admin-authorization.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { describe, expect, it } from \"vitest\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/tests/jaspic/admin-authorization.test.ts"
+    },
+    {
+      "file": "tests/jaspic/admin-authorization.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"JASPIC admin authorization (deny by default)\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/tests/jaspic/admin-authorization.test.ts"
+    },
+    {
+      "file": "tests/jaspic/admin-authorization.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"denies missing config and missing user\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/tests/jaspic/admin-authorization.test.ts"
+    },
+    {
+      "file": "tests/jaspic/admin-authorization.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(isJaspicAdmin(null, id)).toBe(false);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/tests/jaspic/admin-authorization.test.ts"
+    },
+    {
+      "file": "tests/jaspic/admin-authorization.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(isJaspicAdmin({ id, app_metadata: { jaspic_role: \"admin\" } }, undefined)).toBe(false);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/tests/jaspic/admin-authorization.test.ts"
+    },
+    {
+      "file": "tests/jaspic/admin-authorization.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"denies email-only and non-admin users\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/tests/jaspic/admin-authorization.test.ts"
+    },
+    {
+      "file": "tests/jaspic/admin-authorization.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(isJaspicAdmin({ id, app_metadata: {} }, id)).toBe(false);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/tests/jaspic/admin-authorization.test.ts"
+    },
+    {
+      "file": "tests/jaspic/admin-authorization.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(isJaspicAdmin({ id: \"11111111-1111-1111-1111-111111111111\", app_metadata: { jaspic_role: \"admin\" } }, id)).toBe(false);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/tests/jaspic/admin-authorization.test.ts"
+    },
+    {
+      "file": "tests/jaspic/admin-authorization.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"rejects malformed admin configuration and spoofed user metadata\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/tests/jaspic/admin-authorization.test.ts"
+    },
+    {
+      "file": "tests/jaspic/admin-authorization.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(isJaspicAdmin({ id, app_metadata: { jaspic_role: \"admin\" } }, \"not-a-uuid\")).toBe(false);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/tests/jaspic/admin-authorization.test.ts"
+    },
+    {
+      "file": "tests/jaspic/admin-authorization.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(isJaspicAdmin({ id, app_metadata: { jaspic_role: \"user\" } }, id)).toBe(false);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/tests/jaspic/admin-authorization.test.ts"
+    },
+    {
+      "file": "tests/jaspic/admin-authorization.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(isJaspicAdmin({ id, user_metadata: { jaspic_role: \"admin\" } } as unknown as { id: string; app_metadata: Record<string, unknown> }, id)).toBe(false);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/tests/jaspic/admin-authorization.test.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/oauth/login-client.tsx",
+      "status": "modified",
+      "additions": 28,
+      "deletions": 0,
+      "patch": "diff --git a/app/jaspic/oauth/login-client.tsx b/app/jaspic/oauth/login-client.tsx\nindex e5cef66..a7f5aa6 100644\n--- a/app/jaspic/oauth/login-client.tsx\n+++ b/app/jaspic/oauth/login-client.tsx\n@@ -20,6 +20,7 @@ export default function JaspicOauthLoginClient() {\n   const supabase = useMemo(getBrowserClient, []);\n   const [email, setEmail] = useState(\"\");\n   const [loggedIn, setLoggedIn] = useState(false);\n+  const [adminStatus, setAdminStatus] = useState<\"checking\" | \"authorized\" | \"denied\">(\"checking\");\n   const [message, setMessage] = useState(\"\");\n   const [busy, setBusy] = useState(false);\n   useEffect(() => {\n@@ -34,6 +35,28 @@ export default function JaspicOauthLoginClient() {\n     return () => { active = false; subscription.unsubscribe(); };\n   }, [supabase]);\n \n+  useEffect(() => {\n+    if (!supabase || !loggedIn) {\n+      setAdminStatus(\"checking\");\n+      return;\n+    }\n+    let active = true;\n+    void (async () => {\n+      try {\n+        const { data: { session } } = await supabase.auth.getSession();\n+        if (!session) { if (active) setAdminStatus(\"denied\"); return; }\n+        const response = await fetch(\"/jaspic/oauth/status\", {\n+          headers: { authorization: \"Bearer \" + session.access_token },\n+          cache: \"no-store\",\n+        });\n+        if (active) setAdminStatus(response.ok ? \"authorized\" : \"denied\");\n+      } catch {\n+        if (active) setAdminStatus(\"denied\");\n+      }\n+    })();\n+    return () => { active = false; };\n+  }, [supabase, loggedIn]);\n+\n   async function emailLogin() {\n     if (!supabase || busy || !email.trim()) return;\n     setBusy(true);\n@@ -90,6 +113,11 @@ export default function JaspicOauthLoginClient() {\n       </>}\n       {supabase && loggedIn && <>\n         <p>Supabase Authにログイン済みです。管理者本人であることは、次の操作でサーバー側でも確認されます。</p>\n+        <p role=\"status\" aria-live=\"polite\">{adminStatus === \"checking\"\n+          ? \"管理者権限を確認しています。\"\n+          : adminStatus === \"authorized\"\n+            ? \"管理者権限を確認しました。Google認証は引き続き停止中です。\"\n+            : \"管理者権限は未確認です。管理者設定の完了をお待ちください。\"}</p>\n         <button type=\"button\" onClick={()=>void beginGoogle()} disabled={true}\n           style={{fontSize:16,padding:\"12px 18px\",borderRadius:8}}>Google Gmailの認証を開始</button>\n         <button type=\"button\" onClick={()=>void supabase.auth.signOut()} disabled={busy}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/app/jaspic/oauth/login-client.tsx",
+      "source": {
+        "path": "app/jaspic/oauth/login-client.tsx",
+        "coverage": "全文",
+        "text": "\"use client\";\n\nimport { createClient, type SupabaseClient } from \"@supabase/supabase-js\";\nimport { useEffect, useMemo, useState } from \"react\";\n\nfunction getBrowserClient(): SupabaseClient | null {\n  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/, \"\");\n  const key = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);\n  if (!url || !key || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url)) return null;\n  return createClient(url, key, {\n    auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true },\n  });\n}\n\n/**\n * iPhone Safari email OTP login. No OAuth client secret or refresh token is\n * ever exposed to JS. The auth start route must recheck the user on the server.\n */\nexport default function JaspicOauthLoginClient() {\n  const supabase = useMemo(getBrowserClient, []);\n  const [email, setEmail] = useState(\"\");\n  const [loggedIn, setLoggedIn] = useState(false);\n  const [adminStatus, setAdminStatus] = useState<\"checking\" | \"authorized\" | \"denied\">(\"checking\");\n  const [message, setMessage] = useState(\"\");\n  const [busy, setBusy] = useState(false);\n  useEffect(() => {\n    if (!supabase) return;\n    let active = true;\n    void supabase.auth.getUser().then(({data}) => {\n      if (active) setLoggedIn(Boolean(data.user));\n    }).catch(() => { if (active) setLoggedIn(false); });\n    const {data:{subscription}} = supabase.auth.onAuthStateChange((_event,session) => {\n      if (active) setLoggedIn(Boolean(session?.user));\n    });\n    return () => { active = false; subscription.unsubscribe(); };\n  }, [supabase]);\n\n  useEffect(() => {\n    if (!supabase || !loggedIn) {\n      setAdminStatus(\"checking\");\n      return;\n    }\n    let active = true;\n    void (async () => {\n      try {\n        const { data: { session } } = await supabase.auth.getSession();\n        if (!session) { if (active) setAdminStatus(\"denied\"); return; }\n        const response = await fetch(\"/jaspic/oauth/status\", {\n          headers: { authorization: \"Bearer \" + session.access_token },\n          cache: \"no-store\",\n        });\n        if (active) setAdminStatus(response.ok ? \"authorized\" : \"denied\");\n      } catch {\n        if (active) setAdminStatus(\"denied\");\n      }\n    })();\n    return () => { active = false; };\n  }, [supabase, loggedIn]);\n\n  async function emailLogin() {\n    if (!supabase || busy || !email.trim()) return;\n    setBusy(true);\n    setMessage(\"\");\n    try {\n      const {error} = await supabase.auth.signInWithOtp({\n        email: email.trim(),\n        options: { emailRedirectTo: \"https://emergencyalert.news/jaspic/oauth\", shouldCreateUser: false },\n      });\n      setMessage(error ? \"ログイン用メールを送信できませんでした。設定を確認してください。\" :\n        \"ログイン用メールを送ったよ。メール内のリンクをSafariで開いてね。\");\n    } catch { setMessage(\"ログインの準備ができていません。\"); }\n    finally { setBusy(false); }\n  }\n\n  async function beginGoogle() {\n    if (!supabase || busy) return;\n    setBusy(true);\n    setMessage(\"\");\n    try {\n      const {data:{session}} = await supabase.auth.getSession();\n      if (!session) { setMessage(\"先にメールでログインしてね。\"); return; }\n      const response = await fetch(\"/jaspic/oauth/start\", {\n        method: \"POST\",\n        credentials: \"same-origin\",\n        headers: { authorization: \"Bearer \" + session.access_token },\n        cache: \"no-store\",\n      });\n      if (!response.ok) { setMessage(\"Google認証は現在停止中です。管理者設定を確認してね。\"); return; }\n      const body: unknown = await response.json();\n      if (!body || typeof body !== \"object\" || !(\"authorizationUrl\" in body) ||\n          typeof body.authorizationUrl !== \"string\") throw new Error(\"Unavailable\");\n      const target = new URL(body.authorizationUrl);\n      if (target.origin !== \"https://accounts.google.com\" || target.pathname !== \"/o/oauth2/v2/auth\") {\n        throw new Error(\"Unavailable\");\n      }\n      window.location.assign(target.href);\n    } catch { setMessage(\"認証開始に失敗しました。\"); }\n    finally { setBusy(false); }\n  }\n\n  return (\n    <section>\n      {!supabase && <p role=\"status\">ログイン設定はまだ完了していません。</p>}\n      {supabase && !loggedIn && <>\n        <label htmlFor=\"jaspic-email\">管理者のメールアドレス</label>\n        <div style={{display:\"flex\",gap:8,flexWrap:\"wrap\",margin:\"10px 0\"}}>\n          <input id=\"jaspic-email\" type=\"email\" value={email}\n            onChange={(e)=>setEmail(e.target.value)} autoComplete=\"email\"\n            style={{fontSize:16,padding:12,minWidth:230,border:\"1px solid #a5bbd0\",borderRadius:8}} />\n          <button type=\"button\" onClick={()=>void emailLogin()} disabled={busy || !email.trim()}\n            style={{fontSize:16,padding:\"12px 16px\",borderRadius:8}}>ログイン用メールを送る</button>\n        </div>\n      </>}\n      {supabase && loggedIn && <>\n        <p>Supabase Authにログイン済みです。管理者本人であることは、次の操作でサーバー側でも確認されます。</p>\n        <p role=\"status\" aria-live=\"polite\">{adminStatus === \"checking\"\n          ? \"管理者権限を確認しています。\"\n          : adminStatus === \"authorized\"\n            ? \"管理者権限を確認しました。Google認証は引き続き停止中です。\"\n            : \"管理者権限は未確認です。管理者設定の完了をお待ちください。\"}</p>\n        <button type=\"button\" onClick={()=>void beginGoogle()} disabled={true}\n          style={{fontSize:16,padding:\"12px 18px\",borderRadius:8}}>Google Gmailの認証を開始</button>\n        <button type=\"button\" onClick={()=>void supabase.auth.signOut()} disabled={busy}\n          style={{fontSize:16,padding:\"12px 18px\",marginLeft:8,borderRadius:8}}>ログアウト</button>\n      </>}\n      {message && <p role=\"status\" aria-live=\"polite\">{message}</p>}\n    </section>\n  );\n}\n",
+        "sha256": "56adc3cc545dfd52b5e36e7d747bc727617c60209735defdb836604abec9f440"
+      }
+    },
+    {
+      "path": "app/jaspic/oauth/page.tsx",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "patch": "diff --git a/app/jaspic/oauth/page.tsx b/app/jaspic/oauth/page.tsx\nindex 7a887db..caf0cd9 100644\n--- a/app/jaspic/oauth/page.tsx\n+++ b/app/jaspic/oauth/page.tsx\n@@ -9,17 +9,17 @@ export const metadata: Metadata = {\n \n export default function JaspicOAuthPage() {\n   return (\n-    <main style={{ maxWidth: 700, margin: \"56px auto\", padding: \"32px 26px\", borderRadius: 16, background: \"#fff\", color: \"#162436\", lineHeight: 1.8 }}>\n+    <main style={{ maxWidth: 700, margin: \"24px auto\", padding: \"clamp(18px, 5vw, 32px)\", borderRadius: 16, background: \"#fff\", color: \"#162436\", lineHeight: 1.65, fontSize: 16, overflowWrap: \"anywhere\" }}>\n       <p style={{ fontSize: 13, color: \"#476280\" }}>JASPIC / 運営者本人専用</p>\n-      <h1>Gmail認証</h1>\n+      <h1 style={{ fontSize: \"clamp(24px, 6vw, 32px)\", lineHeight: 1.3 }}>Gmail認証</h1>\n       <p>Gmail APIの認証は管理者本人だけが行えます。ログインにはSupabase Authを使用します。</p>\n-      <p style={{ border: \"1px solid #c6d4e2\", borderRadius: 12, padding: 16, background: \"#f3f7fc\" }}>\n+      <p style={{ border: \"1px solid #c6d4e2\", borderRadius: 12, padding: 16, background: \"#f3f7fc\", fontSize: 15 }}>\n         Google認証は開発中のため現在停止しています。安全確認と管理者設定が完了するまで利用できません。\n         メールの実送信・18時の自動配信も開始されません。\n       </p>\n       <JaspicOauthLoginClient />\n       <p style={{fontSize:13}}>クライアントシークレットやリフレッシュトークンはこの画面に入力しないでください。</p>\n-      <p><Link href=\"/jaspic\">JASPICの説明ページに戻る</Link></p>\n+      <p style={{ fontSize: 15 }}><Link href=\"/jaspic\">JASPICの説明ページに戻る</Link></p>\n     </main>\n   );\n }\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/app/jaspic/oauth/page.tsx",
+      "source": {
+        "path": "app/jaspic/oauth/page.tsx",
+        "coverage": "全文",
+        "text": "import type { Metadata } from \"next\";\nimport Link from \"next/link\";\nimport JaspicOauthLoginClient from \"./login-client\";\n\nexport const metadata: Metadata = {\n  title: \"JASPIC | Gmail認証の準備\",\n  robots: { index: false, follow: false },\n};\n\nexport default function JaspicOAuthPage() {\n  return (\n    <main style={{ maxWidth: 700, margin: \"24px auto\", padding: \"clamp(18px, 5vw, 32px)\", borderRadius: 16, background: \"#fff\", color: \"#162436\", lineHeight: 1.65, fontSize: 16, overflowWrap: \"anywhere\" }}>\n      <p style={{ fontSize: 13, color: \"#476280\" }}>JASPIC / 運営者本人専用</p>\n      <h1 style={{ fontSize: \"clamp(24px, 6vw, 32px)\", lineHeight: 1.3 }}>Gmail認証</h1>\n      <p>Gmail APIの認証は管理者本人だけが行えます。ログインにはSupabase Authを使用します。</p>\n      <p style={{ border: \"1px solid #c6d4e2\", borderRadius: 12, padding: 16, background: \"#f3f7fc\", fontSize: 15 }}>\n        Google認証は開発中のため現在停止しています。安全確認と管理者設定が完了するまで利用できません。\n        メールの実送信・18時の自動配信も開始されません。\n      </p>\n      <JaspicOauthLoginClient />\n      <p style={{fontSize:13}}>クライアントシークレットやリフレッシュトークンはこの画面に入力しないでください。</p>\n      <p style={{ fontSize: 15 }}><Link href=\"/jaspic\">JASPICの説明ページに戻る</Link></p>\n    </main>\n  );\n}\n",
+        "sha256": "17120c4c1814c2ab9594341dacdcdd97275c5348c1d6e15dee70540f1f2b3390"
+      }
+    },
+    {
+      "path": "app/jaspic/oauth/status/route.ts",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 0,
+      "patch": "diff --git a/app/jaspic/oauth/status/route.ts b/app/jaspic/oauth/status/route.ts\nnew file mode 100644\nindex 0000000..8d2a674\n--- /dev/null\n+++ b/app/jaspic/oauth/status/route.ts\n@@ -0,0 +1,22 @@\n+import { createClient } from \"@supabase/supabase-js\";\n+import { NextRequest, NextResponse } from \"next/server\";\n+import { isJaspicAdmin } from \"../../../../lib/jaspic/admin-authorization\";\n+\n+export const dynamic = \"force-dynamic\";\n+\n+/** Read-only status. Does not enable Google OAuth or send email. */\n+export async function GET(request: NextRequest) {\n+  const headers = { \"Cache-Control\": \"no-store, private\" };\n+  const token = request.headers.get(\"authorization\")?.match(/^Bearer ([^\\s]+)$/)?.[1];\n+  if (!token) return NextResponse.json({ authorized: false }, { status: 401, headers });\n+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/, \"\");\n+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;\n+  if (!url || !key || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url)) {\n+    return NextResponse.json({ authorized: false }, { status: 503, headers });\n+  }\n+  const client = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });\n+  const { data, error } = await client.auth.getUser(token);\n+  if (error || !data.user) return NextResponse.json({ authorized: false }, { status: 401, headers });\n+  const authorized = isJaspicAdmin(data.user, process.env.JASPIC_ADMIN_USER_ID);\n+  return NextResponse.json({ authorized }, { status: authorized ? 200 : 403, headers });\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/app/jaspic/oauth/status/route.ts",
+      "source": {
+        "path": "app/jaspic/oauth/status/route.ts",
+        "coverage": "全文",
+        "text": "import { createClient } from \"@supabase/supabase-js\";\nimport { NextRequest, NextResponse } from \"next/server\";\nimport { isJaspicAdmin } from \"../../../../lib/jaspic/admin-authorization\";\n\nexport const dynamic = \"force-dynamic\";\n\n/** Read-only status. Does not enable Google OAuth or send email. */\nexport async function GET(request: NextRequest) {\n  const headers = { \"Cache-Control\": \"no-store, private\" };\n  const token = request.headers.get(\"authorization\")?.match(/^Bearer ([^\\s]+)$/)?.[1];\n  if (!token) return NextResponse.json({ authorized: false }, { status: 401, headers });\n  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/, \"\");\n  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;\n  if (!url || !key || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url)) {\n    return NextResponse.json({ authorized: false }, { status: 503, headers });\n  }\n  const client = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });\n  const { data, error } = await client.auth.getUser(token);\n  if (error || !data.user) return NextResponse.json({ authorized: false }, { status: 401, headers });\n  const authorized = isJaspicAdmin(data.user, process.env.JASPIC_ADMIN_USER_ID);\n  return NextResponse.json({ authorized }, { status: authorized ? 200 : 403, headers });\n}\n",
+        "sha256": "54986e09ce920a250fe2e9db7927646840608c9db801fe6d44efc54593692f40"
+      }
+    },
+    {
+      "path": "docs/JASPIC_ADMIN_AUTH_ROLLOUT.md",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 0,
+      "patch": "diff --git a/docs/JASPIC_ADMIN_AUTH_ROLLOUT.md b/docs/JASPIC_ADMIN_AUTH_ROLLOUT.md\nnew file mode 100644\nindex 0000000..4d637e9\n--- /dev/null\n+++ b/docs/JASPIC_ADMIN_AUTH_ROLLOUT.md\n@@ -0,0 +1,22 @@\n+# JASPIC administrator authorization rollout\n+\n+Status: implementation in Draft PR #167; **not enabled in production**.\n+\n+## Required controls\n+- Server verifies each Supabase bearer token using `auth.getUser(token)`; a browser session alone is not authorization.\n+- Authorization requires both `JASPIC_ADMIN_USER_ID` (server-only Vercel production environment variable) matching the verified Supabase user ID and `auth.users.raw_app_meta_data.jaspic_role = \"admin\"`.\n+- Do not put the administrator ID in `NEXT_PUBLIC_*` or expose service-role credentials to browsers.\n+- Never trust email or `user_metadata` alone.\n+- Missing configuration or mismatched role must return 403. Missing/invalid bearer token returns 401.\n+- Gmail OAuth start remains HTTP 503. No email send, scheduling or OAuth consent may be enabled by this change.\n+\n+## Safe rollout order\n+1. Confirm CI and review PR #167. Keep migration PR #155 separate and Draft.\n+2. Assign `jaspic_role: \"admin\"` only to the preverified administrator's `app_metadata` via an authorized admin operation. Preserve other metadata keys.\n+3. Configure `JASPIC_ADMIN_USER_ID` as an encrypted server-only Production environment variable in Vercel, matching that account.\n+4. Merge PR #167 only after review and build quota is available; one controlled production deployment.\n+5. Test unauthenticated (401), authenticated non-admin (403), and administrator (200) status from an actual iPhone browser. Verify Gmail start still returns 503.\n+6. Keep Gmail OAuth and actual sending disabled until separately approved.\n+\n+## Rollback\n+Remove `JASPIC_ADMIN_USER_ID` or remove the `jaspic_role` app metadata; the status endpoint then fails closed. This does not affect existing Supabase Auth login.\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/docs/JASPIC_ADMIN_AUTH_ROLLOUT.md",
+      "source": {
+        "path": "docs/JASPIC_ADMIN_AUTH_ROLLOUT.md",
+        "coverage": "全文",
+        "text": "# JASPIC administrator authorization rollout\n\nStatus: implementation in Draft PR #167; **not enabled in production**.\n\n## Required controls\n- Server verifies each Supabase bearer token using `auth.getUser(token)`; a browser session alone is not authorization.\n- Authorization requires both `JASPIC_ADMIN_USER_ID` (server-only Vercel production environment variable) matching the verified Supabase user ID and `auth.users.raw_app_meta_data.jaspic_role = \"admin\"`.\n- Do not put the administrator ID in `NEXT_PUBLIC_*` or expose service-role credentials to browsers.\n- Never trust email or `user_metadata` alone.\n- Missing configuration or mismatched role must return 403. Missing/invalid bearer token returns 401.\n- Gmail OAuth start remains HTTP 503. No email send, scheduling or OAuth consent may be enabled by this change.\n\n## Safe rollout order\n1. Confirm CI and review PR #167. Keep migration PR #155 separate and Draft.\n2. Assign `jaspic_role: \"admin\"` only to the preverified administrator's `app_metadata` via an authorized admin operation. Preserve other metadata keys.\n3. Configure `JASPIC_ADMIN_USER_ID` as an encrypted server-only Production environment variable in Vercel, matching that account.\n4. Merge PR #167 only after review and build quota is available; one controlled production deployment.\n5. Test unauthenticated (401), authenticated non-admin (403), and administrator (200) status from an actual iPhone browser. Verify Gmail start still returns 503.\n6. Keep Gmail OAuth and actual sending disabled until separately approved.\n\n## Rollback\nRemove `JASPIC_ADMIN_USER_ID` or remove the `jaspic_role` app metadata; the status endpoint then fails closed. This does not affect existing Supabase Auth login.\n",
+        "sha256": "ac9347af3b6f5a98363f5736cb8a069248135615ab8cd712e1295e833b426189"
+      }
+    },
+    {
+      "path": "lib/jaspic/admin-authorization.ts",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "patch": "diff --git a/lib/jaspic/admin-authorization.ts b/lib/jaspic/admin-authorization.ts\nnew file mode 100644\nindex 0000000..8cc54d5\n--- /dev/null\n+++ b/lib/jaspic/admin-authorization.ts\n@@ -0,0 +1,8 @@\n+/** Fail-closed JASPIC authorization. Never trust user_metadata or an email alone. */\n+export function isJaspicAdmin(user: {\n+  id?: string;\n+  app_metadata?: Record<string, unknown>;\n+} | null | undefined, configuredAdminId: string | undefined): boolean {\n+  if (!user || !configuredAdminId || !/^[0-9a-f-]{36}$/i.test(configuredAdminId)) return false;\n+  return user.id === configuredAdminId && user.app_metadata?.jaspic_role === \"admin\";\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/lib/jaspic/admin-authorization.ts",
+      "source": {
+        "path": "lib/jaspic/admin-authorization.ts",
+        "coverage": "全文",
+        "text": "/** Fail-closed JASPIC authorization. Never trust user_metadata or an email alone. */\nexport function isJaspicAdmin(user: {\n  id?: string;\n  app_metadata?: Record<string, unknown>;\n} | null | undefined, configuredAdminId: string | undefined): boolean {\n  if (!user || !configuredAdminId || !/^[0-9a-f-]{36}$/i.test(configuredAdminId)) return false;\n  return user.id === configuredAdminId && user.app_metadata?.jaspic_role === \"admin\";\n}\n",
+        "sha256": "e3696ae7768cf67cec48356c99d886bed82e4b4d3018548dd022ded572df6b48"
+      }
+    },
+    {
+      "path": "tests/jaspic/admin-authorization.test.ts",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 0,
+      "patch": "diff --git a/tests/jaspic/admin-authorization.test.ts b/tests/jaspic/admin-authorization.test.ts\nnew file mode 100644\nindex 0000000..f3cbe76\n--- /dev/null\n+++ b/tests/jaspic/admin-authorization.test.ts\n@@ -0,0 +1,22 @@\n+import { describe, expect, it } from \"vitest\";\n+import { isJaspicAdmin } from \"../../lib/jaspic/admin-authorization\";\n+\n+const id = \"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\";\n+describe(\"JASPIC admin authorization (deny by default)\", () => {\n+  it(\"denies missing config and missing user\", () => {\n+    expect(isJaspicAdmin(null, id)).toBe(false);\n+    expect(isJaspicAdmin({ id, app_metadata: { jaspic_role: \"admin\" } }, undefined)).toBe(false);\n+  });\n+  it(\"denies email-only and non-admin users\", () => {\n+    expect(isJaspicAdmin({ id, app_metadata: {} }, id)).toBe(false);\n+    expect(isJaspicAdmin({ id: \"11111111-1111-1111-1111-111111111111\", app_metadata: { jaspic_role: \"admin\" } }, id)).toBe(false);\n+  });\n+  it(\"rejects malformed admin configuration and spoofed user metadata\", () => {\n+    expect(isJaspicAdmin({ id, app_metadata: { jaspic_role: \"admin\" } }, \"not-a-uuid\")).toBe(false);\n+    expect(isJaspicAdmin({ id, app_metadata: { jaspic_role: \"user\" } }, id)).toBe(false);\n+    expect(isJaspicAdmin({ id, user_metadata: { jaspic_role: \"admin\" } } as unknown as { id: string; app_metadata: Record<string, unknown> }, id)).toBe(false);\n+  });\n+  it(\"permits only matching ID with server-controlled app metadata\", () => {\n+    expect(isJaspicAdmin({ id, app_metadata: { jaspic_role: \"admin\" } }, id)).toBe(true);\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/tests/jaspic/admin-authorization.test.ts",
+      "source": {
+        "path": "tests/jaspic/admin-authorization.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { isJaspicAdmin } from \"../../lib/jaspic/admin-authorization\";\n\nconst id = \"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\";\ndescribe(\"JASPIC admin authorization (deny by default)\", () => {\n  it(\"denies missing config and missing user\", () => {\n    expect(isJaspicAdmin(null, id)).toBe(false);\n    expect(isJaspicAdmin({ id, app_metadata: { jaspic_role: \"admin\" } }, undefined)).toBe(false);\n  });\n  it(\"denies email-only and non-admin users\", () => {\n    expect(isJaspicAdmin({ id, app_metadata: {} }, id)).toBe(false);\n    expect(isJaspicAdmin({ id: \"11111111-1111-1111-1111-111111111111\", app_metadata: { jaspic_role: \"admin\" } }, id)).toBe(false);\n  });\n  it(\"rejects malformed admin configuration and spoofed user metadata\", () => {\n    expect(isJaspicAdmin({ id, app_metadata: { jaspic_role: \"admin\" } }, \"not-a-uuid\")).toBe(false);\n    expect(isJaspicAdmin({ id, app_metadata: { jaspic_role: \"user\" } }, id)).toBe(false);\n    expect(isJaspicAdmin({ id, user_metadata: { jaspic_role: \"admin\" } } as unknown as { id: string; app_metadata: Record<string, unknown> }, id)).toBe(false);\n  });\n  it(\"permits only matching ID with server-controlled app metadata\", () => {\n    expect(isJaspicAdmin({ id, app_metadata: { jaspic_role: \"admin\" } }, id)).toBe(true);\n  });\n});\n",
+        "sha256": "9e227fc892baecd8f1697fd103be8374b8be5002deea03843c9bf74333e5356f"
+      }
+    }
+  ],
+  "file_count": 6,
+  "reported_file_count": 6,
+  "commits": [
+    {
+      "sha": "d8aec7453c0ead00b59055402e1cd3e7c6c8356b",
+      "message": "style(jaspic): constrain mobile text and spacing\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/d8aec7453c0ead00b59055402e1cd3e7c6c8356b"
+    },
+    {
+      "sha": "ab9e1ef1a63cf5df0c26e7bef69551f55186ee0d",
+      "message": "test(jaspic): add fail-closed admin authorization guard\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/ab9e1ef1a63cf5df0c26e7bef69551f55186ee0d"
+    },
+    {
+      "sha": "2b1077bd3e8ec5822c85080cf4917ff718828f35",
+      "message": "test(jaspic): add fail-closed admin authorization guard\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/2b1077bd3e8ec5822c85080cf4917ff718828f35"
+    },
+    {
+      "sha": "02b77af0d6f3ce741d74ac050aa84c47ae73525b",
+      "message": "test(jaspic): use synthetic admin UUID fixture\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/02b77af0d6f3ce741d74ac050aa84c47ae73525b"
+    },
+    {
+      "sha": "46f3bc34c1418f4acedc63f89da82a6042949640",
+      "message": "feat(jaspic): add read-only server verified admin status endpoint\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/46f3bc34c1418f4acedc63f89da82a6042949640"
+    },
+    {
+      "sha": "1b394d1eb64f8fd4934afd33cbd0e10cddd74c28",
+      "message": "feat(jaspic): show server verified admin status without enabling OAuth\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/1b394d1eb64f8fd4934afd33cbd0e10cddd74c28"
+    },
+    {
+      "sha": "2d00d8e443f1b924872477174a6fd3598bd1f8c5",
+      "message": "test(jaspic): cover malformed config and metadata spoofing\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/2d00d8e443f1b924872477174a6fd3598bd1f8c5"
+    },
+    {
+      "sha": "37efdbc992e3a63ea0c91c0b1a267e24742ee875",
+      "message": "docs(jaspic): document gated administrator rollout and rollback\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/37efdbc992e3a63ea0c91c0b1a267e24742ee875"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "37efdbc992e3a63ea0c91c0b1a267e24742ee875",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42170295966",
+      "id": 42170295966,
+      "updated_at": "2026-11-06T05:45:41Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "37efdbc992e3a63ea0c91c0b1a267e24742ee875",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42167957037",
+      "id": 42167957037,
+      "updated_at": "2026-11-06T05:21:45Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "37efdbc992e3a63ea0c91c0b1a267e24742ee875",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42167957085",
+      "id": 42167957085,
+      "updated_at": "2026-11-06T05:22:36Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "GET",
+    "JaspicOAuthPage",
+    "JaspicOauthLoginClient",
+    "active",
+    "authorized",
+    "beginGoogle",
+    "body",
+    "client",
+    "dynamic",
+    "emailLogin",
+    "getBrowserClient",
+    "headers",
+    "id",
+    "isJaspicAdmin",
+    "key",
+    "metadata",
+    "response",
+    "supabase",
+    "target",
+    "token",
+    "url"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "JASPICのiPhoneログイン画面を改善",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/167"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "7f7b2cc33fd729853fd250ae30abec7368fd988de89615e53bb3d216800d0ae9",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

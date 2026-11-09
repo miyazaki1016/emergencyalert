@@ -1,0 +1,232 @@
+{
+  "id": "pr-25",
+  "number": 25,
+  "title": "test: verify live JMA early rain data in CI",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Adds a narrow pull-request smoke check that fetches live JMA precipitation short-range forecast data at a fixed Tokyo-area test coordinate and fails if no usable frames are returned. It does not touch app behavior, Push, Supabase, or production monitoring.",
+  "snapshot_head": "55174d5c0de802fa06ada23b6ce77aab8840bf6a",
+  "snapshot_consistent": true,
+  "head": "55174d5c0de802fa06ada23b6ce77aab8840bf6a",
+  "base": "fea4595835d14448c259894afcdb1be0717a2bd9",
+  "base_ref": "main",
+  "head_ref": "test-jma-early-live-smoke",
+  "state": "open",
+  "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+  "draft": false,
+  "merged_at": null,
+  "merge_commit_sha": null,
+  "updated_at": "2026-09-24T23:49:53Z",
+  "code_facts": [
+    {
+      "file": ".github/workflows/jma-early-rain-smoke.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "- run: npm install",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/.github/workflows/jma-early-rain-smoke.yml"
+    },
+    {
+      "file": ".github/workflows/jma-early-rain-smoke.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "run: npx tsx scripts/check-jma-early-rain.ts",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/.github/workflows/jma-early-rain-smoke.yml"
+    },
+    {
+      "file": "lib/weather/providers/jma/earlyForecastTileUrl.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"builds a rasrf tile URL for a none member\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/lib/weather/providers/jma/earlyForecastTileUrl.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/earlyForecastTileUrl.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"builds a rasrf tile URL for an immed member\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/lib/weather/providers/jma/earlyForecastTileUrl.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/earlyForecastTileUrl.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(buildJmaEarlyForecastTileUrl(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/lib/weather/providers/jma/earlyForecastTileUrl.test.ts"
+    },
+    {
+      "file": "scripts/check-jma-early-rain.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function buildTileUrl(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/scripts/check-jma-early-rain.ts"
+    },
+    {
+      "file": "scripts/check-jma-early-rain.ts",
+      "kind": "関数・クラス定義",
+      "expression": "async function probe(url: string) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/scripts/check-jma-early-rain.ts"
+    },
+    {
+      "file": "scripts/check-jma-early-rain.ts",
+      "kind": "HTTP要求",
+      "expression": "const response = await fetch(url, { cache: \"no-store\" });",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/scripts/check-jma-early-rain.ts"
+    },
+    {
+      "file": "scripts/check-jma-early-rain.ts",
+      "kind": "関数・クラス定義",
+      "expression": "async function main() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/scripts/check-jma-early-rain.ts"
+    },
+    {
+      "file": "scripts/check-jma-early-rain.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (results.some((result) => !result.declared.ok)) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/scripts/check-jma-early-rain.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/jma-early-rain-smoke.yml",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 0,
+      "patch": "diff --git a/.github/workflows/jma-early-rain-smoke.yml b/.github/workflows/jma-early-rain-smoke.yml\nnew file mode 100644\nindex 0000000..212508c\n--- /dev/null\n+++ b/.github/workflows/jma-early-rain-smoke.yml\n@@ -0,0 +1,21 @@\n+name: JMA Early Rain Live Smoke\n+\n+on:\n+  pull_request:\n+    paths:\n+      - \"scripts/check-jma-early-rain.ts\"\n+      - \".github/workflows/jma-early-rain-smoke.yml\"\n+      - \"lib/weather/providers/jma/**\"\n+\n+jobs:\n+  live-smoke:\n+    runs-on: ubuntu-latest\n+    timeout-minutes: 5\n+    steps:\n+      - uses: actions/checkout@v4\n+      - uses: actions/setup-node@v4\n+        with:\n+          node-version: 22\n+      - run: npm install\n+      - name: Fetch live JMA early-rain forecast\n+        run: npx tsx scripts/check-jma-early-rain.ts\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/.github/workflows/jma-early-rain-smoke.yml",
+      "source": {
+        "path": ".github/workflows/jma-early-rain-smoke.yml",
+        "coverage": "全文",
+        "text": "name: JMA Early Rain Live Smoke\n\non:\n  pull_request:\n    paths:\n      - \"scripts/check-jma-early-rain.ts\"\n      - \".github/workflows/jma-early-rain-smoke.yml\"\n      - \"lib/weather/providers/jma/**\"\n\njobs:\n  live-smoke:\n    runs-on: ubuntu-latest\n    timeout-minutes: 5\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 22\n      - run: npm install\n      - name: Fetch live JMA early-rain forecast\n        run: npx tsx scripts/check-jma-early-rain.ts\n",
+        "sha256": "dcb4153fa27a48b8c6d58f19931243025cdd58b138812129868fa9d43737b7d5"
+      }
+    },
+    {
+      "path": "lib/weather/providers/jma/earlyForecastTileUrl.test.ts",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 2,
+      "patch": "diff --git a/lib/weather/providers/jma/earlyForecastTileUrl.test.ts b/lib/weather/providers/jma/earlyForecastTileUrl.test.ts\nindex ba43601..d944ffd 100644\n--- a/lib/weather/providers/jma/earlyForecastTileUrl.test.ts\n+++ b/lib/weather/providers/jma/earlyForecastTileUrl.test.ts\n@@ -2,9 +2,9 @@ import { describe, expect, it } from \"vitest\";\n import { buildJmaEarlyForecastTileUrl } from \"./earlyForecastTileUrl\";\n \n describe(\"buildJmaEarlyForecastTileUrl\", () => {\n-  it(\"builds a rasrf tile URL\", () => {\n+  it(\"builds a rasrf tile URL for a none member\", () => {\n     expect(buildJmaEarlyForecastTileUrl(\n-      { basetime: \"20260924130000\", validtime: \"20260924150000\" },\n+      { basetime: \"20260924130000\", validtime: \"20260924150000\", member: \"none\" },\n       10,\n       909,\n       403,\n@@ -12,4 +12,15 @@ describe(\"buildJmaEarlyForecastTileUrl\", () => {\n       \"https://www.jma.go.jp/bosai/jmatile/data/rasrf/20260924130000/none/20260924150000/surf/rasrf/10/909/403.png\",\n     );\n   });\n+\n+  it(\"builds a rasrf tile URL for an immed member\", () => {\n+    expect(buildJmaEarlyForecastTileUrl(\n+      { basetime: \"20260924160000\", validtime: \"20260924170000\", member: \"immed\" },\n+      10,\n+      909,\n+      403,\n+    )).toBe(\n+      \"https://www.jma.go.jp/bosai/jmatile/data/rasrf/20260924160000/immed/20260924170000/surf/rasrf/10/909/403.png\",\n+    );\n+  });\n });\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/lib/weather/providers/jma/earlyForecastTileUrl.test.ts",
+      "source": {
+        "path": "lib/weather/providers/jma/earlyForecastTileUrl.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { buildJmaEarlyForecastTileUrl } from \"./earlyForecastTileUrl\";\n\ndescribe(\"buildJmaEarlyForecastTileUrl\", () => {\n  it(\"builds a rasrf tile URL for a none member\", () => {\n    expect(buildJmaEarlyForecastTileUrl(\n      { basetime: \"20260924130000\", validtime: \"20260924150000\", member: \"none\" },\n      10,\n      909,\n      403,\n    )).toBe(\n      \"https://www.jma.go.jp/bosai/jmatile/data/rasrf/20260924130000/none/20260924150000/surf/rasrf/10/909/403.png\",\n    );\n  });\n\n  it(\"builds a rasrf tile URL for an immed member\", () => {\n    expect(buildJmaEarlyForecastTileUrl(\n      { basetime: \"20260924160000\", validtime: \"20260924170000\", member: \"immed\" },\n      10,\n      909,\n      403,\n    )).toBe(\n      \"https://www.jma.go.jp/bosai/jmatile/data/rasrf/20260924160000/immed/20260924170000/surf/rasrf/10/909/403.png\",\n    );\n  });\n});\n",
+        "sha256": "21c5be68ad914006f312d1a5eb6d22983e79124b06c3e4a77464da47a098fbe9"
+      }
+    },
+    {
+      "path": "lib/weather/providers/jma/earlyForecastTileUrl.ts",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "patch": "diff --git a/lib/weather/providers/jma/earlyForecastTileUrl.ts b/lib/weather/providers/jma/earlyForecastTileUrl.ts\nindex e36035b..1c09441 100644\n--- a/lib/weather/providers/jma/earlyForecastTileUrl.ts\n+++ b/lib/weather/providers/jma/earlyForecastTileUrl.ts\n@@ -1,7 +1,7 @@\n import type { JmaEarlyForecastTargetTime } from \"./earlyForecastTargetTimes\";\n \n export function buildJmaEarlyForecastTileUrl(\n-  frame: Pick<JmaEarlyForecastTargetTime, \"basetime\" | \"validtime\">,\n+  frame: Pick<JmaEarlyForecastTargetTime, \"basetime\" | \"validtime\" | \"member\">,\n   zoom: number,\n   tileX: number,\n   tileY: number,\n@@ -9,7 +9,7 @@ export function buildJmaEarlyForecastTileUrl(\n   return [\n     \"https://www.jma.go.jp/bosai/jmatile/data/rasrf\",\n     frame.basetime,\n-    \"none\",\n+    frame.member,\n     frame.validtime,\n     \"surf\",\n     \"rasrf\",\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/lib/weather/providers/jma/earlyForecastTileUrl.ts",
+      "source": {
+        "path": "lib/weather/providers/jma/earlyForecastTileUrl.ts",
+        "coverage": "全文",
+        "text": "import type { JmaEarlyForecastTargetTime } from \"./earlyForecastTargetTimes\";\n\nexport function buildJmaEarlyForecastTileUrl(\n  frame: Pick<JmaEarlyForecastTargetTime, \"basetime\" | \"validtime\" | \"member\">,\n  zoom: number,\n  tileX: number,\n  tileY: number,\n): string {\n  return [\n    \"https://www.jma.go.jp/bosai/jmatile/data/rasrf\",\n    frame.basetime,\n    frame.member,\n    frame.validtime,\n    \"surf\",\n    \"rasrf\",\n    String(zoom),\n    String(tileX),\n    `${tileY}.png`,\n  ].join(\"/\");\n}\n",
+        "sha256": "3b267678bb2465464d5689eecd2e82bbaf55a81f76e31314ded57e856280b383"
+      }
+    },
+    {
+      "path": "scripts/check-jma-early-rain.ts",
+      "status": "modified",
+      "additions": 83,
+      "deletions": 0,
+      "patch": "diff --git a/scripts/check-jma-early-rain.ts b/scripts/check-jma-early-rain.ts\nnew file mode 100644\nindex 0000000..9682a42\n--- /dev/null\n+++ b/scripts/check-jma-early-rain.ts\n@@ -0,0 +1,83 @@\n+import { fetchEarlyForecastTargetTimes } from \"../lib/weather/providers/jma/earlyForecastTargetTimes\";\n+import { latLonToTilePixel } from \"../lib/weather/providers/jma/webMercator\";\n+\n+function buildTileUrl(\n+  target: { basetime: string; validtime: string },\n+  member: string,\n+  zoom: number,\n+  tileX: number,\n+  tileY: number,\n+) {\n+  return [\n+    \"https://www.jma.go.jp/bosai/jmatile/data/rasrf\",\n+    target.basetime,\n+    member,\n+    target.validtime,\n+    \"surf\",\n+    \"rasrf\",\n+    String(zoom),\n+    String(tileX),\n+    `${tileY}.png`,\n+  ].join(\"/\");\n+}\n+\n+async function probe(url: string) {\n+  try {\n+    const response = await fetch(url, { cache: \"no-store\" });\n+    const contentType = response.headers.get(\"content-type\");\n+    const bytes = response.ok ? (await response.arrayBuffer()).byteLength : 0;\n+    return { status: response.status, contentType, bytes, ok: response.ok };\n+  } catch (error) {\n+    return {\n+      status: null,\n+      contentType: null,\n+      bytes: 0,\n+      ok: false,\n+      error: error instanceof Error ? error.message : String(error),\n+    };\n+  }\n+}\n+\n+async function main() {\n+  const lat = 35.5494;\n+  const lon = 139.7798;\n+  const point = latLonToTilePixel(lat, lon, 10);\n+  const targets = await fetchEarlyForecastTargetTimes();\n+\n+  const results = await Promise.all(targets.map(async (target) => {\n+    const declared = await probe(buildTileUrl(target, target.member, point.zoom, point.tileX, point.tileY));\n+    const none = target.member === \"none\"\n+      ? declared\n+      : await probe(buildTileUrl(target, \"none\", point.zoom, point.tileX, point.tileY));\n+    const immed = target.member === \"immed\"\n+      ? declared\n+      : await probe(buildTileUrl(target, \"immed\", point.zoom, point.tileX, point.tileY));\n+\n+    return {\n+      baseTime: target.basetime,\n+      validTime: target.validtime,\n+      declaredMember: target.member,\n+      declared,\n+      none,\n+      immed,\n+    };\n+  }));\n+\n+  console.log(JSON.stringify({\n+    checkedAt: new Date().toISOString(),\n+    targetCount: targets.length,\n+    declaredSuccessCount: results.filter((result) => result.declared.ok).length,\n+    immedTargetCount: results.filter((result) => result.declaredMember === \"immed\").length,\n+    point,\n+    results,\n+  }, null, 2));\n+\n+  if (results.some((result) => !result.declared.ok)) {\n+    throw new Error(\"One or more JMA declared-member tile requests failed\");\n+  }\n+}\n+\n+main().catch((error) => {\n+  console.error(error);\n+  process.exitCode = 1;\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/scripts/check-jma-early-rain.ts",
+      "source": {
+        "path": "scripts/check-jma-early-rain.ts",
+        "coverage": "全文",
+        "text": "import { fetchEarlyForecastTargetTimes } from \"../lib/weather/providers/jma/earlyForecastTargetTimes\";\nimport { latLonToTilePixel } from \"../lib/weather/providers/jma/webMercator\";\n\nfunction buildTileUrl(\n  target: { basetime: string; validtime: string },\n  member: string,\n  zoom: number,\n  tileX: number,\n  tileY: number,\n) {\n  return [\n    \"https://www.jma.go.jp/bosai/jmatile/data/rasrf\",\n    target.basetime,\n    member,\n    target.validtime,\n    \"surf\",\n    \"rasrf\",\n    String(zoom),\n    String(tileX),\n    `${tileY}.png`,\n  ].join(\"/\");\n}\n\nasync function probe(url: string) {\n  try {\n    const response = await fetch(url, { cache: \"no-store\" });\n    const contentType = response.headers.get(\"content-type\");\n    const bytes = response.ok ? (await response.arrayBuffer()).byteLength : 0;\n    return { status: response.status, contentType, bytes, ok: response.ok };\n  } catch (error) {\n    return {\n      status: null,\n      contentType: null,\n      bytes: 0,\n      ok: false,\n      error: error instanceof Error ? error.message : String(error),\n    };\n  }\n}\n\nasync function main() {\n  const lat = 35.5494;\n  const lon = 139.7798;\n  const point = latLonToTilePixel(lat, lon, 10);\n  const targets = await fetchEarlyForecastTargetTimes();\n\n  const results = await Promise.all(targets.map(async (target) => {\n    const declared = await probe(buildTileUrl(target, target.member, point.zoom, point.tileX, point.tileY));\n    const none = target.member === \"none\"\n      ? declared\n      : await probe(buildTileUrl(target, \"none\", point.zoom, point.tileX, point.tileY));\n    const immed = target.member === \"immed\"\n      ? declared\n      : await probe(buildTileUrl(target, \"immed\", point.zoom, point.tileX, point.tileY));\n\n    return {\n      baseTime: target.basetime,\n      validTime: target.validtime,\n      declaredMember: target.member,\n      declared,\n      none,\n      immed,\n    };\n  }));\n\n  console.log(JSON.stringify({\n    checkedAt: new Date().toISOString(),\n    targetCount: targets.length,\n    declaredSuccessCount: results.filter((result) => result.declared.ok).length,\n    immedTargetCount: results.filter((result) => result.declaredMember === \"immed\").length,\n    point,\n    results,\n  }, null, 2));\n\n  if (results.some((result) => !result.declared.ok)) {\n    throw new Error(\"One or more JMA declared-member tile requests failed\");\n  }\n}\n\nmain().catch((error) => {\n  console.error(error);\n  process.exitCode = 1;\n});\n",
+        "sha256": "37464514528cc8dcbd3e94b87c6cf44b27a44365590088e9c024e90706835f74"
+      }
+    }
+  ],
+  "file_count": 4,
+  "reported_file_count": 4,
+  "commits": [
+    {
+      "sha": "95b76176bd9c1b52cae45f6186ba541716b4cd0b",
+      "message": "test: add JMA early rain live smoke script\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/95b76176bd9c1b52cae45f6186ba541716b4cd0b"
+    },
+    {
+      "sha": "da47b7bcbedc144351d418dbec370b70d71a353b",
+      "message": "ci: run JMA early rain live smoke check\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/da47b7bcbedc144351d418dbec370b70d71a353b"
+    },
+    {
+      "sha": "3c86ffac5228a95dbe32a5ec66b9a731fd58c812",
+      "message": "ci: run live smoke without lockfile cache\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/3c86ffac5228a95dbe32a5ec66b9a731fd58c812"
+    },
+    {
+      "sha": "5a5215f3ab9588e7848239e83bc3a6452c69738e",
+      "message": "test: run JMA live smoke through async main\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/5a5215f3ab9588e7848239e83bc3a6452c69738e"
+    },
+    {
+      "sha": "79d9d1aed0ba23eba0da437a5a570433f63edd9b",
+      "message": "test: diagnose JMA early forecast tile failures\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/79d9d1aed0ba23eba0da437a5a570433f63edd9b"
+    },
+    {
+      "sha": "aa9a602d7b365296805df093fd4d4b2622252e38",
+      "message": "test: verify member-aware JMA tile URLs\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/aa9a602d7b365296805df093fd4d4b2622252e38"
+    },
+    {
+      "sha": "cf41ca46914c9fae6b0a8e3fb10fea5c0b559c5c",
+      "message": "test: compare JMA none and immed tile paths\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/cf41ca46914c9fae6b0a8e3fb10fea5c0b559c5c"
+    },
+    {
+      "sha": "a14ab66bd3568f8e59556a52b3d741865bbdd26a",
+      "message": "fix: use JMA early forecast member in tile URL\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/a14ab66bd3568f8e59556a52b3d741865bbdd26a"
+    },
+    {
+      "sha": "55174d5c0de802fa06ada23b6ce77aab8840bf6a",
+      "message": "test: cover none and immed JMA tile URLs\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/55174d5c0de802fa06ada23b6ce77aab8840bf6a"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [],
+  "symbols": [
+    "buildJmaEarlyForecastTileUrl",
+    "buildTileUrl",
+    "bytes",
+    "contentType",
+    "declared",
+    "immed",
+    "lat",
+    "lon",
+    "main",
+    "none",
+    "point",
+    "probe",
+    "response",
+    "results",
+    "targets"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "実際のJMA予測データをCIで検証",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/25"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "aec834e6de3275f69f0128024be4799f585debb5e18abc26493f039d3eb544ad",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

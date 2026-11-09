@@ -1,0 +1,104 @@
+{
+  "id": "pr-30",
+  "number": 30,
+  "title": "Deduplicate place search results",
+  "topics": [
+    "その他の開発"
+  ],
+  "purpose": "変更対象ファイルに関する開発。具体的な目的は原文・差分を確認",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "施設・地名検索で、同一住所または座標が50m以内の検索結果を1件にまとめます。監視地点の登録ロジックや既存データには触れません。",
+  "snapshot_head": "c4182df79a20538e5671d4c6f5ee82172657cbec",
+  "snapshot_consistent": true,
+  "head": "c4182df79a20538e5671d4c6f5ee82172657cbec",
+  "base": "7ea6cdb5e9ce2ca9e65db05b42630fecbc055024",
+  "base_ref": "main",
+  "head_ref": "fix/dedupe-place-search-results",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-09-25T19:15:01Z",
+  "merge_commit_sha": "3c64c72aebf22a140ffb556f6954913d9bb86023",
+  "updated_at": "2026-09-25T19:15:01Z",
+  "code_facts": [
+    {
+      "file": "lib/places/searchPlaces.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (candidate.displayAddress === result.displayAddress) return true;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c4182df79a20538e5671d4c6f5ee82172657cbec/lib/places/searchPlaces.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "lib/places/searchPlaces.ts",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 1,
+      "patch": "diff --git a/lib/places/searchPlaces.ts b/lib/places/searchPlaces.ts\nindex 4ab7f89..ec5401d 100644\n--- a/lib/places/searchPlaces.ts\n+++ b/lib/places/searchPlaces.ts\n@@ -77,7 +77,7 @@ export async function searchPlaces(query: string): Promise<PlaceSearchResult[]>\n   // retry loops so we stay within the public service usage policy.\n   const items = await fetchNominatim(normalized);\n \n-  return items.flatMap((item) => {\n+  const results = items.flatMap((item) => {\n     const latitude = Number(item.lat);\n     const longitude = Number(item.lon);\n     if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return [];\n@@ -89,4 +89,14 @@ export async function searchPlaces(query: string): Promise<PlaceSearchResult[]>\n       longitude,\n     }];\n   });\n+\n+  return results.filter((result, index, all) =>\n+    all.findIndex((candidate) => {\n+      if (candidate.displayAddress === result.displayAddress) return true;\n+      const latMeters = (candidate.latitude - result.latitude) * 111_320;\n+      const lonMeters = (candidate.longitude - result.longitude) * 111_320\n+        * Math.cos(result.latitude * Math.PI / 180);\n+      return Math.hypot(latMeters, lonMeters) <= 50;\n+    }) === index\n+  );\n }\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c4182df79a20538e5671d4c6f5ee82172657cbec/lib/places/searchPlaces.ts",
+      "source": {
+        "path": "lib/places/searchPlaces.ts",
+        "coverage": "全文",
+        "text": "import { normalize } from \"@geolonia/normalize-japanese-addresses\";\n\nexport interface PlaceSearchResult {\n  id: string;\n  displayName: string;\n  displayAddress: string;\n  latitude: number;\n  longitude: number;\n}\n\ninterface NominatimItem {\n  place_id: number;\n  display_name: string;\n  name?: string;\n  lat: string;\n  lon: string;\n}\n\nfunction normalizeJapaneseAddress(query: string): string {\n  return query\n    .normalize(\"NFKC\")\n    .replace(/[‐‑‒–—―ー−]/g, \"-\")\n    .replace(/(\\d+)丁目(?:[- ]?(\\d+))?(?:[- ]?(\\d+))?/g, (_match, chome, ban, go) => {\n      return [chome, ban, go].filter(Boolean).join(\"-\");\n    })\n    .replace(/(\\d+)番地?(\\d+)?号?/g, (_match, ban, go) => [ban, go].filter(Boolean).join(\"-\"))\n    .replace(/(\\d+)号/g, \"$1\")\n    .replace(/\\s+/g, \" \")\n    .trim();\n}\n\nasync function fetchNominatim(query: string): Promise<NominatimItem[]> {\n  const url = new URL(\"https://nominatim.openstreetmap.org/search\");\n  url.searchParams.set(\"q\", query);\n  url.searchParams.set(\"format\", \"jsonv2\");\n  url.searchParams.set(\"addressdetails\", \"1\");\n  url.searchParams.set(\"limit\", \"5\");\n  url.searchParams.set(\"countrycodes\", \"jp\");\n  url.searchParams.set(\"accept-language\", \"ja\");\n\n  const response = await fetch(url, {\n    headers: {\n      \"User-Agent\": \"EmergencyAlert/2026 (place search)\",\n      \"Accept-Language\": \"ja\",\n    },\n    cache: \"no-store\",\n  });\n  if (!response.ok) throw new Error(\"PLACE_SEARCH_UNAVAILABLE\");\n  return (await response.json()) as NominatimItem[];\n}\n\nexport async function searchPlaces(query: string): Promise<PlaceSearchResult[]> {\n  const trimmed = query.trim();\n  if (trimmed.length < 2) return [];\n\n  const normalized = normalizeJapaneseAddress(trimmed);\n\n  if (/\\d/.test(normalized) && /[都道府県市区町村丁目番]/.test(normalized)) {\n    try {\n      const address = await normalize(normalized);\n      if (address.point && address.level >= 3) {\n        const displayAddress = [address.pref, address.city, address.town, address.addr].filter(Boolean).join(\"\");\n        return [{\n          id: `address:${displayAddress}`,\n          displayName: address.town || displayAddress || trimmed,\n          displayAddress: displayAddress || trimmed,\n          latitude: address.point.lat,\n          longitude: address.point.lng,\n        }];\n      }\n    } catch {\n      // Keep facility/station search available through Nominatim.\n    }\n  }\n\n  // Use one explicit Nominatim request for stations/facilities. Avoid rapid\n  // retry loops so we stay within the public service usage policy.\n  const items = await fetchNominatim(normalized);\n\n  const results = items.flatMap((item) => {\n    const latitude = Number(item.lat);\n    const longitude = Number(item.lon);\n    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return [];\n    return [{\n      id: String(item.place_id),\n      displayName: item.name?.trim() || item.display_name.split(\",\")[0]?.trim() || trimmed,\n      displayAddress: item.display_name,\n      latitude,\n      longitude,\n    }];\n  });\n\n  return results.filter((result, index, all) =>\n    all.findIndex((candidate) => {\n      if (candidate.displayAddress === result.displayAddress) return true;\n      const latMeters = (candidate.latitude - result.latitude) * 111_320;\n      const lonMeters = (candidate.longitude - result.longitude) * 111_320\n        * Math.cos(result.latitude * Math.PI / 180);\n      return Math.hypot(latMeters, lonMeters) <= 50;\n    }) === index\n  );\n}\n",
+        "sha256": "7aaa7e43049831843e445b8d65e19e0db36be96e06846d4294834f0c5f49cddd"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "c4182df79a20538e5671d4c6f5ee82172657cbec",
+      "message": "Deduplicate place search results\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/c4182df79a20538e5671d4c6f5ee82172657cbec"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "c4182df79a20538e5671d4c6f5ee82172657cbec",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/36178359239",
+      "id": 36178359239,
+      "updated_at": "2026-09-25T19:14:21Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "address",
+    "displayAddress",
+    "fetchNominatim",
+    "items",
+    "latMeters",
+    "latitude",
+    "lonMeters",
+    "longitude",
+    "normalizeJapaneseAddress",
+    "normalized",
+    "response",
+    "results",
+    "searchPlaces",
+    "trimmed",
+    "url"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "地点検索の重複候補を除去",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/30"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "3ddacdb29a85993d14bf78d0a5cfbb0d67fd3c1975642178b51ae98abe244f10",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

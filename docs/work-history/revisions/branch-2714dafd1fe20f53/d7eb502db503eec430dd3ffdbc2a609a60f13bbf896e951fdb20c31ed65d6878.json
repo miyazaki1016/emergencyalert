@@ -1,0 +1,35 @@
+{
+  "id": "branch-2714dafd1fe20f53",
+  "title": "automation/ledger-facts-41477958167",
+  "head": "496b8b81e4e37afeab455ef10e4a7c19120087f2",
+  "head_ref": "automation/ledger-facts-41477958167",
+  "linked_prs": [
+    144
+  ],
+  "files": [
+    {
+      "path": "docs/DEVELOPMENT_LEDGER.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/496b8b81e4e37afeab455ef10e4a7c19120087f2/docs/DEVELOPMENT_LEDGER.md"
+    },
+    {
+      "path": "docs/DEVELOPMENT_OPERATIONS_INDEX.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/496b8b81e4e37afeab455ef10e4a7c19120087f2/docs/DEVELOPMENT_OPERATIONS_INDEX.md"
+    }
+  ],
+  "commits": "496b8b81e4e37afeab455ef10e4a7c19120087f2 docs: propose factual GitHub ledger and operations index snapshot",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "20f94c11fe84242a8bffb84c329d6eb942082725b0569c7d598085470435756e",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

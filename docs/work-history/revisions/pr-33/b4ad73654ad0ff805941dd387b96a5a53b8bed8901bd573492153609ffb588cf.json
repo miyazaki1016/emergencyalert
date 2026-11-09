@@ -1,0 +1,221 @@
+{
+  "id": "pr-33",
+  "number": 33,
+  "title": "Fix transparent JMA pixels blocking dry/ending states",
+  "topics": [
+    "雨量・全国検知",
+    "画面・表示"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更／画面表示や操作に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Treat fully transparent JMA high-resolution precipitation PNG pixels as NO_RAIN, based on captured field evidence showing the same location transition transparent → verified rain palette → transparent as rain passed. Unknown opaque colors remain fail-closed as UNKNOWN_PIXEL. Adds coverage for both transparent black and transparent white RGBA values observed in production diagnostics.",
+  "snapshot_head": "abbc724ff4cf8f4a1ac91b9451e4a2c92390f241",
+  "snapshot_consistent": true,
+  "head": "abbc724ff4cf8f4a1ac91b9451e4a2c92390f241",
+  "base": "c8f0ea3bb9c59bd7f49a6aea203411467e06fd2d",
+  "base_ref": "main",
+  "head_ref": "fix/jma-transparent-no-rain",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-09-27T07:25:33Z",
+  "merge_commit_sha": "6404665994114f00dbec996b25d4180ac5b04969",
+  "updated_at": "2026-09-27T07:25:34Z",
+  "code_facts": [
+    {
+      "file": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function response(body: BodyInit, init?: ResponseInit) { return new Response(body, { status: 200, ...init }); }",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/JmaPublicImageProvider.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"preserves JMA target count and classifies a complete transparent series as no rain\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/JmaPublicImageProvider.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/JmaPublicImageProvider.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(series.frames.every((f) => f.status === \"NO_RAIN\")).toBe(true);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/JmaPublicImageProvider.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/JmaPublicImageProvider.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(series.frames.map((f) => f.status)).toEqual([\"NO_RAIN\", \"FETCH_ERROR\"]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/JmaPublicImageProvider.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/JmaPublicImageProvider.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (String(input).includes(\"targetTimes_N1.json\")) return response(JSON.stringify(targets));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/JmaPublicImageProvider.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/JmaPublicImageProvider.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(series.frames.map((f) => f.validTime)).toEqual([\"20260920120500\", \"20260920121000\", \"20260920121500\"]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/JmaPublicImageProvider.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/classifyPixel.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"treats a fully transparent JMA precipitation pixel as no rain\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/classifyPixel.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/classifyPixel.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"treats transparent pixels as no rain regardless of hidden RGB channels\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/classifyPixel.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/classifyPixel.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(classifyRainPixel({ r: 255, g: 255, b: 255, a: 0 })).toEqual({",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/classifyPixel.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/classifyPixel.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (rgba.a === 0) return { status: \"NO_RAIN\", intensityClass: null };",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/classifyPixel.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 47,
+      "patch": "diff --git a/lib/weather/providers/jma/JmaPublicImageProvider.test.ts b/lib/weather/providers/jma/JmaPublicImageProvider.test.ts\nindex fc7f1c4..8f0ddf7 100644\n--- a/lib/weather/providers/jma/JmaPublicImageProvider.test.ts\n+++ b/lib/weather/providers/jma/JmaPublicImageProvider.test.ts\n@@ -5,36 +5,26 @@ import { JmaPublicImageProvider } from \"./JmaPublicImageProvider\";\n function pngPixel(r: number, g: number, b: number, a: number): ArrayBuffer {\n   const png = new PNG({ width: 256, height: 256 });\n   for (let i = 0; i < png.data.length; i += 4) {\n-    png.data[i] = r;\n-    png.data[i + 1] = g;\n-    png.data[i + 2] = b;\n-    png.data[i + 3] = a;\n+    png.data[i] = r; png.data[i + 1] = g; png.data[i + 2] = b; png.data[i + 3] = a;\n   }\n   return Uint8Array.from(PNG.sync.write(png)).buffer;\n }\n-\n-function response(body: BodyInit, init?: ResponseInit) {\n-  return new Response(body, { status: 200, ...init });\n-}\n+function response(body: BodyInit, init?: ResponseInit) { return new Response(body, { status: 200, ...init }); }\n \n describe(\"JmaPublicImageProvider integration boundary\", () => {\n-  it(\"preserves JMA target count and keeps a complete transparent series unknown\", async () => {\n+  it(\"preserves JMA target count and classifies a complete transparent series as no rain\", async () => {\n     const targets = [\n       { basetime: \"20260920120000\", validtime: \"20260920120500\", elements: [\"hrpns\"] },\n       { basetime: \"20260920120000\", validtime: \"20260920121000\", elements: [\"hrpns\"] },\n     ];\n     const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n-      const url = String(input);\n-      if (url.includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n+      if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n       return response(pngPixel(0, 0, 0, 0));\n     }) as unknown as typeof fetch;\n-\n-    const provider = new JmaPublicImageProvider(fetcher);\n-    const series = await provider.getForecastSeries(35.681236, 139.767125);\n-\n+    const series = await new JmaPublicImageProvider(fetcher).getForecastSeries(35.681236, 139.767125);\n     expect(series.expectedFrames).toBe(2);\n     expect(series.frames).toHaveLength(2);\n-    expect(series.frames.every((f) => f.status === \"UNKNOWN_PIXEL\")).toBe(true);\n+    expect(series.frames.every((f) => f.status === \"NO_RAIN\")).toBe(true);\n   });\n \n   it(\"keeps one failed tile as FETCH_ERROR instead of silently shrinking the series\", async () => {\n@@ -44,34 +34,27 @@ describe(\"JmaPublicImageProvider integration boundary\", () => {\n     ];\n     let tile = 0;\n     const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n-      const url = String(input);\n-      if (url.includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n+      if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n       tile += 1;\n       if (tile === 2) return new Response(\"nope\", { status: 503 });\n       return response(pngPixel(0, 0, 0, 0));\n     }) as unknown as typeof fetch;\n-\n-    const provider = new JmaPublicImageProvider(fetcher);\n-    const series = await provider.getForecastSeries(35.681236, 139.767125);\n-\n+    const series = await new JmaPublicImageProvider(fetcher).getForecastSeries(35.681236, 139.767125);\n     expect(series.expectedFrames).toBe(2);\n     expect(series.frames).toHaveLength(2);\n-    expect(series.frames.map((f) => f.status)).toEqual([\"UNKNOWN_PIXEL\", \"FETCH_ERROR\"]);\n+    expect(series.frames.map((f) => f.status)).toEqual([\"NO_RAIN\", \"FETCH_ERROR\"]);\n   });\n \n   it.each([[1, 2, 3], [250, 245, 0], [255, 245, 0], [0, 170, 255], [255, 170, 0]])(\"keeps unsupported RGB (%i,%i,%i) UNKNOWN_PIXEL\", async (r, g, b) => {\n     const targets = [{ basetime: \"20260920120000\", validtime: \"20260920120500\", elements: [\"hrpns\"] }];\n     const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n-      const url = String(input);\n-      if (url.includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n+      if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n       return response(pngPixel(r, g, b, 255));\n     }) as unknown as typeof fetch;\n-\n-    const provider = new JmaPublicImageProvider(fetcher);\n-    const series = await provider.getForecastSeries(35.681236, 139.767125);\n-\n+    const series = await new JmaPublicImageProvider(fetcher).getForecastSeries(35.681236, 139.767125);\n     expect(series.frames[0].status).toBe(\"UNKNOWN_PIXEL\");\n   });\n+\n   it(\"selects the newest observation even when JMA metadata arrives out of order\", async () => {\n     const targets = [\n       { basetime: \"20260920115500\", validtime: \"20260920115500\", elements: [\"hrpns\"] },\n@@ -79,14 +62,10 @@ describe(\"JmaPublicImageProvider integration boundary\", () => {\n       { basetime: \"20260920120000\", validtime: \"20260920120000\", elements: [\"hrpns\"] },\n     ];\n     const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n-      const url = String(input);\n-      if (url.includes(\"targetTimes_N1.json\")) return response(JSON.stringify(targets));\n+      if (String(input).includes(\"targetTimes_N1.json\")) return response(JSON.stringify(targets));\n       return response(pngPixel(0, 0, 0, 0));\n     }) as unknown as typeof fetch;\n-\n-    const provider = new JmaPublicImageProvider(fetcher);\n-    const frames = await provider.getObservationFrames(35.681236, 139.767125);\n-\n+    const frames = await new JmaPublicImageProvider(fetcher).getObservationFrames(35.681236, 139.767125);\n     expect(frames).toHaveLength(1);\n     expect(frames[0].validTime).toBe(\"20260920120500\");\n   });\n@@ -98,19 +77,10 @@ describe(\"JmaPublicImageProvider integration boundary\", () => {\n       { basetime: \"20260920120000\", validtime: \"20260920121000\", elements: [\"hrpns\"] },\n     ];\n     const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n-      const url = String(input);\n-      if (url.includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n+      if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n       return response(pngPixel(0, 0, 0, 0));\n     }) as unknown as typeof fetch;\n-\n-    const provider = new JmaPublicImageProvider(fetcher);\n-    const series = await provider.getForecastSeries(35.681236, 139.767125);\n-\n-    expect(series.frames.map((f) => f.validTime)).toEqual([\n-      \"20260920120500\",\n-      \"20260920121000\",\n-      \"20260920121500\",\n-    ]);\n+    const series = await new JmaPublicImageProvider(fetcher).getForecastSeries(35.681236, 139.767125);\n+    expect(series.frames.map((f) => f.validTime)).toEqual([\"20260920120500\", \"20260920121000\", \"20260920121500\"]);\n   });\n-\n });\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "source": {
+        "path": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it, vi } from \"vitest\";\nimport { PNG } from \"pngjs\";\nimport { JmaPublicImageProvider } from \"./JmaPublicImageProvider\";\n\nfunction pngPixel(r: number, g: number, b: number, a: number): ArrayBuffer {\n  const png = new PNG({ width: 256, height: 256 });\n  for (let i = 0; i < png.data.length; i += 4) {\n    png.data[i] = r; png.data[i + 1] = g; png.data[i + 2] = b; png.data[i + 3] = a;\n  }\n  return Uint8Array.from(PNG.sync.write(png)).buffer;\n}\nfunction response(body: BodyInit, init?: ResponseInit) { return new Response(body, { status: 200, ...init }); }\n\ndescribe(\"JmaPublicImageProvider integration boundary\", () => {\n  it(\"preserves JMA target count and classifies a complete transparent series as no rain\", async () => {\n    const targets = [\n      { basetime: \"20260920120000\", validtime: \"20260920120500\", elements: [\"hrpns\"] },\n      { basetime: \"20260920120000\", validtime: \"20260920121000\", elements: [\"hrpns\"] },\n    ];\n    const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n      if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n      return response(pngPixel(0, 0, 0, 0));\n    }) as unknown as typeof fetch;\n    const series = await new JmaPublicImageProvider(fetcher).getForecastSeries(35.681236, 139.767125);\n    expect(series.expectedFrames).toBe(2);\n    expect(series.frames).toHaveLength(2);\n    expect(series.frames.every((f) => f.status === \"NO_RAIN\")).toBe(true);\n  });\n\n  it(\"keeps one failed tile as FETCH_ERROR instead of silently shrinking the series\", async () => {\n    const targets = [\n      { basetime: \"20260920120000\", validtime: \"20260920120500\", elements: [\"hrpns\"] },\n      { basetime: \"20260920120000\", validtime: \"20260920121000\", elements: [\"hrpns\"] },\n    ];\n    let tile = 0;\n    const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n      if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n      tile += 1;\n      if (tile === 2) return new Response(\"nope\", { status: 503 });\n      return response(pngPixel(0, 0, 0, 0));\n    }) as unknown as typeof fetch;\n    const series = await new JmaPublicImageProvider(fetcher).getForecastSeries(35.681236, 139.767125);\n    expect(series.expectedFrames).toBe(2);\n    expect(series.frames).toHaveLength(2);\n    expect(series.frames.map((f) => f.status)).toEqual([\"NO_RAIN\", \"FETCH_ERROR\"]);\n  });\n\n  it.each([[1, 2, 3], [250, 245, 0], [255, 245, 0], [0, 170, 255], [255, 170, 0]])(\"keeps unsupported RGB (%i,%i,%i) UNKNOWN_PIXEL\", async (r, g, b) => {\n    const targets = [{ basetime: \"20260920120000\", validtime: \"20260920120500\", elements: [\"hrpns\"] }];\n    const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n      if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n      return response(pngPixel(r, g, b, 255));\n    }) as unknown as typeof fetch;\n    const series = await new JmaPublicImageProvider(fetcher).getForecastSeries(35.681236, 139.767125);\n    expect(series.frames[0].status).toBe(\"UNKNOWN_PIXEL\");\n  });\n\n  it(\"selects the newest observation even when JMA metadata arrives out of order\", async () => {\n    const targets = [\n      { basetime: \"20260920115500\", validtime: \"20260920115500\", elements: [\"hrpns\"] },\n      { basetime: \"20260920120500\", validtime: \"20260920120500\", elements: [\"hrpns\"] },\n      { basetime: \"20260920120000\", validtime: \"20260920120000\", elements: [\"hrpns\"] },\n    ];\n    const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n      if (String(input).includes(\"targetTimes_N1.json\")) return response(JSON.stringify(targets));\n      return response(pngPixel(0, 0, 0, 0));\n    }) as unknown as typeof fetch;\n    const frames = await new JmaPublicImageProvider(fetcher).getObservationFrames(35.681236, 139.767125);\n    expect(frames).toHaveLength(1);\n    expect(frames[0].validTime).toBe(\"20260920120500\");\n  });\n\n  it(\"orders forecast frames chronologically even when JMA metadata arrives out of order\", async () => {\n    const targets = [\n      { basetime: \"20260920120000\", validtime: \"20260920121500\", elements: [\"hrpns\"] },\n      { basetime: \"20260920120000\", validtime: \"20260920120500\", elements: [\"hrpns\"] },\n      { basetime: \"20260920120000\", validtime: \"20260920121000\", elements: [\"hrpns\"] },\n    ];\n    const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n      if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n      return response(pngPixel(0, 0, 0, 0));\n    }) as unknown as typeof fetch;\n    const series = await new JmaPublicImageProvider(fetcher).getForecastSeries(35.681236, 139.767125);\n    expect(series.frames.map((f) => f.validTime)).toEqual([\"20260920120500\", \"20260920121000\", \"20260920121500\"]);\n  });\n});\n",
+        "sha256": "98e3c61027117c5fb336291d42d7df662e80e6dd522bbfc2678ea16daa1574f3"
+      }
+    },
+    {
+      "path": "lib/weather/providers/jma/classifyPixel.test.ts",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 2,
+      "patch": "diff --git a/lib/weather/providers/jma/classifyPixel.test.ts b/lib/weather/providers/jma/classifyPixel.test.ts\nindex 0799692..60968dd 100644\n--- a/lib/weather/providers/jma/classifyPixel.test.ts\n+++ b/lib/weather/providers/jma/classifyPixel.test.ts\n@@ -2,9 +2,14 @@ import { describe, expect, it } from \"vitest\";\n import { classifyRainPixel } from \"./classifyPixel\";\n \n describe(\"classifyRainPixel\", () => {\n-  it(\"fails closed on a fully transparent pixel until coverage semantics are verified\", () => {\n+  it(\"treats a fully transparent JMA precipitation pixel as no rain\", () => {\n     expect(classifyRainPixel({ r: 0, g: 0, b: 0, a: 0 })).toEqual({\n-      status: \"UNKNOWN_PIXEL\", intensityClass: null,\n+      status: \"NO_RAIN\", intensityClass: null,\n+    });\n+  });\n+  it(\"treats transparent pixels as no rain regardless of hidden RGB channels\", () => {\n+    expect(classifyRainPixel({ r: 255, g: 255, b: 255, a: 0 })).toEqual({\n+      status: \"NO_RAIN\", intensityClass: null,\n     });\n   });\n   it(\"recognises a directly confirmed current JMA legend color\", () => {\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/classifyPixel.test.ts",
+      "source": {
+        "path": "lib/weather/providers/jma/classifyPixel.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { classifyRainPixel } from \"./classifyPixel\";\n\ndescribe(\"classifyRainPixel\", () => {\n  it(\"treats a fully transparent JMA precipitation pixel as no rain\", () => {\n    expect(classifyRainPixel({ r: 0, g: 0, b: 0, a: 0 })).toEqual({\n      status: \"NO_RAIN\", intensityClass: null,\n    });\n  });\n  it(\"treats transparent pixels as no rain regardless of hidden RGB channels\", () => {\n    expect(classifyRainPixel({ r: 255, g: 255, b: 255, a: 0 })).toEqual({\n      status: \"NO_RAIN\", intensityClass: null,\n    });\n  });\n  it(\"recognises a directly confirmed current JMA legend color\", () => {\n    expect(classifyRainPixel({ r: 255, g: 153, b: 0, a: 255 })).toEqual({\n      status: \"RAIN\", intensityClass: \"30_TO_50\",\n    });\n  });\n  it(\"withdraws yellow when current SVG and PNG evidence disagree\", () => {\n    expect(classifyRainPixel({ r: 250, g: 245, b: 0, a: 255 }).status).toBe(\"UNKNOWN_PIXEL\");\n  });\n  it(\"never turns an unknown opaque pixel into dry\", () => {\n    expect(classifyRainPixel({ r: 1, g: 2, b: 3, a: 255 }).status).toBe(\"UNKNOWN_PIXEL\");\n  });\n});\n",
+        "sha256": "d7b08eb476f87ec90b02b75ae16ba788748adaa83aef6293bba7a4956c448c91"
+      }
+    },
+    {
+      "path": "lib/weather/providers/jma/classifyPixel.ts",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "patch": "diff --git a/lib/weather/providers/jma/classifyPixel.ts b/lib/weather/providers/jma/classifyPixel.ts\nindex 831c3aa..a19859d 100644\n--- a/lib/weather/providers/jma/classifyPixel.ts\n+++ b/lib/weather/providers/jma/classifyPixel.ts\n@@ -7,10 +7,10 @@ export interface PixelClassification {\n }\n \n export function classifyRainPixel(rgba: Rgba): PixelClassification {\n-  // Transparency alone does not prove valid meteorological coverage.\n-  // Until JMA's public PNG alpha/coverage semantics are independently verified,\n-  // fail closed instead of turning an unpainted pixel into a no-rain claim.\n-  if (rgba.a === 0) return { status: \"UNKNOWN_PIXEL\", intensityClass: null };\n+  // Current JMA hrpns PNG field evidence (2026-09-26/27) shows transparent\n+  // pixels at dry locations, including a same-location transition\n+  // transparent -> verified rain color -> transparent as rain passed.\n+  if (rgba.a === 0) return { status: \"NO_RAIN\", intensityClass: null };\n   const intensityClass = findVerifiedIntensity(rgba);\n   if (intensityClass) return { status: \"RAIN\", intensityClass };\n   return { status: \"UNKNOWN_PIXEL\", intensityClass: null };\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/classifyPixel.ts",
+      "source": {
+        "path": "lib/weather/providers/jma/classifyPixel.ts",
+        "coverage": "全文",
+        "text": "import type { RainFrameStatus, RainIntensityClass, Rgba } from \"../../types\";\nimport { findVerifiedIntensity } from \"./pngPalette\";\n\nexport interface PixelClassification {\n  status: RainFrameStatus;\n  intensityClass: RainIntensityClass | null;\n}\n\nexport function classifyRainPixel(rgba: Rgba): PixelClassification {\n  // Current JMA hrpns PNG field evidence (2026-09-26/27) shows transparent\n  // pixels at dry locations, including a same-location transition\n  // transparent -> verified rain color -> transparent as rain passed.\n  if (rgba.a === 0) return { status: \"NO_RAIN\", intensityClass: null };\n  const intensityClass = findVerifiedIntensity(rgba);\n  if (intensityClass) return { status: \"RAIN\", intensityClass };\n  return { status: \"UNKNOWN_PIXEL\", intensityClass: null };\n}\n",
+        "sha256": "f0dd175a48efe0c1659571d5baeacd3a846ac73c9845aa32b9d04914755002ab"
+      }
+    }
+  ],
+  "file_count": 3,
+  "reported_file_count": 3,
+  "commits": [
+    {
+      "sha": "a635ba16c86efe9e41ec300ff62963f3a997220a",
+      "message": "Treat transparent JMA precipitation pixels as no rain\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/a635ba16c86efe9e41ec300ff62963f3a997220a"
+    },
+    {
+      "sha": "e1c1d8a6356d3d63186f40b86e965369bede68fa",
+      "message": "Test transparent JMA pixels as no rain\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/e1c1d8a6356d3d63186f40b86e965369bede68fa"
+    },
+    {
+      "sha": "abbc724ff4cf8f4a1ac91b9451e4a2c92390f241",
+      "message": "Update JMA provider tests for transparent no-rain pixels\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "abbc724ff4cf8f4a1ac91b9451e4a2c92390f241",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/36302984940",
+      "id": 36302984940,
+      "updated_at": "2026-09-27T07:25:02Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "classifyRainPixel",
+    "fetcher",
+    "frames",
+    "i",
+    "intensityClass",
+    "png",
+    "pngPixel",
+    "provider",
+    "response",
+    "series",
+    "targets",
+    "tile",
+    "url"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "JMAの透明画素で晴れ・雨終了判定が止まる問題を修正",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/33"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "efe7b9befaceeb01a0b575c983064aad8bbdb692db22bec93792e32b603dcc23",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

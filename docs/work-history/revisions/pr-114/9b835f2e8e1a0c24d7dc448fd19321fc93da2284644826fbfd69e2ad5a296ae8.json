@@ -1,0 +1,115 @@
+{
+  "id": "pr-114",
+  "number": 114,
+  "title": "docs: 旧実験コードのmain照合記録",
+  "topics": [
+    "開発管理"
+  ],
+  "purpose": "開発資産の把握・引継ぎ・レビューを支援する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "旧ブランチの実験コード・通知テストについてmainの同一パスとblobを比較した調査記録。ドキュメントのみ変更。",
+  "snapshot_head": "35727866365a69ce55aaa26313accdf019691ad8",
+  "snapshot_consistent": true,
+  "head": "35727866365a69ce55aaa26313accdf019691ad8",
+  "base": "e3cb172abd875a7bc248863756892f5776a993b4",
+  "base_ref": "main",
+  "head_ref": "docs/legacy-code-diff-20261101",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-10-31T23:06:44Z",
+  "merge_commit_sha": "73b5f405651844467849f1554bfd636aa57bfe1d",
+  "updated_at": "2026-10-31T23:06:44Z",
+  "code_facts": [
+    {
+      "file": "docs/audits/LEGACY_CODE_DIFF_20261101.md",
+      "kind": "テストの期待値・条件",
+      "expression": "- `lib/weather/rain/watchNotificationDecision.test.ts` は旧branchとmainの双方に存在し、blobが異なる（旧 `d1380eeca1022a3f6b76b3e5f375ecb01b5c7097` / main `4c9b6b40f9f062e4c8d5abf656c9df9350d17898`）。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/35727866365a69ce55aaa26313accdf019691ad8/docs/audits/LEGACY_CODE_DIFF_20261101.md"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/DEVELOPMENT_LEDGER.md",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "patch": "diff --git a/docs/DEVELOPMENT_LEDGER.md b/docs/DEVELOPMENT_LEDGER.md\nindex 0129171..9160dbc 100644\n--- a/docs/DEVELOPMENT_LEDGER.md\n+++ b/docs/DEVELOPMENT_LEDGER.md\n@@ -132,3 +132,7 @@\n \n ## 2026-11-01 機能単位の追加照合\n - [mainと旧ブランチの実ファイル照合](audits/FEATURE_RECONCILIATION_20261101.md)（アメふる旧履歴Deep Linkのmain実装を再確認。過去の暫定懸念を訂正）。\n+\n+\n+## 2026-11-01 旧実験コードの照合\n+- [旧実験コードとmainの比較記録](audits/LEGACY_CODE_DIFF_20261101.md)。実装採用・DB変更は別途判断。\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/35727866365a69ce55aaa26313accdf019691ad8/docs/DEVELOPMENT_LEDGER.md",
+      "source": {
+        "path": "docs/DEVELOPMENT_LEDGER.md",
+        "coverage": "全文",
+        "text": "# アメふる 開発台帳\n\n[総覧へ戻る](PROJECT_OVERVIEW.md) · [リポジトリ直下の入口](../PROJECT_OVERVIEW.md)\n\nこの独立台帳は2026-10-29に作成。過去の開発史・意思決定は既存の[総覧](PROJECT_OVERVIEW.md)に保持し、この台帳で過去の作業を新たに完了扱いにはしない。\n\n## 2026-10-29 通知予測とレーダー実況の自動答え合わせ\n\n### 目的・承認・所在\n- 登録地点で新規に送信する「降るよ」「止むよ」の予測根拠を残し、対象時刻の後日実況と自動照合する。予測評価・地上雨量・配信品質は分離。\n- ユーザーから本番実装まで明示承認済み。今回の追記は記録とリンクだけで、コード・DB・Push・cronを追加変更しない。\n- 元ブランチ：`feat/notification-replay-production-20261029`。実装：[PR #99](https://github.com/miyazaki1016/emergencyalert/pull/99)、main統合コミット：`b6c216be96ecadcb9f86f2042ee6e786800b30c8`。\n- 詳細正本：[本番実装・確認記録](NOTIFICATION_REPLAY_PRODUCTION_20261029.md)。設計元：[PR #98](https://github.com/miyazaki1016/emergencyalert/pull/98) の研究ブランチ `research/notification-replay-20261029`。PR #98全体・PR #63全体をmainへ取り込んだわけではない。\n\n### 実装・本番反映済み\n- `watch-rain v32`：送信前の位置・入力観測・予測・判断・通知文を独立した不変スナップショットへ保存し、送信結果と既存通知履歴IDを関連付ける。保存失敗で通知を止めず、評価処理からPushを再送しない。\n- `evaluate-rain v1`：独立した5分cron、JMA実況解析の回収、降り始めの遷移／終了の持続を評価。ぴったり／±5分／±10分を分離し、欠測は判定不能。\n- `rain_notification_evaluations`：90日保持。`rain_evaluation_runs`：30日保持。RLS有効、クライアント権限なし。現行の`delivered_count > 0`制約と通知条件は維持。\n- DB移行：`20261029021418_notification_radar_replay.sql` と `20261029022421_notification_radar_replay_schedule.sql`。ソースと移行SQLはmainに保存。\n\n### 確認結果（2026-10-29 11:27 JSTまで）\n- ローカル181テスト、本番ビルド、Edgeソースの型チェック成功。隔離SQLで権限・snapshot不変性・claim排他を確認。\n- PR #99最終head `626c66338dbb81f8ea1b4ccc1bb7487b89a31cf8` のverify / phase1-feedback-rls / phase1-feedback-httpがすべて成功。\n- 11:25の監視定時処理：HTTP200、12地点、CHECK_FAILED=0。11:27の評価定時処理：OK、failures=0。\n- 本番EdgeからJMAの37実況フレームを確認し、11:20の実況PNG中心画素を取得。テスト用Pushや通知条件の緩和は行っていない。\n- トークンなし呼出しは401。anon/authenticatedからの評価テーブル読取り、anonのclaim実行は不可。\n\n### 未検証・未実装\n- 確認時点の新規実通知評価サンプルは0件。自然な実通知から評価確定までの全行程・実機表示・正解率は未検証。テスト成功を予測精度改善の証拠とは扱わない。\n- 保存は中心画素。半径1km画像、地上雨量、無通知ケースの見逃し率、利用者向け結果画面は未実装。\n- Issue #64のPushクラッシュ／並行実行時の重複防止・復旧は継続。評価workerの排他をPushの排他と混同しない。\n\n### 次の一手\n1. 現在の稼働版と[監視用SQL](sql/rain-replay-monitoring.sql)を読み取りで確認し、新規実通知の保存・履歴リンク・実況回収・評価確定を追う。\n2. 受理済みの実通知だけを母集団に、確定結果と判定不能を分けて集計する。0件なら精度を算出しない。\n3. 点／面比較に必要な半径1km画像保存は、取得経路・境界跨ぎ・可逆性・実容量を検証して別途追加。地上雨量は独立した評価として扱う。\n\n## 2026-10-29 続き：半径1kmの予測・実況画像\n\n- 本番点評価の再照合：11:32 JSTの定時実行もOK、新規実通知の評価レコードは0件。watch-rain v32 / evaluate-rain v1が稼働。精度集計は行わない。\n- 次工程の画像保存を専用ブランチ `feat/replay-area-evidence-20261029`・[PR #100](https://github.com/miyazaki1016/emergencyalert/pull/100)で実装し、本番反映・疎通確認まで完了。正本：[半径1km画像保存](RAIN_AREA_EVIDENCE_20261029.md)。\n- 独立archive-rain、可逆PNG＋欠測マスクのDB bytea保存、予測／入力実況／後日実況の分離、中心画素一致、元タイルハッシュ、90日保持、32MiBの物理容量停止ゲートを追加。通知処理や点評価ロジックは変更しない。\n- 通知後に同じ発表時刻のURLから取得する方式なので、当時の元PNGバイト列とは区別する。元入力snapshotを後から画像で上書きしない。\n- ローカル195テスト、隔離SQLの権限・bytea・排他・不変性・cascade検証を実施。本番ビルド・Edge型チェック・初期headのCI全3ジョブも成功。\n- 監視：[画像保存用SQL](sql/rain-area-monitoring.sql)。次は本番PROBEのPNG保存往復と定時回収を確認し、実通知の画像が得られたら欠測・中心一致・取得遅延を検証する。\n\n### 続きの本番結果（11:48 JST）\n- archive-rain v1、privateなPNG/マスクbytea保存先、毎分cronを反映。watch-rain v32／evaluate-rain v1は継続。\n- PROBEで実JMA実況の21×21画素PNGを本番DBへ保存し、読戻しハッシュが一致。雨なし1例はPNG78bytes＋マスク441bytes、メタデータ等は別。\n- 11:48 REGULAR定時実行OK、failures/frameErrorsとも0。トークンなし401、一般クライアントからの画像読取り不可。セキュリティ診断の追加はprivate用policyなしのINFOのみ。\n- 実通知評価0件のため、予測画像の自然データ保存から後日実況との比較までの全行程・精度は未実証。次は実通知の欠測・中心一致・容量を[画像監視SQL](sql/rain-area-monitoring.sql)で確認する。地上雨量・面予測の採用・見逃し評価・結果画面は未実装。\n\n## 2026-10-29 続き：点・面・併用のシャドー比較\n\n- ユーザーの続行依頼に基づき、`feat/rain-area-shadow-20261029`で通知を変えない並行計算を追加。[詳細正本](RAIN_AREA_SHADOW_20261029.md)、[監視・共通サンプルSQL](sql/rain-shadow-monitoring.sql)。\n- 250m／500m／1kmの面積重み付き雨域占有率、強度別比率、欠測・未知色、連結性、中心の穴を保存。正確な画素内位置を使い、穴の画素は変更しない。\n- 500mを主に閾値20/40/60%、解除は半分、5分刻み3コマの共通ルールを比較。現行本番の通知エンジンと共通比較用の点候補は別で、既存本番結果を別列に保持。\n- 入力画素不一致・有効時刻後回収・粗い解像度・欠測を保留にし、同じ発表時刻・未来の有効時刻・同じ実況中心の共通サンプルだけで比較する。\n- 中心実況の一致は地上降雨精度ではない。利用者回答は時刻付きの補助情報としてライブ参照する。無通知サンプルはまだ追加しておらず、見逃し率は算出できない。\n- 独立shadow-rain、privateな結果と実行ログ、90日／30日保持、32MiB容量ゲートを追加。Push・点評価・画像回収を変更しない。[PR #101](https://github.com/miyazaki1016/emergencyalert/pull/101)で追跡し、本番反映まで完了。\n\n### シャドー比較の本番結果（12:23 JST）\n- shadow-rain v1、private結果・ログ、5分cronを反映。既存の通知・点評価・画像回収のコードとスケジュールは継続。\n- 保存済み11:45実実況画像で円の指標を計算しDB保存成功。12:23の自然な定時実行もOK、failures=0。架空の通知／精度サンプルは作っていない。\n- 219テスト、ビルド、Edge型、隔離SQL、PR #101初期headのCI全3ジョブ成功。権限と401を確認。\n- 実通知比較は0件。中心実況一致・保留・実況欠測を共通分母で照会し、利用者回答も時刻付きで補助確認する。地上での精度改善、無通知ケースの見逃し率、最適閾値は未確定。\n\n## 2026-10-29 開発者専用「雨の判定ラボ」\n\n- ユーザー指定：一般公開予定の履歴とは別画面にする。本番実装は承認済み。\n- ブランチ：`feat/rain-comparison-dashboard-20261029`。詳細：[比較画面と権限・検証記録](RAIN_RESEARCH_DASHBOARD_20261029.md)。\n- 3方式共通の分母、画像の並列表示、私用の地点確認、処理稼働状況を実装。一般向け履歴と通知条件は維持。\n- 233テスト・隔離SQLのRLS／自己昇格拒否／所有者境界／観測制約成功。実機表示は未確認。実通知2件が入り始めたが評価待ちで、精度改善はまだ判断しない。\n- PR #102をmain統合（`de9b480293d5db68e3d1497db28f86179dd71c8a`）。本番DB移行・確認済みPWA 1件の権限付与・Production READY・専用URL HTTP200を確認。CI全3ジョブ成功。非許可者は研究データ0件、anonは研究読書き不可。詳細資料へ証拠・未解決・次工程を追記済み。\n\n## 2026-10-29 美深町 実通知538・539の監査\n\n- 詳細：[監査記録](BIFUKA_NOTIFICATION_AUDIT_20261029.md)。ブランチ：`audit/bifuka-notifications-538-539-20261029`。\n- 26保存画像のhash・発表／有効時刻・地点・入力中心14点・面積を再計算。13:10実況は中心弱雨、円内占有率約98/65/29%。透明と未知色・未取得の混同なし。\n- 当時の画像全体は未保存のため同一性は証明できない。画面で限界と中心RGBA、実況側の内訳を明示する。\n- 13:23に両件の実況・画像・比較すべてCOMPLETE。claimは538=5/18/5、539=4/15/4。地上正解は未確認。\n- 再通知は3回目の新しい雨なし実況によるepisodeClosedが、ACTIONABLE継続中にも送信済みを無効化する現行条件。予測通知エピソードを分離する等の修正案を詳細へ記録。既存通知条件は変更しない。\n- 235テスト・本番ビルド成功。例外ルート／容量制限でPENDINGが残る可能性、弱雨開始と生活行動閾値の評価の意味の差は残課題。追加UIの実機確認は未完了。\n\n### 続き：不一致の分類と理由表示\n- 同じ監査PR #103へ、不一致／保留のパターン別ケース数、各ケースの具体的な時刻・雨量区分・占有率・差分・前提を追加。\n- 雨の有無、開始／終了時刻、強さ、範囲、点と面、地点確認との違い、評価基準と欠測を区別。1ケース複数分類・保留別扱い。\n- 539の早い弱雨開始と強度差を回帰試験。隣接時刻の欠測・未来・誤った実況発表・矛盾・取消・近隣参考を正解にしない試験を含め247テスト成功。通知条件は変更しない。\n- 詳細は[監査記録の続き](BIFUKA_NOTIFICATION_AUDIT_20261029.md)。追加UIの目視・実機操作は未確認。\n\n- 反映結果：PR #103をmain統合（`f65f826d7fab4cd507f048614ccdbe007f6514b7`）。本番READY・専用ページHTTP200確認。最終headのCI全3ジョブ成功、538・539の実記録に説明関数を適用する確認も成功。証拠は詳細と[実記録からの説明](evidence/BIFUKA_538_539_EXPLANATIONS_20261029.json)へ保存。通知・DB変更なし。実機の追加表示確認は未完了。\n\n## 2026-10-29 予測通知の重複修正（538〜548の続き）\n- [詳細・検証・再開地点](FORECAST_EPISODE_FIX_20261029.md)。branch `fix/forecast-notification-episodes-20261029`。\n- main・watch-rain v32・PR #103監査・PR #93/63の既存研究を確認。現況雨なしで接近予測の通知済みが解除される9件と、並行実行のリスクを分離。\n- 予測が完全DRYの新しい発表3回でのみ解消し、新しい接近を再通知可能にする。強雨は別段階の通知キー。購読別の永続intentとfenced target leaseを追加。既存履歴やCHECKは維持。\n- 538〜548には共通レーダー45コマ／現地正解0件。ラボの既存比較を維持し、共通コマに入らない理由を可視化。無通知見逃し率は次工程の設計に留める。\n- PR #103の539表示はユーザー実機確認済み。追加除外欄の実機確認、CI、本番結果は詳細へ追記。\n\n- PR #104 main統合、DB追加移行・watch-rain v33反映。17:10の自然cron14地点エラー0、全lease解放、既存履歴維持。269テスト・独立Postgres競合を含むCI全4ジョブ成功。\n- 初期移行の「新しい接近と同時に起動」「直前に2回解消確認済み」の境界を追加補正し、271テスト成功。別ブランチ `fix/forecast-bootstrap-20261029` で追跡。本番結果・未確認は詳細へ追記。\n\n- 最終：PR #105の移行補強を含むwatch-rain v34へ反映。272テスト・CI全4ジョブ成功。17:20自然cron14地点エラー0、lease全解放、ACCEPTED intent2件・未確定0、対象履歴11行維持。必要な自然通知552は購読別に各1回。\n- 観測中に継続ACTIONABLEの抑止対象がないため、実環境での重複減少効果・新たな再接近・強雨悪化の自然事例は継続確認。既存実装を作り直さず、比較元・共通母数を維持。詳細と読み取り専用監視SQLを総覧から辿れる。\n\n## 2026-11-01 作業単位索引（既存証拠を再利用）\n\n> 詳細本文は削除・要約置換しない。以下は美咲と同じID／状態／所在／証拠／main・本番・DB・実機／未確認／次の一手／更新日の入口。詳細照合は `docs/audits/DEVELOPMENT_INVENTORY_DIFF_20261101.md`。\n\n| ID・作業 | 状態 | 所在・確認証拠（2026-11-01） | main / 本番 / DB / 実機 | 未確認・次の一手 |\n| --- | --- | --- | --- | --- |\n| A-REPLAY-01 通知予測と実況の自動照合 | A（main統合確認） | PR #99 merged、`b6c216be96ecadcb9f86f2042ee6e786800b30c8`。上記既存本文に2026-10-29の本番定時処理・DB移行・テスト記録あり | 統合済 / **過去の本番反映・稼働記録あり** / **過去のDB移行記録あり** / 実機未確認 | 現在の稼働状態と自然な通知→評価確定を追加確認。過去の証拠を再監査しない |\n| A-SEVERE-01 大雨予測継続性研究 | C | `research/severe-rain-consistency-20261101`、PR #109 open Draft、研究関数・テスト・設計文書 | 未統合PR / 未確認 / 未確認 / 未確認 | 研究を通知判定に採用したとみなさない。採用前に実測と承認 |\n| A-SEVERE-02 強雨通知エピソード制御 | B/C暫定 | `fix/severe-once-per-episode-20261031`、watch-rain・テストのブランチ差分 | 要照合 / 未確認 / 未確認 / 未確認 | mainと最新本番の実体を確認 |\n| A-EPISODE-01 予測エピソード初期化修正 | B/C暫定 | `fix/forecast-bootstrap-20261029`、watch-rain・テスト・資料のブランチ差分 | 要照合 / 未確認 / 未確認 / 未確認 | A-SEVERE-02と同じファイルの変更があるため重複整理 |\n| A-PUSH-01 Push並行実行・永続claim | D（監査） | `audit/push-concurrency-20261026`、PR #63 open Draft、監査文書 | 未確認 / 未確認 / 未確認 / 未確認 | 旧監査の指摘を現行本番の未修正と断定せず、PR #63のDB制約と現行workerを照合 |\n\n※ 状態B/Cは作業群の暫定分類。未確認は未実施の意味ではない。管理用PR #107は別管理。\n\n\n## 2026-11-01 棚卸し・ブランチ差分調査\n- [調査証拠・判断・未解決事項](audits/INVENTORY_RECONCILIATION_20261101.md)（GitHub/本番DBの読み取り確認。アプリ・DB・Push・本番変更なし）。\n\n\n## 2026-11-01 旧監査ブランチの追加照合\n- [旧監査ブランチの証拠・未確認事項](audits/LEGACY_AUDIT_FOLLOWUP_20261101.md)。過去snapshotと現行状態を区別し、旧ブランチは未削除・未merge。\n\n\n## 2026-11-01 未整理ブランチの一次分類\n- [PR履歴未紐付けブランチの保全・照合・整理候補分類](audits/BRANCH_TRIAGE_20261101.md)。削除やコード取り込みの承認ではない。\n\n\n## 2026-11-01 機能単位の追加照合\n- [mainと旧ブランチの実ファイル照合](audits/FEATURE_RECONCILIATION_20261101.md)（アメふる旧履歴Deep Linkのmain実装を再確認。過去の暫定懸念を訂正）。\n\n\n## 2026-11-01 旧実験コードの照合\n- [旧実験コードとmainの比較記録](audits/LEGACY_CODE_DIFF_20261101.md)。実装採用・DB変更は別途判断。\n",
+        "sha256": "b96d401878832b761692805ef38e6e823200b9d8459bd1199488964db1adbebd"
+      }
+    },
+    {
+      "path": "docs/audits/LEGACY_CODE_DIFF_20261101.md",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "patch": "diff --git a/docs/audits/LEGACY_CODE_DIFF_20261101.md b/docs/audits/LEGACY_CODE_DIFF_20261101.md\nnew file mode 100644\nindex 0000000..83c2c2a\n--- /dev/null\n+++ b/docs/audits/LEGACY_CODE_DIFF_20261101.md\n@@ -0,0 +1,11 @@\n+# 旧通知回帰テストとmainの照合（2026-11-01）\n+\n+対象: `test/watch-rain-notification-regression-20261018`。main比較時点で ahead 8 / behind 44、変更ファイル3件。\n+\n+- `lib/weather/rain/watchNotificationDecision.test.ts` は旧branchとmainの双方に存在し、blobが異なる（旧 `d1380eeca1022a3f6b76b3e5f375ecb01b5c7097` / main `4c9b6b40f9f062e4c8d5abf656c9df9350d17898`）。\n+- `supabase/functions/watch-rain/notificationDecision.ts` も双方に存在し、blobが異なる（旧 `048922ee10ffa623f50a4a5e6fc57a9f8841972b` / main `4509289bb419ef5a7c00a454e014638b696baaf2`）。\n+- `supabase/functions/watch-rain/index.ts` も比較結果に差分あり。\n+\n+**判断:** 旧workerをmainに上書きせず、雨終了通知・時刻処理などの旧回帰テスト観点を現在のエピソード管理・重複通知修正と比較する。ファイル差分の存在だけで機能の未実装や修正済みを断定しない。\n+\n+本記録は読み取り調査のみ。アプリ・DB・Push・デプロイ変更なし。\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/35727866365a69ce55aaa26313accdf019691ad8/docs/audits/LEGACY_CODE_DIFF_20261101.md",
+      "source": {
+        "path": "docs/audits/LEGACY_CODE_DIFF_20261101.md",
+        "coverage": "全文",
+        "text": "# 旧通知回帰テストとmainの照合（2026-11-01）\n\n対象: `test/watch-rain-notification-regression-20261018`。main比較時点で ahead 8 / behind 44、変更ファイル3件。\n\n- `lib/weather/rain/watchNotificationDecision.test.ts` は旧branchとmainの双方に存在し、blobが異なる（旧 `d1380eeca1022a3f6b76b3e5f375ecb01b5c7097` / main `4c9b6b40f9f062e4c8d5abf656c9df9350d17898`）。\n- `supabase/functions/watch-rain/notificationDecision.ts` も双方に存在し、blobが異なる（旧 `048922ee10ffa623f50a4a5e6fc57a9f8841972b` / main `4509289bb419ef5a7c00a454e014638b696baaf2`）。\n- `supabase/functions/watch-rain/index.ts` も比較結果に差分あり。\n\n**判断:** 旧workerをmainに上書きせず、雨終了通知・時刻処理などの旧回帰テスト観点を現在のエピソード管理・重複通知修正と比較する。ファイル差分の存在だけで機能の未実装や修正済みを断定しない。\n\n本記録は読み取り調査のみ。アプリ・DB・Push・デプロイ変更なし。\n",
+        "sha256": "7b9bf5d069f543f78c349f88be17f7a7581ee39e4baefe4497c47130c2c1b38a"
+      }
+    }
+  ],
+  "file_count": 2,
+  "reported_file_count": 2,
+  "commits": [
+    {
+      "sha": "4af67f996fc9a11959cb17838a3fc2c34876ea36",
+      "message": "docs: record legacy notification regression comparison\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/4af67f996fc9a11959cb17838a3fc2c34876ea36"
+    },
+    {
+      "sha": "35727866365a69ce55aaa26313accdf019691ad8",
+      "message": "docs: link legacy code comparison\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/35727866365a69ce55aaa26313accdf019691ad8"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "35727866365a69ce55aaa26313accdf019691ad8",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/41244880337",
+      "id": 41244880337,
+      "updated_at": "2026-10-31T21:43:51Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [],
+  "related_sources": [
+    {
+      "path": "docs/audits/DEVELOPMENT_INVENTORY_DIFF_20261101.md",
+      "coverage": "全文",
+      "text": "# 2026-11-01 差分照合・第一段階（読み取り）\n\n- 現行ブランチ112本（main含む）。mainの `docs/PROJECT_OVERVIEW.md` の**ブランチ名文字列検索**では111本中9本の名称を確認、102本は完全一致なし。\n- **注意**：アメふるの総覧は作業の索引であり全ブランチ一覧ではない。102本を未登録・未完成と断定しない。開発台帳、別名の資料、過去PR、main統合を個別に照合する。\n- 直近の照合優先候補：`fix/severe-once-per-episode-20261031`、`research/severe-rain-consistency-20261101`、`audit/push-concurrency-20261026`、`fix/forecast-bootstrap-20261029`。ブランチの存在確認のみ、状態は未判定（U）。\n- 管理用ブランチ `chore/development-inventory-automation-20261031` も検索未一致候補に含まれるため、件数は純粋な機能開発の未登録件数ではない。\n\n次：総覧・開発台帳・関連PRと突き合わせ、作業単位の不足だけを索引に反映する。\n\n## 第二段階：ブランチ内容の実物確認\n\n| 作業 | main比較（調査時点） | 実物の証拠 | 暫定分類・次の確認 |\n| --- | --- | --- | --- |\n| 大雨予測の継続性研究 | `research/severe-rain-consistency-20261101` ahead 14 / behind 0 | `docs/SEVERE_RAIN_CONSISTENCY_RESEARCH_20261101.md`、研究用純粋関数・テスト | **C暫定**（研究実装・実運用未採用）。文書はPush/DB/通知条件を変更しないと明記。PR #109の実体と照合する。 |\n| 30mm/h以上通知のエピソード修正 | `fix/severe-once-per-episode-20261031` ahead 6 / behind 1 | watch-rainの処理、forecastEpisode、テスト等5ファイル | **B/C暫定**（作業ブランチ実装）。main・本番適用を別確認。 |\n| Push並行実行監査 | `audit/push-concurrency-20261026` ahead 4 / behind 12 | `docs/audits/PUSH_CONCURRENCY_20261026.md` の静的監査のみ | **D**（監査）。古い時点の危険指摘を現行本番の未修正断定に転用しない。 |\n| 予測エピソード初期化修正 | `fix/forecast-bootstrap-20261029` ahead 3 / behind 3 | watch-rain・forecastEpisode・テスト・総覧等8ファイル | **B/C暫定**（ブランチ実装）。既存の重複通知修正と内容・PR・main統合を照合。 |\n\n※ ahead/behindはGit ancestryであり、未統合機能数・完成度を表さない。2026-11-01の読み取り結果。既存台帳の評価を上書きしない。\n\n## 第三段階：PRと作業単位の突合\n\n| ID | 作業群 | PR・証拠（2026-11-01確認） | 状態と次の一手 |\n| --- | --- | --- | --- |\n| A-REPLAY-01 | 通知予測・実況の自動照合 | PR #99 **merged**（2026-10-29）、main台帳に統合記録あり | main統合は確認。**本番・DB・実機はPRマージのみでは認定しない**。既存台帳の本番証拠を再利用し最新差分だけ確認 |\n| A-SEVERE-01 | 大雨予測継続性研究 | PR #109 **open Draft、未マージ**。研究用関数・テスト・文書 | C暫定。通知ロジックへの採用は未確認、研究と本番を分離 |\n| A-SEVERE-02 | 強雨通知のエピソード制御 | `fix/severe-once-per-episode-20261031`（watch-rainとテストに差分） | B/C暫定。main・本番適用の照合が必要 |\n| A-EPISODE-01 | 予測エピソード修正 | `fix/forecast-bootstrap-20261029`（watch-rainと資料・テストに差分） | B/C暫定。強雨通知修正との重複を確認 |\n| A-PUSH-01 | Push並行実行・永続claim | `audit/push-concurrency-20261026` の監査文書、PR #63 **open Draft、未マージ** | D（監査）／別PRの実装案は未採用。既存制約との整合を優先確認 |\n\n※ 同じwatch-rainを変更する複数ブランチを機能数として足し算しない。PR #107は管理用Draft PR。PRのopen/mergedは機能品質や本番適用を保証しない。\n\n## 第四段階：既存台帳との整合修正（2026-11-01）\n\n- **A-REPLAY-01は過去証拠を保持する。** main `docs/DEVELOPMENT_LEDGER.md` にはPR #99のmain統合コミット `b6c216be96ecadcb9f86f2042ee6e786800b30c8` と `watch-rain v32`、`evaluate-rain v1` の**本番反映済み記録**がある。従って「本番未確認」と一律に戻すのは誤り。**既存記録上は本番反映済み、現在の稼働状態は別途未確認**とする。\n- PR #99のGitHub状態も **closed/merged（2026-10-29）** と一致。PR #63はopen Draftのまま。研究PR #109はopen Draftのまま。\n- `fix/severe-once-per-episode-20261031` と `fix/forecast-bootstrap-20261029` は同じ `watch-rain/index.ts` / `forecastEpisode.ts` を変更する。**重複する可能性がある作業群**として扱い、片方のブランチを単純に未実装リストへ追加しない。\n- 未確認は最新の本番バージョン・稼働・実機の差分に限定し、過去の証拠を無効化しない。\n\n## 2026-11-01 管理PRの差分・CI最終レビュー\n\n- 管理Draft PRの変更ファイルは計7件。内訳は棚卸し用workflow 1、読み取り専用スクリプト1、回帰テスト1、管理・監査ドキュメント4。アプリ本体、DBマイグレーション、Push、本番設定ファイルの変更は差分に含まれない。\n- 最新コミットのPR起動CIは成功。`Offline regression tests` 成功、`Read-only inventory` と `Save report artifact` はPRでは両方skip。実データ棚卸しの成功と取り違えない。\n- 両リポジトリのworkflowに週次cron（UTC月曜01:17、日本時間月曜10:17）と手動実行の定義がある。main未統合のため定期実行は未開始。**main統合すると週次実行が有効になるため別途承認が必要**。\n- GitHubのブランチ検索による独立した読み取り確認では、アメふる112、美咲109（各main含む）。PR・Issueの実データを棚卸しスクリプト自身が集計するE2E検証は未完了。\n- 受入残件：読み取り専用の実データ収集、PR/Issue集計の既存台帳との突合、誤検出レビュー、main統合とschedule開始の承認。\n",
+      "sha256": "9d7eff85ca82fd69ae1729005499a6029bfe2c51a9860af0f0738d2c9d59a56e"
+    }
+  ],
+  "curated": {
+    "summary": "docs: 旧実験コードのmain照合記録",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/114"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "050d88cb25b1e0d664fdd9620993dfa8a97ade5f424734a0f30dfcd47b527cac",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

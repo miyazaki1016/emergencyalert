@@ -1,0 +1,79 @@
+{
+  "id": "pr-96",
+  "number": 96,
+  "title": "外部AIレビュー用の安全な静的ページ（プレビュー専用）",
+  "topics": [
+    "認証・安全性"
+  ],
+  "purpose": "認証・アクセス制御に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "レビュー専用の静的HTMLのみを public/external-ai-review.html に追加。運用ID・環境情報・管理URLは記載しない。mainへのマージや本番公開は行わない。既存Vercelのブランチプレビューで閲覧確認する。",
+  "snapshot_head": "f9fe24bf2f74c82096017b809c02e2d925b5db3f",
+  "snapshot_consistent": true,
+  "head": "f9fe24bf2f74c82096017b809c02e2d925b5db3f",
+  "base": "0baa0bc681e7f0e7993ae8753c25d6dbeab219f4",
+  "base_ref": "main",
+  "head_ref": "docs/external-ai-review-preview-20261028",
+  "state": "open",
+  "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+  "draft": true,
+  "merged_at": null,
+  "merge_commit_sha": null,
+  "updated_at": "2026-10-28T13:04:49Z",
+  "code_facts": [],
+  "files": [
+    {
+      "path": "public/external-ai-review.html",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "patch": "",
+      "patch_coverage": "差分なし／対象外",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/f9fe24bf2f74c82096017b809c02e2d925b5db3f/public/external-ai-review.html",
+      "source": {
+        "path": "public/external-ai-review.html",
+        "coverage": "対象外（秘密情報候補／非テキスト）"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "f9fe24bf2f74c82096017b809c02e2d925b5db3f",
+      "message": "docs: add sanitized standalone external AI review page\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/f9fe24bf2f74c82096017b809c02e2d925b5db3f"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "f9fe24bf2f74c82096017b809c02e2d925b5db3f",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/40693106375",
+      "id": 40693106375,
+      "updated_at": "2026-10-28T13:05:06Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [],
+  "related_sources": [],
+  "curated": {
+    "summary": "外部AIレビュー用の安全な静的ページ（プレビュー専用）",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/96"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "393480de68254e57f299bb35f3bb7b774a828cf1b43a5ee7443093cf6eaaafd8",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

@@ -1,0 +1,128 @@
+{
+  "id": "pr-52",
+  "number": 52,
+  "title": "Track rain confirmation independently of push delivery",
+  "topics": [
+    "雨量・全国検知",
+    "通知・配信"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更／通知・メール配信とその運用に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Make the existing rain_confirmed_notified state flag represent internal rain confirmation rather than successful Push delivery. This is required now that standalone RAIN_CONFIRMED Push is intentionally suppressed. The flag still resets after three consecutive NO_RAIN checks. No notification thresholds, severe-rain behavior, or DB schema changes.",
+  "snapshot_head": "e6ca196570dff62d67060e9b543cd550ebe13b03",
+  "snapshot_consistent": true,
+  "head": "e6ca196570dff62d67060e9b543cd550ebe13b03",
+  "base": "deee286a8d8823ee26766c92ac15d000b9746520",
+  "base_ref": "main",
+  "head_ref": "fix/internal-rain-confirmation-state",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-09-28T04:29:39Z",
+  "merge_commit_sha": "a03766b7a73e96848b487ae8ce4eab931dde3056",
+  "updated_at": "2026-09-28T04:29:39Z",
+  "code_facts": [],
+  "files": [
+    {
+      "path": "supabase/functions/watch-rain/index.ts",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "diff --git a/supabase/functions/watch-rain/index.ts b/supabase/functions/watch-rain/index.ts\nindex 903a747..9469e29 100644\n--- a/supabase/functions/watch-rain/index.ts\n+++ b/supabase/functions/watch-rain/index.ts\n@@ -54,7 +54,7 @@ Deno.serve(async(req:Request)=>{\n   if(delivered>0){await db.from(\"notification_deliveries\").insert({owner_id:target.owner_id,target_id:target.id,event_type:notificationEventType,urgency:notificationUrgency,title:\"EmergencyAlert\",body,delivered_at:now,delivered_count:delivered});}\n   const notifiedAt=nextLastNotifiedAt({delivered,actionable,previousLastNotifiedAt:previous?.last_notified_at,now});\n   const endingNotified=clearStreak>=3?false:(Boolean(previous?.rain_ending_notified)||((rainEnding||confirmedAndEnding)&&delivered>0));\n-  const rainConfirmedNotified=clearStreak>=3?false:(Boolean(previous?.rain_confirmed_notified)||(rainConfirmed&&delivered>0));\n+  const rainConfirmedNotified=clearStreak>=3?false:(Boolean(previous?.rain_confirmed_notified)||rainConfirmed);\n   const confirmedWeather=rainStreak>=3?\"RAINING\":clearStreak>=3?\"DRY\":(previous?.confirmed_weather??\"UNKNOWN\");\n   const persistedSevere=clearStreak>=3?0:Math.max(previousSevere,severeLevel);\n   await db.from(\"watch_states\").upsert({target_id:target.id,last_event:rain.event,last_checked_at:checkedAt,last_notified_at:notifiedAt,rain_ending_notified:endingNotified,clear_streak:clearStreak,rain_streak:rainStreak,rain_confirmed_notified:rainConfirmedNotified,confirmed_weather:confirmedWeather,severe_rain_level:persistedSevere,updated_at:now},{onConflict:\"target_id\"});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e6ca196570dff62d67060e9b543cd550ebe13b03/supabase/functions/watch-rain/index.ts",
+      "source": {
+        "path": "supabase/functions/watch-rain/index.ts",
+        "coverage": "全文",
+        "text": "import { createClient } from \"jsr:@supabase/supabase-js@2\";\nimport webpush from \"npm:web-push@3.6.7\";\nimport { nextLastNotifiedAt, shouldNotifyForRain } from \"./notificationDecision.ts\";\n\ntype RainEvent = { schemaVersion:1; eventType:string; urgency:\"INFO\"|\"LIFESTYLE_ACTION\"; suggestedAction:string; startsAt:string|null; actionableAt:string|null; endingAt:string|null; source:string; checkedAt:string; sourceValidAt:string|null; };\ntype Rgba = { r:number; g:number; b:number; a:number };\ntype RainResponse = { checkedAt?:string; sourceValidAt?:string|null; event?:RainEvent|null; interpretationEnabled?:boolean; diagnostic?:unknown; observation?:Array<{status?:string;rgba?:Rgba|null}>; forecast?:Array<{baseTime?:string;validTime?:string;status?:string;intensityClass?:string|null;rgba?:Rgba|null}>; };\nconst VAPID_PUBLIC_KEY=\"BBOurfjBkBMea0Hx90WiF83hmif8qv8LI1hFOx6AthWJQhkIWnhnUUZ0LYm7tyYg_3q1Aq3YP6mbJOtKjWA-Nec\";\n\nDeno.serve(async(req:Request)=>{\n const expected=Deno.env.get(\"WATCH_CRON_TOKEN\"); if(!expected||req.headers.get(\"x-watch-token\")!==expected)return Response.json({error:\"unauthorized\"},{status:401});\n const url=Deno.env.get(\"SUPABASE_URL\"), serviceKey=Deno.env.get(\"SUPABASE_SERVICE_ROLE_KEY\"), vapidPrivateKey=Deno.env.get(\"VAPID_PRIVATE_KEY\");\n if(!url||!serviceKey||!vapidPrivateKey)return Response.json({error:\"server_config\"},{status:500});\n webpush.setVapidDetails(\"mailto:emergencyalert@example.com\",VAPID_PUBLIC_KEY,vapidPrivateKey);\n const db=createClient(url,serviceKey,{auth:{persistSession:false}});\n const {data:targets,error}=await db.from(\"watch_targets\").select(\"id,owner_id,label,display_name,latitude,longitude,notifications_enabled\").eq(\"enabled\",true).limit(100);\n if(error)return Response.json({error:\"target_query_failed\"},{status:500});\n const labelCounts=new Map<string,number>();\n for(const target of targets??[]){if(target.label)labelCounts.set(target.label,(labelCounts.get(target.label)??0)+1);}\n const results=[];\n for(const target of targets??[]){try{\n  const notificationLabel=target.label&&(labelCounts.get(target.label)??0)>1&&target.display_name?`${target.label}（${target.display_name}）`:target.label;\n  const rainUrl=new URL(\"https://emergencyalert-gilt.vercel.app/api/rain\"); rainUrl.searchParams.set(\"lat\",String(target.latitude)); rainUrl.searchParams.set(\"lon\",String(target.longitude));\n  const response=await fetch(rainUrl,{headers:{accept:\"application/json\"}}); if(!response.ok)throw new Error(\"rain_unavailable\");\n  const rain=await response.json() as RainResponse; const checkedAt=rain.checkedAt??new Date().toISOString(); const diagnostic=rain.diagnostic&&typeof rain.diagnostic===\"object\"?{...(rain.diagnostic as Record<string,unknown>),forecastDetails:rain.forecast?.map(frame=>({baseTime:frame.baseTime??null,validTime:frame.validTime??null,status:frame.status??null,intensityClass:frame.intensityClass??null,rgba:frame.rgba??null}))??[]}:rain.diagnostic??null;\n  await db.from(\"rain_diagnostic_history\").insert({target_id:target.id,checked_at:checkedAt,source_valid_at:rain.sourceValidAt??rain.event?.sourceValidAt??null,interpretation_enabled:Boolean(rain.interpretationEnabled),event_type:rain.event?.eventType??null,urgency:rain.event?.urgency??null,current_status:rain.observation?.[0]?.status??null,current_rgba:rain.observation?.[0]?.rgba??null,diagnostic});\n  if(!rain.interpretationEnabled||!rain.event){await db.from(\"watch_states\").upsert({target_id:target.id,last_checked_at:checkedAt,updated_at:new Date().toISOString()},{onConflict:\"target_id\"});results.push({id:target.id,status:\"UNKNOWN\"});continue;}\n  const {data:previous}=await db.from(\"watch_states\").select(\"last_event,last_notified_at,rain_ending_notified,clear_streak,rain_streak,rain_confirmed_notified,confirmed_weather,severe_rain_level\").eq(\"target_id\",target.id).maybeSingle();\n  const previousEvent=previous?.last_event as RainEvent|null|undefined; const actionable=rain.event.urgency===\"LIFESTYLE_ACTION\";\n  const currentStatus=rain.observation?.[0]?.status??null;\n  const rainStreak=currentStatus===\"RAIN\"?Math.min(Number(previous?.rain_streak??0)+1,3):0;\n  const clearStreak=currentStatus===\"NO_RAIN\"?Math.min(Number(previous?.clear_streak??0)+1,3):0;\n  const rainConfirmed=rainStreak>=3&&!previous?.rain_confirmed_notified;\n  const severeRank=(v?:string|null)=>v===\"GTE_80\"?3:v===\"50_TO_80\"?2:v===\"30_TO_50\"?1:0;\n  const severeFrame=(rain.forecast??[]).filter(f=>f.validTime&&new Date(f.validTime).getTime()>=Date.now()&&severeRank(f.intensityClass)>0).sort((a,b)=>severeRank(b.intensityClass)-severeRank(a.intensityClass)||new Date(a.validTime!).getTime()-new Date(b.validTime!).getTime())[0];\n  const severeLevel=severeRank(severeFrame?.intensityClass); const previousSevere=Number(previous?.severe_rain_level??0); const severeEscalation=severeLevel>previousSevere;\n  const initialRaining=false;\n  const rainEnding=rain.event.eventType===\"RAIN_ENDING\"&&previousEvent?.eventType!==\"RAIN_ENDING\"&&!previous?.rain_ending_notified;\n  const shouldNotify=Boolean(target.notifications_enabled)&&(severeEscalation||shouldNotifyForRain({notificationsEnabled:true,currentUrgency:rain.event.urgency,previousUrgency:previousEvent?.urgency,lastNotifiedAt:previous?.last_notified_at,initialRaining,rainEnding}));\n  let delivered=0,failed=0;\n  const severeMinutes=severeFrame?.validTime?Math.max(0,Math.round((new Date(severeFrame.validTime).getTime()-Date.now())/60000)):null;\n  const severeName=severeLevel===3?\"猛烈な雨\":severeLevel===2?\"非常に激しい雨\":\"激しい雨\";\n  const severeBody=notificationLabel?`${notificationLabel}：${severeMinutes===0?\"まもなく\":`約${severeMinutes}分後`}に${severeName}（${severeLevel===3?\"80mm/h以上\":severeLevel===2?\"50〜80mm/h\":\"30〜50mm/h\"}）の予測です。周囲の状況に注意してね`:`${severeMinutes===0?\"まもなく\":`約${severeMinutes}分後`}に${severeName}の予測です。周囲の状況に注意してね`;\n  const confirmedAndEnding=rainConfirmed&&rain.event.eventType===\"RAIN_ENDING\";\n  const returningRain=previous?.confirmed_weather===\"RAINING\"&&clearStreak>0&&clearStreak<3&&actionable;\n  const body=severeEscalation?severeBody:confirmedAndEnding?(notificationLabel?`${notificationLabel}の雨、もうすぐ止みそうだよ🌥️`:\"雨、もうすぐ止みそうだよ🌥️\"):initialRaining?(notificationLabel?`${notificationLabel}はいま雨が降ってるよ☔️`:\"いま雨が降ってるよ☔️\"):rainEnding?(notificationLabel?`${notificationLabel}の雨、もうすぐ止みそうだよ🌥️`:\"雨、もうすぐ止みそうだよ🌥️\"):returningRain?(notificationLabel?`${notificationLabel}：いったん弱まってるけど、また降りそうだよ☔️`:\"いったん弱まってるけど、また降りそうだよ☔️\"):(rain.event.suggestedAction===\"BRING_LAUNDRY_INSIDE\"?(notificationLabel?`${notificationLabel}：もうすぐ雨が来そうだよ☔️ 洗濯物を確認してね`:\"もうすぐ雨が来そうだよ☔️ 洗濯物を確認してね\"):(notificationLabel?`${notificationLabel}：${rain.event.suggestedAction}`:rain.event.suggestedAction));\n  const notificationEventType=severeEscalation?`SEVERE_RAIN_${severeLevel}`:confirmedAndEnding?\"RAIN_ENDING\":rainEnding?\"RAIN_ENDING\":returningRain?\"RAIN_RETURNING\":rain.event.eventType;\n  const notificationUrgency=severeEscalation?\"DISASTER\":rain.event.urgency;\n  if(shouldNotify){const {data:subscriptions}=await db.from(\"push_subscriptions\").select(\"id,endpoint,p256dh,auth\").eq(\"owner_id\",target.owner_id);\n   const payload=JSON.stringify({title:\"EmergencyAlert\",body,url:\"/\",data:{targetId:target.id,eventType:notificationEventType}});\n   for(const sub of subscriptions??[]){try{await webpush.sendNotification({endpoint:sub.endpoint,keys:{p256dh:sub.p256dh,auth:sub.auth}},payload);delivered++;}catch(err){const statusCode=Number((err as {statusCode?:number})?.statusCode??0);if(statusCode===404||statusCode===410)await db.from(\"push_subscriptions\").delete().eq(\"id\",sub.id);else failed++;}}\n  }\n  const now=new Date().toISOString();\n  if(delivered>0){await db.from(\"notification_deliveries\").insert({owner_id:target.owner_id,target_id:target.id,event_type:notificationEventType,urgency:notificationUrgency,title:\"EmergencyAlert\",body,delivered_at:now,delivered_count:delivered});}\n  const notifiedAt=nextLastNotifiedAt({delivered,actionable,previousLastNotifiedAt:previous?.last_notified_at,now});\n  const endingNotified=clearStreak>=3?false:(Boolean(previous?.rain_ending_notified)||((rainEnding||confirmedAndEnding)&&delivered>0));\n  const rainConfirmedNotified=clearStreak>=3?false:(Boolean(previous?.rain_confirmed_notified)||rainConfirmed);\n  const confirmedWeather=rainStreak>=3?\"RAINING\":clearStreak>=3?\"DRY\":(previous?.confirmed_weather??\"UNKNOWN\");\n  const persistedSevere=clearStreak>=3?0:Math.max(previousSevere,severeLevel);\n  await db.from(\"watch_states\").upsert({target_id:target.id,last_event:rain.event,last_checked_at:checkedAt,last_notified_at:notifiedAt,rain_ending_notified:endingNotified,clear_streak:clearStreak,rain_streak:rainStreak,rain_confirmed_notified:rainConfirmedNotified,confirmed_weather:confirmedWeather,severe_rain_level:persistedSevere,updated_at:now},{onConflict:\"target_id\"});\n  results.push({id:target.id,status:rain.event.eventType,initialRaining,rainEnding,shouldNotify,delivered,failed});\n }catch(err){results.push({id:target.id,status:\"CHECK_FAILED\",error:String((err as Error)?.message??err)});}}\n return Response.json({ok:true,checked:results.length,results});\n});",
+        "sha256": "3e8d37d911e522326a0a74bcbe4e9dc80f793b2702ab2d97dc8ac706faeffe80"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "e6ca196570dff62d67060e9b543cd550ebe13b03",
+      "message": "Track rain confirmation independently of push delivery\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/e6ca196570dff62d67060e9b543cd550ebe13b03"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "e6ca196570dff62d67060e9b543cd550ebe13b03",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/36377824888",
+      "id": 36377824888,
+      "updated_at": "2026-09-28T04:28:44Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "VAPID_PUBLIC_KEY",
+    "actionable",
+    "body",
+    "checkedAt",
+    "clearStreak",
+    "confirmedAndEnding",
+    "confirmedWeather",
+    "currentStatus",
+    "db",
+    "delivered",
+    "diagnostic",
+    "endingNotified",
+    "expected",
+    "initialRaining",
+    "labelCounts",
+    "notificationEventType",
+    "notificationLabel",
+    "notificationUrgency",
+    "notifiedAt",
+    "now",
+    "payload",
+    "persistedSevere",
+    "previousEvent",
+    "previousSevere",
+    "rain",
+    "rainConfirmed",
+    "rainConfirmedNotified",
+    "rainEnding",
+    "rainStreak",
+    "rainUrl",
+    "response",
+    "results",
+    "returningRain",
+    "severeBody",
+    "severeEscalation",
+    "severeFrame",
+    "severeLevel",
+    "severeMinutes",
+    "severeName",
+    "severeRank",
+    "shouldNotify",
+    "statusCode",
+    "sub",
+    "target",
+    "url"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "雨の確認とPush送信状態を独立管理",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/52"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "2f05461ebd0682823602b542b19cb5e3ba953cd95e6c04abfc60a3dace04e3d5",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

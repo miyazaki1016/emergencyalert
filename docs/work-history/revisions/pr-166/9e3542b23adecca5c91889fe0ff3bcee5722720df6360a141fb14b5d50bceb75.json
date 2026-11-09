@@ -1,0 +1,114 @@
+{
+  "id": "pr-166",
+  "number": 166,
+  "title": "fix(jaspic): accept trailing slash in Supabase URL",
+  "topics": [
+    "通知・配信",
+    "認証・安全性"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更／認証・アクセス制御に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "## Cause\nProduction `NEXT_PUBLIC_SUPABASE_URL` ends with `/`, but the iPhone JASPIC login client checks a URL regex that requires `.supabase.co` at the end.\n\n## Fix\nStrip trailing slashes before validation and `createClient`. One-line change to `app/jaspic/oauth/login-client.tsx`; no env changes, secrets, database migrations, Gmail OAuth enablement, or real email sending.\n\n## Verification\nCheck CI and verify iPhone Safari shows the email input after production deployment. Do not merge until reviewed to avoid unnecessary production builds.",
+  "snapshot_head": "776fe24e8199cd565625c859b58cf6e1d067284b",
+  "snapshot_consistent": true,
+  "head": "776fe24e8199cd565625c859b58cf6e1d067284b",
+  "base": "a11630a208595fa97401db25c21753eab5f9deef",
+  "base_ref": "main",
+  "head_ref": "fix/jaspic-supabase-trailing-slash-20261106",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-06T04:45:06Z",
+  "merge_commit_sha": "686c1dae5171eb3b61811f3528fede44eff09fb7",
+  "updated_at": "2026-11-06T04:45:07Z",
+  "code_facts": [],
+  "files": [
+    {
+      "path": "app/jaspic/oauth/login-client.tsx",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "diff --git a/app/jaspic/oauth/login-client.tsx b/app/jaspic/oauth/login-client.tsx\nindex 6288fb1..e5cef66 100644\n--- a/app/jaspic/oauth/login-client.tsx\n+++ b/app/jaspic/oauth/login-client.tsx\n@@ -4,7 +4,7 @@ import { createClient, type SupabaseClient } from \"@supabase/supabase-js\";\n import { useEffect, useMemo, useState } from \"react\";\n \n function getBrowserClient(): SupabaseClient | null {\n-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;\n+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/, \"\");\n   const key = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);\n   if (!url || !key || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url)) return null;\n   return createClient(url, key, {\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/776fe24e8199cd565625c859b58cf6e1d067284b/app/jaspic/oauth/login-client.tsx",
+      "source": {
+        "path": "app/jaspic/oauth/login-client.tsx",
+        "coverage": "全文",
+        "text": "\"use client\";\n\nimport { createClient, type SupabaseClient } from \"@supabase/supabase-js\";\nimport { useEffect, useMemo, useState } from \"react\";\n\nfunction getBrowserClient(): SupabaseClient | null {\n  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/, \"\");\n  const key = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);\n  if (!url || !key || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url)) return null;\n  return createClient(url, key, {\n    auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true },\n  });\n}\n\n/**\n * iPhone Safari email OTP login. No OAuth client secret or refresh token is\n * ever exposed to JS. The auth start route must recheck the user on the server.\n */\nexport default function JaspicOauthLoginClient() {\n  const supabase = useMemo(getBrowserClient, []);\n  const [email, setEmail] = useState(\"\");\n  const [loggedIn, setLoggedIn] = useState(false);\n  const [message, setMessage] = useState(\"\");\n  const [busy, setBusy] = useState(false);\n  useEffect(() => {\n    if (!supabase) return;\n    let active = true;\n    void supabase.auth.getUser().then(({data}) => {\n      if (active) setLoggedIn(Boolean(data.user));\n    }).catch(() => { if (active) setLoggedIn(false); });\n    const {data:{subscription}} = supabase.auth.onAuthStateChange((_event,session) => {\n      if (active) setLoggedIn(Boolean(session?.user));\n    });\n    return () => { active = false; subscription.unsubscribe(); };\n  }, [supabase]);\n\n  async function emailLogin() {\n    if (!supabase || busy || !email.trim()) return;\n    setBusy(true);\n    setMessage(\"\");\n    try {\n      const {error} = await supabase.auth.signInWithOtp({\n        email: email.trim(),\n        options: { emailRedirectTo: \"https://emergencyalert.news/jaspic/oauth\", shouldCreateUser: false },\n      });\n      setMessage(error ? \"ログイン用メールを送信できませんでした。設定を確認してください。\" :\n        \"ログイン用メールを送ったよ。メール内のリンクをSafariで開いてね。\");\n    } catch { setMessage(\"ログインの準備ができていません。\"); }\n    finally { setBusy(false); }\n  }\n\n  async function beginGoogle() {\n    if (!supabase || busy) return;\n    setBusy(true);\n    setMessage(\"\");\n    try {\n      const {data:{session}} = await supabase.auth.getSession();\n      if (!session) { setMessage(\"先にメールでログインしてね。\"); return; }\n      const response = await fetch(\"/jaspic/oauth/start\", {\n        method: \"POST\",\n        credentials: \"same-origin\",\n        headers: { authorization: \"Bearer \" + session.access_token },\n        cache: \"no-store\",\n      });\n      if (!response.ok) { setMessage(\"Google認証は現在停止中です。管理者設定を確認してね。\"); return; }\n      const body: unknown = await response.json();\n      if (!body || typeof body !== \"object\" || !(\"authorizationUrl\" in body) ||\n          typeof body.authorizationUrl !== \"string\") throw new Error(\"Unavailable\");\n      const target = new URL(body.authorizationUrl);\n      if (target.origin !== \"https://accounts.google.com\" || target.pathname !== \"/o/oauth2/v2/auth\") {\n        throw new Error(\"Unavailable\");\n      }\n      window.location.assign(target.href);\n    } catch { setMessage(\"認証開始に失敗しました。\"); }\n    finally { setBusy(false); }\n  }\n\n  return (\n    <section>\n      {!supabase && <p role=\"status\">ログイン設定はまだ完了していません。</p>}\n      {supabase && !loggedIn && <>\n        <label htmlFor=\"jaspic-email\">管理者のメールアドレス</label>\n        <div style={{display:\"flex\",gap:8,flexWrap:\"wrap\",margin:\"10px 0\"}}>\n          <input id=\"jaspic-email\" type=\"email\" value={email}\n            onChange={(e)=>setEmail(e.target.value)} autoComplete=\"email\"\n            style={{fontSize:16,padding:12,minWidth:230,border:\"1px solid #a5bbd0\",borderRadius:8}} />\n          <button type=\"button\" onClick={()=>void emailLogin()} disabled={busy || !email.trim()}\n            style={{fontSize:16,padding:\"12px 16px\",borderRadius:8}}>ログイン用メールを送る</button>\n        </div>\n      </>}\n      {supabase && loggedIn && <>\n        <p>Supabase Authにログイン済みです。管理者本人であることは、次の操作でサーバー側でも確認されます。</p>\n        <button type=\"button\" onClick={()=>void beginGoogle()} disabled={true}\n          style={{fontSize:16,padding:\"12px 18px\",borderRadius:8}}>Google Gmailの認証を開始</button>\n        <button type=\"button\" onClick={()=>void supabase.auth.signOut()} disabled={busy}\n          style={{fontSize:16,padding:\"12px 18px\",marginLeft:8,borderRadius:8}}>ログアウト</button>\n      </>}\n      {message && <p role=\"status\" aria-live=\"polite\">{message}</p>}\n    </section>\n  );\n}\n",
+        "sha256": "fbbbf3a35bf84cc51024943c43de93dab221ab622b5e9606970e244a0005c4b2"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "776fe24e8199cd565625c859b58cf6e1d067284b",
+      "message": "fix(jaspic): normalize trailing slash in Supabase URL\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/776fe24e8199cd565625c859b58cf6e1d067284b"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "776fe24e8199cd565625c859b58cf6e1d067284b",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42164332952",
+      "id": 42164332952,
+      "updated_at": "2026-11-06T04:45:13Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "776fe24e8199cd565625c859b58cf6e1d067284b",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42163447766",
+      "id": 42163447766,
+      "updated_at": "2026-11-06T04:36:01Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "776fe24e8199cd565625c859b58cf6e1d067284b",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42163447775",
+      "id": 42163447775,
+      "updated_at": "2026-11-06T04:36:40Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "JaspicOauthLoginClient",
+    "active",
+    "beginGoogle",
+    "body",
+    "emailLogin",
+    "getBrowserClient",
+    "key",
+    "response",
+    "supabase",
+    "target",
+    "url"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "Supabase URL末尾のスラッシュを許容",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/166"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "10af39e9a43ed54e64e67ba09d06e6be737a7f9861c772a46700097cc3a8ef60",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

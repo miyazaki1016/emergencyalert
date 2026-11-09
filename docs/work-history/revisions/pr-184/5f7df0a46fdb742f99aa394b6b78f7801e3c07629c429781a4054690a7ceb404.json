@@ -1,0 +1,224 @@
+{
+  "id": "pr-184",
+  "number": 184,
+  "title": "fix(history): 棚卸し中に更新されたPRのコミットを確実に取得",
+  "topics": [
+    "開発管理"
+  ],
+  "purpose": "開発資産の把握・引継ぎ・レビューを支援する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "実Actionsで、checkout後に台帳ボットがPR headを更新し、取得済みGit参照に新しいコミットがない競合を確認しました。PRメタデータで観測したbase/headを40桁SHAで固定し、不足するオブジェクトだけをGitから取得します。取得できない案件は未確認の収集エラーとして扱い、成功したと偽りません。\n\n新しい回帰テストで、変更されたheadだけをSHA固定で取得することと不正なrefを拒否することを確認。履歴関連12テスト成功。アプリ・通知・DB変更なし。",
+  "snapshot_head": "25107e4f0760cdcf250308b9cfbb1a2599c52936",
+  "snapshot_consistent": true,
+  "head": "25107e4f0760cdcf250308b9cfbb1a2599c52936",
+  "base": "8c62c445bf523de221dea0bb4ba61d2637fcc292",
+  "base_ref": "main",
+  "head_ref": "fix/history-pr-checkout-race-20261109",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-09T09:02:25Z",
+  "merge_commit_sha": "22646051e05ea0ab91c2794679582f934de90fc2",
+  "updated_at": "2026-11-09T09:02:25Z",
+  "code_facts": [
+    {
+      "file": "scripts/development_history_evidence.py",
+      "kind": "関数・クラス定義",
+      "expression": "def ensure_commit(sha):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/25107e4f0760cdcf250308b9cfbb1a2599c52936/scripts/development_history_evidence.py"
+    },
+    {
+      "file": "scripts/development_history_evidence.py",
+      "kind": "HTTP要求",
+      "expression": "\"\"\"PR metadata can advance after checkout/fetch (e.g. the ledger bot).\"\"\"",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/25107e4f0760cdcf250308b9cfbb1a2599c52936/scripts/development_history_evidence.py"
+    },
+    {
+      "file": "scripts/development_history_evidence.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not isinstance(sha,str) or not re.fullmatch(r'[0-9a-f]{40}',sha):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/25107e4f0760cdcf250308b9cfbb1a2599c52936/scripts/development_history_evidence.py"
+    },
+    {
+      "file": "tests/test_development_history_evidence.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_checkout_race_fetches_exact_missing_pr_head(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/25107e4f0760cdcf250308b9cfbb1a2599c52936/tests/test_development_history_evidence.py"
+    },
+    {
+      "file": "tests/test_development_history_evidence.py",
+      "kind": "実行する検証コマンド",
+      "expression": "with patch.object(history,'git',side_effect=[subprocess.CalledProcessError(1,'git'),'', '']) as run:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/25107e4f0760cdcf250308b9cfbb1a2599c52936/tests/test_development_history_evidence.py"
+    }
+  ],
+  "files": [
+    {
+      "path": "scripts/development_history_evidence.py",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 3,
+      "patch": "diff --git a/scripts/development_history_evidence.py b/scripts/development_history_evidence.py\nindex 7bc0e68..1512f5f 100644\n--- a/scripts/development_history_evidence.py\n+++ b/scripts/development_history_evidence.py\n@@ -17,7 +17,7 @@ import urllib.error\n import urllib.parse\n import urllib.request\n \n-VERSION = 2\n+VERSION = 3\n SAFE_SUFFIXES = {'.py','.ts','.tsx','.js','.mjs','.cjs','.json','.md','.yml','.yaml','.sql','.css','.sh'}\n SECRET_PATH = re.compile(r'(^|[/._-])(env|secret|credential|private[-_]?key|token)([./_-]|$)', re.I)\n REDACTIONS = [r'(?i)\\b(?:sk-proj-|sk-|ghp_|github_pat_|ghs_|sb_secret_)[A-Za-z0-9_\\-]{15,}',\n@@ -81,6 +81,16 @@ class API:\n def git(*args):\n     return subprocess.check_output(['git',*args],text=True,stderr=subprocess.DEVNULL)\n \n+def ensure_commit(sha):\n+    \"\"\"PR metadata can advance after checkout/fetch (e.g. the ledger bot).\"\"\"\n+    if not isinstance(sha,str) or not re.fullmatch(r'[0-9a-f]{40}',sha):\n+        raise ValueError('Invalid commit SHA')\n+    try: git('cat-file','-e',sha+'^{commit}')\n+    except subprocess.CalledProcessError:\n+        # Fetch the exact observed object, never a moving ref or arbitrary URL.\n+        git('fetch','--quiet','--no-tags','origin',sha)\n+        git('cat-file','-e',sha+'^{commit}')\n+\n def source(sha,path):\n     if SECRET_PATH.search(path) or Path(path).suffix not in SAFE_SUFFIXES:\n         return {'path':path,'coverage':'対象外（秘密情報候補／非テキスト）'}\n@@ -155,6 +165,7 @@ def code_facts(files):\n \n def collect_pr(api,num,meta,run_index,curated):\n     pr=api.get('/pulls/'+num)\n+    ensure_commit(pr['base']['sha']); ensure_commit(pr['head']['sha'])\n     files=local_files(pr['base']['sha'],pr['head']['sha'])\n     commits=local_commits(pr['base']['sha'],pr['head']['sha'],api.repo)\n     comments=api.pages('/issues/'+num+'/comments')\n@@ -191,7 +202,7 @@ def collect_pr(api,num,meta,run_index,curated):\n     curated_entry=curated.get('prs',{}).get(num,{})\n     return {'id':'pr-'+num,'number':int(num),'title':clean(pr['title']), 'topics':topic,'purpose':purpose,\n             'purpose_basis':'変更パスと表題による分類（意味の確定には原文を確認）',\n-            'body':clean(pr.get('body')), 'head':head,'base':pr['base']['sha'],'base_ref':pr['base']['ref'],\n+            'body':clean(pr.get('body')), 'snapshot_head':meta.get('head'), 'snapshot_consistent':not meta.get('head') or meta.get('head')==head, 'head':head,'base':pr['base']['sha'],'base_ref':pr['base']['ref'],\n             'head_ref':pr['head']['ref'],'state':'merged' if pr.get('merged_at') else pr['state'],\n             'main_status':main_status,'draft':pr.get('draft',False),'merged_at':pr.get('merged_at'),'merge_commit_sha':merge,'updated_at':pr['updated_at'],\n             'code_facts':code_facts(evidence),'files':evidence,'file_count':len(files),'reported_file_count':pr.get('changed_files'),\n@@ -339,7 +350,7 @@ def build(report,api,out,previous=None,curated=None):\n         try:\n             c=collect_pr(api,num,meta,run_index,curated); c['fingerprint']=fingerprint; c['ci_digest']=ci_digest; c['collected_at']=report['generated_at']; cases[key]=c\n         except Missing: continue\n-        except (RuntimeError,ValueError,KeyError,OSError) as error:\n+        except (RuntimeError,ValueError,KeyError,OSError,subprocess.CalledProcessError) as error:\n             errors.append({'id':key,'error':type(error).__name__})\n             cases[key]=dict(oldcase or {'id':key,'title':clean(meta.get('title')),'state':meta.get('state'),'files':[]})\n             cases[key]['error']='今回の証拠収集に失敗。旧結果を保持、再収集が必要'\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/25107e4f0760cdcf250308b9cfbb1a2599c52936/scripts/development_history_evidence.py",
+      "source": {
+        "path": "scripts/development_history_evidence.py",
+        "coverage": "先頭18000文字・原本リンク参照",
+        "text": "#!/usr/bin/env python3\n\"\"\"Evidence-backed Japanese history. Standard library; never executes project code.\n\nExtends development_work_history.py and its inventory snapshot. No LLM/API billing,\nDB, application routes, notification calls or deployment mutations.\n\"\"\"\nimport argparse\nimport datetime as dt\nimport hashlib\nimport html\nimport json\nimport os\nfrom pathlib import Path\nimport re\nimport subprocess\nimport urllib.error\nimport urllib.parse\nimport urllib.request\n\nVERSION = 3\nSAFE_SUFFIXES = {'.py','.ts','.tsx','.js','.mjs','.cjs','.json','.md','.yml','.yaml','.sql','.css','.sh'}\nSECRET_PATH = re.compile(r'(^|[/._-])(env|secret|credential|private[-_]?key|token)([./_-]|$)', re.I)\nREDACTIONS = [r'(?i)\\b(?:sk-proj-|sk-|ghp_|github_pat_|ghs_|sb_secret_)[A-Za-z0-9_\\-]{15,}',\n              r'eyJ[A-Za-z0-9_-]{15,}\\.[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}',\n              r'(?i)(?:bearer\\s+)[A-Za-z0-9._-]{15,}',\n              r'(?i)((?:password|api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret)\\s*[=:]\\s*)[\\'\\\"][^\\'\\\"\\n]{8,}[\\'\\\"]']\n\ndef clean(value):\n    text = str(value or '')\n    for pattern in REDACTIONS:\n        text = re.sub(pattern, '[REDACTED]', text)\n    return text\n\ndef digest(value):\n    return hashlib.sha256(json.dumps(value, ensure_ascii=False, sort_keys=True).encode()).hexdigest()\n\ndef write(path, value):\n    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)\n    path.write_text(value, encoding='utf-8')\n\ndef dump(path, value):\n    write(path, json.dumps(value, ensure_ascii=False, indent=2)+'\\n')\n\nclass Missing(Exception): pass\nclass API:\n    def __init__(self, repo, cache=None, offline=False):\n        self.repo, self.cache, self.offline = repo, Path(cache) if cache else None, offline\n        self.pending, self.calls = set(), 0\n    def get(self, path):\n        path = '/repos/'+self.repo+path\n        file = self.cache/(hashlib.sha256(path.encode()).hexdigest()+'.json') if self.cache else None\n        if file and file.exists():\n            data = json.loads(file.read_text())\n            if isinstance(data,dict) and '_http_error' in data: raise RuntimeError('HTTP '+str(data['_http_error']))\n            return data\n        if self.offline:\n            self.pending.add(path); raise Missing(path)\n        self.calls += 1\n        if self.calls > int(os.environ.get('HISTORY_MAX_API_CALLS','3500')):\n            raise RuntimeError('API request budget exceeded')\n        headers={'Accept':'application/vnd.github+json','User-Agent':'development-history-evidence'}\n        if os.environ.get('GITHUB_TOKEN'): headers['Authorization']='Bearer '+os.environ['GITHUB_TOKEN']\n        request=urllib.request.Request('https://api.github.com'+path,headers=headers)\n        try:\n            with urllib.request.urlopen(request,timeout=30) as response: data=json.load(response)\n        except urllib.error.HTTPError as error:\n            # Do not log request headers, response body, or credentials.\n            raise RuntimeError('GitHub HTTP '+str(error.code)) from None\n        if file: dump(file,data)\n        return data\n    def pages(self,path,field=None):\n        result=[]\n        for page in range(1,101):\n            data=self.get(path+('&' if '?' in path else '?')+'per_page=100&page='+str(page))\n            batch=data[field] if field else data\n            if not isinstance(batch,list): raise ValueError('Unexpected paginated response')\n            result.extend(batch)\n            if len(batch)<100: return result\n        raise RuntimeError('Pagination exceeded; refusing incomplete history')\n\ndef git(*args):\n    return subprocess.check_output(['git',*args],text=True,stderr=subprocess.DEVNULL)\n\ndef ensure_commit(sha):\n    \"\"\"PR metadata can advance after checkout/fetch (e.g. the ledger bot).\"\"\"\n    if not isinstance(sha,str) or not re.fullmatch(r'[0-9a-f]{40}',sha):\n        raise ValueError('Invalid commit SHA')\n    try: git('cat-file','-e',sha+'^{commit}')\n    except subprocess.CalledProcessError:\n        # Fetch the exact observed object, never a moving ref or arbitrary URL.\n        git('fetch','--quiet','--no-tags','origin',sha)\n        git('cat-file','-e',sha+'^{commit}')\n\ndef source(sha,path):\n    if SECRET_PATH.search(path) or Path(path).suffix not in SAFE_SUFFIXES:\n        return {'path':path,'coverage':'対象外（秘密情報候補／非テキスト）'}\n    try:\n        size=int(git('cat-file','-s',sha+':'+path))\n        if size>120000: return {'path':path,'coverage':'サイズ上限120KB・原本リンク参照'}\n        text=clean(git('show',sha+':'+path))\n        return {'path':path,'coverage':'全文' if len(text)<=18000 else '先頭18000文字・原本リンク参照',\n                'text':text[:18000], 'sha256':hashlib.sha256(text.encode()).hexdigest()}\n    except (subprocess.CalledProcessError,ValueError):\n        return {'path':path,'coverage':'削除済み／取得不能・差分参照'}\n\nTOPICS = [\n ('雨量・全国検知',r'rain|jma|stride|pixel|forecast|雨|降水|画素|全国', '雨量判定・予測・全国候補抽出に関する変更'),\n ('記憶・会話',r'memory|chat|conversation|relationship|記憶|会話|関係性', '会話や記憶・関係性を扱う処理の変更'),\n ('ラウンジ・画面',r'lounge|video|avatar|animation|ラウンジ|演出', 'ラウンジ・映像・画面演出に関する変更'),\n ('通知・配信',r'notif|push|jaspic|gmail|配信|通知|メール', '通知・メール配信とその運用に関する変更'),\n ('開発管理',r'inventory|ledger|approval|promotion|history|棚卸|台帳|承認|履歴', '開発資産の把握・引継ぎ・レビューを支援する変更'),\n ('認証・安全性',r'auth|rls|security|認証|安全', '認証・アクセス制御に関する変更'),\n ('画面・表示',r'page|ui|display|map|画面|表示|地図', '画面表示や操作に関する変更')]\n\ndef describe(title,paths):\n    haystack=title+' '+' '.join(paths)\n    topics=[(name,purpose) for name,pattern,purpose in TOPICS if re.search(pattern,haystack,re.I)]\n    return ([x[0] for x in topics] or ['その他の開発'], '／'.join(x[1] for x in topics) or '変更対象ファイルに関する開発。具体的な目的は原文・差分を確認')\n\ndef symbols(text):\n    return sorted(set(re.findall(r'(?:function\\s+|def\\s+|class\\s+|(?:export\\s+)?(?:async\\s+)?(?:const|let)\\s+)([A-Za-z_$][\\w$]*)',text)))[:60]\n\ndef observed_runs(runs):\n    return [{'name':clean(r.get('name')), 'head_sha':r.get('head_sha'), 'conclusion':r.get('conclusion'),\n             'status':r.get('status'), 'url':r.get('html_url'), 'id':r['id'], 'updated_at':r.get('updated_at'),\n             'event':r.get('event')} for r in runs]\n\ndef local_files(base,head):\n    rows=[]\n    for line in git('diff','--no-renames','--numstat',base+'...'+head).splitlines():\n        added,removed,path=line.split('\\t',2)\n        patch='' if SECRET_PATH.search(path) or Path(path).suffix not in SAFE_SUFFIXES else clean(git('diff','--no-ext-diff','--no-renames',base+'...'+head,'--',path))\n        if len(patch)>60000: patch=patch[:60000]+'\\n[差分は60000文字で打切り・原本参照]'\n        status='modified'\n        try: git('cat-file','-e',head+':'+path)\n        except subprocess.CalledProcessError: status='removed'\n        rows.append({'filename':path,'status':status,'additions':int(added) if added.isdigit() else 0,'deletions':int(removed) if removed.isdigit() else 0,'patch':patch})\n    return rows\n\ndef local_commits(base,head,repo):\n    rows=[]\n    for sha in git('rev-list','--reverse',base+'..'+head).splitlines():\n        rows.append({'sha':sha,'commit':{'message':git('show','-s','--format=%B',sha)},'html_url':'https://github.com/'+repo+'/commit/'+sha})\n    return rows\n\ndef code_facts(files):\n    facts=[]\n    patterns=[('HTTP要求',r'\\bfetch\\s*\\(|urlopen\\(|requests\\.(get|post)'),\n              ('DB・ストレージ操作の呼出し',r'\\.(rpc|from|insert|upsert|update|delete)\\s*\\('),\n              ('テストの期待値・条件',r'\\b(assert|expect|test|it|describe)[.(\\s]'),\n              ('条件分岐・閾値',r'\\bif\\s*\\(|\\bif .+:|\\b(?:const|let) [A-Z_]+\\s*='),\n              ('SQL定義・権限',r'(?i)\\b(create|alter|grant|revoke|drop)\\s+(table|function|policy|index|select|execute)'),\n              ('関数・クラス定義',r'\\b(function|def|class)\\s+\\w+'),\n              ('実行する検証コマンド',r'run:|npm (test|run)|python3? .*test')]\n    for f in files:\n        added=[l[1:] for l in f.get('patch','').splitlines() if l.startswith('+') and not l.startswith('+++')]\n        found=0\n        for line in added:\n            for label,pattern in patterns:\n                if re.search(pattern,line):\n                    facts.append({'file':f['path'],'kind':label,'expression':clean(line.strip())[:350],'url':f['url']})\n                    found+=1;break\n            if found>=12:break\n    return facts\n\ndef collect_pr(api,num,meta,run_index,curated):\n    pr=api.get('/pulls/'+num)\n    ensure_commit(pr['base']['sha']); ensure_commit(pr['head']['sha'])\n    files=local_files(pr['base']['sha'],pr['head']['sha'])\n    commits=local_commits(pr['base']['sha'],pr['head']['sha'],api.repo)\n    comments=api.pages('/issues/'+num+'/comments')\n    reviews=api.pages('/pulls/'+num+'/reviews')\n    head=pr['head']['sha']; merge=pr.get('merge_commit_sha') if pr.get('merged_at') else None\n    main_status='未統合／未確認'\n    candidate=merge or head\n    try:\n        subprocess.check_call(['git','merge-base','--is-ancestor',candidate,api.main_sha],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)\n        main_status='mainに祖先コミットとして存在（機能受入・本番は別）'\n    except subprocess.CalledProcessError:\n        main_status='main祖先として未確認（squash・同等実装は別途照合）'\n    runs=list(run_index.get(head,[]))+list(run_index.get(merge,[]))\n    # Historical head runs can fall outside the current global run window.\n    historical=api.pages('/actions/runs?head_sha='+head, 'workflow_runs')\n    runs={r['id']:r for r in runs+historical}\n    paths=[f['filename'] for f in files]\n    topic,purpose=describe(pr['title'],paths)\n    texts=[]; evidence=[]\n    for f in files:\n        path=f['filename']\n        safe=not SECRET_PATH.search(path) and Path(path).suffix in SAFE_SUFFIXES\n        patch=clean(f.get('patch','')) if safe else ''\n        item={'path':path,'status':f['status'],'additions':f['additions'],'deletions':f['deletions'],\n              'patch':patch, 'patch_coverage':'git merge-baseから対象HEADへの差分（最大60000文字）' if patch else '差分なし／対象外',\n              'url':'https://github.com/'+api.repo+'/blob/'+head+'/'+urllib.parse.quote(path)}\n        src=source(head,path); item['source']=src\n        texts.append(patch+'\\n'+src.get('text','')); evidence.append(item)\n    # Related docs are not restricted to files touched by the PR.\n    related=[]\n    corpus=(pr.get('body') or '')+'\\n'+'\\n'.join(texts)\n    for path in sorted(set(re.findall(r'(?:docs|tests|scripts)/[\\w./-]+\\.(?:md|json|py|ts)',corpus)))[:40]:\n        if path not in paths: related.append(source(head,path))\n    curated_entry=curated.get('prs',{}).get(num,{})\n    return {'id':'pr-'+num,'number':int(num),'title':clean(pr['title']), 'topics':topic,'purpose':purpose,\n            'purpose_basis':'変更パスと表題による分類（意味の確定には原文を確認）',\n            'body':clean(pr.get('body')), 'snapshot_head':meta.get('head'), 'snapshot_consistent':not meta.get('head') or meta.get('head')==head, 'head':head,'base':pr['base']['sha'],'base_ref':pr['base']['ref'],\n            'head_ref':pr['head']['ref'],'state':'merged' if pr.get('merged_at') else pr['state'],\n            'main_status':main_status,'draft':pr.get('draft',False),'merged_at':pr.get('merged_at'),'merge_commit_sha':merge,'updated_at':pr['updated_at'],\n            'code_facts':code_facts(evidence),'files':evidence,'file_count':len(files),'reported_file_count':pr.get('changed_files'),\n            'commits':[{'sha':c['sha'],'message':clean(c['commit']['message']),'url':c['html_url']} for c in commits],\n            'comments':[{'body':clean(c.get('body')),'url':c['html_url']} for c in comments if c.get('user',{}).get('type')!='Bot'],\n            'reviews':[{'state':c['state'],'body':clean(c.get('body')),'url':c['html_url']} for c in reviews],\n            'runs':observed_runs(list(runs.values())), 'symbols':symbols('\\n'.join(texts)),\n            'related_sources':related,'curated':curated_entry,\n            'implementation':'変更差分を取得。実装の受入完了は未認定',\n            'verification':'Actionsの成否は実行単位の事実。製品の受入検証とは別',\n            'production':'未確認（main統合／Vercelプレビューから推定しない）',\n            'remaining':'受入条件・未解決事項をPR本文、レビュー、台帳と照合',\n            'next':'類似コード・既存結論を確認し、未解決条件だけを次の作業にする'}\n\ndef branch_case(name,sha,base,repo,prs):\n    linked=[p['number'] for p in prs.values() if p.get('head_ref')==name]\n    try:\n        raw=git('diff','--name-status',base+'...'+sha)\n        paths=[line.split('\\t')[-1] for line in raw.splitlines()]\n        commits=git('log','--format=%H %s',base+'..'+sha).splitlines()\n        files=[]\n        same_head=any(p.get('head')==sha for p in prs.values())\n        for path in paths:\n            if same_head:\n                files.append({'path':path,'source':{'coverage':'同一HEADのPR案件に原文収録'},'url':'https://github.com/'+repo+'/blob/'+sha+'/'+urllib.parse.quote(path)})\n                continue\n            src=source(sha,path)\n            patch='' if SECRET_PATH.search(path) else clean(git('diff','--no-ext-diff',base+'...'+sha,'--',path))[:18000]\n            files.append({'path':path,'source':src,'patch':patch,'url':'https://github.com/'+repo+'/blob/'+sha+'/'+urllib.parse.quote(path)})\n        return {'id':'branch-'+digest(name)[:16],'title':clean(name),'head':sha,'head_ref':name,'linked_prs':linked,\n                'files':files,'commits':clean('\\n'.join(commits)),'topics':describe(name,paths)[0],\n                'state':'ブランチ差分（PR関連あり）' if linked else 'PR未関連のブランチ差分',\n                'production':'未確認','implementation':'mainとの差分を収録。差分ゼロも記録',\n                'next':'関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない'}\n    except subprocess.CalledProcessError:\n        return {'id':'branch-'+digest(name)[:16],'title':clean(name),'head':sha,'files':[], 'linked_prs':linked,\n                'state':'取得不能','topics':['未調査'],'production':'未確認','next':'リモート参照を取得して再解析'}\n\ndef search(cases,query):\n    tokens=[t.lower() for t in re.split(r'\\s+',query.strip()) if t]\n    if not tokens: return []\n    results=[]\n    for c in cases.values():\n        text=json.dumps(c,ensure_ascii=False).lower()\n        hits=sum(t in text for t in tokens)\n        if hits == len(tokens):\n            priority=hits+3*sum(t in c.get('title','').lower() for t in tokens)+2*sum(t in json.dumps(c.get('curated',{}),ensure_ascii=False).lower() for t in tokens)\n            results.append((priority,c['id'],c))\n    return [c for _,_,c in sorted(results,key=lambda x:(-x[0],x[1]))]\n\ndef md(value):\n    return html.escape(clean(value)).replace('|','&#124;')\n\ndef render_case(c,repo):\n    num=c.get('number'); lines=['# '+md(c['title']),'']\n    if num: lines+=['[PR原本](https://github.com/'+repo+'/pull/'+str(num)+')','']\n    for label,key in [('目的','purpose'),('実装状態','implementation'),('検証の扱い','verification'),('PR状態','state'),('main統合','main_status'),('本番反映','production'),('残課題','remaining'),('次の作業','next')]:\n        lines+=['**'+label+'：** '+md(c.get(key,'未確認')),'']\n    if c.get('linked_prs'):\n        lines+=['関連PR：'+', '.join('[#'+str(n)+'](https://github.com/'+repo+'/pull/'+str(n)+')' for n in c['linked_prs']),'']\n    if c.get('collected_at'): lines+=['根拠取得日時 (UTC)：'+c['collected_at'],'']\n    if c.get('curated'):\n        lines+=['## 日本語で確認した成果','',md(c['curated'].get('summary')),'',md(c['curated'].get('conclusion')),'']\n        for link in c['curated'].get('evidence',[]): lines+=['- [根拠]('+link+')']\n    lines+=['','## 実際の変更処理（コードから抽出）','',md('、'.join(c.get('symbols',[])) or '差分・ソースを参照'),'']\n    for fact in c.get('code_facts',[]):\n        lines+=['- '+md(fact['kind'])+'：`'+md(fact['expression']).replace('`','&#96;')+'`（['+md(fact['file'])+']('+fact['url']+')）']\n    for f in c.get('files',[]):\n        lines+=['- ['+md(f['path'])+']('+f['url']+')：'+md(f.get('source',{}).get('coverage','差分参照'))]\n    lines+=['','## 検証実行の事実','', '| ワークフロー | 結果 | 対象SHA |','| --- | --- | --- |']\n    for r in c.get('runs',[]):\n        lines+=['| ['+md(r.get('name'))+']('+str(r.get('url'))+') | '+md(r.get('conclusion') or r.get('status'))+' | '+md(r.get('head_sha'))+' |']\n    if not c.get('runs'): lines+=['| 実行証拠未取得 | 未確認 | — |']\n    lines+=['','## 当時の説明・結論（原文。作者の主張と実測を区別）','', '```text',clean(c.get('body','')).replace('```','~~~'),'```']\n    for item in c.get('comments',[])+c.get('reviews',[]):\n        if item.get('body'): lines+=['','[記録元]('+item['url']+')','```text',clean(item['body']).replace('```','~~~'),'```']\n    lines+=['','## ソース・テスト・資料の抜粋（実行はしない）','']\n    for f in c.get('files',[]):\n        text=f.get('patch') or f.get('source',{}).get('text','')\n        if text: lines+=['### '+md(f['path']),'','```text',text.replace('```','~~~'),'```','']\n    for f in c.get('related_sources',[]):\n        if f.get('text'): lines+=['### 関連資料 '+md(f['path']),'','```text',f['text'].replace('```','~~~'),'```','']\n    return '\\n'.join(lines)+'\\n'\n\ndef duplicate_candidates(cases):\n    by_path={}\n    for key,c in cases.items():\n        for f in c.get('files',[]):\n            p=f['path']\n            if p.startswith(('docs/','.github/','tests/')) or p.endswith(('.md','.json','.lock')): continue\n            by_path.setdefault(p,set()).add(key)\n    return {p:sorted(ids) for p,ids in sorted(by_path.items()) if len(ids)>1}\n\ndef render_output(state,out,repo):\n    cases=state['cases']; out=Path(out); out.mkdir(parents=True,exist_ok=True)\n    lines=['# 日本語開発履歴・着手前検索','', 'コード・差分・コミット・PR議論・Actions実行を同じ案件にまとめた履歴です。分類は自動抽出、重要結論は日本語確認記録です。',\n           '', '実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。',\n           '', '更新 (UTC): '+state['generated_at'], '', '## 全案件','', '| 案件 | 分野・日本語作業内容 | 統合状態 | 本番 |','| --- | --- | --- | --- |']\n    for key,c in sorted(cases.items()):\n        write(out/'cases'/(key+'.md'),render_case(c,repo))\n        summary=c.get('curated',{}).get('summary') or c.get('purpose') or 'mainとのソース差分を収録・関連PRを照合'\n        lines+=['| ['+md(c['title'])+'](cases/'+key+'.md) | '+md('・'.join(c.get('topics',[]))+'：'+summary)+' | '+md(c.get('state'))+' | 未確認 |']\n    lines+=['','## 既存コードの重複候補','', '同じファイルを変更した案件です。同一機能と断定せず、結論と差分を先に照合してください。','']\n    duplicates=duplicate_candidates(cases)\n    for path,ids in duplicates.items():\n        lines+=['- '+md(path)+'：'+', '.join('['+key+'](cases/'+key+'.md)' for key in ids)]\n    lines+=['','## 更新と制約','', '- 過去版は revisions/ に追記保存。state.json は次回の差分解析に利用。',\n            '- ソースは120KB以下のテキストを最大18000文字ずつ取得。差分省略、取得失敗は原本確認が必要。',\n            '- CI結果はコミ",
+        "sha256": "a9afd5686dfe6ad1dfa14aadfd86b7f6f9abb991e1f9aa5ba2be8c71087cfa98"
+      }
+    },
+    {
+      "path": "tests/test_development_history_evidence.py",
+      "status": "modified",
+      "additions": 9,
+      "deletions": 1,
+      "patch": "diff --git a/tests/test_development_history_evidence.py b/tests/test_development_history_evidence.py\nindex 1a8539e..67276b8 100644\n--- a/tests/test_development_history_evidence.py\n+++ b/tests/test_development_history_evidence.py\n@@ -18,10 +18,18 @@ class FakeAPI:\n         return {'title':'Stride experiment','body':'47 regions missed','head':{'sha':'a'*40,'ref':'research'},'base':{'sha':'b'*40,'ref':'feature'},'state':'closed','merged_at':'2026-01-01','merge_commit_sha':'c'*40,'updated_at':'2026-01-02','draft':False}\n \n class HistoryTests(unittest.TestCase):\n+    def test_checkout_race_fetches_exact_missing_pr_head(self):\n+        import subprocess\n+        sha='a'*40\n+        with patch.object(history,'git',side_effect=[subprocess.CalledProcessError(1,'git'),'', '']) as run:\n+            history.ensure_commit(sha)\n+            self.assertEqual(run.call_args_list[1].args,('fetch','--quiet','--no-tags','origin',sha))\n+        with self.assertRaises(ValueError):history.ensure_commit('main; echo secret')\n+\n     def test_merged_into_feature_is_not_main_or_production(self):\n         api=FakeAPI();api.main_sha='d'*40\n         import subprocess\n-        with patch.object(history,'local_files',return_value=[]),patch.object(history,'local_commits',return_value=[]),patch.object(history.subprocess,'check_call',side_effect=subprocess.CalledProcessError(1,'git')):\n+        with patch.object(history,'ensure_commit'),patch.object(history,'local_files',return_value=[]),patch.object(history,'local_commits',return_value=[]),patch.object(history.subprocess,'check_call',side_effect=subprocess.CalledProcessError(1,'git')):\n             case=history.collect_pr(api,'62',{}, {},{})\n         self.assertEqual(case['state'],'merged')\n         self.assertIn('main祖先として未確認',case['main_status'])\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/25107e4f0760cdcf250308b9cfbb1a2599c52936/tests/test_development_history_evidence.py",
+      "source": {
+        "path": "tests/test_development_history_evidence.py",
+        "coverage": "全文",
+        "text": "\"\"\"Evidence provenance, incomplete data, revision retention and preflight search.\"\"\"\nimport importlib.util\nimport json\nfrom pathlib import Path\nimport tempfile\nimport unittest\nfrom unittest.mock import patch\n\nspec=importlib.util.spec_from_file_location('history',Path(__file__).resolve().parents[1]/'scripts/development_history_evidence.py')\nhistory=importlib.util.module_from_spec(spec);spec.loader.exec_module(history)\n\nclass FakeAPI:\n    repo='test/repo'\n    pending=set()\n    calls=0\n    def pages(self,path,field=None): return []\n    def get(self,path):\n        return {'title':'Stride experiment','body':'47 regions missed','head':{'sha':'a'*40,'ref':'research'},'base':{'sha':'b'*40,'ref':'feature'},'state':'closed','merged_at':'2026-01-01','merge_commit_sha':'c'*40,'updated_at':'2026-01-02','draft':False}\n\nclass HistoryTests(unittest.TestCase):\n    def test_checkout_race_fetches_exact_missing_pr_head(self):\n        import subprocess\n        sha='a'*40\n        with patch.object(history,'git',side_effect=[subprocess.CalledProcessError(1,'git'),'', '']) as run:\n            history.ensure_commit(sha)\n            self.assertEqual(run.call_args_list[1].args,('fetch','--quiet','--no-tags','origin',sha))\n        with self.assertRaises(ValueError):history.ensure_commit('main; echo secret')\n\n    def test_merged_into_feature_is_not_main_or_production(self):\n        api=FakeAPI();api.main_sha='d'*40\n        import subprocess\n        with patch.object(history,'ensure_commit'),patch.object(history,'local_files',return_value=[]),patch.object(history,'local_commits',return_value=[]),patch.object(history.subprocess,'check_call',side_effect=subprocess.CalledProcessError(1,'git')):\n            case=history.collect_pr(api,'62',{}, {},{})\n        self.assertEqual(case['state'],'merged')\n        self.assertIn('main祖先として未確認',case['main_status'])\n        self.assertIn('未確認',case['production'])\n        self.assertNotIn('検証済み',case['verification'])\n\n    def test_search_uses_all_terms_including_numeric_conclusion(self):\n        cases={'pr-62':{'id':'pr-62','title':'ズーム4 間引き','curated':{'conclusion':'stride2 47雨域を完全見逃し'}},'pr-1':{'id':'pr-1','title':'stride2の別件'}}\n        self.assertEqual([c['id'] for c in history.search(cases,'stride2 47')],['pr-62'])\n        self.assertEqual(history.search(cases,''),[])\n\n    def test_redact_secrets_and_skip_sensitive_source(self):\n        secret='ghp_'+'a'*36\n        self.assertNotIn(secret,history.clean('Authorization: Bearer '+secret))\n        self.assertNotIn('password-value',history.clean('[REDACTED]'))\n        with patch.object(history,'git') as mocked:\n            self.assertNotIn('text',history.source('a'*40,'.env.production'))\n            mocked.assert_not_called()\n\n    def test_revisions_survive_changed_and_deleted_branch(self):\n        with tempfile.TemporaryDirectory() as temp:\n            old={'id':'branch-old','title':'昔の検証','files':[],'state':'研究','curated':{'conclusion':'47雨域'}}\n            prior={'cases':{'branch-old':old}}; report={'repository':'test/repo','generated_at':'2026-11-09T01:00:00Z','default_branch':'main','snapshot':{'prs':{},'branches':{'main':'b'*40}}}\n            history.dump(Path(temp,'revisions','branch-old','old.json'),old)\n            state=history.build(report,FakeAPI(),temp,prior)\n            self.assertTrue(state['cases']['branch-old']['archived'])\n            self.assertTrue(Path(temp,'revisions','branch-old','old.json').exists())\n            self.assertIn('47雨域',Path(temp,'cases','branch-old.md').read_text())\n\n    def test_missing_api_cache_never_fabricates_evidence(self):\n        with tempfile.TemporaryDirectory() as temp:\n            api=history.API('test/repo',temp,True)\n            with self.assertRaises(history.Missing):api.get('/pulls/9')\n            self.assertEqual(len(api.pending),1)\n\n    def test_viewer_escapes_untrusted_pr_html(self):\n        with tempfile.TemporaryDirectory() as temp:\n            c={'id':'pr-1','title':'<img src=x onerror=alert(1)>','body':'</script><script>alert(1)</script>','state':'open','files':[],'curated':{'summary':'悪意あるHTMLを表示テキストとして扱う'}}\n            history.render_output({'generated_at':'now','cases':{'pr-1':c},'coverage':{'errors':[]}},temp,'test/repo')\n            viewer=Path(temp,'search.html').read_text()\n            self.assertNotIn('<img src=x',viewer)\n            self.assertNotIn('</script><script>alert(1)',viewer)\n\n    def test_exact_code_fact_retains_source_link_and_assertion(self):\n        facts=history.code_facts([{'path':'tests/parity.ts','patch':'+expect(missed).toBe(47);','url':'https://github.com/test/repo/blob/sha/tests/parity.ts'}])\n        self.assertEqual(facts[0]['kind'],'テストの期待値・条件')\n        self.assertIn('47',facts[0]['expression'])\n        self.assertIn('tests/parity.ts',facts[0]['url'])\n\n    def test_unchanged_pr_reuses_evidence_without_requests(self):\n        meta={'head':'a'*40,'state':'open','updated_at':'now'}\n        fingerprint=history.digest([history.VERSION,meta,None,history.digest([])])\n        old={'id':'pr-1','title':'既存成果','head':'a'*40,'files':[],'fingerprint':fingerprint,'state':'open'}\n        report={'repository':'test/repo','generated_at':'2026-11-09T01:00:00Z','default_branch':'main','snapshot':{'prs':{'1':meta},'branches':{'main':'b'*40}}}\n        with tempfile.TemporaryDirectory() as temp,patch.object(history,'collect_pr',side_effect=AssertionError('Unchanged PR reread')),patch.object(history.subprocess,'run') as run:\n            run.return_value.returncode=1\n            state=history.build(report,FakeAPI(),temp,{'cases':{'pr-1':old}})\n            self.assertEqual(state['cases']['pr-1']['title'],'既存成果')\n\nif __name__=='__main__':unittest.main()\n",
+        "sha256": "47021ddeef6bb017bdc11cf85d9b1a66cadcfcf09db17e1f5e5ac0674b529f3d"
+      }
+    }
+  ],
+  "file_count": 2,
+  "reported_file_count": 2,
+  "commits": [
+    {
+      "sha": "25107e4f0760cdcf250308b9cfbb1a2599c52936",
+      "message": "fix(history): pin and fetch PR commits changed during inventory\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/25107e4f0760cdcf250308b9cfbb1a2599c52936"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "25107e4f0760cdcf250308b9cfbb1a2599c52936",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42590167129",
+      "id": 42590167129,
+      "updated_at": "2026-11-09T09:01:26Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "25107e4f0760cdcf250308b9cfbb1a2599c52936",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42590167274",
+      "id": 42590167274,
+      "updated_at": "2026-11-09T09:01:31Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "25107e4f0760cdcf250308b9cfbb1a2599c52936",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42590167273",
+      "id": 42590167273,
+      "updated_at": "2026-11-09T09:01:55Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "25107e4f0760cdcf250308b9cfbb1a2599c52936",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42590160631",
+      "id": 42590160631,
+      "updated_at": "2026-11-09T09:01:16Z",
+      "event": "create"
+    },
+    {
+      "name": "CI",
+      "head_sha": "22646051e05ea0ab91c2794679582f934de90fc2",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42590322898",
+      "id": 42590322898,
+      "updated_at": "2026-11-09T09:02:32Z",
+      "event": "push"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "22646051e05ea0ab91c2794679582f934de90fc2",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42590322809",
+      "id": 42590322809,
+      "updated_at": "2026-11-09T09:02:32Z",
+      "event": "push"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "22646051e05ea0ab91c2794679582f934de90fc2",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42590322688",
+      "id": 42590322688,
+      "updated_at": "2026-11-09T09:02:31Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "API",
+    "FakeAPI",
+    "HistoryTests",
+    "Missing",
+    "__init__",
+    "branch_case",
+    "build",
+    "clean",
+    "code_facts",
+    "collect_pr",
+    "describe",
+    "digest",
+    "dump",
+    "duplicate_candidates",
+    "ensure_commit",
+    "get",
+    "git",
+    "local_commits",
+    "local_files",
+    "md",
+    "observed_runs",
+    "pages",
+    "render_case",
+    "render_output",
+    "search",
+    "source",
+    "symbols",
+    "test_checkout_race_fetches_exact_missing_pr_head",
+    "test_exact_code_fact_retains_source_link_and_assertion",
+    "test_merged_into_feature_is_not_main_or_production",
+    "test_missing_api_cache_never_fabricates_evidence",
+    "test_redact_secrets_and_skip_sensitive_source",
+    "test_revisions_survive_changed_and_deleted_branch",
+    "test_search_uses_all_terms_including_numeric_conclusion",
+    "test_unchanged_pr_reuses_evidence_without_requests",
+    "test_viewer_escapes_untrusted_pr_html",
+    "write"
+  ],
+  "related_sources": [
+    {
+      "path": "tests/parity.ts",
+      "coverage": "削除済み／取得不能・差分参照"
+    }
+  ],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "c08f43145f2bba71fb423f7b115d499accfd3ba596b9e797110a0f83629de7ca",
+  "ci_digest": "8560895ca000ea84d2341f299ffc1c84a74cfb1f44cd0a2954b6623f294dfac0",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

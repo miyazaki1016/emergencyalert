@@ -1,0 +1,159 @@
+{
+  "id": "pr-24",
+  "number": 24,
+  "title": "test: cover early rain prototype API",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Adds isolated smoke coverage for /api/rain/early: successful forecast response/firstRain selection, invalid coordinates, and fail-closed behavior when JMA data is unavailable. No production behavior changes.",
+  "snapshot_head": "0d9bea1c83478b525faddc73628e320bb430f1ae",
+  "snapshot_consistent": true,
+  "head": "0d9bea1c83478b525faddc73628e320bb430f1ae",
+  "base": "d32923cac6161471da4323e5d61170f055e75e2a",
+  "base_ref": "main",
+  "head_ref": "test-early-rain-api-smoke",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-09-24T16:04:29Z",
+  "merge_commit_sha": "fea4595835d14448c259894afcdb1be0717a2bd9",
+  "updated_at": "2026-09-24T16:04:30Z",
+  "code_facts": [
+    {
+      "file": "app/api/rain/early/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"GET /api/rain/early\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0d9bea1c83478b525faddc73628e320bb430f1ae/app/api/rain/early/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/early/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"returns forecast frames and first rain without sending notifications\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0d9bea1c83478b525faddc73628e320bb430f1ae/app/api/rain/early/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/early/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(response.status).toBe(200);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0d9bea1c83478b525faddc73628e320bb430f1ae/app/api/rain/early/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/early/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(getForecastFrames).toHaveBeenCalledWith(35.5494, 139.7798);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0d9bea1c83478b525faddc73628e320bb430f1ae/app/api/rain/early/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/early/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(body.firstRain).toEqual(frames[1]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0d9bea1c83478b525faddc73628e320bb430f1ae/app/api/rain/early/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/early/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(body.forecast).toEqual(frames);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0d9bea1c83478b525faddc73628e320bb430f1ae/app/api/rain/early/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/early/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(body.note).toContain(\"does not send Push\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0d9bea1c83478b525faddc73628e320bb430f1ae/app/api/rain/early/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/early/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"rejects invalid coordinates\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0d9bea1c83478b525faddc73628e320bb430f1ae/app/api/rain/early/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/early/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(response.status).toBe(400);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0d9bea1c83478b525faddc73628e320bb430f1ae/app/api/rain/early/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/early/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"fails closed when JMA data is unavailable\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0d9bea1c83478b525faddc73628e320bb430f1ae/app/api/rain/early/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/early/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(response.status).toBe(503);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0d9bea1c83478b525faddc73628e320bb430f1ae/app/api/rain/early/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/early/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(body.error).toBe(\"JMA_DATA_UNAVAILABLE\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0d9bea1c83478b525faddc73628e320bb430f1ae/app/api/rain/early/route.test.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/api/rain/early/route.test.ts",
+      "status": "modified",
+      "additions": 45,
+      "deletions": 0,
+      "patch": "diff --git a/app/api/rain/early/route.test.ts b/app/api/rain/early/route.test.ts\nnew file mode 100644\nindex 0000000..5db8706\n--- /dev/null\n+++ b/app/api/rain/early/route.test.ts\n@@ -0,0 +1,45 @@\n+import { describe, expect, it, vi } from \"vitest\";\n+import { NextRequest } from \"next/server\";\n+\n+const getForecastFrames = vi.fn();\n+\n+vi.mock(\"@/lib/weather/providers/jma/JmaEarlyRainForecastProvider\", () => ({\n+  JmaEarlyRainForecastProvider: class {\n+    getForecastFrames = getForecastFrames;\n+  },\n+}));\n+\n+import { GET } from \"./route\";\n+\n+describe(\"GET /api/rain/early\", () => {\n+  it(\"returns forecast frames and first rain without sending notifications\", async () => {\n+    const frames = [\n+      { validTime: \"2026-09-25T12:00:00.000Z\", status: \"NO_RAIN\" },\n+      { validTime: \"2026-09-25T13:00:00.000Z\", status: \"RAIN\" },\n+    ];\n+    getForecastFrames.mockResolvedValueOnce(frames);\n+\n+    const response = await GET(new NextRequest(\"https://example.test/api/rain/early?lat=35.5494&lon=139.7798\"));\n+    const body = await response.json();\n+\n+    expect(response.status).toBe(200);\n+    expect(getForecastFrames).toHaveBeenCalledWith(35.5494, 139.7798);\n+    expect(body.firstRain).toEqual(frames[1]);\n+    expect(body.forecast).toEqual(frames);\n+    expect(body.note).toContain(\"does not send Push\");\n+  });\n+\n+  it(\"rejects invalid coordinates\", async () => {\n+    const response = await GET(new NextRequest(\"https://example.test/api/rain/early?lat=999&lon=139.7798\"));\n+    expect(response.status).toBe(400);\n+  });\n+\n+  it(\"fails closed when JMA data is unavailable\", async () => {\n+    getForecastFrames.mockRejectedValueOnce(new Error(\"unavailable\"));\n+    const response = await GET(new NextRequest(\"https://example.test/api/rain/early?lat=35.5494&lon=139.7798\"));\n+    const body = await response.json();\n+\n+    expect(response.status).toBe(503);\n+    expect(body.error).toBe(\"JMA_DATA_UNAVAILABLE\");\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0d9bea1c83478b525faddc73628e320bb430f1ae/app/api/rain/early/route.test.ts",
+      "source": {
+        "path": "app/api/rain/early/route.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it, vi } from \"vitest\";\nimport { NextRequest } from \"next/server\";\n\nconst getForecastFrames = vi.fn();\n\nvi.mock(\"@/lib/weather/providers/jma/JmaEarlyRainForecastProvider\", () => ({\n  JmaEarlyRainForecastProvider: class {\n    getForecastFrames = getForecastFrames;\n  },\n}));\n\nimport { GET } from \"./route\";\n\ndescribe(\"GET /api/rain/early\", () => {\n  it(\"returns forecast frames and first rain without sending notifications\", async () => {\n    const frames = [\n      { validTime: \"2026-09-25T12:00:00.000Z\", status: \"NO_RAIN\" },\n      { validTime: \"2026-09-25T13:00:00.000Z\", status: \"RAIN\" },\n    ];\n    getForecastFrames.mockResolvedValueOnce(frames);\n\n    const response = await GET(new NextRequest(\"https://example.test/api/rain/early?lat=35.5494&lon=139.7798\"));\n    const body = await response.json();\n\n    expect(response.status).toBe(200);\n    expect(getForecastFrames).toHaveBeenCalledWith(35.5494, 139.7798);\n    expect(body.firstRain).toEqual(frames[1]);\n    expect(body.forecast).toEqual(frames);\n    expect(body.note).toContain(\"does not send Push\");\n  });\n\n  it(\"rejects invalid coordinates\", async () => {\n    const response = await GET(new NextRequest(\"https://example.test/api/rain/early?lat=999&lon=139.7798\"));\n    expect(response.status).toBe(400);\n  });\n\n  it(\"fails closed when JMA data is unavailable\", async () => {\n    getForecastFrames.mockRejectedValueOnce(new Error(\"unavailable\"));\n    const response = await GET(new NextRequest(\"https://example.test/api/rain/early?lat=35.5494&lon=139.7798\"));\n    const body = await response.json();\n\n    expect(response.status).toBe(503);\n    expect(body.error).toBe(\"JMA_DATA_UNAVAILABLE\");\n  });\n});\n",
+        "sha256": "307d88d538ba90cdcfba5d0bc6ac68f1e0eaca6a9d1de587e852869b87cef147"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "0d9bea1c83478b525faddc73628e320bb430f1ae",
+      "message": "test: add early rain API smoke coverage\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/0d9bea1c83478b525faddc73628e320bb430f1ae"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "0d9bea1c83478b525faddc73628e320bb430f1ae",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/36024060822",
+      "id": 36024060822,
+      "updated_at": "2026-09-24T15:59:20Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "body",
+    "frames",
+    "getForecastFrames",
+    "response"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "早期雨予測APIをテスト",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/24"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "6b902f216499e8caade88428b93cbfd627025361eef77657728a5e74f3faff56",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

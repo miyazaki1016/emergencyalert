@@ -1,0 +1,131 @@
+{
+  "id": "pr-4",
+  "number": 4,
+  "title": "fix: improve Japanese address search normalization",
+  "topics": [
+    "その他の開発"
+  ],
+  "purpose": "変更対象ファイルに関する開発。具体的な目的は原文・差分を確認",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "iPhone実機で `江東区塩浜2-9-8` が見つからないケースを受け、住所検索前に日本語住所表記を正規化します。\n\n- NFKC正規化\n- 丁目/番地/号をハイフン形式へ正規化\n- ダッシュ類を統一\n- 都道府県付き入力のフォールバック\n\nNominatimを予測入力には使わず、従来どおり明示的な検索時のみ呼び出します。",
+  "snapshot_head": "9f6b368065bd575bb4c9de753b40bad8cd1ae2d3",
+  "snapshot_consistent": true,
+  "head": "9f6b368065bd575bb4c9de753b40bad8cd1ae2d3",
+  "base": "589d7eeea60b49ee30ee8cc247963a77aa3732a7",
+  "base_ref": "main",
+  "head_ref": "fix/japanese-address-search",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-09-23T23:13:48Z",
+  "merge_commit_sha": "42a2645de706073ebe104eca7a9dfab8ef674ac0",
+  "updated_at": "2026-09-23T23:13:48Z",
+  "code_facts": [
+    {
+      "file": "lib/places/searchPlaces.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function normalizeJapaneseAddress(query: string): string {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9f6b368065bd575bb4c9de753b40bad8cd1ae2d3/lib/places/searchPlaces.ts"
+    },
+    {
+      "file": "lib/places/searchPlaces.ts",
+      "kind": "関数・クラス定義",
+      "expression": "async function fetchNominatim(query: string): Promise<NominatimItem[]> {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9f6b368065bd575bb4c9de753b40bad8cd1ae2d3/lib/places/searchPlaces.ts"
+    },
+    {
+      "file": "lib/places/searchPlaces.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export async function searchPlaces(query: string): Promise<PlaceSearchResult[]> {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9f6b368065bd575bb4c9de753b40bad8cd1ae2d3/lib/places/searchPlaces.ts"
+    },
+    {
+      "file": "lib/places/searchPlaces.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (trimmed.length < 2) return [];",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9f6b368065bd575bb4c9de753b40bad8cd1ae2d3/lib/places/searchPlaces.ts"
+    },
+    {
+      "file": "lib/places/searchPlaces.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const attempts = Array.from(new Set([",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9f6b368065bd575bb4c9de753b40bad8cd1ae2d3/lib/places/searchPlaces.ts"
+    },
+    {
+      "file": "lib/places/searchPlaces.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (items.length) break;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9f6b368065bd575bb4c9de753b40bad8cd1ae2d3/lib/places/searchPlaces.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "lib/places/searchPlaces.ts",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 5,
+      "patch": "diff --git a/lib/places/searchPlaces.ts b/lib/places/searchPlaces.ts\nindex fcea5de..0c9888e 100644\n--- a/lib/places/searchPlaces.ts\n+++ b/lib/places/searchPlaces.ts\n@@ -14,12 +14,22 @@ interface NominatimItem {\n   lon: string;\n }\n \n-export async function searchPlaces(query: string): Promise<PlaceSearchResult[]> {\n-  const trimmed = query.trim();\n-  if (trimmed.length < 2) return [];\n+function normalizeJapaneseAddress(query: string): string {\n+  return query\n+    .normalize(\"NFKC\")\n+    .replace(/[‐‑‒–—―ー−]/g, \"-\")\n+    .replace(/(\\d+)丁目(?:[- ]?(\\d+))?(?:[- ]?(\\d+))?/g, (_match, chome, ban, go) => {\n+      return [chome, ban, go].filter(Boolean).join(\"-\");\n+    })\n+    .replace(/(\\d+)番地?(\\d+)?号?/g, (_match, ban, go) => [ban, go].filter(Boolean).join(\"-\"))\n+    .replace(/(\\d+)号/g, \"$1\")\n+    .replace(/\\s+/g, \" \")\n+    .trim();\n+}\n \n+async function fetchNominatim(query: string): Promise<NominatimItem[]> {\n   const url = new URL(\"https://nominatim.openstreetmap.org/search\");\n-  url.searchParams.set(\"q\", trimmed);\n+  url.searchParams.set(\"q\", query);\n   url.searchParams.set(\"format\", \"jsonv2\");\n   url.searchParams.set(\"addressdetails\", \"1\");\n   url.searchParams.set(\"limit\", \"5\");\n@@ -34,8 +44,25 @@ export async function searchPlaces(query: string): Promise<PlaceSearchResult[]>\n     cache: \"no-store\",\n   });\n   if (!response.ok) throw new Error(\"PLACE_SEARCH_UNAVAILABLE\");\n+  return (await response.json()) as NominatimItem[];\n+}\n+\n+export async function searchPlaces(query: string): Promise<PlaceSearchResult[]> {\n+  const trimmed = query.trim();\n+  if (trimmed.length < 2) return [];\n+\n+  const normalized = normalizeJapaneseAddress(trimmed);\n+  const attempts = Array.from(new Set([\n+    normalized,\n+    normalized.replace(/^(東京都|北海道|(?:京都|大阪)府|.{2,3}県)/, \"\"),\n+  ].filter((value) => value.length >= 2)));\n+\n+  let items: NominatimItem[] = [];\n+  for (const attempt of attempts) {\n+    items = await fetchNominatim(attempt);\n+    if (items.length) break;\n+  }\n \n-  const items = (await response.json()) as NominatimItem[];\n   return items.flatMap((item) => {\n     const latitude = Number(item.lat);\n     const longitude = Number(item.lon);\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9f6b368065bd575bb4c9de753b40bad8cd1ae2d3/lib/places/searchPlaces.ts",
+      "source": {
+        "path": "lib/places/searchPlaces.ts",
+        "coverage": "全文",
+        "text": "export interface PlaceSearchResult {\n  id: string;\n  displayName: string;\n  displayAddress: string;\n  latitude: number;\n  longitude: number;\n}\n\ninterface NominatimItem {\n  place_id: number;\n  display_name: string;\n  name?: string;\n  lat: string;\n  lon: string;\n}\n\nfunction normalizeJapaneseAddress(query: string): string {\n  return query\n    .normalize(\"NFKC\")\n    .replace(/[‐‑‒–—―ー−]/g, \"-\")\n    .replace(/(\\d+)丁目(?:[- ]?(\\d+))?(?:[- ]?(\\d+))?/g, (_match, chome, ban, go) => {\n      return [chome, ban, go].filter(Boolean).join(\"-\");\n    })\n    .replace(/(\\d+)番地?(\\d+)?号?/g, (_match, ban, go) => [ban, go].filter(Boolean).join(\"-\"))\n    .replace(/(\\d+)号/g, \"$1\")\n    .replace(/\\s+/g, \" \")\n    .trim();\n}\n\nasync function fetchNominatim(query: string): Promise<NominatimItem[]> {\n  const url = new URL(\"https://nominatim.openstreetmap.org/search\");\n  url.searchParams.set(\"q\", query);\n  url.searchParams.set(\"format\", \"jsonv2\");\n  url.searchParams.set(\"addressdetails\", \"1\");\n  url.searchParams.set(\"limit\", \"5\");\n  url.searchParams.set(\"countrycodes\", \"jp\");\n  url.searchParams.set(\"accept-language\", \"ja\");\n\n  const response = await fetch(url, {\n    headers: {\n      \"User-Agent\": \"EmergencyAlert/2026 (place search)\",\n      \"Accept-Language\": \"ja\",\n    },\n    cache: \"no-store\",\n  });\n  if (!response.ok) throw new Error(\"PLACE_SEARCH_UNAVAILABLE\");\n  return (await response.json()) as NominatimItem[];\n}\n\nexport async function searchPlaces(query: string): Promise<PlaceSearchResult[]> {\n  const trimmed = query.trim();\n  if (trimmed.length < 2) return [];\n\n  const normalized = normalizeJapaneseAddress(trimmed);\n  const attempts = Array.from(new Set([\n    normalized,\n    normalized.replace(/^(東京都|北海道|(?:京都|大阪)府|.{2,3}県)/, \"\"),\n  ].filter((value) => value.length >= 2)));\n\n  let items: NominatimItem[] = [];\n  for (const attempt of attempts) {\n    items = await fetchNominatim(attempt);\n    if (items.length) break;\n  }\n\n  return items.flatMap((item) => {\n    const latitude = Number(item.lat);\n    const longitude = Number(item.lon);\n    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return [];\n    return [{\n      id: String(item.place_id),\n      displayName: item.name?.trim() || item.display_name.split(\",\")[0]?.trim() || trimmed,\n      displayAddress: item.display_name,\n      latitude,\n      longitude,\n    }];\n  });\n}\n",
+        "sha256": "97ac350f3eecce0cadb5cf4594b95aacbeba1811b7fbd88a2f55e92339ee8f3c"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "9f6b368065bd575bb4c9de753b40bad8cd1ae2d3",
+      "message": "fix: normalize Japanese address queries\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/9f6b368065bd575bb4c9de753b40bad8cd1ae2d3"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "9f6b368065bd575bb4c9de753b40bad8cd1ae2d3",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/35932117740",
+      "id": 35932117740,
+      "updated_at": "2026-09-23T23:10:00Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "attempt",
+    "attempts",
+    "fetchNominatim",
+    "items",
+    "latitude",
+    "longitude",
+    "normalizeJapaneseAddress",
+    "normalized",
+    "response",
+    "searchPlaces",
+    "trimmed",
+    "url"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "日本語住所検索の正規化を改善",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/4"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "16ff6ace56c1fe90ede8e3a56dc73a8241410e0a77a7aef0c8448c5ff09fb7de",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

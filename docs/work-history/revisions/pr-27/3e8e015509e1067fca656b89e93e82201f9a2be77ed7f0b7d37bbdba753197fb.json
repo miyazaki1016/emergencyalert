@@ -1,0 +1,137 @@
+{
+  "id": "pr-27",
+  "number": 27,
+  "title": "Restore push notification status after reopening app",
+  "topics": [
+    "通知・配信",
+    "画面・表示"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更／画面表示や操作に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "アプリ再起動後に既存のPush購読状態を復元します。\n\n- Notification permission が granted の場合だけ確認\n- Service Worker の既存Push subscriptionを確認\n- 購読済みなら「✓ 通知ON」と表示\n- 雨判定、5分監視、Push配信ロジックには変更なし",
+  "snapshot_head": "c4559c3d7037081cf468f0a34ac6f1e3b7d87ab1",
+  "snapshot_consistent": true,
+  "head": "c4559c3d7037081cf468f0a34ac6f1e3b7d87ab1",
+  "base": "0255548b45d444719ac4aba20ef95006d9269c39",
+  "base_ref": "main",
+  "head_ref": "fix/restore-push-status-on-load",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-09-25T13:42:40Z",
+  "merge_commit_sha": "ee54d4207e3f78ca3dad6363814bd3109010b83e",
+  "updated_at": "2026-09-25T13:42:40Z",
+  "code_facts": [
+    {
+      "file": "app/page.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!(\"serviceWorker\" in navigator) || !(\"PushManager\" in window) || !(\"Notification\" in window)) return;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c4559c3d7037081cf468f0a34ac6f1e3b7d87ab1/app/page.tsx"
+    },
+    {
+      "file": "app/page.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (Notification.permission !== \"granted\") return;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c4559c3d7037081cf468f0a34ac6f1e3b7d87ab1/app/page.tsx"
+    },
+    {
+      "file": "app/page.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!subscription) return;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c4559c3d7037081cf468f0a34ac6f1e3b7d87ab1/app/page.tsx"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/page.tsx",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 1,
+      "patch": "diff --git a/app/page.tsx b/app/page.tsx\nindex d781de1..700dd92 100644\n--- a/app/page.tsx\n+++ b/app/page.tsx\n@@ -79,6 +79,7 @@ export default function Home() {\n   const [targetsBusy, setTargetsBusy] = useState(false);\n   const [pushStatus, setPushStatus] = useState(\"\");\n   const [pushBusy, setPushBusy] = useState(false);\n+  const [pushEnabled, setPushEnabled] = useState(false);\n   const [testPushBusy, setTestPushBusy] = useState(false);\n \n   const enablePush = async () => {\n@@ -127,6 +128,7 @@ export default function Home() {\n         updated_at: new Date().toISOString(),\n       }, { onConflict: \"owner_id,endpoint\" });\n       if (error) throw error;\n+      setPushEnabled(true);\n       setPushStatus(\"通知を受け取れるようになったよ。\");\n     } catch {\n       setPushStatus(\"通知の登録ができなかったよ。少しあとでもう一度試してね。\");\n@@ -135,6 +137,20 @@ export default function Home() {\n     }\n   };\n \n+  const restorePushStatus = async () => {\n+    if (!(\"serviceWorker\" in navigator) || !(\"PushManager\" in window) || !(\"Notification\" in window)) return;\n+    if (Notification.permission !== \"granted\") return;\n+    try {\n+      const registration = await navigator.serviceWorker.ready;\n+      const subscription = await registration.pushManager.getSubscription();\n+      if (!subscription) return;\n+      setPushEnabled(true);\n+      setPushStatus(\"通知を受け取れるようになってるよ。\");\n+    } catch {\n+      // Keep the setup button available if the current subscription cannot be checked.\n+    }\n+  };\n+\n   const loadSavedTargets = async () => {\n     try {\n       const supabase = getSupabaseBrowserClient();\n@@ -153,6 +169,7 @@ export default function Home() {\n \n   useEffect(() => {\n     void loadSavedTargets();\n+    void restorePushStatus();\n   }, []);\n \n   const deleteTarget = async (target: SavedWatchTarget) => {\n@@ -365,7 +382,7 @@ export default function Home() {\n         <h2 style={{ marginBottom: 6 }}>通知</h2>\n         <p style={{ marginTop: 0, color: \"#666\" }}>見張っている場所で、今ならひと言かける意味がある変化があったときだけ知らせるよ。</p>\n         <button onClick={() => void enablePush()} disabled={pushBusy} style={{ padding: \"12px 16px\", fontSize: 16 }}>\n-          {pushBusy ? \"設定中…\" : \"通知を受け取る\"}\n+          {pushBusy ? \"設定中…\" : pushEnabled ? \"✓ 通知ON\" : \"通知を受け取る\"}\n         </button>\n         {pushStatus && <p style={{ color: \"#666\" }}>{pushStatus}</p>}\n       </section>\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c4559c3d7037081cf468f0a34ac6f1e3b7d87ab1/app/page.tsx",
+      "source": {
+        "path": "app/page.tsx",
+        "coverage": "先頭18000文字・原本リンク参照",
+        "text": "\"use client\";\n\nimport { useEffect, useState } from \"react\";\nimport { getSupabaseBrowserClient } from \"../lib/supabase/browser\";\n\ntype RainMessage = { headline: string; detail: string };\ntype RainInterpretation = {\n  state: \"INSUFFICIENT_DATA\" | \"DRY\" | \"RAIN_AHEAD\" | \"ACTIONABLE_RAIN\" | \"RAINING\" | \"EASING\" | \"ENDING\";\n  shouldNotify: boolean;\n  firstRainTime: string | null;\n  firstActionableRainTime: string | null;\n  endingTime: string | null;\n};\ntype RainSemanticEvent = {\n  schemaVersion: 1;\n  eventType: \"RAIN_CLEAR\" | \"RAIN_APPROACHING\" | \"ACTIONABLE_RAIN_APPROACHING\" | \"RAINING\" | \"RAIN_EASING\" | \"RAIN_ENDING\";\n  urgency: \"INFO\" | \"LIFESTYLE_ACTION\";\n  suggestedAction: \"NONE\" | \"BRING_LAUNDRY_INSIDE\";\n  startsAt: string | null;\n  actionableAt: string | null;\n  endingAt: string | null;\n  source: \"JMA_HIGH_RESOLUTION_PRECIPITATION_NOWCAST\";\n  checkedAt: string;\n  sourceValidAt: string | null;\n};\ntype SavedWatchTarget = {\n  id: string;\n  label: string;\n  display_address: string | null;\n  enabled: boolean;\n};\n\ntype RainResponse = {\n  source: string;\n  checkedAt: string;\n  sourceValidAt: string | null;\n  location: { lat: number; lon: number };\n  observation: unknown[];\n  forecast: unknown[];\n  interpretation: RainInterpretation | null;\n  event: RainSemanticEvent | null;\n  message: RainMessage | null;\n  interpretationEnabled: boolean;\n  note: string;\n};\n\nfunction urlBase64ToUint8Array(value: string): Uint8Array<ArrayBuffer> {\n  const padding = \"=\".repeat((4 - value.length % 4) % 4);\n  const base64 = (value + padding).replace(/-/g, \"+\").replace(/_/g, \"/\");\n  const raw = window.atob(base64);\n  return Uint8Array.from(raw, (char) => char.charCodeAt(0));\n}\n\nfunction stateLabel(state: RainInterpretation[\"state\"]): string {\n  switch (state) {\n    case \"DRY\": return \"☀️ この先、雨の予報なし\";\n    case \"RAIN_AHEAD\": return \"☁️ このあと雨くるよ\";\n    case \"ACTIONABLE_RAIN\": return \"☔ もうすぐ雨くるよ\";\n    case \"RAINING\": return \"🌧️ いま雨だよ\";\n    case \"EASING\": return \"🌦️ 弱くなりそう\";\n    case \"ENDING\": return \"🌤️ もうすぐやみそう\";\n    default: return \"いまは、はっきり言えないよ\";\n  }\n}\n\nexport default function Home() {\n  const [status, setStatus] = useState(\"このあとの雨、見てみる？\");\n  const [data, setData] = useState<RainResponse | null>(null);\n  const [busy, setBusy] = useState(false);\n  const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);\n  const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null);\n  const [placeQuery, setPlaceQuery] = useState(\"\");\n  const [placeResults, setPlaceResults] = useState<Array<{ id: string; displayName: string; displayAddress: string; latitude: number; longitude: number }>>([]);\n  const [placeStatus, setPlaceStatus] = useState(\"\");\n  const [placeBusy, setPlaceBusy] = useState(false);\n  const [placeLabels, setPlaceLabels] = useState<Record<string, string>>({});\n  const [savingPlaceId, setSavingPlaceId] = useState<string | null>(null);\n  const [savedTargets, setSavedTargets] = useState<SavedWatchTarget[]>([]);\n  const [targetsBusy, setTargetsBusy] = useState(false);\n  const [pushStatus, setPushStatus] = useState(\"\");\n  const [pushBusy, setPushBusy] = useState(false);\n  const [pushEnabled, setPushEnabled] = useState(false);\n  const [testPushBusy, setTestPushBusy] = useState(false);\n\n  const enablePush = async () => {\n    if (!(\"serviceWorker\" in navigator) || !(\"PushManager\" in window) || !(\"Notification\" in window)) {\n      setPushStatus(\"この端末では通知を使えないよ。\");\n      return;\n    }\n    const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;\n    if (!vapidPublicKey) {\n      setPushStatus(\"通知の準備中だよ。\");\n      return;\n    }\n    setPushBusy(true);\n    try {\n      const permission = await Notification.requestPermission();\n      if (permission !== \"granted\") {\n        setPushStatus(\"通知が許可されていないよ。端末の通知設定を確認してね。\");\n        return;\n      }\n      const registration = await navigator.serviceWorker.ready;\n      const configuredKey = urlBase64ToUint8Array(vapidPublicKey);\n      let existing = await registration.pushManager.getSubscription();\n      if (existing?.options.applicationServerKey) {\n        const existingKey = new Uint8Array(existing.options.applicationServerKey);\n        const keyMatches = existingKey.length === configuredKey.length\n          && existingKey.every((value, index) => value === configuredKey[index]);\n        if (!keyMatches) {\n          await existing.unsubscribe();\n          existing = null;\n        }\n      }\n      const subscription = existing ?? await registration.pushManager.subscribe({\n        userVisibleOnly: true,\n        applicationServerKey: configuredKey,\n      });\n      const json = subscription.toJSON();\n      if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) throw new Error(\"Incomplete push subscription\");\n      const session = await ensureAnonymousSession();\n      const supabase = getSupabaseBrowserClient();\n      const { error } = await supabase.from(\"push_subscriptions\").upsert({\n        owner_id: session.user.id,\n        endpoint: json.endpoint,\n        p256dh: json.keys.p256dh,\n        auth: json.keys.auth,\n        user_agent: navigator.userAgent,\n        updated_at: new Date().toISOString(),\n      }, { onConflict: \"owner_id,endpoint\" });\n      if (error) throw error;\n      setPushEnabled(true);\n      setPushStatus(\"通知を受け取れるようになったよ。\");\n    } catch {\n      setPushStatus(\"通知の登録ができなかったよ。少しあとでもう一度試してね。\");\n    } finally {\n      setPushBusy(false);\n    }\n  };\n\n  const restorePushStatus = async () => {\n    if (!(\"serviceWorker\" in navigator) || !(\"PushManager\" in window) || !(\"Notification\" in window)) return;\n    if (Notification.permission !== \"granted\") return;\n    try {\n      const registration = await navigator.serviceWorker.ready;\n      const subscription = await registration.pushManager.getSubscription();\n      if (!subscription) return;\n      setPushEnabled(true);\n      setPushStatus(\"通知を受け取れるようになってるよ。\");\n    } catch {\n      // Keep the setup button available if the current subscription cannot be checked.\n    }\n  };\n\n  const loadSavedTargets = async () => {\n    try {\n      const supabase = getSupabaseBrowserClient();\n      const session = (await supabase.auth.getSession()).data.session;\n      if (!session) return;\n      const { data, error } = await supabase\n        .from(\"watch_targets\")\n        .select(\"id,label,display_address,enabled\")\n        .order(\"created_at\", { ascending: true });\n      if (error) throw error;\n      setSavedTargets((data ?? []) as SavedWatchTarget[]);\n    } catch {\n      // Registration still works even if the saved list cannot be refreshed.\n    }\n  };\n\n  useEffect(() => {\n    void loadSavedTargets();\n    void restorePushStatus();\n  }, []);\n\n  const deleteTarget = async (target: SavedWatchTarget) => {\n    if (!window.confirm(`「${target.label}」を削除する？\\nこの場所の見張り登録も消えるよ。`)) return;\n    setTargetsBusy(true);\n    try {\n      const supabase = getSupabaseBrowserClient();\n      const { error } = await supabase\n        .from(\"watch_targets\")\n        .delete()\n        .eq(\"id\", target.id);\n      if (error) throw error;\n      setSavedTargets((targets) => targets.filter((item) => item.id !== target.id));\n      setPlaceStatus(`「${target.label}」を見張る場所から削除したよ。`);\n    } catch {\n      setPlaceStatus(\"削除できなかったよ。少しあとでもう一度試してね。\");\n    } finally {\n      setTargetsBusy(false);\n    }\n  };\n\n  const toggleTarget = async (target: SavedWatchTarget) => {\n    setTargetsBusy(true);\n    try {\n      const supabase = getSupabaseBrowserClient();\n      const { error } = await supabase\n        .from(\"watch_targets\")\n        .update({ enabled: !target.enabled })\n        .eq(\"id\", target.id);\n      if (error) throw error;\n      setSavedTargets((targets) =>\n        targets.map((item) => item.id === target.id ? { ...item, enabled: !item.enabled } : item),\n      );\n    } catch {\n      setPlaceStatus(\"見張りの切り替えができなかったよ。少しあとでもう一度試してね。\");\n    } finally {\n      setTargetsBusy(false);\n    }\n  };\n\n  const searchPlace = async () => {\n    const q = placeQuery.trim();\n    if (q.length < 2) return setPlaceStatus(\"住所や施設名を2文字以上入れてね。\");\n    setPlaceBusy(true);\n    setPlaceStatus(\"場所を探してるよ…\");\n    setPlaceResults([]);\n    try {\n      const res = await fetch(`/api/places/search?q=${encodeURIComponent(q)}`, { cache: \"no-store\" });\n      if (!res.ok) throw new Error();\n      const json = await res.json() as { results: typeof placeResults };\n      setPlaceResults(json.results);\n      setPlaceStatus(json.results.length ? \"この中にある？\" : \"見つからなかったよ。住所を少し詳しくしてみてね。\");\n    } catch {\n      setPlaceStatus(\"いま場所を検索できないよ。少しあとでもう一度試してね。\");\n    } finally {\n      setPlaceBusy(false);\n    }\n  };\n\n  const previewCurrentPlace = () => {\n    if (!navigator.geolocation) return setPlaceStatus(\"この端末では現在地を確認できないよ。\");\n    setPlaceBusy(true);\n    setPlaceStatus(\"いまいる場所を確認中…\");\n    navigator.geolocation.getCurrentPosition(async ({ coords }) => {\n      try {\n        const res = await fetch(`/api/places/reverse?lat=${coords.latitude}&lon=${coords.longitude}`, { cache: \"no-store\" });\n        const json = res.ok ? await res.json() as { result: { displayName: string | null; displayAddress: string; latitude: number; longitude: number } | null } : { result: null };\n        setPlaceResults([{\n          id: \"current-location\",\n          displayName: json.result?.displayName || \"現在地\",\n          displayAddress: json.result?.displayAddress || `緯度 ${coords.latitude.toFixed(5)} / 経度 ${coords.longitude.toFixed(5)}`,\n          latitude: coords.latitude,\n          longitude: coords.longitude,\n        }]);\n        setPlaceStatus(\"この場所で合ってる？\");\n      } finally {\n        setPlaceBusy(false);\n      }\n    }, () => {\n      setPlaceStatus(\"現在地を確認できなかったよ。位置情報の許可を確認してね。\");\n      setPlaceBusy(false);\n    }, { enableHighAccuracy: true, timeout: 10000 });\n  };\n\n  const ensureAnonymousSession = async () => {\n    const supabase = getSupabaseBrowserClient();\n    const current = await supabase.auth.getSession();\n    if (current.error) throw current.error;\n    if (current.data.session) return current.data.session;\n    const signedIn = await supabase.auth.signInAnonymously();\n    if (signedIn.error || !signedIn.data.session) throw signedIn.error ?? new Error(\"Anonymous sign-in failed\");\n    return signedIn.data.session;\n  };\n\n  const savePlace = async (place: typeof placeResults[number]) => {\n    const label = (placeLabels[place.id] ?? \"\").trim();\n    if (!label) return setPlaceStatus(\"この場所の名前を入れてね。\");\n    setSavingPlaceId(place.id);\n    setPlaceStatus(\"見張る場所を登録してるよ…\");\n    try {\n      const session = await ensureAnonymousSession();\n      const supabase = getSupabaseBrowserClient();\n      const { error } = await supabase.from(\"watch_targets\").insert({\n        owner_id: session.user.id,\n        label,\n        latitude: place.latitude,\n        longitude: place.longitude,\n        display_name: place.displayName,\n        display_address: place.displayAddress,\n        location_source: place.id === \"current-location\" ? \"CURRENT_LOCATION\" : \"SEARCH\",\n        enabled: true,\n        notifications_enabled: true,\n      });\n      if (error) throw error;\n      setPlaceStatus(`「${label}」を見張る場所に登録したよ。`);\n      setPlaceQuery(\"\");\n      setPlaceResults([]);\n      setPlaceLabels({});\n      await loadSavedTargets();\n    } catch {\n      setPlaceStatus(\"登録できなかったよ。少しあとでもう一度試してね。\");\n    } finally {\n      setSavingPlaceId(null);\n    }\n  };\n\n  const sourceValidAt = data?.sourceValidAt && /^\\d{14}$/.test(data.sourceValidAt)\n    ? new Date(`${data.sourceValidAt.slice(0,4)}-${data.sourceValidAt.slice(4,6)}-${data.sourceValidAt.slice(6,8)}T${data.sourceValidAt.slice(8,10)}:${data.sourceValidAt.slice(10,12)}:${data.sourceValidAt.slice(12,14)}Z`)\n    : null;\n  const sourceTimeLabel = sourceValidAt && !Number.isNaN(sourceValidAt.getTime())\n    ? sourceValidAt.toLocaleTimeString(\"ja-JP\", { hour: \"2-digit\", minute: \"2-digit\", timeZone: \"Asia/Tokyo\" })\n    : null;\n\n  const check = () => {\n    if (!navigator.geolocation) return setStatus(\"この端末では現在地を確認できないよ。\");\n    setData(null);\n    setLastCheckedAt(null);\n    setLocationAccuracy(null);\n    setBusy(true);\n    setStatus(\"いまいる場所を確認中…\");\n    navigator.geolocation.getCurrentPosition(async ({ coords }) => {\n      setLocationAccuracy(coords.accuracy);\n      try {\n        setStatus(\"最新の雨情報を確認中…\");\n        const res = await fetch(`/api/rain?lat=${coords.latitude}&lon=${coords.longitude}`, { cache: \"no-store\" });\n        if (!res.ok) throw new Error();\n        const json = (await res.json()) as RainResponse;\n        setData(json);\n        const serverCheckedAt = new Date(json.checkedAt);\n        setLastCheckedAt(Number.isNaN(serverCheckedAt.getTime()) ? new Date() : serverCheckedAt);\n        setStatus(json.interpretationEnabled\n          ? \"この場所の、このあとの雨を見たよ。\"\n          : \"情報は取れたけど、まだちゃんと判断できないところがあるよ。\");\n      } catch {\n        setData(null);\n        setStatus(\"いま最新の雨情報をうまく確認できないよ。雨が降らないって意味じゃないよ。\");\n      } finally { setBusy(false); }\n    }, () => {\n      setData(null);\n      setLastCheckedAt(null);\n      setLocationAccuracy(null);\n      setStatus(\"いまいる場所を確認できなかったよ。位置情報の許可を確認してね。\");\n      setBusy(false);\n    }, { enableHighAccuracy: true, timeout: 10000 });\n  };\n\n  return (\n    <main style={{ maxWidth: 680, margin: \"48px auto\", padding: 24, fontFamily: \"system-ui\", lineHeight: 1.7 }}>\n      <p style={{ marginBottom: 4, color: \"#666\" }}>EmergencyAlert 2026</p>\n      <h1 style={{ marginTop: 0, fontSize: 40 }}>アメくる？</h1>\n      <p>{status}</p>\n\n      {data && !data.interpretationEnabled && (\n        <section style={{ margin: \"28px 0\", padding: 24, border: \"1px solid #ddd\", borderRadius: 16 }}>\n          <div style={{ fontSize: 22, fontWeight: 700 }}>いまは、はっきり言えないよ。</div>\n          <div style={{ marginTop: 10, fontSize: 18 }}>雨が降らないって意味じゃないよ。</div>\n          <div style={{ marginTop: 10, fontSize: 14, color: \"#666\" }}>気象庁の雨情報は確認できたけど、この場所を安全に判定できる材料が足りなかったよ。</div>\n          {lastCheckedAt && (\n            <div style={{ marginTop: 18, fontSize: 13, color: \"#666\" }}>\n              {lastCheckedAt.toLocaleTimeString(\"ja-JP\", { hour: \"2-digit\", minute: \"2-digit\" })} 時点\n              {locationAccuracy !== null && ` ・ 現在地 ±${Math.round(locationAccuracy)}m`}\n              {sourceTimeLabel ? ` ・ 気象庁データ ${sourceTimeLabel}` : \" ・ 気象庁\"}\n            </div>\n          )}\n        </section>\n      )}\n\n      {data?.message && data.interpretation && (\n        <section style={{ margin: \"28px 0\", padding: 24, border: \"1px solid #ddd\", borderRadius: 16 }}>\n          <div style={{ fontSize: \"clamp(28px, 7vw, 44px)\", fontWeight: 800, lineHeight: 1.2, marginBottom: 16 }}>\n            {stateLabel(data.interpretation.state)}\n          </div>\n          <div style={{ fontSize: 22, fontWeight: 700 }}>{data.message.headline}</div>\n          <div style={{ marginTop: 10, fontSize: 18 }}>{data.message.detail}</div>\n          {lastCheckedAt && (\n            <div style={{ marginTop: 18, fontSize: 13, color: \"#666\" }}>\n              {lastCheckedAt.toLocaleTimeString(\"ja-JP\", { hour: \"2-digit\", minute: \"2-digit\" })} 時点\n              {locationAccuracy !== null && ` ・ 現在地 ±${Math.round(locationAccuracy)}m`}\n              {sourceTimeLabel ? ` ・ 気象庁データ ${sourceTimeLabel}` : \" ・ 気象庁\"}\n            </div>\n          )}\n        </section>\n      )}\n\n      <button onClick={check} disabled={busy} style={{ padding: \"13px 20px\", fontSize: 16, cursor: busy ? \"default\" : \"pointer\" }}>\n        {busy ? \"確認中…\" : data ? \"最新情報に更新\" : \"この場所の雨を確認\"}\n      </button>\n\n      <section style={{ marginTop: 40, paddingTop: 28, borderTop: \"1px solid #ddd\" }}>\n        <h2 style={{ marginBottom: 6 }}>通知</h2>\n        <p style={{ marginTop: 0, color: \"#666\" }}>見張っている場所で、今ならひと言かける意味がある変化があったときだけ知らせるよ。</p>\n        <button onClick={() => void enablePush()} disabled={pushBusy} style={{ padding: \"12px 16px\", fontSize: 16 }}>\n          {pushBusy ? \"設定中…\" : pushEnabled ? \"✓ 通知ON\" : \"通知を受け取る\"}\n        </button>\n        {pushStatus && <p style={{ color: \"#666\" }}>{pushStatus}</p>}\n      </section>\n\n      <section style={{ marginTop: 40, paddingTop: 28, borderTop: \"1px solid #ddd\" }}>\n        <h2 style={{ marginBottom: 6 }}>見張る場所を登録</h2>\n        <p style={{ marginTop: 0, color: \"#666\" }}>自宅や実家など、雨を見張ってほしい場所を選んでね。</p>\n        <button onClick={previewCurrentPlace} disabled={placeBusy} style={{ padding: \"12px 16px\", fontSize: 16 }}>\n          📍 現在地から選ぶ\n        </button>\n        <div style={{ display: \"flex\", gap: 8, marginTop: 18 }}>\n          <input value={placeQuery} onChange={(e) => setPlaceQuery(e.target.value)}\n            onKeyDown={(e) => { if (e.key === \"Enter\") void searchPlace(); }}\n            placeholder=\"住所・駅・学校・施設名など\" aria-label=\"見張る場所を検索\"\n            style={{ flex: 1, minWidth: 0, padding: \"12px 14px\", fontSize: 16 }} />\n          <button onClick={() => void searchPlace()} disabled={placeBusy} style={{ padding: \"12px 16px\", fontSize: 16 }}>検索</button>\n        </div>\n        {placeStatus && <p style={{ color: \"#666\" }}>{placeStatus}</p>}\n        {placeResults.map((place) => (\n          <div key={place.id} style={{ marginTop: 12, padding: 16, border: \"1px solid #ddd\", borderRadius: 12 }}>\n            <div style={{ fontWeight: 700 }}>{place.displayName}</div>\n            <div style={{ marginTop: 4, fontSize: 14, color: \"#666\" }}>{place.displayAddress}</div>\n            <label style={{ display: \"block\", marginTop: 14, fontSize: 14, fontWeight: 700 }} htmlFor={`place-label-${place.id}`}>\n              この場所の名前\n            </label>\n            <input\n              id={`place-label-${place.id}`}\n              value={placeLabels[place.id] ?? \"\"}\n              onChange={(e) => setPlaceLabels((labels) => ({ ...labels, [place.id]: e.target.value }))}\n              placeholder=\"例：自宅・実家・学校・職場\"\n              maxLength={30}\n              style={{ width: \"100%\", boxSizing: \"border-box\", marginTop: 6, padding: \"11px 12px\", fontSize: 16 }}\n            />\n            <button onClick={() => void savePlace(place)} disabled={savingPlaceId !== null} style={{ marginTop: 10, padding: \"9px 12px\" }}>{savingPlaceId === place.id ? \"登録中…\" : \"この場所を見張る\"}</button>\n          </div>\n        ))}\n      </section>\n\n   ",
+        "sha256": "3a904361b4ab35135825c1a2e60f81208a5e68223004d222c16af0b774bff571"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "c4559c3d7037081cf468f0a34ac6f1e3b7d87ab1",
+      "message": "fix: restore push subscription status on load\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/c4559c3d7037081cf468f0a34ac6f1e3b7d87ab1"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "c4559c3d7037081cf468f0a34ac6f1e3b7d87ab1",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/36142366017",
+      "id": 36142366017,
+      "updated_at": "2026-09-25T13:40:34Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "Home",
+    "base64",
+    "check",
+    "configuredKey",
+    "current",
+    "deleteTarget",
+    "enablePush",
+    "ensureAnonymousSession",
+    "existing",
+    "existingKey",
+    "json",
+    "keyMatches",
+    "label",
+    "loadSavedTargets",
+    "padding",
+    "permission",
+    "previewCurrentPlace",
+    "q",
+    "raw",
+    "registration",
+    "res",
+    "restorePushStatus",
+    "savePlace",
+    "searchPlace",
+    "serverCheckedAt",
+    "session",
+    "signedIn",
+    "sourceTimeLabel",
+    "sourceValidAt",
+    "stateLabel",
+    "subscription",
+    "supabase",
+    "toggleTarget",
+    "urlBase64ToUint8Array",
+    "vapidPublicKey"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "アプリ再起動時にPush通知状態を復元",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/27"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "da7b1375423eba1a8d5e488f01c9f114ee5ef3221ef87b511a980859f3530029",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}

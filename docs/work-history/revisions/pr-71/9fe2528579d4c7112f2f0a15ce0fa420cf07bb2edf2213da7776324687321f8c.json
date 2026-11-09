@@ -1,0 +1,713 @@
+{
+  "id": "pr-71",
+  "number": 71,
+  "title": "feat: optional eyewitness observation time for rain notification feedback",
+  "topics": [
+    "雨量・全国検知",
+    "通知・配信",
+    "開発管理"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更／通知・メール配信とその運用に関する変更／開発資産の把握・引継ぎ・レビューを支援する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Issue #70. Adds optional observed_at/source fields in a staged migration and a UI control for now / earlier time / unknown. Old feedback remains time unknown; updated_at is not substituted. Includes date parsing unit tests and disposable PostgreSQL migration checks. No production schema writes, no Edge/Push changes. Review and explicit approval required before deployment.",
+  "snapshot_head": "d7efe03e23f4b8bbb0e95f1de701a08f8fb38223",
+  "snapshot_consistent": true,
+  "head": "d7efe03e23f4b8bbb0e95f1de701a08f8fb38223",
+  "base": "e67c61b418983c358a84f1306221ddb43c9e6add",
+  "base_ref": "main",
+  "head_ref": "feat/feedback-observed-time-20261022",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-10-22T05:39:34Z",
+  "merge_commit_sha": "d3c02577db11ce7eab7f3c781d7a1f6ba9911c0a",
+  "updated_at": "2026-10-22T05:39:34Z",
+  "code_facts": [
+    {
+      "file": "docs/MY_RAIN_OBSERVATION_TIME_STAGE_20261022.md",
+      "kind": "テストの期待値・条件",
+      "expression": "- `tests/feedbackObservationTime.test.ts` に保持・明示変更・入力復元テストを追加。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/docs/MY_RAIN_OBSERVATION_TIME_STAGE_20261022.md"
+    },
+    {
+      "file": "docs/MY_RAIN_OBSERVATION_TIME_STAGE_20261022.md",
+      "kind": "テストの期待値・条件",
+      "expression": "- `tests/feedbackObservationTime.test.ts` に旧回答・地点フィルターに関する検証を追加。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/docs/MY_RAIN_OBSERVATION_TIME_STAGE_20261022.md"
+    },
+    {
+      "file": "docs/MY_RAIN_OBSERVATION_TIME_STAGE_20261022.md",
+      "kind": "テストの期待値・条件",
+      "expression": "- `tests/feedbackObservationTime.test.ts` に両ケースを追加した。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/docs/MY_RAIN_OBSERVATION_TIME_STAGE_20261022.md"
+    },
+    {
+      "file": "docs/sql/my-rain-feedback-observation-preflight.sql",
+      "kind": "テストの期待値・条件",
+      "expression": "-- columns/constraints diverge from the schema under test.",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/docs/sql/my-rain-feedback-observation-preflight.sql"
+    },
+    {
+      "file": "docs/sql/my-rain-feedback-observation-time.sql",
+      "kind": "SQL定義・権限",
+      "expression": "ALTER TABLE public.rain_notification_feedback",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/docs/sql/my-rain-feedback-observation-time.sql"
+    },
+    {
+      "file": "docs/sql/my-rain-feedback-observation-time.sql",
+      "kind": "SQL定義・権限",
+      "expression": "ALTER TABLE public.rain_notification_feedback",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/docs/sql/my-rain-feedback-observation-time.sql"
+    },
+    {
+      "file": "lib/weather/rain/feedbackObservationTime.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function localDateTimeInputToIso(value:string): string | null {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackObservationTime.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackObservationTime.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "if (!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$/.test(value)) return null;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackObservationTime.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackObservationTime.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!Number.isFinite(date.getTime())) return null;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackObservationTime.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackObservationTime.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function buildWeatherObservation(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackObservationTime.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackObservationTime.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!Number.isFinite(now.getTime())) throw new Error(\"invalid_current_time\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackObservationTime.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackObservationTime.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (choice === \"unknown\") return {observed_at:null,observed_time_source:\"UNKNOWN\"};",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackObservationTime.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackObservationTime.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (choice === \"now\") return {observed_at:now.toISOString(),observed_time_source:\"AT_RESPONSE\"};",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackObservationTime.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackObservationTime.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!iso) throw new Error(\"invalid_observed_time\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackObservationTime.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackObservationTime.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (observed > now.getTime()+5*60_000) throw new Error(\"future_observation\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackObservationTime.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackObservationTime.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (observed < now.getTime()-30*86400_000) throw new Error(\"too_old_observation\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackObservationTime.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackObservationTime.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function observedTimeLabel(source:ObservedTimeSource|null|undefined, observedAt:string|null):string {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackObservationTime.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackObservationTime.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!observedAt || !source || source === \"UNKNOWN\") return \"確認時刻は未登録\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackObservationTime.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackPhase1Repository.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export async function loadPhase2ObservationTimes(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackPhase1Repository.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackPhase1Repository.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (notificationIds.length === 0) return {};",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackPhase1Repository.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackPhase1Repository.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (notificationIds.some(id=>!Number.isSafeInteger(id)||id<=0)) throw new Error(\"invalid_notification_id\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackPhase1Repository.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackPhase1Repository.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const {data,error}=await client.from(\"rain_notification_feedback\")",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackPhase1Repository.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackPhase1Repository.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if(error) throw error;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackPhase1Repository.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackPhase1Repository.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if(!ids.has(row.notification_id))continue;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackPhase1Repository.ts"
+    },
+    {
+      "file": "lib/weather/rain/feedbackPhase1Repository.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if(!allowed.has(source))continue;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackPhase1Repository.ts"
+    },
+    {
+      "file": "tests/feedback-phase1-http.mjs",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(timeInitial.data[0].observed_at,null);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedback-phase1-http.mjs"
+    },
+    {
+      "file": "tests/feedback-phase1-http.mjs",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(timeInitial.data[0].observed_time_source,\"UNKNOWN\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedback-phase1-http.mjs"
+    },
+    {
+      "file": "tests/feedback-phase1-http.mjs",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(observed.data[0].observed_at,\"2026-10-21T00:40:00+00:00\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedback-phase1-http.mjs"
+    },
+    {
+      "file": "tests/feedback-phase1-http.mjs",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(observed.data[0].observed_time_source,\"RECALLED\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedback-phase1-http.mjs"
+    },
+    {
+      "file": "tests/feedback-phase1-http.mjs",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(malformedTime.status,400,\"database check constraint must reject a missing time\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedback-phase1-http.mjs"
+    },
+    {
+      "file": "tests/feedback-phase1-http.mjs",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(malformedTime.data.code,\"23514\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedback-phase1-http.mjs"
+    },
+    {
+      "file": "tests/feedbackObservationTime.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { describe, expect, it } from \"vitest\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedbackObservationTime.test.ts"
+    },
+    {
+      "file": "tests/feedbackObservationTime.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"the time rain was actually observed\",()=>{",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedbackObservationTime.test.ts"
+    },
+    {
+      "file": "tests/feedbackObservationTime.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"keeps unknown time null, never using notification or save time\",()=>{",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedbackObservationTime.test.ts"
+    },
+    {
+      "file": "tests/feedbackObservationTime.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(buildWeatherObservation(\"unknown\",\"\",now)).toEqual({observed_at:null,observed_time_source:\"UNKNOWN\"});",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedbackObservationTime.test.ts"
+    },
+    {
+      "file": "tests/feedbackObservationTime.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(observedTimeLabel(\"UNKNOWN\",null)).toBe(\"確認時刻は未登録\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedbackObservationTime.test.ts"
+    },
+    {
+      "file": "tests/feedbackObservationTime.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"captures response time only when the user says they checked right now\",()=>{",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedbackObservationTime.test.ts"
+    },
+    {
+      "file": "tests/feedbackObservationTime.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(buildWeatherObservation(\"now\",\"\",now)).toEqual({observed_at:now.toISOString(),observed_time_source:\"AT_RESPONSE\"});",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedbackObservationTime.test.ts"
+    },
+    {
+      "file": "tests/feedbackObservationTime.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"keeps earlier eyewitness time distinct from response time\",()=>{",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedbackObservationTime.test.ts"
+    },
+    {
+      "file": "tests/feedbackObservationTime.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(iso).not.toBeNull();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedbackObservationTime.test.ts"
+    },
+    {
+      "file": "tests/feedbackObservationTime.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(result).toEqual({observed_at:iso,observed_time_source:\"RECALLED\"});",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedbackObservationTime.test.ts"
+    },
+    {
+      "file": "tests/feedbackObservationTime.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"rejects missing, invalid, and future dates\",()=>{",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedbackObservationTime.test.ts"
+    },
+    {
+      "file": "tests/feedbackObservationTime.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(()=>buildWeatherObservation(\"earlier\",value,now)).toThrow();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedbackObservationTime.test.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/components/NotificationFeedbackHistory.tsx",
+      "status": "modified",
+      "additions": 85,
+      "deletions": 2,
+      "patch": "diff --git a/app/components/NotificationFeedbackHistory.tsx b/app/components/NotificationFeedbackHistory.tsx\nindex 107b337..7ab37ee 100644\n--- a/app/components/NotificationFeedbackHistory.tsx\n+++ b/app/components/NotificationFeedbackHistory.tsx\n@@ -3,7 +3,8 @@\n import { useCallback, useEffect, useState } from \"react\";\n import { getSupabaseBrowserClient } from \"../../lib/supabase/browser\";\n import { compactFeedbackHistory, filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, revealFeedbackCard, selectFeedbackHistory, summarizeFeedbackObservations, toggleFeedbackCard, watchedPlaceLabel } from \"../../lib/weather/rain/feedbackPhase1\";\n-import { loadPhase1Feedback, savePhase1Feedback, type WeatherFeedbackAnswer } from \"../../lib/weather/rain/feedbackPhase1Repository\";\n+import { loadPhase1Feedback, loadPhase2ObservationTimes, savePhase1Feedback, type WeatherFeedbackAnswer } from \"../../lib/weather/rain/feedbackPhase1Repository\";\n+import { observationAsLocalInput, observationVsDeliveryLabel, observedTimeLabel, resolveFeedbackObservation, summarizeObservationTimeCoverage, type ObservationChoice, type WeatherObservation } from \"../../lib/weather/rain/feedbackObservationTime\";\n \n type Delivery = {\n   id: number;\n@@ -47,6 +48,9 @@ export default function NotificationFeedbackHistory() {\n   const [notifications, setNotifications] = useState<Delivery[]>([]);\n   const [targetLabels, setTargetLabels] = useState<Record<string, string>>({});\n   const [answers, setAnswers] = useState<Record<number, Answer>>({});\n+  const [observationTimes, setObservationTimes] = useState<Record<number,WeatherObservation>>({});\n+  const [observationChoices, setObservationChoices] = useState<Record<number,ObservationChoice>>({});\n+  const [earlierInputs, setEarlierInputs] = useState<Record<number,string>>({});\n   const [feedbackReady, setFeedbackReady] = useState(false);\n   const [message, setMessage] = useState(\"通知履歴を読み込み中…\");\n   const [saving, setSaving] = useState<number | null>(null);\n@@ -64,6 +68,9 @@ export default function NotificationFeedbackHistory() {\n       setTargetLabels({});\n       setFeedbackReady(false);\n       setAnswers({});\n+      setObservationTimes({});\n+      setObservationChoices({});\n+      setEarlierInputs({});\n       return;\n     }\n     try {\n@@ -74,6 +81,9 @@ export default function NotificationFeedbackHistory() {\n         setNotifications([]);\n         setTargetLabels({});\n         setAnswers({});\n+        setObservationTimes({});\n+        setObservationChoices({});\n+        setEarlierInputs({});\n         setFeedbackReady(false);\n         setMessage(\"この通知を受け取った端末・アカウントで開いてね。\");\n         return;\n@@ -102,17 +112,21 @@ export default function NotificationFeedbackHistory() {\n       }\n       if (rows.length === 0) {\n         setAnswers({});\n+        setObservationTimes({});\n         setFeedbackReady(false);\n         setMessage(\"最近7日間の通知はまだないよ。\");\n         return;\n       }\n       try {\n         const recorded = await loadPhase1Feedback(client, rows.map(row => row.id));\n+        const times = await loadPhase2ObservationTimes(client, rows.map(row => row.id));\n         setAnswers(recorded);\n+        setObservationTimes(times);\n         setFeedbackReady(true);\n         setMessage(\"\");\n       } catch {\n         setAnswers({});\n+        setObservationTimes({});\n         setFeedbackReady(false);\n         setMessage(\"通知履歴は表示できるよ。回答機能はまだ準備中だよ。\");\n       }\n@@ -120,6 +134,7 @@ export default function NotificationFeedbackHistory() {\n       setNotifications([]);\n       setTargetLabels({});\n       setAnswers({});\n+      setObservationTimes({});\n       setFeedbackReady(false);\n       setMessage(\"通知履歴を読み込めなかったよ。少しあとでもう一度試してね。\");\n     }\n@@ -191,13 +206,25 @@ export default function NotificationFeedbackHistory() {\n       setMessage(\"「降らなかった」「止まなかった」は、通知から1時間以上たってから回答してね。\");\n       return;\n     }\n+    let observation:WeatherObservation;\n+    try {\n+      observation = resolveFeedbackObservation(\n+        observationChoices[notification.id], observationTimes[notification.id],\n+        earlierInputs[notification.id], new Date(),\n+      );\n+    } catch {\n+      setMessage(\"確認時刻を確認してね。未来の時刻や30日以上前は指定できないよ。\");\n+      return;\n+    }\n     setSaving(notification.id);\n     setSaved(null);\n     setMessage(\"\");\n     try {\n       const client = getSupabaseBrowserClient();\n-      await savePhase1Feedback(client, notification.id, answer);\n+      await savePhase1Feedback(client, notification.id, answer, observation);\n       setAnswers(prev => ({ ...prev, [notification.id]: answer }));\n+      setObservationTimes(prev => ({...prev,[notification.id]:observation}));\n+      setObservationChoices(prev=>{const next={...prev};delete next[notification.id];return next;});\n       setSaved(notification.id);\n     } catch {\n       setMessage(\"回答を保存できなかったよ。少しあとでもう一度試してね。\");\n@@ -213,6 +240,7 @@ export default function NotificationFeedbackHistory() {\n   const observations = summarizeFeedbackObservations(selectedNotifications, answers);\n   const compactHistory = compactFeedbackHistory(visible, shownCount, focusedNotificationId);\n   const targetIds = [...new Set(notifications.map(n => n.target_id))];\n+  const timingCoverage = summarizeObservationTimeCoverage(selectedNotifications.map(n=>n.id),answers,observationTimes);\n \n   return (\n     <section style={{ margin: \"28px 0\", padding: 20, border: \"1px solid rgba(255,255,255,.15)\", borderRadius: 20, background: \"rgba(24,55,88,.8)\" }}>\n@@ -243,6 +271,12 @@ export default function NotificationFeedbackHistory() {\n             </label>\n           )}\n           <div style={{ fontSize: 14, marginBottom: 8 }}>回答できる通知：{history.answerable}件／回答済み：{history.answered}件／未回答：{unanswered}件</div>\n+          {timingCoverage.answered > 0 && (\n+            <p style={{fontSize:13,margin:\"0 0 12px\",color:\"#d6e6f5\"}}>\n+              🕒 実際の確認時刻が記録された回答：{timingCoverage.withTime}件\n+              ／時刻不明：{timingCoverage.withoutTime}件\n+            </p>\n+          )}\n           {observations.answered > 0 && (\n             <div aria-label=\"実際の天気の回答集計\" style={{ marginBottom: 14, padding: \"10px 12px\",\n               border: \"1px solid rgba(125,211,252,.4)\", borderRadius: 12, background: \"rgba(28,74,105,.5)\" }}>\n@@ -275,6 +309,8 @@ export default function NotificationFeedbackHistory() {\n         const options = FEEDBACK_OPTIONS[notification.event_type] ?? [];\n         const selected = options.find(([value]) => value === answers[notification.id]);\n         const expanded = expandedIds.includes(notification.id);\n+        const existingObservation = observationTimes[notification.id];\n+        const selectedObservation = observationChoices[notification.id] ?? (existingObservation?.observed_time_source === \"AT_RESPONSE\" ? \"now\" : existingObservation?.observed_time_source === \"RECALLED\" ? \"earlier\" : \"unknown\");\n         return (\n           <div id={`rain-feedback-${notification.id}`} key={notification.id} style={{ marginTop: 16, paddingTop: 14, borderTop: \"1px solid rgba(255,255,255,.15)\", scrollMarginTop: 24, outline: focusedNotificationId === notification.id ? \"2px solid #7dd3fc\" : \"none\", borderRadius: 8 }}>\n             {focusedNotificationId === notification.id && <p style={{ margin: \"0 0 5px\", fontSize: 13, color: \"#b8efff\", fontWeight: 700 }}>📩 選んだ通知はこちら</p>}\n@@ -304,6 +340,53 @@ export default function NotificationFeedbackHistory() {\n             {options.length ? (\n               <>\n                 <div style={{ fontSize: 13, marginTop: 10 }}>この見張り地点の天気を実際に確認できた？ 確認できないときは「わからない」を選んでね。</div>\n+                <div style={{ marginTop: 10, padding: \"10px 0\", fontSize: 13 }}>\n+                  <label htmlFor={`rain-observed-choice-${notification.id}`} style={{display:\"block\",marginBottom:6}}>\n+                    🕒 実際に天気を確認した時刻（任意）\n+                  </label>\n+                  <select id={`rain-observed-choice-${notification.id}`} value={selectedObservation}\n+                    onChange={event=>{\n+                      const choice = event.target.value as ObservationChoice;\n+                      setObservationChoices(prev=>({...prev,[notification.id]:choice}));\n+                    }}\n+                    style={{ padding:\"8px 10px\",maxWidth:\"100%\",width:\"100%\",borderRadius:8,color:\"#fff\",background:\"#284e75\",border:\"1px solid #7799b8\" }}>\n+                    <option value=\"unknown\">覚えていない・確認していない</option>\n+                    <option value=\"now\">今、その場所で確認した</option>\n+                    <option value=\"earlier\">以前に確認した（日時を入力）</option>\n+                  </select>\n+                  {selectedObservation === \"earlier\" && (\n+                    <label style={{display:\"block\",marginTop:8}}>\n+                      確認した日時（端末の現地時間）\n+                      <input type=\"datetime-local\" value={earlierInputs[notification.id] ?? observationAsLocalInput(existingObservation?.observed_at)}\n+                        onChange={event=>{\n+                          setEarlierInputs(prev=>({...prev,[notification.id]:event.target.value}));\n+                          setObservationChoices(prev=>({...prev,[notification.id]:\"earlier\"}));\n+                        }}\n+                        style={{display:\"block\",width:\"100%\",maxWidth:\"100%\",marginTop:4,padding:8,borderRadius:8,\n+                          color:\"#fff\",background:\"#284e75\",border:\"1px solid #7799b8\"}} />\n+                    </label>\n+                  )}\n+                  {existingObservation && <div style={{color:\"#bbf7d0\",marginTop:6}}>\n+                    記録済み：{observedTimeLabel(existingObservation.observed_time_source,existingObservation.observed_at)}\n+                    {observationVsDeliveryLabel(notification.delivered_at,existingObservation.observed_at) && (\n+                      <div style={{fontSize:12,color:\"#d6e6f5\",marginTop:3}}>\n+                        {observationVsDeliveryLabel(notification.delivered_at,existingObservation.observed_at)}\n+                        （通知が正確だったかは、これだけでは判断できないよ）\n+                      </div>\n+                    )}\n+                  </div>}\n+                  <div style={{fontSize:12,color:\"#d6e6f5\",marginTop:5}}>\n+                    通知時刻や回答保存時刻とは別に記録するよ。未入力でも回答できるよ。\n+                  </div>\n+                  {selected && observationChoices[notification.id] !== undefined && (\n+                    <button type=\"button\" disabled={!feedbackReady || saving === notification.id}\n+                      onClick={() => void save(notification, answers[notification.id])}\n+                      style={{marginTop:9,padding:\"8px 11px\",borderRadius:9,color:\"#fff\",\n+                        background:\"#284e75\",border:\"1px solid #7dd3fc\",cursor:\"pointer\"}}>\n+                      🕒 この回答の確認時刻だけ保存\n+                    </button>\n+                  )}\n+                </div>\n                 <div style={{ display: \"flex\", flexWrap: \"wrap\", gap: 7, marginTop: 7 }}>\n                   {options.map(([value, label]) => (\n                     <button key={value} type=\"button\" disabled={!feedbackReady || saving === notification.id ||\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/app/components/NotificationFeedbackHistory.tsx",
+      "source": {
+        "path": "app/components/NotificationFeedbackHistory.tsx",
+        "coverage": "先頭18000文字・原本リンク参照",
+        "text": "\"use client\";\n\nimport { useCallback, useEffect, useState } from \"react\";\nimport { getSupabaseBrowserClient } from \"../../lib/supabase/browser\";\nimport { compactFeedbackHistory, filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, revealFeedbackCard, selectFeedbackHistory, summarizeFeedbackObservations, toggleFeedbackCard, watchedPlaceLabel } from \"../../lib/weather/rain/feedbackPhase1\";\nimport { loadPhase1Feedback, loadPhase2ObservationTimes, savePhase1Feedback, type WeatherFeedbackAnswer } from \"../../lib/weather/rain/feedbackPhase1Repository\";\nimport { observationAsLocalInput, observationVsDeliveryLabel, observedTimeLabel, resolveFeedbackObservation, summarizeObservationTimeCoverage, type ObservationChoice, type WeatherObservation } from \"../../lib/weather/rain/feedbackObservationTime\";\n\ntype Delivery = {\n  id: number;\n  target_id: string;\n  event_type: string;\n  body: string;\n  delivered_at: string;\n};\ntype Answer = WeatherFeedbackAnswer;\ntype Option = readonly [Answer, string];\n\nexport const FEEDBACK_OPTIONS: Record<string, readonly Option[]> = {\n  ACTIONABLE_RAIN_APPROACHING: [\n    [\"RAINED\", \"☔ 降った\"], [\"DID_NOT_RAIN\", \"☁️ 降らなかった\"],\n    [\"ALREADY_RAINING\", \"🌧️ すでに降っていた\"], [\"UNKNOWN\", \"❓ わからない\"],\n  ],\n  RAIN_APPROACHING: [\n    [\"RAINED\", \"☔ 降った\"], [\"DID_NOT_RAIN\", \"☁️ 降らなかった\"],\n    [\"ALREADY_RAINING\", \"🌧️ すでに降っていた\"], [\"UNKNOWN\", \"❓ わからない\"],\n  ],\n  RAIN_RETURNING: [\n    [\"RAINED\", \"☔ 降った\"], [\"DID_NOT_RAIN\", \"☁️ 降らなかった\"],\n    [\"ALREADY_RAINING\", \"🌧️ すでに降っていた\"], [\"UNKNOWN\", \"❓ わからない\"],\n  ],\n  RAIN_ENDING: [\n    [\"STOPPED\", \"☀️ 止んだ\"], [\"DID_NOT_STOP\", \"🌧️ 止まなかった\"],\n    [\"ALREADY_DRY\", \"☁️ すでに降っていなかった\"], [\"UNKNOWN\", \"❓ わからない\"],\n  ],\n};\n\n// Phase 1 has no persisted forecast target time on legacy Push rows.\n// Avoid presenting a negative outcome as verified immediately after delivery.\nfunction formatTokyo(timestamp: string): string {\n  return new Date(timestamp).toLocaleString(\"ja-JP\", {\n    timeZone: \"Asia/Tokyo\", month: \"numeric\", day: \"numeric\",\n    hour: \"2-digit\", minute: \"2-digit\",\n  });\n}\n\nexport default function NotificationFeedbackHistory() {\n  const [notifications, setNotifications] = useState<Delivery[]>([]);\n  const [targetLabels, setTargetLabels] = useState<Record<string, string>>({});\n  const [answers, setAnswers] = useState<Record<number, Answer>>({});\n  const [observationTimes, setObservationTimes] = useState<Record<number,WeatherObservation>>({});\n  const [observationChoices, setObservationChoices] = useState<Record<number,ObservationChoice>>({});\n  const [earlierInputs, setEarlierInputs] = useState<Record<number,string>>({});\n  const [feedbackReady, setFeedbackReady] = useState(false);\n  const [message, setMessage] = useState(\"通知履歴を読み込み中…\");\n  const [saving, setSaving] = useState<number | null>(null);\n  const [saved, setSaved] = useState<number | null>(null);\n  const [filter, setFilter] = useState<\"all\" | \"unanswered\" | \"answered\">(\"all\");\n  const [selectedTargetId, setSelectedTargetId] = useState(\"all\");\n  const [shownCount, setShownCount] = useState(2);\n  const [expandedIds, setExpandedIds] = useState<number[]>([]);\n  const [focusedNotificationId, setFocusedNotificationId] = useState<number | null>(null);\n\n  const refresh = useCallback(async () => {\n    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {\n      setMessage(\"この検証画面では通知履歴を利用できないよ。\");\n      setNotifications([]);\n      setTargetLabels({});\n      setFeedbackReady(false);\n      setAnswers({});\n      setObservationTimes({});\n      setObservationChoices({});\n      setEarlierInputs({});\n      return;\n    }\n    try {\n      const client = getSupabaseBrowserClient();\n      const { data: { session }, error: authError } = await client.auth.getSession();\n      if (authError) throw authError;\n      if (!session) {\n        setNotifications([]);\n        setTargetLabels({});\n        setAnswers({});\n        setObservationTimes({});\n        setObservationChoices({});\n        setEarlierInputs({});\n        setFeedbackReady(false);\n        setMessage(\"この通知を受け取った端末・アカウントで開いてね。\");\n        return;\n      }\n      const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();\n      const { data, error } = await client.from(\"notification_deliveries\")\n        .select(\"id,target_id,event_type,body,delivered_at\")\n        .gte(\"delivered_at\", since)\n        .gt(\"delivered_count\", 0)\n        .order(\"delivered_at\", { ascending: false })\n        .limit(200);\n      if (error) throw error;\n      const rows = (data ?? []) as Delivery[];\n      setNotifications(rows);\n      // Historical answers must always be described using the registered\n      // watched place; device location and target location may be different.\n      const ids = [...new Set(rows.map(row => row.target_id))];\n      if (ids.length) {\n        const { data: targets, error: targetError } = await client\n          .from(\"watch_targets\").select(\"id,label\").in(\"id\", ids);\n        setTargetLabels(!targetError ? Object.fromEntries(\n          (targets ?? []).map(target => [target.id, String(target.label ?? \"\")]),\n        ) : {});\n      } else {\n        setTargetLabels({});\n      }\n      if (rows.length === 0) {\n        setAnswers({});\n        setObservationTimes({});\n        setFeedbackReady(false);\n        setMessage(\"最近7日間の通知はまだないよ。\");\n        return;\n      }\n      try {\n        const recorded = await loadPhase1Feedback(client, rows.map(row => row.id));\n        const times = await loadPhase2ObservationTimes(client, rows.map(row => row.id));\n        setAnswers(recorded);\n        setObservationTimes(times);\n        setFeedbackReady(true);\n        setMessage(\"\");\n      } catch {\n        setAnswers({});\n        setObservationTimes({});\n        setFeedbackReady(false);\n        setMessage(\"通知履歴は表示できるよ。回答機能はまだ準備中だよ。\");\n      }\n    } catch {\n      setNotifications([]);\n      setTargetLabels({});\n      setAnswers({});\n      setObservationTimes({});\n      setFeedbackReady(false);\n      setMessage(\"通知履歴を読み込めなかったよ。少しあとでもう一度試してね。\");\n    }\n  }, []);\n\n  useEffect(() => {\n    void refresh();\n    const interval = window.setInterval(() => void refresh(), 5 * 60 * 1000);\n    const onVisible = () => { if (document.visibilityState === \"visible\") void refresh(); };\n    document.addEventListener(\"visibilitychange\", onVisible);\n\n    // The user may register a watched place (anonymous Supabase sign-in)\n    // without leaving this page. Refresh feedback immediately after sign-in.\n    // Never call Supabase async APIs inside onAuthStateChange itself.\n    // Same-tab registration may use a separate Supabase client instance.\n    // The registration flow emits this event after a new anonymous session.\n    const onRegistered = () => void refresh();\n    window.addEventListener(\"amefuru:auth-ready\", onRegistered);\n\n    // Subscribe only in configured environments. Supabase callbacks are\n    // synchronous: defer refresh instead of invoking async auth methods inside.\n    let pendingAuthRefresh: number | null = null;\n    const subscription = (process.env.NEXT_PUBLIC_SUPABASE_URL &&\n      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)\n      ? getSupabaseBrowserClient().auth.onAuthStateChange((event) => {\n        if (event !== \"SIGNED_IN\" && event !== \"SIGNED_OUT\") return;\n        if (pendingAuthRefresh !== null) window.clearTimeout(pendingAuthRefresh);\n        pendingAuthRefresh = window.setTimeout(() => {\n          pendingAuthRefresh = null;\n          void refresh();\n        }, 0);\n      }).data.subscription : null;\n    return () => {\n      window.clearInterval(interval);\n      document.removeEventListener(\"visibilitychange\", onVisible);\n      window.removeEventListener(\"amefuru:auth-ready\", onRegistered);\n      if (pendingAuthRefresh !== null) window.clearTimeout(pendingAuthRefresh);\n      subscription?.unsubscribe();\n    };\n  }, [refresh]);\n\n  // Phase 1: links from today's alerts work without changing the Push payload.\n  useEffect(() => {\n    const readHash = () => {\n      const focused = parseFeedbackHash(window.location.hash);\n      setFocusedNotificationId(focused);\n      if (focused !== null) setExpandedIds(previous => revealFeedbackCard(previous, focused));\n      if (focused !== null) {\n        // A link from today's alert should work even after choosing a\n        // different location in the history filter.\n        setSelectedTargetId(\"all\");\n      }\n    };\n    readHash();\n    window.addEventListener(\"hashchange\", readHash);\n    return () => window.removeEventListener(\"hashchange\", readHash);\n  }, []);\n\n  useEffect(() => {\n    if (focusedNotificationId === null || !notifications.some(n => n.id === focusedNotificationId)) return;\n    document.getElementById(`rain-feedback-${focusedNotificationId}`)\n      ?.scrollIntoView({ block: \"start\", behavior: \"smooth\" });\n  }, [focusedNotificationId, notifications, filter]);\n\n  const save = async (notification: Delivery, answer: Answer) => {\n    const allowed = FEEDBACK_OPTIONS[notification.event_type];\n    if (!feedbackReady || !allowed?.some(([value]) => value === answer)) return;\n    if (negativeFeedbackNeedsWait(answer, notification.delivered_at, Date.now())) {\n      setMessage(\"「降らなかった」「止まなかった」は、通知から1時間以上たってから回答してね。\");\n      return;\n    }\n    let observation:WeatherObservation;\n    try {\n      observation = resolveFeedbackObservation(\n        observationChoices[notification.id], observationTimes[notification.id],\n        earlierInputs[notification.id], new Date(),\n      );\n    } catch {\n      setMessage(\"確認時刻を確認してね。未来の時刻や30日以上前は指定できないよ。\");\n      return;\n    }\n    setSaving(notification.id);\n    setSaved(null);\n    setMessage(\"\");\n    try {\n      const client = getSupabaseBrowserClient();\n      await savePhase1Feedback(client, notification.id, answer, observation);\n      setAnswers(prev => ({ ...prev, [notification.id]: answer }));\n      setObservationTimes(prev => ({...prev,[notification.id]:observation}));\n      setObservationChoices(prev=>{const next={...prev};delete next[notification.id];return next;});\n      setSaved(notification.id);\n    } catch {\n      setMessage(\"回答を保存できなかったよ。少しあとでもう一度試してね。\");\n    } finally {\n      setSaving(null);\n    }\n  };\n\n  const selectedNotifications = filterFeedbackByTarget(notifications, selectedTargetId);\n  const history = selectFeedbackHistory(selectedNotifications, answers,\n    new Set(Object.keys(FEEDBACK_OPTIONS)), filter, focusedNotificationId);\n  const { visible, unanswered } = history;\n  const observations = summarizeFeedbackObservations(selectedNotifications, answers);\n  const compactHistory = compactFeedbackHistory(visible, shownCount, focusedNotificationId);\n  const targetIds = [...new Set(notifications.map(n => n.target_id))];\n  const timingCoverage = summarizeObservationTimeCoverage(selectedNotifications.map(n=>n.id),answers,observationTimes);\n\n  return (\n    <section style={{ margin: \"28px 0\", padding: 20, border: \"1px solid rgba(255,255,255,.15)\", borderRadius: 20, background: \"rgba(24,55,88,.8)\" }}>\n      <h2 style={{ marginTop: 0, marginBottom: 6 }}>🌧️ 届いた通知の天気を教えてね</h2>\n      <p style={{ marginTop: 0, fontSize: 14, color: \"#eef5ff\" }}>\n        直近2件を表示しているよ。通知をタップすると回答できるよ。\n        見ていない場所なら「わからない」で大丈夫だよ。\n      </p>\n      {message && <p role=\"status\" style={{ color: \"#ffe1a0\" }}>{message}</p>}\n      <button type=\"button\" onClick={() => void refresh()} disabled={saving !== null}\n        style={{ marginBottom: 12, padding: \"7px 12px\", borderRadius: 10, color: \"#eaf2ff\",\n          border: \"1px solid #7799b8\", background: \"#284e75\", cursor: \"pointer\" }}>\n        ↻ 通知履歴を更新\n      </button>\n      {feedbackReady && (\n        <>\n          {targetIds.length > 1 && (\n            <label style={{ display: \"block\", marginBottom: 12, fontSize: 14, color: \"#eaf2ff\" }}>\n              📍 見張る場所で絞り込む\n              <select aria-label=\"通知履歴の地点\" value={selectedTargetId} onChange={event => { setSelectedTargetId(event.target.value); setShownCount(2); }}\n                style={{ display: \"block\", width: \"100%\", padding: \"9px 12px\", marginTop: 6, borderRadius: 10,\n                  color: \"#fff\", background: \"#284e75\", border: \"1px solid #7799b8\" }}>\n                <option value=\"all\">すべての見張り地点</option>\n                {targetIds.map(id => (\n                  <option key={id} value={id}>{watchedPlaceLabel(id, targetLabels)}</option>\n                ))}\n              </select>\n            </label>\n          )}\n          <div style={{ fontSize: 14, marginBottom: 8 }}>回答できる通知：{history.answerable}件／回答済み：{history.answered}件／未回答：{unanswered}件</div>\n          {timingCoverage.answered > 0 && (\n            <p style={{fontSize:13,margin:\"0 0 12px\",color:\"#d6e6f5\"}}>\n              🕒 実際の確認時刻が記録された回答：{timingCoverage.withTime}件\n              ／時刻不明：{timingCoverage.withoutTime}件\n            </p>\n          )}\n          {observations.answered > 0 && (\n            <div aria-label=\"実際の天気の回答集計\" style={{ marginBottom: 14, padding: \"10px 12px\",\n              border: \"1px solid rgba(125,211,252,.4)\", borderRadius: 12, background: \"rgba(28,74,105,.5)\" }}>\n              <div style={{ fontSize: 14, fontWeight: 700 }}>☔ 届いた回答の内訳（この地点の履歴）</div>\n              <div style={{ display: \"flex\", flexWrap: \"wrap\", gap: \"5px 13px\", fontSize: 13, marginTop: 6 }}>\n                <span>🌧️ 雨が降った・続いた：{observations.observedRain}件</span>\n                <span>☀️ 降らなかった・止んだ：{observations.observedDry}件</span>\n                <span>🕒 確認したときにはすでに変化：{observations.alreadyChanged}件</span>\n                <span>❓ わからない：{observations.unknown}件</span>\n              </div>\n              <div style={{ fontSize: 12, color: \"#d6e6f5\", marginTop: 6 }}>\n                回答を見やすく数えたものだよ。実際に天気を見た時刻はまだ記録していないので、通知の早い・遅い／予測の的中は判断できないよ。\n              </div>\n            </div>\n          )}\n          <div aria-label=\"通知履歴の絞り込み\" role=\"group\" style={{ display: \"flex\", flexWrap: \"wrap\", gap: 8 }}>\n            {([[\"all\", \"すべて\"], [\"unanswered\", \"未回答だけ\"], [\"answered\", \"回答済みだけ\"]] as const).map(([key, label]) => (\n              <button key={key} type=\"button\" aria-pressed={filter === key}\n                onClick={() => { setFilter(key); setShownCount(2); }}\n                style={{ padding: \"8px 12px\", borderRadius: 10, color: \"#fff\", cursor: \"pointer\",\n                  border: filter === key ? \"2px solid #7dd3fc\" : \"1px solid #7799b8\",\n                  background: \"#284e75\" }}>{label}</button>\n            ))}\n          </div>\n          {filter === \"unanswered\" && unanswered === 0 && <p>未回答の通知はないよ。ありがとう！</p>}\n          {filter === \"answered\" && history.answered === 0 && <p>回答済みの通知はまだないよ。</p>}\n        </>\n      )}\n      {compactHistory.items.map(notification => {\n        const options = FEEDBACK_OPTIONS[notification.event_type] ?? [];\n        const selected = options.find(([value]) => value === answers[notification.id]);\n        const expanded = expandedIds.includes(notification.id);\n        const existingObservation = observationTimes[notification.id];\n        const selectedObservation = observationChoices[notification.id] ?? (existingObservation?.observed_time_source === \"AT_RESPONSE\" ? \"now\" : existingObservation?.observed_time_source === \"RECALLED\" ? \"earlier\" : \"unknown\");\n        return (\n          <div id={`rain-feedback-${notification.id}`} key={notification.id} style={{ marginTop: 16, paddingTop: 14, borderTop: \"1px solid rgba(255,255,255,.15)\", scrollMarginTop: 24, outline: focusedNotificationId === notification.id ? \"2px solid #7dd3fc\" : \"none\", borderRadius: 8 }}>\n            {focusedNotificationId === notification.id && <p style={{ margin: \"0 0 5px\", fontSize: 13, color: \"#b8efff\", fontWeight: 700 }}>📩 選んだ通知はこちら</p>}\n            <button type=\"button\"\n              aria-expanded={expanded}\n              aria-controls={`rain-feedback-answer-${notification.id}`}\n              onClick={() => setExpandedIds(previous => toggleFeedbackCard(previous, notification.id))}\n              style={{ width: \"100%\", border: \"none\", background: \"transparent\", padding: \"6px 0\",\n                color: \"#fff\", textAlign: \"left\", cursor: \"pointer\" }}>\n              <span style={{ display: \"block\", fontSize: 13, marginBottom: 5, color: \"#b8efff\", fontWeight: 700 }}>\n                📍 {watchedPlaceLabel(notification.target_id, targetLabels)}\n              </span>\n              <span style={{ display: \"block\", fontWeight: 700, lineHeight: 1.5 }}>{notification.body}</span>\n              <span style={{ display: \"block\", fontSize: 13, marginTop: 5, color: \"#eef5ff\" }}>\n                {formatTokyo(notification.delivered_at)} に通知\n              </span>\n              <span style={{ display: \"block\", fontSize: 13, marginTop: 6,\n                color: selected ? \"#bbf7d0\" : \"#b8efff\" }}>\n                {selected ? `✅ 回答済み：${selected[1]}` : options.length ? \"✏️ 未回答\" : \"通知のみ\"}\n                {\"　\"}{expanded ? \"▲ 閉じる\" : selected ? \"▼ 回答を確認・変更\" : \"▼ 回答する\"}\n              </span>\n            </button>\n            {expanded && <div id={`rain-feedback-answer-${notification.id}`}>\n            {selected && <div role=\"status\" style={{ marginTop: 6, color: \"#bbf7d0\" }}>\n              {saved === notification.id ? \"✓ 保存したよ\" : \"回答内容は変更できるよ\"}\n            </div>}\n            {options.length ? (\n              <>\n                <div style={{ fontSize: 13, marginTop: 10 }}>この見張り地点の天気を実際に確認できた？ 確認できないときは「わからない」を選んでね。</div>\n                <div style={{ marginTop: 10, padding: \"10px 0\", fontSize: 13 }}>\n                  <label htmlFor={`rain-observed-choice-${notification.id}`} style={{display:\"block\",marginBottom:6}}>\n                    🕒 実際に天気を確認した時刻（任意）\n                  </label>\n                  <select id={`rain-observed-choice-${notification.id}`} value={selectedObservation}\n                    onChange={event=>{\n                      const choice = event.target.value as ObservationChoice;\n                      setObservationChoices(prev=>({...prev,[notification.id]:choice}));\n                    }}\n                    style={{ padding:\"8px 10px\",maxWidth:\"100%\",width:\"100%\",borderRadius:8,color:\"#fff\",background:\"#284e75\",border:\"1px solid",
+        "sha256": "7e09717e0589d8996609d130d91d7e557d0d7729dec6f2d23c7bf5b226b911c7"
+      }
+    },
+    {
+      "path": "docs/MY_RAIN_OBSERVATION_TIME_STAGE_20261022.md",
+      "status": "modified",
+      "additions": 72,
+      "deletions": 0,
+      "patch": "diff --git a/docs/MY_RAIN_OBSERVATION_TIME_STAGE_20261022.md b/docs/MY_RAIN_OBSERVATION_TIME_STAGE_20261022.md\nnew file mode 100644\nindex 0000000..8ad9f20\n--- /dev/null\n+++ b/docs/MY_RAIN_OBSERVATION_TIME_STAGE_20261022.md\n@@ -0,0 +1,72 @@\n+# フィードバックの「実際に天気を見た時刻」第2段階（Issue #70）\n+\n+## 目的\n+既存回答の `updated_at`（回答の保存・変更時刻）、通知の `delivered_at`（配信時刻）、実際に現地を見た `observed_at`（観測時刻）を**混同しない**。\n+\n+## 開発内容（このPRで本番未反映）\n+- 「確認した時刻は不明／今この場所で確認した／以前確認した」の選択を回答カードの中に追加。\n+- 今の観測を選んだ場合に限り、その回答時に `observed_at` を記録。以前の観測は利用者入力日時を変換。覚えていない・確認していない場合はNULL。\n+- `observed_time_source`：`UNKNOWN`／`AT_RESPONSE`／`RECALLED` を明示し、観測時刻が入力された根拠を区別。\n+- SQLは `docs/sql/my-rain-feedback-observation-time.sql` に**提案だけを保存**。追加カラム2件のみ、既存回答の時刻を過去の `updated_at` で埋めたりしない。旧回答は `observed_at=NULL`。\n+- 不明時刻でもフィードバック回答できる。時刻なしの回答を精度不良扱いしない。\n+- 単体テスト＋既存PostgreSQL RLS/HTTPテストへ観測日時の読書き・既存回答のNULL保持を追加。現行の配信/Push処理は変更なし。\n+\n+## 実装上の留意点\n+- 「今」は現地で実際に目視した場合だけ。過去の天気を推測して今の日時を付けない。\n+- `RECALLED` の入力はiPhoneの現地時間（日時ローカル入力）。30日以上過去、未来時刻はクライアントで拒否。\n+- 旧回答を単に変更する場合は既存の観測時刻と情報源を維持し、勝手に「今」に変えない。\n+- **いまの回答時刻や観測時刻が得られても、過去の通知には予測対象時刻が保存されていない。通知タイミングや的中率の自動判定には使わない。**\n+- 現在のSupabase Freeプランでは隔離プロジェクトの追加不可。GitHub CIの使い捨てDBで先に検証。\n+\n+## 本番反映ゲート\n+Issue #70で機能の受入れ判断、本番DBに新カラムを追加する**別途明示の承認**、現在のテーブル/権限の照合、移行SQL適用後の実iPhone検証が必要。\n+第1段階は本番で動作確認済み。新機能の準備が整うまでそれを維持し、PR #71はDraft。\n+Issue #64の運用障害セーフティネットは引き続き別管理。\n+\n+## 追補：回答変更で観測時刻を改ざんしない（2026-10-22）\n+- 保存済みの天気回答だけを修正するとき、既存の `observed_at`/`observed_time_source` を維持する。新たな観測があったと勝手に仮定して「今」を入れ直さない。\n+- 利用者が観測日時を明示的に変える場合、過去の日時を入力欄へ復元してから編集可能。時刻を消すのも「覚えていない・確認していない」を**本人が選んだ場合のみ**。\n+- `tests/feedbackObservationTime.test.ts` に保持・明示変更・入力復元テストを追加。\n+- 最新のGitHub Actions run `39699682179` は **verify / phase1-feedback-http / phase1-feedback-rls 全件success**。ただし本番DBカラムは**未追加**、PR #71 Draftのまま。本番iPhoneテストや展開を許可なく行わない。\n+\n+## 2026-10-22 10時台：回答の観測時刻カバー率表示\n+- 通知の見張り地点で絞り込んだ回答について「🕒 実際の確認時刻が記録された回答：N件／時刻不明：M件」を表示するようにした。**回答した人の記録の充実度であり、予測的中率ではない**。\n+- `summarizeObservationTimeCoverage` は閲覧している通知のIDだけ数え、旧回答で`observed_at`未登録なら未登録として扱う。回答UNKNOWNは時間が正しく記録されていれば観測時刻ありにカウントし、天気の正解/不正解には使わない。\n+- 認証セッションが無い場合や履歴取得に失敗した場合には、過去に読み込んだ観測時刻を画面上に残さないようにした。\n+- `tests/feedbackObservationTime.test.ts` に旧回答・地点フィルターに関する検証を追加。\n+- HEAD `b8add877` のGitHub Actions run `39703807411` は **verify / phase1-feedback-rls / phase1-feedback-http 全て成功**。\n+- 依然として **PR #71はDraft、本番DB移行は未適用、本番アプリは未変更**。iPhone実機の新しい時刻入力テストは未実施。先にDB移行内容と操作を確認してから公開する。\n+\n+## 本番DBへの移行前・読み取り専用照合（2026-10-22）\n+- `EmergencyAlert` 本番 `public.rain_notification_feedback` の現行カラムは `notification_id` / `owner_id` / `actual_weather` / `updated_at` の4つ。**観測日時の2カラムはまだ存在しない**。\n+- 本番には回答が2件保存されており、RLSが有効。既存のPK・FK・回答値CHECKも存在。照合は `SELECT` のみ。**本番DBには一切書き込んでいない**。\n+- 提案移行 `docs/sql/my-rain-feedback-observation-time.sql` は2カラム追加と時刻/根拠の整合性制約。既存回答は `observed_at=NULL`, `observed_time_source='UNKNOWN'` になり、既存の回答を過去の`updated_at`から推測しない。\n+- 本番公開では `SQL移行 → PostgREST列反映 → 新しい画面のデプロイ → iPhoneで記録/再読込` の順番が必須。移行前に新画面だけ公開すると `loadPhase2ObservationTimes` が列不存在で失敗し、回答欄が使えなくなる。**PR #71 をそのまま先にmainマージしないこと**。\n+- 将来 `observed_at` が保存されたら、通知時刻との差だけを表示する。古い通知には予測対象時刻がないので、これは的中率・遅延判定ではない。\n+- 本番DB変更はこの照合では承認されていない。明示承認後に本番移行を実行すること。\n+\n+## 観測と通知の差分表示（開発ブランチのみ）\n+- 新しく `observationVsDeliveryLabel` を用意。例えば通知25分後の観測なら「通知から25分後に確認」、通知より5分前なら「通知より5分前に確認」。観測時刻不明なら表示しない。\n+- 本人がいつ確認したかを表示し、**通知が遅かった/早かったとはまだ評価しない**。\n+\n+## iPhone本番導入時の実機確認手順（まだ実行していない）\n+1. 本番スキーマの移行前・移行後を記録し、2件の既存回答が `observed_at = NULL`・`observed_time_source = UNKNOWN` で保持されていることを確認する。移行を新画面の公開より先に行う。\n+2. iPhoneで既存回答を開き、前の「降った」「止んだ」などの回答は保持され、確認時刻だけ「未登録」であることを確認する。\n+3. 過去の実観測なら「以前に確認した」を選び、実際に見た日時を指定して **「この回答の確認時刻だけ保存」** を押す。今現在その登録地点を目視している場合だけ「今」を選ぶ。\n+4. ホーム画面PWAを再起動し、観測時刻／通知からの時間差／確認時刻あり件数が復元されることを確認する。更新された `updated_at` を観測日時とは扱わない。\n+5. 回答文言だけ変更した際に観測日時が維持されること、観測日時を明示的に消したときは未登録になること、他の見張り地点の観測日時が混ざらないことを確認する。\n+6. 未来時刻と空の手入力は保存拒否、通知履歴が見えないセッションでは観測時刻が表示されないことを確認する。\n+7. 通常のPushが以前どおり届くことを確認する（Push workerの変更なし）。\n+\n+## 実装中に検出したiPhone向け入力の不具合と修正\n+- 過去の観測時刻が入力欄に復元されていても、利用者が入力欄を**明示的に消した**場合は空欄として保存拒否する。「一度も編集されていない場合」と「本人が消した場合」を分ける。\n+- 旧実装は両方を空文字列で渡していたため、意図した消去を勝手に過去時刻へ戻す恐れがあった。`undefined` = 変更なし、`\"\"` = 本人が空欄にした、として区別した。\n+- `tests/feedbackObservationTime.test.ts` に両ケースを追加した。\n+\n+**注意:** この準備は本番DBの変更や本番デプロイの承認ではない。PR #71はDraftを維持。\n+\n+## 2026-10-22 本番移行前の追加点検\n+- 本番DBを一切変更しない確認用SQL `docs/sql/my-rain-feedback-observation-preflight.sql` を追加。現存する回答数、現在のカラム、RLS有効化、既存CHECK/FKを出力する。\n+- 移行 `docs/sql/my-rain-feedback-observation-time.sql` を再実行しても既存の時刻整合性CHECKをDROPしない方式に変更した。テストは使い捨てPostgreSQL上での2回実行を継続。\n+- 現在の本番は旧Phase1回答2件と4カラム。次の手順は利用者の明示許可を得てから、もう一度読み取り専用で現況を照合し、DB移行後に新UIを公開すること。\n+- **この文書の更新、テスト成功や「りょ」だけを本番DB移行への一括許可と解釈しない。PR #71はDraft維持。本番書込みは保留。**\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/docs/MY_RAIN_OBSERVATION_TIME_STAGE_20261022.md",
+      "source": {
+        "path": "docs/MY_RAIN_OBSERVATION_TIME_STAGE_20261022.md",
+        "coverage": "全文",
+        "text": "# フィードバックの「実際に天気を見た時刻」第2段階（Issue #70）\n\n## 目的\n既存回答の `updated_at`（回答の保存・変更時刻）、通知の `delivered_at`（配信時刻）、実際に現地を見た `observed_at`（観測時刻）を**混同しない**。\n\n## 開発内容（このPRで本番未反映）\n- 「確認した時刻は不明／今この場所で確認した／以前確認した」の選択を回答カードの中に追加。\n- 今の観測を選んだ場合に限り、その回答時に `observed_at` を記録。以前の観測は利用者入力日時を変換。覚えていない・確認していない場合はNULL。\n- `observed_time_source`：`UNKNOWN`／`AT_RESPONSE`／`RECALLED` を明示し、観測時刻が入力された根拠を区別。\n- SQLは `docs/sql/my-rain-feedback-observation-time.sql` に**提案だけを保存**。追加カラム2件のみ、既存回答の時刻を過去の `updated_at` で埋めたりしない。旧回答は `observed_at=NULL`。\n- 不明時刻でもフィードバック回答できる。時刻なしの回答を精度不良扱いしない。\n- 単体テスト＋既存PostgreSQL RLS/HTTPテストへ観測日時の読書き・既存回答のNULL保持を追加。現行の配信/Push処理は変更なし。\n\n## 実装上の留意点\n- 「今」は現地で実際に目視した場合だけ。過去の天気を推測して今の日時を付けない。\n- `RECALLED` の入力はiPhoneの現地時間（日時ローカル入力）。30日以上過去、未来時刻はクライアントで拒否。\n- 旧回答を単に変更する場合は既存の観測時刻と情報源を維持し、勝手に「今」に変えない。\n- **いまの回答時刻や観測時刻が得られても、過去の通知には予測対象時刻が保存されていない。通知タイミングや的中率の自動判定には使わない。**\n- 現在のSupabase Freeプランでは隔離プロジェクトの追加不可。GitHub CIの使い捨てDBで先に検証。\n\n## 本番反映ゲート\nIssue #70で機能の受入れ判断、本番DBに新カラムを追加する**別途明示の承認**、現在のテーブル/権限の照合、移行SQL適用後の実iPhone検証が必要。\n第1段階は本番で動作確認済み。新機能の準備が整うまでそれを維持し、PR #71はDraft。\nIssue #64の運用障害セーフティネットは引き続き別管理。\n\n## 追補：回答変更で観測時刻を改ざんしない（2026-10-22）\n- 保存済みの天気回答だけを修正するとき、既存の `observed_at`/`observed_time_source` を維持する。新たな観測があったと勝手に仮定して「今」を入れ直さない。\n- 利用者が観測日時を明示的に変える場合、過去の日時を入力欄へ復元してから編集可能。時刻を消すのも「覚えていない・確認していない」を**本人が選んだ場合のみ**。\n- `tests/feedbackObservationTime.test.ts` に保持・明示変更・入力復元テストを追加。\n- 最新のGitHub Actions run `39699682179` は **verify / phase1-feedback-http / phase1-feedback-rls 全件success**。ただし本番DBカラムは**未追加**、PR #71 Draftのまま。本番iPhoneテストや展開を許可なく行わない。\n\n## 2026-10-22 10時台：回答の観測時刻カバー率表示\n- 通知の見張り地点で絞り込んだ回答について「🕒 実際の確認時刻が記録された回答：N件／時刻不明：M件」を表示するようにした。**回答した人の記録の充実度であり、予測的中率ではない**。\n- `summarizeObservationTimeCoverage` は閲覧している通知のIDだけ数え、旧回答で`observed_at`未登録なら未登録として扱う。回答UNKNOWNは時間が正しく記録されていれば観測時刻ありにカウントし、天気の正解/不正解には使わない。\n- 認証セッションが無い場合や履歴取得に失敗した場合には、過去に読み込んだ観測時刻を画面上に残さないようにした。\n- `tests/feedbackObservationTime.test.ts` に旧回答・地点フィルターに関する検証を追加。\n- HEAD `b8add877` のGitHub Actions run `39703807411` は **verify / phase1-feedback-rls / phase1-feedback-http 全て成功**。\n- 依然として **PR #71はDraft、本番DB移行は未適用、本番アプリは未変更**。iPhone実機の新しい時刻入力テストは未実施。先にDB移行内容と操作を確認してから公開する。\n\n## 本番DBへの移行前・読み取り専用照合（2026-10-22）\n- `EmergencyAlert` 本番 `public.rain_notification_feedback` の現行カラムは `notification_id` / `owner_id` / `actual_weather` / `updated_at` の4つ。**観測日時の2カラムはまだ存在しない**。\n- 本番には回答が2件保存されており、RLSが有効。既存のPK・FK・回答値CHECKも存在。照合は `SELECT` のみ。**本番DBには一切書き込んでいない**。\n- 提案移行 `docs/sql/my-rain-feedback-observation-time.sql` は2カラム追加と時刻/根拠の整合性制約。既存回答は `observed_at=NULL`, `observed_time_source='UNKNOWN'` になり、既存の回答を過去の`updated_at`から推測しない。\n- 本番公開では `SQL移行 → PostgREST列反映 → 新しい画面のデプロイ → iPhoneで記録/再読込` の順番が必須。移行前に新画面だけ公開すると `loadPhase2ObservationTimes` が列不存在で失敗し、回答欄が使えなくなる。**PR #71 をそのまま先にmainマージしないこと**。\n- 将来 `observed_at` が保存されたら、通知時刻との差だけを表示する。古い通知には予測対象時刻がないので、これは的中率・遅延判定ではない。\n- 本番DB変更はこの照合では承認されていない。明示承認後に本番移行を実行すること。\n\n## 観測と通知の差分表示（開発ブランチのみ）\n- 新しく `observationVsDeliveryLabel` を用意。例えば通知25分後の観測なら「通知から25分後に確認」、通知より5分前なら「通知より5分前に確認」。観測時刻不明なら表示しない。\n- 本人がいつ確認したかを表示し、**通知が遅かった/早かったとはまだ評価しない**。\n\n## iPhone本番導入時の実機確認手順（まだ実行していない）\n1. 本番スキーマの移行前・移行後を記録し、2件の既存回答が `observed_at = NULL`・`observed_time_source = UNKNOWN` で保持されていることを確認する。移行を新画面の公開より先に行う。\n2. iPhoneで既存回答を開き、前の「降った」「止んだ」などの回答は保持され、確認時刻だけ「未登録」であることを確認する。\n3. 過去の実観測なら「以前に確認した」を選び、実際に見た日時を指定して **「この回答の確認時刻だけ保存」** を押す。今現在その登録地点を目視している場合だけ「今」を選ぶ。\n4. ホーム画面PWAを再起動し、観測時刻／通知からの時間差／確認時刻あり件数が復元されることを確認する。更新された `updated_at` を観測日時とは扱わない。\n5. 回答文言だけ変更した際に観測日時が維持されること、観測日時を明示的に消したときは未登録になること、他の見張り地点の観測日時が混ざらないことを確認する。\n6. 未来時刻と空の手入力は保存拒否、通知履歴が見えないセッションでは観測時刻が表示されないことを確認する。\n7. 通常のPushが以前どおり届くことを確認する（Push workerの変更なし）。\n\n## 実装中に検出したiPhone向け入力の不具合と修正\n- 過去の観測時刻が入力欄に復元されていても、利用者が入力欄を**明示的に消した**場合は空欄として保存拒否する。「一度も編集されていない場合」と「本人が消した場合」を分ける。\n- 旧実装は両方を空文字列で渡していたため、意図した消去を勝手に過去時刻へ戻す恐れがあった。`undefined` = 変更なし、`\"\"` = 本人が空欄にした、として区別した。\n- `tests/feedbackObservationTime.test.ts` に両ケースを追加した。\n\n**注意:** この準備は本番DBの変更や本番デプロイの承認ではない。PR #71はDraftを維持。\n\n## 2026-10-22 本番移行前の追加点検\n- 本番DBを一切変更しない確認用SQL `docs/sql/my-rain-feedback-observation-preflight.sql` を追加。現存する回答数、現在のカラム、RLS有効化、既存CHECK/FKを出力する。\n- 移行 `docs/sql/my-rain-feedback-observation-time.sql` を再実行しても既存の時刻整合性CHECKをDROPしない方式に変更した。テストは使い捨てPostgreSQL上での2回実行を継続。\n- 現在の本番は旧Phase1回答2件と4カラム。次の手順は利用者の明示許可を得てから、もう一度読み取り専用で現況を照合し、DB移行後に新UIを公開すること。\n- **この文書の更新、テスト成功や「りょ」だけを本番DB移行への一括許可と解釈しない。PR #71はDraft維持。本番書込みは保留。**\n",
+        "sha256": "86ee9b3bf2fea4dad54e09dd001f7ccea8b4eb2f6ff6fb19d30aa88cfd360f91"
+      }
+    },
+    {
+      "path": "docs/sql/my-rain-feedback-observation-preflight.sql",
+      "status": "modified",
+      "additions": 23,
+      "deletions": 0,
+      "patch": "diff --git a/docs/sql/my-rain-feedback-observation-preflight.sql b/docs/sql/my-rain-feedback-observation-preflight.sql\nnew file mode 100644\nindex 0000000..5e2a1d1\n--- /dev/null\n+++ b/docs/sql/my-rain-feedback-observation-preflight.sql\n@@ -0,0 +1,23 @@\n+-- Read-only preflight: safe before production migration. Does NOT alter rows or schema.\n+-- Run with sufficient SELECT/metadata permissions.\n+SELECT\n+  count(*) AS existing_feedback_rows,\n+  count(*) FILTER (WHERE actual_weather = 'UNKNOWN') AS unknown_weather_answers\n+FROM public.rain_notification_feedback;\n+\n+SELECT column_name, data_type, is_nullable, column_default\n+FROM information_schema.columns\n+WHERE table_schema = 'public' AND table_name = 'rain_notification_feedback'\n+ORDER BY ordinal_position;\n+\n+SELECT relrowsecurity AS row_level_security_enabled\n+FROM pg_class WHERE oid = 'public.rain_notification_feedback'::regclass;\n+\n+SELECT conname, pg_get_constraintdef(oid) AS definition\n+FROM pg_constraint\n+WHERE conrelid = 'public.rain_notification_feedback'::regclass\n+ORDER BY conname;\n+\n+-- Compare these read-only outputs to the documented expected current state.\n+-- Stop for review if the table is absent, RLS is disabled, or the existing\n+-- columns/constraints diverge from the schema under test.\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/docs/sql/my-rain-feedback-observation-preflight.sql",
+      "source": {
+        "path": "docs/sql/my-rain-feedback-observation-preflight.sql",
+        "coverage": "全文",
+        "text": "-- Read-only preflight: safe before production migration. Does NOT alter rows or schema.\n-- Run with sufficient SELECT/metadata permissions.\nSELECT\n  count(*) AS existing_feedback_rows,\n  count(*) FILTER (WHERE actual_weather = 'UNKNOWN') AS unknown_weather_answers\nFROM public.rain_notification_feedback;\n\nSELECT column_name, data_type, is_nullable, column_default\nFROM information_schema.columns\nWHERE table_schema = 'public' AND table_name = 'rain_notification_feedback'\nORDER BY ordinal_position;\n\nSELECT relrowsecurity AS row_level_security_enabled\nFROM pg_class WHERE oid = 'public.rain_notification_feedback'::regclass;\n\nSELECT conname, pg_get_constraintdef(oid) AS definition\nFROM pg_constraint\nWHERE conrelid = 'public.rain_notification_feedback'::regclass\nORDER BY conname;\n\n-- Compare these read-only outputs to the documented expected current state.\n-- Stop for review if the table is absent, RLS is disabled, or the existing\n-- columns/constraints diverge from the schema under test.\n",
+        "sha256": "7b653d0ab75ad9ca7316990b655737f6887f92e9427571731008ea06a0bbe702"
+      }
+    },
+    {
+      "path": "docs/sql/my-rain-feedback-observation-time.sql",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 0,
+      "patch": "diff --git a/docs/sql/my-rain-feedback-observation-time.sql b/docs/sql/my-rain-feedback-observation-time.sql\nnew file mode 100644\nindex 0000000..00e64ec\n--- /dev/null\n+++ b/docs/sql/my-rain-feedback-observation-time.sql\n@@ -0,0 +1,25 @@\n+-- Proposed migration for feedback observation time. REVIEW ONLY; NOT APPLIED to production.\n+-- Prior answers retain NULL observed_at. updated_at is never copied to observed_at.\n+-- Apply in a caller-managed transaction after backup/approval; safe to rerun.\n+ALTER TABLE public.rain_notification_feedback\n+  ADD COLUMN IF NOT EXISTS observed_at timestamptz,\n+  ADD COLUMN IF NOT EXISTS observed_time_source text NOT NULL DEFAULT 'UNKNOWN';\n+-- Avoid dropping and briefly removing an existing consistency constraint\n+-- when the migration is executed again.\n+DO $observation_constraint$\n+BEGIN\n+  IF NOT EXISTS (\n+    SELECT 1 FROM pg_constraint\n+    WHERE conrelid = 'public.rain_notification_feedback'::regclass\n+      AND conname = 'rain_notification_feedback_observation_pair_check'\n+  ) THEN\n+    ALTER TABLE public.rain_notification_feedback\n+      ADD CONSTRAINT rain_notification_feedback_observation_pair_check\n+      CHECK (\n+        (observed_time_source = 'UNKNOWN' AND observed_at IS NULL)\n+        OR\n+        (observed_time_source IN ('AT_RESPONSE', 'RECALLED') AND observed_at IS NOT NULL)\n+      );\n+  END IF;\n+END\n+$observation_constraint$;\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/docs/sql/my-rain-feedback-observation-time.sql",
+      "source": {
+        "path": "docs/sql/my-rain-feedback-observation-time.sql",
+        "coverage": "全文",
+        "text": "-- Proposed migration for feedback observation time. REVIEW ONLY; NOT APPLIED to production.\n-- Prior answers retain NULL observed_at. updated_at is never copied to observed_at.\n-- Apply in a caller-managed transaction after backup/approval; safe to rerun.\nALTER TABLE public.rain_notification_feedback\n  ADD COLUMN IF NOT EXISTS observed_at timestamptz,\n  ADD COLUMN IF NOT EXISTS observed_time_source text NOT NULL DEFAULT 'UNKNOWN';\n-- Avoid dropping and briefly removing an existing consistency constraint\n-- when the migration is executed again.\nDO $observation_constraint$\nBEGIN\n  IF NOT EXISTS (\n    SELECT 1 FROM pg_constraint\n    WHERE conrelid = 'public.rain_notification_feedback'::regclass\n      AND conname = 'rain_notification_feedback_observation_pair_check'\n  ) THEN\n    ALTER TABLE public.rain_notification_feedback\n      ADD CONSTRAINT rain_notification_feedback_observation_pair_check\n      CHECK (\n        (observed_time_source = 'UNKNOWN' AND observed_at IS NULL)\n        OR\n        (observed_time_source IN ('AT_RESPONSE', 'RECALLED') AND observed_at IS NOT NULL)\n      );\n  END IF;\nEND\n$observation_constraint$;\n",
+        "sha256": "37a3de26fd2c36a5ccb8873f9227fd3ab513909f7582208be81be3969d2ff791"
+      }
+    },
+    {
+      "path": "lib/weather/rain/feedbackObservationTime.ts",
+      "status": "modified",
+      "additions": 114,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/feedbackObservationTime.ts b/lib/weather/rain/feedbackObservationTime.ts\nnew file mode 100644\nindex 0000000..05ad6ab\n--- /dev/null\n+++ b/lib/weather/rain/feedbackObservationTime.ts\n@@ -0,0 +1,114 @@\n+/**\n+ * Observation time belongs to the moment the person checked the weather,\n+ * NOT the time feedback was saved nor the time a forecast was issued.\n+ */\n+export type ObservationChoice = \"now\" | \"earlier\" | \"unknown\";\n+export type ObservedTimeSource = \"AT_RESPONSE\" | \"RECALLED\" | \"UNKNOWN\";\n+export type WeatherObservation = {observed_at:string|null;observed_time_source:ObservedTimeSource};\n+\n+export function localDateTimeInputToIso(value:string): string | null {\n+  if (!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$/.test(value)) return null;\n+  const date = new Date(value);\n+  if (!Number.isFinite(date.getTime())) return null;\n+  // Reject nonexistent/normalized local clock input (e.g. 25:99).\n+  const local = [date.getFullYear(),String(date.getMonth()+1).padStart(2,\"0\"),\n+    String(date.getDate()).padStart(2,\"0\")].join(\"-\")+\n+    \"T\"+String(date.getHours()).padStart(2,\"0\")+\":\"+\n+    String(date.getMinutes()).padStart(2,\"0\");\n+  return local === value ? date.toISOString() : null;\n+}\n+\n+export function buildWeatherObservation(\n+  choice:ObservationChoice,\n+  earlierLocal:string,\n+  now:Date,\n+): WeatherObservation {\n+  if (!Number.isFinite(now.getTime())) throw new Error(\"invalid_current_time\");\n+  if (choice === \"unknown\") return {observed_at:null,observed_time_source:\"UNKNOWN\"};\n+  if (choice === \"now\") return {observed_at:now.toISOString(),observed_time_source:\"AT_RESPONSE\"};\n+  const iso = localDateTimeInputToIso(earlierLocal);\n+  if (!iso) throw new Error(\"invalid_observed_time\");\n+  const observed = Date.parse(iso);\n+  if (observed > now.getTime()+5*60_000) throw new Error(\"future_observation\");\n+  if (observed < now.getTime()-30*86400_000) throw new Error(\"too_old_observation\");\n+  return {observed_at:iso,observed_time_source:\"RECALLED\"};\n+}\n+\n+/**\n+ * Legacy answers remain UNKNOWN time; do not invent observation times from\n+ * feedback.updated_at or notification.delivered_at.\n+ */\n+export function observedTimeLabel(source:ObservedTimeSource|null|undefined, observedAt:string|null):string {\n+  if (!observedAt || !source || source === \"UNKNOWN\") return \"確認時刻は未登録\";\n+  const timestamp=Date.parse(observedAt);\n+  if (!Number.isFinite(timestamp)) return \"確認時刻は未登録\";\n+  const formatted=new Date(timestamp).toLocaleString(\"ja-JP\",{\n+    timeZone:\"Asia/Tokyo\",month:\"numeric\",day:\"numeric\",hour:\"2-digit\",minute:\"2-digit\"});\n+  return source === \"RECALLED\" ? \"思い出して入力：\"+formatted : \"回答時に確認：\"+formatted;\n+}\n+\n+/** Existing answers keep their observation metadata until the person explicitly changes it. */\n+export function resolveFeedbackObservation(\n+  chosen: ObservationChoice | undefined,\n+  prior: WeatherObservation | undefined,\n+  earlierLocal: string | undefined,\n+  now: Date,\n+): WeatherObservation {\n+  // Editing only the answer must not overwrite a historical eyewitness time.\n+  if (chosen === undefined) return prior ?? {observed_at:null,observed_time_source:\"UNKNOWN\"};\n+  // When \"earlier\" was selected for an already-recorded observation, the\n+  // datetime-local control displays the old value until the user changes it.\n+  const effectiveLocal = chosen === \"earlier\"\n+    ? (earlierLocal ?? observationAsLocalInput(prior?.observed_at))\n+    : earlierLocal;\n+  return buildWeatherObservation(chosen, effectiveLocal ?? \"\", now);\n+}\n+\n+/** Format an existing observation for a datetime-local field in the device timezone. */\n+export function observationAsLocalInput(observedAt: string | null | undefined): string {\n+  if (!observedAt) return \"\";\n+  const d = new Date(observedAt);\n+  if (!Number.isFinite(d.getTime())) return \"\";\n+  return [d.getFullYear(), String(d.getMonth()+1).padStart(2,\"0\"), String(d.getDate()).padStart(2,\"0\")].join(\"-\") +\n+    \"T\" + String(d.getHours()).padStart(2,\"0\") + \":\" + String(d.getMinutes()).padStart(2,\"0\");\n+}\n+\n+/** Observation coverage is a completeness measure, not a prediction score. */\n+export function summarizeObservationTimeCoverage(\n+  notificationIds: readonly number[],\n+  answers: Readonly<Record<number,string>>,\n+  times: Readonly<Record<number,WeatherObservation>>,\n+): {answered:number; withTime:number; withoutTime:number} {\n+  let answered=0,withTime=0;\n+  for (const id of notificationIds) {\n+    if (!answers[id]) continue;\n+    answered++;\n+    const observed=times[id];\n+    if(observed && observed.observed_time_source !== \"UNKNOWN\" &&\n+       observed.observed_at && Number.isFinite(Date.parse(observed.observed_at))) withTime++;\n+  }\n+  return {answered,withTime,withoutTime:answered-withTime};\n+}\n+\n+/**\n+ * How far the user's eyewitness time is from Push delivery. This is NOT\n+ * a forecast lead time because old deliveries contain no forecast target time.\n+ */\n+export function observationVsDeliveryLabel(\n+  deliveredAt: string,\n+  observedAt: string | null | undefined,\n+): string | null {\n+  if (!observedAt) return null;\n+  const delivery = Date.parse(deliveredAt);\n+  const observed = Date.parse(observedAt);\n+  if (!Number.isFinite(delivery) || !Number.isFinite(observed)) return null;\n+  const roundedMinutes = Math.round((observed - delivery) / 60_000);\n+  if (roundedMinutes === 0) return \"通知とほぼ同じ時刻に確認\";\n+  const duration = Math.abs(roundedMinutes);\n+  const interval = duration < 60\n+    ? `${duration}分`\n+    : `${Math.floor(duration/60)}時間${duration%60 ? `${duration%60}分` : \"\"}`;\n+  return roundedMinutes > 0\n+    ? `通知から${interval}後に確認`\n+    : `通知より${interval}前に確認`;\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackObservationTime.ts",
+      "source": {
+        "path": "lib/weather/rain/feedbackObservationTime.ts",
+        "coverage": "全文",
+        "text": "/**\n * Observation time belongs to the moment the person checked the weather,\n * NOT the time feedback was saved nor the time a forecast was issued.\n */\nexport type ObservationChoice = \"now\" | \"earlier\" | \"unknown\";\nexport type ObservedTimeSource = \"AT_RESPONSE\" | \"RECALLED\" | \"UNKNOWN\";\nexport type WeatherObservation = {observed_at:string|null;observed_time_source:ObservedTimeSource};\n\nexport function localDateTimeInputToIso(value:string): string | null {\n  if (!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$/.test(value)) return null;\n  const date = new Date(value);\n  if (!Number.isFinite(date.getTime())) return null;\n  // Reject nonexistent/normalized local clock input (e.g. 25:99).\n  const local = [date.getFullYear(),String(date.getMonth()+1).padStart(2,\"0\"),\n    String(date.getDate()).padStart(2,\"0\")].join(\"-\")+\n    \"T\"+String(date.getHours()).padStart(2,\"0\")+\":\"+\n    String(date.getMinutes()).padStart(2,\"0\");\n  return local === value ? date.toISOString() : null;\n}\n\nexport function buildWeatherObservation(\n  choice:ObservationChoice,\n  earlierLocal:string,\n  now:Date,\n): WeatherObservation {\n  if (!Number.isFinite(now.getTime())) throw new Error(\"invalid_current_time\");\n  if (choice === \"unknown\") return {observed_at:null,observed_time_source:\"UNKNOWN\"};\n  if (choice === \"now\") return {observed_at:now.toISOString(),observed_time_source:\"AT_RESPONSE\"};\n  const iso = localDateTimeInputToIso(earlierLocal);\n  if (!iso) throw new Error(\"invalid_observed_time\");\n  const observed = Date.parse(iso);\n  if (observed > now.getTime()+5*60_000) throw new Error(\"future_observation\");\n  if (observed < now.getTime()-30*86400_000) throw new Error(\"too_old_observation\");\n  return {observed_at:iso,observed_time_source:\"RECALLED\"};\n}\n\n/**\n * Legacy answers remain UNKNOWN time; do not invent observation times from\n * feedback.updated_at or notification.delivered_at.\n */\nexport function observedTimeLabel(source:ObservedTimeSource|null|undefined, observedAt:string|null):string {\n  if (!observedAt || !source || source === \"UNKNOWN\") return \"確認時刻は未登録\";\n  const timestamp=Date.parse(observedAt);\n  if (!Number.isFinite(timestamp)) return \"確認時刻は未登録\";\n  const formatted=new Date(timestamp).toLocaleString(\"ja-JP\",{\n    timeZone:\"Asia/Tokyo\",month:\"numeric\",day:\"numeric\",hour:\"2-digit\",minute:\"2-digit\"});\n  return source === \"RECALLED\" ? \"思い出して入力：\"+formatted : \"回答時に確認：\"+formatted;\n}\n\n/** Existing answers keep their observation metadata until the person explicitly changes it. */\nexport function resolveFeedbackObservation(\n  chosen: ObservationChoice | undefined,\n  prior: WeatherObservation | undefined,\n  earlierLocal: string | undefined,\n  now: Date,\n): WeatherObservation {\n  // Editing only the answer must not overwrite a historical eyewitness time.\n  if (chosen === undefined) return prior ?? {observed_at:null,observed_time_source:\"UNKNOWN\"};\n  // When \"earlier\" was selected for an already-recorded observation, the\n  // datetime-local control displays the old value until the user changes it.\n  const effectiveLocal = chosen === \"earlier\"\n    ? (earlierLocal ?? observationAsLocalInput(prior?.observed_at))\n    : earlierLocal;\n  return buildWeatherObservation(chosen, effectiveLocal ?? \"\", now);\n}\n\n/** Format an existing observation for a datetime-local field in the device timezone. */\nexport function observationAsLocalInput(observedAt: string | null | undefined): string {\n  if (!observedAt) return \"\";\n  const d = new Date(observedAt);\n  if (!Number.isFinite(d.getTime())) return \"\";\n  return [d.getFullYear(), String(d.getMonth()+1).padStart(2,\"0\"), String(d.getDate()).padStart(2,\"0\")].join(\"-\") +\n    \"T\" + String(d.getHours()).padStart(2,\"0\") + \":\" + String(d.getMinutes()).padStart(2,\"0\");\n}\n\n/** Observation coverage is a completeness measure, not a prediction score. */\nexport function summarizeObservationTimeCoverage(\n  notificationIds: readonly number[],\n  answers: Readonly<Record<number,string>>,\n  times: Readonly<Record<number,WeatherObservation>>,\n): {answered:number; withTime:number; withoutTime:number} {\n  let answered=0,withTime=0;\n  for (const id of notificationIds) {\n    if (!answers[id]) continue;\n    answered++;\n    const observed=times[id];\n    if(observed && observed.observed_time_source !== \"UNKNOWN\" &&\n       observed.observed_at && Number.isFinite(Date.parse(observed.observed_at))) withTime++;\n  }\n  return {answered,withTime,withoutTime:answered-withTime};\n}\n\n/**\n * How far the user's eyewitness time is from Push delivery. This is NOT\n * a forecast lead time because old deliveries contain no forecast target time.\n */\nexport function observationVsDeliveryLabel(\n  deliveredAt: string,\n  observedAt: string | null | undefined,\n): string | null {\n  if (!observedAt) return null;\n  const delivery = Date.parse(deliveredAt);\n  const observed = Date.parse(observedAt);\n  if (!Number.isFinite(delivery) || !Number.isFinite(observed)) return null;\n  const roundedMinutes = Math.round((observed - delivery) / 60_000);\n  if (roundedMinutes === 0) return \"通知とほぼ同じ時刻に確認\";\n  const duration = Math.abs(roundedMinutes);\n  const interval = duration < 60\n    ? `${duration}分`\n    : `${Math.floor(duration/60)}時間${duration%60 ? `${duration%60}分` : \"\"}`;\n  return roundedMinutes > 0\n    ? `通知から${interval}後に確認`\n    : `通知より${interval}前に確認`;\n}\n",
+        "sha256": "83cced980c4871a3aa29571fc89d33ef0de7437561e23eb835021fb1f9cf4ef2"
+      }
+    },
+    {
+      "path": "lib/weather/rain/feedbackPhase1Repository.ts",
+      "status": "modified",
+      "additions": 29,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/feedbackPhase1Repository.ts b/lib/weather/rain/feedbackPhase1Repository.ts\nindex ccd6aed..a30166a 100644\n--- a/lib/weather/rain/feedbackPhase1Repository.ts\n+++ b/lib/weather/rain/feedbackPhase1Repository.ts\n@@ -1,3 +1,4 @@\n+import type { WeatherObservation } from \"./feedbackObservationTime\";\n import type { SupabaseClient } from \"@supabase/supabase-js\";\n \n export type WeatherFeedbackAnswer =\n@@ -9,6 +10,7 @@ export async function savePhase1Feedback(\n   client: Pick<SupabaseClient, \"auth\" | \"from\">,\n   notificationId: number,\n   answer: WeatherFeedbackAnswer,\n+  observation?: WeatherObservation,\n ): Promise<void> {\n   if (!Number.isSafeInteger(notificationId) || notificationId <= 0) {\n     throw new Error(\"invalid_notification_id\");\n@@ -22,6 +24,7 @@ export async function savePhase1Feedback(\n     owner_id: ownerId,\n     actual_weather: answer,\n     updated_at: new Date().toISOString(),\n+    ...(observation ? {observed_at:observation.observed_at,observed_time_source:observation.observed_time_source} : {}),\n   }, { onConflict: \"notification_id\" });\n   if (error) throw error;\n }\n@@ -52,3 +55,29 @@ export async function loadPhase1Feedback(\n   }\n   return answers;\n }\n+\n+/** Read source/time separately from the existing answer query for staged rollout. */\n+export async function loadPhase2ObservationTimes(\n+  client: Pick<SupabaseClient, \"from\">,\n+  notificationIds: readonly number[],\n+): Promise<Record<number, WeatherObservation>> {\n+  if (notificationIds.length === 0) return {};\n+  if (notificationIds.some(id=>!Number.isSafeInteger(id)||id<=0)) throw new Error(\"invalid_notification_id\");\n+  const {data,error}=await client.from(\"rain_notification_feedback\")\n+    .select(\"notification_id,observed_at,observed_time_source\")\n+    .in(\"notification_id\",[...notificationIds]);\n+  if(error) throw error;\n+  const allowed=new Set([\"AT_RESPONSE\",\"RECALLED\",\"UNKNOWN\"]);\n+  const ids=new Set(notificationIds);\n+  const times:Record<number,WeatherObservation>={};\n+  for(const row of data??[]){\n+    if(!ids.has(row.notification_id))continue;\n+    const source=String(row.observed_time_source??\"UNKNOWN\");\n+    if(!allowed.has(source))continue;\n+    times[row.notification_id]={\n+      observed_at:typeof row.observed_at===\"string\"?row.observed_at:null,\n+      observed_time_source:source as WeatherObservation[\"observed_time_source\"],\n+    };\n+  }\n+  return times;\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackPhase1Repository.ts",
+      "source": {
+        "path": "lib/weather/rain/feedbackPhase1Repository.ts",
+        "coverage": "全文",
+        "text": "import type { WeatherObservation } from \"./feedbackObservationTime\";\nimport type { SupabaseClient } from \"@supabase/supabase-js\";\n\nexport type WeatherFeedbackAnswer =\n  | \"RAINED\" | \"DID_NOT_RAIN\" | \"ALREADY_RAINING\"\n  | \"STOPPED\" | \"DID_NOT_STOP\" | \"ALREADY_DRY\" | \"UNKNOWN\";\n\n/** The database RLS is the final authorization gate. No caller-supplied owner ID. */\nexport async function savePhase1Feedback(\n  client: Pick<SupabaseClient, \"auth\" | \"from\">,\n  notificationId: number,\n  answer: WeatherFeedbackAnswer,\n  observation?: WeatherObservation,\n): Promise<void> {\n  if (!Number.isSafeInteger(notificationId) || notificationId <= 0) {\n    throw new Error(\"invalid_notification_id\");\n  }\n  const { data, error: sessionError } = await client.auth.getSession();\n  if (sessionError) throw sessionError;\n  const ownerId = data.session?.user.id;\n  if (!ownerId) throw new Error(\"session_required\");\n  const { error } = await client.from(\"rain_notification_feedback\").upsert({\n    notification_id: notificationId,\n    owner_id: ownerId,\n    actual_weather: answer,\n    updated_at: new Date().toISOString(),\n    ...(observation ? {observed_at:observation.observed_at,observed_time_source:observation.observed_time_source} : {}),\n  }, { onConflict: \"notification_id\" });\n  if (error) throw error;\n}\n\n/** Read only the delivered notification IDs visible to the signed-in owner. */\nexport async function loadPhase1Feedback(\n  client: Pick<SupabaseClient, \"from\">,\n  notificationIds: readonly number[],\n): Promise<Record<number, WeatherFeedbackAnswer>> {\n  if (notificationIds.length === 0) return {};\n  if (notificationIds.some(id => !Number.isSafeInteger(id) || id <= 0)) {\n    throw new Error(\"invalid_notification_id\");\n  }\n  const { data, error } = await client.from(\"rain_notification_feedback\")\n    .select(\"notification_id,actual_weather\")\n    .in(\"notification_id\", [...notificationIds]);\n  if (error) throw error;\n  const ids = new Set(notificationIds);\n  const allowed = new Set<WeatherFeedbackAnswer>([\n    \"RAINED\", \"DID_NOT_RAIN\", \"ALREADY_RAINING\",\n    \"STOPPED\", \"DID_NOT_STOP\", \"ALREADY_DRY\", \"UNKNOWN\",\n  ]);\n  const answers: Record<number, WeatherFeedbackAnswer> = {};\n  for (const row of data ?? []) {\n    if (!ids.has(row.notification_id)) continue;\n    const answer = row.actual_weather as WeatherFeedbackAnswer;\n    if (allowed.has(answer)) answers[row.notification_id] = answer;\n  }\n  return answers;\n}\n\n/** Read source/time separately from the existing answer query for staged rollout. */\nexport async function loadPhase2ObservationTimes(\n  client: Pick<SupabaseClient, \"from\">,\n  notificationIds: readonly number[],\n): Promise<Record<number, WeatherObservation>> {\n  if (notificationIds.length === 0) return {};\n  if (notificationIds.some(id=>!Number.isSafeInteger(id)||id<=0)) throw new Error(\"invalid_notification_id\");\n  const {data,error}=await client.from(\"rain_notification_feedback\")\n    .select(\"notification_id,observed_at,observed_time_source\")\n    .in(\"notification_id\",[...notificationIds]);\n  if(error) throw error;\n  const allowed=new Set([\"AT_RESPONSE\",\"RECALLED\",\"UNKNOWN\"]);\n  const ids=new Set(notificationIds);\n  const times:Record<number,WeatherObservation>={};\n  for(const row of data??[]){\n    if(!ids.has(row.notification_id))continue;\n    const source=String(row.observed_time_source??\"UNKNOWN\");\n    if(!allowed.has(source))continue;\n    times[row.notification_id]={\n      observed_at:typeof row.observed_at===\"string\"?row.observed_at:null,\n      observed_time_source:source as WeatherObservation[\"observed_time_source\"],\n    };\n  }\n  return times;\n}\n",
+        "sha256": "e982ac6042dc366b25caf996d687fbba39a487126d8f1ccf2d53a84d1271cf28"
+      }
+    },
+    {
+      "path": "tests/feedback-phase1-http.mjs",
+      "status": "modified",
+      "additions": 18,
+      "deletions": 1,
+      "patch": "diff --git a/tests/feedback-phase1-http.mjs b/tests/feedback-phase1-http.mjs\nindex 65acfa3..8cae1cd 100644\n--- a/tests/feedback-phase1-http.mjs\n+++ b/tests/feedback-phase1-http.mjs\n@@ -59,12 +59,29 @@ const loaded = await request(\"/rain_notification_feedback?select=notification_id\n expectOk(loaded,\"read own answer through HTTP\");\n assert.deepEqual(loaded.data,[{notification_id:101,actual_weather:\"RAINED\"}]);\n \n-const edited = await put(\"A\",item(101,\"DID_NOT_RAIN\"));\n+const timeInitial = await request(\"/rain_notification_feedback?notification_id=eq.101&select=observed_at,observed_time_source\",{user:\"A\"});\n+expectOk(timeInitial,\"pre-existing answer has unset observation time\");\n+assert.equal(timeInitial.data[0].observed_at,null);\n+assert.equal(timeInitial.data[0].observed_time_source,\"UNKNOWN\");\n+\n+const edited = await put(\"A\",{\n+  ...item(101,\"DID_NOT_RAIN\"),observed_at:\"2026-10-21T00:40:00.000Z\",observed_time_source:\"RECALLED\",\n+});\n expectOk(edited,\"change own answer\");\n assert.equal(edited.data[0].actual_weather,\"DID_NOT_RAIN\");\n const refreshed = await request(\"/rain_notification_feedback?notification_id=eq.101&select=actual_weather\",{user:\"A\"});\n expectOk(refreshed,\"reload edited answer\");\n assert.equal(refreshed.data[0].actual_weather,\"DID_NOT_RAIN\");\n+const observed = await request(\"/rain_notification_feedback?notification_id=eq.101&select=observed_at,observed_time_source\",{user:\"A\"});\n+expectOk(observed,\"read recorded eyewitness time\");\n+assert.equal(observed.data[0].observed_at,\"2026-10-21T00:40:00+00:00\");\n+assert.equal(observed.data[0].observed_time_source,\"RECALLED\");\n+const malformedTime = await put(\"A\",{\n+  ...item(102,\"STOPPED\"),observed_at:null,observed_time_source:\"AT_RESPONSE\",\n+});\n+assert.equal(malformedTime.status,400,\"database check constraint must reject a missing time\");\n+assert.equal(malformedTime.data.code,\"23514\");\n+\n \n expectDenied(await put(\"B\",item(101,\"STOPPED\",users.B)),\"B cannot edit A delivered notification\");\n expectDenied(await put(\"A\",item(201,\"STOPPED\")),\"A cannot answer B delivery\");\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedback-phase1-http.mjs",
+      "source": {
+        "path": "tests/feedback-phase1-http.mjs",
+        "coverage": "全文",
+        "text": "// Local PostgREST + PostgreSQL HTTP integration, NO Supabase project or real Push.\nimport { createHmac } from \"node:crypto\";\nimport assert from \"node:assert/strict\";\n\nconst secret = process.env.PHASE1_JWT_SECRET;\nif (!secret || secret.length < 32) throw Error(\"PHASE1_JWT_SECRET missing\");\nconst root = \"http://127.0.0.1:3000\";\nconst users = {\n  A: \"11111111-1111-4111-8111-111111111111\",\n  B: \"22222222-2222-4222-8222-222222222222\",\n};\nconst base64 = value => Buffer.from(JSON.stringify(value)).toString(\"base64url\");\nfunction token(owner) {\n  const h = base64({alg:\"HS256\",typ:\"JWT\"});\n  const p = base64({role:\"authenticated\",sub:owner,exp:Math.floor(Date.now()/1000)+3600});\n  const payload = `${h}.${p}`;\n  const signature = createHmac(\"sha256\",secret).update(payload).digest(\"base64url\");\n  return `${payload}.${signature}`;\n}\nasync function request(path, {user,method=\"GET\",body,prefer}={}) {\n  const headers = {\"Accept\":\"application/json\"};\n  if (user) headers.Authorization = `Bearer ${token(users[user])}`;\n  if (body !== undefined) headers[\"Content-Type\"] = \"application/json\";\n  if (prefer) headers.Prefer = prefer;\n  const response = await fetch(root + path, {\n    method,headers,body:body === undefined ? undefined : JSON.stringify(body),\n  });\n  const text = await response.text();\n  let data;\n  try {data = text ? JSON.parse(text) : null;}\n  catch {throw Error(`not JSON: ${response.status} ${text.slice(0,300)}`);}\n  return {status:response.status,data};\n}\nfunction expectOk(result, note) {\n  assert.ok(result.status>=200 && result.status<300,\n    `${note}: HTTP ${result.status}: ${JSON.stringify(result.data)}`);\n}\nfunction expectDenied(result, note) {\n  assert.ok(result.status===401 || result.status===403,\n    `${note} should be forbidden: HTTP ${result.status}: ${JSON.stringify(result.data)}`);\n}\nconst first = await request(\"/notification_deliveries?select=id&order=id.asc\",{user:\"A\"});\nexpectOk(first,\"A own notification history\");\nassert.deepEqual(first.data.map(r=>r.id),[101,102,103]);\nconst other = await request(\"/notification_deliveries?select=id&order=id.asc\",{user:\"B\"});\nexpectOk(other,\"B own notification history\");\nassert.deepEqual(other.data.map(r=>r.id),[201]);\n\nconst endpoint=\"/rain_notification_feedback?on_conflict=notification_id\";\nconst item = (notification_id,actual_weather,owner_id=users.A) =>\n  ({notification_id,owner_id,actual_weather});\nconst put = (user,body) => request(endpoint,{\n  user,method:\"POST\",body,prefer:\"resolution=merge-duplicates,return=representation\",\n});\nconst initial = await put(\"A\",item(101,\"RAINED\"));\nexpectOk(initial,\"create own weather answer\");\nassert.equal(initial.data[0].actual_weather,\"RAINED\");\nconst loaded = await request(\"/rain_notification_feedback?select=notification_id,actual_weather&order=notification_id.asc\",{user:\"A\"});\nexpectOk(loaded,\"read own answer through HTTP\");\nassert.deepEqual(loaded.data,[{notification_id:101,actual_weather:\"RAINED\"}]);\n\nconst timeInitial = await request(\"/rain_notification_feedback?notification_id=eq.101&select=observed_at,observed_time_source\",{user:\"A\"});\nexpectOk(timeInitial,\"pre-existing answer has unset observation time\");\nassert.equal(timeInitial.data[0].observed_at,null);\nassert.equal(timeInitial.data[0].observed_time_source,\"UNKNOWN\");\n\nconst edited = await put(\"A\",{\n  ...item(101,\"DID_NOT_RAIN\"),observed_at:\"2026-10-21T00:40:00.000Z\",observed_time_source:\"RECALLED\",\n});\nexpectOk(edited,\"change own answer\");\nassert.equal(edited.data[0].actual_weather,\"DID_NOT_RAIN\");\nconst refreshed = await request(\"/rain_notification_feedback?notification_id=eq.101&select=actual_weather\",{user:\"A\"});\nexpectOk(refreshed,\"reload edited answer\");\nassert.equal(refreshed.data[0].actual_weather,\"DID_NOT_RAIN\");\nconst observed = await request(\"/rain_notification_feedback?notification_id=eq.101&select=observed_at,observed_time_source\",{user:\"A\"});\nexpectOk(observed,\"read recorded eyewitness time\");\nassert.equal(observed.data[0].observed_at,\"2026-10-21T00:40:00+00:00\");\nassert.equal(observed.data[0].observed_time_source,\"RECALLED\");\nconst malformedTime = await put(\"A\",{\n  ...item(102,\"STOPPED\"),observed_at:null,observed_time_source:\"AT_RESPONSE\",\n});\nassert.equal(malformedTime.status,400,\"database check constraint must reject a missing time\");\nassert.equal(malformedTime.data.code,\"23514\");\n\n\nexpectDenied(await put(\"B\",item(101,\"STOPPED\",users.B)),\"B cannot edit A delivered notification\");\nexpectDenied(await put(\"A\",item(201,\"STOPPED\")),\"A cannot answer B delivery\");\nexpectDenied(await put(\"A\",item(103,\"RAINED\")),\"cannot answer unsupported event\");\nexpectDenied(await put(\"A\",item(102,\"DID_NOT_RAIN\")),\"ending-event outcome mismatch\");\nexpectDenied(await put(undefined,item(101,\"RAINED\")),\"anonymous cannot save\");\n\nconst hidden = await request(\"/rain_notification_feedback?select=notification_id\",{user:\"B\"});\nexpectOk(hidden,\"B feedback select\");\nassert.deepEqual(hidden.data,[]);\nconst anon = await request(\"/rain_notification_feedback?select=notification_id\");\nexpectDenied(anon,\"unauthenticated feedback select\");\n\nconsole.log(\"PASS: isolated PostgREST HTTP create / read / upsert / reload + RLS / event policy\");\n",
+        "sha256": "2bc23341c15305808fd44a377ac4387348e4be8d080f8fd15edcad77efbc0ffe"
+      }
+    },
+    {
+      "path": "tests/feedbackObservationTime.test.ts",
+      "status": "modified",
+      "additions": 109,
+      "deletions": 0,
+      "patch": "diff --git a/tests/feedbackObservationTime.test.ts b/tests/feedbackObservationTime.test.ts\nnew file mode 100644\nindex 0000000..07ddb1d\n--- /dev/null\n+++ b/tests/feedbackObservationTime.test.ts\n@@ -0,0 +1,109 @@\n+import { describe, expect, it } from \"vitest\";\n+import { buildWeatherObservation, observedTimeLabel, localDateTimeInputToIso, observationAsLocalInput, resolveFeedbackObservation, summarizeObservationTimeCoverage, observationVsDeliveryLabel } from \"../lib/weather/rain/feedbackObservationTime\";\n+\n+describe(\"the time rain was actually observed\",()=>{\n+  const now = new Date(\"2026-10-22T00:00:00.000Z\");\n+  it(\"keeps unknown time null, never using notification or save time\",()=>{\n+    expect(buildWeatherObservation(\"unknown\",\"\",now)).toEqual({observed_at:null,observed_time_source:\"UNKNOWN\"});\n+    expect(observedTimeLabel(\"UNKNOWN\",null)).toBe(\"確認時刻は未登録\");\n+  });\n+  it(\"captures response time only when the user says they checked right now\",()=>{\n+    expect(buildWeatherObservation(\"now\",\"\",now)).toEqual({observed_at:now.toISOString(),observed_time_source:\"AT_RESPONSE\"});\n+  });\n+  it(\"keeps earlier eyewitness time distinct from response time\",()=>{\n+    const local=\"2026-10-21T12:40\";\n+    const iso=localDateTimeInputToIso(local);\n+    expect(iso).not.toBeNull();\n+    const result=buildWeatherObservation(\"earlier\",local,now);\n+    expect(result).toEqual({observed_at:iso,observed_time_source:\"RECALLED\"});\n+  });\n+  it(\"rejects missing, invalid, and future dates\",()=>{\n+    for(const value of [\"\",\"2026-10-22\",\"2026-99-99T99:99\"]){\n+      expect(()=>buildWeatherObservation(\"earlier\",value,now)).toThrow();\n+    }\n+    const future=new Date(now.getTime()+86400_000);\n+    const input = [future.getFullYear(),String(future.getMonth()+1).padStart(2,\"0\"),String(future.getDate()).padStart(2,\"0\")].join(\"-\")+\n+      \"T\"+String(future.getHours()).padStart(2,\"0\")+\":\"+String(future.getMinutes()).padStart(2,\"0\");\n+    expect(()=>buildWeatherObservation(\"earlier\",input,now)).toThrow();\n+  });\n+  it(\"does not interpret an old feedback update timestamp as observation time\",()=>{\n+    expect(observedTimeLabel(undefined,\"2026-10-21T00:00:00Z\")).toBe(\"確認時刻は未登録\");\n+  });\n+});\n+\n+describe(\"answer correction must not falsify observation timing\", () => {\n+  const now = new Date(\"2026-10-22T00:00:00Z\");\n+  const original = {observed_at:\"2026-10-21T09:12:00.000Z\",observed_time_source:\"RECALLED\" as const};\n+  it(\"preserves previous observation when only changing rain answer\", () => {\n+    expect(resolveFeedbackObservation(undefined,original,\"\",now)).toEqual(original);\n+    expect(resolveFeedbackObservation(undefined,original,\"\",now)).toBe(original);\n+  });\n+  it(\"preserves the unknown status of older records without inventing time\", () => {\n+    expect(resolveFeedbackObservation(undefined,undefined,\"\",now)).toEqual({\n+      observed_at:null,observed_time_source:\"UNKNOWN\",\n+    });\n+  });\n+  it(\"only clears a time if the user explicitly chooses unknown\", () => {\n+    expect(resolveFeedbackObservation(\"unknown\",original,\"\",now)).toEqual({\n+      observed_at:null,observed_time_source:\"UNKNOWN\",\n+    });\n+  });\n+  it(\"shows a previously saved observation in the local datetime picker\", () => {\n+    const input=observationAsLocalInput(original.observed_at);\n+    expect(input).toMatch(/^2026-10-21T\\d{2}:\\d{2}$|^2026-10-22T\\d{2}:\\d{2}$/);\n+    expect(localDateTimeInputToIso(input)).toEqual(original.observed_at);\n+  });\n+\n+  it(\"uses existing observed time when the recalled-time picker is not touched\", () => {\n+    expect(resolveFeedbackObservation(\"earlier\",original,undefined,now)).toEqual(original);\n+  });\n+  it(\"rejects a date that was explicitly cleared instead of silently restoring the old time\", () => {\n+    expect(() => resolveFeedbackObservation(\"earlier\",original,\"\",now)).toThrow(\"invalid_observed_time\");\n+  });\n+  it(\"does not invent a recalled-time value when older feedback has no time\", () => {\n+    expect(() => resolveFeedbackObservation(\"earlier\",undefined,\"\",now)).toThrow(\"invalid_observed_time\");\n+  });\n+  it(\"rejects a timestamp in the future even if it is remembered\", () => {\n+    const future = new Date(now.getTime()+86400_000);\n+    const input = observationAsLocalInput(future.toISOString());\n+    expect(() => resolveFeedbackObservation(\"earlier\", undefined,input,now)).toThrow(\"future_observation\");\n+  });\n+});\n+\n+describe(\"observation-time completeness by watched place\", () => {\n+  const answers={209:\"UNKNOWN\",210:\"ALREADY_DRY\",211:\"RAINED\"};\n+  const times={\n+    209:{observed_at:null,observed_time_source:\"UNKNOWN\" as const},\n+    210:{observed_at:\"2026-10-21T09:12:00Z\",observed_time_source:\"RECALLED\" as const},\n+    211:{observed_at:\"2026-10-22T00:00:00Z\",observed_time_source:\"AT_RESPONSE\" as const},\n+  };\n+  it(\"separates time availability from weather unknown\", () => {\n+    expect(summarizeObservationTimeCoverage([209,210,211],answers,times))\n+      .toEqual({answered:3,withTime:2,withoutTime:1});\n+  });\n+  it(\"counts only the selected place's history\", () => {\n+    expect(summarizeObservationTimeCoverage([209,210],answers,times))\n+      .toEqual({answered:2,withTime:1,withoutTime:1});\n+  });\n+  it(\"does not invent observation time for older answers\", () => {\n+    expect(summarizeObservationTimeCoverage([209,210],answers,{}))\n+      .toEqual({answered:2,withTime:0,withoutTime:2});\n+  });\n+});\n+\n+describe(\"notification time compared to eyewitness time\", () => {\n+  const delivery=\"2026-10-22T00:00:00.000Z\";\n+  it(\"shows time gap only, never an accuracy judgment\", () => {\n+    expect(observationVsDeliveryLabel(delivery,\"2026-10-22T00:25:00.000Z\"))\n+      .toBe(\"通知から25分後に確認\");\n+    expect(observationVsDeliveryLabel(delivery,\"2026-10-21T23:55:00.000Z\"))\n+      .toBe(\"通知より5分前に確認\");\n+  });\n+  it(\"handles hours, nearly simultaneous observations and unknown time\", () => {\n+    expect(observationVsDeliveryLabel(delivery,\"2026-10-22T02:05:00.000Z\"))\n+      .toBe(\"通知から2時間5分後に確認\");\n+    expect(observationVsDeliveryLabel(delivery,delivery)).toBe(\"通知とほぼ同じ時刻に確認\");\n+    expect(observationVsDeliveryLabel(delivery,null)).toBeNull();\n+    expect(observationVsDeliveryLabel(\"invalid\",delivery)).toBeNull();\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedbackObservationTime.test.ts",
+      "source": {
+        "path": "tests/feedbackObservationTime.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { buildWeatherObservation, observedTimeLabel, localDateTimeInputToIso, observationAsLocalInput, resolveFeedbackObservation, summarizeObservationTimeCoverage, observationVsDeliveryLabel } from \"../lib/weather/rain/feedbackObservationTime\";\n\ndescribe(\"the time rain was actually observed\",()=>{\n  const now = new Date(\"2026-10-22T00:00:00.000Z\");\n  it(\"keeps unknown time null, never using notification or save time\",()=>{\n    expect(buildWeatherObservation(\"unknown\",\"\",now)).toEqual({observed_at:null,observed_time_source:\"UNKNOWN\"});\n    expect(observedTimeLabel(\"UNKNOWN\",null)).toBe(\"確認時刻は未登録\");\n  });\n  it(\"captures response time only when the user says they checked right now\",()=>{\n    expect(buildWeatherObservation(\"now\",\"\",now)).toEqual({observed_at:now.toISOString(),observed_time_source:\"AT_RESPONSE\"});\n  });\n  it(\"keeps earlier eyewitness time distinct from response time\",()=>{\n    const local=\"2026-10-21T12:40\";\n    const iso=localDateTimeInputToIso(local);\n    expect(iso).not.toBeNull();\n    const result=buildWeatherObservation(\"earlier\",local,now);\n    expect(result).toEqual({observed_at:iso,observed_time_source:\"RECALLED\"});\n  });\n  it(\"rejects missing, invalid, and future dates\",()=>{\n    for(const value of [\"\",\"2026-10-22\",\"2026-99-99T99:99\"]){\n      expect(()=>buildWeatherObservation(\"earlier\",value,now)).toThrow();\n    }\n    const future=new Date(now.getTime()+86400_000);\n    const input = [future.getFullYear(),String(future.getMonth()+1).padStart(2,\"0\"),String(future.getDate()).padStart(2,\"0\")].join(\"-\")+\n      \"T\"+String(future.getHours()).padStart(2,\"0\")+\":\"+String(future.getMinutes()).padStart(2,\"0\");\n    expect(()=>buildWeatherObservation(\"earlier\",input,now)).toThrow();\n  });\n  it(\"does not interpret an old feedback update timestamp as observation time\",()=>{\n    expect(observedTimeLabel(undefined,\"2026-10-21T00:00:00Z\")).toBe(\"確認時刻は未登録\");\n  });\n});\n\ndescribe(\"answer correction must not falsify observation timing\", () => {\n  const now = new Date(\"2026-10-22T00:00:00Z\");\n  const original = {observed_at:\"2026-10-21T09:12:00.000Z\",observed_time_source:\"RECALLED\" as const};\n  it(\"preserves previous observation when only changing rain answer\", () => {\n    expect(resolveFeedbackObservation(undefined,original,\"\",now)).toEqual(original);\n    expect(resolveFeedbackObservation(undefined,original,\"\",now)).toBe(original);\n  });\n  it(\"preserves the unknown status of older records without inventing time\", () => {\n    expect(resolveFeedbackObservation(undefined,undefined,\"\",now)).toEqual({\n      observed_at:null,observed_time_source:\"UNKNOWN\",\n    });\n  });\n  it(\"only clears a time if the user explicitly chooses unknown\", () => {\n    expect(resolveFeedbackObservation(\"unknown\",original,\"\",now)).toEqual({\n      observed_at:null,observed_time_source:\"UNKNOWN\",\n    });\n  });\n  it(\"shows a previously saved observation in the local datetime picker\", () => {\n    const input=observationAsLocalInput(original.observed_at);\n    expect(input).toMatch(/^2026-10-21T\\d{2}:\\d{2}$|^2026-10-22T\\d{2}:\\d{2}$/);\n    expect(localDateTimeInputToIso(input)).toEqual(original.observed_at);\n  });\n\n  it(\"uses existing observed time when the recalled-time picker is not touched\", () => {\n    expect(resolveFeedbackObservation(\"earlier\",original,undefined,now)).toEqual(original);\n  });\n  it(\"rejects a date that was explicitly cleared instead of silently restoring the old time\", () => {\n    expect(() => resolveFeedbackObservation(\"earlier\",original,\"\",now)).toThrow(\"invalid_observed_time\");\n  });\n  it(\"does not invent a recalled-time value when older feedback has no time\", () => {\n    expect(() => resolveFeedbackObservation(\"earlier\",undefined,\"\",now)).toThrow(\"invalid_observed_time\");\n  });\n  it(\"rejects a timestamp in the future even if it is remembered\", () => {\n    const future = new Date(now.getTime()+86400_000);\n    const input = observationAsLocalInput(future.toISOString());\n    expect(() => resolveFeedbackObservation(\"earlier\", undefined,input,now)).toThrow(\"future_observation\");\n  });\n});\n\ndescribe(\"observation-time completeness by watched place\", () => {\n  const answers={209:\"UNKNOWN\",210:\"ALREADY_DRY\",211:\"RAINED\"};\n  const times={\n    209:{observed_at:null,observed_time_source:\"UNKNOWN\" as const},\n    210:{observed_at:\"2026-10-21T09:12:00Z\",observed_time_source:\"RECALLED\" as const},\n    211:{observed_at:\"2026-10-22T00:00:00Z\",observed_time_source:\"AT_RESPONSE\" as const},\n  };\n  it(\"separates time availability from weather unknown\", () => {\n    expect(summarizeObservationTimeCoverage([209,210,211],answers,times))\n      .toEqual({answered:3,withTime:2,withoutTime:1});\n  });\n  it(\"counts only the selected place's history\", () => {\n    expect(summarizeObservationTimeCoverage([209,210],answers,times))\n      .toEqual({answered:2,withTime:1,withoutTime:1});\n  });\n  it(\"does not invent observation time for older answers\", () => {\n    expect(summarizeObservationTimeCoverage([209,210],answers,{}))\n      .toEqual({answered:2,withTime:0,withoutTime:2});\n  });\n});\n\ndescribe(\"notification time compared to eyewitness time\", () => {\n  const delivery=\"2026-10-22T00:00:00.000Z\";\n  it(\"shows time gap only, never an accuracy judgment\", () => {\n    expect(observationVsDeliveryLabel(delivery,\"2026-10-22T00:25:00.000Z\"))\n      .toBe(\"通知から25分後に確認\");\n    expect(observationVsDeliveryLabel(delivery,\"2026-10-21T23:55:00.000Z\"))\n      .toBe(\"通知より5分前に確認\");\n  });\n  it(\"handles hours, nearly simultaneous observations and unknown time\", () => {\n    expect(observationVsDeliveryLabel(delivery,\"2026-10-22T02:05:00.000Z\"))\n      .toBe(\"通知から2時間5分後に確認\");\n    expect(observationVsDeliveryLabel(delivery,delivery)).toBe(\"通知とほぼ同じ時刻に確認\");\n    expect(observationVsDeliveryLabel(delivery,null)).toBeNull();\n    expect(observationVsDeliveryLabel(\"invalid\",delivery)).toBeNull();\n  });\n});\n",
+        "sha256": "09b67b0936f8ed4256451705d415c8ca4743da9431bb1e34fb817eb95006e871"
+      }
+    },
+    {
+      "path": "tests/sql/feedback-phase1-http-setup.sql",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "patch": "diff --git a/tests/sql/feedback-phase1-http-setup.sql b/tests/sql/feedback-phase1-http-setup.sql\nindex e873fcf..a61afa6 100644\n--- a/tests/sql/feedback-phase1-http-setup.sql\n+++ b/tests/sql/feedback-phase1-http-setup.sql\n@@ -35,6 +35,7 @@ INSERT INTO public.notification_deliveries(id, owner_id, event_type, target_id,\n  (201,'22222222-2222-4222-8222-222222222222','RAIN_ENDING','bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb','もうすぐ止むよ'),\n  (103,'11111111-1111-4111-8111-111111111111','SEVERE_RAIN_1','aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa','強い雨だよ');\n \\ir ../../docs/sql/my-rain-feedback-phase1.sql\n+\\ir ../../docs/sql/my-rain-feedback-observation-time.sql\n \n -- PostgREST connects as postgres in this disposable container and can SET ROLE.\n GRANT USAGE ON SCHEMA public TO authenticated, anon;\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/sql/feedback-phase1-http-setup.sql",
+      "source": {
+        "path": "tests/sql/feedback-phase1-http-setup.sql",
+        "coverage": "全文",
+        "text": "-- DISPOSABLE DATABASE ONLY. Use with the local PostgREST CI HTTP job.\n-- Never run this fixture on Supabase production.\n\\set ON_ERROR_STOP on\n\nCREATE ROLE authenticated NOLOGIN;\nCREATE ROLE anon NOLOGIN;\nCREATE SCHEMA auth;\nCREATE TABLE auth.users(id uuid PRIMARY KEY);\nCREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$\n  SELECT NULLIF(current_setting('request.jwt.claims', true)::jsonb ->> 'sub', '')::uuid\n$$;\nGRANT USAGE ON SCHEMA auth TO authenticated;\nGRANT EXECUTE ON FUNCTION auth.uid() TO authenticated;\n\nCREATE TABLE public.notification_deliveries (\n  id bigint PRIMARY KEY,\n  owner_id uuid NOT NULL REFERENCES auth.users(id),\n  event_type text NOT NULL,\n  delivered_count integer NOT NULL DEFAULT 1 CHECK (delivered_count > 0),\n  target_id uuid NOT NULL,\n  body text NOT NULL,\n  delivered_at timestamptz NOT NULL DEFAULT now()\n);\nALTER TABLE public.notification_deliveries ENABLE ROW LEVEL SECURITY;\nCREATE POLICY owner_read_notification ON public.notification_deliveries\n FOR SELECT TO authenticated USING (owner_id = (select auth.uid()));\nGRANT SELECT ON public.notification_deliveries TO authenticated;\n\nINSERT INTO auth.users(id) VALUES\n ('11111111-1111-4111-8111-111111111111'),\n ('22222222-2222-4222-8222-222222222222');\nINSERT INTO public.notification_deliveries(id, owner_id, event_type, target_id, body) VALUES\n (101,'11111111-1111-4111-8111-111111111111','RAIN_APPROACHING','aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa','雨が近づくよ'),\n (102,'11111111-1111-4111-8111-111111111111','RAIN_ENDING','aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa','もうすぐ止むよ'),\n (201,'22222222-2222-4222-8222-222222222222','RAIN_ENDING','bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb','もうすぐ止むよ'),\n (103,'11111111-1111-4111-8111-111111111111','SEVERE_RAIN_1','aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa','強い雨だよ');\n\\ir ../../docs/sql/my-rain-feedback-phase1.sql\n\\ir ../../docs/sql/my-rain-feedback-observation-time.sql\n\n-- PostgREST connects as postgres in this disposable container and can SET ROLE.\nGRANT USAGE ON SCHEMA public TO authenticated, anon;\n",
+        "sha256": "b27ea06aa286bb5680394325170e9913bbb4fb5e1b8e96b95eb70e602db50ea1"
+      }
+    },
+    {
+      "path": "tests/sql/feedback-phase1-integration.sql",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 0,
+      "patch": "diff --git a/tests/sql/feedback-phase1-integration.sql b/tests/sql/feedback-phase1-integration.sql\nindex 8aac8d2..c25a3bd 100644\n--- a/tests/sql/feedback-phase1-integration.sql\n+++ b/tests/sql/feedback-phase1-integration.sql\n@@ -37,6 +37,25 @@ INSERT INTO public.rain_notification_feedback(notification_id,owner_id,actual_we\n  ON CONFLICT (notification_id) DO UPDATE SET actual_weather=excluded.actual_weather,updated_at=now();\n INSERT INTO public.rain_notification_feedback(notification_id,owner_id,actual_weather)\n  VALUES (2,auth.uid(),'ALREADY_DRY');\n+RESET ROLE;\n+-- Existing rows retain unknown observed time after an idempotent migration.\n+\\ir ../../docs/sql/my-rain-feedback-observation-time.sql\n+\\ir ../../docs/sql/my-rain-feedback-observation-time.sql\n+SET ROLE authenticated;\n+SELECT 1 / CASE WHEN (SELECT observed_at IS NULL AND observed_time_source='UNKNOWN'\n+   FROM public.rain_notification_feedback WHERE notification_id=1)\n+   THEN 1 ELSE 0 END AS historical_time_is_unknown;\n+UPDATE public.rain_notification_feedback\n+  SET observed_at='2026-10-21T00:40:00Z', observed_time_source='RECALLED'\n+  WHERE notification_id=1;\n+SELECT 1 / CASE WHEN (SELECT observed_at IS NOT NULL AND observed_time_source='RECALLED'\n+   FROM public.rain_notification_feedback WHERE notification_id=1)\n+   THEN 1 ELSE 0 END AS recalled_time_persisted;\n+SELECT 1 / CASE WHEN EXISTS(SELECT 1 FROM pg_constraint\n+    WHERE conrelid='public.rain_notification_feedback'::regclass\n+    AND conname='rain_notification_feedback_observation_pair_check')\n+  THEN 1 ELSE 0 END AS observation_pair_constraint_exists;\n+\n DO $$\n DECLARE blocked boolean;\n BEGIN\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/sql/feedback-phase1-integration.sql",
+      "source": {
+        "path": "tests/sql/feedback-phase1-integration.sql",
+        "coverage": "全文",
+        "text": "-- Disposable PostgreSQL ONLY; do not run against production.\n\\set ON_ERROR_STOP on\nBEGIN;\nCREATE ROLE authenticated NOLOGIN;\nCREATE ROLE anon NOLOGIN;\nCREATE SCHEMA auth;\nCREATE TABLE auth.users (id uuid PRIMARY KEY);\nCREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$\n SELECT NULLIF(current_setting('request.jwt.claim.sub', true), '')::uuid\n$$;\nGRANT USAGE ON SCHEMA auth TO authenticated;\nGRANT EXECUTE ON FUNCTION auth.uid() TO authenticated;\nCREATE TABLE public.notification_deliveries (\n id bigint PRIMARY KEY, owner_id uuid NOT NULL, event_type text NOT NULL,\n delivered_count integer NOT NULL DEFAULT 1 CHECK (delivered_count > 0)\n);\nALTER TABLE public.notification_deliveries ENABLE ROW LEVEL SECURITY;\nCREATE POLICY read_own_deliveries ON public.notification_deliveries\n FOR SELECT TO authenticated USING (owner_id = (select auth.uid()));\nGRANT SELECT ON public.notification_deliveries TO authenticated;\nINSERT INTO auth.users(id) VALUES\n ('11111111-1111-4111-8111-111111111111'),\n ('22222222-2222-4222-8222-222222222222');\nINSERT INTO public.notification_deliveries(id,owner_id,event_type) VALUES\n (1,'11111111-1111-4111-8111-111111111111','ACTIONABLE_RAIN_APPROACHING'),\n (2,'11111111-1111-4111-8111-111111111111','RAIN_ENDING'),\n (3,'22222222-2222-4222-8222-222222222222','RAIN_ENDING'),\n (4,'11111111-1111-4111-8111-111111111111','SEVERE_RAIN_1');\n\\ir ../../docs/sql/my-rain-feedback-phase1.sql\n\\ir ../../docs/sql/my-rain-feedback-phase1.sql\nSET ROLE authenticated;\nSET request.jwt.claim.sub='11111111-1111-4111-8111-111111111111';\nINSERT INTO public.rain_notification_feedback(notification_id,owner_id,actual_weather)\n VALUES (1,auth.uid(),'RAINED');\nINSERT INTO public.rain_notification_feedback(notification_id,owner_id,actual_weather)\n VALUES (1,auth.uid(),'DID_NOT_RAIN')\n ON CONFLICT (notification_id) DO UPDATE SET actual_weather=excluded.actual_weather,updated_at=now();\nINSERT INTO public.rain_notification_feedback(notification_id,owner_id,actual_weather)\n VALUES (2,auth.uid(),'ALREADY_DRY');\nRESET ROLE;\n-- Existing rows retain unknown observed time after an idempotent migration.\n\\ir ../../docs/sql/my-rain-feedback-observation-time.sql\n\\ir ../../docs/sql/my-rain-feedback-observation-time.sql\nSET ROLE authenticated;\nSELECT 1 / CASE WHEN (SELECT observed_at IS NULL AND observed_time_source='UNKNOWN'\n   FROM public.rain_notification_feedback WHERE notification_id=1)\n   THEN 1 ELSE 0 END AS historical_time_is_unknown;\nUPDATE public.rain_notification_feedback\n  SET observed_at='2026-10-21T00:40:00Z', observed_time_source='RECALLED'\n  WHERE notification_id=1;\nSELECT 1 / CASE WHEN (SELECT observed_at IS NOT NULL AND observed_time_source='RECALLED'\n   FROM public.rain_notification_feedback WHERE notification_id=1)\n   THEN 1 ELSE 0 END AS recalled_time_persisted;\nSELECT 1 / CASE WHEN EXISTS(SELECT 1 FROM pg_constraint\n    WHERE conrelid='public.rain_notification_feedback'::regclass\n    AND conname='rain_notification_feedback_observation_pair_check')\n  THEN 1 ELSE 0 END AS observation_pair_constraint_exists;\n\nDO $$\nDECLARE blocked boolean;\nBEGIN\n IF (SELECT count(*) FROM public.rain_notification_feedback) <> 2 THEN RAISE EXCEPTION 'OWN_READ_FAILED'; END IF;\n IF (SELECT actual_weather FROM public.rain_notification_feedback WHERE notification_id=1) <> 'DID_NOT_RAIN' THEN RAISE EXCEPTION 'EDIT_FAILED'; END IF;\n blocked := false;\n BEGIN INSERT INTO public.rain_notification_feedback(notification_id,owner_id,actual_weather)\n  VALUES (3,auth.uid(),'STOPPED');\n EXCEPTION WHEN insufficient_privilege OR check_violation THEN blocked := true; END;\n IF NOT blocked THEN RAISE EXCEPTION 'CROSS_OWNER_INSERT_ACCEPTED'; END IF;\n blocked := false;\n BEGIN INSERT INTO public.rain_notification_feedback(notification_id,owner_id,actual_weather)\n  VALUES (4,auth.uid(),'RAINED');\n EXCEPTION WHEN insufficient_privilege OR check_violation THEN blocked := true; END;\n IF NOT blocked THEN RAISE EXCEPTION 'UNSUPPORTED_EVENT_ACCEPTED'; END IF;\n blocked := false;\n BEGIN UPDATE public.rain_notification_feedback SET actual_weather='STOPPED' WHERE notification_id=1;\n EXCEPTION WHEN insufficient_privilege OR check_violation THEN blocked := true; END;\n IF NOT blocked THEN RAISE EXCEPTION 'WRONG_OUTCOME_ACCEPTED'; END IF;\nEND $$;\nSET request.jwt.claim.sub='22222222-2222-4222-8222-222222222222';\nDO $$\nBEGIN\n IF (SELECT count(*) FROM public.rain_notification_feedback) <> 0 THEN RAISE EXCEPTION 'CROSS_OWNER_FEEDBACK_LEAK'; END IF;\n IF (SELECT count(*) FROM public.notification_deliveries) <> 1 THEN RAISE EXCEPTION 'CROSS_OWNER_DELIVERY_LEAK'; END IF;\nEND $$;\nRESET ROLE;\nSET ROLE anon;\nDO $$\nDECLARE blocked boolean := false;\nBEGIN\n BEGIN PERFORM count(*) FROM public.rain_notification_feedback;\n EXCEPTION WHEN insufficient_privilege THEN blocked := true; END;\n IF NOT blocked THEN RAISE EXCEPTION 'ANON_ACCESS_ACCEPTED'; END IF;\nEND $$;\nRESET ROLE;\nROLLBACK;\n\\echo 'phase-one feedback SQL checks passed on disposable PostgreSQL'\n",
+        "sha256": "db3d282b2c14a6c64bac912b8c23c5cf1c3838a654662fe1a195ede6428d516c"
+      }
+    }
+  ],
+  "file_count": 10,
+  "reported_file_count": 10,
+  "commits": [
+    {
+      "sha": "d499906d5043d07d4d023c15343358a4bc970145",
+      "message": "feat: distinguish observed weather time from saved and notification time\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/d499906d5043d07d4d023c15343358a4bc970145"
+    },
+    {
+      "sha": "f36539e19be93d2e190b840ea3c334520d778405",
+      "message": "sql: stage additive nullable observed-time migration; preserve old answers as unknown\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/f36539e19be93d2e190b840ea3c334520d778405"
+    },
+    {
+      "sha": "4b82213d3018c7bae807fc59db03a7b8d50d1819",
+      "message": "feat: persist optional observed-at timestamp separately from reply save time\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/4b82213d3018c7bae807fc59db03a7b8d50d1819"
+    },
+    {
+      "sha": "84ee2557c4b9242b1ecec1c669c9f6190e57c674",
+      "message": "feat: optional observation-time selector on each weather feedback card\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/84ee2557c4b9242b1ecec1c669c9f6190e57c674"
+    },
+    {
+      "sha": "f980b87b581e78b96be8a9b3edd53995c37bd7be",
+      "message": "sql: let caller control transaction for reversible migration testing\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/f980b87b581e78b96be8a9b3edd53995c37bd7be"
+    },
+    {
+      "sha": "852b5adea02f83e0e1f2018ccb80c1c14067d945",
+      "message": "test: observation time is not forecast or response time\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/852b5adea02f83e0e1f2018ccb80c1c14067d945"
+    },
+    {
+      "sha": "0e4dfc7409fcbfea3b01ad38ffd06aa4dd285667",
+      "message": "test: check additive migration, existing answers, observed-time pairing and idempotency\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/0e4dfc7409fcbfea3b01ad38ffd06aa4dd285667"
+    },
+    {
+      "sha": "1109c5c706209547a5edb9c397adf9978631eaf7",
+      "message": "test: execute migration as schema owner and repair plpgsql test block quoting\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/1109c5c706209547a5edb9c397adf9978631eaf7"
+    },
+    {
+      "sha": "c3a8657cac1f87d2685b2ba1faaf619738b3860e",
+      "message": "test: include observation metadata in isolated HTTP PostgREST fixture\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/c3a8657cac1f87d2685b2ba1faaf619738b3860e"
+    },
+    {
+      "sha": "8aa0d4e109f68326c23a04333217e19b6564820c",
+      "message": "test: verify historical null observed-time and new timestamp through real PostgREST\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/8aa0d4e109f68326c23a04333217e19b6564820c"
+    },
+    {
+      "sha": "4494a7c947a15cd603f3fbce231eea5ef7897c6e",
+      "message": "test: use portable SQL assertions for historical observation migration\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/4494a7c947a15cd603f3fbce231eea5ef7897c6e"
+    },
+    {
+      "sha": "f354135d99d9ab143a24a8c271368c26dcc0248d",
+      "message": "test: check PostgREST 400 check-constraint response separately from 403 RLS denials\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/f354135d99d9ab143a24a8c271368c26dcc0248d"
+    },
+    {
+      "sha": "cf5a1caeadcf5c136c4ac1e3bb09b30d82a29a70",
+      "message": "docs: stage observation time design and explicit production DB migration gate\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/cf5a1caeadcf5c136c4ac1e3bb09b30d82a29a70"
+    },
+    {
+      "sha": "194b377b3c87fe4c9aa4c86be48230554f7bd71e",
+      "message": "feat: preserve observation timestamp on answer edit and prefill recalled time\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/194b377b3c87fe4c9aa4c86be48230554f7bd71e"
+    },
+    {
+      "sha": "efff305006bca0ffb956179b67995053af630136",
+      "message": "fix: keep original eyewitness timestamp on answer edits and show recalled time in picker\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/efff305006bca0ffb956179b67995053af630136"
+    },
+    {
+      "sha": "51c89e8620f134c96520b38b3ebb0b22ef3f7d71",
+      "message": "test: keep eyewitness observation time stable when correcting answer and prefill time input\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/51c89e8620f134c96520b38b3ebb0b22ef3f7d71"
+    },
+    {
+      "sha": "26943f538f4084487b5bd715cbf657ea0bda4f6c",
+      "message": "docs: checkpoint preservation of observed timestamp on feedback edits and passing CI\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/26943f538f4084487b5bd715cbf657ea0bda4f6c"
+    },
+    {
+      "sha": "375f0fb26a8864b1a14589f88d6a3db039e73a68",
+      "message": "fix: preserve prefilled eyewitness time when user explicitly reselects earlier\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/375f0fb26a8864b1a14589f88d6a3db039e73a68"
+    },
+    {
+      "sha": "25494bca2cd0ca3121a7e078de8911022d298d2f",
+      "message": "test: prefilled recalled time can be saved without manually retyping\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/25494bca2cd0ca3121a7e078de8911022d298d2f"
+    },
+    {
+      "sha": "fb7aad08182a3bafc65b872c1181154d044c6288",
+      "message": "feat: let an answered notification record observation time without reselecting weather\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/fb7aad08182a3bafc65b872c1181154d044c6288"
+    },
+    {
+      "sha": "c39c35773cc60bb3e7fdda2aa2b5bcec983bd71a",
+      "message": "fix: only show observation-time save after explicit change and detect edited recalled date\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/c39c35773cc60bb3e7fdda2aa2b5bcec983bd71a"
+    },
+    {
+      "sha": "9ad19e70a091b59deefff7bf74455aab07459989",
+      "message": "feat: summarize how many answered notifications have a real observation time\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/9ad19e70a091b59deefff7bf74455aab07459989"
+    },
+    {
+      "sha": "f5dc9217e571f5b2967f23f6b68a8d8150c49a98",
+      "message": "feat: show observation-time coverage per watched place and clear stale values when session changes\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/f5dc9217e571f5b2967f23f6b68a8d8150c49a98"
+    },
+    {
+      "sha": "b8add8776e6372a557aace5d1b0506d3f8755bff",
+      "message": "test: show known observation-time coverage without counting unknown as false\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/b8add8776e6372a557aace5d1b0506d3f8755bff"
+    },
+    {
+      "sha": "f3b4fe3f01e5dd06a82ad3e06fe8a247fe68ca5f",
+      "message": "docs: checkpoint timestamp coverage UX, clean state on session loss, and CI success\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/f3b4fe3f01e5dd06a82ad3e06fe8a247fe68ca5f"
+    },
+    {
+      "sha": "09c7977dc6592595b62ad166db4da742a87ab6c1",
+      "message": "feat: display elapsed interval between Push arrival and actual eyewitness time without scoring accuracy\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/09c7977dc6592595b62ad166db4da742a87ab6c1"
+    },
+    {
+      "sha": "fb9044017f3d93d3acbc8176f90bc8b7f77948d9",
+      "message": "feat: show timing difference beneath observed weather report\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/fb9044017f3d93d3acbc8176f90bc8b7f77948d9"
+    },
+    {
+      "sha": "39134858dcdd6b49f1dc155e3984619fe63d85d9",
+      "message": "test: distinguish observation vs delivery interval from forecast accuracy\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/39134858dcdd6b49f1dc155e3984619fe63d85d9"
+    },
+    {
+      "sha": "bf70054f05e8645178d4f16df0f5fc44ebedec98",
+      "message": "docs: preflight production migration ordering and read-only schema check; no prod writes\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/bf70054f05e8645178d4f16df0f5fc44ebedec98"
+    },
+    {
+      "sha": "bd16ed5e7a49341120c293bfd81caf752b378999",
+      "message": "fix: distinguish untouched observed-time input from deliberately cleared value\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/bd16ed5e7a49341120c293bfd81caf752b378999"
+    },
+    {
+      "sha": "ac69bb07dc3f716fadcffbb1cc8a37e796e2b00e",
+      "message": "fix: pass untouched versus cleared date-picker state into observation validation\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/ac69bb07dc3f716fadcffbb1cc8a37e796e2b00e"
+    },
+    {
+      "sha": "2f8462037bc6f9dba916626ee9a8e4ac0c1f11a2",
+      "message": "test: reject explicitly cleared observation input while preserving untouched previous time\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/2f8462037bc6f9dba916626ee9a8e4ac0c1f11a2"
+    },
+    {
+      "sha": "8f33243957849257291e19ed8744e57bc8e66037",
+      "message": "docs: lock iPhone observation-time QA plan and explicitly-cleared input regression\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/8f33243957849257291e19ed8744e57bc8e66037"
+    },
+    {
+      "sha": "fa6c4ba0de0feeec8db6eac113551333990a3ea2",
+      "message": "sql: make repeated observation-time migration preserve existing constraint\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/fa6c4ba0de0feeec8db6eac113551333990a3ea2"
+    },
+    {
+      "sha": "bbdb78261539188f3e04f64ac7117a6284aa2cad",
+      "message": "docs: add read-only pre-migration schema and feedback-count audit\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/bbdb78261539188f3e04f64ac7117a6284aa2cad"
+    },
+    {
+      "sha": "d7efe03e23f4b8bbb0e95f1de701a08f8fb38223",
+      "message": "docs: record pre-migration audit and explicit release gate\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "d7efe03e23f4b8bbb0e95f1de701a08f8fb38223",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/39724551135",
+      "id": 39724551135,
+      "updated_at": "2026-10-22T04:50:50Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "AND",
+    "FEEDBACK_OPTIONS",
+    "NotificationFeedbackHistory",
+    "ORDER",
+    "WHERE",
+    "allowed",
+    "anon",
+    "answer",
+    "answered",
+    "answers",
+    "base64",
+    "buildWeatherObservation",
+    "choice",
+    "client",
+    "compactHistory",
+    "d",
+    "data",
+    "date",
+    "delivery",
+    "duration",
+    "edited",
+    "effectiveLocal",
+    "endpoint",
+    "existingObservation",
+    "expanded",
+    "expectDenied",
+    "expectOk",
+    "first",
+    "focused",
+    "formatTokyo",
+    "formatted",
+    "future",
+    "h",
+    "headers",
+    "hidden",
+    "history",
+    "id",
+    "ids",
+    "initial",
+    "input",
+    "interval",
+    "iso",
+    "item",
+    "loadPhase1Feedback",
+    "loadPhase2ObservationTimes",
+    "loaded",
+    "local",
+    "localDateTimeInputToIso",
+    "malformedTime",
+    "next",
+    "now",
+    "observation",
+    "observationAsLocalInput",
+    "observationVsDeliveryLabel",
+    "observations",
+    "observed",
+    "observedTimeLabel",
+    "onRegistered",
+    "onVisible",
+    "options"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "雨通知の現地報告に任意の観測時刻を追加",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/71"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "b2b6d3dd82aba4324354f15e91e61ecb7724eb61dce33759363a9744b9c5aed5",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00"
+}
