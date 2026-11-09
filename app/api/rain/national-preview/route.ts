@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { fetchObservationTargetTimes } from "@/lib/weather/providers/jma/observationTargetTimes";
 import { fetchForecastTargetTimes } from "@/lib/weather/providers/jma/targetTimes";
 import { buildJmaRainTileUrl } from "@/lib/weather/providers/jma/tileUrl";
-import { candidateKey, scanHeavyRainTile, type HeavyRainCandidate } from "@/lib/weather/rain/nationalHeavyRain";
+import { candidateKey, scanHeavyRainTile } from "@/lib/weather/rain/nationalHeavyRain";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -23,13 +23,11 @@ async function fetchTile(frame: { basetime: string; validtime: string }, x: numb
 }
 
 async function scanFrame(frame: { basetime: string; validtime: string }) {
-  const parts = await Promise.all(JAPAN_TILES.map(async ([x, y]) => {
-    try {
-      return scanHeavyRainTile(await fetchTile(frame, x, y), ZOOM, x, y);
-    } catch {
-      return [] as HeavyRainCandidate[];
-    }
-  }));
+  // Missing tiles are unknown coverage, not proof of zero heavy rain.
+  // Fail the complete preview instead of silently treating failed regions as clear.
+  const parts = await Promise.all(JAPAN_TILES.map(async ([x, y]) =>
+    scanHeavyRainTile(await fetchTile(frame, x, y), ZOOM, x, y)
+  ));
   return parts.flat();
 }
 
