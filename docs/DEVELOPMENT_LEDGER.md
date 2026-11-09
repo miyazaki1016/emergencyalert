@@ -197,7 +197,7 @@
 | #160 | 雨の判定ラボ：現地保留を主判定から外し、降り始め不明を補足表示 | open | `c5a46647e183eb00e335cefc3af4054733db9bd7` | 2026-11-05T04:04:38Z |
 | #161 | ci: stop automatic previews and skip documentation-only builds | merged | `8ee8edff9b9c2fd5ce9d19eea2d408b51c768cab` | 2026-11-05T04:43:39Z |
 | #162 | docs: 総覧を短くし、案件管理を開発台帳へ集約 | merged | `77d576da3d309f65b8f7292c16d8d5a71201adf9` | 2026-11-05T04:58:11Z |
-| #164 | feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階） | open | `b098bf90f1cf73d606d8e4be476b1ee22a88f2ca` | 2026-11-08T23:36:14Z |
+| #164 | feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階） | open | `96d1b7244f8e75b73fdb2485e8c30a964ebd273a` | 2026-11-09T05:42:13Z |
 | #165 | docs: 雨の判定ラボ173コマの方式差分・未検証事項を整理 | open | `0ae9da31f65a2afe184a6efd36628a0ac1c2bda3` | 2026-11-08T23:18:57Z |
 | #166 | fix(jaspic): accept trailing slash in Supabase URL | merged | `776fe24e8199cd565625c859b58cf6e1d067284b` | 2026-11-06T04:45:07Z |
 | #167 | style(jaspic): improve iPhone login page layout | merged | `37efdbc992e3a63ea0c91c0b1a267e24742ee875` | 2026-11-06T05:45:33Z |
@@ -212,4 +212,6 @@
 | #176 | Rain Lab: clearer case summaries and color-coded match grades | merged | `8b556eeee0ce0443a47efbb1077981951a27a00b` | 2026-11-09T02:15:07Z |
 | #177 | Rain Lab: compact case list labels | merged | `1f86e2fc1abd29668aa705b4bb791ad495e6068c` | 2026-11-09T02:19:06Z |
 | #178 | Rain Lab: keep notification and forecast timestamps in case list | merged | `26f68c8668654f1db20469c2815bf36ce41e3587` | 2026-11-09T02:23:17Z |
+| #179 | Research: distinguish rain onset from strengthening in failed alerts | open | `e61aad6fd16f22111cf618dc5a6e0a4e20d9fed2` | 2026-11-09T05:35:38Z |
+| #180 | docs: preserve Sakikuru vision, LIVE JAPAN homepage and original X/GIF assets | merged | `8143ff3a2011a516d3d58be1258dbbb0f9b97785` | 2026-11-09T06:51:07Z |
 <!-- INVENTORY_FACTS_END -->

@@ -42,6 +42,7 @@
 | #164 | feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階） | feat/vercel-quota-monitor-20261105 |
 | #165 | docs: 雨の判定ラボ173コマの方式差分・未検証事項を整理 | research/rain-lab-five-frame-differences-20261105 |
 | #175 | Research: rain notification accuracy baseline and replay plan | research/rain-accuracy-baseline-20261109 |
+| #179 | Research: distinguish rain onset from strengthening in failed alerts | research/rain-approach-timing-20261109 |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
