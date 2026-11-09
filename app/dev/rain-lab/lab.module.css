@@ -5,3 +5,18 @@
 .contrast{font-size:12px!important;padding:7px 9px!important;margin-top:10px}.table caption{text-align:left;font-weight:700;padding:12px 0;color:#29475c}
 
 .explanation{margin:20px 0}.reasonList{list-style:none;padding:0;display:grid;gap:10px}.reasonList li{padding:13px;border-radius:10px;border-left:4px solid #b18536}.reasonList p{font-size:14px;margin:8px 0 0}.difference{background:#fff3df}.hold{background:#edf3f6}
+
+/* Compact, accessible status badges: color is always accompanied by text. */
+.grade{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-width:100%;padding:7px 10px;border-radius:12px;font-size:13px;font-weight:800;line-height:1.35;text-align:center;white-space:normal;flex-shrink:0}
+.grade_exact{background:#e2f4e9;color:#145c37;border:1px solid #8cc8a1}
+.grade_within5{background:#fff5cb;color:#705000;border:1px solid #e2c563}
+.grade_within10{background:#fff0dc;color:#86430b;border:1px solid #e5ae6b}
+.grade_mismatch{background:#ffe6e3;color:#9b2823;border:1px solid #e5a19b}
+.grade_pending{background:#eaf0f4;color:#455c6b;border:1px solid #bac9d2}
+.caseOverview{background:#f4f8fa;border:1px solid #dbe6eb;border-radius:12px;padding:14px;margin-bottom:14px}
+.caseOverview p{margin:9px 0}
+.overviewTimes{display:flex;gap:10px;flex-wrap:wrap;font-size:14px}
+.overviewTimes span{background:white;border:1px solid #dae5ea;border-radius:8px;padding:6px 9px}
+.technical{margin:12px 0;border-top:1px solid #e1e9ee;padding-top:10px}
+.technical>summary{font-weight:700;color:#345b6d;padding:8px 0}
+@media(max-width:700px){.case summary{align-items:center;flex-wrap:wrap}.case summary>span:first-child{flex:1 1 175px;min-width:0}.case summary .grade{margin-left:auto}.overviewTimes{flex-direction:column}.images{grid-template-columns:1fr}.crop{max-width:280px}}
