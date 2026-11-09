@@ -2,6 +2,21 @@ import {classifyRainPixel} from '../weather/providers/jma/classifyPixel';
 export type State='RAIN'|'NO_RAIN'|'INDETERMINATE';
 export type Method='point'|'area'|'combined';
 export type Evaluation={id:string;target_id:string;event_type:string;target_time:string|null;created_at:string;notification_id:number|null;state:string;image_state:string;shadow_state:string;delivery_record_status?:string;attempts?:number;image_attempts?:number;shadow_attempts?:number;deadline_at?:string;last_error?:string|null;image_error?:string|null;shadow_error?:string|null;evidence?:unknown;radar_result?:{reason?:string;missingTimes?:string[];exact?:string;within5?:string;within10?:string};snapshot:{decidedAt:string;body?:string;location:{latitude:number;longitude:number};[key:string]:unknown}};
+export type MatchGrade='exact'|'within5'|'within10'|'mismatch'|'pending';
+export const MATCH_GRADE_LABELS:Record<MatchGrade,string>={
+ exact:'🟢 ぴったり一致',within5:'🟡 ±5分以内',within10:'🟠 ±10分以内',
+ mismatch:'🔴 不一致',pending:'⚪ 判定保留',
+};
+/** A wider matching window takes precedence over an indeterminate narrower window.
+ * A red mismatch requires all three windows to be definitively mismatched. */
+export function matchGrade(e:Pick<Evaluation,'radar_result'|'state'>):MatchGrade{
+ const r=e.radar_result;
+ if(r?.exact==='MATCH')return 'exact';
+ if(r?.within5==='MATCH')return 'within5';
+ if(r?.within10==='MATCH')return 'within10';
+ if(r?.exact==='MISMATCH'&&r?.within5==='MISMATCH'&&r?.within10==='MISMATCH')return 'mismatch';
+ return 'pending';
+}
 export type Score={validTime:string;predicted:State;actual:State;verdict:string;reason?:string;leadMinutes?:number};
 export type Series={series:Array<{validTime:string;state:State;reason?:string}>;scores:Score[];transitions?:{rainStartsAt:string|null;rainEndsAt:string|null}};
 export type Shadow={evaluation_id:string;algorithm_version:string;features:Array<{kind:string;baseTime:string;validTime:string;matchesInputPixel:boolean|null;capturedAt:string;metrics:{circles:Record<string,{rainFraction:number|null;usableCoverage:number;missingFraction:number;unknownFraction:number;rainComponentCount:number;centerDryHoleM2:number|null}>}}>;
