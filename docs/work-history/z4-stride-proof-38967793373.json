@@ -1,0 +1,1262 @@
+{
+  "source": "https://github.com/miyazaki1016/emergencyalert/actions/runs/38967793373/job/117198479484",
+  "head_sha": "e746d022179a99daa2d16b2d31542aaa41f95698",
+  "extracted_at": "2026-11-09",
+  "measurement": {
+    "mode": "Z4_STRIDE_PARITY_READ_ONLY",
+    "thresholdMmPerHour": 30,
+    "connectivity": 4,
+    "frames": [
+      {
+        "kind": "observation",
+        "validtime": "20261016211000",
+        "bench": [
+          {
+            "stride": 2,
+            "meanScanMs": 24.778677499999958,
+            "minScanMs": 21.364886999999953,
+            "maxScanMs": 38.940792999999985,
+            "rssDeltaBytes": 7995392,
+            "heapDeltaBytes": 109608,
+            "candidateCount": 6,
+            "z10JobsInMemory": 6,
+            "z10DistinctTiles": 6,
+            "z10RepeatedTileJobs": 0,
+            "z10WindowPixelChecks": 24576,
+            "z10UniqueWindowPixels": 24576
+          },
+          {
+            "stride": 1,
+            "meanScanMs": 25.560994125000008,
+            "minScanMs": 25.264625999999907,
+            "maxScanMs": 26.167339999999967,
+            "rssDeltaBytes": 5918720,
+            "heapDeltaBytes": -530296,
+            "candidateCount": 28,
+            "z10JobsInMemory": 28,
+            "z10DistinctTiles": 16,
+            "z10RepeatedTileJobs": 12,
+            "z10WindowPixelChecks": 114688,
+            "z10UniqueWindowPixels": 114688
+          }
+        ],
+        "decodeParity": [
+          {
+            "stride": 1,
+            "rounds": 8,
+            "twoDecodeMeanMs": 46.03712599999997,
+            "oneDecodeMeanMs": 24.893947625000067,
+            "twoCandidates": 28,
+            "oneCandidates": 28,
+            "identical": true
+          }
+        ],
+        "z6Sample": [
+          {
+            "tileX": 54,
+            "tileY": 26,
+            "totalWindowsForTile": 21,
+            "windows": [
+              {
+                "window": {
+                  "minX": 164,
+                  "minY": 48,
+                  "maxX": 167,
+                  "maxY": 51
+                },
+                "twoDecodeMeanMs": 9.115499,
+                "oneDecodeMeanMs": 4.493576124999947,
+                "detected": 2,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 164,
+                  "minY": 120,
+                  "maxX": 167,
+                  "maxY": 123
+                },
+                "twoDecodeMeanMs": 9.14596712499997,
+                "oneDecodeMeanMs": 4.5056788750001715,
+                "detected": 2,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 172,
+                  "minY": 124,
+                  "maxX": 175,
+                  "maxY": 127
+                },
+                "twoDecodeMeanMs": 9.035023625000065,
+                "oneDecodeMeanMs": 4.5188241249999805,
+                "detected": 6,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          },
+          {
+            "tileX": 54,
+            "tileY": 27,
+            "totalWindowsForTile": 1,
+            "windows": [
+              {
+                "window": {
+                  "minX": 196,
+                  "minY": 80,
+                  "maxX": 199,
+                  "maxY": 83
+                },
+                "twoDecodeMeanMs": 9.057428000000073,
+                "oneDecodeMeanMs": 4.485519625000109,
+                "detected": 1,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          },
+          {
+            "tileX": 53,
+            "tileY": 27,
+            "totalWindowsForTile": 2,
+            "windows": [
+              {
+                "window": {
+                  "minX": 192,
+                  "minY": 144,
+                  "maxX": 195,
+                  "maxY": 147
+                },
+                "twoDecodeMeanMs": 9.04996924999989,
+                "oneDecodeMeanMs": 4.499399499999981,
+                "detected": 4,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 244,
+                  "minY": 156,
+                  "maxX": 247,
+                  "maxY": 159
+                },
+                "twoDecodeMeanMs": 8.978705999999875,
+                "oneDecodeMeanMs": 4.486366125000131,
+                "detected": 2,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          }
+        ],
+        "z6TotalJobs": 28,
+        "z6DistinctTiles": 4,
+        "stageChain": [
+          {
+            "zoom": 6,
+            "tileX": 54,
+            "tileY": 26,
+            "window": {
+              "minX": 164,
+              "minY": 48,
+              "maxX": 167,
+              "maxY": 51
+            },
+            "candidates": 2,
+            "identical": true
+          },
+          {
+            "zoom": 8,
+            "tileX": 218,
+            "tileY": 104,
+            "window": {
+              "minX": 152,
+              "minY": 204,
+              "maxX": 155,
+              "maxY": 207
+            },
+            "candidates": 4,
+            "identical": true
+          },
+          {
+            "zoom": 10,
+            "tileX": 874,
+            "tileY": 419,
+            "window": {
+              "minX": 104,
+              "minY": 52,
+              "maxX": 107,
+              "maxY": 55
+            },
+            "candidates": 8,
+            "identical": true
+          }
+        ],
+        "fetchedTiles": 6,
+        "unavailableTiles": 0,
+        "compressedBytes": 2523,
+        "allHeavyPixels": 28,
+        "stride2HeavyPixels": 6,
+        "omittedHeavyPixels": 22,
+        "omittedFraction": 0.7857142857142857,
+        "fourConnectedHeavyRegions": 16,
+        "regionsWithNoStride2Pixel": 10,
+        "complete": true
+      },
+      {
+        "kind": "observation",
+        "validtime": "20261016210500",
+        "bench": [
+          {
+            "stride": 2,
+            "meanScanMs": 21.79265262499996,
+            "minScanMs": 20.64665800000057,
+            "maxScanMs": 28.079219999999623,
+            "rssDeltaBytes": -380928,
+            "heapDeltaBytes": -1930800,
+            "candidateCount": 7,
+            "z10JobsInMemory": 7,
+            "z10DistinctTiles": 6,
+            "z10RepeatedTileJobs": 1,
+            "z10WindowPixelChecks": 28672,
+            "z10UniqueWindowPixels": 28672
+          },
+          {
+            "stride": 1,
+            "meanScanMs": 26.461733749999894,
+            "minScanMs": 24.728550999999243,
+            "maxScanMs": 36.77527900000041,
+            "rssDeltaBytes": -6983680,
+            "heapDeltaBytes": -9174304,
+            "candidateCount": 30,
+            "z10JobsInMemory": 30,
+            "z10DistinctTiles": 15,
+            "z10RepeatedTileJobs": 15,
+            "z10WindowPixelChecks": 122880,
+            "z10UniqueWindowPixels": 122880
+          }
+        ],
+        "decodeParity": [
+          {
+            "stride": 1,
+            "rounds": 8,
+            "twoDecodeMeanMs": 45.06893287499997,
+            "oneDecodeMeanMs": 26.631814374999976,
+            "twoCandidates": 30,
+            "oneCandidates": 30,
+            "identical": true
+          }
+        ],
+        "z6Sample": [
+          {
+            "tileX": 54,
+            "tileY": 26,
+            "totalWindowsForTile": 22,
+            "windows": [
+              {
+                "window": {
+                  "minX": 164,
+                  "minY": 120,
+                  "maxX": 167,
+                  "maxY": 123
+                },
+                "twoDecodeMeanMs": 9.995345999999927,
+                "oneDecodeMeanMs": 4.514630124999712,
+                "detected": 2,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 172,
+                  "minY": 120,
+                  "maxX": 175,
+                  "maxY": 123
+                },
+                "twoDecodeMeanMs": 9.253726625000127,
+                "oneDecodeMeanMs": 4.480357375000494,
+                "detected": 2,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 172,
+                  "minY": 124,
+                  "maxX": 175,
+                  "maxY": 127
+                },
+                "twoDecodeMeanMs": 8.939863749999859,
+                "oneDecodeMeanMs": 4.463438375000123,
+                "detected": 4,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          },
+          {
+            "tileX": 53,
+            "tileY": 27,
+            "totalWindowsForTile": 2,
+            "windows": [
+              {
+                "window": {
+                  "minX": 192,
+                  "minY": 144,
+                  "maxX": 195,
+                  "maxY": 147
+                },
+                "twoDecodeMeanMs": 9.010862374999988,
+                "oneDecodeMeanMs": 4.580614624999271,
+                "detected": 4,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 244,
+                  "minY": 156,
+                  "maxX": 247,
+                  "maxY": 159
+                },
+                "twoDecodeMeanMs": 8.922444750000068,
+                "oneDecodeMeanMs": 4.441903124999726,
+                "detected": 4,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          },
+          {
+            "tileX": 54,
+            "tileY": 27,
+            "totalWindowsForTile": 1,
+            "windows": [
+              {
+                "window": {
+                  "minX": 4,
+                  "minY": 152,
+                  "maxX": 7,
+                  "maxY": 155
+                },
+                "twoDecodeMeanMs": 9.31085899999971,
+                "oneDecodeMeanMs": 4.4742212499998,
+                "detected": 2,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          }
+        ],
+        "z6TotalJobs": 30,
+        "z6DistinctTiles": 4,
+        "stageChain": [
+          {
+            "zoom": 6,
+            "tileX": 54,
+            "tileY": 26,
+            "window": {
+              "minX": 164,
+              "minY": 120,
+              "maxX": 167,
+              "maxY": 123
+            },
+            "candidates": 2,
+            "identical": true
+          },
+          {
+            "zoom": 8,
+            "tileX": 218,
+            "tileY": 105,
+            "window": {
+              "minX": 144,
+              "minY": 232,
+              "maxX": 147,
+              "maxY": 235
+            },
+            "candidates": 3,
+            "identical": true
+          },
+          {
+            "zoom": 10,
+            "tileX": 874,
+            "tileY": 423,
+            "window": {
+              "minX": 68,
+              "minY": 172,
+              "maxX": 71,
+              "maxY": 175
+            },
+            "candidates": 6,
+            "identical": true
+          }
+        ],
+        "fetchedTiles": 6,
+        "unavailableTiles": 0,
+        "compressedBytes": 2470,
+        "allHeavyPixels": 30,
+        "stride2HeavyPixels": 7,
+        "omittedHeavyPixels": 23,
+        "omittedFraction": 0.7666666666666667,
+        "fourConnectedHeavyRegions": 13,
+        "regionsWithNoStride2Pixel": 7,
+        "complete": true
+      },
+      {
+        "kind": "observation",
+        "validtime": "20261016210000",
+        "bench": [
+          {
+            "stride": 2,
+            "meanScanMs": 20.83442562500045,
+            "minScanMs": 20.64378299999953,
+            "maxScanMs": 21.35058200000094,
+            "rssDeltaBytes": 0,
+            "heapDeltaBytes": -3416552,
+            "candidateCount": 6,
+            "z10JobsInMemory": 6,
+            "z10DistinctTiles": 5,
+            "z10RepeatedTileJobs": 1,
+            "z10WindowPixelChecks": 24576,
+            "z10UniqueWindowPixels": 24576
+          },
+          {
+            "stride": 1,
+            "meanScanMs": 24.86064887500038,
+            "minScanMs": 24.45752200000061,
+            "maxScanMs": 25.601497999999992,
+            "rssDeltaBytes": -1146880,
+            "heapDeltaBytes": 7168272,
+            "candidateCount": 24,
+            "z10JobsInMemory": 24,
+            "z10DistinctTiles": 13,
+            "z10RepeatedTileJobs": 11,
+            "z10WindowPixelChecks": 98304,
+            "z10UniqueWindowPixels": 98304
+          }
+        ],
+        "decodeParity": [
+          {
+            "stride": 1,
+            "rounds": 8,
+            "twoDecodeMeanMs": 45.20129687500025,
+            "oneDecodeMeanMs": 24.984736625000096,
+            "twoCandidates": 24,
+            "oneCandidates": 24,
+            "identical": true
+          }
+        ],
+        "z6Sample": [
+          {
+            "tileX": 54,
+            "tileY": 26,
+            "totalWindowsForTile": 14,
+            "windows": [
+              {
+                "window": {
+                  "minX": 164,
+                  "minY": 120,
+                  "maxX": 167,
+                  "maxY": 123
+                },
+                "twoDecodeMeanMs": 8.982678625000062,
+                "oneDecodeMeanMs": 4.659637624999959,
+                "detected": 9,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 164,
+                  "minY": 124,
+                  "maxX": 167,
+                  "maxY": 127
+                },
+                "twoDecodeMeanMs": 10.428582624999763,
+                "oneDecodeMeanMs": 4.505212000000256,
+                "detected": 1,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 164,
+                  "minY": 188,
+                  "maxX": 167,
+                  "maxY": 191
+                },
+                "twoDecodeMeanMs": 8.96910300000036,
+                "oneDecodeMeanMs": 4.502745124999819,
+                "detected": 1,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          },
+          {
+            "tileX": 53,
+            "tileY": 27,
+            "totalWindowsForTile": 3,
+            "windows": [
+              {
+                "window": {
+                  "minX": 192,
+                  "minY": 124,
+                  "maxX": 195,
+                  "maxY": 127
+                },
+                "twoDecodeMeanMs": 9.05239712499997,
+                "oneDecodeMeanMs": 4.48299175000011,
+                "detected": 2,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 208,
+                  "minY": 152,
+                  "maxX": 211,
+                  "maxY": 155
+                },
+                "twoDecodeMeanMs": 9.004913750000242,
+                "oneDecodeMeanMs": 4.583410375000767,
+                "detected": 1,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 208,
+                  "minY": 156,
+                  "maxX": 211,
+                  "maxY": 159
+                },
+                "twoDecodeMeanMs": 8.94215424999993,
+                "oneDecodeMeanMs": 4.479983499999435,
+                "detected": 1,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          },
+          {
+            "tileX": 56,
+            "tileY": 25,
+            "totalWindowsForTile": 7,
+            "windows": [
+              {
+                "window": {
+                  "minX": 216,
+                  "minY": 124,
+                  "maxX": 219,
+                  "maxY": 127
+                },
+                "twoDecodeMeanMs": 9.028385125000113,
+                "oneDecodeMeanMs": 4.540921750000962,
+                "detected": 2,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 220,
+                  "minY": 124,
+                  "maxX": 223,
+                  "maxY": 127
+                },
+                "twoDecodeMeanMs": 9.09089400000039,
+                "oneDecodeMeanMs": 4.488956625000355,
+                "detected": 3,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 208,
+                  "minY": 128,
+                  "maxX": 211,
+                  "maxY": 131
+                },
+                "twoDecodeMeanMs": 8.930821500000548,
+                "oneDecodeMeanMs": 4.56752462500026,
+                "detected": 1,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          }
+        ],
+        "z6TotalJobs": 24,
+        "z6DistinctTiles": 3,
+        "stageChain": [
+          {
+            "zoom": 6,
+            "tileX": 54,
+            "tileY": 26,
+            "window": {
+              "minX": 164,
+              "minY": 120,
+              "maxX": 167,
+              "maxY": 123
+            },
+            "candidates": 9,
+            "identical": true
+          },
+          {
+            "zoom": 8,
+            "tileX": 218,
+            "tileY": 105,
+            "window": {
+              "minX": 144,
+              "minY": 228,
+              "maxX": 147,
+              "maxY": 231
+            },
+            "candidates": 1,
+            "identical": true
+          },
+          {
+            "zoom": 10,
+            "tileX": 874,
+            "tileY": 423,
+            "window": {
+              "minX": 76,
+              "minY": 156,
+              "maxX": 79,
+              "maxY": 159
+            },
+            "candidates": 1,
+            "identical": true
+          }
+        ],
+        "fetchedTiles": 6,
+        "unavailableTiles": 0,
+        "compressedBytes": 2464,
+        "allHeavyPixels": 24,
+        "stride2HeavyPixels": 6,
+        "omittedHeavyPixels": 18,
+        "omittedFraction": 0.75,
+        "fourConnectedHeavyRegions": 11,
+        "regionsWithNoStride2Pixel": 6,
+        "complete": true
+      },
+      {
+        "kind": "forecast",
+        "validtime": "20261016211500",
+        "bench": [
+          {
+            "stride": 2,
+            "meanScanMs": 20.847642749999068,
+            "minScanMs": 20.66233799999827,
+            "maxScanMs": 21.433897999999317,
+            "rssDeltaBytes": 0,
+            "heapDeltaBytes": -3374824,
+            "candidateCount": 8,
+            "z10JobsInMemory": 8,
+            "z10DistinctTiles": 7,
+            "z10RepeatedTileJobs": 1,
+            "z10WindowPixelChecks": 32768,
+            "z10UniqueWindowPixels": 32768
+          },
+          {
+            "stride": 1,
+            "meanScanMs": 24.92607124999995,
+            "minScanMs": 24.752502999999706,
+            "maxScanMs": 25.360638999998628,
+            "rssDeltaBytes": -1048576,
+            "heapDeltaBytes": 7227712,
+            "candidateCount": 36,
+            "z10JobsInMemory": 36,
+            "z10DistinctTiles": 17,
+            "z10RepeatedTileJobs": 19,
+            "z10WindowPixelChecks": 147456,
+            "z10UniqueWindowPixels": 147456
+          }
+        ],
+        "decodeParity": [
+          {
+            "stride": 1,
+            "rounds": 8,
+            "twoDecodeMeanMs": 46.269892749999144,
+            "oneDecodeMeanMs": 26.01759087500068,
+            "twoCandidates": 36,
+            "oneCandidates": 36,
+            "identical": true
+          }
+        ],
+        "z6Sample": [
+          {
+            "tileX": 54,
+            "tileY": 26,
+            "totalWindowsForTile": 22,
+            "windows": [
+              {
+                "window": {
+                  "minX": 164,
+                  "minY": 48,
+                  "maxX": 167,
+                  "maxY": 51
+                },
+                "twoDecodeMeanMs": 9.142035374999978,
+                "oneDecodeMeanMs": 4.472543625000981,
+                "detected": 2,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 164,
+                  "minY": 120,
+                  "maxX": 167,
+                  "maxY": 123
+                },
+                "twoDecodeMeanMs": 8.970103249999738,
+                "oneDecodeMeanMs": 4.501060250000592,
+                "detected": 2,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 172,
+                  "minY": 124,
+                  "maxX": 175,
+                  "maxY": 127
+                },
+                "twoDecodeMeanMs": 8.964038124999206,
+                "oneDecodeMeanMs": 4.509489624999787,
+                "detected": 6,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          },
+          {
+            "tileX": 54,
+            "tileY": 27,
+            "totalWindowsForTile": 1,
+            "windows": [
+              {
+                "window": {
+                  "minX": 196,
+                  "minY": 80,
+                  "maxX": 199,
+                  "maxY": 83
+                },
+                "twoDecodeMeanMs": 9.039114749999499,
+                "oneDecodeMeanMs": 4.487900750000335,
+                "detected": 1,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          },
+          {
+            "tileX": 53,
+            "tileY": 27,
+            "totalWindowsForTile": 5,
+            "windows": [
+              {
+                "window": {
+                  "minX": 192,
+                  "minY": 144,
+                  "maxX": 195,
+                  "maxY": 147
+                },
+                "twoDecodeMeanMs": 8.96700837500066,
+                "oneDecodeMeanMs": 4.460567250000167,
+                "detected": 4,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 240,
+                  "minY": 156,
+                  "maxX": 243,
+                  "maxY": 159
+                },
+                "twoDecodeMeanMs": 8.93842399999994,
+                "oneDecodeMeanMs": 4.454775000000154,
+                "detected": 1,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 244,
+                  "minY": 156,
+                  "maxX": 247,
+                  "maxY": 159
+                },
+                "twoDecodeMeanMs": 8.948055624999597,
+                "oneDecodeMeanMs": 4.4569052500005455,
+                "detected": 1,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          }
+        ],
+        "z6TotalJobs": 36,
+        "z6DistinctTiles": 4,
+        "stageChain": [
+          {
+            "zoom": 6,
+            "tileX": 54,
+            "tileY": 26,
+            "window": {
+              "minX": 164,
+              "minY": 48,
+              "maxX": 167,
+              "maxY": 51
+            },
+            "candidates": 2,
+            "identical": true
+          },
+          {
+            "zoom": 8,
+            "tileX": 218,
+            "tileY": 104,
+            "window": {
+              "minX": 152,
+              "minY": 204,
+              "maxX": 155,
+              "maxY": 207
+            },
+            "candidates": 4,
+            "identical": true
+          },
+          {
+            "zoom": 10,
+            "tileX": 874,
+            "tileY": 419,
+            "window": {
+              "minX": 104,
+              "minY": 52,
+              "maxX": 107,
+              "maxY": 55
+            },
+            "candidates": 8,
+            "identical": true
+          }
+        ],
+        "fetchedTiles": 6,
+        "unavailableTiles": 0,
+        "compressedBytes": 2494,
+        "allHeavyPixels": 36,
+        "stride2HeavyPixels": 8,
+        "omittedHeavyPixels": 28,
+        "omittedFraction": 0.7777777777777778,
+        "fourConnectedHeavyRegions": 15,
+        "regionsWithNoStride2Pixel": 8,
+        "complete": true
+      },
+      {
+        "kind": "forecast",
+        "validtime": "20261016212000",
+        "bench": [
+          {
+            "stride": 2,
+            "meanScanMs": 20.8308396249995,
+            "minScanMs": 20.617974999997386,
+            "maxScanMs": 21.26674600000115,
+            "rssDeltaBytes": 0,
+            "heapDeltaBytes": -3450056,
+            "candidateCount": 10,
+            "z10JobsInMemory": 10,
+            "z10DistinctTiles": 9,
+            "z10RepeatedTileJobs": 1,
+            "z10WindowPixelChecks": 40960,
+            "z10UniqueWindowPixels": 40960
+          },
+          {
+            "stride": 1,
+            "meanScanMs": 25.201223499999287,
+            "minScanMs": 24.78069399999731,
+            "maxScanMs": 26.2339979999997,
+            "rssDeltaBytes": -2387968,
+            "heapDeltaBytes": -10597720,
+            "candidateCount": 33,
+            "z10JobsInMemory": 33,
+            "z10DistinctTiles": 19,
+            "z10RepeatedTileJobs": 14,
+            "z10WindowPixelChecks": 135168,
+            "z10UniqueWindowPixels": 135168
+          }
+        ],
+        "decodeParity": [
+          {
+            "stride": 1,
+            "rounds": 8,
+            "twoDecodeMeanMs": 45.771802124999795,
+            "oneDecodeMeanMs": 24.985703749999175,
+            "twoCandidates": 33,
+            "oneCandidates": 33,
+            "identical": true
+          }
+        ],
+        "z6Sample": [
+          {
+            "tileX": 54,
+            "tileY": 26,
+            "totalWindowsForTile": 19,
+            "windows": [
+              {
+                "window": {
+                  "minX": 164,
+                  "minY": 48,
+                  "maxX": 167,
+                  "maxY": 51
+                },
+                "twoDecodeMeanMs": 8.98763074999988,
+                "oneDecodeMeanMs": 4.49275337500012,
+                "detected": 1,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 160,
+                  "minY": 120,
+                  "maxX": 163,
+                  "maxY": 123
+                },
+                "twoDecodeMeanMs": 9.023705874999905,
+                "oneDecodeMeanMs": 4.499649875000159,
+                "detected": 2,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 164,
+                  "minY": 120,
+                  "maxX": 167,
+                  "maxY": 123
+                },
+                "twoDecodeMeanMs": 8.963250750000952,
+                "oneDecodeMeanMs": 4.492413000000397,
+                "detected": 2,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          },
+          {
+            "tileX": 54,
+            "tileY": 27,
+            "totalWindowsForTile": 1,
+            "windows": [
+              {
+                "window": {
+                  "minX": 192,
+                  "minY": 80,
+                  "maxX": 195,
+                  "maxY": 83
+                },
+                "twoDecodeMeanMs": 9.040616000000227,
+                "oneDecodeMeanMs": 4.513447500000893,
+                "detected": 1,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          },
+          {
+            "tileX": 53,
+            "tileY": 27,
+            "totalWindowsForTile": 4,
+            "windows": [
+              {
+                "window": {
+                  "minX": 192,
+                  "minY": 140,
+                  "maxX": 195,
+                  "maxY": 143
+                },
+                "twoDecodeMeanMs": 8.973598375000165,
+                "oneDecodeMeanMs": 4.461526374999721,
+                "detected": 1,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 192,
+                  "minY": 144,
+                  "maxX": 195,
+                  "maxY": 147
+                },
+                "twoDecodeMeanMs": 8.904749874999197,
+                "oneDecodeMeanMs": 4.468265500000143,
+                "detected": 1,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 240,
+                  "minY": 156,
+                  "maxX": 243,
+                  "maxY": 159
+                },
+                "twoDecodeMeanMs": 8.938674625000203,
+                "oneDecodeMeanMs": 4.441177374999825,
+                "detected": 2,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          }
+        ],
+        "z6TotalJobs": 33,
+        "z6DistinctTiles": 4,
+        "stageChain": [
+          {
+            "zoom": 6,
+            "tileX": 54,
+            "tileY": 26,
+            "window": {
+              "minX": 164,
+              "minY": 48,
+              "maxX": 167,
+              "maxY": 51
+            },
+            "candidates": 1,
+            "identical": true
+          },
+          {
+            "zoom": 8,
+            "tileX": 218,
+            "tileY": 104,
+            "window": {
+              "minX": 152,
+              "minY": 204,
+              "maxX": 155,
+              "maxY": 207
+            },
+            "candidates": 6,
+            "identical": true
+          },
+          {
+            "zoom": 10,
+            "tileX": 874,
+            "tileY": 419,
+            "window": {
+              "minX": 96,
+              "minY": 52,
+              "maxX": 99,
+              "maxY": 55
+            },
+            "candidates": 12,
+            "identical": true
+          }
+        ],
+        "fetchedTiles": 6,
+        "unavailableTiles": 0,
+        "compressedBytes": 2460,
+        "allHeavyPixels": 33,
+        "stride2HeavyPixels": 10,
+        "omittedHeavyPixels": 23,
+        "omittedFraction": 0.696969696969697,
+        "fourConnectedHeavyRegions": 16,
+        "regionsWithNoStride2Pixel": 7,
+        "complete": true
+      },
+      {
+        "kind": "forecast",
+        "validtime": "20261016212500",
+        "bench": [
+          {
+            "stride": 2,
+            "meanScanMs": 21.11063062499943,
+            "minScanMs": 20.927121999997325,
+            "maxScanMs": 21.462751000002754,
+            "rssDeltaBytes": 0,
+            "heapDeltaBytes": -3456784,
+            "candidateCount": 8,
+            "z10JobsInMemory": 8,
+            "z10DistinctTiles": 7,
+            "z10RepeatedTileJobs": 1,
+            "z10WindowPixelChecks": 32768,
+            "z10UniqueWindowPixels": 32768
+          },
+          {
+            "stride": 1,
+            "meanScanMs": 24.891878625000572,
+            "minScanMs": 24.719429999997374,
+            "maxScanMs": 25.466585000001942,
+            "rssDeltaBytes": -1085440,
+            "heapDeltaBytes": -9293008,
+            "candidateCount": 26,
+            "z10JobsInMemory": 26,
+            "z10DistinctTiles": 17,
+            "z10RepeatedTileJobs": 9,
+            "z10WindowPixelChecks": 106496,
+            "z10UniqueWindowPixels": 106496
+          }
+        ],
+        "decodeParity": [
+          {
+            "stride": 1,
+            "rounds": 8,
+            "twoDecodeMeanMs": 47.07836849999967,
+            "oneDecodeMeanMs": 26.544041124999694,
+            "twoCandidates": 26,
+            "oneCandidates": 26,
+            "identical": true
+          }
+        ],
+        "z6Sample": [
+          {
+            "tileX": 54,
+            "tileY": 26,
+            "totalWindowsForTile": 17,
+            "windows": [
+              {
+                "window": {
+                  "minX": 164,
+                  "minY": 48,
+                  "maxX": 167,
+                  "maxY": 51
+                },
+                "twoDecodeMeanMs": 10.304354374999548,
+                "oneDecodeMeanMs": 5.079907249999451,
+                "detected": 2,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 160,
+                  "minY": 120,
+                  "maxX": 163,
+                  "maxY": 123
+                },
+                "twoDecodeMeanMs": 10.177255750000768,
+                "oneDecodeMeanMs": 5.144490374999805,
+                "detected": 2,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 168,
+                  "minY": 124,
+                  "maxX": 171,
+                  "maxY": 127
+                },
+                "twoDecodeMeanMs": 10.248795999999857,
+                "oneDecodeMeanMs": 5.107250999999906,
+                "detected": 2,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          },
+          {
+            "tileX": 54,
+            "tileY": 27,
+            "totalWindowsForTile": 1,
+            "windows": [
+              {
+                "window": {
+                  "minX": 192,
+                  "minY": 80,
+                  "maxX": 195,
+                  "maxY": 83
+                },
+                "twoDecodeMeanMs": 10.244227500000306,
+                "oneDecodeMeanMs": 5.057922250000502,
+                "detected": 2,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          },
+          {
+            "tileX": 53,
+            "tileY": 27,
+            "totalWindowsForTile": 3,
+            "windows": [
+              {
+                "window": {
+                  "minX": 192,
+                  "minY": 140,
+                  "maxX": 195,
+                  "maxY": 143
+                },
+                "twoDecodeMeanMs": 10.247946250000496,
+                "oneDecodeMeanMs": 5.071702999999616,
+                "detected": 2,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 240,
+                  "minY": 156,
+                  "maxX": 243,
+                  "maxY": 159
+                },
+                "twoDecodeMeanMs": 10.087656499999866,
+                "oneDecodeMeanMs": 5.39599062499974,
+                "detected": 1,
+                "identical": true
+              },
+              {
+                "window": {
+                  "minX": 240,
+                  "minY": 160,
+                  "maxX": 243,
+                  "maxY": 163
+                },
+                "twoDecodeMeanMs": 10.157502999999906,
+                "oneDecodeMeanMs": 5.163811375000478,
+                "detected": 1,
+                "identical": true
+              }
+            ],
+            "allWindowParity": true
+          }
+        ],
+        "z6TotalJobs": 26,
+        "z6DistinctTiles": 4,
+        "stageChain": [
+          {
+            "zoom": 6,
+            "tileX": 54,
+            "tileY": 26,
+            "window": {
+              "minX": 164,
+              "minY": 48,
+              "maxX": 167,
+              "maxY": 51
+            },
+            "candidates": 2,
+            "identical": true
+          },
+          {
+            "zoom": 8,
+            "tileX": 218,
+            "tileY": 104,
+            "window": {
+              "minX": 148,
+              "minY": 204,
+              "maxX": 151,
+              "maxY": 207
+            },
+            "candidates": 4,
+            "identical": true
+          },
+          {
+            "zoom": 10,
+            "tileX": 874,
+            "tileY": 419,
+            "window": {
+              "minX": 88,
+              "minY": 52,
+              "maxX": 91,
+              "maxY": 55
+            },
+            "candidates": 16,
+            "identical": true
+          }
+        ],
+        "fetchedTiles": 6,
+        "unavailableTiles": 0,
+        "compressedBytes": 2450,
+        "allHeavyPixels": 26,
+        "stride2HeavyPixels": 8,
+        "omittedHeavyPixels": 18,
+        "omittedFraction": 0.6923076923076923,
+        "fourConnectedHeavyRegions": 17,
+        "regionsWithNoStride2Pixel": 9,
+        "complete": true
+      }
+    ],
+    "elapsedMs": 29567,
+    "caveat": "Missing tiles make counts incomplete; component connectivity is only within fetched tiles. One or several frames do not prove universal safety."
+  }
+}
