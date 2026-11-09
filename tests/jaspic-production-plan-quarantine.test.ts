@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { productionPlan } from "../lib/jaspic/production-plan";
+import { productionPlan, assertVerifiedBackfillScope } from "../lib/jaspic/production-plan";
 import { fields, type RecordData } from "../supabase/functions/_shared/jaspic/mail";
 import type { Item } from "../supabase/functions/_shared/jaspic/collect";
 import type { Snapshot } from "../supabase/functions/_shared/jaspic/state";
@@ -63,5 +63,30 @@ describe("JASPIC historical ID quarantine", () => {
     const { existing, snapshot } = baseline();
     await expect(productionPlan("hiroshima", snapshot, [...existing.slice(0, 7), ...existing.slice(10)], new Set()))
       .rejects.toThrow("SOURCE_COUNT_GUARD");
+  });
+});
+
+describe("verified legacy JSON catch-up", () => {
+  const personIds = ["45811", "45815", "45823"];
+  const crimeIds = ["1126015070", "1126055048", "1126155046", "1126175061", "1126185011", "1126195022"];
+  it("plans exactly the nine operator-verified missing records, retaining other historical IDs in quarantine", async () => {
+    const {existing,snapshot}=baseline();
+    // Maintain the source-count guard with a representative large baseline.
+    const extra=[...Array.from({length:40},(_,n)=>crime(String(1126002001+n))),...Array.from({length:40},(_,n)=>person(String(45601+n)))];
+    existing.push(...extra);
+    Object.assign(snapshot.records,Object.fromEntries(extra.map(item=>[`${item.kind}:${item.data.id}`,item.data])));
+    const catchup=[...personIds.map(id=>person(id)),...crimeIds.map(id=>crime(id))];
+    const unrelated=crime("1126001999");
+    const result=await productionPlan("hiroshima",snapshot,[...existing,...catchup,unrelated],new Set());
+    expect(result.verifiedPending).toHaveLength(9);
+    expect(new Set(result.candidates.map(c=>c.key))).toEqual(new Set(result.verifiedPending));
+    expect(result.quarantined).toContain("hiroshima-crime:1126001999");
+    expect(result.records).not.toHaveProperty("hiroshima-crime:1126001999");
+    expect(()=>assertVerifiedBackfillScope([{province:"hiroshima",result}])).not.toThrow();
+    expect(()=>assertVerifiedBackfillScope([{province:"hiroshima",result:{...result,candidates:[...result.candidates,{...result.candidates[0],key:"unexpected"}]}}])).toThrow("VERIFIED_BACKFILL_SCOPE_MISMATCH");
+    const after={...snapshot,records:result.records};
+    const repeated=await productionPlan("hiroshima",after,[...existing,...catchup,unrelated],new Set());
+    expect(repeated.verifiedPending).toHaveLength(0);
+    expect(repeated.candidates).toHaveLength(0);
   });
 });
