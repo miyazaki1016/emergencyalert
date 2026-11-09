@@ -2,6 +2,9 @@
 import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 const managementFiles = new Set([
+  ".github/workflows/development-preflight.yml",
+  "scripts/development_preflight.py",
+  "tests/test_development_preflight.py",
   ".github/workflows/development-inventory.yml",
   "docs/DEVELOPMENT_LEDGER.md",
   "docs/DEVELOPMENT_OPERATIONS_INDEX.md",

@@ -1,5 +1,10 @@
 # 日本語開発履歴の運用
 
+## 着手前の自動照合（担当AIが必ず実行）
+
+「履歴を検索してね」で終わらせず、担当AIがユーザーの依頼文を `scripts/development_preflight.py --task '依頼内容'` に渡して、過去のコード・検証・研究結論との一致候補を自動で受け取る。候補の原本を読み、どう再利用するか記録してから作業する。[実行方法・判断記録・Issue／PRでの自動チェック](WORK_HISTORY_PREFLIGHT.md)。
+
+
 ## 閲覧と着手前の確認
 
 - [両プロジェクトのスマートフォン検索](https://miyazaki1016.github.io/misaki/history.html)
