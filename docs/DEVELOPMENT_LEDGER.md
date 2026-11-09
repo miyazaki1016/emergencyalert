@@ -210,4 +210,5 @@
 | #174 | feat(jaspic): gated single-recipient Gmail test send | merged | `af6fcb14906a8fa271f6a165b5b26ad08821cc66` | 2026-11-08T10:46:07Z |
 | #175 | Research: rain notification accuracy baseline and replay plan | open | `4c8383f6154fc5136092ae75f49061ace74c35a6` | 2026-11-09T02:13:15Z |
 | #176 | Rain Lab: clearer case summaries and color-coded match grades | merged | `8b556eeee0ce0443a47efbb1077981951a27a00b` | 2026-11-09T02:15:07Z |
+| #177 | Rain Lab: compact case list labels | merged | `1f86e2fc1abd29668aa705b4bb791ad495e6068c` | 2026-11-09T02:19:06Z |
 <!-- INVENTORY_FACTS_END -->
