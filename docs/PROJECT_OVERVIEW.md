@@ -11,6 +11,7 @@
 | 知りたいこと | 開く場所 |
 | --- | --- |
 | **製品理念・完成形・3つの役割（恒久）** | [サキくる製品憲章](SAKIKURU_PRODUCT_CHARTER.md) |
+| **過去の作業内容・検証結果・全PR/ブランチを探す** | [過去作業の履歴索引](WORK_HISTORY_INDEX.md) |
 | 案件の現在地・証拠・次の一手 | [開発台帳](DEVELOPMENT_LEDGER.md) |
 | 自分の判断待ち・担当への引き継ぎ | [美咲 × アメふる承認ボード](https://miyazaki1016.github.io/misaki/) |
 | PR・ブランチの自動棚卸し | [GitHub Actions](https://github.com/miyazaki1016/emergencyalert/actions) → 最新成功の `development-inventory` |
