@@ -1,5 +1,5 @@
 import {strict as assert} from 'node:assert';
-import {test} from 'node:test';
+import {test} from 'vitest';
 import {matchGrade} from '../lib/research/rainLab';
 
 const make=(exact:string,within5:string,within10:string,state='COMPLETE')=>({
