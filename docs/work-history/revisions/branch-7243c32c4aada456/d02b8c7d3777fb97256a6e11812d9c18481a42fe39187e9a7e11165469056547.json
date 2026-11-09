@@ -1,0 +1,28 @@
+{
+  "id": "branch-7243c32c4aada456",
+  "title": "chore/log-rain-diagnostics",
+  "head": "43e869da7fb4d1199fb1074d39b0648cc8a28115",
+  "head_ref": "chore/log-rain-diagnostics",
+  "linked_prs": [
+    32
+  ],
+  "files": [
+    {
+      "path": "app/api/rain/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/43e869da7fb4d1199fb1074d39b0648cc8a28115/app/api/rain/route.ts"
+    }
+  ],
+  "commits": "43e869da7fb4d1199fb1074d39b0648cc8a28115 Place rain diagnostic log after interpretation\n1e0bc086e5ccaaa51dcc7716e817d6764e454b3d Fix diagnostic source timestamp\n8fabcc894369b649f4e85e65ebaae60d1d51d14a Log withheld rain diagnostics",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "dfd680590335ca1d841b1085959f0ab601baf2025d9c08e1f3f3cc992dc95676",
+  "collected_at": "2026-11-09T09:09:08.573340+00:00"
+}

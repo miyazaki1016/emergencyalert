@@ -1,0 +1,35 @@
+{
+  "id": "branch-77303b743008b53e",
+  "title": "docs/feature-reconciliation-20261101",
+  "head": "566a02c5d5232ab4d47d310e8866de71c142074d",
+  "head_ref": "docs/feature-reconciliation-20261101",
+  "linked_prs": [
+    113
+  ],
+  "files": [
+    {
+      "path": "docs/DEVELOPMENT_LEDGER.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/566a02c5d5232ab4d47d310e8866de71c142074d/docs/DEVELOPMENT_LEDGER.md"
+    },
+    {
+      "path": "docs/audits/FEATURE_RECONCILIATION_20261101.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/566a02c5d5232ab4d47d310e8866de71c142074d/docs/audits/FEATURE_RECONCILIATION_20261101.md"
+    }
+  ],
+  "commits": "566a02c5d5232ab4d47d310e8866de71c142074d docs: link verified feature-level reconciliation\nb06a235477f2e0429b7d0c8ecd261ad4c658eaae docs: record verified feature-level main comparisons",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "e551861f94c9d034ad09a58f0127825fa286250f9413aaf444ff6e6edb52e2b8",
+  "collected_at": "2026-11-09T09:09:08.573340+00:00"
+}

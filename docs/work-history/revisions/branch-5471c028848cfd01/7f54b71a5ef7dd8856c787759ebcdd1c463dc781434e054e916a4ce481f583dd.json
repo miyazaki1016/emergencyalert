@@ -1,0 +1,29 @@
+{
+  "id": "branch-5471c028848cfd01",
+  "title": "fix/jaspic-oauth-stage-ts-20261108",
+  "head": "aee2ec75d98b733f1688c85a0fed60e8c192cf25",
+  "head_ref": "fix/jaspic-oauth-stage-ts-20261108",
+  "linked_prs": [
+    173
+  ],
+  "files": [
+    {
+      "path": "lib/jaspic/oauth-gmail-send-callback-server.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/aee2ec75d98b733f1688c85a0fed60e8c192cf25/lib/jaspic/oauth-gmail-send-callback-server.ts"
+    }
+  ],
+  "commits": "aee2ec75d98b733f1688c85a0fed60e8c192cf25 fix(jaspic): declare OAuth diagnostic stage before try",
+  "topics": [
+    "通知・配信",
+    "認証・安全性"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "e0669d32e222e563b084c5d075ff1527092c887963c8113ad13c3827f266fc2d",
+  "collected_at": "2026-11-09T09:09:08.573340+00:00"
+}

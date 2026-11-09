@@ -1,0 +1,28 @@
+{
+  "id": "branch-aeef70603b294028",
+  "title": "feat/delete-watch-target",
+  "head": "a2c4c5970436745d8fef1ce2cefe64b2984e2d3a",
+  "head_ref": "feat/delete-watch-target",
+  "linked_prs": [
+    6
+  ],
+  "files": [
+    {
+      "path": "app/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a2c4c5970436745d8fef1ce2cefe64b2984e2d3a/app/page.tsx"
+    }
+  ],
+  "commits": "a2c4c5970436745d8fef1ce2cefe64b2984e2d3a feat: allow deleting saved watch targets",
+  "topics": [
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "ec07ada8d8bdee045b4461e1f4fca70457b9cc888c0c14f4b1aae916055484e3",
+  "collected_at": "2026-11-09T09:09:08.573340+00:00"
+}

@@ -1,0 +1,43 @@
+{
+  "id": "branch-f28e11c53b06fa5f",
+  "title": "fix/rain-ending-hysteresis",
+  "head": "b79e743ed449d8c42d6ada42b04c9e551c6c7ba6",
+  "head_ref": "fix/rain-ending-hysteresis",
+  "linked_prs": [
+    58
+  ],
+  "files": [
+    {
+      "path": "lib/weather/rain/watchNotificationDecision.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b79e743ed449d8c42d6ada42b04c9e551c6c7ba6/lib/weather/rain/watchNotificationDecision.test.ts"
+    },
+    {
+      "path": "supabase/functions/watch-rain/index.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b79e743ed449d8c42d6ada42b04c9e551c6c7ba6/supabase/functions/watch-rain/index.ts"
+    },
+    {
+      "path": "supabase/functions/watch-rain/notificationDecision.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b79e743ed449d8c42d6ada42b04c9e551c6c7ba6/supabase/functions/watch-rain/notificationDecision.ts"
+    }
+  ],
+  "commits": "b79e743ed449d8c42d6ada42b04c9e551c6c7ba6 Test rain-ending hysteresis\n223e0c4bb10f682f302ee47cbca6b3d32eef74a3 Evaluate confirmed ending before notification decision\na385e5defcfd3d789120129cc490383306819027 Rearm ending notice only after confirmed rerain\nc0574a80932361f47e18f5ff1954a0f65b2cb175 Add hysteresis for rain-ending notifications",
+  "topics": [
+    "雨量・全国検知",
+    "通知・配信"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "b1fb1954bbb5a357393f7e94c2d3e2b20b0817d7757f21b243926f81df6f945a",
+  "collected_at": "2026-11-09T09:09:08.573340+00:00"
+}
