@@ -1,0 +1,28 @@
+{
+  "id": "branch-57dd9197ee251797",
+  "title": "fix-vapid-resubscribe",
+  "head": "9f182608fb0dfe8dc56129f8938bb745cb893ec2",
+  "head_ref": "fix-vapid-resubscribe",
+  "linked_prs": [
+    15
+  ],
+  "files": [
+    {
+      "path": "app/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9f182608fb0dfe8dc56129f8938bb745cb893ec2/app/page.tsx"
+    }
+  ],
+  "commits": "9f182608fb0dfe8dc56129f8938bb745cb893ec2 fix: resubscribe when VAPID key changes",
+  "topics": [
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "33e22eb528bcdb3b9e38ee9a0b6928d665eb1c882dd89d2cf0e0f62d686afec7",
+  "collected_at": "2026-11-09T09:45:59.682979+00:00"
+}

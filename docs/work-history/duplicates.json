@@ -1000,6 +1000,10 @@
     "pr-132",
     "pr-134"
   ],
+  "scripts/development_preflight.py": [
+    "branch-01116240ec96678b",
+    "pr-188"
+  ],
   "scripts/development_work_history.py": [
     "branch-a05fbbad807e392f",
     "pr-182"
@@ -1363,8 +1367,10 @@
     "pr-59"
   ],
   "scripts/vercel-build-guard.mjs": [
+    "branch-01116240ec96678b",
     "branch-eecb7d45ce962418",
-    "pr-161"
+    "pr-161",
+    "pr-188"
   ],
   "scripts/vercel_build_guard.py": [
     "branch-2fcb912568edd503",

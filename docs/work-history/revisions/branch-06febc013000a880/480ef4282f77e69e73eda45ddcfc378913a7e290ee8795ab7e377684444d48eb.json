@@ -1,0 +1,100 @@
+{
+  "id": "branch-06febc013000a880",
+  "title": "research/notification-replay-20261029",
+  "head": "79b4bae479f9b39f48d9fbf0d1745944a3442804",
+  "head_ref": "research/notification-replay-20261029",
+  "linked_prs": [
+    98
+  ],
+  "files": [
+    {
+      "path": "docs/research/JMA_PNG_BYTE_MEASUREMENT_DESIGN_20261029.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79b4bae479f9b39f48d9fbf0d1745944a3442804/docs/research/JMA_PNG_BYTE_MEASUREMENT_DESIGN_20261029.md"
+    },
+    {
+      "path": "docs/research/NOTIFICATION_REPLAY_PLAN_20261029.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79b4bae479f9b39f48d9fbf0d1745944a3442804/docs/research/NOTIFICATION_REPLAY_PLAN_20261029.md"
+    },
+    {
+      "path": "docs/research/RAIN_TILE_BENCHMARK_RESULTS_20261029.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79b4bae479f9b39f48d9fbf0d1745944a3442804/docs/research/RAIN_TILE_BENCHMARK_RESULTS_20261029.md"
+    },
+    {
+      "path": "docs/research/RAIN_TILE_STORAGE_BENCHMARK_PLAN_20261029.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79b4bae479f9b39f48d9fbf0d1745944a3442804/docs/research/RAIN_TILE_STORAGE_BENCHMARK_PLAN_20261029.md"
+    },
+    {
+      "path": "lib/weather/providers/jma/JmaPublicImageProvider.measurement.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79b4bae479f9b39f48d9fbf0d1745944a3442804/lib/weather/providers/jma/JmaPublicImageProvider.measurement.test.ts"
+    },
+    {
+      "path": "lib/weather/providers/jma/JmaPublicImageProvider.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79b4bae479f9b39f48d9fbf0d1745944a3442804/lib/weather/providers/jma/JmaPublicImageProvider.ts"
+    },
+    {
+      "path": "lib/weather/providers/jma/readPixel.measurement.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79b4bae479f9b39f48d9fbf0d1745944a3442804/lib/weather/providers/jma/readPixel.measurement.test.ts"
+    },
+    {
+      "path": "lib/weather/providers/jma/readPixel.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79b4bae479f9b39f48d9fbf0d1745944a3442804/lib/weather/providers/jma/readPixel.ts"
+    },
+    {
+      "path": "lib/weather/providers/jma/tileSizeCollector.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79b4bae479f9b39f48d9fbf0d1745944a3442804/lib/weather/providers/jma/tileSizeCollector.test.ts"
+    },
+    {
+      "path": "lib/weather/providers/jma/tileSizeCollector.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79b4bae479f9b39f48d9fbf0d1745944a3442804/lib/weather/providers/jma/tileSizeCollector.ts"
+    },
+    {
+      "path": "scripts/benchmark_rain_tile.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79b4bae479f9b39f48d9fbf0d1745944a3442804/scripts/benchmark_rain_tile.py"
+    }
+  ],
+  "commits": "79b4bae479f9b39f48d9fbf0d1745944a3442804 test(research): exercise JMA provider PNG measurement end to end with mocked fetch\nf95f348732c83edb20e46813b2808b2336a41081 test(research): bounded JMA PNG size collector summaries\n1b115cc9c5ad368dd888c2b1ce8bc12029803928 research: bounded in-memory collector for measured JMA PNG sizes\n3b9b815cda185d8fa92a01848919d03e52602eb8 feat(research): collect JMA PNG sizes with frame and tile metadata via opt-in callback\n81ff269ff4143b593b764a87c31dd6ba144d97e7 test(research): verify PNG byte hook and fail-open behavior\n117cfe7cfde4d0fb383468af9d4789cd279dcf1c feat(research): optional no-extra-fetch PNG byte measurement hook\nac43aefec8bc65e8bbd729fca086889e0f5e68ac research: locate zero-extra-fetch PNG byte measurement point\n8722c10052ac2476d642244edd1b2ce212eaf4e6 research: record verified synthetic tile benchmarks and live JMA fetch blocker\n8557fa585be695d4eccd8b292465058aa0ab7e82 research: add offline lossless PNG versus RGBA size benchmark\ndc76d10ab1b7c883d37e40bf730544fc1ff08e28 docs: size model and benchmark protocol for 1km radar tile retention\n294983c364081d2600f2384a26cc276473377cd9 docs: audit live watch-rain send path and delivery schema read-only\n940ce8369b35325ab5d00571a33ea6f498051b02 docs: plan notification forecast-to-observation replay without production changes",
+  "topics": [
+    "雨量・全国検知",
+    "通知・配信",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "b9e03db07466612cab662408b23b37a1cd83408deb96ef0ef7c17fd8088f5156",
+  "collected_at": "2026-11-09T09:45:59.682979+00:00"
+}

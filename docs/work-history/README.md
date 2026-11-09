@@ -4,13 +4,14 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-09T09:28:48.935616+00:00
+更新 (UTC): 2026-11-09T09:45:59.682979+00:00
 
 ## 全案件
 
 | 案件 | 分野・日本語作業内容 | 統合状態 | 本番 |
 | --- | --- | --- | --- |
 | [feat/jaspic-oauth-public-pages-20261105](cases/branch-00f0c673fc11e028.md) | 通知・配信・認証・安全性・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [feat/automatic-history-preflight-20261109](cases/branch-01116240ec96678b.md) | 開発管理・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/japanese-development-history-20261109](cases/branch-02f9f023f7c9991c.md) | 雨量・全国検知・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/japanese-address-search](cases/branch-04c8f793320315f9.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [automation/ledger-facts-41361771659](cases/branch-051c30db2c2ec79a.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -304,6 +305,7 @@
 | [fix(history): main統合とPRマージを区別し、検証条件の検索を補強](cases/pr-185.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [docs: require Japanese work-history review before any new development](cases/pr-186.md) | 開発管理・画面・表示：開発資産の把握・引継ぎ・レビューを支援する変更／画面表示や操作に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix(test): 雨判定ラボのテストをVitestで検出できるよう修正](cases/pr-187.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [feat(history): 着手前に「以前の実装・検証」を自動提示して再利用判断を確認](cases/pr-188.md) | 開発管理・画面・表示：開発資産の把握・引継ぎ・レビューを支援する変更／画面表示や操作に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [docs: define living emergency and laundry alert direction](cases/pr-19.md) | その他の開発：生活防災・洗濯通知の製品方針を記録 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add PWA foundation for iPhone and Android](cases/pr-2.md) | その他の開発：iPhone・Android向けPWAの基盤を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add early rain forecast provider](cases/pr-20.md) | 雨量・全国検知：早期の雨予測データ取得処理を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
@@ -552,6 +554,7 @@
 - scripts/development_inventory.py：[branch-b5b1d46a6468bd59](cases/branch-b5b1d46a6468bd59.md), [branch-d92ca54cbab20357](cases/branch-d92ca54cbab20357.md), [branch-f54fba9240a4e12b](cases/branch-f54fba9240a4e12b.md), [pr-107](cases/pr-107.md), [pr-122](cases/pr-122.md), [pr-128](cases/pr-128.md)
 - scripts/development_inventory_delta.py：[branch-1601ee37d65ba186](cases/branch-1601ee37d65ba186.md), [branch-4fd3d1bdc2b892c1](cases/branch-4fd3d1bdc2b892c1.md), [branch-7ea3560ec516692d](cases/branch-7ea3560ec516692d.md), [branch-b30df8ff98a54148](cases/branch-b30df8ff98a54148.md), [branch-b34c306bc7fd0b72](cases/branch-b34c306bc7fd0b72.md), [branch-b5b1d46a6468bd59](cases/branch-b5b1d46a6468bd59.md), [branch-d5f02538fc12def5](cases/branch-d5f02538fc12def5.md), [branch-f54fba9240a4e12b](cases/branch-f54fba9240a4e12b.md), [pr-122](cases/pr-122.md), [pr-124](cases/pr-124.md), [pr-125](cases/pr-125.md), [pr-126](cases/pr-126.md), [pr-127](cases/pr-127.md), [pr-128](cases/pr-128.md), [pr-129](cases/pr-129.md), [pr-136](cases/pr-136.md)
 - scripts/development_ledger_proposal.py：[branch-08e76fdd73cd4686](cases/branch-08e76fdd73cd4686.md), [branch-3ab6bf48d6ece55f](cases/branch-3ab6bf48d6ece55f.md), [branch-7b4c2cf2503a3179](cases/branch-7b4c2cf2503a3179.md), [branch-ac4d9f4766a37ec1](cases/branch-ac4d9f4766a37ec1.md), [pr-130](cases/pr-130.md), [pr-131](cases/pr-131.md), [pr-132](cases/pr-132.md), [pr-134](cases/pr-134.md)
+- scripts/development_preflight.py：[branch-01116240ec96678b](cases/branch-01116240ec96678b.md), [pr-188](cases/pr-188.md)
 - scripts/development_work_history.py：[branch-a05fbbad807e392f](cases/branch-a05fbbad807e392f.md), [pr-182](cases/pr-182.md)
 - scripts/jaspic-dry-run.ts：[branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [pr-155](cases/pr-155.md)
 - scripts/jaspic-generate-eml.ts：[branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [pr-155](cases/pr-155.md)
@@ -616,7 +619,7 @@
 - scripts/pr_review_handoff.py：[branch-136d018fe1cd5ebc](cases/branch-136d018fe1cd5ebc.md), [pr-139](cases/pr-139.md)
 - scripts/prepare-n03-storage-data.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [pr-59](cases/pr-59.md)
 - scripts/upload-n03-storage-data.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [pr-59](cases/pr-59.md)
-- scripts/vercel-build-guard.mjs：[branch-eecb7d45ce962418](cases/branch-eecb7d45ce962418.md), [pr-161](cases/pr-161.md)
+- scripts/vercel-build-guard.mjs：[branch-01116240ec96678b](cases/branch-01116240ec96678b.md), [branch-eecb7d45ce962418](cases/branch-eecb7d45ce962418.md), [pr-161](cases/pr-161.md), [pr-188](cases/pr-188.md)
 - scripts/vercel_build_guard.py：[branch-2fcb912568edd503](cases/branch-2fcb912568edd503.md), [pr-141](cases/pr-141.md)
 - scripts/vercel_quota_monitor.py：[branch-2b0a1b21c1150676](cases/branch-2b0a1b21c1150676.md), [pr-164](cases/pr-164.md)
 - scripts/verify-n03-storage-data.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [pr-59](cases/pr-59.md)

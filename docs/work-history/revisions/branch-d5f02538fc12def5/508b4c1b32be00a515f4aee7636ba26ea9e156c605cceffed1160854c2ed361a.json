@@ -1,0 +1,35 @@
+{
+  "id": "branch-d5f02538fc12def5",
+  "title": "fix/inventory-delta-401-fallback-20261101",
+  "head": "d1a53b526f16c838c6a72ee24ffa7d8b3c495459",
+  "head_ref": "fix/inventory-delta-401-fallback-20261101",
+  "linked_prs": [
+    124
+  ],
+  "files": [
+    {
+      "path": "scripts/development_inventory_delta.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d1a53b526f16c838c6a72ee24ffa7d8b3c495459/scripts/development_inventory_delta.py"
+    },
+    {
+      "path": "tests/test_development_inventory_delta.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d1a53b526f16c838c6a72ee24ffa7d8b3c495459/tests/test_development_inventory_delta.py"
+    }
+  ],
+  "commits": "d1a53b526f16c838c6a72ee24ffa7d8b3c495459 Test explicit HTTP 401 fallback without losing current inventory\n99d919b3e0e782c9695de7fb903e9b7edcbd5eb6 Preserve current inventory and explicitly report prior artifact 401 failures",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "94250f318ed2725325a0ff64d4dc320ca354a8d96578f2ef373c96ad806c8e0a",
+  "collected_at": "2026-11-09T09:45:59.682979+00:00"
+}

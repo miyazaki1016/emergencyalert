@@ -1,0 +1,28 @@
+{
+  "id": "branch-628f136aaac0ca36",
+  "title": "diagnostic-forecast-frames",
+  "head": "b3aa42f4af3e71177c980c28d8fed6888449fe81",
+  "head_ref": "diagnostic-forecast-frames",
+  "linked_prs": [
+    34
+  ],
+  "files": [
+    {
+      "path": "app/api/rain/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b3aa42f4af3e71177c980c28d8fed6888449fe81/app/api/rain/route.ts"
+    }
+  ],
+  "commits": "b3aa42f4af3e71177c980c28d8fed6888449fe81 Add forecast frame diagnostics",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "229f8829552ea69b31f1a2c55ebe86a04a365f936fbbde5cd3cae4a49c597e59",
+  "collected_at": "2026-11-09T09:45:59.682979+00:00"
+}
