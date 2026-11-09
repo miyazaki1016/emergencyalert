@@ -34,3 +34,9 @@ Scope: KISHIBOJIM Hobby team, projects `misaki` and `emergencyalert`. This is an
 - Vercel team membership API confirms the connected account is OWNER of KISHIBOJIM. This verifies role, not available deployment quota.
 - Both projects are visible via the Vercel connector. The deployment history endpoint is available, but no authoritative remaining-quota value has yet been verified.
 - Keep automated gating disabled. Do not infer remaining quota from the count of deployment records or from project `live` flags.
+
+## Official limit validation and CI triage (2026-11-09)
+- Vercel documentation (https://vercel.com/docs/limits, last updated Feb 3, 2026) confirms Hobby: **100 deployments created per 86,400 seconds** and **32 deployment builds per 3,600 seconds**. These are different counters; a deployment-history total cannot be interpreted as the build counter.
+- `X-RateLimit-Remaining` in Vercel REST API responses measures **API request** rate limits, not the above deployment/build limits (https://vercel.com/docs/rest-api).
+- Live remaining allocation and quota counter semantics are **not yet verified** for KISHIBOJIM; keep `quota_verified=false` and `safe_to_gate=false`. Do not activate automation based only on the official maximum limits.
+- On commit `7d40a5997e100f3bb6495870993a811d80b7d484`, dedicated quota-monitor tests and PR classification succeeded, but general CI run 42568247397 failed: Vitest discovered `tests/rainLabGrade.test.ts` using `node:test` and reported `No test suite found`. The other 49 test files and 327 tests passed. This failure is outside the quota-monitor change; resolve it separately before PR promotion, not by weakening the CI requirement.
