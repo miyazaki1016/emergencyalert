@@ -1,0 +1,35 @@
+{
+  "id": "branch-6a8121b2550dbe9c",
+  "title": "feat/auth-storage-metadata-diagnostics-20261024",
+  "head": "61d9a8303b0004c77b13327ca1c759e20b5bf9ae",
+  "head_ref": "feat/auth-storage-metadata-diagnostics-20261024",
+  "linked_prs": [
+    81
+  ],
+  "files": [
+    {
+      "path": "app/components/ResumeDiagnosticsPanel.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/61d9a8303b0004c77b13327ca1c759e20b5bf9ae/app/components/ResumeDiagnosticsPanel.tsx"
+    },
+    {
+      "path": "docs/PWA_AUTH_STORAGE_DIAGNOSIS_20261024.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/61d9a8303b0004c77b13327ca1c759e20b5bf9ae/docs/PWA_AUTH_STORAGE_DIAGNOSIS_20261024.md"
+    }
+  ],
+  "commits": "61d9a8303b0004c77b13327ca1c759e20b5bf9ae docs: preserve auth storage investigation checkpoint\n76c497a7d80ec0ee07704e8bbc6a351119d9e083 feat: diagnose Supabase auth storage key presence without reading credentials",
+  "topics": [
+    "認証・安全性"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "6978f552c61e72ce642d103aa8a4359f04b73558835684ff3d7bbb9381f71071",
+  "collected_at": "2026-11-09T10:10:15.580056+00:00"
+}

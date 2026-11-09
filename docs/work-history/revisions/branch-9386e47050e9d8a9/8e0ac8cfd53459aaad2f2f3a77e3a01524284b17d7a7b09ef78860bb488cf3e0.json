@@ -1,0 +1,28 @@
+{
+  "id": "branch-9386e47050e9d8a9",
+  "title": "docs/test-case-reconciliation-20261101",
+  "head": "56cccb600dff30c43bc362140c28b31e5272c047",
+  "head_ref": "docs/test-case-reconciliation-20261101",
+  "linked_prs": [
+    115
+  ],
+  "files": [
+    {
+      "path": "docs/audits/TEST_CASE_RECONCILIATION_20261101.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/56cccb600dff30c43bc362140c28b31e5272c047/docs/audits/TEST_CASE_RECONCILIATION_20261101.md"
+    }
+  ],
+  "commits": "56cccb600dff30c43bc362140c28b31e5272c047 docs: compare legacy notification regression cases with main",
+  "topics": [
+    "その他の開発"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "73981433a195c0efa4a39bd861cbed55b8a90ff93c966e6d4ea85b7d84a14b1c",
+  "collected_at": "2026-11-09T10:10:15.580056+00:00"
+}

@@ -1,0 +1,49 @@
+{
+  "id": "branch-d157f5472723004f",
+  "title": "feat-early-rain-forecast-provider",
+  "head": "03e4d17c5ed6660517b7c970ff0bceeb4ab42c31",
+  "head_ref": "feat-early-rain-forecast-provider",
+  "linked_prs": [
+    20
+  ],
+  "files": [
+    {
+      "path": "lib/weather/providers/jma/JmaEarlyRainForecastProvider.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/03e4d17c5ed6660517b7c970ff0bceeb4ab42c31/lib/weather/providers/jma/JmaEarlyRainForecastProvider.ts"
+    },
+    {
+      "path": "lib/weather/providers/jma/earlyForecastTargetTimes.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/03e4d17c5ed6660517b7c970ff0bceeb4ab42c31/lib/weather/providers/jma/earlyForecastTargetTimes.ts"
+    },
+    {
+      "path": "lib/weather/providers/jma/earlyForecastTileUrl.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/03e4d17c5ed6660517b7c970ff0bceeb4ab42c31/lib/weather/providers/jma/earlyForecastTileUrl.test.ts"
+    },
+    {
+      "path": "lib/weather/providers/jma/earlyForecastTileUrl.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/03e4d17c5ed6660517b7c970ff0bceeb4ab42c31/lib/weather/providers/jma/earlyForecastTileUrl.ts"
+    }
+  ],
+  "commits": "03e4d17c5ed6660517b7c970ff0bceeb4ab42c31 test: cover JMA early forecast tile URL\nd1f94e184369542bfbf7de97ff01236cd39c4d95 feat: add early rain forecast provider\n95cc2b3792fbc021033485a952fb9232473a1194 feat: build JMA rasrf tile URLs\n9bbabbd933704a5d705dec1c287a155f4a988ce3 feat: add JMA early rain forecast target times",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "d423dcee4d0c89d6f580382bb25527692abfa149fc0cb73ae91e6beb68add71e",
+  "collected_at": "2026-11-09T10:10:15.580056+00:00"
+}
