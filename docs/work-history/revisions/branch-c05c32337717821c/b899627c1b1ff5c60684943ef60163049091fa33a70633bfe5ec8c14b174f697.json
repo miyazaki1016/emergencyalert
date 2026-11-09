@@ -1,0 +1,35 @@
+{
+  "id": "branch-c05c32337717821c",
+  "title": "diagnostics-persistent-auth-journal-20261024",
+  "head": "6beef3d20e7153ea212848fa57b75d6257cc4c07",
+  "head_ref": "diagnostics-persistent-auth-journal-20261024",
+  "linked_prs": [
+    87
+  ],
+  "files": [
+    {
+      "path": "app/components/ResumeDiagnosticsPanel.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6beef3d20e7153ea212848fa57b75d6257cc4c07/app/components/ResumeDiagnosticsPanel.tsx"
+    },
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6beef3d20e7153ea212848fa57b75d6257cc4c07/docs/PROJECT_OVERVIEW.md"
+    }
+  ],
+  "commits": "6beef3d20e7153ea212848fa57b75d6257cc4c07 docs: record persistent journal and iPhone evidence limits\nfc7ef5365ac188f9a34f399d15cb69148a06dbb9 feat: persist opt-in auth-key transition journal across PWA restarts",
+  "topics": [
+    "認証・安全性"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "380f166a2fbb1ddf0ec6f10c3a6c28d2a85ab689c4e63327ed01e4adc31b964d",
+  "collected_at": "2026-11-09T21:00:57.608899+00:00"
+}

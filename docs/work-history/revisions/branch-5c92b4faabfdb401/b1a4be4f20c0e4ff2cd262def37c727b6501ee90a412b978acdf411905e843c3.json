@@ -1,0 +1,42 @@
+{
+  "id": "branch-5c92b4faabfdb401",
+  "title": "fix/jma-early-forecast-member-path",
+  "head": "3e21ed4d4dacb2cc4827a9560f407a81fee8e273",
+  "head_ref": "fix/jma-early-forecast-member-path",
+  "linked_prs": [
+    26
+  ],
+  "files": [
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3e21ed4d4dacb2cc4827a9560f407a81fee8e273/docs/PROJECT_OVERVIEW.md"
+    },
+    {
+      "path": "lib/weather/providers/jma/earlyForecastTileUrl.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3e21ed4d4dacb2cc4827a9560f407a81fee8e273/lib/weather/providers/jma/earlyForecastTileUrl.test.ts"
+    },
+    {
+      "path": "lib/weather/providers/jma/earlyForecastTileUrl.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3e21ed4d4dacb2cc4827a9560f407a81fee8e273/lib/weather/providers/jma/earlyForecastTileUrl.ts"
+    }
+  ],
+  "commits": "3e21ed4d4dacb2cc4827a9560f407a81fee8e273 Document JMA rasrf member path contract\n6a733845e227c73e25639c5eb28bb25196355374 Test JMA early forecast member URL path\n5ff86084d7b6be2850d66b0dcc8252f6fc777822 Use JMA target frame member in early forecast tile URL",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "d722f963a7ae5c9a0c8c72895672477f48d95d3e0d77515045daba61383df162",
+  "collected_at": "2026-11-09T21:00:57.608899+00:00"
+}

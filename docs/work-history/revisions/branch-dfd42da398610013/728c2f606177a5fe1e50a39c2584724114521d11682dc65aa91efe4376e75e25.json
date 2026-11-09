@@ -1,0 +1,49 @@
+{
+  "id": "branch-dfd42da398610013",
+  "title": "fix/rain-lab-clear-grades-20261109",
+  "head": "8b556eeee0ce0443a47efbb1077981951a27a00b",
+  "head_ref": "fix/rain-lab-clear-grades-20261109",
+  "linked_prs": [
+    176
+  ],
+  "files": [
+    {
+      "path": "app/dev/rain-lab/RainLab.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/app/dev/rain-lab/RainLab.tsx"
+    },
+    {
+      "path": "app/dev/rain-lab/lab.module.css",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/app/dev/rain-lab/lab.module.css"
+    },
+    {
+      "path": "lib/research/rainLab.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/lib/research/rainLab.ts"
+    },
+    {
+      "path": "tests/rainLabGrade.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/tests/rainLabGrade.test.ts"
+    }
+  ],
+  "commits": "8b556eeee0ce0443a47efbb1077981951a27a00b test: verify rain-lab color grade precedence\nf551b951a2caea8efc5d23e6fce83067d26b5e1a fix(rain-lab): simplify case results and color-coded verdicts\n6bdf63232208d787fe5f591c6f97419c9df31656 fix(rain-lab): simplify case results and color-coded verdicts\ncf3421d237378e2d6cffaa9008600c7d83ba5d2f fix(rain-lab): simplify case results and color-coded verdicts",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "d7c5b3dbb9edfd77840b8f0f3f41cb46a692d632ab696ae82aec14950d342e70",
+  "collected_at": "2026-11-09T21:00:57.608899+00:00"
+}

@@ -1,0 +1,51 @@
+{
+  "id": "branch-b5bac1644f15f8e7",
+  "title": "feature/pwa-in-app-diagnostics-toggle-20261024",
+  "head": "c4521382847b9df0effcced360d3748dea7de533",
+  "head_ref": "feature/pwa-in-app-diagnostics-toggle-20261024",
+  "linked_prs": [
+    77
+  ],
+  "files": [
+    {
+      "path": "app/components/NotificationFeedbackHistory.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c4521382847b9df0effcced360d3748dea7de533/app/components/NotificationFeedbackHistory.tsx"
+    },
+    {
+      "path": "app/components/PwaDiagnosticsToggle.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c4521382847b9df0effcced360d3748dea7de533/app/components/PwaDiagnosticsToggle.tsx"
+    },
+    {
+      "path": "app/components/ResumeDiagnosticsPanel.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c4521382847b9df0effcced360d3748dea7de533/app/components/ResumeDiagnosticsPanel.tsx"
+    },
+    {
+      "path": "app/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c4521382847b9df0effcced360d3748dea7de533/app/page.tsx"
+    }
+  ],
+  "commits": "c4521382847b9df0effcced360d3748dea7de533 feat: expose opt-in diagnostic control at bottom of PWA page\ne9502982ca41eb85de79855ebe9f7f2f91d99169 feat: add local-only diagnostics toggle for installed iPhone PWA\n761d5a97b66da49dac0de1aa73bac8df125118d8 fix: observe feedback lifecycle when diagnostics enabled inside installed PWA\nbe1439135668e6912209ad1bb1746ecbb6eeb24e feat: allow opt-in PWA diagnostics from in-app session flag",
+  "topics": [
+    "通知・配信",
+    "開発管理",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "01d939da0e2b58e75faf80e625456abe8edeeef12cb572a7e604d4006e8174a9",
+  "collected_at": "2026-11-09T21:00:57.608899+00:00"
+}
