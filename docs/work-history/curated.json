@@ -1239,6 +1239,15 @@
       "evidence": [
         "https://github.com/miyazaki1016/emergencyalert/pull/182"
       ]
+    },
+    "188": {
+      "summary": "新規作業の依頼文から過去の実装・未統合研究を自動照合し、原本の再利用判断を着手前に記録する。",
+      "conclusion": "担当AIの最初の手順を自動照合CLIにし、Issue・PRでもベース側のコードで再照合する。強い候補があれば原本URLと再利用・追加検証・別案件の具体的理由が必要。古い履歴・収集エラーはINCOMPLETE。表記揺れ・語句・パスによる候補発見であり、LLM意味理解や重複・完了の断定ではない。新規回帰10件と実データで未統合研究・既存実装の再発見を確認。利用者の検索や承認待ちは不要。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/188",
+        "https://github.com/miyazaki1016/emergencyalert/blob/main/docs/WORK_HISTORY_PREFLIGHT.md",
+        "https://github.com/miyazaki1016/emergencyalert/blob/main/docs/WORK_HISTORY_PREFLIGHT_ACCEPTANCE.md"
+      ]
     }
   }
 }
