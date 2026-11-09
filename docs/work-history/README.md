@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-09T21:00:57.608899+00:00
+更新 (UTC): 2026-11-09T21:17:47.363995+00:00
 
 ## 全案件
 
@@ -89,6 +89,7 @@
 | [design/polished-mobile-ui](cases/branch-5c977d57157a9d51.md) | 画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [design/white-secondary-text](cases/branch-5cf84043799e8296.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [test-rain-actionable-boundary](cases/branch-5f7ce5cfce85c051.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [fix/jaspic-bicycle-not-quarantined-20261110](cases/branch-5f7d8d7f8dc6dd32.md) | 通知・配信・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/feedback-observed-time-20261022](cases/branch-60bf0fe58994b8d1.md) | 雨量・全国検知・通知・配信・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/jma-transparent-no-rain](cases/branch-60fdc910109714c5.md) | 雨量・全国検知・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [diagnostic-forecast-frames](cases/branch-628f136aaac0ca36.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -313,6 +314,7 @@
 | [docs: define living emergency and laundry alert direction](cases/pr-19.md) | その他の開発：生活防災・洗濯通知の製品方針を記録 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix(jaspic): quarantine unreconciled historical IDs without dispatching them](cases/pr-190.md) | 通知・配信：JASPICの旧送信台帳と地図IDの不一致による停止を安全な隔離処理に変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix(jaspic): deliver nine verified post-migration alerts exactly once](cases/pr-191.md) | 通知・配信・開発管理：旧システム最終JSONに存在しない広島9件を限定して通知する移行後追い処理 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [fix(jaspic): 自転車盗は通知対象外のまま隔離件数から除外](cases/pr-192.md) | 通知・配信・開発管理：JASPICの自転車盗を通知対象外のまま隔離件数から外す | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add PWA foundation for iPhone and Android](cases/pr-2.md) | その他の開発：iPhone・Android向けPWAの基盤を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add early rain forecast provider](cases/pr-20.md) | 雨量・全国検知：早期の雨予測データ取得処理を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: expose early rain forecast prototype API](cases/pr-21.md) | 雨量・全国検知：早期雨予測の試作APIを公開する変更案 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
@@ -460,7 +462,7 @@
 - lib/jaspic/oauth-session-offline.ts：[branch-dddc96894dde5a85](cases/branch-dddc96894dde5a85.md), [branch-f4ebc6c16c3885bc](cases/branch-f4ebc6c16c3885bc.md), [pr-168](cases/pr-168.md), [pr-171](cases/pr-171.md)
 - lib/jaspic/oauth-start-authorization.ts：[branch-f4ebc6c16c3885bc](cases/branch-f4ebc6c16c3885bc.md), [pr-168](cases/pr-168.md)
 - lib/jaspic/oauth-supabase-store.ts：[branch-f4ebc6c16c3885bc](cases/branch-f4ebc6c16c3885bc.md), [pr-168](cases/pr-168.md)
-- lib/jaspic/production-plan.ts：[branch-3caa7689f822f5c5](cases/branch-3caa7689f822f5c5.md), [branch-68a04500a5ab7038](cases/branch-68a04500a5ab7038.md), [pr-190](cases/pr-190.md), [pr-191](cases/pr-191.md)
+- lib/jaspic/production-plan.ts：[branch-3caa7689f822f5c5](cases/branch-3caa7689f822f5c5.md), [branch-5f7d8d7f8dc6dd32](cases/branch-5f7d8d7f8dc6dd32.md), [branch-68a04500a5ab7038](cases/branch-68a04500a5ab7038.md), [pr-190](cases/pr-190.md), [pr-191](cases/pr-191.md), [pr-192](cases/pr-192.md)
 - lib/jaspic/shigaMail.ts：[branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [pr-155](cases/pr-155.md)
 - lib/places/searchPlaces.ts：[branch-04c8f793320315f9](cases/branch-04c8f793320315f9.md), [branch-309a089ee15503d2](cases/branch-309a089ee15503d2.md), [branch-8408fe81c12a3d3e](cases/branch-8408fe81c12a3d3e.md), [branch-b075504ef7a80661](cases/branch-b075504ef7a80661.md), [pr-30](cases/pr-30.md), [pr-4](cases/pr-4.md), [pr-5](cases/pr-5.md), [pr-7](cases/pr-7.md)
 - lib/research/forecastEvidence.ts：[branch-e887abe92356f2f8](cases/branch-e887abe92356f2f8.md), [pr-109](cases/pr-109.md)

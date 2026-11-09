@@ -1,0 +1,36 @@
+{
+  "id": "branch-15e527c001981f05",
+  "title": "feature/repair-push-owner-20261024",
+  "head": "017d3f893e29c8fa0f3655716f9ef33d8fa32b77",
+  "head_ref": "feature/repair-push-owner-20261024",
+  "linked_prs": [
+    79
+  ],
+  "files": [
+    {
+      "path": "app/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/017d3f893e29c8fa0f3655716f9ef33d8fa32b77/app/page.tsx"
+    },
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/017d3f893e29c8fa0f3655716f9ef33d8fa32b77/docs/PROJECT_OVERVIEW.md"
+    }
+  ],
+  "commits": "017d3f893e29c8fa0f3655716f9ef33d8fa32b77 docs: record push ownership mismatch and opt-in recovery plan\n318cf7e9dcbdd098478616fefe2a9f55f6694fbf feat: safely rebind existing PWA push subscription to current owner",
+  "topics": [
+    "通知・配信",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "3415c5330d0f1efcd9d8391e503a74230b3152c22ca10bf66b11ecfe6044e29a",
+  "collected_at": "2026-11-09T21:17:47.363995+00:00"
+}

@@ -16,7 +16,7 @@
 
 **次の作業：** 関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない
 
-根拠取得日時 (UTC)：2026-11-09T21:00:57.608899+00:00
+根拠取得日時 (UTC)：2026-11-09T21:17:47.363995+00:00
 
 
 ## 実際の変更処理（コードから抽出）
@@ -56,7 +56,7 @@
 
 ```text
 diff --git a/PROJECT_OVERVIEW.md b/PROJECT_OVERVIEW.md
-index 869592f..63d2ff8 100644
+index 869592fc..63d2ff8d 100644
 --- a/PROJECT_OVERVIEW.md
 +++ b/PROJECT_OVERVIEW.md
 @@ -1,3 +1,5 @@
@@ -73,7 +73,7 @@ index 869592f..63d2ff8 100644
 ```text
 diff --git a/docs/AMAFURU_AUDIT_CHECKPOINT_20261021.md b/docs/AMAFURU_AUDIT_CHECKPOINT_20261021.md
 new file mode 100644
-index 0000000..d50d97d
+index 00000000..d50d97d1
 --- /dev/null
 +++ b/docs/AMAFURU_AUDIT_CHECKPOINT_20261021.md
 @@ -0,0 +1,31 @@
@@ -116,7 +116,7 @@ index 0000000..d50d97d
 ```text
 diff --git a/docs/AMAFURU_BRANCH_AUDIT_20261021.md b/docs/AMAFURU_BRANCH_AUDIT_20261021.md
 new file mode 100644
-index 0000000..a0d7c52
+index 00000000..a0d7c525
 --- /dev/null
 +++ b/docs/AMAFURU_BRANCH_AUDIT_20261021.md
 @@ -0,0 +1,110 @@
@@ -177,7 +177,7 @@ index 0000000..a0d7c52
 +| `feat/watch-toggle-colors` | 2026-09-24T13:09:38+09:00 | `1b5649b6d7a57d501b2d4f57f600f6ab45d69c27` | 2/98 | [#9](https://github.com/miyazaki1016/emergencyalert/pull/9) merged 2026-09-24T04:17:19Z feat: make watch ON/OFF state visually clear | 内容精査継続 / PR merge確認・現版同等性は別 | [35954460716](https://github.com/miyazaki1016/emergencyalert/actions/runs/35954460716) CI:success; [Vercel](https://vercel.com/kishibojim/emergencyalert/5a9E5iS1L6EK8MxUwG9ZF6Jv1p7R) success |
 +| `feat-early-rain-forecast-api` | 2026-09-25T00:34:45+09:00 | `6dca8cedc99d2e468cc1d1bbf86a03f1f82bb739` | 1/83 | [#21](https://github.com/miyazaki1016/emergencyalert/pull/21) closed feat: expose early rain forecast prototype API | 内容精査継続 | [36021232336](https://github.com/miyazaki1016/emergencyalert/actions/runs/36021232336) CI:success; [Vercel](https://vercel.com/kishibojim/emergencyalert/D5xA2mGF4L38SDEfVju17ZweyAMD) success |
 +| `feat-early-rain-forecast-api-v2` | 2026-09-25T00:51:34+09:00 | `99df471a5c30908e4925def8a2463ff37af6dff2` | 1/82 | [#23](https://github.com/miyazaki1016/emergencyalert/pull/23) merged 2026-09-24T15:53:27Z feat: expose early rain forecast prototype API | 内容精査継続 / PR merge確認・現版同等性は別 | [36023272637](https://github.com/miyazaki1016/emergencyalert/actions/runs/36023272637) CI:success; [Vercel](https://vercel.com/kishibojim/emergencyalert/5LZKQM8d2ts2ysWtmATbSvagGA9n) success |
-+| `feat-early-rain-forecast-provider` | 2026-09-24T23:23:51+09:00 | `03e4d17c5ed6660517b7c970ff0bceeb4ab42c31` | 4/84 | [#20](https://github.com/miyazaki1016/emergencyalert/pull/20) merged 2026-09-24T14:27:03Z feat: add early rain forecast provider | 内容精査継続 / PR merge確認・現版同等性は別 | 
++| `feat-early-rain-forecast-provider` | 2026-09-24T23:23:51+09:00 | `03e4d17c5ed6660517b7c970ff0bceeb4ab42c31` | 4/84 | [#20](https://github.com/miyazaki1016/emergencyalert/pull/20) merged 2026-09-24T14:27:03Z feat: add early rain forecast provider | 内容精査継続 / PR merge確認・現版同等性は別 
 ```
 
 ### docs/AMAFURU_CHAT_HANDOFF_20261021.md
@@ -185,7 +185,7 @@ index 0000000..a0d7c52
 ```text
 diff --git a/docs/AMAFURU_CHAT_HANDOFF_20261021.md b/docs/AMAFURU_CHAT_HANDOFF_20261021.md
 new file mode 100644
-index 0000000..57e527d
+index 00000000..57e527da
 --- /dev/null
 +++ b/docs/AMAFURU_CHAT_HANDOFF_20261021.md
 @@ -0,0 +1,53 @@
@@ -250,7 +250,7 @@ index 0000000..57e527d
 ```text
 diff --git a/docs/AMAFURU_CONCEPT.md b/docs/AMAFURU_CONCEPT.md
 new file mode 100644
-index 0000000..d13ebc7
+index 00000000..d13ebc7b
 --- /dev/null
 +++ b/docs/AMAFURU_CONCEPT.md
 @@ -0,0 +1,61 @@
@@ -323,7 +323,7 @@ index 0000000..d13ebc7
 ```text
 diff --git a/docs/AMAFURU_DEVELOPMENT_OVERVIEW.md b/docs/AMAFURU_DEVELOPMENT_OVERVIEW.md
 new file mode 100644
-index 0000000..57d9f0b
+index 00000000..57d9f0bb
 --- /dev/null
 +++ b/docs/AMAFURU_DEVELOPMENT_OVERVIEW.md
 @@ -0,0 +1,105 @@
@@ -440,7 +440,7 @@ index 0000000..57d9f0b
 ```text
 diff --git a/docs/AMAFURU_HANDOFF_20261018.md b/docs/AMAFURU_HANDOFF_20261018.md
 new file mode 100644
-index 0000000..a0196b4
+index 00000000..a0196b40
 --- /dev/null
 +++ b/docs/AMAFURU_HANDOFF_20261018.md
 @@ -0,0 +1,70 @@
@@ -522,7 +522,7 @@ index 0000000..a0196b4
 ```text
 diff --git a/docs/AMAFURU_SOURCE_AUDIT_20261016.md b/docs/AMAFURU_SOURCE_AUDIT_20261016.md
 new file mode 100644
-index 0000000..abd49e8
+index 00000000..abd49e87
 --- /dev/null
 +++ b/docs/AMAFURU_SOURCE_AUDIT_20261016.md
 @@ -0,0 +1,569 @@
@@ -734,14 +734,14 @@ index 0000000..abd49e8
 +4. **公開可否**: `canPublishRainInterpretation` は`ENDING`時、終了時刻から3連続`NO_RAIN`が使用可能であることを確認。ただし**現況の雨が地上で実際に降ったことを独立検証する仕組みではない**。
 +5. **イベント化**: `ENDING`→`RAIN_ENDING`、`ACTIONABLE_RAIN`→`ACTIONABLE_RAIN_APPROACHING`（`LIFESTYLE_ACTION`）。`ENDING`は`INFO`。公開可否を満たした場合のみAPIがイベントを返す。
 +6. **通知worker**: 5分毎のcronが登録地点ごとに`/api/rain`取得。現況`RAIN`を3回連続で`rain_streak>=3`、`confirmed_weather=RAINING`とするが、**3回連続レーダー画素RAIN＝現地での地上降雨確証ではない**。`RAIN_ENDING`の通知可否はworkerでさらに決定。
-+7. **重要な本番差分**: 本番v29は`RAIN_ENDING`の通知条件に`confirmed_weather=RAINING`が**ない**。mainにはこの条件があるが、`confirmedAndEnding`経路が別にある。既存の`RAIN_ENDING`通知75/1
++7. **重要な本番差分**: 本番v29は`RAIN_ENDING`の通知条件に`confirmed_weather=RAINING`が**ない**。mainにはこの条件があるが、`confirmedAndEnding`経路が別にある。既存の`RAIN_ENDING`通知75
 ```
 
 ### docs/PROJECT_OVERVIEW.md
 
 ```text
 diff --git a/docs/PROJECT_OVERVIEW.md b/docs/PROJECT_OVERVIEW.md
-index 5120a18..cc4f814 100644
+index 5120a182..cc4f814d 100644
 --- a/docs/PROJECT_OVERVIEW.md
 +++ b/docs/PROJECT_OVERVIEW.md
 @@ -1,3 +1,5 @@
@@ -758,7 +758,7 @@ index 5120a18..cc4f814 100644
 ```text
 diff --git a/docs/SAKIKURU_CONCEPT.md b/docs/SAKIKURU_CONCEPT.md
 new file mode 100644
-index 0000000..1a883c1
+index 00000000..1a883c1c
 --- /dev/null
 +++ b/docs/SAKIKURU_CONCEPT.md
 @@ -0,0 +1,53 @@
@@ -823,7 +823,7 @@ index 0000000..1a883c1
 ```text
 diff --git a/docs/audit/20261021/assets.json b/docs/audit/20261021/assets.json
 new file mode 100644
-index 0000000..3c7f8fb
+index 00000000..3c7f8fb7
 --- /dev/null
 +++ b/docs/audit/20261021/assets.json
 @@ -0,0 +1,9698 @@
@@ -1335,7 +1335,7 @@ index 0000000..3c7f8fb
 +    "content_review": "inventory-only"
 +  },
 +  {
-+    "path": "R
++    "path": 
 ```
 
 ### docs/audit/20261021/branches.json
@@ -1343,7 +1343,7 @@ index 0000000..3c7f8fb
 ```text
 diff --git a/docs/audit/20261021/branches.json b/docs/audit/20261021/branches.json
 new file mode 100644
-index 0000000..21cc4b1
+index 00000000..21cc4b1d
 --- /dev/null
 +++ b/docs/audit/20261021/branches.json
 @@ -0,0 +1,15031 @@
@@ -1765,7 +1765,7 @@ index 0000000..21cc4b1
 +        "branch_blob": null,
 +        "main_blob": "109dd5b865407bd0dbf5f4d4e0e3602626a5affe"
 +      },
-+   
++ 
 ```
 
 ### docs/audit/20261021/documents.json
@@ -1773,7 +1773,7 @@ index 0000000..21cc4b1
 ```text
 diff --git a/docs/audit/20261021/documents.json b/docs/audit/20261021/documents.json
 new file mode 100644
-index 0000000..5dbeb37
+index 00000000..5dbeb371
 --- /dev/null
 +++ b/docs/audit/20261021/documents.json
 @@ -0,0 +1,1182 @@
@@ -2263,7 +2263,7 @@ index 0000000..5dbeb37
 +      "design/lighter-blue-result-order",
 +      "design/lighter-rain-blue",
 +      "design/polished-mobile-ui",
-+      "desi
++      "de
 ```
 
 ### docs/audit/20261021/prs.json
@@ -2271,7 +2271,7 @@ index 0000000..5dbeb37
 ```text
 diff --git a/docs/audit/20261021/prs.json b/docs/audit/20261021/prs.json
 new file mode 100644
-index 0000000..8ec664a
+index 00000000..8ec664ad
 --- /dev/null
 +++ b/docs/audit/20261021/prs.json
 @@ -0,0 +1,758 @@
@@ -2441,6 +2441,6 @@ index 0000000..8ec664a
 +    "head": "fix/suppress-rain-confirmed-push",
 +    "head_sha": "5bc1fef04789de21dbc72845497cb72131baeabd",
 +    "body": "Keep 3-consecutive-RAIN confirmation for internal episode/state management, but do not send or persist a standalone RAIN_CONFIRMED notification. If confirmation coincides with RAIN_ENDING, notify only the forward-looking RAIN_ENDING message. Severe, approaching, returning, and ending notifications remain unchanged.",
-+    "url": "https://github.com/miyazaki1016/emergencyalert/pu
++    "url": "https://github.com/miyazaki1016/emergencyalert/
 ```
 

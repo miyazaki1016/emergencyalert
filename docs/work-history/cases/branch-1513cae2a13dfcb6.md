@@ -16,7 +16,7 @@
 
 **次の作業：** 関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない
 
-根拠取得日時 (UTC)：2026-11-09T21:00:57.608899+00:00
+根拠取得日時 (UTC)：2026-11-09T21:17:47.363995+00:00
 
 
 ## 実際の変更処理（コードから抽出）
@@ -43,7 +43,7 @@
 
 ```text
 diff --git a/docs/DEVELOPMENT_LEDGER.md b/docs/DEVELOPMENT_LEDGER.md
-index d6f5ef0..c30ec55 100644
+index d6f5ef09..c30ec55d 100644
 --- a/docs/DEVELOPMENT_LEDGER.md
 +++ b/docs/DEVELOPMENT_LEDGER.md
 @@ -146,3 +146,146 @@
@@ -190,6 +190,6 @@ index d6f5ef0..c30ec55 100644
 +| #134 | Add fail-closed checks before ledger automation writes | merged | `ca36d09279b46518c1b4f97868927e4b4b2dad2f` | 2026-11-01T22:46:24Z |
 +| #135 | Add diagnostic artifact and explicit permission error for ledger automation | merged | `55403d4a586f4da5af06eab9732551d171f1550b` | 2026-11-01T23:22:08Z |
 +| #136 | Fix inventory CI AttributeError when branch SHA is a string | merged | `19177b8c39ffc8d007b066e175be0d71afd6e760` | 2026-11-02T01:57:31Z |
-+| #137 | Add fail-close
++| #137 | Add fail-clo
 ```
 

@@ -16,7 +16,7 @@
 
 **次の作業：** 関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない
 
-根拠取得日時 (UTC)：2026-11-09T21:00:57.608899+00:00
+根拠取得日時 (UTC)：2026-11-09T21:17:47.363995+00:00
 
 
 ## 実際の変更処理（コードから抽出）
@@ -45,7 +45,7 @@
 
 ```text
 diff --git a/lib/weather/rain/watchNotificationDecision.test.ts b/lib/weather/rain/watchNotificationDecision.test.ts
-index b0c3352..d1380ee 100644
+index b0c33525..d1380eec 100644
 --- a/lib/weather/rain/watchNotificationDecision.test.ts
 +++ b/lib/weather/rain/watchNotificationDecision.test.ts
 @@ -1,5 +1,5 @@
@@ -197,7 +197,7 @@ index b0c3352..d1380ee 100644
 
 ```text
 diff --git a/supabase/functions/watch-rain/index.ts b/supabase/functions/watch-rain/index.ts
-index b4b5992..cea3c8e 100644
+index b4b59922..cea3c8ee 100644
 --- a/supabase/functions/watch-rain/index.ts
 +++ b/supabase/functions/watch-rain/index.ts
 @@ -1,6 +1,6 @@
@@ -232,7 +232,7 @@ index b4b5992..cea3c8e 100644
 
 ```text
 diff --git a/supabase/functions/watch-rain/notificationDecision.ts b/supabase/functions/watch-rain/notificationDecision.ts
-index 35482df..048922e 100644
+index 35482dfa..048922ee 100644
 --- a/supabase/functions/watch-rain/notificationDecision.ts
 +++ b/supabase/functions/watch-rain/notificationDecision.ts
 @@ -34,3 +34,28 @@ export function nextRainEndingNotified(args: {
