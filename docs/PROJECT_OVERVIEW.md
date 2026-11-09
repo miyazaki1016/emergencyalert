@@ -24,6 +24,40 @@
 | 開発・確認・リリースの規約 | [共通運用規約](DEVELOPMENT_MANAGEMENT_STANDARD.md) · [Vercelビルド運用](VERCEL_BUILD_POLICY.md) |
 | 過去の判断・未統合研究・詳細な開発史 | [整理前の総覧・全文保存版](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md) · [旧開発台帳・全文保存版](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/DEVELOPMENT_LEDGER.md) |
 
+## 新しいソラへの引き継ぎ（共通ひな形・必須）
+
+**新しいチャットで担当ソラに開発を渡すときは、以下をコピーし「今回やりたいこと」「守る条件・直前の状況」を埋める。** 美咲とアメふるを同時に変更せず、指定された対象だけを扱う。担当AIはひな形の指示を実行すること。**総覧を読むだけ・検索画面を案内するだけでは着手前確認を済ませたことにならない。**
+
+```text
+開発を引き継いでください。
+
+対象リポジトリ：
+美咲：miyazaki1016/misaki
+アメふる：miyazaki1016/emergencyalert
+※今回の対象だけを作業してください。
+
+今回やりたいこと：
+（ここに依頼内容を書く）
+
+守る条件・直前の状況：
+（あれば書く）
+
+最初に最新mainのAGENTS.mdと
+ docs/WORK_HISTORY_PREFLIGHT.mdを読んでください。
+
+実装・調査・再測定を始める前に、今回の依頼文で
+scripts/development_preflight.pyを実行してください。
+
+提示された過去のコード・検証結果・未統合研究・
+残課題を読み、再利用判断を記録してから進めてください。
+同じ実装や実験を最初から繰り返さないでください。
+
+履歴やコードを取得できない場合は、
+確認できたふりをせず、その箇所を明示してください。
+```
+
+**担当AIの実施順序：** 最新mainの[AGENTS.md](../AGENTS.md) → [着手前自動照合手順](WORK_HISTORY_PREFLIGHT.md) → `python3 scripts/development_preflight.py --task '今回の依頼文' --output /tmp/development-preflight` → 過去の原本と未統合成果の確認 → 必要な再利用判断の記録・再実行 → 未解決分のみ作業。照合不能なら未確認と明記し、完了済みと推測しない。main統合、CI成功、本番反映、実機確認は別々に扱う。
+
 ## 主な領域
 
 雨の判定ラボ、予測通知の重複抑制、独立案件の防犯情報メール。 案件の進捗は[開発台帳](DEVELOPMENT_LEDGER.md)を参照。
