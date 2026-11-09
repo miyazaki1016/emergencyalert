@@ -55,3 +55,5 @@
 - 本番への反映・手動実行はGitHub Actions成功とVercel READY確認後に行い、実送信件数・delivery状態を必ず照合する。
 
 - GitHub Actionsの着手前照合では類似候補としてPR #190に加えてPR #155（旧C#移植・LINKKEY）とPR #183（開発履歴索引）が提示された。PR #155は旧ID非可逆の根拠を再利用、PR #183は開発管理のみで本番通知実装とは別案件と記録し、PR本文に各判断を追加した。
+
+- 着手前照合の別案件判定は既定の `distinct` を使用する（`separate` は非対応）。PR #191本文の判断記録を `reuse` / `extend` / `distinct` に統一した。
