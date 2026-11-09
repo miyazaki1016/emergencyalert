@@ -1,0 +1,44 @@
+{
+  "id": "branch-978ef60235fbbf68",
+  "title": "fix/archived-history-beyond-seven-days-20261023",
+  "head": "fb1d1a3f9f0cee3985fffa1831dc52b187c182b3",
+  "head_ref": "fix/archived-history-beyond-seven-days-20261023",
+  "linked_prs": [
+    73
+  ],
+  "files": [
+    {
+      "path": "app/components/NotificationFeedbackHistory.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/fb1d1a3f9f0cee3985fffa1831dc52b187c182b3/app/components/NotificationFeedbackHistory.tsx"
+    },
+    {
+      "path": "lib/weather/rain/feedbackPhase1.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/fb1d1a3f9f0cee3985fffa1831dc52b187c182b3/lib/weather/rain/feedbackPhase1.ts"
+    },
+    {
+      "path": "tests/feedbackPhase1.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/fb1d1a3f9f0cee3985fffa1831dc52b187c182b3/tests/feedbackPhase1.test.ts"
+    }
+  ],
+  "commits": "fb1d1a3f9f0cee3985fffa1831dc52b187c182b3 test: archived notifications remain queryable after seven-day window\ne94998b608dc41a6c7c81cdd3b3e88b73d388529 fix: archived history button actually retrieves retained notifications beyond seven days\n9bcab8f95597921350f9f8edc8816782167afdee fix: allow archived history to be queried beyond 7 days",
+  "topics": [
+    "雨量・全国検知",
+    "通知・配信",
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "6665fcd8fcf23e6d06a810250c51a91f142d573a12743f60aaa2f649c3bd5687",
+  "collected_at": "2026-11-09T09:21:44.946311+00:00"
+}

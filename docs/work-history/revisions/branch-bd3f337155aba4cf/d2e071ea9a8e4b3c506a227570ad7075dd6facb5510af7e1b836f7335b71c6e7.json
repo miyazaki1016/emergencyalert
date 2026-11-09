@@ -1,0 +1,42 @@
+{
+  "id": "branch-bd3f337155aba4cf",
+  "title": "docs/inventory-investigation-20261101",
+  "head": "b2ddc796abf2834b549f2c1056d204747e818535",
+  "head_ref": "docs/inventory-investigation-20261101",
+  "linked_prs": [
+    110
+  ],
+  "files": [
+    {
+      "path": "docs/DEVELOPMENT_LEDGER.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b2ddc796abf2834b549f2c1056d204747e818535/docs/DEVELOPMENT_LEDGER.md"
+    },
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b2ddc796abf2834b549f2c1056d204747e818535/docs/PROJECT_OVERVIEW.md"
+    },
+    {
+      "path": "docs/audits/INVENTORY_RECONCILIATION_20261101.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b2ddc796abf2834b549f2c1056d204747e818535/docs/audits/INVENTORY_RECONCILIATION_20261101.md"
+    }
+  ],
+  "commits": "b2ddc796abf2834b549f2c1056d204747e818535 docs: link inventory investigation from management index\ne924d3c8b2c512203fee933c77386d344907d705 docs: link inventory investigation from management index\n5fd6e277e2b1bbaa208e5ce39647bedea31dc45e docs: preserve 2026-11-01 inventory and investigation evidence",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "9b26bf21490832ca2c18c7e2f1407a8f1822215d6b3af28d1a699085914bf2b8",
+  "collected_at": "2026-11-09T09:21:44.946311+00:00"
+}

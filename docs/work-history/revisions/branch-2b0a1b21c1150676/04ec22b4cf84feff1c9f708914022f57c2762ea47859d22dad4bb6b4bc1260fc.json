@@ -1,0 +1,56 @@
+{
+  "id": "branch-2b0a1b21c1150676",
+  "title": "feat/vercel-quota-monitor-20261105",
+  "head": "7e61e6c7fc653735dcc327fa2e1ade34beb4dab1",
+  "head_ref": "feat/vercel-quota-monitor-20261105",
+  "linked_prs": [
+    164
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/vercel-quota-monitor-tests.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/.github/workflows/vercel-quota-monitor-tests.yml"
+    },
+    {
+      "path": "docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md"
+    },
+    {
+      "path": "scripts/vercel_quota_monitor.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "path": "tests/rainLabGrade.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/rainLabGrade.test.ts"
+    },
+    {
+      "path": "tests/test_vercel_quota_monitor.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1/tests/test_vercel_quota_monitor.py"
+    }
+  ],
+  "commits": "7e61e6c7fc653735dcc327fa2e1ade34beb4dab1 test: malformed Vercel response must not appear as zero activity\nf36105513c1015f21952623427f6bbd52c3bcc44 fix: fail closed when Vercel deployments API returns malformed data\n61f58b4efc5debbc101eec59c99821eb4ff81992 test: run rain lab grade checks under Vitest in PR CI\n96d1b7244f8e75b73fdb2485e8c30a964ebd273a docs: verify Vercel Hobby limits and record unrelated CI blocker\n7d40a5997e100f3bb6495870993a811d80b7d484 test: ensure monitor never authorizes automatic production gating\nc8cfb4fd5ab49d0c6e78c3a6c66f3c4178947d57 fix: restore Python newlines in explicit quota safety flags\n358ab030929dc3a2d42e08d30dd807c2cf222a3c fix: explicitly prohibit quota gating from deployment record counts\nb098bf90f1cf73d606d8e4be476b1ee22a88f2ca docs: mark production permission issue resolved and keep quota gate disabled\n900497857cfb4f960057459f0489c31ea1961787 docs: define safe shared Vercel deployment policy and release gates\na05ecc3146c59c55f6b77f7d152c434e7231302d fix: permit verified default scope when team ID omitted\n5ed0ef9c67f5f498c51bde10b2a6851cca949953 fix: replace escaped newline literals in quota monitor\n08876bf1fa60b7badf6fcb11c35ddb0d8b449e70 fix: repair malformed test source after CI syntax error\n0070c34941498704e7c0a183e4ddfcd8025a9cd2 test: fail closed if either project is missing from default Vercel scope\n9f2bcc7eb1fd3a5907db02fee2ac33e1bd24386d fix: verify both projects when Vercel default scope is used\n2b77505b751674f8c6dd204adf4c574bfb2fba50 ci: test read-only Vercel quota monitor without credentials\ne1306f89bd5773f2c3403052c2d94c07b34eb5c8 test: cover Vercel monitor windows and failure handling\n24c8e1e73623db259702a99c50c001bb8789e8c6 feat: add read-only Vercel deployment activity monitor",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "8e43b4301e44092584fa656e03ce804a79c1516cb329b9a969a2670e6ad504c0",
+  "collected_at": "2026-11-09T09:21:44.946311+00:00"
+}

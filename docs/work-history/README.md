@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-09T09:09:08.573340+00:00
+更新 (UTC): 2026-11-09T09:21:44.946311+00:00
 
 ## 全案件
 
@@ -207,6 +207,7 @@
 | [feat/inventory-delta-candidates-20261101](cases/branch-f54fba9240a4e12b.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/pr-promotion-policy-review-20261102](cases/branch-f70b38dbc740ec35.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix-clear-place-form-after-save](cases/branch-f8fadca6ea875ca9.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [docs/require-history-first-20261109](cases/branch-fe43e3f34e45c959.md) | 開発管理・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [Verify seven JMA PNG bands; withdraw unsupported yellow mapping](cases/pr-1.md) | 雨量・全国検知・画面・表示：JMAのPNG色7段階を検証し、根拠のない黄色対応を撤回 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [chore: add authenticated push test button](cases/pr-10.md) | 通知・配信・認証・安全性・画面・表示：認証済みPushのテストボタンを追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [通知地点の半径1km予測・実況画像を独立保存](cases/pr-100.md) | 雨量・全国検知・通知・配信・開発管理：通知地点の半径1km予測・実況画像を独立保存 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
@@ -300,6 +301,7 @@
 | [日本語開発履歴：コード・検証根拠の検索と過去結論の継続保存](cases/pr-183.md) | 雨量・全国検知・開発管理：雨量判定・予測・全国候補抽出に関する変更／開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix(history): 棚卸し中に更新されたPRのコミットを確実に取得](cases/pr-184.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix(history): main統合とPRマージを区別し、検証条件の検索を補強](cases/pr-185.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [docs: require Japanese work-history review before any new development](cases/pr-186.md) | 開発管理・画面・表示：開発資産の把握・引継ぎ・レビューを支援する変更／画面表示や操作に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [docs: define living emergency and laundry alert direction](cases/pr-19.md) | その他の開発：生活防災・洗濯通知の製品方針を記録 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add PWA foundation for iPhone and Android](cases/pr-2.md) | その他の開発：iPhone・Android向けPWAの基盤を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add early rain forecast provider](cases/pr-20.md) | 雨量・全国検知：早期の雨予測データ取得処理を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
