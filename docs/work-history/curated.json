@@ -1248,6 +1248,22 @@
         "https://github.com/miyazaki1016/emergencyalert/blob/main/docs/WORK_HISTORY_PREFLIGHT.md",
         "https://github.com/miyazaki1016/emergencyalert/blob/main/docs/WORK_HISTORY_PREFLIGHT_ACCEPTANCE.md"
       ]
+    },
+    "190": {
+      "summary": "JASPICの旧送信台帳と地図IDの不一致による停止を安全な隔離処理に変更",
+      "conclusion": "2026-11-09 18時実行はHISTORICAL_ID_REQUIRES_RECONCILIATIONで失敗。古い事件発生日だけで未送信/送信済みを判別できないため、未照合IDを配信候補にもbaselineにも含めず隔離。22件隔離のうち13件は通知対象外の自転車盗。後続PR #191で旧最終JSONと照合した9件だけ限定解除。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/190",
+        "https://github.com/miyazaki1016/emergencyalert/blob/main/docs/research/JASPIC_HISTORICAL_ID_QUARANTINE_20261110.md"
+      ]
+    },
+    "191": {
+      "summary": "旧システム最終JSONに存在しない広島9件を限定して通知する移行後追い処理",
+      "conclusion": "ユーザー提供2026-11-06旧最終JSONの不審者454・犯罪5661・滋賀716件を確認し、旧システムが移行後無稼働・無送信と運用者が確認。隔離22件のうち自転車盗13件は通知対象外、残る不審者3件・犯罪6件は旧JSONと本番DB baseline/配送履歴に存在しない。9件の正確なkind+IDのみ例外許可し、候補が9件と完全一致しなければ配信前停止。実送信結果は本番runとdelivery台帳で別途確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/191",
+        "https://github.com/miyazaki1016/emergencyalert/blob/main/docs/research/JASPIC_HISTORICAL_ID_QUARANTINE_20261110.md"
+      ]
     }
   }
 }
