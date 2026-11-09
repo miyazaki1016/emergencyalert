@@ -14,8 +14,21 @@ function crime(id: string, date = "2026-11-01 10:00:00", address = "テスト地
   return { kind: "hiroshima-crime", data, context: { cityName: "テスト市", stationName: "テスト警察署" } };
 }
 
+function person(id: string): Item {
+  const data: RecordData = Object.fromEntries(fields["hiroshima-person"].map(field => [field, ""]));
+  Object.assign(data, {
+    id, occurrence_dt: "2026-11-01 10:00:00",
+    case_type: "声掛け", latitude: "34.0", longitude: "132.0",
+    city_code: "101", police_station: "1",
+  });
+  return { kind: "hiroshima-person", data, context: { cityName: "テスト市", stationName: "テスト警察署" } };
+}
+
 function baseline() {
-  const existing = Array.from({ length: 10 }, (_, n) => crime(String(1126001001 + n)));
+  const existing = [
+    ...Array.from({ length: 10 }, (_, n) => crime(String(1126001001 + n))),
+    ...Array.from({ length: 10 }, (_, n) => person(String(45701 + n))),
+  ];
   const records = Object.fromEntries(existing.map(item => [`${item.kind}:${item.data.id}`, item.data]));
   return { existing, snapshot: { revision: 5, baseline: true, records } satisfies Snapshot };
 }
@@ -48,7 +61,7 @@ describe("JASPIC historical ID quarantine", () => {
 
   it("preserves the complete-source count guard", async () => {
     const { existing, snapshot } = baseline();
-    await expect(productionPlan("hiroshima", snapshot, existing.slice(0, 7), new Set()))
+    await expect(productionPlan("hiroshima", snapshot, [...existing.slice(0, 7), ...existing.slice(10)], new Set()))
       .rejects.toThrow("SOURCE_COUNT_GUARD");
   });
 });
