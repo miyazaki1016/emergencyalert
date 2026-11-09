@@ -51,7 +51,9 @@ def main():
         if before is not None:
             params["until"] = before
         page = fetch(params)
-        items = page.get("deployments", [])
+        items = page.get("deployments")
+        if not isinstance(items, list):
+            raise RuntimeError("invalid deployments response; monitoring incomplete")
         if not items:
             break
         new = 0
