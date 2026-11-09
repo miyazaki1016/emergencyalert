@@ -1,0 +1,62 @@
+name: Existing work preflight (read-only)
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, edited, ready_for_review]
+  issues:
+    types: [opened, edited, reopened]
+  workflow_dispatch:
+    inputs:
+      task:
+        description: '新しい作業の内容を日本語で入力（機能名だけでなく目的・変更内容）'
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: work-preflight-${{ github.event.pull_request.number || github.event.issue.number || github.run_id }}
+  cancel-in-progress: true
+jobs:
+  regression:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Offline matching, reuse decisions and incomplete-data tests
+        run: python3 -m unittest discover -s tests -p 'test_development_preflight.py' -v
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      # Always run the BASE implementation; PR contents and Issue text are data.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check prior work before accepting a new task
+        env:
+          PREFLIGHT_TASK: ${{ inputs.task }}
+        run: |
+          if ! test -f scripts/development_preflight.py; then
+            echo 'Bootstrap PR: preflight becomes active after main integration. Regression job tests its implementation.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          if test "$GITHUB_EVENT_NAME" = workflow_dispatch; then
+            python3 scripts/development_preflight.py --task "$PREFLIGHT_TASK" --output preflight-output
+          else
+            python3 scripts/development_preflight.py --event "$GITHUB_EVENT_PATH" --output preflight-output
+          fi
+      - name: Show candidates, conclusions, evidence and missing review
+        if: always()
+        run: |
+          if test -f preflight-output/preflight.md; then
+            cat preflight-output/preflight.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: existing-work-preflight
+          path: preflight-output/
+          if-no-files-found: ignore
+          retention-days: 30

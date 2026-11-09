@@ -1,5 +1,7 @@
 # 何を作り、何を検証してきたか — 過去作業の入口
 
+**新規着手時は担当AIが依頼文で[自動照合](WORK_HISTORY_PREFLIGHT.md)を実行すること。** 過去のコード・数値・未解決事項を確認し、再利用判断を記録してから進める。手動検索だけで済ませない。
+
 ## 日本語開発履歴（コード・検証根拠付き）
 
 [📚 両プロジェクトをスマートフォンで検索](https://miyazaki1016.github.io/misaki/history.html) ／ [全案件・根拠資料](https://github.com/miyazaki1016/emergencyalert/blob/development-history/docs/work-history/README.md) ／ [更新・着手前検索・確度・制約](WORK_HISTORY_OPERATIONS.md)
