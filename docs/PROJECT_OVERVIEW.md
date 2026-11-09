@@ -1,5 +1,8 @@
-# アメふる 総覧
+# サキくる / emergencyalert.news — 総覧
 
+> [!IMPORTANT]
+> **製品の原点と最終像は [サキくる製品憲章](SAKIKURU_PRODUCT_CHARTER.md) に恒久保存。** 親サイト emergencyalert.news（呼称「サキくる」は正式確定未確認）、雨コンテンツ「アメふる」（MY地点監視／全国30分以内30mm/h以上の大雨予報と雨雲アニメーション）、将来のトップページの基盤「LIVE JAPAN」は別々の役割。**既存の全国大雨 PR #59／LIVE JAPAN PR #61 を再実装前に確認し、47都道府県N03データは無断削除しない。**
+>
 登録地点で雨が降り始めるタイミングを、少ない通知で正確に伝える。
 
 > [!IMPORTANT]
@@ -7,6 +10,7 @@
 
 | 知りたいこと | 開く場所 |
 | --- | --- |
+| **製品理念・完成形・3つの役割（恒久）** | [サキくる製品憲章](SAKIKURU_PRODUCT_CHARTER.md) |
 | 案件の現在地・証拠・次の一手 | [開発台帳](DEVELOPMENT_LEDGER.md) |
 | 自分の判断待ち・担当への引き継ぎ | [美咲 × アメふる承認ボード](https://miyazaki1016.github.io/misaki/) |
 | PR・ブランチの自動棚卸し | [GitHub Actions](https://github.com/miyazaki1016/emergencyalert/actions) → 最新成功の `development-inventory` |
