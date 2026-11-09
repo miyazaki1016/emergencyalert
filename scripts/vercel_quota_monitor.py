@@ -76,7 +76,7 @@ def main():
         "team_id": TEAM or EXPECTED_TEAM, "scope": "explicit" if TEAM else "verified_default", "observed_at": now.isoformat(),
         "window": "rolling", "deployment_records_24h": count24,
         "deployment_records_1h": count1,
-        "status": "warning" if count24 >= 70 else "normal",
+        "status": "warning" if count24 >= 70 else "normal",\n        "status_basis": "observed_deployment_records_not_quota",\n        "safe_to_gate": False,\n        "quota_verified": False,
         "note": "Observed deployment records only. NOT authoritative Vercel build/quota usage; canceled/skipped records may differ. No automated gating.",
         "projects_filter": sorted(PROJECTS),
     }, ensure_ascii=False))
