@@ -197,8 +197,8 @@
 | #160 | 雨の判定ラボ：現地保留を主判定から外し、降り始め不明を補足表示 | open | `c5a46647e183eb00e335cefc3af4054733db9bd7` | 2026-11-05T04:04:38Z |
 | #161 | ci: stop automatic previews and skip documentation-only builds | merged | `8ee8edff9b9c2fd5ce9d19eea2d408b51c768cab` | 2026-11-05T04:43:39Z |
 | #162 | docs: 総覧を短くし、案件管理を開発台帳へ集約 | merged | `77d576da3d309f65b8f7292c16d8d5a71201adf9` | 2026-11-05T04:58:11Z |
-| #164 | feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階） | open | `900497857cfb4f960057459f0489c31ea1961787` | 2026-11-06T03:16:25Z |
-| #165 | docs: 雨の判定ラボ173コマの方式差分・未検証事項を整理 | open | `33f5d0348e6db11dc21e0d04233f17395eb1aa56` | 2026-11-06T21:43:15Z |
+| #164 | feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階） | open | `b098bf90f1cf73d606d8e4be476b1ee22a88f2ca` | 2026-11-08T23:36:14Z |
+| #165 | docs: 雨の判定ラボ173コマの方式差分・未検証事項を整理 | open | `0ae9da31f65a2afe184a6efd36628a0ac1c2bda3` | 2026-11-08T23:18:57Z |
 | #166 | fix(jaspic): accept trailing slash in Supabase URL | merged | `776fe24e8199cd565625c859b58cf6e1d067284b` | 2026-11-06T04:45:07Z |
 | #167 | style(jaspic): improve iPhone login page layout | merged | `37efdbc992e3a63ea0c91c0b1a267e24742ee875` | 2026-11-06T05:45:33Z |
 | #168 | Draft: JASPIC Gmail OAuth isolation and safe rollout audit (no activation) | merged | `17ef79e93311c4c1c557e523566a18f625f62f4a` | 2026-11-06T07:45:19Z |
@@ -208,4 +208,6 @@
 | #172 | fix(jaspic): diagnose Gmail OAuth vault failures without logging secrets | merged | `22e5d3d4a5c81c2f2ca8a04fac2c668e202885fa` | 2026-11-08T04:45:57Z |
 | #173 | fix(jaspic): resolve diagnostic stage TypeScript build error | merged | `aee2ec75d98b733f1688c85a0fed60e8c192cf25` | 2026-11-08T07:00:50Z |
 | #174 | feat(jaspic): gated single-recipient Gmail test send | merged | `af6fcb14906a8fa271f6a165b5b26ad08821cc66` | 2026-11-08T10:46:07Z |
+| #175 | Research: rain notification accuracy baseline and replay plan | open | `4c8383f6154fc5136092ae75f49061ace74c35a6` | 2026-11-09T02:13:15Z |
+| #176 | Rain Lab: clearer case summaries and color-coded match grades | merged | `8b556eeee0ce0443a47efbb1077981951a27a00b` | 2026-11-09T02:15:07Z |
 <!-- INVENTORY_FACTS_END -->
