@@ -1,0 +1,28 @@
+{
+  "id": "branch-1790942244d0a449",
+  "title": "docs/rain-start-first-index-20261028",
+  "head": "9657b86fc02a76946dd2f5e2db1a3c8cdf658d77",
+  "head_ref": "docs/rain-start-first-index-20261028",
+  "linked_prs": [
+    94
+  ],
+  "files": [
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9657b86fc02a76946dd2f5e2db1a3c8cdf658d77/docs/PROJECT_OVERVIEW.md"
+    }
+  ],
+  "commits": "9657b86fc02a76946dd2f5e2db1a3c8cdf658d77 docs: index rain-start-first product priority and audit branch",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "b91bbb4a6a5b229efb9ace6fedb62228d44e48db92e4b00555ff238662d15228",
+  "collected_at": "2026-11-09T09:51:42.691298+00:00"
+}

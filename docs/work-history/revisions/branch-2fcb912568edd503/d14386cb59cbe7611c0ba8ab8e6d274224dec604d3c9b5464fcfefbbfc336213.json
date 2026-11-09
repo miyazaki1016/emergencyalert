@@ -1,0 +1,50 @@
+{
+  "id": "branch-2fcb912568edd503",
+  "title": "chore/skip-unnecessary-vercel-builds",
+  "head": "ddc8db8c4d74c47eb2287c43f687f08c77d1bb55",
+  "head_ref": "chore/skip-unnecessary-vercel-builds",
+  "linked_prs": [
+    141
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/development-inventory.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ddc8db8c4d74c47eb2287c43f687f08c77d1bb55/.github/workflows/development-inventory.yml"
+    },
+    {
+      "path": "docs/VERCEL_BUILD_REDUCTION_PLAN.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ddc8db8c4d74c47eb2287c43f687f08c77d1bb55/docs/VERCEL_BUILD_REDUCTION_PLAN.md"
+    },
+    {
+      "path": "scripts/vercel_build_guard.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ddc8db8c4d74c47eb2287c43f687f08c77d1bb55/scripts/vercel_build_guard.py"
+    },
+    {
+      "path": "tests/test_vercel_build_guard.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ddc8db8c4d74c47eb2287c43f687f08c77d1bb55/tests/test_vercel_build_guard.py"
+    }
+  ],
+  "commits": "ddc8db8c4d74c47eb2287c43f687f08c77d1bb55 Test build guard in existing inventory CI\n9cda974169b47777a255cabac347bbbfa7637722 Regression test conservative Vercel build predicate\n30ea3199e2a5e06ae681033669862e63ae3c74ff Add conservative build skip predicate\n9549c9c49ed0cc96ee3ba9213dc5b7a2d75293f7 Add conservative Vercel build reduction proposal",
+  "topics": [
+    "開発管理",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "e1a154ea8530deb40be3e1bbb0359c977ec4a2b019b9e41d9680cdf11142ef26",
+  "collected_at": "2026-11-09T09:51:42.691298+00:00"
+}

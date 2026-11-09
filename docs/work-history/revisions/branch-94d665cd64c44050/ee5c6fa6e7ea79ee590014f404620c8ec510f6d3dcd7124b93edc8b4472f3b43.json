@@ -1,0 +1,49 @@
+{
+  "id": "branch-94d665cd64c44050",
+  "title": "test-jma-early-live-smoke",
+  "head": "55174d5c0de802fa06ada23b6ce77aab8840bf6a",
+  "head_ref": "test-jma-early-live-smoke",
+  "linked_prs": [
+    25
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/jma-early-rain-smoke.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/.github/workflows/jma-early-rain-smoke.yml"
+    },
+    {
+      "path": "lib/weather/providers/jma/earlyForecastTileUrl.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/lib/weather/providers/jma/earlyForecastTileUrl.test.ts"
+    },
+    {
+      "path": "lib/weather/providers/jma/earlyForecastTileUrl.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/lib/weather/providers/jma/earlyForecastTileUrl.ts"
+    },
+    {
+      "path": "scripts/check-jma-early-rain.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55174d5c0de802fa06ada23b6ce77aab8840bf6a/scripts/check-jma-early-rain.ts"
+    }
+  ],
+  "commits": "55174d5c0de802fa06ada23b6ce77aab8840bf6a test: cover none and immed JMA tile URLs\na14ab66bd3568f8e59556a52b3d741865bbdd26a fix: use JMA early forecast member in tile URL\ncf41ca46914c9fae6b0a8e3fb10fea5c0b559c5c test: compare JMA none and immed tile paths\naa9a602d7b365296805df093fd4d4b2622252e38 test: verify member-aware JMA tile URLs\n79d9d1aed0ba23eba0da437a5a570433f63edd9b test: diagnose JMA early forecast tile failures\n5a5215f3ab9588e7848239e83bc3a6452c69738e test: run JMA live smoke through async main\n3c86ffac5228a95dbe32a5ec66b9a731fd58c812 ci: run live smoke without lockfile cache\nda47b7bcbedc144351d418dbec370b70d71a353b ci: run JMA early rain live smoke check\n95b76176bd9c1b52cae45f6186ba541716b4cd0b test: add JMA early rain live smoke script",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "ac3d7a38cbeea508356e2a09a51f28a591db21353935cd519ca7c242ee9b1e08",
+  "collected_at": "2026-11-09T09:51:42.691298+00:00"
+}

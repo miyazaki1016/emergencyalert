@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-09T09:45:59.682979+00:00
+更新 (UTC): 2026-11-09T09:51:42.691298+00:00
 
 ## 全案件
 
@@ -197,6 +197,7 @@
 | [docs/misaki-weather-integration-20261016](cases/branch-edd70e09c86ba11d.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [chore/vercel-build-policy-20261105](cases/branch-eecb7d45ce962418.md) | 画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/rain-radar-layer](cases/branch-f0d1cc348ec11a37.md) | 雨量・全国検知・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [docs/preflight-acceptance-20261109](cases/branch-f142e6831f9fa9f1.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/replay-area-evidence-20261029](cases/branch-f1539ac5fd589c69.md) | 雨量・全国検知・通知・配信・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/natural-rain-notifications](cases/branch-f2192b8ad5d34f6e.md) | 雨量・全国検知・通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/jaspic-single-admin-gmail-test-20261108](cases/branch-f257789f539b6669.md) | 通知・配信・認証・安全性：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -305,7 +306,8 @@
 | [fix(history): main統合とPRマージを区別し、検証条件の検索を補強](cases/pr-185.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [docs: require Japanese work-history review before any new development](cases/pr-186.md) | 開発管理・画面・表示：開発資産の把握・引継ぎ・レビューを支援する変更／画面表示や操作に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix(test): 雨判定ラボのテストをVitestで検出できるよう修正](cases/pr-187.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
-| [feat(history): 着手前に「以前の実装・検証」を自動提示して再利用判断を確認](cases/pr-188.md) | 開発管理・画面・表示：開発資産の把握・引継ぎ・レビューを支援する変更／画面表示や操作に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [feat(history): 着手前に「以前の実装・検証」を自動提示して再利用判断を確認](cases/pr-188.md) | 開発管理・画面・表示：新規作業の依頼文から過去の実装・未統合研究を自動照合し、原本の再利用判断を着手前に記録する。 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [docs(history): 着手前自動照合の実測と再利用判断を保存](cases/pr-189.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [docs: define living emergency and laundry alert direction](cases/pr-19.md) | その他の開発：生活防災・洗濯通知の製品方針を記録 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add PWA foundation for iPhone and Android](cases/pr-2.md) | その他の開発：iPhone・Android向けPWAの基盤を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add early rain forecast provider](cases/pr-20.md) | 雨量・全国検知：早期の雨予測データ取得処理を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
