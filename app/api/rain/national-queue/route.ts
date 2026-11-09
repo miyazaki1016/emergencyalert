@@ -32,7 +32,7 @@ async function scanFrame(frame: { basetime: string; validtime: string }) {
   const parts = await Promise.all(JAPAN_TILES.map(async ([x, y]) => {
     const response = await fetch(buildJmaRainTileUrl(frame, COARSE_ZOOM, x, y), { cache: "no-store" });
     if (!response.ok) throw new Error(`JMA coarse tile fetch failed: ${response.status}`);
-    return scanHeavyRainTile(Buffer.from(await response.arrayBuffer()), COARSE_ZOOM, x, y);
+    return scanHeavyRainTile(Buffer.from(await response.arrayBuffer()), COARSE_ZOOM, x, y, 1);
   }));
   return parts.flat();
 }

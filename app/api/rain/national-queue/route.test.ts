@@ -115,6 +115,10 @@ describe("national rain queue proof route", () => {
 
     const response = await POST(request("Bearer proof-secret"));
     expect(response.status).toBe(200);
+    // Coarse candidate selection must inspect all pixels, not just even/even.
+    // PR #62 verified real-JMA severe-region losses with stride 2.
+    expect(scanTile.mock.calls.length).toBeGreaterThan(0);
+    expect(scanTile.mock.calls.every((call) => call[4] === 1)).toBe(true);
     expect(enqueue).toHaveBeenCalledTimes(1);
     const jobs = enqueue.mock.calls[0][1];
     expect(jobs).toHaveLength(1);
