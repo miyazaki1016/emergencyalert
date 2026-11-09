@@ -1,5 +1,8 @@
 # サキくる / emergencyalert.news — 総覧
 
+> [!CAUTION]
+> **開発・調査・検証・修正・再測定を始める前に、必ず[日本語開発履歴検索](https://miyazaki1016.github.io/misaki/history.html)を確認すること。** 機能名・日本語キーワード・コード名・過去の数値で検索し、未統合ブランチも含めた過去の実装、検証結果、根拠リンク、残課題を読む。**同じ作業を繰り返す前に、既存成果から再開できるか判断する。** 手順は[日本語開発履歴の運用](WORK_HISTORY_OPERATIONS.md)。検索結果がない・不十分なときは原本のPR・ソース差分・テスト・Actionsを確認し、未確認は未確認のまま扱う。main統合／CI成功／本番反映は区別する。
+
 > [!IMPORTANT]
 > **製品の原点と最終像は [サキくる製品憲章](SAKIKURU_PRODUCT_CHARTER.md) に恒久保存。** 親サイト emergencyalert.news（呼称「サキくる」は正式確定未確認）、雨コンテンツ「アメふる」（MY地点監視／全国30分以内30mm/h以上の大雨予報と雨雲アニメーション）、将来のトップページの基盤「LIVE JAPAN」は別々の役割。**既存の全国大雨 PR #59／LIVE JAPAN PR #61 を再実装前に確認し、47都道府県N03データは無断削除しない。**
 >
@@ -12,6 +15,7 @@
 | --- | --- |
 | **製品理念・完成形・3つの役割（恒久）** | [サキくる製品憲章](SAKIKURU_PRODUCT_CHARTER.md) |
 | **過去の作業内容・検証結果・全PR/ブランチを探す** | [過去作業の履歴索引](WORK_HISTORY_INDEX.md) |
+| **着手前に必ず見る：過去の日本語開発履歴** | [両プロジェクト共通の検索画面](https://miyazaki1016.github.io/misaki/history.html) · [運用手順](WORK_HISTORY_OPERATIONS.md) |
 | 案件の現在地・証拠・次の一手 | [開発台帳](DEVELOPMENT_LEDGER.md) |
 | 自分の判断待ち・担当への引き継ぎ | [美咲 × アメふる承認ボード](https://miyazaki1016.github.io/misaki/) |
 | PR・ブランチの自動棚卸し | [GitHub Actions](https://github.com/miyazaki1016/emergencyalert/actions) → 最新成功の `development-inventory` |
