@@ -211,4 +211,5 @@
 | #175 | Research: rain notification accuracy baseline and replay plan | open | `4c8383f6154fc5136092ae75f49061ace74c35a6` | 2026-11-09T02:13:15Z |
 | #176 | Rain Lab: clearer case summaries and color-coded match grades | merged | `8b556eeee0ce0443a47efbb1077981951a27a00b` | 2026-11-09T02:15:07Z |
 | #177 | Rain Lab: compact case list labels | merged | `1f86e2fc1abd29668aa705b4bb791ad495e6068c` | 2026-11-09T02:19:06Z |
+| #178 | Rain Lab: keep notification and forecast timestamps in case list | merged | `26f68c8668654f1db20469c2815bf36ce41e3587` | 2026-11-09T02:23:17Z |
 <!-- INVENTORY_FACTS_END -->
