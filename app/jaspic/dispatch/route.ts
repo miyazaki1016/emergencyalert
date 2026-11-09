@@ -63,7 +63,7 @@ export async function POST(request:Request) {
       if(outcome.status!=="SENT")throw new Error(outcome.error??"SEND_FAILED");
       sent[delivery.province as Province]++;
     }
-    const result={runId:id,status:"SUCCEEDED",sent,candidates:plans.map(p=>({province:p.province,count:p.result.candidates.length}))};
+    const result={runId:id,status:"SUCCEEDED",sent,candidates:plans.map(p=>({province:p.province,count:p.result.candidates.length})),quarantined:plans.map(p=>({province:p.province,count:p.result.quarantined.length}))};
     const saved=await db.from("jaspic_runs").update({status:"SUCCEEDED",finished_at:new Date().toISOString(),result}).eq("id",id).eq("status","RUNNING").select("id");
     if(saved.error||saved.data.length!==1)throw new Error("RUN_RESULT_NOT_SAVED");
     return response(result);
