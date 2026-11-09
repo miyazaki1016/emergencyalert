@@ -27,6 +27,8 @@ class MonitorTests(unittest.TestCase):
         code, result, fetch = self.run_monitor([{"deployments": []}])
         self.assertEqual(code, 0)
         self.assertEqual(result["deployment_records_24h"], 0)
+        self.assertIs(result["safe_to_gate"], False)
+        self.assertIs(result["quota_verified"], False)
         self.assertEqual(fetch.call_count, 1)
 
     def test_counts_and_project_filter(self):
@@ -47,6 +49,8 @@ class MonitorTests(unittest.TestCase):
         records = [{"uid": str(i), "created": now - 1000, "name": "misaki"} for i in range(70)]
         _, result, _ = self.run_monitor([{"deployments": records}])
         self.assertEqual(result["status"], "warning")
+        self.assertEqual(result["status_basis"], "observed_deployment_records_not_quota")
+        self.assertIs(result["safe_to_gate"], False)
 
     def test_default_scope_requires_verified_project_membership(self):
         from unittest.mock import MagicMock
