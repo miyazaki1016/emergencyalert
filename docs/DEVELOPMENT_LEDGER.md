@@ -223,4 +223,5 @@
 | #187 | fix(test): 雨判定ラボのテストをVitestで検出できるよう修正 | merged | `50c7ac1fd9c6e7112c679fca33860e44daedfcd7` | 2026-11-09T09:28:37Z |
 | #188 | feat(history): 着手前に「以前の実装・検証」を自動提示して再利用判断を確認 | merged | `d6b226c0bb2aeac2a41839c5b5963f40c918c3d1` | 2026-11-09T09:45:49Z |
 | #189 | docs(history): 着手前自動照合の実測と再利用判断を保存 | merged | `e0b050d6dd7bd7cf05fc37c17d3b58acdf0afd18` | 2026-11-09T09:51:32Z |
+| #190 | fix(jaspic): quarantine unreconciled historical IDs without dispatching them | merged | `eb3136ff0efc13a7e98205c31e56c17a7807fa00` | 2026-11-09T20:37:57Z |
 <!-- INVENTORY_FACTS_END -->
