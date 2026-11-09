@@ -18,6 +18,18 @@ class FakeAPI:
         return {'title':'Stride experiment','body':'47 regions missed','head':{'sha':'a'*40,'ref':'research'},'base':{'sha':'b'*40,'ref':'feature'},'state':'closed','merged_at':'2026-01-01','merge_commit_sha':'c'*40,'updated_at':'2026-01-02','draft':False}
 
 class HistoryTests(unittest.TestCase):
+    def test_phone_search_retains_code_conditions_and_main_status(self):
+        with tempfile.TemporaryDirectory() as temp:
+            case={'id':'pr-62','title':'研究','state':'merged','main_status':'main祖先として未確認',
+                  'remaining':'受入試験が未完了','files':[],
+                  'code_facts':[{'file':'test.ts','kind':'条件','expression':'expect(missed).toBe(47)','url':'https://github.com/test/repo/blob/sha/test.ts'}]}
+            history.render_output({'generated_at':'now','cases':{'pr-62':case},'coverage':{'errors':[]}},temp,'test/repo')
+            index=json.loads(Path(temp,'search-index.json').read_text())['cases'][0]
+            self.assertIn('toBe(47)',index['search_text'])
+            self.assertEqual(index['remaining'],'受入試験が未完了')
+            row=next(line for line in Path(temp,'README.md').read_text().splitlines() if 'cases/pr-62.md' in line)
+            self.assertIn('main祖先として未確認',row)
+
     def test_checkout_race_fetches_exact_missing_pr_head(self):
         import subprocess
         sha='a'*40
