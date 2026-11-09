@@ -69,6 +69,9 @@ describe("nationwide rain preview fail-closed coverage", () => {
     const response = await GET();
 
     expect(response.status).toBe(200);
+    // PR #62 real-JMA parity evidence: the z4 scan must not skip odd pixels.
+    expect(scanTile).toHaveBeenCalledTimes(12);
+    expect(scanTile.mock.calls.every((call) => call[4] === 1)).toBe(true);
     expect(await response.json()).toMatchObject({
       mode: "NATIONWIDE_HEAVY_RAIN_PROOF",
       frames: [{ validTime: forecast.validtime, counts: { heavy: 0, veryHeavy: 0, torrential: 0 } }],
