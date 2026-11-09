@@ -220,4 +220,5 @@
 | #184 | fix(history): 棚卸し中に更新されたPRのコミットを確実に取得 | merged | `25107e4f0760cdcf250308b9cfbb1a2599c52936` | 2026-11-09T09:02:25Z |
 | #185 | fix(history): main統合とPRマージを区別し、検証条件の検索を補強 | merged | `5619eb8e137d20cd4251d53d4c0d3c09e9ea3d6c` | 2026-11-09T09:08:56Z |
 | #186 | docs: require Japanese work-history review before any new development | merged | `b9ae7ed07affee1b14312f9eb3dd8ff8b80825c9` | 2026-11-09T09:21:33Z |
+| #187 | fix(test): 雨判定ラボのテストをVitestで検出できるよう修正 | merged | `50c7ac1fd9c6e7112c679fca33860e44daedfcd7` | 2026-11-09T09:28:37Z |
 <!-- INVENTORY_FACTS_END -->
