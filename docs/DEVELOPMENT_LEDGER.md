@@ -216,4 +216,5 @@
 | #180 | docs: preserve Sakikuru vision, LIVE JAPAN homepage and original X/GIF assets | merged | `8143ff3a2011a516d3d58be1258dbbb0f9b97785` | 2026-11-09T06:51:07Z |
 | #181 | fix: exhaustive z4 heavy-rain scan and fail-closed missing tiles (PR #62 evidence) | open | `011ca047241641a2af4c4bf12412063e19d0e5bd` | 2026-11-09T08:07:40Z |
 | #182 | feat(inventory): searchable historical PR/branch work index and experiment map | merged | `7a9ead205d805559f59b689f948389a2d07d4018` | 2026-11-09T08:12:21Z |
+| #183 | 日本語開発履歴：コード・検証根拠の検索と過去結論の継続保存 | merged | `65aec4341f19db26084bd7dfcf5c5457d8206b2c` | 2026-11-09T08:56:33Z |
 <!-- INVENTORY_FACTS_END -->
