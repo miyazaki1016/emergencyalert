@@ -218,4 +218,5 @@
 | #182 | feat(inventory): searchable historical PR/branch work index and experiment map | merged | `7a9ead205d805559f59b689f948389a2d07d4018` | 2026-11-09T08:12:21Z |
 | #183 | 日本語開発履歴：コード・検証根拠の検索と過去結論の継続保存 | merged | `65aec4341f19db26084bd7dfcf5c5457d8206b2c` | 2026-11-09T08:56:33Z |
 | #184 | fix(history): 棚卸し中に更新されたPRのコミットを確実に取得 | merged | `25107e4f0760cdcf250308b9cfbb1a2599c52936` | 2026-11-09T09:02:25Z |
+| #185 | fix(history): main統合とPRマージを区別し、検証条件の検索を補強 | merged | `5619eb8e137d20cd4251d53d4c0d3c09e9ea3d6c` | 2026-11-09T09:08:56Z |
 <!-- INVENTORY_FACTS_END -->
