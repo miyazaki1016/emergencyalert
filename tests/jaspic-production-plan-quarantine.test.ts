@@ -66,6 +66,24 @@ describe("JASPIC historical ID quarantine", () => {
   });
 });
 
+describe("bicycle theft exclusion without quarantine", () => {
+  it("does not quarantine or notify old/new bicycle theft, but baselines it for future source-count checks", async () => {
+    const { existing, snapshot } = baseline();
+    const oldBicycle = crime("1126001071", "2026-08-15 12:00:00");
+    const newBicycle = crime("1126001072", "2026-11-09 12:00:00");
+    oldBicycle.data.case_type = "自転車盗";
+    newBicycle.data.case_type = "自転車盗";
+    const result = await productionPlan("hiroshima", snapshot, [...existing, oldBicycle, newBicycle], new Set());
+    expect(result.quarantined).toEqual([]);
+    expect(result.candidates).toEqual([]);
+    expect(result.records).toHaveProperty("hiroshima-crime:1126001071");
+    expect(result.records).toHaveProperty("hiroshima-crime:1126001072");
+    const rerun = await productionPlan("hiroshima", { ...snapshot, records: result.records }, [...existing, oldBicycle, newBicycle], new Set());
+    expect(rerun.quarantined).toEqual([]);
+    expect(rerun.candidates).toEqual([]);
+  });
+});
+
 describe("verified legacy JSON catch-up", () => {
   const personIds = ["45811", "45815", "45823"];
   const crimeIds = ["1126015070", "1126055048", "1126155046", "1126175061", "1126185011", "1126195022"];
