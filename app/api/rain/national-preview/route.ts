@@ -26,7 +26,7 @@ async function scanFrame(frame: { basetime: string; validtime: string }) {
   // Missing tiles are unknown coverage, not proof of zero heavy rain.
   // Fail the complete preview instead of silently treating failed regions as clear.
   const parts = await Promise.all(JAPAN_TILES.map(async ([x, y]) =>
-    scanHeavyRainTile(await fetchTile(frame, x, y), ZOOM, x, y)
+    scanHeavyRainTile(await fetchTile(frame, x, y), ZOOM, x, y, 1)
   ));
   return parts.flat();
 }
