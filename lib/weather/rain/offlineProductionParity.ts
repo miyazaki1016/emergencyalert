@@ -20,5 +20,5 @@ export function productionEquivalentActionable(samples:Sample[]):ActionableEvide
  const first=candidates.sort((x,y)=>x.minute-y.minute)[0];
  if(first)return {...first,state:'FOUND'};
  // Cannot rule out an event before the first archived frame or after the last.
- return {minute:null,rule:null,state:a[0].intensity!=='DRY'?'LEFT_CENSORED':'RIGHT_CENSORED'};
+ return {minute:null,rule:null,state:(a[0].intensity==='1_TO_5'||a[0].intensity==='5_TO_10'||strong.has(a[0].intensity))?'LEFT_CENSORED':'RIGHT_CENSORED'};
 }
