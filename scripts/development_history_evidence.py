@@ -304,7 +304,7 @@ def render_output(state,out,repo):
     for key,c in sorted(cases.items()):
         write(out/'cases'/(key+'.md'),render_case(c,repo))
         summary=c.get('curated',{}).get('summary') or c.get('purpose') or 'mainとのソース差分を収録・関連PRを照合'
-        lines+=['| ['+md(c['title'])+'](cases/'+key+'.md) | '+md('・'.join(c.get('topics',[]))+'：'+summary)+' | '+md(c.get('state'))+' | 未確認 |']
+        lines+=['| ['+md(c['title'])+'](cases/'+key+'.md) | '+md('・'.join(c.get('topics',[]))+'：'+summary)+' | '+md(c.get('main_status','未確認'))+' | 未確認 |']
     lines+=['','## 既存コードの重複候補','', '同じファイルを変更した案件です。同一機能と断定せず、結論と差分を先に照合してください。','']
     duplicates=duplicate_candidates(cases)
     for path,ids in duplicates.items():
@@ -320,8 +320,8 @@ def render_output(state,out,repo):
     cards=[]; search_index=[]
     for key,c in cases.items():
         summary=c.get('curated',{}).get('summary') or c.get('purpose') or 'ブランチ差分を収録'
-        index={'id':key,'title':c['title'],'summary':summary,'state':c.get('state'),'main_status':c.get('main_status','未確認'),'topics':c.get('topics',[]),'conclusion':c.get('curated',{}).get('conclusion','未確認'),'next':c.get('next','未確認'),'production':c.get('production','未確認')}
-        index['search_text']=' '.join([c['title'],summary,json.dumps(c.get('curated',{}),ensure_ascii=False),c.get('body',''), ' '.join(c.get('symbols',[])), ' '.join(f['path'] for f in c.get('files',[])), ' '.join(f.get('text','')[:5000] for f in c.get('related_sources',[]))])[:22000]
+        index={'id':key,'title':c['title'],'summary':summary,'state':c.get('state'),'main_status':c.get('main_status','未確認'),'topics':c.get('topics',[]),'conclusion':c.get('curated',{}).get('conclusion','未確認'),'remaining':c.get('remaining','原本の受入条件・未解決事項を照合'),'next':c.get('next','未確認'),'production':c.get('production','未確認')}
+        index['search_text']=' '.join([c['title'],summary,json.dumps(c.get('curated',{}),ensure_ascii=False),c.get('body',''), ' '.join(c.get('symbols',[])), json.dumps(c.get('code_facts',[]),ensure_ascii=False), ' '.join(f['path'] for f in c.get('files',[])), ' '.join(f.get('text','')[:5000] for f in c.get('related_sources',[]))])[:22000]
         search_index.append(index)
         cards.append('<article data-search="'+html.escape(index['search_text'],quote=True)+'"><h2>'+html.escape(c['title'])+'</h2><p>'+html.escape(c.get('curated',{}).get('summary') or c.get('purpose') or 'ブランチ差分を収録')+'</p><p>'+html.escape(str(c.get('state')))+' ／ 本番未確認</p><a href="https://github.com/'+repo+'/blob/development-history/docs/work-history/cases/'+key+'.md">コード・結論・検証根拠を読む</a></article>')
     viewer='''<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>日本語開発履歴</title><style>body{font:16px system-ui;background:#f3f6fa;color:#162c43;margin:auto;max-width:850px;padding:20px}input{box-sizing:border-box;width:100%;padding:15px;font-size:18px;position:sticky;top:8px}article{background:white;padding:18px;border-radius:14px;margin:14px 0;overflow-wrap:anywhere}h2{font-size:19px}a{color:#075daf}#count{padding:10px}</style><h1>日本語開発履歴</h1><p>着手前に機能名・作業内容・コード・検証結果を検索。空白区切りはAND検索。本番反映は別に確認。</p><input id="q" aria-label="検索キーワード" placeholder="例：z4 stride 47／記憶 会話"><div id="count"></div>'''+''.join(cards)+'''<script>const q=document.getElementById('q'),cards=[...document.querySelectorAll('article')];function run(){const terms=q.value.toLowerCase().trim().split(/\\s+/).filter(Boolean);let n=0;for(const c of cards){c.hidden=!terms.every(t=>c.dataset.search.toLowerCase().includes(t));if(!c.hidden)n++}document.getElementById('count').textContent=n+'件'}q.addEventListener('input',run);run()</script></html>'''
