@@ -1264,6 +1264,14 @@
         "https://github.com/miyazaki1016/emergencyalert/pull/191",
         "https://github.com/miyazaki1016/emergencyalert/blob/main/docs/research/JASPIC_HISTORICAL_ID_QUARANTINE_20261110.md"
       ]
+    },
+    "192": {
+      "summary": "JASPICの自転車盗を通知対象外のまま隔離件数から外す",
+      "conclusion": "運用者方針：自転車盗は継続発生するため毎回隔離対象に残す必要なし。自転車盗は既存eligible()で送信0のまま通常baselineに登録し、SOURCE_COUNT_GUARDの元JSON全件検査を維持。旧日付・新日付とも隔離0・通知0、再実行通知0を回帰テストで確認。既存の他の過去未照合IDの隔離は維持。旧13件は専用隔離テーブルには保存されていなかった。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/192",
+        "https://github.com/miyazaki1016/emergencyalert/blob/main/docs/research/JASPIC_HISTORICAL_ID_QUARANTINE_20261110.md"
+      ]
     }
   }
 }
