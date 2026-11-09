@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-09T09:21:44.946311+00:00
+更新 (UTC): 2026-11-09T09:28:48.935616+00:00
 
 ## 全案件
 
@@ -65,6 +65,7 @@
 | [chore/inventory-index-facts-proposal](cases/branch-436bd6babf91e34f.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/legacy-code-diff-20261101](cases/branch-440b4aa49cb369b8.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/management-overview-crosslink-20261105](cases/branch-45d18acdff63ec07.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [fix/rain-lab-vitest-20261109](cases/branch-4668fe49872efde3.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [audit/push-concurrency-20261026](cases/branch-46947f66e3d9fd69.md) | 通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/auth-recovery-security-assessment-20261024](cases/branch-48c2a1d7535af739.md) | 認証・安全性：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [design/lighter-blue-result-order](cases/branch-4af535fda7bab4b1.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -302,6 +303,7 @@
 | [fix(history): 棚卸し中に更新されたPRのコミットを確実に取得](cases/pr-184.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix(history): main統合とPRマージを区別し、検証条件の検索を補強](cases/pr-185.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [docs: require Japanese work-history review before any new development](cases/pr-186.md) | 開発管理・画面・表示：開発資産の把握・引継ぎ・レビューを支援する変更／画面表示や操作に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [fix(test): 雨判定ラボのテストをVitestで検出できるよう修正](cases/pr-187.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [docs: define living emergency and laundry alert direction](cases/pr-19.md) | その他の開発：生活防災・洗濯通知の製品方針を記録 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add PWA foundation for iPhone and Android](cases/pr-2.md) | その他の開発：iPhone・Android向けPWAの基盤を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add early rain forecast provider](cases/pr-20.md) | 雨量・全国検知：早期の雨予測データ取得処理を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |

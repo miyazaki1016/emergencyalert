@@ -1,0 +1,35 @@
+{
+  "id": "branch-7942aa21d9a9b1bd",
+  "title": "docs/operational-inventory-index-20261101",
+  "head": "3eb68f2de6e08348f4896548b9ead204f4a02a74",
+  "head_ref": "docs/operational-inventory-index-20261101",
+  "linked_prs": [
+    120
+  ],
+  "files": [
+    {
+      "path": "docs/DEVELOPMENT_LEDGER.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3eb68f2de6e08348f4896548b9ead204f4a02a74/docs/DEVELOPMENT_LEDGER.md"
+    },
+    {
+      "path": "docs/DEVELOPMENT_OPERATIONS_INDEX.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3eb68f2de6e08348f4896548b9ead204f4a02a74/docs/DEVELOPMENT_OPERATIONS_INDEX.md"
+    }
+  ],
+  "commits": "3eb68f2de6e08348f4896548b9ead204f4a02a74 Link operational inventory index from main development ledger\nd1263d3a4d5c7c05033c4c53ba0b39597b548a7d Add concise development ownership and next-step index",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "61404636fc2ac9b4971425ead90635aaa5054ef74eb43d7e2fe66eb4042ceb9b",
+  "collected_at": "2026-11-09T09:28:48.935616+00:00"
+}

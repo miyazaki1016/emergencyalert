@@ -1,0 +1,28 @@
+{
+  "id": "branch-9aa299e0ae564704",
+  "title": "fix/rain-ending-after-confirmed-rain",
+  "head": "a1717e0f68ca8b926ae725195d7cb65643d9256d",
+  "head_ref": "fix/rain-ending-after-confirmed-rain",
+  "linked_prs": [
+    57
+  ],
+  "files": [
+    {
+      "path": "supabase/functions/watch-rain/index.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a1717e0f68ca8b926ae725195d7cb65643d9256d/supabase/functions/watch-rain/index.ts"
+    }
+  ],
+  "commits": "a1717e0f68ca8b926ae725195d7cb65643d9256d Require confirmed rain before ending notification",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "3e44be1e73f5b59de167fe57163d893dcd1433021d6e7851dd9693fd027bffe8",
+  "collected_at": "2026-11-09T09:28:48.935616+00:00"
+}
