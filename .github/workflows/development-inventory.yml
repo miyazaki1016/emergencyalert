@@ -8,6 +8,9 @@ on:
     paths:
       - 'scripts/development_inventory.py'
       - 'scripts/development_work_history.py'
+      - 'scripts/development_history_evidence.py'
+      - 'tests/test_development_history_evidence.py'
+      - 'docs/work-history/**'
       - 'tests/test_development_work_history.py'
       - 'scripts/development_index_review.py'
       - 'scripts/development_index_proposal.py'
@@ -49,10 +52,13 @@ permissions:
   issues: read
 jobs:
   inventory:
+    if: github.ref != 'refs/heads/development-history'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Offline regression tests
         run: python3 -m unittest discover -s tests -p 'test_development_inventory.py' -v
       - name: Offline delta regression tests
@@ -87,6 +93,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_development_ledger_proposal.py' -v
       - name: Offline searchable work-history tests
         run: python3 -m unittest discover -s tests -p 'test_development_work_history.py' -v
+      - name: Evidence history regression tests (no API calls)
+        run: python3 -m unittest discover -s tests -p 'test_development_history_evidence.py' -v
       - name: Read-only inventory
         if: github.event_name != 'pull_request'
         env:
@@ -96,6 +104,22 @@ jobs:
       - name: Render all-PR and branch work history (read-only)
         if: github.event_name != 'pull_request'
         run: python3 scripts/development_work_history.py
+      - name: Restore persistent history and all PR source refs
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: |
+          set -euo pipefail
+          git fetch origin '+refs/pull/*/head:refs/history-pulls/*'
+          mkdir -p inventory-output/history
+          if git ls-remote --exit-code --heads origin development-history > /dev/null; then
+            git fetch origin development-history
+            git archive FETCH_HEAD docs/work-history | tar -x -C inventory-output/history --strip-components=2
+          fi
+      - name: Collect source evidence and render Japanese history (no AI API)
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          HISTORY_MAX_API_CALLS: '3500'
+        run: python3 scripts/development_history_evidence.py --previous inventory-output/history/state.json
       - name: Build maintainer PR handoff queue
         if: github.event_name != 'pull_request'
         run: python3 scripts/pr_review_handoff.py
@@ -133,3 +157,46 @@ jobs:
           name: development-inventory
           path: inventory-output/
           retention-days: 30
+
+  publish-history:
+    needs: inventory
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: development-history-publish
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: development-inventory
+          path: /tmp/development-inventory
+      - name: Append evidence history on management branch only
+        run: |
+          set -euo pipefail
+          test -s /tmp/development-inventory/history/state.json
+          if git ls-remote --exit-code --heads origin development-history > /dev/null; then
+            git fetch origin development-history
+            git checkout -B development-history FETCH_HEAD
+          else
+            git checkout -b development-history
+          fi
+          if test -s docs/work-history/state.json; then
+            if ! python3 -c 'import json,sys; old=json.load(open("docs/work-history/state.json")); new=json.load(open("/tmp/development-inventory/history/state.json")); sys.exit(0 if new["generated_at"] >= old["generated_at"] else 1)'; then
+              echo 'A newer evidence snapshot is already published; preserving it.'
+              exit 0
+            fi
+          fi
+          mkdir -p docs/work-history
+          cp -a /tmp/development-inventory/history/. docs/work-history/
+          git add -- docs/work-history
+          if ! git diff --cached --quiet; then
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'docs(history): append Japanese evidence snapshot [skip ci]'
+            git push origin HEAD:development-history
+          fi

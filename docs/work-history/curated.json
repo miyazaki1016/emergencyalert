@@ -1,0 +1,1244 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-11-09",
+  "prs": {
+    "1": {
+      "summary": "JMAのPNG色7段階を検証し、根拠のない黄色対応を撤回",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/1"
+      ]
+    },
+    "2": {
+      "summary": "iPhone・Android向けPWAの基盤を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/2"
+      ]
+    },
+    "3": {
+      "summary": "PWAのインストール用アイコンを修正",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/3"
+      ]
+    },
+    "4": {
+      "summary": "日本語住所検索の正規化を改善",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/4"
+      ]
+    },
+    "5": {
+      "summary": "日本の番地住所を検索可能にする",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/5"
+      ]
+    },
+    "6": {
+      "summary": "監視地点を削除できるようにする",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/6"
+      ]
+    },
+    "7": {
+      "summary": "数字を含む日本語住所を住所正規化へ渡す",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/7"
+      ]
+    },
+    "8": {
+      "summary": "Web Pushの購読登録を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/8"
+      ]
+    },
+    "9": {
+      "summary": "監視のON・OFFを見分けやすくする",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/9"
+      ]
+    },
+    "10": {
+      "summary": "認証済みPushのテストボタンを追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/10"
+      ]
+    },
+    "11": {
+      "summary": "Pushテストが成功時に失敗表示される問題を修正",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/11"
+      ]
+    },
+    "12": {
+      "summary": "雨通知の行動判断境界をテスト",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/12"
+      ]
+    },
+    "13": {
+      "summary": "watch-rainの通知判断をテスト",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/13"
+      ]
+    },
+    "14": {
+      "summary": "一時的なPushテスト画面を撤去",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/14"
+      ]
+    },
+    "15": {
+      "summary": "VAPID公開鍵が変わった場合に再購読",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/15"
+      ]
+    },
+    "16": {
+      "summary": "本番watch-rainのソースをGit管理へ保存",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/16"
+      ]
+    },
+    "17": {
+      "summary": "本番の雨通知判断を分離してテスト可能にする",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/17"
+      ]
+    },
+    "18": {
+      "summary": "地点登録後に検索欄を消去",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/18"
+      ]
+    },
+    "19": {
+      "summary": "生活防災・洗濯通知の製品方針を記録",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/19"
+      ]
+    },
+    "20": {
+      "summary": "早期の雨予測データ取得処理を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/20"
+      ]
+    },
+    "21": {
+      "summary": "早期雨予測の試作APIを公開する変更案",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/21"
+      ]
+    },
+    "22": {
+      "summary": "登録後に地点検索表示を消去",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/22"
+      ]
+    },
+    "23": {
+      "summary": "早期雨予測の試作APIを追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/23"
+      ]
+    },
+    "24": {
+      "summary": "早期雨予測APIをテスト",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/24"
+      ]
+    },
+    "25": {
+      "summary": "実際のJMA予測データをCIで検証",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/25"
+      ]
+    },
+    "26": {
+      "summary": "JMA予測タイルURLにtargetTimesの値を使う",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/26"
+      ]
+    },
+    "27": {
+      "summary": "アプリ再起動時にPush通知状態を復元",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/27"
+      ]
+    },
+    "28": {
+      "summary": "持続する弱い雨の通知境界を調整",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/28"
+      ]
+    },
+    "29": {
+      "summary": "監視地点の重複登録を防止",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/29"
+      ]
+    },
+    "30": {
+      "summary": "地点検索の重複候補を除去",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/30"
+      ]
+    },
+    "31": {
+      "summary": "雨解釈の診断情報を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/31"
+      ]
+    },
+    "32": {
+      "summary": "送信を見送った雨判定の診断を記録",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/32"
+      ]
+    },
+    "33": {
+      "summary": "JMAの透明画素で晴れ・雨終了判定が止まる問題を修正",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/33"
+      ]
+    },
+    "34": {
+      "summary": "予測フレームの雨量診断を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/34"
+      ]
+    },
+    "35": {
+      "summary": "cron実行時刻の雨なし予測境界を修正",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/35"
+      ]
+    },
+    "36": {
+      "summary": "本日配信済みの最新通知を表示",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/36"
+      ]
+    },
+    "37": {
+      "summary": "3回の観測で降雨の事実を確認",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/37"
+      ]
+    },
+    "38": {
+      "summary": "強い雨の予測通知層を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/38"
+      ]
+    },
+    "39": {
+      "summary": "雨通知を前後の状況に合わせる",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/39"
+      ]
+    },
+    "40": {
+      "summary": "短い雨の途切れを同一エピソードとして扱う",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/40"
+      ]
+    },
+    "41": {
+      "summary": "雨確認の案内とボタンを一緒に表示",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/41"
+      ]
+    },
+    "42": {
+      "summary": "モバイル画面のデザインを更新",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/42"
+      ]
+    },
+    "43": {
+      "summary": "雨を示す青色テーマを明るく調整",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/43"
+      ]
+    },
+    "44": {
+      "summary": "青色テーマを明るくし、雨判定を通知一覧より上へ移動",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/44"
+      ]
+    },
+    "45": {
+      "summary": "明るいテーマで表示の優先順位を回復",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/45"
+      ]
+    },
+    "46": {
+      "summary": "補助テキストの明るさを調整",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/46"
+      ]
+    },
+    "47": {
+      "summary": "検証済みJMA PNGの20〜30mm/hの色を認識",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/47"
+      ]
+    },
+    "48": {
+      "summary": "同じ通知名を地点名で区別",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/48"
+      ]
+    },
+    "49": {
+      "summary": "日本時間の午前0時に最新通知を更新",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/49"
+      ]
+    },
+    "50": {
+      "summary": "降雨確認は内部記録にとどめPushしない",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/50"
+      ]
+    },
+    "51": {
+      "summary": "コード・DB・本番状態に基づき総覧を更新",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/51"
+      ]
+    },
+    "52": {
+      "summary": "雨の確認とPush送信状態を独立管理",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/52"
+      ]
+    },
+    "53": {
+      "summary": "雨が止んだ通知の判断を復旧",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/53"
+      ]
+    },
+    "54": {
+      "summary": "地図座標による地点登録を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/54"
+      ]
+    },
+    "55": {
+      "summary": "座標選択時に地図プレビューを表示",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/55"
+      ]
+    },
+    "56": {
+      "summary": "地図選択に現在のJMA雨雲レーダーを重ねる",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/56"
+      ]
+    },
+    "57": {
+      "summary": "一時的な降雨後の雨終了通知の重複を抑える",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/57"
+      ]
+    },
+    "58": {
+      "summary": "雨終了通知の繰返しを減らす",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/58"
+      ]
+    },
+    "59": {
+      "summary": "全国大雨候補から詳細タイル・自治体照合へ進む処理と、N03分割・キャッシュ・負荷を検証。",
+      "conclusion": "readiness資料は代表4県83照合ケースを定義し、座標と穴を保った自治体コード順序の一致を受入条件とする。128MiB想定の復号済み幾何LRUは採用せず、32MiBの符号化バイトLRUを実証用に採用。岩手の最大不可分要素4.13MiBに対し1MiBは梱包目標であり絶対上限ではない。HTTP遅延80/250msと帯域8/2MiB/sは仮定で、本番Storage実測ではない。JMA PNGは合成、DB RPCはスタブ。スケジューラ・スループットの受入は未完了。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/59",
+        "https://github.com/miyazaki1016/emergencyalert/blob/feat/national-heavy-rain-preview/docs/NATIONAL_RAIN_READINESS_PROOF.md"
+      ]
+    },
+    "60": {
+      "summary": "docs: 美咲との気象・防災連携契約案（未実装）",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/60"
+      ]
+    },
+    "61": {
+      "summary": "LIVE JAPANの日本地図・昼夜・地域・災害表示を試作。",
+      "conclusion": "将来のトップページ構想に関する未統合の試作。公式災害データの接続状況は関連計画とコードを確認。見た目の試作と実データ・本番運用の完成を分ける。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/61",
+        "https://github.com/miyazaki1016/emergencyalert/blob/feat/live-japan-experience-prototype/docs/LIVE_JAPAN_REAL_DATA_INTEGRATION_PLAN.md"
+      ]
+    },
+    "62": {
+      "summary": "ズーム4全画素走査と1ピクセル飛ばしを実JMA画像6時刻で比較。全画素177画素・独立雨域88に対し、間引き45画素・47雨域を完全見逃し。",
+      "conclusion": "2026-10-16の実況3時刻＋予報3時刻、各6タイル、30mm/h以上、4近傍連結。全タイル取得済み。stride2は132/177画素（74.6%）を省略し、47/88雨域（53.4%）を丸ごと見逃した。この条件で間引きの安全性は支持されない。PNG復号を含む平均走査はstride2約20.8〜24.8ms、stride1約24.9〜26.5ms。二重復号を一重にした比較では候補一致を6時刻すべてで確認。これは特定時刻・z4内の比較で、z4対z10の解像度保証、実際の的中率、本番負荷上限の保証ではない。PRは未統合の研究。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/62",
+        "https://github.com/miyazaki1016/emergencyalert/actions/runs/38967793373/job/117198479484",
+        "https://github.com/miyazaki1016/emergencyalert/blob/main/docs/work-history/z4-stride-proof-38967793373.json"
+      ]
+    },
+    "63": {
+      "summary": "WIP: MYアメふる通知履歴・実天気フィードバック・判定根拠（検証用）",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/63"
+      ]
+    },
+    "65": {
+      "summary": "Draft: MYアメふる通知フィードバック第1段階（既存Push変更なし）",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/65"
+      ]
+    },
+    "66": {
+      "summary": "fix: iPhone通知履歴を最新2件だけ表示し、古い通知は展開式に",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/66"
+      ]
+    },
+    "68": {
+      "summary": "feat: 通知履歴をタップで開く短いカードに改善",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/68"
+      ]
+    },
+    "69": {
+      "summary": "現地の雨フィードバックの観測集計を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/69"
+      ]
+    },
+    "71": {
+      "summary": "雨通知の現地報告に任意の観測時刻を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/71"
+      ]
+    },
+    "72": {
+      "summary": "DBの行を消さず通知履歴表示だけをリセット",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/72"
+      ]
+    },
+    "73": {
+      "summary": "保存済みの通知履歴を7日経過後も表示する修正案",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/73"
+      ]
+    },
+    "74": {
+      "summary": "通知履歴を片付けた後の空表示の案内を修正",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/74"
+      ]
+    },
+    "75": {
+      "summary": "docs: アメふる全経緯・現状・次チャット向け総覧引継ぎ（2026-10-23）",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/75"
+      ]
+    },
+    "76": {
+      "summary": "iPhone PWA復帰時のフィードバック消失を診断",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/76"
+      ]
+    },
+    "77": {
+      "summary": "アプリ内スイッチからPWA診断を有効化",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/77"
+      ]
+    },
+    "78": {
+      "summary": "Push購読の所有者を読み取り専用で確認",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/78"
+      ]
+    },
+    "79": {
+      "summary": "既存Push購読の所有者を本人選択で修復",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/79"
+      ]
+    },
+    "80": {
+      "summary": "PWA復帰時の匿名認証クライアントを安定化",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/80"
+      ]
+    },
+    "81": {
+      "summary": "認証保存キーの有無を安全に診断表示",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/81"
+      ]
+    },
+    "82": {
+      "summary": "Supabaseキー未設定と保存キー不一致を区別",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/82"
+      ]
+    },
+    "83": {
+      "summary": "トークンを出さずSafari認証IDの接頭辞を比較",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/83"
+      ]
+    },
+    "84": {
+      "summary": "PWA認証喪失のコード監査と調査境界を保存",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/84"
+      ]
+    },
+    "85": {
+      "summary": "iPhone PWAの認証保存変化を選択式のローカル日誌へ記録",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/85"
+      ]
+    },
+    "86": {
+      "summary": "保存キーの読み取り専用診断を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/86"
+      ]
+    },
+    "87": {
+      "summary": "認証キーの日誌をPWA再起動後も保持",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/87"
+      ]
+    },
+    "88": {
+      "summary": "docs: 通常雨通知の見直し仕様と検証条件",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/88"
+      ]
+    },
+    "89": {
+      "summary": "fix: 通常雨通知の重複抑制と5〜10mm連続予測判定",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/89"
+      ]
+    },
+    "90": {
+      "summary": "docs: 通知過多対策の本番反映結果と残課題を総覧に追記",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/90"
+      ]
+    },
+    "91": {
+      "summary": "feat: 30mm/h大雨通知を単一閾値に統一・通知アイコン導入",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/91"
+      ]
+    },
+    "92": {
+      "summary": "docs: アメふる精度最優先の開発順序を総覧へ登録",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/92"
+      ]
+    },
+    "93": {
+      "summary": "WIP: 通知重複防止・配信整合性の第1優先監査",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/93"
+      ]
+    },
+    "94": {
+      "summary": "docs: 降るよ最優先の製品方針と研究所在を総覧へ",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/94"
+      ]
+    },
+    "95": {
+      "summary": "設計: 前回通知を踏まえた雨接近メッセージ",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/95"
+      ]
+    },
+    "96": {
+      "summary": "外部AIレビュー用の安全な静的ページ（プレビュー専用）",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/96"
+      ]
+    },
+    "97": {
+      "summary": "Preview only: 外部AIレビュー用の公開総覧",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/97"
+      ]
+    },
+    "98": {
+      "summary": "研究: 通知予測と実況の自動答え合わせ基盤 設計",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/98"
+      ]
+    },
+    "99": {
+      "summary": "通知予測の本番記録とレーダー実況の自動照合を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/99"
+      ]
+    },
+    "100": {
+      "summary": "通知地点の半径1km予測・実況画像を独立保存",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/100"
+      ]
+    },
+    "101": {
+      "summary": "点・面・併用の雨判定をシャドー比較",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/101"
+      ]
+    },
+    "102": {
+      "summary": "開発者専用の雨判定比較ラボを追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/102"
+      ]
+    },
+    "103": {
+      "summary": "実通知538・539の監査と、不一致パターン・具体的理由の表示",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/103"
+      ]
+    },
+    "104": {
+      "summary": "雨なし現況で継続中の接近予測を再通知しない・購読別の送信権を永続化",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/104"
+      ]
+    },
+    "105": {
+      "summary": "予測通知の初期移行で直前の解消確認を正しく引き継ぐ",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/105"
+      ]
+    },
+    "107": {
+      "summary": "chore: 読み取り専用の開発忘れ物検出（両プロジェクト共通方式）",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/107"
+      ]
+    },
+    "108": {
+      "summary": "大雨通知をエピソード1回に制限し、30mm/h自動評価を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/108"
+      ]
+    },
+    "109": {
+      "summary": "研究用: 大雨予測の継続性判定（通知ロジック非接続）",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/109"
+      ]
+    },
+    "110": {
+      "summary": "docs: 2026-11-01棚卸し・調査結果を台帳へ保存",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/110"
+      ]
+    },
+    "111": {
+      "summary": "docs: 旧監査ブランチの追加調査を台帳へ記録",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/111"
+      ]
+    },
+    "112": {
+      "summary": "docs: 未整理ブランチの保全・照合・整理候補を分類",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/112"
+      ]
+    },
+    "113": {
+      "summary": "docs: 旧ブランチとmainの機能単位照合を記録",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/113"
+      ]
+    },
+    "114": {
+      "summary": "docs: 旧実験コードのmain照合記録",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/114"
+      ]
+    },
+    "115": {
+      "summary": "docs: 旧テスト・計測コードのmain照合を記録",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/115"
+      ]
+    },
+    "116": {
+      "summary": "docs: 開発台帳に旧テスト照合記録を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/116"
+      ]
+    },
+    "117": {
+      "summary": "docs: 現行処理経路と旧実験の追加照合",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/117"
+      ]
+    },
+    "118": {
+      "summary": "読み取り専用の開発棚卸しを毎日10:17に実行",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/118"
+      ]
+    },
+    "119": {
+      "summary": "総覧の棚卸し状態と日次実行時刻を修正",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/119"
+      ]
+    },
+    "120": {
+      "summary": "開発台帳からたどれる簡潔な運用索引を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/120"
+      ]
+    },
+    "121": {
+      "summary": "棚卸し差分の確認と台帳更新手順を記録",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/121"
+      ]
+    },
+    "122": {
+      "summary": "棚卸し差分と台帳更新候補を日次で生成",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/122"
+      ]
+    },
+    "123": {
+      "summary": "前回の棚卸し成果物を読み取り専用で取得可能にする",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/123"
+      ]
+    },
+    "124": {
+      "summary": "前回成果物がHTTP 401でも当日の棚卸し結果を保持",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/124"
+      ]
+    },
+    "125": {
+      "summary": "棚卸し成果物比較時のHTTP 401を診断",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/125"
+      ]
+    },
+    "126": {
+      "summary": "棚卸し第2段階：読み取り専用の仕分けと台帳レビュー提案",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/126"
+      ]
+    },
+    "127": {
+      "summary": "棚卸し仕分け成果物のJSONとMarkdownの形式を修正",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/127"
+      ]
+    },
+    "128": {
+      "summary": "棚卸し第3段階：PR情報から案件候補を提示",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/128"
+      ]
+    },
+    "129": {
+      "summary": "棚卸し第3段階：上限付きのPRファイル根拠と保守仕分け",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/129"
+      ]
+    },
+    "130": {
+      "summary": "台帳自動更新の安全な境界を定義",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/130"
+      ]
+    },
+    "131": {
+      "summary": "台帳更新案のPRを定期生成しレビューへ回す",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/131"
+      ]
+    },
+    "132": {
+      "summary": "台帳の事実表の列を初回定期実行前に修正",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/132"
+      ]
+    },
+    "133": {
+      "summary": "PR・main更新を起点に台帳の事実更新案を生成",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/133"
+      ]
+    },
+    "134": {
+      "summary": "台帳自動書込み前に不明時は停止する検査を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/134"
+      ]
+    },
+    "135": {
+      "summary": "台帳自動処理の診断成果物と権限エラーを追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/135"
+      ]
+    },
+    "136": {
+      "summary": "ブランチSHAが文字列の場合に棚卸しCIが落ちる不具合を修正",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/136"
+      ]
+    },
+    "137": {
+      "summary": "不明時は昇格を許可しないPR方針を追加（判定提案のみ）",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/137"
+      ]
+    },
+    "138": {
+      "summary": "PR更新時に昇格候補を分類（レビュー専用）",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/138"
+      ]
+    },
+    "139": {
+      "summary": "既存棚卸しにopen PRのレビュー引継ぎ一覧を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/139"
+      ]
+    },
+    "140": {
+      "summary": "すべてのopen PRに人が確認する経路を表示",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/140"
+      ]
+    },
+    "141": {
+      "summary": "Vercelのビルド削減を準備（このPR時点は未有効）",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/141"
+      ]
+    },
+    "142": {
+      "summary": "棚卸し・台帳・main索引の完了条件を定義",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/142"
+      ]
+    },
+    "143": {
+      "summary": "確認済みの台帳・main運用索引への事実更新案を完成",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/143"
+      ]
+    },
+    "144": {
+      "summary": "自動生成された台帳・運用索引の事実を確認",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/144"
+      ]
+    },
+    "145": {
+      "summary": "Actions再実行で更新提案ブランチが衝突する問題を修正",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/145"
+      ]
+    },
+    "146": {
+      "summary": "GitHubの事実を開発台帳・運用索引で確認",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/146"
+      ]
+    },
+    "147": {
+      "summary": "GitHubの事実を開発台帳・運用索引で確認",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/147"
+      ]
+    },
+    "148": {
+      "summary": "複数ブランチが変更する共通ファイルを報告",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/148"
+      ]
+    },
+    "149": {
+      "summary": "ブランチ・PR履歴・既存案件IDを相互参照",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/149"
+      ]
+    },
+    "150": {
+      "summary": "ブランチ間のコード差分が完全一致する根拠を比較",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/150"
+      ]
+    },
+    "151": {
+      "summary": "根拠だけで人の確認順序を付けるレビュー一覧を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/151"
+      ]
+    },
+    "152": {
+      "summary": "棚卸しの繰返し時に既存の台帳更新PRを再利用",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/152"
+      ]
+    },
+    "153": {
+      "summary": "不正なYAML統合後の台帳更新ワークフローを復旧",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/153"
+      ]
+    },
+    "155": {
+      "summary": "Draft: JASPIC無送信MIME互換・Windows旧版比較と独立移植",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/155"
+      ]
+    },
+    "156": {
+      "summary": "docs(web): JASPIC OAuth向け公開説明・プライバシーページ",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/156"
+      ]
+    },
+    "157": {
+      "summary": "JASPICのiPhoneメールログイン画面をプレビュー（Gmail OAuth無効）",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/157"
+      ]
+    },
+    "158": {
+      "summary": "本総覧から共通開発管理総覧へ接続",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/158"
+      ]
+    },
+    "159": {
+      "summary": "雨の判定ラボ：レーダー自動評価を主役にし現地報告を任意参考へ",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/159"
+      ]
+    },
+    "160": {
+      "summary": "雨の判定ラボ：現地保留を主判定から外し、降り始め不明を補足表示",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/160"
+      ]
+    },
+    "161": {
+      "summary": "自動プレビューを停止し、資料だけの更新はビルドを省略",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/161"
+      ]
+    },
+    "162": {
+      "summary": "docs: 総覧を短くし、案件管理を開発台帳へ集約",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/162"
+      ]
+    },
+    "164": {
+      "summary": "Vercelデプロイ履歴を読み取り専用で監視する準備",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/164"
+      ]
+    },
+    "165": {
+      "summary": "docs: 雨の判定ラボ173コマの方式差分・未検証事項を整理",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/165"
+      ]
+    },
+    "166": {
+      "summary": "Supabase URL末尾のスラッシュを許容",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/166"
+      ]
+    },
+    "167": {
+      "summary": "JASPICのiPhoneログイン画面を改善",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/167"
+      ]
+    },
+    "168": {
+      "summary": "JASPICのGmail OAuthを隔離して安全な導入方法を監査（未有効化）",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/168"
+      ]
+    },
+    "169": {
+      "summary": "Googleのトークン応答にscopeがなくても処理",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/169"
+      ]
+    },
+    "170": {
+      "summary": "Gmail送信専用の同意画面をオフライン準備",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/170"
+      ]
+    },
+    "171": {
+      "summary": "検証済みGmail OAuth資格情報を暗号化保管庫へ保存",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/171"
+      ]
+    },
+    "172": {
+      "summary": "秘密をログへ出さずGmail保管庫の失敗工程を診断",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/172"
+      ]
+    },
+    "173": {
+      "summary": "診断工程のTypeScriptビルドエラーを修正",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/173"
+      ]
+    },
+    "174": {
+      "summary": "制限付きで受信者1人だけへGmailテスト送信する機能",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/174"
+      ]
+    },
+    "175": {
+      "summary": "雨通知精度の基準集計と過去データ再生検証を設計",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/175"
+      ]
+    },
+    "176": {
+      "summary": "雨判定ラボの事例要約と一致度の色分けを改善",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/176"
+      ]
+    },
+    "177": {
+      "summary": "雨判定ラボの事例一覧ラベルを短縮",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/177"
+      ]
+    },
+    "178": {
+      "summary": "事例一覧で通知時刻と予測対象時刻を保持",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/178"
+      ]
+    },
+    "179": {
+      "summary": "通知失敗事例で「降り始め」と「雨の強まり」を区別する研究。",
+      "conclusion": "未統合の研究案件。本番通知の改善効果を意味しない。保存済み予測・実況と、対象外・欠損・時刻ずれの条件を分けて次の検証を選ぶ。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/179",
+        "https://github.com/miyazaki1016/emergencyalert/blob/main/docs/RAIN_RESEARCH_DASHBOARD_20261029.md"
+      ]
+    },
+    "180": {
+      "summary": "サキくるの完成像・LIVE JAPANトップ構想・旧X/GIF資料の原点を保存",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/180"
+      ]
+    },
+    "181": {
+      "summary": "PR #62の見逃し実測を受け、全国z4候補抽出を全画素にし欠損を雨なしにしない修正案。",
+      "conclusion": "PR #59をベースとする未統合案。PR #62の研究根拠を再測定からやり直す前に参照する。MY Pushの通知処理へ同じ変更を適用したと推定しない。受入テストとmainへの統合はこの案件の最新状態で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/181",
+        "https://github.com/miyazaki1016/emergencyalert/pull/62"
+      ]
+    },
+    "182": {
+      "summary": "過去PR・作業ブランチの検索索引と実験案内を追加",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/182"
+      ]
+    }
+  }
+}

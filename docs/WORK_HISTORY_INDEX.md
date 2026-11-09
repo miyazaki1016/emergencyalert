@@ -1,5 +1,11 @@
 # 何を作り、何を検証してきたか — 過去作業の入口
 
+## 日本語開発履歴（コード・検証根拠付き）
+
+[📚 両プロジェクトをスマートフォンで検索](https://miyazaki1016.github.io/misaki/history.html) ／ [全案件・根拠資料](https://github.com/miyazaki1016/emergencyalert/blob/development-history/docs/work-history/README.md) ／ [更新・着手前検索・確度・制約](WORK_HISTORY_OPERATIONS.md)
+
+本文抜粋の既存索引を残し、実コード・差分・テスト・Actions・関連資料を案件単位に整理する履歴を追加しました。重要結論と過去版は保存し、本番反映とは分けて扱います。
+
 > **探す → 証拠を読む → 現状確認** の順で利用する。2026-11-09に原点の見落としを受けて追加。**これは最新の本番稼働一覧ではない。**
 
 ## まず見る場所

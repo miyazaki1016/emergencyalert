@@ -1,0 +1,49 @@
+# 日本語開発履歴の運用
+
+## 閲覧と着手前の確認
+
+- [両プロジェクトのスマートフォン検索](https://miyazaki1016.github.io/misaki/history.html)
+- [このリポジトリの全案件・根拠資料](https://github.com/miyazaki1016/emergencyalert/blob/development-history/docs/work-history/README.md)
+- [日次棚卸しの実行と成果物](https://github.com/miyazaki1016/emergencyalert/actions/workflows/development-inventory.yml)
+
+新しい作業の前に、機能名・日本語の目的・コード名・実験の数値で検索する。一致候補のコード、過去の結論、未解決事項を読み、同じ調査や実装を再開しない。未統合研究も候補に含まれる。CLIは全証拠、スマホは軽量索引（全文・コード名・関連資料を上限付きで収録）を検索する。スマホで見つからない場合はCLIと原本も確認する。
+
+```sh
+git fetch origin development-history
+mkdir -p /tmp/development-history
+git archive FETCH_HEAD docs/work-history | tar -x -C /tmp/development-history --strip-components=2
+python3 scripts/development_history_evidence.py --output /tmp/development-history --query '検索したい機能名'
+```
+
+## 継続更新
+
+既存の Development inventory を拡張。毎日10:17（日本時間）、main更新、手動実行で更新する。全PRのメタデータを既存の棚卸しで列挙し、変更されたHEAD・本文・日本語確認記録・新しいCI実行を中心に根拠を再収集する。ブランチはHEADとmainのSHAを比較する。PRのないブランチも実コード・差分・コミットを収録。同一HEADのPRがあるブランチはその案件へ関連付ける。
+
+初回は全PRの差分・ソース・コミット・議論・レビュー・Actions結果を収集。プロジェクトコードは実行せずGitのオブジェクトを読み取る。ソース120KB、抜粋18000文字、差分60000文字、関連資料40件の上限を明記する。取得不能・省略箇所は原本へ戻る。CIの結果は実行の事実であり、製品の受入合格ではない。
+
+生成物は専用の `development-history` ブランチの `docs/work-history/` に保存する。履歴状態は `state.json`、軽量検索は `search-index.json`、案件は `cases/`、過去の結論は内容ハッシュ別の `revisions/` に追記。削除されたブランチの成果もアーカイブとして保持する。30日保存のActions成果物だけに依存しない。Git履歴も保存する。
+
+失敗時はActionsを失敗として表示し、成功済み履歴を公開し直さない。前の履歴を読む場合は画面の更新日時を必ず確認する。書込みは別ジョブで管理ブランチだけへ行い、本番アプリ・DB・認証・通知は変更しない。mainや製品ブランチの自動マージは行わない。既存承認ボードの判断フローも変更しない。
+
+## 日本語整理と確度
+
+`curated.json` は2026-11-09時点の全PRに日本語見出しを付け、重要研究には具体的な結論・条件・数値・一次証拠を記録した資料。自動処理は変更ファイル・追加関数・条件式・API呼出し・テスト期待値などを根拠リンク付きで抽出する。将来の英語PRは日本語の分類・処理事実を自動生成するが、文意全体の翻訳や新たな研究結論の確定は担当AIが根拠を確認して `curated.json` に追記する。
+
+- main統合は対象コミットがmainの祖先かをGitで判定。別の機能ブランチへのmergeをmain統合とみなさない。squashや同等コードは追加照合が必要。
+- 本番反映は今回すべて未確認。main統合、過去資料の申告、CI成功やプレビュー作成から推測しない。
+- 実装は差分の存在、検証はSHA付き実行記録、残課題は原本のレビュー・台帳と照合する。
+- 総覧＝製品全体、台帳＝現在の意思決定、承認ボード＝判断待ち、本履歴＝過去の成果と根拠。
+
+## 費用・権限・上限
+
+外部AI APIを呼ばないため、追加AI利用料金・AI APIキーは不要。標準の短期 `GITHUB_TOKEN` をAPI読取りと管理ブランチへの保存にだけ使用する。API読取り3500回／実行、収集45分、公開10分の上限。既存GitHub Actions利用枠の範囲で実行し、超過・権限エラーは失敗として残す。資格情報候補のファイルは除外し、既知のキー・Bearer・JWT・秘密設定文字列をマスクする。ログ全文は自動収集・公開しない。必要な実験数値は確認した部分だけを保存する。
+
+両リポジトリの `vercel.json` はmain以外のデプロイを無効化済み。日次の専用ブランチ更新と既存GitHub Pagesで検索画面を提供するため、日次更新はVercelビルドを使わない。導入PRのmain統合時は既存のビルド判定に従う。アプリ・環境変数は変更しない。
+
+## 回帰確認
+
+```sh
+python3 -m unittest discover -s tests -p 'test_development*history*.py' -v
+```
+
+未統合研究、機能ブランチへのmerge、秘密情報除外、数値検索、更新前結論の保存、削除ブランチ保全、未取得APIの扱い、HTMLの無害化、変更なしの再解析省略を確認する。表示と実際の検索結果もリリース時に確認する。
