@@ -51,7 +51,9 @@ export async function productionPlan(province: Province, snapshot: Snapshot, ite
     const legacyPerson = item.kind === "hiroshima-person" && legacy.has(item.data.id ?? "");
     if (!previous && !legacyPerson) {
       const date = item.data.occurrence_dt ?? item.data.occurrence_date_from ?? "";
-      if (!verifiedHiroshimaBackfillKeys.has(key) && date.slice(0,10).replaceAll("/","-") <= "2026-11-06") {
+      // Bicycle theft is never notified by plan(). Keep it in the normal
+      // baseline for complete-source reconciliation, not in quarantine.
+      if (item.data.case_type !== "自転車盗" && !verifiedHiroshimaBackfillKeys.has(key) && date.slice(0,10).replaceAll("/","-") <= "2026-11-06") {
         quarantined.push(key);
         continue;
       }
