@@ -16,9 +16,9 @@
 - Gmail送信済みメールのID文字列検索では、今回の通知対象候補10件に一致するメールは見つからなかった。ただし、送信経路・検索対象・過去データが完全とは限らず、**未送信の証明には使えない**。
 
 ## 滋賀県警の取得先
-- `https://map.police.shiga.dsvc.jp/data/map/suspicious_person_full.json` および `/data/geo/cities.json` は直接の取得確認で404。
+- Supabase `pg_net` からの直接HTTP取得では `suspicious_person_full.json` と `/data/geo/cities.json` が404。一方、2026-11-10のVercel Sandbox（本番関数と同じ `iad1` リージョン、Node.js `fetch`、読み取り専用）では**両URLともHTTP 200**で、滋賀716件・市区町村19件を取得した。Sandboxと本番Functionの通信経路が完全同一である証明ではないため、本番の取得成功は手動実行で別途確認する。
 - これは既存の [JASPIC移植PR #155](https://github.com/miyazaki1016/emergencyalert/pull/155) にも記録された未解決課題。URL推測・認証回避・別ソースへの無検証切替を行わない。
-- dispatcherは両県の完全な事前取得が成功するまでDB更新・メール送信をしない設計。**このPR単独では滋賀404による停止は解消しない**。
+- dispatcherは両県の完全な事前取得が成功するまでDB更新・メール送信をしない設計。**滋賀404はSupabaseの取得元に依存している可能性が高い**が、本番Vercel Functionでの再検証が必要。
 
 ## この変更の範囲
 - 未照合で発生日が基準日以前の新規map IDは、メール候補にもbaselineにも登録せず `quarantined` に保持する。
@@ -36,3 +36,7 @@
 ## 既存成果の再利用判断
 - [PR #155](https://github.com/miyazaki1016/emergencyalert/pull/155) の旧C#照合・Shiga 404・LINKKEY非可逆の調査を再利用。MIME互換実験を繰り返さず、今回の障害に固有の安全な隔離処理だけを追加。
 - 本番DB・OAuth・メール送信・Vercel本番デプロイは**このブランチでは一切変更しない**。
+
+## 2026-11-10 着手前照合の追検証
+- Vercel Sandbox内で最新mainの `scripts/development_preflight.py` を依頼文全体・対象3パスで実行。PR #155を原本照合し、再利用判断 `extend` を記録した再実行で `REVIEW_RECORDED`（終了0）。履歴版 `2b3054a89ff8aa8fad465e7d4dce04d39e3b8405`、183 PR・201ブランチ、収集エラー0。
+- 同Sandboxの独立試験ではVitest 330件成功、TypeScript `npx tsc --noEmit` 成功（main起点の隔離案。PR #190 headはGitHub Actions CIで別途確認）。
