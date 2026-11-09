@@ -65,6 +65,10 @@ class MonitorTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "membership not verified"):
                 monitor.main()
 
+    def test_invalid_deployment_response_is_not_treated_as_zero(self):
+        with self.assertRaisesRegex(RuntimeError, "invalid deployments response"):
+            self.run_monitor([{"unexpected": []}])
+
     def test_missing_credentials(self):
         err = io.StringIO()
         with patch.object(monitor, "TOKEN", None), patch.object(monitor, "TEAM", None), contextlib.redirect_stderr(err):
