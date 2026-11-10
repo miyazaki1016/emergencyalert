@@ -21,3 +21,9 @@ PR作成時はIssueへのリンクと、その時点の候補に対する判断�
 一致する案件のコード・過去の結論・数値・CIの対象SHA・未解決事項を先に確認し、未統合の研究ブランチも照合する。根拠を読めない場合は未確認として残し、同じ作業を完了済みと決めつけたり再実装したりしない。
 
 日本語で確認した新しい重要結論は `docs/work-history/curated.json` に条件・数値・一次証拠リンク付きで追記する。過去の根拠は削除せず、`development-history` の過去版を保存する。main統合と本番反映を混同しない。
+
+## 作業終了時の検証と進捗区分（共通）
+
+コード変更後は最新PR HEADに対応する必要なActionsの成功を確認し、確認後にHEADを再取得する。未実行・実行中・失敗・取得不能を成功と報告しない。「引継ぎ成功」「既存成果の再利用成功」「新規変更の検証成功」「開発案件の完成」を別々に記録する。Issueの照合成功は別ブランチの新規コードの検証成功ではない。手順と記録例は `docs/WORK_HISTORY_HANDOFF_VALIDATION.md`。
+
+Issueの自動照合結果は、返却処理の導入後は `github-actions[bot]` の `development-preflight-result:v1` コメントをGitHub連携で取得する。今回の依頼文・判断記録に対応する最新結果と実行URLを読み、REVIEW_REQUIRED／INCOMPLETE／SUPERSEDED／PUBLISHING／結果未取得では着手しない。専用のActions一覧ツールがなくても汎用GitHub取得APIが使えるか確認し、利用者にサイトで実行IDを探させない。
