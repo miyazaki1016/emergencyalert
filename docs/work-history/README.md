@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-10T02:50:24.646271+00:00
+更新 (UTC): 2026-11-10T05:03:56.055293+00:00
 
 ## 全案件
 
@@ -218,6 +218,7 @@
 | [feat/pr-promotion-policy-review-20261102](cases/branch-f70b38dbc740ec35.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix-clear-place-form-after-save](cases/branch-f8fadca6ea875ca9.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/require-history-first-20261109](cases/branch-fe43e3f34e45c959.md) | 開発管理・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [docs/handoff-validation-stages-20261110](cases/branch-ffc3354680bad3ec.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [Verify seven JMA PNG bands; withdraw unsupported yellow mapping](cases/pr-1.md) | 雨量・全国検知・画面・表示：JMAのPNG色7段階を検証し、根拠のない黄色対応を撤回 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [chore: add authenticated push test button](cases/pr-10.md) | 通知・配信・認証・安全性・画面・表示：認証済みPushのテストボタンを追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [通知地点の半径1km予測・実況画像を独立保存](cases/pr-100.md) | 雨量・全国検知・通知・配信・開発管理：通知地点の半径1km予測・実況画像を独立保存 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
@@ -323,6 +324,7 @@
 | [JASPIC: 0件の日も届く18時配信の完了メールを追加](cases/pr-194.md) | 通知・配信・開発管理・画面・表示：通知・メール配信とその運用に関する変更／開発資産の把握・引継ぎ・レビューを支援する変更／画面表示や操作に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [研究: 未通知ケースを含む雨のエピソード評価基盤](cases/pr-195.md) | 雨量・全国検知・通知・配信・開発管理：雨量判定・予測・全国候補抽出に関する変更／通知・メール配信とその運用に関する変更／開発資産の把握・引継ぎ・レビューを支援する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [docs: 日本語開発履歴の引継ぎを通常チャット・Actions経由に対応](cases/pr-196.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [feat(history): Issueへ照合結果を返却し、引継ぎと検証・完成を分離](cases/pr-197.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add PWA foundation for iPhone and Android](cases/pr-2.md) | その他の開発：iPhone・Android向けPWAの基盤を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add early rain forecast provider](cases/pr-20.md) | 雨量・全国検知：早期の雨予測データ取得処理を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: expose early rain forecast prototype API](cases/pr-21.md) | 雨量・全国検知：早期雨予測の試作APIを公開する変更案 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
@@ -564,6 +566,7 @@
 - scripts/census-town-boundary-topojson-proof.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [pr-59](cases/pr-59.md)
 - scripts/check-jma-early-rain.ts：[branch-94d665cd64c44050](cases/branch-94d665cd64c44050.md), [pr-25](cases/pr-25.md)
 - scripts/compare-jaspic-eml.mjs：[branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [pr-155](cases/pr-155.md)
+- scripts/development-preflight-publish.mjs：[branch-ffc3354680bad3ec](cases/branch-ffc3354680bad3ec.md), [pr-197](cases/pr-197.md)
 - scripts/development_branch_case_handoff.py：[branch-f4a34127c79a783d](cases/branch-f4a34127c79a783d.md), [pr-149](cases/pr-149.md)
 - scripts/development_branch_compare.py：[branch-35677a391b35c95c](cases/branch-35677a391b35c95c.md), [branch-b23be022a75304ba](cases/branch-b23be022a75304ba.md), [branch-ed894c05ef854553](cases/branch-ed894c05ef854553.md), [pr-142](cases/pr-142.md), [pr-148](cases/pr-148.md), [pr-150](cases/pr-150.md)
 - scripts/development_branch_review_queue.py：[branch-2f842ea0ac1d18a4](cases/branch-2f842ea0ac1d18a4.md), [pr-151](cases/pr-151.md)
@@ -641,6 +644,7 @@
 - scripts/vercel-build-guard.mjs：[branch-01116240ec96678b](cases/branch-01116240ec96678b.md), [branch-5d674c9a5e5cf44c](cases/branch-5d674c9a5e5cf44c.md), [branch-eecb7d45ce962418](cases/branch-eecb7d45ce962418.md), [pr-161](cases/pr-161.md), [pr-188](cases/pr-188.md), [pr-194](cases/pr-194.md)
 - scripts/vercel_build_guard.py：[branch-2fcb912568edd503](cases/branch-2fcb912568edd503.md), [pr-141](cases/pr-141.md)
 - scripts/vercel_quota_monitor.py：[branch-2b0a1b21c1150676](cases/branch-2b0a1b21c1150676.md), [pr-164](cases/pr-164.md)
+- scripts/vercel_release_request_policy.py：[branch-2b0a1b21c1150676](cases/branch-2b0a1b21c1150676.md), [pr-164](cases/pr-164.md)
 - scripts/verify-n03-storage-data.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [pr-59](cases/pr-59.md)
 - scripts/verify_ledger_proposal.py：[branch-7b4c2cf2503a3179](cases/branch-7b4c2cf2503a3179.md), [pr-134](cases/pr-134.md)
 - scripts/z4-stride-parity-proof.ts：[branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [pr-62](cases/pr-62.md)

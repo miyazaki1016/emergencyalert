@@ -1,0 +1,37 @@
+{
+  "id": "branch-00f0c673fc11e028",
+  "title": "feat/jaspic-oauth-public-pages-20261105",
+  "head": "e15cb16a477ab7def56a6d696632dc246590018d",
+  "head_ref": "feat/jaspic-oauth-public-pages-20261105",
+  "linked_prs": [
+    156
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e15cb16a477ab7def56a6d696632dc246590018d/app/jaspic/page.tsx"
+    },
+    {
+      "path": "app/jaspic/privacy/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e15cb16a477ab7def56a6d696632dc246590018d/app/jaspic/privacy/page.tsx"
+    }
+  ],
+  "commits": "e15cb16a477ab7def56a6d696632dc246590018d feat(jaspic): add static OAuth public privacy policy page\na9dd691632155faa30dedcc23bdade36ab530432 feat(jaspic): add static OAuth public overview page",
+  "topics": [
+    "通知・配信",
+    "認証・安全性",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "b3cac86284d9f8226082a3ae3c08cbb21a3d847cd0eadb9ed3dcd15d336f436c",
+  "collected_at": "2026-11-10T05:03:56.055293+00:00"
+}

@@ -1,0 +1,56 @@
+{
+  "id": "branch-68a04500a5ab7038",
+  "title": "fix/jaspic-quarantine-historical-ids-20261110",
+  "head": "eb3136ff0efc13a7e98205c31e56c17a7807fa00",
+  "head_ref": "fix/jaspic-quarantine-historical-ids-20261110",
+  "linked_prs": [
+    190
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/dispatch/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/app/jaspic/dispatch/route.ts"
+    },
+    {
+      "path": "docs/research/JASPIC_HISTORICAL_ID_QUARANTINE_20261110.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/docs/research/JASPIC_HISTORICAL_ID_QUARANTINE_20261110.md"
+    },
+    {
+      "path": "lib/jaspic/production-plan.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/lib/jaspic/production-plan.ts"
+    },
+    {
+      "path": "tests/jaspic-production-plan-quarantine.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "path": "tests/jaspic/production-delivery.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/eb3136ff0efc13a7e98205c31e56c17a7807fa00/tests/jaspic/production-delivery.test.ts"
+    }
+  ],
+  "commits": "eb3136ff0efc13a7e98205c31e56c17a7807fa00 docs(jaspic): distinguish Supabase 404 from successful Vercel-region read-only fetch\n96daf0aa2052179c9eb87d0fd349f67f3f98c0cc test(jaspic): align existing production safety test with fail-closed quarantine\n94c64047c08d41f0971a93fb7dca0b8567ff92db docs(jaspic): record 18:00 failure, evidence and remaining safety gates\n9bf0c1f97fa2b6dad8f04ea321deb88b40c2adaa test(jaspic): include both required Hiroshima source kinds in fixtures\nee450c7b69baa4df92a9cae5b2b9939ae893aa89 test(jaspic): cover quarantine, idempotency, updates and source guard\ne7e436174a6988008c9b438935fa5427fa24fd24 fix(jaspic): report quarantined historical records in run result\ndde1e69c9fca1c1861aa78ee0ba82628974aed87 fix(jaspic): quarantine unreconciled historical IDs without blocking safe changes",
+  "topics": [
+    "通知・配信"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "d97019b428684f9775d62f2c0856a4750e5a8ce4da41d114c202140caf1def8f",
+  "collected_at": "2026-11-10T05:03:56.055293+00:00"
+}

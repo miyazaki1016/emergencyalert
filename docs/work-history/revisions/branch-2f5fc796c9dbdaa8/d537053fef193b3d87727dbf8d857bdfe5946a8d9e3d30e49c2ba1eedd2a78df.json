@@ -1,0 +1,20 @@
+{
+  "id": "branch-2f5fc796c9dbdaa8",
+  "title": "fix/restore-push-status-on-load",
+  "head": "c4559c3d7037081cf468f0a34ac6f1e3b7d87ab1",
+  "head_ref": "fix/restore-push-status-on-load",
+  "linked_prs": [
+    27
+  ],
+  "files": [],
+  "commits": "",
+  "topics": [
+    "通知・配信"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "825b664f3369cf0eb7c21ffa53f508d417c8cbd79028be39ad2fae13f0d4e2a7",
+  "collected_at": "2026-11-10T05:03:56.055293+00:00"
+}

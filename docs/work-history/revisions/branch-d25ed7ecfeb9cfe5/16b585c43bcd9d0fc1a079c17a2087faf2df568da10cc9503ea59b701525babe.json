@@ -1,0 +1,28 @@
+{
+  "id": "branch-d25ed7ecfeb9cfe5",
+  "title": "fix/rain-lab-compact-case-label-20261109",
+  "head": "1f86e2fc1abd29668aa705b4bb791ad495e6068c",
+  "head_ref": "fix/rain-lab-compact-case-label-20261109",
+  "linked_prs": [
+    177
+  ],
+  "files": [
+    {
+      "path": "app/dev/rain-lab/RainLab.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/1f86e2fc1abd29668aa705b4bb791ad495e6068c/app/dev/rain-lab/RainLab.tsx"
+    }
+  ],
+  "commits": "1f86e2fc1abd29668aa705b4bb791ad495e6068c ui: show only verdict emoji and case title in collapsed list",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "bc76a2df31988bc4be82d9b0f5de6ea88d86d234de4dc026407d111b7952112a",
+  "collected_at": "2026-11-10T05:03:56.055293+00:00"
+}
