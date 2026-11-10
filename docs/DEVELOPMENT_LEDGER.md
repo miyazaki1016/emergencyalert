@@ -226,4 +226,5 @@
 | #190 | fix(jaspic): quarantine unreconciled historical IDs without dispatching them | merged | `eb3136ff0efc13a7e98205c31e56c17a7807fa00` | 2026-11-09T20:37:57Z |
 | #191 | fix(jaspic): deliver nine verified post-migration alerts exactly once | merged | `5bec7803eea833327f74e3b1bfaee565cfbe1e44` | 2026-11-09T21:00:45Z |
 | #192 | fix(jaspic): 自転車盗は通知対象外のまま隔離件数から除外 | merged | `9f59c19e9e23c730e2906c55720d12277194d6d6` | 2026-11-09T21:17:34Z |
+| #193 | JASPIC: 認証期限と自動配信異常の管理者通知を追加 | merged | `4703a0eea48abc7e96c5ad3e252ddb52033edff7` | 2026-11-10T00:49:38Z |
 <!-- INVENTORY_FACTS_END -->
