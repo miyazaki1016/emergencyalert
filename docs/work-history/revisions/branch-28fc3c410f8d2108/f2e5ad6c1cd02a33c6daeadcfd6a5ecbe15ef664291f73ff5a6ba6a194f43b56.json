@@ -1,0 +1,28 @@
+{
+  "id": "branch-28fc3c410f8d2108",
+  "title": "fix/inventory-actions-read-permission-20261101",
+  "head": "ba96859f6486975e40e4ee9eb67e48b5210e5280",
+  "head_ref": "fix/inventory-actions-read-permission-20261101",
+  "linked_prs": [
+    123
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/development-inventory.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ba96859f6486975e40e4ee9eb67e48b5210e5280/.github/workflows/development-inventory.yml"
+    }
+  ],
+  "commits": "ba96859f6486975e40e4ee9eb67e48b5210e5280 Grant read-only Actions access to previous inventory artifacts",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "5870a383cc17457f512eba05773e25e789fc770e0863bc4e580ccccb49ee1f35",
+  "collected_at": "2026-11-10T00:49:51.137211+00:00"
+}

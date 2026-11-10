@@ -1,0 +1,28 @@
+{
+  "id": "branch-a2cfb8135048dc77",
+  "title": "research/contextual-rain-alerts-20261028",
+  "head": "1e39976d58c78f287020956c800b356774209752",
+  "head_ref": "research/contextual-rain-alerts-20261028",
+  "linked_prs": [
+    95
+  ],
+  "files": [
+    {
+      "path": "docs/research/CONTEXTUAL_RAIN_ALERTS_20261028.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/1e39976d58c78f287020956c800b356774209752/docs/research/CONTEXTUAL_RAIN_ALERTS_20261028.md"
+    }
+  ],
+  "commits": "1e39976d58c78f287020956c800b356774209752 docs: design context-aware rain alert copy and test scenarios",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "6170d137c4ef4a34bc8c904a6bff9bb5aaba28c479d8f4efa0918375e9604654",
+  "collected_at": "2026-11-10T00:49:51.137211+00:00"
+}

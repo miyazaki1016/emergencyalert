@@ -1,0 +1,28 @@
+{
+  "id": "branch-309a089ee15503d2",
+  "title": "fix/address-query-detection",
+  "head": "1896f541792a3bffa860d66cc02413e27b50346d",
+  "head_ref": "fix/address-query-detection",
+  "linked_prs": [
+    7
+  ],
+  "files": [
+    {
+      "path": "lib/places/searchPlaces.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/1896f541792a3bffa860d66cc02413e27b50346d/lib/places/searchPlaces.ts"
+    }
+  ],
+  "commits": "1896f541792a3bffa860d66cc02413e27b50346d fix: detect digits in Japanese address queries",
+  "topics": [
+    "その他の開発"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "9c301f5a9bc718bb0465f4b626d959bcd956bc5d34b5873b2842ec7d24981121",
+  "collected_at": "2026-11-10T00:49:51.137211+00:00"
+}
