@@ -47,7 +47,7 @@ def evaluate(request, snapshot):
     requester = request.get("requester")
     approver = request.get("approved_by")
     emergency = request.get("emergency")
-    if project not in ALLOWED_PROJECTS:
+    if not isinstance(project, str) or project not in ALLOWED_PROJECTS:
         return hold("project outside two-project allowlist")
     if not isinstance(sha, str) or not SHA.fullmatch(sha):
         return hold("invalid pinned commit SHA")
