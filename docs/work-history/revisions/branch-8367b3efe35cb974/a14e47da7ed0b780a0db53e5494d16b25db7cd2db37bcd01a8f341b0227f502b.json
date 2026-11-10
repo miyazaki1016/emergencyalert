@@ -1,0 +1,28 @@
+{
+  "id": "branch-8367b3efe35cb974",
+  "title": "docs/amafuru-complete-handoff-20261023",
+  "head": "cbd475b426a0cab75c325b29fa928048c374cb97",
+  "head_ref": "docs/amafuru-complete-handoff-20261023",
+  "linked_prs": [
+    75
+  ],
+  "files": [
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/cbd475b426a0cab75c325b29fa928048c374cb97/docs/PROJECT_OVERVIEW.md"
+    }
+  ],
+  "commits": "cbd475b426a0cab75c325b29fa928048c374cb97 docs: consolidate complete Amefuru project history, production verification, and next-chat handoff into canonical overview",
+  "topics": [
+    "その他の開発"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "4982105c24ebbdb02a4b64e8fbe42c0a7a525c7568c76c7bd1fcfc543cee7ec7",
+  "collected_at": "2026-11-10T02:03:17.186527+00:00"
+}

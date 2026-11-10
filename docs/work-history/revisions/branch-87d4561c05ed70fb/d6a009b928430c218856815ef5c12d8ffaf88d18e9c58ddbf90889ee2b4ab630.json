@@ -1,0 +1,108 @@
+{
+  "id": "branch-87d4561c05ed70fb",
+  "title": "feat/rain-feedback-phase1-history-20261021",
+  "head": "3d214ffe6efde4b4a3a29baab93875acddedaf3f",
+  "head_ref": "feat/rain-feedback-phase1-history-20261021",
+  "linked_prs": [
+    65
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3d214ffe6efde4b4a3a29baab93875acddedaf3f/.github/workflows/ci.yml"
+    },
+    {
+      "path": "app/components/NotificationFeedbackHistory.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3d214ffe6efde4b4a3a29baab93875acddedaf3f/app/components/NotificationFeedbackHistory.tsx"
+    },
+    {
+      "path": "app/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3d214ffe6efde4b4a3a29baab93875acddedaf3f/app/page.tsx"
+    },
+    {
+      "path": "docs/MY_RAIN_FEEDBACK_PHASE1_CHECKPOINT_20261021.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3d214ffe6efde4b4a3a29baab93875acddedaf3f/docs/MY_RAIN_FEEDBACK_PHASE1_CHECKPOINT_20261021.md"
+    },
+    {
+      "path": "docs/sql/my-rain-feedback-phase1.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3d214ffe6efde4b4a3a29baab93875acddedaf3f/docs/sql/my-rain-feedback-phase1.sql"
+    },
+    {
+      "path": "lib/weather/rain/feedbackPhase1.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3d214ffe6efde4b4a3a29baab93875acddedaf3f/lib/weather/rain/feedbackPhase1.ts"
+    },
+    {
+      "path": "lib/weather/rain/feedbackPhase1Repository.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3d214ffe6efde4b4a3a29baab93875acddedaf3f/lib/weather/rain/feedbackPhase1Repository.ts"
+    },
+    {
+      "path": "tests/feedback-phase1-http.mjs",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3d214ffe6efde4b4a3a29baab93875acddedaf3f/tests/feedback-phase1-http.mjs"
+    },
+    {
+      "path": "tests/feedbackPhase1.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3d214ffe6efde4b4a3a29baab93875acddedaf3f/tests/feedbackPhase1.test.ts"
+    },
+    {
+      "path": "tests/feedbackPhase1Repository.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3d214ffe6efde4b4a3a29baab93875acddedaf3f/tests/feedbackPhase1Repository.test.ts"
+    },
+    {
+      "path": "tests/sql/feedback-phase1-http-setup.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3d214ffe6efde4b4a3a29baab93875acddedaf3f/tests/sql/feedback-phase1-http-setup.sql"
+    },
+    {
+      "path": "tests/sql/feedback-phase1-integration.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3d214ffe6efde4b4a3a29baab93875acddedaf3f/tests/sql/feedback-phase1-integration.sql"
+    }
+  ],
+  "commits": "3d214ffe6efde4b4a3a29baab93875acddedaf3f security: limit feedback table grants to authenticated select/insert/update only\ndd5b090f5fff8badabedcf676bdbf55a8cc6f213 docs: preserve answered-only history UX and Free-plan test strategy\ne87c82ce0dcb65c6c9de1d56ddfa00e796990603 test: verify answered-only rainfall history and deep-link preservation\nea788112d3132f030ab75447d207b0eb20de315a feat: show answered feedback counts and allow answered-only review\nfc6750204efd3509b6b3f6532d98c2d093d280a8 feat: give rainfall notification feedback an answered-history view\n4706933e9bfdc929018bfbaa42e3835ed44e45de docs: preserve passing live PostgREST HTTP + PostgreSQL RLS proof and remaining Supabase gate\ncdbec0514b229d8b5ef21e712c8bc6d4123b632f test: derive JWT subject from PostgREST v12 claims JSON in local HTTP fixture\n4f2b49bb5758be55fb5276c10e1822cbef075f85 ci: accept a responding PostgREST server even when root returns 404\nd5bd9714ca8270a5bb01f501b9f19815cce21e89 ci: run genuine PostgREST HTTP integration against disposable local Postgres\nd814497819731f7246401c1317c7174b5c25ed94 test: verify stage-one weather feedback over real local PostgREST HTTP\nde11dcb5462f79c2c631146483a72dbe46b19cdc test: create isolated RLS fixtures for real PostgREST HTTP feedback test\n9b6a096ebd386403c1fa9bc3ad814d1f469b012b docs: checkpoint feedback save/edit/reload mock test and remaining real Supabase gate\n5fd6c129560946b420c7ed288cb8e9e9a3f3ac85 test: mock end-to-end feedback save, reload, edit, and account boundary\n1de5b1bba358849927f4768f282a208ff604244f refactor: wire phase-one feedback UI through tested save/reload helpers\necdbf2b63bbcea490dc2e3d8a26752473a639400 feat: isolate feedback save and reload for direct functional testing\nd656f2491b49166fb7b5bb4bd78d5f61a346c54b docs: record target-scoped feedback UX and phase-one verification limits\nf6868f8c92338df7a92f994fc428f8e85dfb6c41 test: location-scoped rain feedback history without mixing monitored places\ndba644b5868ecddb1d0b493ab5917964725cf46e fix: always reveal the tapped history card across place filters\n523f7d4e9b6de2a47d17f5b10134d19187ff8aa6 feat: let users review rain feedback separately for each watched place\n8a6f845deec2e417c492fd56866ab03514bd1843 feat: filter feedback history by watched location\nc57daa5d8bb552bae8100e2b8fbc605878068c6f test: feedback place labels remain tied to actual target IDs\n8bb69330653489a7f00182682f218ee2734165b2 feat: show watched location explicitly on each notification feedback card\n08788f401cb0c470d1b96849194571587ba8f706 feat: label observed feedback with the target's watched place\n3432c784c4597094baf5609a721cb38e946159a0 docs: checkpoint auth refresh and in-app feedback navigation\ne95db9335ae3074f6331709a46589199c248e3d0 feat: notify phase-one feedback immediately after creating a watch session\n7817d7fdfe2d083bf17ff1a7ba0335a206490516 fix: avoid auth listener on no-config previews and refresh after same-tab registration\n2a27b3d573fc16d913b57c6d21be98b95c5d5b23 fix: use browser timer ID type in auth-triggered feedback refresh\ncdeaf7ad1a45a3b2294d23e204401a70dacbf7ba feat: add manual refresh for notification answers and current auth state\n7ba0770da1acb368fffb6dfaa6714b07bd586fc7 fix: use supported auth event types for feedback refresh\ncedaa3edbc6fddc07b474c5a253ddcacb8544431 feat: refresh feedback after same-page anonymous sign-in without waiting five minutes\n3c9f359e726ec3b43382a52f5154b209a25cd58f docs: checkpoint stage-one feedback flow, current limits, and no staging Supabase project\n055c530a8ce54cfcad5cea1352c0b134e159409b test: phase-one feedback link IDs and legacy reply timing\n6cfab485f4493c15267a51ff2a7f562cd35355de refactor: use tested hash/timing logic in phase-one feedback UI\nbbba40fc2692c7f45a03f3410a210d3f2752e30c feat: isolate and test phase-one feedback navigation and timing rules\n2b2d10423c51ed0409b6c528d516ee0cff7fecfe fix: parse feedback history hash with numeric id correctly\ndd1e62c77b3bbde4884893b9ee2f189e57d3d4d7 feat: focus the selected historical notification via in-app anchor\n0767bbf14d19603e6d830b3dee3eb2971a9499f9 feat: link today's existing alert directly to its weather feedback card\nbaeb245d1f7292f5bfb017567f986035f3f73bdf ci: test stage-one feedback SQL with isolated PostgreSQL\needb0a96f978fb529f54f099d71a6b9cd0df2fa7 test: phase-one feedback RLS against unchanged legacy delivered-count schema\nd0523a72c5697e565ab72b075a80d0c68af27626 sql: stage phase-one feedback table and owner-scoped policies only\nfef74b6906774874efa5236dccc7a769af3bcb33 feat: add phase-one feedback history alongside current production alert UI\nd0f00af665148de9ea5bee8f1011591c80907763 feat: phase-one weather feedback on existing delivered alerts, no worker change",
+  "topics": [
+    "雨量・全国検知",
+    "通知・配信",
+    "開発管理",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "4246986cbf9598a2b028f544fe10e7581dac435dec9393e872da6c943545d19e",
+  "collected_at": "2026-11-10T02:03:17.186527+00:00"
+}

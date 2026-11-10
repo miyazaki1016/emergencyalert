@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-10T00:49:51.137211+00:00
+更新 (UTC): 2026-11-10T02:03:17.186527+00:00
 
 ## 全案件
 
@@ -89,6 +89,7 @@
 | [fix/jma-early-forecast-member-path](cases/branch-5c92b4faabfdb401.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [design/polished-mobile-ui](cases/branch-5c977d57157a9d51.md) | 画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [design/white-secondary-text](cases/branch-5cf84043799e8296.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [feat/jaspic-completion-mail](cases/branch-5d674c9a5e5cf44c.md) | 通知・配信・開発管理・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [test-rain-actionable-boundary](cases/branch-5f7ce5cfce85c051.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/jaspic-bicycle-not-quarantined-20261110](cases/branch-5f7d8d7f8dc6dd32.md) | 通知・配信・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/feedback-observed-time-20261022](cases/branch-60bf0fe58994b8d1.md) | 雨量・全国検知・通知・配信・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -316,7 +317,8 @@
 | [fix(jaspic): quarantine unreconciled historical IDs without dispatching them](cases/pr-190.md) | 通知・配信：JASPICの旧送信台帳と地図IDの不一致による停止を安全な隔離処理に変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix(jaspic): deliver nine verified post-migration alerts exactly once](cases/pr-191.md) | 通知・配信・開発管理：旧システム最終JSONに存在しない広島9件を限定して通知する移行後追い処理 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix(jaspic): 自転車盗は通知対象外のまま隔離件数から除外](cases/pr-192.md) | 通知・配信・開発管理：JASPICの自転車盗を通知対象外のまま隔離件数から外す | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
-| [JASPIC: 認証期限と自動配信異常の管理者通知を追加](cases/pr-193.md) | 通知・配信・開発管理・認証・安全性：通知・メール配信とその運用に関する変更／開発資産の把握・引継ぎ・レビューを支援する変更／認証・アクセス制御に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [JASPIC: 認証期限と自動配信異常の管理者通知を追加](cases/pr-193.md) | 通知・配信・開発管理・認証・安全性：JASPICのGoogle認証期限・エラー通知と、正常完了メールへの追加拡張 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [JASPIC: 0件の日も届く18時配信の完了メールを追加](cases/pr-194.md) | 通知・配信・開発管理・画面・表示：通知・メール配信とその運用に関する変更／開発資産の把握・引継ぎ・レビューを支援する変更／画面表示や操作に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add PWA foundation for iPhone and Android](cases/pr-2.md) | その他の開発：iPhone・Android向けPWAの基盤を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add early rain forecast provider](cases/pr-20.md) | 雨量・全国検知：早期の雨予測データ取得処理を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: expose early rain forecast prototype API](cases/pr-21.md) | 雨量・全国検知：早期雨予測の試作APIを公開する変更案 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
@@ -631,7 +633,7 @@
 - scripts/pr_review_handoff.py：[branch-136d018fe1cd5ebc](cases/branch-136d018fe1cd5ebc.md), [pr-139](cases/pr-139.md)
 - scripts/prepare-n03-storage-data.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [pr-59](cases/pr-59.md)
 - scripts/upload-n03-storage-data.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [pr-59](cases/pr-59.md)
-- scripts/vercel-build-guard.mjs：[branch-01116240ec96678b](cases/branch-01116240ec96678b.md), [branch-eecb7d45ce962418](cases/branch-eecb7d45ce962418.md), [pr-161](cases/pr-161.md), [pr-188](cases/pr-188.md)
+- scripts/vercel-build-guard.mjs：[branch-01116240ec96678b](cases/branch-01116240ec96678b.md), [branch-5d674c9a5e5cf44c](cases/branch-5d674c9a5e5cf44c.md), [branch-eecb7d45ce962418](cases/branch-eecb7d45ce962418.md), [pr-161](cases/pr-161.md), [pr-188](cases/pr-188.md), [pr-194](cases/pr-194.md)
 - scripts/vercel_build_guard.py：[branch-2fcb912568edd503](cases/branch-2fcb912568edd503.md), [pr-141](cases/pr-141.md)
 - scripts/vercel_quota_monitor.py：[branch-2b0a1b21c1150676](cases/branch-2b0a1b21c1150676.md), [pr-164](cases/pr-164.md)
 - scripts/verify-n03-storage-data.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [pr-59](cases/pr-59.md)

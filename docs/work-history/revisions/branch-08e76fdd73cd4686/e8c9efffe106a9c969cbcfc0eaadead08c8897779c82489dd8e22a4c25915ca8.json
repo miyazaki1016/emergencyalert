@@ -1,0 +1,35 @@
+{
+  "id": "branch-08e76fdd73cd4686",
+  "title": "fix/ledger-proposal-table-columns-20261101",
+  "head": "072ddf684b21c2a9e4f10fc0aefd93a75f7c70b3",
+  "head_ref": "fix/ledger-proposal-table-columns-20261101",
+  "linked_prs": [
+    132
+  ],
+  "files": [
+    {
+      "path": "scripts/development_ledger_proposal.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/072ddf684b21c2a9e4f10fc0aefd93a75f7c70b3/scripts/development_ledger_proposal.py"
+    },
+    {
+      "path": "tests/test_development_ledger_proposal.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/072ddf684b21c2a9e4f10fc0aefd93a75f7c70b3/tests/test_development_ledger_proposal.py"
+    }
+  ],
+  "commits": "072ddf684b21c2a9e4f10fc0aefd93a75f7c70b3 Assert ledger table has matching title column\n9b6e570da404ec7ba28415b01ecf70186312037e Fix factual ledger table title column",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "c89b682e9171040a7f45a3bcf67394bcc4ee6e89c14ba09a1d47c95ccad567ef",
+  "collected_at": "2026-11-10T02:03:17.186527+00:00"
+}
