@@ -77,7 +77,7 @@ Checksの `preflight` → Details → Summary、またはActionsの `Existing wo
 python3 -m unittest discover -s tests -p 'test_development_preflight.py' -v
 ```
 
-## Issueへの結果返却の設計（この変更はDraft・main統合前）
+## Issueへの結果返却の設計と安全条件
 
 既存の `preflight.json`／`preflight.md` 成果物を、別の `publish-issue-result` ジョブでIssueの専用botコメントへ返す。照合器や判断方式は再実装しない。結果はREVIEW_REQUIRED／REVIEW_RECORDED／NO_STRONG_MATCH／INCOMPLETEのまま記録し、実行URLとID・試行番号を付ける。原本確認待ちの失敗も結果として読める。公開確認中はPUBLISHING（着手不可）とし、依頼とコメントを再取得して確認できた場合だけ `publication_status=confirmed` にする。本文に判断を書いて再照合すると、同じbotコメントが新しい結果へ更新される。
 

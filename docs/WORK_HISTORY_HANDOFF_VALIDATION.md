@@ -88,4 +88,4 @@ GET https://api.github.com/repos/OWNER/REPO/issues/Issue番号/comments?per_page
 
 ## 実行IDの手動探索を省けた事例：美咲Issue #174
 
-2026-11-10、専用のActions実行一覧ツールが見つからないという引継ぎ報告を受け、GitHubの汎用取得で `GET /repos/miyazaki1016/misaki/actions/runs?event=issues&per_page=100` を読み、[run 42750579698](https://github.com/miyazaki1016/misaki/actions/runs/42750579698)を特定した。ジョブログはREVIEW_REQUIREDで、pr-151とpr-44の原本確認待ちだった。利用者がサイトで探す必要はなかった。Issueの自動結果コメントは、この探索自体を通常の手順から省くための追加案。今回の変更はDraftであり、main統合前に自動返却が稼働中だとは報告しない。
+2026-11-10、専用のActions実行一覧ツールが見つからないという引継ぎ報告を受け、GitHubの汎用取得で `GET /repos/miyazaki1016/misaki/actions/runs?event=issues&per_page=100` を読み、[run 42750579698](https://github.com/miyazaki1016/misaki/actions/runs/42750579698)を特定した。ジョブログはREVIEW_REQUIREDで、pr-151とpr-44の原本確認待ちだった。利用者がサイトで探す必要はなかった。Issueの自動結果コメントは、この探索自体を通常の手順から省くための追加案。この事例の記録時点では返却処理はDraftだった。現在の導入状態は最新mainのworkflowと、実際のIssue結果コメントで確認する。
