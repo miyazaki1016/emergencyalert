@@ -4,6 +4,7 @@ on:
     paths:
       - 'app/jaspic/dispatch/**'
       - 'docs/sql/jaspic-admin-monitor.sql'
+      - 'docs/sql/jaspic-completion-notification.sql'
       - 'tests/jaspic/dispatch-monitor.test.ts'
       - 'tests/sql/jaspic-monitor-*.sql'
       - '.github/workflows/jaspic-admin-monitor.yml'
@@ -11,6 +12,7 @@ on:
     branches: [main]
     paths:
       - 'docs/sql/jaspic-admin-monitor.sql'
+      - 'docs/sql/jaspic-completion-notification.sql'
       - 'tests/sql/jaspic-monitor-*.sql'
       - '.github/workflows/jaspic-admin-monitor.yml'
 permissions:

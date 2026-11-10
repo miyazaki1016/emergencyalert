@@ -1273,6 +1273,14 @@
         "https://github.com/miyazaki1016/emergencyalert/pull/192",
         "https://github.com/miyazaki1016/emergencyalert/blob/main/docs/research/JASPIC_HISTORICAL_ID_QUARANTINE_20261110.md"
       ]
+    },
+    "193": {
+      "summary": "JASPICのGoogle認証期限・エラー通知と、正常完了メールへの追加拡張",
+      "conclusion": "認証期限・エラー通知は11月10日にSupabaseで有効化し、Resend受付成功と管理者Gmail INBOXへのテスト1通到着を確認。今回、利用者の稼働確認要望により18時正常終了の県別件数をまとめた完了通知を追加。0件の日も対象とし、日付単位で1通。既存enqueue・重複防止・Resend・5分監視を再利用し、防犯dispatchや雨通知・送信台帳は変更しない。正常完了通知の本番受入結果は追加PR本文を参照。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/193",
+        "https://github.com/miyazaki1016/emergencyalert/blob/feat/jaspic-completion-mail/docs/research/JASPIC_COMPLETION_NOTIFICATION_20261110.md"
+      ]
     }
   }
 }
