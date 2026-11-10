@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-10T02:03:17.186527+00:00
+更新 (UTC): 2026-11-10T02:50:24.646271+00:00
 
 ## 全案件
 
@@ -146,6 +146,7 @@
 | [research/jaspic-gmail-send-consent-20261106](cases/branch-ae94438b6e247b91.md) | 通知・配信・認証・安全性・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/delete-watch-target](cases/branch-aeef70603b294028.md) | 画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/japanese-address-geocoder](cases/branch-b075504ef7a80661.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [research/rain-episode-evaluation-api-20261110](cases/branch-b19749e19dee17a5.md) | 雨量・全国検知・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/fix-inventory-overview-status-20261101](cases/branch-b23ba909505bae4f.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [chore/inventory-exact-patch-evidence](cases/branch-b23be022a75304ba.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/inventory-triage-output-newlines-20261101](cases/branch-b30df8ff98a54148.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -164,6 +165,7 @@
 | [automation/ledger-facts-41390608710](cases/branch-bc544269ae39d86b.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/inventory-investigation-20261101](cases/branch-bd3f337155aba4cf.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/ledger-automation-observability-20261102](cases/branch-bda2266ea4ea3de8.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [docs/chat-first-handoff-20261110](cases/branch-bde3cb29f6100882.md) | 記憶・会話・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [automation/ledger-facts-41390111320](cases/branch-bfaf33b9380d0f62.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [diagnostics-persistent-auth-journal-20261024](cases/branch-c05c32337717821c.md) | 認証・安全性：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [research/jaspic-mail-compat-20261104](cases/branch-c32f0f97af1ba1b5.md) | 通知・配信・開発管理・認証・安全性・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -319,6 +321,8 @@
 | [fix(jaspic): 自転車盗は通知対象外のまま隔離件数から除外](cases/pr-192.md) | 通知・配信・開発管理：JASPICの自転車盗を通知対象外のまま隔離件数から外す | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [JASPIC: 認証期限と自動配信異常の管理者通知を追加](cases/pr-193.md) | 通知・配信・開発管理・認証・安全性：JASPICのGoogle認証期限・エラー通知と、正常完了メールへの追加拡張 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [JASPIC: 0件の日も届く18時配信の完了メールを追加](cases/pr-194.md) | 通知・配信・開発管理・画面・表示：通知・メール配信とその運用に関する変更／開発資産の把握・引継ぎ・レビューを支援する変更／画面表示や操作に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [研究: 未通知ケースを含む雨のエピソード評価基盤](cases/pr-195.md) | 雨量・全国検知・通知・配信・開発管理：雨量判定・予測・全国候補抽出に関する変更／通知・メール配信とその運用に関する変更／開発資産の把握・引継ぎ・レビューを支援する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
+| [docs: 日本語開発履歴の引継ぎを通常チャット・Actions経由に対応](cases/pr-196.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add PWA foundation for iPhone and Android](cases/pr-2.md) | その他の開発：iPhone・Android向けPWAの基盤を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add early rain forecast provider](cases/pr-20.md) | 雨量・全国検知：早期の雨予測データ取得処理を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: expose early rain forecast prototype API](cases/pr-21.md) | 雨量・全国検知：早期雨予測の試作APIを公開する変更案 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
@@ -475,6 +479,7 @@
 - lib/research/forecastEvidenceFailureMonitor.ts：[branch-e887abe92356f2f8](cases/branch-e887abe92356f2f8.md), [pr-109](cases/pr-109.md)
 - lib/research/forecastEvidenceRetention.ts：[branch-e887abe92356f2f8](cases/branch-e887abe92356f2f8.md), [pr-109](cases/pr-109.md)
 - lib/research/forecastHistoryReplay.ts：[branch-e887abe92356f2f8](cases/branch-e887abe92356f2f8.md), [pr-109](cases/pr-109.md)
+- lib/research/rainEpisodeEvaluation.ts：[branch-b19749e19dee17a5](cases/branch-b19749e19dee17a5.md), [pr-195](cases/pr-195.md)
 - lib/research/rainLab.ts：[branch-22f64fc517bd98c8](cases/branch-22f64fc517bd98c8.md), [branch-62efc69d0291dcce](cases/branch-62efc69d0291dcce.md), [branch-98720101eac846e9](cases/branch-98720101eac846e9.md), [branch-dbcfae267568d52d](cases/branch-dbcfae267568d52d.md), [branch-dfd42da398610013](cases/branch-dfd42da398610013.md), [pr-102](cases/pr-102.md), [pr-103](cases/pr-103.md), [pr-104](cases/pr-104.md), [pr-175](cases/pr-175.md), [pr-176](cases/pr-176.md)
 - lib/research/rainLabRepository.ts：[branch-62efc69d0291dcce](cases/branch-62efc69d0291dcce.md), [branch-dbcfae267568d52d](cases/branch-dbcfae267568d52d.md), [pr-102](cases/pr-102.md), [pr-103](cases/pr-103.md)
 - lib/research/rainMismatch.ts：[branch-62efc69d0291dcce](cases/branch-62efc69d0291dcce.md), [branch-80c56aa91b391a23](cases/branch-80c56aa91b391a23.md), [branch-d60839d7bd6952a6](cases/branch-d60839d7bd6952a6.md), [pr-103](cases/pr-103.md), [pr-159](cases/pr-159.md), [pr-160](cases/pr-160.md)

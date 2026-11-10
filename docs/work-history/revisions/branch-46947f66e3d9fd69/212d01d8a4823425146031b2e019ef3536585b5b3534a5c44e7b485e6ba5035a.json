@@ -1,0 +1,28 @@
+{
+  "id": "branch-46947f66e3d9fd69",
+  "title": "audit/push-concurrency-20261026",
+  "head": "a0a4cc891065a52333c7aaca8b93193d8cb7c2d9",
+  "head_ref": "audit/push-concurrency-20261026",
+  "linked_prs": [
+    93
+  ],
+  "files": [
+    {
+      "path": "docs/audits/PUSH_CONCURRENCY_20261026.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a0a4cc891065a52333c7aaca8b93193d8cb7c2d9/docs/audits/PUSH_CONCURRENCY_20261026.md"
+    }
+  ],
+  "commits": "a0a4cc891065a52333c7aaca8b93193d8cb7c2d9 docs: prioritize timely accurate rain-start alerts over rain-ending alerts\n0f2c56824ddfb3848aaddbdc7d8655d4b9e57be9 audit: trace false rain-ending alert under patchy radar and stale confirmed state\n73f1d2fd5b69955453a9116947327b770c654b85 audit: map concurrency and failure-injection cases against existing prototype\n9113a8e780e1be4cb570c045b22853fe06513b7c docs: restart priority-one push concurrency audit",
+  "topics": [
+    "通知・配信"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "dadd07c73e35f4da26f56afb99a20d2e2deb0bfabbb004f048182740613a8401",
+  "collected_at": "2026-11-10T02:50:24.646271+00:00"
+}

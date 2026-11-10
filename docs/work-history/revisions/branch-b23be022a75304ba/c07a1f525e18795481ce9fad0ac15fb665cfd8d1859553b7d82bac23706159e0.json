@@ -1,0 +1,42 @@
+{
+  "id": "branch-b23be022a75304ba",
+  "title": "chore/inventory-exact-patch-evidence",
+  "head": "4aa5951483030f85ebc5697e0f25d0d23acbb486",
+  "head_ref": "chore/inventory-exact-patch-evidence",
+  "linked_prs": [
+    150
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/development-inventory.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4aa5951483030f85ebc5697e0f25d0d23acbb486/.github/workflows/development-inventory.yml"
+    },
+    {
+      "path": "scripts/development_branch_compare.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4aa5951483030f85ebc5697e0f25d0d23acbb486/scripts/development_branch_compare.py"
+    },
+    {
+      "path": "tests/test_development_equal_patch.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4aa5951483030f85ebc5697e0f25d0d23acbb486/tests/test_development_equal_patch.py"
+    }
+  ],
+  "commits": "4aa5951483030f85ebc5697e0f25d0d23acbb486 Validate code patch evidence matching in existing inventory CI\n3286ebfc6ca55c2cc173df0aadae53a237f8bef9 Test matching code patches and uncertainty safeguards\n9b9fd3f50fb741ca1fca0292176a0e3a534a89b8 Record code patch fingerprints in branch evidence",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "5ad23328c18af119755c2215ad7c1624867e824970f1210b7d2fa827a24e43df",
+  "collected_at": "2026-11-10T02:50:24.646271+00:00"
+}
