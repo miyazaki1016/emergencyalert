@@ -227,5 +227,7 @@
 | #191 | fix(jaspic): deliver nine verified post-migration alerts exactly once | merged | `5bec7803eea833327f74e3b1bfaee565cfbe1e44` | 2026-11-09T21:00:45Z |
 | #192 | fix(jaspic): 自転車盗は通知対象外のまま隔離件数から除外 | merged | `9f59c19e9e23c730e2906c55720d12277194d6d6` | 2026-11-09T21:17:34Z |
 | #193 | JASPIC: 認証期限と自動配信異常の管理者通知を追加 | merged | `4703a0eea48abc7e96c5ad3e252ddb52033edff7` | 2026-11-10T01:46:19Z |
-| #194 | JASPIC: 0件の日も届く18時配信の完了メールを追加 | merged | `6abea5258257c323824ab0bdecdc77d20ccbe6ac` | 2026-11-10T02:03:03Z |
+| #194 | JASPIC: 0件の日も届く18時配信の完了メールを追加 | merged | `6abea5258257c323824ab0bdecdc77d20ccbe6ac` | 2026-11-10T02:10:22Z |
+| #195 | 研究: 未通知ケースを含む雨のエピソード評価基盤 | open | `cd57655109506e45c14c2d719190df1a6c4df418` | 2026-11-10T02:36:07Z |
+| #196 | docs: 日本語開発履歴の引継ぎを通常チャット・Actions経由に対応 | merged | `635b469513d0e16093c0c3853dcd2453ac2dc316` | 2026-11-10T02:50:14Z |
 <!-- INVENTORY_FACTS_END -->
