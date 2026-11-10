@@ -1,0 +1,44 @@
+{
+  "id": "branch-e532c526e0c8a49b",
+  "title": "feat/jaspic-oauth-login-only-20261105",
+  "head": "29e257b0c69559f9b3fae7873ca1876366ae957b",
+  "head_ref": "feat/jaspic-oauth-login-only-20261105",
+  "linked_prs": [
+    157
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/oauth/login-client.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/29e257b0c69559f9b3fae7873ca1876366ae957b/app/jaspic/oauth/login-client.tsx"
+    },
+    {
+      "path": "app/jaspic/oauth/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/29e257b0c69559f9b3fae7873ca1876366ae957b/app/jaspic/oauth/page.tsx"
+    },
+    {
+      "path": "app/jaspic/oauth/start/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/29e257b0c69559f9b3fae7873ca1876366ae957b/app/jaspic/oauth/start/route.ts"
+    }
+  ],
+  "commits": "29e257b0c69559f9b3fae7873ca1876366ae957b feat(jaspic): add permanently disabled OAuth endpoint for login-only preview\n905f05265e1f67eb6bc48eb2db460604a341f56e fix(jaspic): disable account auto-signups in admin-only email OTP preview\n6a58edef8759ad51ea1ce8c6b495950b1b8f2a15 feat(jaspic): isolate iPhone email login preview without activating Gmail consent\ne378af52832940f66c576e1d3e7dcc618ff2b763 feat(jaspic): isolate iPhone email login preview without activating Gmail consent",
+  "topics": [
+    "通知・配信",
+    "認証・安全性",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "1947c2379c0ee091cc03e1f47f3d0e58766652b311ab4682e9c365410d37306b",
+  "collected_at": "2026-11-10T05:33:58.199176+00:00"
+}

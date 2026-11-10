@@ -1,0 +1,44 @@
+{
+  "id": "branch-091c543ebb50d507",
+  "title": "feat/feedback-expandable-cards-20261022",
+  "head": "0fb67d23199810a3b1634c964118d88a82b456ce",
+  "head_ref": "feat/feedback-expandable-cards-20261022",
+  "linked_prs": [
+    68
+  ],
+  "files": [
+    {
+      "path": "app/components/NotificationFeedbackHistory.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0fb67d23199810a3b1634c964118d88a82b456ce/app/components/NotificationFeedbackHistory.tsx"
+    },
+    {
+      "path": "lib/weather/rain/feedbackPhase1.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0fb67d23199810a3b1634c964118d88a82b456ce/lib/weather/rain/feedbackPhase1.ts"
+    },
+    {
+      "path": "tests/feedbackPhase1.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0fb67d23199810a3b1634c964118d88a82b456ce/tests/feedbackPhase1.test.ts"
+    }
+  ],
+  "commits": "0fb67d23199810a3b1634c964118d88a82b456ce test: expand/collapse behavior and direct notification access\n30b0ce5462f1a61f272fd97cea10076337e00f84 refactor: share card expansion helpers with feedback UI\nf44dac553664540fba063e5e5d447c135e9a77b4 feat: pure helpers for expandable weather feedback cards\n30d3ed39f631ce8602f33eb51bf2eedd41e63f23 feat: collapse notification feedback cards until tapped, preserving deep links and saved answers",
+  "topics": [
+    "雨量・全国検知",
+    "通知・配信",
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "92370a24b13ef12141cd5ba0ed24c9fb0fe4d84eafd63326d5341fc1e2616eaf",
+  "collected_at": "2026-11-10T05:33:58.199176+00:00"
+}

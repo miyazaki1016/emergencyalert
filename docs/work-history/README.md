@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-10T05:03:56.055293+00:00
+更新 (UTC): 2026-11-10T05:33:58.199176+00:00
 
 ## 全案件
 
@@ -163,6 +163,7 @@
 | [docs/external-ai-review-preview-20261028](cases/branch-ba3b4daa8793346b.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/history-main-evidence-search-20261109](cases/branch-bbf5a2c293af40b5.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [automation/ledger-facts-41390608710](cases/branch-bc544269ae39d86b.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [docs/require-confirmed-preflight-20261110](cases/branch-bceed20172c1f87d.md) | 開発管理・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/inventory-investigation-20261101](cases/branch-bd3f337155aba4cf.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/ledger-automation-observability-20261102](cases/branch-bda2266ea4ea3de8.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/chat-first-handoff-20261110](cases/branch-bde3cb29f6100882.md) | 記憶・会話・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -327,6 +328,7 @@
 | [feat(history): Issueへ照合結果を返却し、引継ぎと検証・完成を分離](cases/pr-197.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add PWA foundation for iPhone and Android](cases/pr-2.md) | その他の開発：iPhone・Android向けPWAの基盤を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add early rain forecast provider](cases/pr-20.md) | 雨量・全国検知：早期の雨予測データ取得処理を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [docs: 自動照合の合格確認まで案件調査を開始しない](cases/pr-201.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: expose early rain forecast prototype API](cases/pr-21.md) | 雨量・全国検知：早期雨予測の試作APIを公開する変更案 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [fix: clear place search UI after registration](cases/pr-22.md) | 画面・表示：登録後に地点検索表示を消去 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: expose early rain forecast prototype API](cases/pr-23.md) | 雨量・全国検知：早期雨予測の試作APIを追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
