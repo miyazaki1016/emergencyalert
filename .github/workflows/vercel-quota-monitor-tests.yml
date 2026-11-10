@@ -5,8 +5,10 @@ on:
     paths:
       - 'scripts/vercel_quota_monitor.py'
       - 'scripts/vercel_release_request_policy.py'
+      - 'scripts/vercel_release_request_simulation.py'
       - 'tests/test_vercel_quota_monitor.py'
       - 'tests/test_vercel_release_request_policy.py'
+      - 'tests/test_vercel_release_request_simulation.py'
       - '.github/workflows/vercel-quota-monitor-tests.yml'
   workflow_dispatch:
 permissions:
@@ -23,3 +25,4 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_vercel_quota_monitor.py' -v
           python -m unittest discover -s tests -p 'test_vercel_release_request_policy.py' -v
+          python -m unittest discover -s tests -p 'test_vercel_release_request_simulation.py' -v
