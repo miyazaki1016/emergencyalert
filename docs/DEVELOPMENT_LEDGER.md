@@ -197,7 +197,7 @@
 | #160 | 雨の判定ラボ：現地保留を主判定から外し、降り始め不明を補足表示 | open | `c5a46647e183eb00e335cefc3af4054733db9bd7` | 2026-11-05T04:04:38Z |
 | #161 | ci: stop automatic previews and skip documentation-only builds | merged | `8ee8edff9b9c2fd5ce9d19eea2d408b51c768cab` | 2026-11-05T04:43:39Z |
 | #162 | docs: 総覧を短くし、案件管理を開発台帳へ集約 | merged | `77d576da3d309f65b8f7292c16d8d5a71201adf9` | 2026-11-05T04:58:11Z |
-| #164 | feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階） | open | `7e61e6c7fc653735dcc327fa2e1ade34beb4dab1` | 2026-11-09T06:59:28Z |
+| #164 | feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階） | open | `bd4a681a605c15be897508ecbc45f1d02daccf7d` | 2026-11-10T03:28:16Z |
 | #165 | docs: 雨の判定ラボ173コマの方式差分・未検証事項を整理 | open | `0ae9da31f65a2afe184a6efd36628a0ac1c2bda3` | 2026-11-08T23:18:57Z |
 | #166 | fix(jaspic): accept trailing slash in Supabase URL | merged | `776fe24e8199cd565625c859b58cf6e1d067284b` | 2026-11-06T04:45:07Z |
 | #167 | style(jaspic): improve iPhone login page layout | merged | `37efdbc992e3a63ea0c91c0b1a267e24742ee875` | 2026-11-06T05:45:33Z |
@@ -230,4 +230,5 @@
 | #194 | JASPIC: 0件の日も届く18時配信の完了メールを追加 | merged | `6abea5258257c323824ab0bdecdc77d20ccbe6ac` | 2026-11-10T02:10:22Z |
 | #195 | 研究: 未通知ケースを含む雨のエピソード評価基盤 | open | `cd57655109506e45c14c2d719190df1a6c4df418` | 2026-11-10T02:36:07Z |
 | #196 | docs: 日本語開発履歴の引継ぎを通常チャット・Actions経由に対応 | merged | `635b469513d0e16093c0c3853dcd2453ac2dc316` | 2026-11-10T02:50:14Z |
+| #197 | feat(history): Issueへ照合結果を返却し、引継ぎと検証・完成を分離 | merged | `575b0dc055505b7eeecae6f06a45e44447d83141` | 2026-11-10T05:03:44Z |
 <!-- INVENTORY_FACTS_END -->
