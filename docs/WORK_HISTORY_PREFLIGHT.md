@@ -2,6 +2,21 @@
 
 新規実装・調査・修正・再測定の前に、担当AIはユーザーの依頼文をそのまま渡して自動照合する。利用者に検索語を考えてもらわない。履歴を見るよう促すだけで作業を開始しない。
 
+## 通常チャットからの引継ぎ（標準経路）
+
+**引継ぎ先は通常チャットを基本とする。WorkやローカルPythonの実行環境を前提にしない。** Pythonを実行できなくても、GitHub連携でIssueの作成・本文更新とActions結果・ログの読取りができれば、既存のGitHub Actionsに実行を任せられる。
+
+1. 最新mainの `AGENTS.md`、この手順、対象の総覧・台帳をGitHub連携で読む。今回の作業と同じIssueがある場合はそのIssueを再利用し、別案件のIssueは流用しない。
+2. 今回の依頼文・目的・守る条件・直前の状況を、対象リポジトリのIssueのタイトルと本文へ登録する。**ソラがGitHub連携で登録し、利用者へPythonやPC操作を求めない。** Issue作成・本文編集で `Existing work preflight (read-only)` が自動起動する。
+3. `issues` 起点で作られた実行のSummary、または `preflight` ジョブのログ・`existing-work-preflight` 成果物を読む。出力の依頼文と更新時刻を照合し、今回のIssueに対応する結果か確認する。記録にはIssueのURL・番号とActions実行URLを残す。成功／失敗の色だけで判断しない。
+4. `REVIEW_REQUIRED` は原本確認待ち。提示されたコード・数値・検証対象SHA・未統合研究・残課題を読み、各要確認候補の `id`、`decision`（`reuse`／`extend`／`distinct`）、具体的な `reason`、出力に含まれる `evidence` URLを、Issue本文の `history-preflight` ブロックへ記録する。形式は後述のIssue／PR本文の例を使う。
+5. **本文の編集後に作成された新しいActions実行**を確認する。古い実行を再実行しただけで最新本文が反映されたとは決めつけない。`REVIEW_RECORDED` なら記録した再利用方針で未解決分のみ進める。`NO_STRONG_MATCH` でもコード・台帳を確認する。`INCOMPLETE`、権限待ち、実行待ち、結果取得不能は照合完了扱いにしない。
+6. 後でPRを作る場合は、Issueをリンクし、**PR本文にも**その時点の候補に対する `history-preflight` 判断を記録する。Issueの判断がPRへ自動転記される仕組みはない。PRでは変更パスも照合するため、候補が増えたら追加確認する。
+
+必要なGitHub連携の機能・権限がそのチャットにない場合は、不足する操作を具体的に伝え、実行済みと報告しない。ローカルPythonがないことと、Actions経由でも照合できないことは区別する。既存のマージ・デプロイ・DB・認証・通知送信の許可範囲は引継ぎ後も維持する。Issue登録・本文更新はVercelへのコードpushや本番デプロイではない。自動コメント送信は追加しない。
+
+## 実行環境が使える場合のCLI（任意の経路）
+
 ```sh
 python3 scripts/development_preflight.py --task '今回の依頼文・目的・変更したい挙動' --paths 対象コードのパス --output /tmp/development-preflight
 ```
@@ -23,7 +38,7 @@ python3 scripts/development_preflight.py --task '今回の依頼文・目的・�
 
 ## 再利用判断の記録（利用者の承認は不要）
 
-原本を読んだ担当AIが次のJSON配列をローカルファイルへ保存し、同じコマンドに `--decisions /tmp/preflight-decisions.json` を追加して再実行する。`id` と `evidence` は今回の出力からコピーする。3種類の判断のいずれかと、具体的な理由が必要。短い「確認済み」だけでは通らない。
+通常チャットではIssue本文の `history-preflight` ブロックへ記録し、本文編集で再照合する（形式は後述）。CLIを使う場合は、原本を読んだ担当AIが次のJSON配列をローカルファイルへ保存し、同じコマンドに `--decisions /tmp/preflight-decisions.json` を追加して再実行する。`id` と `evidence` は今回の出力からコピーする。3種類の判断のいずれかと、具体的な理由が必要。短い「確認済み」だけでは通らない。
 
 ```json
 [
@@ -50,7 +65,7 @@ PR／Issue本文には次の形式で判断を残す。JSON内容自体は依頼
 -->
 ```
 
-Checksの `preflight` → Details → Summary、またはActionsの `Existing work preflight (read-only)` → Summaryを開く。自由な作業文を手動照合する場合はActionsのRun workflowで `task` に入力する。PR作成後のチェックは二重確認であり、着手前のCLI確認を代替しない。
+Checksの `preflight` → Details → Summary、またはActionsの `Existing work preflight (read-only)` → Summaryを開く。自由な作業文を手動照合する場合はActionsのRun workflowで `task` に入力する。PR作成後のチェックは二重確認であり、着手前の照合（通常チャットはIssue経由、実行環境がある場合はCLI）を代替しない。
 
 ベース側の照合プログラムを実行し、PRのコード・Issue本文はデータとして扱う。読取り権限のみ、8分上限。既存の日次更新・検索画面・承認ボードの役割は維持する。ブランチ保護の設定は変更しないため、チェックを無視するマージまで物理的に禁止するものではない。
 
