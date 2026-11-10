@@ -51,3 +51,7 @@ python3 -m unittest discover -s tests -p 'test_development*history*.py' -v
 ```
 
 未統合研究、機能ブランチへのmerge、秘密情報除外、数値検索、更新前結論の保存、削除ブランチ保全、未取得APIの扱い、HTMLの無害化、変更なしの再解析省略を確認する。表示と実際の検索結果もリリース時に確認する。
+
+## 引継ぎ後の終了確認
+
+[共通の4段階区分・最新HEAD検証・成功事例](WORK_HISTORY_HANDOFF_VALIDATION.md)を使い、引継ぎ・再利用・新規変更の検証・案件完成を分けて記録する。既存のSHA付きActions収集・履歴保存はそのまま使う。最新HEADの検証が未完了なら、その状態と次の作業を明記する。

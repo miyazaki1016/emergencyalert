@@ -8,7 +8,7 @@
 
 1. 最新mainの `AGENTS.md`、この手順、対象の総覧・台帳をGitHub連携で読む。今回の作業と同じIssueがある場合はそのIssueを再利用し、別案件のIssueは流用しない。
 2. 今回の依頼文・目的・守る条件・直前の状況を、対象リポジトリのIssueのタイトルと本文へ登録する。**ソラがGitHub連携で登録し、利用者へPythonやPC操作を求めない。** Issue作成・本文編集で `Existing work preflight (read-only)` が自動起動する。
-3. `issues` 起点で作られた実行のSummary、または `preflight` ジョブのログ・`existing-work-preflight` 成果物を読む。出力の依頼文と更新時刻を照合し、今回のIssueに対応する結果か確認する。記録にはIssueのURL・番号とActions実行URLを残す。成功／失敗の色だけで判断しない。
+3. 結果返却処理の導入後は、GitHub連携でIssueコメント一覧を取得し、`github-actions[bot]` の `development-preflight-result:v1` コメントを読む。実行ID・URL・照合結果・原本リンク・判断記録を同じ場所で取得できる。今回のIssue本文の依頼内容・判断記録に対応する結果か照合する。Issueのupdated_atはコメントでも変わるため、時刻だけの一致を要求しない。コメントがまだない、依頼内容が変わった、公開処理が失敗した場合は照合未完了として待機・再取得する。旧成功を流用しない。必要ならコメントの実行IDからジョブ・ログを取得する。専用の実行一覧ツールがなくても、汎用GitHub取得で `https://api.github.com/repos/OWNER/REPO/actions/runs?event=issues&per_page=100` が使えるか確認する。
 4. `REVIEW_REQUIRED` は原本確認待ち。提示されたコード・数値・検証対象SHA・未統合研究・残課題を読み、各要確認候補の `id`、`decision`（`reuse`／`extend`／`distinct`）、具体的な `reason`、出力に含まれる `evidence` URLを、Issue本文の `history-preflight` ブロックへ記録する。形式は後述のIssue／PR本文の例を使う。
 5. **本文の編集後に作成された新しいActions実行**を確認する。古い実行を再実行しただけで最新本文が反映されたとは決めつけない。`REVIEW_RECORDED` なら記録した再利用方針で未解決分のみ進める。`NO_STRONG_MATCH` でもコード・台帳を確認する。`INCOMPLETE`、権限待ち、実行待ち、結果取得不能は照合完了扱いにしない。
 6. 後でPRを作る場合は、Issueをリンクし、**PR本文にも**その時点の候補に対する `history-preflight` 判断を記録する。Issueの判断がPRへ自動転記される仕組みはない。PRでは変更パスも照合するため、候補が増えたら追加確認する。
@@ -55,7 +55,7 @@ python3 scripts/development_preflight.py --task '今回の依頼文・目的・�
 
 ## Issue／PRでの自動チェック
 
-`Existing work preflight (read-only)` が、Issue作成・編集・再開、PR作成・編集・コミット更新時に依頼内容を自動照合する。PRは変更パスも自動で読む。根拠を確認する記録が足りなければチェックは失敗し、ActionsのSummaryと `existing-work-preflight` 成果物に候補を残す。IssueではActionsの一覧から結果を確認する。IssueやPRへ自動コメントは送らない。
+`Existing work preflight (read-only)` が、Issue作成・編集・再開、PR作成・編集・コミット更新時に依頼内容を自動照合する。PRは変更パスも自動で読む。根拠を確認する記録が足りなければチェックは失敗し、ActionsのSummaryと `existing-work-preflight` 成果物に候補を残す。IssueではActionsの一覧から結果を確認する。Issueへの結果返却処理を導入する場合は、既存出力を専用のbotコメントへ記録する。PRへの自動コメントは追加しない。
 
 PR／Issue本文には次の形式で判断を残す。JSON内容自体は依頼文の照合から除く。依頼文を消して照合を通すことや、根拠を読まずに候補を別案件扱いすることは禁止。
 
@@ -76,3 +76,14 @@ Checksの `preflight` → Details → Summary、またはActionsの `Existing wo
 ```sh
 python3 -m unittest discover -s tests -p 'test_development_preflight.py' -v
 ```
+
+## Issueへの結果返却の設計と安全条件
+
+既存の `preflight.json`／`preflight.md` 成果物を、別の `publish-issue-result` ジョブでIssueの専用botコメントへ返す。照合器や判断方式は再実装しない。結果はREVIEW_REQUIRED／REVIEW_RECORDED／NO_STRONG_MATCH／INCOMPLETEのまま記録し、実行URLとID・試行番号を付ける。原本確認待ちの失敗も結果として読める。公開確認中はPUBLISHING（着手不可）とし、依頼とコメントを再取得して確認できた場合だけ `publication_status=confirmed` にする。本文に判断を書いて再照合すると、同じbotコメントが新しい結果へ更新される。
+
+- 書込み権限はIssueイベント専用の返却ジョブの短期 `GITHUB_TOKEN` の `issues: write` だけに限定する。照合ジョブは引き続き読取り専用。返却ジョブはmainのコードを使い、PRイベントでは起動しない。APIキーや本番認証の変更は不要。
+- 依頼本文・history-preflightは書き換えない。起動イベントに `issue_comment` を追加しないため、結果コメントの作成・更新で再照合ループは発生しない。
+- 依頼本文・判断記録の指紋が実行時から変わった場合は旧結果を書き込まない。公開と本文編集が競合した場合はSUPERSEDED（更新前・着手不可）にする。新しい実行・試行の結果を古い実行で上書きしない。人のコメントや別用途のbotコメントも上書きしない。
+- REVIEW_REQUIRED、INCOMPLETE、SUPERSEDED、PUBLISHING、結果未取得・不一致では着手しない。REVIEW_RECORDEDでも新規変更のCI成功・案件完成を意味しない。NO_STRONG_MATCHでは通常のコード・台帳確認を続ける。
+
+通常チャットからは `fetch_issue_comments` 相当、またはGitHub汎用取得の `GET /repos/OWNER/REPO/issues/番号/comments` を使う。結果からrun_idが分かるので、利用者がサイトへ行って探す必要はない。[終了時の共通ルールと成功事例](WORK_HISTORY_HANDOFF_VALIDATION.md)も参照。

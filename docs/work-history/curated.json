@@ -1108,9 +1108,12 @@
     },
     "164": {
       "summary": "Vercelデプロイ履歴を読み取り専用で監視する準備",
-      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。 2026-11-10追記：アメふる（miyazaki1016/emergencyalert）Draft PR #164で、既存Issue #163・既存PR/ブランチを再利用して引継ぎを継続した成功事例を確認。前任7e61e6c7から56fe1fc8まで3コミット。引継ぎ成功と再利用成功は確認できたが、報告対象HEAD 56fe1fc85725c7f88931e5e77ed353a540a2e5eb のActions・check-runsは今回のAPI確認で0件で、新規変更の検証は未完了。Issue照合run42746003789のREVIEW_RECORDEDはmainの072cf6d7に対する照合であり、対象コードのCI合格ではない。正式使用量・残量取得等が未解決で案件は未完成。後続のCI確認は日時・SHA・実行URLを別途追記し、この記録を消さない。",
       "evidence": [
-        "https://github.com/miyazaki1016/emergencyalert/pull/164"
+        "https://github.com/miyazaki1016/emergencyalert/pull/164",
+        "https://github.com/miyazaki1016/emergencyalert/issues/163",
+        "https://github.com/miyazaki1016/emergencyalert/actions/runs/42746003789",
+        "https://github.com/miyazaki1016/emergencyalert/compare/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1...56fe1fc85725c7f88931e5e77ed353a540a2e5eb"
       ]
     },
     "165": {
