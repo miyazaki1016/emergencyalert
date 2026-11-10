@@ -1,0 +1,20 @@
+{
+  "id": "branch-18ddda2fd55d7cdb",
+  "title": "fix/disambiguate-duplicate-notification-labels",
+  "head": "52679eb38b4c2b7d66099fba4c1b96ae353cd873",
+  "head_ref": "fix/disambiguate-duplicate-notification-labels",
+  "linked_prs": [
+    48
+  ],
+  "files": [],
+  "commits": "",
+  "topics": [
+    "通知・配信"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "84066df694ff8e3421be632e2e93098deab51f76879ae3dc563df1f19dcb34b8",
+  "collected_at": "2026-11-10T08:31:30.202718+00:00"
+}

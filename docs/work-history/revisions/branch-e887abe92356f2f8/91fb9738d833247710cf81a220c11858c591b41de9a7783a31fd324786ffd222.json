@@ -1,0 +1,197 @@
+{
+  "id": "branch-e887abe92356f2f8",
+  "title": "research/severe-rain-consistency-20261101",
+  "head": "6e650705260825c33a9905bbd3802919ba341cc4",
+  "head_ref": "research/severe-rain-consistency-20261101",
+  "linked_prs": [
+    109
+  ],
+  "files": [
+    {
+      "path": "app/api/rain/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/app/api/rain/route.ts"
+    },
+    {
+      "path": "docs/DEVELOPMENT_LEDGER.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/docs/DEVELOPMENT_LEDGER.md"
+    },
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/docs/PROJECT_OVERVIEW.md"
+    },
+    {
+      "path": "docs/SEVERE_RAIN_CONSISTENCY_RESEARCH_20261101.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/docs/SEVERE_RAIN_CONSISTENCY_RESEARCH_20261101.md"
+    },
+    {
+      "path": "docs/audits/PR109_CI_RECOVERY_20261103.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/docs/audits/PR109_CI_RECOVERY_20261103.md"
+    },
+    {
+      "path": "lib/research/forecastEvidence.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/lib/research/forecastEvidence.ts"
+    },
+    {
+      "path": "lib/research/forecastEvidenceBudgetGate.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/lib/research/forecastEvidenceBudgetGate.ts"
+    },
+    {
+      "path": "lib/research/forecastEvidenceCapacity.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/lib/research/forecastEvidenceCapacity.ts"
+    },
+    {
+      "path": "lib/research/forecastEvidenceFailureMonitor.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/lib/research/forecastEvidenceFailureMonitor.ts"
+    },
+    {
+      "path": "lib/research/forecastEvidenceRetention.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/lib/research/forecastEvidenceRetention.ts"
+    },
+    {
+      "path": "lib/research/forecastHistoryReplay.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/lib/research/forecastHistoryReplay.ts"
+    },
+    {
+      "path": "lib/research/severeRainConsistency.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/lib/research/severeRainConsistency.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/forecastEvidenceCompact.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/supabase/functions/_shared/forecastEvidenceCompact.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/forecastEvidencePilot.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/supabase/functions/_shared/forecastEvidencePilot.ts"
+    },
+    {
+      "path": "supabase/functions/watch-rain/index.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/supabase/functions/watch-rain/index.ts"
+    },
+    {
+      "path": "tests/forecastEvidence.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/tests/forecastEvidence.test.ts"
+    },
+    {
+      "path": "tests/forecastEvidenceBudgetGate.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/tests/forecastEvidenceBudgetGate.test.ts"
+    },
+    {
+      "path": "tests/forecastEvidenceCapacity.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/tests/forecastEvidenceCapacity.test.ts"
+    },
+    {
+      "path": "tests/forecastEvidenceCompact.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/tests/forecastEvidenceCompact.test.ts"
+    },
+    {
+      "path": "tests/forecastEvidenceFailureMonitor.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/tests/forecastEvidenceFailureMonitor.test.ts"
+    },
+    {
+      "path": "tests/forecastEvidencePilot.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/tests/forecastEvidencePilot.test.ts"
+    },
+    {
+      "path": "tests/forecastEvidenceRetention.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/tests/forecastEvidenceRetention.test.ts"
+    },
+    {
+      "path": "tests/forecastHistoryReplay.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/tests/forecastHistoryReplay.test.ts"
+    },
+    {
+      "path": "tests/replayWatchIntegration.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/tests/replayWatchIntegration.test.ts"
+    },
+    {
+      "path": "tests/severeRainConsistency.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6e650705260825c33a9905bbd3802919ba341cc4/tests/severeRainConsistency.test.ts"
+    }
+  ],
+  "commits": "6e650705260825c33a9905bbd3802919ba341cc4 test: oversize evidence skips are observable and cannot suppress Push\n01aecf554a2b08e587755a5f21bbd0b9290165f0 fix: log bounded evidence capture skips without location data\n376cc93a3d2824e5322a1f79382bf2ff3e352696 docs: record 8KiB snapshot guard and limitations of pilot storage budget\n363dc0bb56c9eef6e80639f90cfa71c55539d2dd test: inject evidence byte limit helper into watch-rain integration harness\n01d29e708060da7e1a844d3628157f34aad83551 test: reject oversize compact evidence and count UTF-8 bytes\nf70e0bb5622595e52a694ef1660630cc2e16d09f feat: skip oversized forecast snapshots during bounded pilot\ne030ecebcfcbba0cce652321a6496e6efddfa399 feat: enforce per-snapshot evidence size guard in research pilot\na9d3a3c0ac66155cc1edfc97b3bd0f7d1056421b docs: measure bounded pilot evidence storage using read-only production queries\n0d2aaafc10f9f35983a2d5e23ad2dd88b21fe56d test: prove default-off and expired pilots preserve notification delivery\n2242254f19c9a8480924622ef1de62d0001167a7 docs: explain bounded evidence capture pilot and remaining retention limitations\n96aaaa6df746c5895f28f667558a9828c46537da test: fail-closed evidence pilot activation, duration and date validation\n70987e54c5b68c16a4bf2f96f37b5a58b66a1321 test: inject bounded pilot configuration into watch worker integration harness\n7fecbc4294a1fb7016e8a76e7873f7dcd18311e6 feat: require bounded pilot window before recording complete forecast evidence\ne574dc049787f932c0e1944cda04ecc4a0f2cc9f feat: fail-closed 24-hour evidence capture pilot gate\n603f769516ab36ef4480556f101f23340739c819 docs: record CI recovery evidence and latest-code syntax repair verification\n96ae1b3540ba94dbf197d069ed54c58d2580f438 fix(ci): repair escaped newlines in research history timestamp validation\n26b6900e62395ed045c2bb4037606c7b06f14bde fix(ci): merge main and preserve both documentation additions to restore PR checks\n4f08e9af5d22d60b16147bfe1c019cc799f53af9 test: incomplete pixel evidence stays unknown in history replay\nd4534241f4aab33bc8791e69c15e61622367914e fix: do not infer severe or dry weather from missing pixel evidence\nc7b829c8ff76dd1e9c99d741b270755340d2f525 fix: guard invalid timestamp before ISO normalization\n94352e64ba596475c6d60de0c8bc038c6c6dd4dd test: impossible JMA issuance dates must not enter consistency analysis\nd0a3e89c9f935f208de498e70140ddd7ae8231d0 fix: reject impossible issuance dates in forecast history replay\na7e1928ed2a1dd85a65e9e9d0ea70b59c2120b9c test: verify healthy diagnostic-null forecast evidence is persisted losslessly\n2a733283299876a2a6ab482833f4190f477629c3 docs: define strict production gates and investigate missing PR CI runs\n60460c1ce690702103397f5ca67e0dfd3865c806 docs: record read-only evidence write failure health policy and CI uncertainty\n3c2a57b5e564456039c7bb291f837b14a74234cc test: verify evidence write failure streak and unknown-state handling\n5c62227e37a991123643b338e054d61be0038bf1 research: add consecutive evidence-write failure health assessment\n93a296f99e745a7e1eeb990990fb3e6c9cddd048 docs: document fail-closed evidence budget warning proposal\n096681486ec168ee02f4e894c65796054e5a6c5a test: budget warning thresholds, unknown metrics, and overflow safety\nb75cdde12654ad9be3e1c552eab7b4f1b3dd619f research: propose read-only evidence budget warning with unknown-state handling\n2c6fe64ba6aeb72941cc653561dd4a06a32a75b5 docs: track best-effort evidence write monitoring and regression test\n970019fac66d327e364c39fc2cbdbe0a01ae2f59 test: simulate diagnostic history write failure without interrupting push delivery\n2b3801a4fa4cb52ce48fa18331cf0edcd01afd98 research: log diagnostic evidence insert errors without changing notification flow\ne7408fa0ffe9294f1023251b2022fd052b4007c9 docs: link PR109 evidence capacity research and outstanding production gates\nf3671a3ddf7b1fe2279ec445cd08fcadb4bfcf5f docs: link PR109 evidence capacity research and outstanding production gates\n80046671105aec76875772cb74060b05d9cfe8c5 docs: link PR109 evidence capacity research and outstanding production gates\n99e1a0c1c762cd0f15567ea2779a297a44da04c0 test: correct exact arithmetic for 12 targets at 288 polls per day\n0730bfbbee5c5d8a86410bb13f6e44b5afa3f0ae test: bound JSONB-only evidence volume and fail closed on invalid capacity inputs\n23ae4eed7ffdde10c59b812fbe96703e24afb36c research: add explicit-input forecast evidence capacity projection without cleanup\n04ec017d377d48b9d34d7d922effa8e533163a2b docs: record safe dry-run retention audit and remaining production gates\nb36c7d739211c056ebdf808edb9db2e8427ba38e test: confirm dry-run retention cannot expire legacy or unannotated history\n24ee54669dd2c81647a43cc46ea23fe2b68a4e73 research: add read-only retention audit summary with no deletion capability\nab9dcd348af1d6518958de8da6cdd031412d97b1 docs: record missing-pixel completeness fix and replay safety\n8b4dfdb238838e1a296d94616bed5e4b928c6a8b test: align forecast extraction fixtures with verified RGBA requirements\n6d5b982342d925ee1090f2b2b7d6315fd8d514aa research: align normal forecast completeness with pixel and rain-class evidence\n2ff2361571f995f89af2f8dca0629abc699243ca test: ensure missing intensity and pixel values cannot be marked complete\n5e16a124589f2327d3b8b6ede6b69b6c7c722845 research: reject missing pixel or rain intensity when marking forecast evidence complete\nfc003fa09fff3b608a24ad44c572594236448c11 docs: record capture-time consistency checks for historical replay\n701dfd54c742031181e6e41034557b669469251e test: guard against issuance timestamps newer than capture time\nb08397ddabee065c8dc9b0f2725467a048a8247b fix: correct JMA timestamp validation regex in replay\n75f0be8f7fbeb48330090c1918b0e63f62967035 research: prevent future-issued forecast frames from leaking into earlier poll replay\n619d47317900f1567d4a49b81e43ad2eac48607e docs: document duplicate-issuance conflict guards for rain replay\n4363fe3f24074f05910684e9705f3f1a88761610 test: same issuance deduplication and contradictory weather safeguards\na13e3289aca1b5afc900b75f10cd04515cec1b82 research: reject conflicting repeat frames rather than misclassify severe continuity\nad5c402673d5bd55af32e5e596cc41e630879205 docs: document fail-closed retention gate against real diagnostic schema\n501fb9499f5e0a2de68fb105926937c758e3439e test: fail closed for actual history rows lacking evidence expiry and holds\n35538fe3daabdf6cba728d0bc934adb37b0a7ebb research: add fail-closed retention inspection for actual diagnostic schema\nab5b2457e3e0e4759b3e5e05ebc5a8533401fa8e test: reject future-dated retention records\n28d0f8b0d2f989fc5f3507b7380a4ccf4eab08ee testability: flag future-dated evidence for manual review before expiry\n77cf3c71acdfaaa6693cbc894278e34af93d17c1 docs: record safe compact history replay and tests without production changes\n66a6e2f71136e9fd213a76176571d92d65b73307 docs: record research-only protected retention eligibility and CI investigation\n3f48f0b17f5846fee53002d6f641c8c23d4af9b4 test: verify target-isolated compact replay, time cutoff and missing evidence safety\n38ee2bf13c51dc356d4671b15490280ecf20b30e test: never expire protected, legacy, or malformed forecast evidence\ncb9580652e41b71ed540a0767defc2b38eedb698 research: replay versioned compact history into severe forecast continuity analyzer\n45f6e325ddd15be8fb34d1ce1391b9074341e410 research: add explicit retention eligibility gate preserving legacy and notification evidence\n60bbfb05c9ea5ceed8b5e5b1be97e9dbaf422acb fix: deduplicate compact evidence decoder and retain validated replay decoder\nc002356cafe621eb90e2a40734782eec6b02fb62 docs: record validated forecast evidence readback and retention guardrails\n3e20d5577a852cc4a08768eb368e77157dbc7cc8 test: verify lossless compact history decoding and reject corrupt evidence\n4cf90dfa18587e76e73288e536981d4ccc2f2f3f test: compact evidence replay round trip and malformed data rejection\n482390cfa92c05c7880828c9784d851a252796e1 research: add strict round-trip decoder for versioned forecast history\n7736a16404abffbf9391a4a70778d861cd22168e research: decode and validate versioned compact forecast evidence for replay\na3a8e861998d39994057a39b9679b27e902d083f docs: verify compact JSONB savings and integration-test injection regression\n61aef40e76cb013630db2be00a6edde0e2e116ad test: inject compact evidence helper into source-executed watch worker integration tests\nd3ff7690ffad4d8edefb9b6c26e430d7745410c2 docs: document compact lossless forecast history and pending production gates\n60630a123c717d68d50ab8d9999475c059aa946e test: compact forecast history completeness, timestamps, and lossless frames\n8d229c2cf22eeac7a0fec3099d701640686e3cee research: replace bulky forecastDetails with compact full-fidelity frame tuples\n6ebd1aff9c470328fca4ef2230b0c6f632934d2a research: add compact lossless forecast frame history encoding\n043665057159e1910ccfd496d4d55d10f46f15a6 docs: record no-write JSONB sizing benchmark and block unsafe persistence rollout\nee4a5407b30a18bbe1ee9bc6f606c0e221bd0062 docs: add read-only production DB sizing and cron audit\nd71cac160c59b3f4d10ca5d7c56b03f0cb671bfe docs: define forecast evidence retention sizing and production safety gates\nddc5e556de3d2ed77cc64346fcfe8defb9f5c94c docs: record research-only watch-rain evidence persistence and storage risk\n70deef6e7bd47b075969f55b2adcb2a4a60dcaa3 research: persist forecast evidence even when rain diagnostic is null\nd0a684a0cc9cd3f1ac7f5cdbad6bb063c3fa4685 docs: record research API contract and non-production scope\nf761c090b1b0696ea591eb242dbca2c25494c4f8 test: cover healthy API evidence completeness contract\n7ed68a14196020f48c01f1f3277e93a377f31dd4 research: use expected frame count from normal API response\nb87cd2025367964982a6a141dbe77b1c9c1b6e16 research: expose expected forecast frame count in API response without changing interpretation\ncdfa29f30591e5afb233edb36fc2dfade9cff147 fix: remove escaped newline that broke research evidence tests\n76b26c15d5d41375f9bab4b090aea0d719919f57 docs: define minimum API contract and safe complete-evidence acceptance criteria\nb7915018d8dab4003582dd86e2261e1bd49f0144 test: prevent false completeness on failed and unknown JMA frames\nd2f75f9284176e849c2fcdf0af76c3834d2943a2 research: classify fetch errors and unknown pixels as incomplete evidence\n0472e687f3afe75bd1f6cd245f8207c9262f175f docs: identify null-diagnostic root cause in live v35 and API\n8f32561903659b07c527d3afbdd6eaf34aef34b4 research: add forecast evidence extraction independent of diagnostic\n6e3aa9176d7a88e0cbff6ae94af2016523febf1d research: add forecast evidence extraction independent of diagnostic\n00b2fe052d959cc683707fa4bba911d43cf9b6e8 docs: record read-only production audit showing forecast history coverage gap\nabd9e4ce1eebad3ca046559e564662181b42cbf1 docs: design non-disruptive severe forecast history validation\n61a4138da5928c1ba23dde28515e41f6a2a3f61d fix: normalize JMA timestamps without stripping ISO digits incorrectly\n39b147e9d05ea5266c4506d83a160554d08ec2d3 fix: correct timestamp regex identified by CI\n490628fd03ee758ab9dfada7c565fe5bc6b89e26 test: use repository Vitest runner\n816ba6c4430d8964f63570f0dcbe69838b7d95cf test: cover persistence, new forecasts and missing-data safety\n4fc63124da85dda73976daf0bb4ac54fec5464dc research: add non-production severe forecast continuity analyzer",
+  "topics": [
+    "雨量・全国検知",
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "373039f5eeb103ba119d8be89b64e2456dd20aef00c31e71c3e25c5642d4ac24",
+  "collected_at": "2026-11-10T08:31:30.202718+00:00"
+}

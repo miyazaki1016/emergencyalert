@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-10T08:24:48.933693+00:00
+更新 (UTC): 2026-11-10T08:31:30.202718+00:00
 
 ## 全案件
 
@@ -45,6 +45,7 @@
 | [fix/inventory-actions-read-permission-20261101](cases/branch-28fc3c410f8d2108.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/inventory-delta-review-rule-20261101](cases/branch-2998075cfb7f66d5.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/vercel-quota-monitor-20261105](cases/branch-2b0a1b21c1150676.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [docs/preflight-autonomous-wait-20261110](cases/branch-2bbd01068ad41bd0.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [test-watch-notification-decision](cases/branch-2bdb21c9ebdedc36.md) | 雨量・全国検知・通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/national-preview-fail-closed-20261109](cases/branch-2d0caa2b5330cf58.md) | 雨量・全国検知・開発管理・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/rain-episode-dedup-20261026](cases/branch-2d4d1257bf897e74.md) | 雨量・全国検知・通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -329,6 +330,7 @@
 | [feat: add PWA foundation for iPhone and Android](cases/pr-2.md) | その他の開発：iPhone・Android向けPWAの基盤を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: add early rain forecast provider](cases/pr-20.md) | 雨量・全国検知：早期の雨予測データ取得処理を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [docs: 自動照合の合格確認まで案件調査を開始しない](cases/pr-201.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [docs: 照合待機から本題まで追加合図なしで継続する](cases/pr-203.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: expose early rain forecast prototype API](cases/pr-21.md) | 雨量・全国検知：早期雨予測の試作APIを公開する変更案 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [fix: clear place search UI after registration](cases/pr-22.md) | 画面・表示：登録後に地点検索表示を消去 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: expose early rain forecast prototype API](cases/pr-23.md) | 雨量・全国検知：早期雨予測の試作APIを追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |

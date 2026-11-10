@@ -1,0 +1,49 @@
+{
+  "id": "branch-7b4c2cf2503a3179",
+  "title": "test/ledger-automation-safety-gates-20261102",
+  "head": "ca36d09279b46518c1b4f97868927e4b4b2dad2f",
+  "head_ref": "test/ledger-automation-safety-gates-20261102",
+  "linked_prs": [
+    134
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/ledger-facts-proposal.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/.github/workflows/ledger-facts-proposal.yml"
+    },
+    {
+      "path": "scripts/development_ledger_proposal.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/scripts/development_ledger_proposal.py"
+    },
+    {
+      "path": "scripts/verify_ledger_proposal.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/scripts/verify_ledger_proposal.py"
+    },
+    {
+      "path": "tests/test_verify_ledger_proposal.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/tests/test_verify_ledger_proposal.py"
+    }
+  ],
+  "commits": "ca36d09279b46518c1b4f97868927e4b4b2dad2f Run fail-closed verification before proposing ledger PR\ned3bbb73b77421ff1dbc00ab225a405734ee0dc8 Regression tests for non-destructive ledger update gate\n88b47dbee977a90d14c6c29a5ef99df5656a8030 Support direct script execution and test imports\ne4d817a7ae18b173ce79e3e20537715e45366729 Fail closed if ledger proposal modifies human-managed content\nca6ea51c1658fb34d5ec9b9ec5e9d93fd5739f57 Sanitize untrusted PR title whitespace in ledger table",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "89e72f78a4212b8497dd87fc74cc29b5af45d18f51cbfea370f5d78750e55b11",
+  "collected_at": "2026-11-10T08:31:30.202718+00:00"
+}

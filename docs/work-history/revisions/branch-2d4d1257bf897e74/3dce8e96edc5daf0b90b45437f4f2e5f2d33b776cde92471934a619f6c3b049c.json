@@ -1,0 +1,78 @@
+{
+  "id": "branch-2d4d1257bf897e74",
+  "title": "fix/rain-episode-dedup-20261026",
+  "head": "0b057730aaf055b3a25f467e60f3d413b7f1290f",
+  "head_ref": "fix/rain-episode-dedup-20261026",
+  "linked_prs": [
+    89
+  ],
+  "files": [
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0b057730aaf055b3a25f467e60f3d413b7f1290f/docs/PROJECT_OVERVIEW.md"
+    },
+    {
+      "path": "lib/weather/rain/RainInterpretationEngine.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0b057730aaf055b3a25f467e60f3d413b7f1290f/lib/weather/rain/RainInterpretationEngine.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/RainInterpretationEngine.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0b057730aaf055b3a25f467e60f3d413b7f1290f/lib/weather/rain/RainInterpretationEngine.ts"
+    },
+    {
+      "path": "lib/weather/rain/canPublishRainInterpretation.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0b057730aaf055b3a25f467e60f3d413b7f1290f/lib/weather/rain/canPublishRainInterpretation.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/rainPipeline.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0b057730aaf055b3a25f467e60f3d413b7f1290f/lib/weather/rain/rainPipeline.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/watchNotificationDecision.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0b057730aaf055b3a25f467e60f3d413b7f1290f/lib/weather/rain/watchNotificationDecision.test.ts"
+    },
+    {
+      "path": "supabase/functions/watch-rain/index.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0b057730aaf055b3a25f467e60f3d413b7f1290f/supabase/functions/watch-rain/index.ts"
+    },
+    {
+      "path": "supabase/functions/watch-rain/notificationDecision.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0b057730aaf055b3a25f467e60f3d413b7f1290f/supabase/functions/watch-rain/notificationDecision.ts"
+    }
+  ],
+  "commits": "0b057730aaf055b3a25f467e60f3d413b7f1290f test: align existing pipeline fixtures with moderate-rain persistence\nf57320a980032ba32b4e85d3f48b9bf5b1946a34 test: align existing pipeline fixtures with moderate-rain persistence\n635d98cfb13777a352fd1872fb2bdbc5b97bd99a fix: recognize JMA timestamp in observation dedup\na2b74ada76f69b80a182eed75832bb21b5a9fd0f docs: track rain episode dedup implementation\n39f2d9108a5b7a4f1d677d6ecec88e1630756894 fix: preserve notification latch on fresh episode and separate severe delivery\n67f85dc250d0daebdbed0320da18f0275259192d test: assert episode latch and unique observation counts\n72616255509367509c837e4017317620652803ae fix: preserve episode state through transient forecasts and update laundry text\ncfe1aac36d3f25878fd29fe9f2ef1fa0a4ff7b98 fix: latch rain episode notifications and deduplicate observation timestamps\n2df968eca4a9e50a294a8a879055e73cb0c5c299 test: cover consecutive moderate rain requirement\n2a4b624b65c736fbd46f9b83c5d541149f444ac8 fix: require consecutive 5-to-10 mm forecast frames",
+  "topics": [
+    "雨量・全国検知",
+    "通知・配信"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "ac5f0e069818dde8da2f2b345a259895486f7801481b0df53d95dac3118b7a3d",
+  "collected_at": "2026-11-10T08:31:30.202718+00:00"
+}

@@ -1,0 +1,77 @@
+{
+  "id": "branch-153fab71251172b0",
+  "title": "feat/live-japan-experience-prototype",
+  "head": "19fc21c247b934490dbc6f7c104dfc2cea233eb4",
+  "head_ref": "feat/live-japan-experience-prototype",
+  "linked_prs": [
+    61
+  ],
+  "files": [
+    {
+      "path": "app/live-japan/event-contract.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/19fc21c247b934490dbc6f7c104dfc2cea233eb4/app/live-japan/event-contract.ts"
+    },
+    {
+      "path": "app/live-japan/lifecycle-scenario.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/19fc21c247b934490dbc6f7c104dfc2cea233eb4/app/live-japan/lifecycle-scenario.ts"
+    },
+    {
+      "path": "app/live-japan/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/19fc21c247b934490dbc6f7c104dfc2cea233eb4/app/live-japan/page.tsx"
+    },
+    {
+      "path": "app/live-japan/priority.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/19fc21c247b934490dbc6f7c104dfc2cea233eb4/app/live-japan/priority.ts"
+    },
+    {
+      "path": "app/my/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/19fc21c247b934490dbc6f7c104dfc2cea233eb4/app/my/page.tsx"
+    },
+    {
+      "path": "app/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/19fc21c247b934490dbc6f7c104dfc2cea233eb4/app/page.tsx"
+    },
+    {
+      "path": "docs/LIVE_JAPAN_REAL_DATA_INTEGRATION_PLAN.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/19fc21c247b934490dbc6f7c104dfc2cea233eb4/docs/LIVE_JAPAN_REAL_DATA_INTEGRATION_PLAN.md"
+    },
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/19fc21c247b934490dbc6f7c104dfc2cea233eb4/docs/PROJECT_OVERVIEW.md"
+    }
+  ],
+  "commits": "19fc21c247b934490dbc6f7c104dfc2cea233eb4 docs: phase earthquake ingest and latest-state plus bulletin history UX\n65728dad0f3387f683e1ad95b22106b28052e5f9 docs: distinguish earthquake events from bulletins and preserve revisions safely\n1460bdaf7287d15662fa7b8bdf794a695c16b6ac docs: research JMA public XML polling cadence and safe earthquake ingest constraints\nbbd8c7a0a2d3cf9177e80d7f64f4c1cd5d61a328 docs: exclude independent EEW delivery and scope earthquake features to post-event observations\n790ec2b111c7d632bf560d3dac7d68fafa3480f7 docs: record agreed intensity 3 local alerts and distinct EEW lifecycle policy\n6c69ab1b0c551fa1bcf03062ed983ba3667f6123 docs: define safe staged integration plan for official weather and hazard feeds\n92ab3c8132e29826972ae2b877e249346c433358 fix: constrain mobile settings panel height and enable internal scrolling\n4eed07f4203ff97eba7a3c6b7db32e6516ebdd1c fix: move nationwide reset into map settings to eliminate overlapping buttons\nd86131a371e0c2e76aa4b645acfcdb299db14ba7 feat: expose deterministic alert lifecycle checks in preview settings\n424d858721a83ddf0ce05ccddbb01bc35c3dcdfc test: add deterministic earthquake cancellation and independent tsunami scenario\nfee5445e6247886e89bfe049a8086f18402852f5 feat: define provider-neutral event lifecycle and revision contract\nefd7a37cc119b8a6830dd8530fafd94c9f6f0b60 ui: consolidate map sample controls into compact display settings menu\n1370e610ac484c51f65bdc2bcbb6b4fff00c91a9 feat: preview regional hazard/weather/season priority with explicit demo markers\n6b9c1392528ca3995bbdf6fb940f9dd26190a1d5 feat: pure regional weather and hazard display priority engine with fictional fixtures\n1909936ba3fdf09b304bdff45f6311953c5fa1a0 style: distinct sunset, afterglow and dark night by solar altitude\n9836754cf2d75feb864a51ddf112e327b6aef5a3 refine: frame Japan on phone theater and preview sunset at 17 JST\nb2ead0208cb0e8a71f4caa44a409b9d0029f63f7 fix: seamless global solar overlay and Japan-centered theater framing\n90e1f5ba6deb1b5ca436a82e2cba7487f8209388 feat: geographic sunset gold and sunrise rose twilight bands\n56d84d41c608ad64ba3f73a0611666a693f997d4 docs: record earthquake early warning cancellation example and alert lifecycle requirements\nc76a9af5c72589c9fb48bec918af53199f1c56b8 style: restore authentic OSM sea and land colors under solar shading\n44f72232dff046d0afbc48ab6d4916bb1949a73a fix: link LIVE JAPAN to preserved MY アメふる page\ncd2eab10a6358a91a15b061a806799c2f5f92627 feat: show LIVE JAPAN on preview homepage\n9b0ff2e12fbea0db4af02377966dccd9ddec8f55 feat: preserve MY アメふる at /my before homepage switch\n34c9a0e3454d778a79239d70349bfac1c98010f0 style: add natural-color daytime map and legible twilight/night shading\n2c9f50e40384b43dd64c387723a74f25383949e7 feat: LIVE JAPAN theater mode with fullscreen and iOS fallback\n4def15334750623f28b6856a31f376c269eaa644 docs: approve regional day/night seasonal weather hazard display priorities\n5508bd7ed8b094f27cdb09875bea5520a3d575ec feat: visible smooth solar twilight overlay and optional sample pins\n7d5c8a42f0ceb32e29b8b0f198772bceb2356336 feat: LIVE JAPAN solar day-night ambience with interactive time previews\n2e45cf13185c4eb620462bd82b28b11a1c2094d5 docs: establish LIVE JAPAN calm everyday sky and safety product direction\n5efbd390917e8f9a5b625e20b55c6b8cb6cd8534 feat: LIVE JAPAN 02 animated region zoom and discovery feed\n13d002d7bf5a2cffcc2c3d5a98304250cb15a41f feat: add isolated LIVE JAPAN interactive map concept preview",
+  "topics": [
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "738f3c45f393c415ebdd80a3ebb466fb26f2c0a1b633093d9f0194f253194eab",
+  "collected_at": "2026-11-10T08:31:30.202718+00:00"
+}

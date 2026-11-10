@@ -1,0 +1,28 @@
+{
+  "id": "branch-b30df8ff98a54148",
+  "title": "fix/inventory-triage-output-newlines-20261101",
+  "head": "0cb3954f8558cab23ab0dcf2d9c29c77dcd46acc",
+  "head_ref": "fix/inventory-triage-output-newlines-20261101",
+  "linked_prs": [
+    127
+  ],
+  "files": [
+    {
+      "path": "scripts/development_inventory_delta.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0cb3954f8558cab23ab0dcf2d9c29c77dcd46acc/scripts/development_inventory_delta.py"
+    }
+  ],
+  "commits": "0cb3954f8558cab23ab0dcf2d9c29c77dcd46acc Render proposal markdown with actual newlines\n79f0269fb26bc36c4bcbee4d81af372f958b0b31 Use real line separators for review markdown\n3736727d1ee53f3b5755865137d1a3eca21e89b3 Fix literal newline escapes in triage artifacts",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "5cd54851a3e81baa929ffacb370545672f9a7c2cdf2deba14afc8ae1dac0ddbb",
+  "collected_at": "2026-11-10T08:31:30.202718+00:00"
+}
