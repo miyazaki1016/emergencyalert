@@ -1051,9 +1051,10 @@
     },
     "155": {
       "summary": "Draft: JASPIC無送信MIME互換・Windows旧版比較と独立移植",
-      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+      "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。 2026-11-10追加確認：mainの管理者限定OAuth・暗号化保存・送信済み台帳を再利用。独立したSupabase pg_cron/pg_net運用通知、テストモード7日期限、24時間前通知、期限単位/日単位の重複排除、1日12種類・各最大3試行・23時間以内の同一idempotency keyを追加。外部メールサービス設定がなく、通知の有効化と実受信は未完了。",
       "evidence": [
-        "https://github.com/miyazaki1016/emergencyalert/pull/155"
+        "https://github.com/miyazaki1016/emergencyalert/pull/155",
+        "https://github.com/miyazaki1016/emergencyalert/blob/feat/jaspic-admin-monitor/docs/research/JASPIC_ADMIN_MONITOR_20261110.md"
       ]
     },
     "156": {

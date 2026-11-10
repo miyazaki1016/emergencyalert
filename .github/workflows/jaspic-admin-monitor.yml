@@ -1,0 +1,42 @@
+name: JASPIC admin monitor SQL
+on:
+  pull_request:
+    paths:
+      - 'app/jaspic/dispatch/**'
+      - 'docs/sql/jaspic-admin-monitor.sql'
+      - 'tests/jaspic/dispatch-monitor.test.ts'
+      - 'tests/sql/jaspic-monitor-*.sql'
+      - '.github/workflows/jaspic-admin-monitor.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/sql/jaspic-admin-monitor.sql'
+      - 'tests/sql/jaspic-monitor-*.sql'
+      - '.github/workflows/jaspic-admin-monitor.yml'
+permissions:
+  contents: read
+jobs:
+  postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable-test-only
+          POSTGRES_DB: jaspic_monitor_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify monitoring with isolated PostgreSQL and fake pg_net
+        env:
+          PGHOST: localhost
+          PGUSER: postgres
+          PGPASSWORD: disposable-test-only
+          PGDATABASE: jaspic_monitor_test
+        run: psql -v ON_ERROR_STOP=1 -f tests/sql/jaspic-monitor-integration.sql

@@ -26,6 +26,9 @@ export async function POST(request:Request) {
   async function rpc(name:string,args:Record<string,unknown>={}) {const r=await db.rpc(name,args);if(r.error)throw new Error("DATABASE_GUARD");return r.data;}
   const id=randomUUID(); let started=false;
   const sent={hiroshima:0,shiga:0};
+  let stage="begin-run";
+  let province:Province|null=null;
+  const sourceErrors:{province:Province;code:string}[]=[];
   try {
     if (!await rpc("jaspic_begin_run",{p_id:id})) return response({error:"RUN_LOCKED"},409);
     started=true;
@@ -33,22 +36,33 @@ export async function POST(request:Request) {
     const provinces:Province[]=["hiroshima","shiga"];
     const legacy=await rpc("jaspic_legacy_hiroshima_person_ids");
     if(!Array.isArray(legacy)||legacy.some(x=>typeof x!=="string"))throw new Error("LEGACY_HISTORY_INVALID");
-    const plans=await Promise.all(provinces.map(async province=>{
+    stage="source-preflight";
+    const settled=await Promise.allSettled(provinces.map(async province=>{
       const snapshot=await rpc("jaspic_snapshot",{p_province:province});
-      const items=await collect(province);
+      let items;
+      try { items=await collect(province); } catch {
+        sourceErrors.push({province,code:"SOURCE_FETCH_FAILED"});
+        throw new Error("SOURCE_FETCH_FAILED");
+      }
       return {province,result:await productionPlan(province,snapshot,items,new Set(province==="hiroshima"?legacy:[]))};
     }));
+    const failure=settled.find(r=>r.status==="rejected");
+    if(failure?.status==="rejected")throw failure.reason;
+    const plans=settled.flatMap(r=>r.status==="fulfilled"?[r.value]:[]);
+    stage="plan-guard";
     if(plans.reduce((n,p)=>n+p.result.candidates.length,0)>20)throw new Error("DIFFERENCE_LIMIT");
     assertVerifiedBackfillScope(plans);
     const unresolved=await db.from("jaspic_deliveries").select("status").in("status",["PREPARED","SENDING","UNKNOWN","FAILED"]).limit(1);
     if(unresolved.error||unresolved.data.length)throw new Error("UNRESOLVED_DELIVERY");
     // Refresh validates the existing encrypted OAuth credential even for a zero-item run.
+    stage="gmail-auth";
     const refresh=await readEncryptedGmailRefreshToken({db,ownerId,expectedAdminId:ownerId,encryptionKey});
     if(!refresh)throw new Error("GMAIL_NOT_CONNECTED");
     const tokenResponse=await fetch("https://oauth2.googleapis.com/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({client_id:clientId,client_secret:clientSecret,refresh_token:refresh,grant_type:"refresh_token"}),redirect:"error",cache:"no-store",signal:AbortSignal.timeout(10_000)});
     if(!tokenResponse.ok)throw new Error("GMAIL_REFRESH_FAILED");
     const token=await tokenResponse.json();
     if(typeof token.access_token!=="string"||token.access_token.length<8)throw new Error("GMAIL_TOKEN_INVALID");
+    stage="prepare-delivery";
     for(const {province,result} of plans){
       const candidates=result.candidates.map(c=>({...c,mail:{...c.mail,from:"miyazaki1016@gmail.com",to:"getter01@jaspic-nes.net",cc:null}}));
       await rpc("jaspic_prepare_production",{p_id:id,p_province:province,p_revision:result.expectedRevision,p_records:result.records,p_candidates:candidates});
@@ -56,7 +70,9 @@ export async function POST(request:Request) {
     // Read immutable queued payloads, never regenerate mail after observation was committed.
     const queue=await db.from("jaspic_deliveries").select("province,record_key,version,mail").eq("run_id",id).eq("status","PREPARED");
     if(queue.error)throw new Error("QUEUE_READ_FAILED");
+    stage="gmail-send";
     for(const delivery of queue.data){
+      province=delivery.province as Province;
       const lease=randomUUID();
       if(!await rpc("jaspic_claim",{p_province:delivery.province,p_key:delivery.record_key,p_version:delivery.version,p_token:lease}))throw new Error("CLAIM_REJECTED");
       const outcome=await sendProductionMail(token.access_token,delivery.mail);
@@ -64,16 +80,18 @@ export async function POST(request:Request) {
       if(outcome.status!=="SENT")throw new Error(outcome.error??"SEND_FAILED");
       sent[delivery.province as Province]++;
     }
+    stage="save-result";
+    province=null;
     const result={runId:id,status:"SUCCEEDED",sent,candidates:plans.map(p=>({province:p.province,count:p.result.candidates.length})),quarantined:plans.map(p=>({province:p.province,count:p.result.quarantined.length}))};
     const saved=await db.from("jaspic_runs").update({status:"SUCCEEDED",finished_at:new Date().toISOString(),result}).eq("id",id).eq("status","RUNNING").select("id");
     if(saved.error||saved.data.length!==1)throw new Error("RUN_RESULT_NOT_SAVED");
     return response(result);
   } catch(error) {
-    const code=error instanceof Error&&/^[A-Z_]+$/.test(error.message)?error.message:"JASPIC_RUN_FAILED";
+    const code=error instanceof Error&&/^[A-Z][A-Z0-9_]{0,79}$/.test(error.message)?error.message:"JASPIC_RUN_FAILED";
     if(started){
       // A process crash remains RUNNING. Network uncertainty remains non-retryable SENDING/UNKNOWN.
       await db.from("jaspic_deliveries").update({status:"UNKNOWN",error_code:"RUN_INTERRUPTED",finished_at:new Date().toISOString()}).eq("run_id",id).eq("status","SENDING");
-      await db.from("jaspic_runs").update({status:"FAILED",finished_at:new Date().toISOString(),error_code:code,result:{sent}}).eq("id",id).eq("status","RUNNING");
+      await db.from("jaspic_runs").update({status:"FAILED",finished_at:new Date().toISOString(),error_code:code,result:{sent,stage,province,sourceErrors}}).eq("id",id).eq("status","RUNNING");
     }
     return response({runId:id,status:"FAILED",error:code,sent},503);
   }
