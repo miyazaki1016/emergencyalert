@@ -13,3 +13,5 @@
 Verification: npm test -- tests/vercel-build-guard.test.mjs
 
 Caution: Ignored Build Step cancellations still count toward Vercel deployment quotas. Disabling automatic previews is the main rate-limit reduction; the documentation filter reduces build work on main.
+
+JASPICのprivate監視SQL・専用SQLテスト・専用workflow・日本語履歴・この判定のコード/境界テストを明示管理パスへ追加。これらはSupabaseへの反映とGitHub Actionsで検証し、Webアプリのビルドを必要としない。アプリ・雨関数・vercel.jsonを混ぜた変更は従来通りビルドする。SQL全般やtests全般を一括で許可しない。

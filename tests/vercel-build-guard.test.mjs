@@ -22,3 +22,14 @@ test('diff uses previous deployed SHA, catches deletions and disables rename det
     return 'app/deleted.tsx\0docs/renamed.md\0';
   }), false);
 });
+
+test('JASPIC database-only release skips, but mixed runtime changes still build', () => {
+  const operations = ['docs/sql/jaspic-completion-notification.sql',
+    'tests/sql/jaspic-monitor-completion.sql', 'tests/sql/jaspic-monitor-integration.sql',
+    '.github/workflows/jaspic-admin-monitor.yml', 'docs/work-history/curated.json',
+    'scripts/vercel-build-guard.mjs', 'tests/vercel-build-guard.test.mjs'];
+  assert.equal(maySkip(sha, paths(...operations)), true);
+  for (const runtime of ['app/jaspic/dispatch/route.ts', 'supabase/functions/watch-rain/index.ts', 'vercel.json']) {
+    assert.equal(maySkip(sha, paths(...operations, runtime)), false, runtime);
+  }
+});

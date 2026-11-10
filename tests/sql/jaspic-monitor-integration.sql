@@ -101,3 +101,5 @@ select jaspic_monitor.enqueue('cap-pending','test','monitor','TEST',now(),'test'
 select jaspic_monitor.tick();
 do $$begin if not exists(select 1 from jaspic_monitor.alerts where event_key='cap-pending' and attempts=0) then raise exception 'daily cap exceeded'; end if; end $$;
 select 'JASPIC monitor integration assertions passed' as result;
+
+\ir jaspic-monitor-completion.sql

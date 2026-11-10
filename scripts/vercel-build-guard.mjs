@@ -2,6 +2,15 @@
 import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 const managementFiles = new Set([
+  // DB-only JASPIC operations are deployed through Supabase, not the web build.
+  "docs/sql/jaspic-admin-monitor.sql",
+  "docs/sql/jaspic-completion-notification.sql",
+  "tests/sql/jaspic-monitor-integration.sql",
+  "tests/sql/jaspic-monitor-completion.sql",
+  ".github/workflows/jaspic-admin-monitor.yml",
+  "docs/work-history/curated.json",
+  "scripts/vercel-build-guard.mjs",
+  "tests/vercel-build-guard.test.mjs",
   ".github/workflows/development-preflight.yml",
   "scripts/development_preflight.py",
   "tests/test_development_preflight.py",
