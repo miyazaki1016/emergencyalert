@@ -45,8 +45,20 @@
 最初に最新mainのAGENTS.mdと
  docs/WORK_HISTORY_PREFLIGHT.mdを読んでください。
 
-実装・調査・再測定を始める前に、今回の依頼文で
-scripts/development_preflight.pyを実行してください。
+引継ぎ先は通常チャットを基本としてください。
+WorkやローカルPythonの実行環境を前提にしないでください。
+
+実装・調査・再測定を始める前に、今回の依頼文で既存成果を照合してください。
+Pythonを実行できない場合は、GitHub連携で同じ作業の既存Issueを再利用するか、
+対象リポジトリへ依頼内容のIssueを登録してください。
+自動起動する「Existing work preflight」の今回の実行結果・ログを読み、
+提示された原本を確認してください。
+再利用判断と証拠URLをIssue本文のhistory-preflightに記録し、
+本文編集後の新しいActions実行で結果を確認してから進めてください。
+PRを作る際は、Issueへのリンクと判断記録をPR本文にも記載してください。
+
+実行環境がある場合はscripts/development_preflight.pyのCLIも使えます。
+必要なGitHub操作ができない場合は、不足する機能・権限を明示してください。
 
 提示された過去のコード・検証結果・未統合研究・
 残課題を読み、再利用判断を記録してから進めてください。
@@ -56,7 +68,7 @@ scripts/development_preflight.pyを実行してください。
 確認できたふりをせず、その箇所を明示してください。
 ```
 
-**担当AIの実施順序：** 最新mainの[AGENTS.md](../AGENTS.md) → [着手前自動照合手順](WORK_HISTORY_PREFLIGHT.md) → `python3 scripts/development_preflight.py --task '今回の依頼文' --output /tmp/development-preflight` → 過去の原本と未統合成果の確認 → 必要な再利用判断の記録・再実行 → 未解決分のみ作業。照合不能なら未確認と明記し、完了済みと推測しない。main統合、CI成功、本番反映、実機確認は別々に扱う。
+**担当AIの実施順序（通常チャット）：** 最新mainの[AGENTS.md](../AGENTS.md) → [Actions経由の着手前照合手順](WORK_HISTORY_PREFLIGHT.md) → 対象Issueの登録・更新 → 今回のActions結果・原本を読む → Issue本文へ再利用判断を記録 → 編集後の新しい実行を確認 → 未解決分のみ作業。PRにもリンクと判断を記録する。実行環境があればCLIも使える。照合不能は未確認と明記し、main統合・CI成功・本番反映・実機確認を区別する。
 
 ## 主な領域
 
