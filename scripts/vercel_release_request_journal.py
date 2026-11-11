@@ -6,6 +6,7 @@ are NOT shared between separate GitHub Actions runners. Real deployment
 coordination requires an independently operated, authenticated shared store.
 """
 import sqlite3
+from contextlib import closing
 from datetime import date
 
 from vercel_release_request_policy import ALLOWED_PROJECTS, Decision, evaluate
@@ -16,7 +17,7 @@ class OfflineJournal:
 
     def __init__(self, db_path):
         self.db_path = str(db_path)
-        with self._connect() as db:
+        with closing(self._connect()) as db:
             db.execute("""CREATE TABLE IF NOT EXISTS requests (
                 request_id TEXT PRIMARY KEY, project_id TEXT NOT NULL,
                 sha TEXT NOT NULL, day TEXT NOT NULL,
