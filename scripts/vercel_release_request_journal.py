@@ -41,7 +41,7 @@ class OfflineJournal:
             return Decision("HOLD", "invalid simulation calendar day")
         if not isinstance(request, dict) or not isinstance(github_snapshot, dict):
             return Decision("HOLD", "missing mock inputs")
-        if request.get("project_id") not in ALLOWED_PROJECTS:
+        if not isinstance(request.get("project_id"), str) or request["project_id"] not in ALLOWED_PROJECTS:
             return Decision("HOLD", "project not in allowlist")
         if not isinstance(request.get("request_id"), str) or not request["request_id"].strip():
             return Decision("HOLD", "invalid request identity")
