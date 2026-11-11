@@ -93,3 +93,12 @@ Scope: KISHIBOJIM Hobby team, projects `misaki` and `emergencyalert`. This is an
 - **Boundary:** Separate GitHub-hosted runners do not share a local SQLite filesystem. This is NOT a production distributed lock or quota reservation. Authoritative approval signatures, current project/SHA/CI attestation, transactional remote storage, clock/window policy, crash recovery, cancellation/expiry and deployment bypass closure remain unsolved; no real quotas verified. The model's caller-supplied `trusted` snapshot is expressly simulated.
 - Since GitHub Actions has not previously launched on connector-origin changes, execution of all four suites and the repository CI on the latest branch HEAD **must be demonstrated separately**; adding tests and workflow declarations does not count as passing CI.
 - Operating constraints unchanged: Draft only, no main merge, no production deploy, no Vercel setting change, no enabling automatic stop/resume, no production DB/auth/notifications.
+
+## 2026-11-11: CI起動不具合の追加調査（着手前合格の継続案件）
+
+- 最新 `main` の `.github/workflows/ci.yml` は存在するが、**専用 `.github/workflows/vercel-quota-monitor-tests.yml` は `main` に存在しない**（GitHub contents API 404）。専用workflowはPR #164ブランチ内のみ。
+- GitHub公式[Events that trigger workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch)は `workflow_dispatch` の受付に**workflowファイルがdefault branchに存在すること**を要求。したがって、この状態では以前記載した「専用workflowをGitHub UIのRun workflowから同ブランチ指定で起動」という経路は**前提不足で実行できない**。UIボタンが表示されると案内しないこと。
+- 一方、GitHub公式[GITHUB_TOKEN](https://docs.github.com/en/actions/concepts/security/github_token#when-github_token-triggers-workflow-runs)は自動更新が発生させるActions抑制を説明するが、`pull_request` の `opened/synchronize/reopened` に承認待ち例外も記載されている。今回のGitHub接続に使用されたトークン種別およびPR上の実際のワークフロー承認待ち状態は未確認。**原因を一つに断定しない**。
+- 既存 `CI` workflowは `main` に定義されていてPRに適用可能な構成だが、現PR HEADに対応する実行記録はなく合格不能。専用workflowをdefault branchに配置するためのmain変更は、今回の明示的な**mainマージ禁止**に抵触するため行わない。
+- 次の許可範囲内作業: PRのActions承認待ち表示・CI無効化設定・bot actor/eventの一次証拠を確認し、可能な既存のrun承認があれば承認権限者に依頼する。GitHub接続で新HEADのworkflow_dispatchを発行できる操作は現状見つからない。専用workflowの起動には、将来的に**明示的に許可されたmain側のテスト用workflow登録**などが必要になる可能性がある。ただしそれは別承認と安全審査を伴う。コードのローカル動作確認はGitHub Actions CI成功とは別扱い。
+- 本番・main・デプロイ設定を変更せず、自動停止/自動再開を有効化せず、最新HEADの `check-runs` と `workflow_runs` を検証するまで未完了を維持する。
