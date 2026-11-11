@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-10T08:31:30.202718+00:00
+更新 (UTC): 2026-11-11T07:44:19.434947+00:00
 
 ## 全案件
 
@@ -649,6 +649,7 @@
 - scripts/vercel_build_guard.py：[branch-2fcb912568edd503](cases/branch-2fcb912568edd503.md), [pr-141](cases/pr-141.md)
 - scripts/vercel_quota_monitor.py：[branch-2b0a1b21c1150676](cases/branch-2b0a1b21c1150676.md), [pr-164](cases/pr-164.md)
 - scripts/vercel_release_request_policy.py：[branch-2b0a1b21c1150676](cases/branch-2b0a1b21c1150676.md), [pr-164](cases/pr-164.md)
+- scripts/vercel_release_request_simulation.py：[branch-2b0a1b21c1150676](cases/branch-2b0a1b21c1150676.md), [pr-164](cases/pr-164.md)
 - scripts/verify-n03-storage-data.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [pr-59](cases/pr-59.md)
 - scripts/verify_ledger_proposal.py：[branch-7b4c2cf2503a3179](cases/branch-7b4c2cf2503a3179.md), [pr-134](cases/pr-134.md)
 - scripts/z4-stride-parity-proof.ts：[branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [pr-62](cases/pr-62.md)
