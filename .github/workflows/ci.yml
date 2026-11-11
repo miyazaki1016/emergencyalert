@@ -138,4 +138,4 @@ jobs:
         with:
           deno-version: v2.x
       - name: Type-check the actual watch-rain Edge Function (no DB or Push)
-        run: deno check supabase/functions/watch-rain/index.ts
+        run: deno check --node-modules-dir=auto supabase/functions/watch-rain/index.ts
