@@ -11,6 +11,8 @@ on:
       - "lib/weather/rain/lightRainAdministrativeAreas.ts"
       - "lib/weather/rain/lightRainNationwideN03.ts"
       - "lib/weather/rain/lightRainNationwideN03.test.ts"
+      - "scripts/light-rain-prepare-official-n03.ts"
+      - "scripts/light-rain-nationwide-n03-audit.ts"
   workflow_dispatch:
 
 permissions:
@@ -33,6 +35,10 @@ jobs:
           mkdir -p /tmp/n03-tokyo
           unzip -q /tmp/n03-tokyo.zip -d /tmp/n03-tokyo
           test -s /tmp/n03-tokyo/N03-20260101_13.geojson
+      - name: Prepare and audit official Tokyo N03 as local PR59-compatible asset
+        run: |
+          npx tsx scripts/light-rain-prepare-official-n03.ts 13 /tmp/n03-tokyo/N03-20260101_13.geojson /tmp/n03-local
+          test -s /tmp/n03-local/13.areas.json
       - name: Match synthetic 1mm pixel with official Ota N03 geometry
         run: npx tsx scripts/light-rain-official-n03-proof.ts /tmp/n03-tokyo/N03-20260101_13.geojson
       - name: Download official Hokkaido 2026 N03 (read-only)
@@ -41,5 +47,9 @@ jobs:
           mkdir -p /tmp/n03-hokkaido
           unzip -q /tmp/n03-hokkaido.zip -d /tmp/n03-hokkaido
           test -s /tmp/n03-hokkaido/N03-20260101_01.geojson
+      - name: Prepare official Hokkaido N03 as local PR59-compatible asset
+        run: |
+          npx tsx scripts/light-rain-prepare-official-n03.ts 01 /tmp/n03-hokkaido/N03-20260101_01.geojson /tmp/n03-local
+          test -s /tmp/n03-local/01.areas.json
       - name: Match real JMA forecast with official Hokkaido N03 (coarse read-only sample)
         run: npx tsx scripts/light-rain-jma-n03-live-proof.ts /tmp/n03-hokkaido/N03-20260101_01.geojson 北海道
