@@ -51,5 +51,11 @@ jobs:
         run: |
           npx tsx scripts/light-rain-prepare-official-n03.ts 01 /tmp/n03-hokkaido/N03-20260101_01.geojson /tmp/n03-local
           test -s /tmp/n03-local/01.areas.json
+      - name: Assert partial two-prefecture assets fail nationwide audit (fail closed)
+        run: |
+          if npx tsx scripts/light-rain-nationwide-n03-audit.ts /tmp/n03-local; then
+            echo "ERROR: two prefectures must never pass 47-prefecture audit" >&2
+            exit 1
+          fi
       - name: Match real JMA forecast with official Hokkaido N03 (coarse read-only sample)
         run: npx tsx scripts/light-rain-jma-n03-live-proof.ts /tmp/n03-hokkaido/N03-20260101_01.geojson 北海道
