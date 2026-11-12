@@ -23,7 +23,14 @@ jobs:
         with:
           node-version: 22
       - run: npm install
-      - name: Download official 2026 N03 GeoJSON archive
+      - name: Restore prepared official N03 dataset (versioned cache)
+        id: n03-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/n03-local/${{ matrix.code }}.areas.json
+          key: official-n03-2026-prepared-v1-${{ matrix.code }}
+      - name: Download official 2026 N03 only on cache miss
+        if: steps.n03-cache.outputs.cache-hit != 'true'
         env:
           CODE: ${{ matrix.code }}
         run: |
@@ -35,6 +42,10 @@ jobs:
           test -s "/tmp/n03-source/${base}.geojson"
           npx tsx scripts/light-rain-prepare-official-n03.ts "${CODE}" "/tmp/n03-source/${base}.geojson" /tmp/n03-local
           test -s "/tmp/n03-local/${CODE}.areas.json"
+      - name: Verify cached or freshly prepared N03 dataset
+        env:
+          CODE: ${{ matrix.code }}
+        run: test -s "/tmp/n03-local/${CODE}.areas.json"
       - uses: actions/upload-artifact@v4
         with:
           name: n03-${{ matrix.code }}
