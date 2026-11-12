@@ -2,7 +2,7 @@ import { strict as assert } from "node:assert";
 import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { test } from "node:test";
+import { test } from "vitest";
 import { ALL_PREFECTURE_CODES, loadNationwidePreparedN03, requireCompleteNationwideN03 } from "./lightRainNationwideN03";
 
 test("all 47 official prefecture codes are included exactly once", () => {
