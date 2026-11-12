@@ -163,6 +163,128 @@ def code_facts(files):
             if found>=12:break
     return facts
 
+def line_link(file, text, offset):
+    return file['url'] + '#L' + str(text.count('\n', 0, offset) + 1)
+
+def verified_observation(case, repo, field, path):
+    observed = (case.get('curated') or {}).get(field, {}).get(path, {})
+    if not observed.get('run_id') or not observed.get('result'):
+        return None
+    for run in case.get('runs', []):
+        url = f'https://github.com/{repo}/actions/runs/{run.get("id")}'
+        if (run.get('id') == observed['run_id'] and run.get('head_sha') == case.get('head')
+                and run.get('conclusion') == 'success' and run.get('url') == url):
+            return clean(observed['result']), url
+    return None
+
+def decision_candidates(case, repo):
+    """Link literal expectations and proof settings to the files that define them."""
+    files = {f['path']: f for f in case.get('files', []) + case.get('related_sources', []) if f.get('url')}
+    sources = {path: f.get('source', f).get('text', '') for path, f in files.items()}
+    definitions = {}
+    for path, text in sources.items():
+        if Path(path).suffix not in ('.ts', '.tsx', '.js', '.mjs', '.cjs') or re.search(r'\.(?:test|spec)\.', path):
+            continue
+        for match in re.finditer(r'\bfunction\s+([\w$]+)\s*\(', text):
+            definitions.setdefault(match[1], []).append((path, match.start()))
+    rows = []
+    for path, text in sources.items():
+        if not re.search(r'\.(?:test|spec)\.', path):
+            continue
+        # Test names provide intent. Only link a call with a unique source in the
+        # same directory or an explicit import/reference in this test.
+        tests = list(re.finditer(r'\b(?:it|test)\(\s*["\x27`]([^"\x27`\n]+)["\x27`]', text))
+        for i, test in enumerate(tests):
+            block = text[test.end():tests[i+1].start() if i+1 < len(tests) else len(text)][:4000]
+            assertions = list(re.finditer(r'\bexpect\s*\((.*?)\)\s*\.\s*to\w+\(.*?(?:;|(?=\n\s*\}\);)|$)', block, re.S))
+            names = list(dict.fromkeys(re.findall(r'\b([\w$]+)\s*\(', block)))
+            matches = []
+            for name in names:
+                linked = [(src, pos) for src, pos in definitions.get(name, [])
+                          if Path(src).parent == Path(path).parent or re.search(
+                              r'["\x27][^"\x27\n]*[/]'+re.escape(Path(src).stem)+r'(?:\.[a-z]+)?["\x27]', text)]
+                if len(linked) == 1:
+                    matches.append((name, *linked[0]))
+            if not assertions or not matches:
+                continue
+            # Prefer the function called inside expect() to helper calls in setup.
+            asserted = [m for m in matches if any(re.search(r'\b'+re.escape(m[0])+r'\s*\(', a[1]) for a in assertions)]
+            name, src, pos = (asserted or matches)[0]
+            statement = sources[src][pos:]
+            next_decl = re.search(r'\n(?:export\s+)?(?:async\s+)?function\s+', statement)
+            excerpt = statement[:next_decl.start()] if next_decl else statement
+            returns = [line.strip() for line in excerpt.splitlines() if line.strip().startswith(('return ', 'if ('))]
+            condition = test[1][:180]
+            expected = ' ／ '.join(' '.join(a[0].split())[:250] for a in assertions[:3])
+            behavior = ' ／ '.join(returns[:8])[:560] or name
+            links = [line_link(files[src], sources[src], pos), line_link(files[path], text, test.start())]
+            verification = '個別の実行結果は未確認'
+            if observed := verified_observation(case, repo, 'test_observations', path):
+                verification, url = observed
+                links.append(url)
+            rows.append({'kind':'test','title':condition,'condition':condition,'behavior':behavior,
+                         'verification':'テストの期待値: '+expected+' ／ 実行証拠: '+verification,
+                         'remaining':'呼び出し元・本番採用・実機を確認',
+                         'links':links})
+    proof_rows = []
+    for path, text in sources.items():
+        if not re.search(r'(?:proof|probe|benchmark|replay)', Path(path).stem, re.I):
+            continue
+        workflows = [f['url'] for name, f in files.items() if name.startswith('.github/workflows/') and path in sources[name]]
+        for match in re.finditer(r'\b([A-Z][A-Z0-9_]*?(?:SCHEDULE|DELAYS|INTERVALS)_MS)\s*\?\?\s*["\x27]([0-9, ]+)["\x27]', text):
+            delays = [int(x) for x in match[2].split(',') if x.strip()]
+            if not delays:
+                continue
+            duration = '・'.join(f'{x/60000:g}分' for x in delays)
+            links = [line_link(files[path], text, match.start()), *workflows[:2]]
+            verification = 'Actionsでの実測結果は未確認'
+            if observed := verified_observation(case, repo, 'proof_observations', path):
+                result, url = observed
+                links.append(url)
+                verification = '原本確認済みのActions観測: '+result
+            proof_rows.append({'kind':'proof','title':Path(path).stem+' の検証間隔',
+                               'condition':match[1]+' に上書きがないとき',
+                               'behavior':duration+'（'+', '.join(map(str,delays))+' ms）の検証用設定',
+                               'verification':verification,'remaining':'別の条件での再現性・本番採用は未確認',
+                               'links':links})
+    # Keep bounded output but retain proof settings even in PRs with many tests.
+    return proof_rows[:16] + rows[:160]
+
+def decision_search_text(case):
+    rows = case.get('decisions', [])
+    parts = []
+    for row in rows:
+        text = ' '.join(row[key] for key in ('title', 'condition', 'behavior'))
+        if row['kind'] == 'proof':
+            text += ' ' + row['verification']
+        if re.search(r'retry|re-fetch|再取得', text, re.I):
+            text += ' リトライ 再取得 取り直し'
+        if re.search(r'older.*newer|newer.*older', text, re.I):
+            text += ' 古い枠 新しい基準時刻 次の枠 打ち切り'
+        if re.search(r'required frames|usableFrames', text, re.I):
+            text += ' 必要コマ 完了条件'
+        parts.append(text)
+    # Search phrasing derived from the HTTP proof and the next-time boundary
+    # in its related retry test. A test interval is not an operational cadence.
+    statuses = {status for row in rows if row['kind'] == 'proof'
+                for status in re.findall(r'(?<!\d)[45]\d\d(?!\d)', row['title'])}
+    aliases = []
+    for row in rows:
+        if not re.search(r'older.*newer.*retry|older.*retry.*newer', row['title'], re.I):
+            continue
+        times = re.findall(r'\b\d{14}\b', row['verification'])
+        if len(times) < 2:
+            continue
+        try:
+            first, second = (dt.datetime.strptime(t, '%Y%m%d%H%M%S') for t in times[:2])
+            minutes = (second-first).total_seconds()/60
+        except ValueError:
+            continue
+        if 0 < minutes <= 60 and minutes.is_integer():
+            for status in sorted(statuses):
+                aliases.append(f'{status}を取り直してる間に次の{int(minutes)}分が来たら？')
+    return ' '.join(aliases + parts)
+
 def collect_pr(api,num,meta,run_index,curated):
     pr=api.get('/pulls/'+num)
     ensure_commit(pr['base']['sha']); ensure_commit(pr['head']['sha'])
@@ -198,7 +320,24 @@ def collect_pr(api,num,meta,run_index,curated):
     related=[]
     corpus=(pr.get('body') or '')+'\n'+'\n'.join(texts)
     for path in sorted(set(re.findall(r'(?:docs|tests|scripts)/[\w./-]+\.(?:md|json|py|ts)',corpus)))[:40]:
-        if path not in paths: related.append(source(head,path))
+        if path not in paths:
+            related.append({**source(head,path), 'url':'https://github.com/'+api.repo+'/blob/'+head+'/'+urllib.parse.quote(path)})
+    # Look for unchanged colocated tests on the same commit as the changed code.
+    known = set(paths) | {item['path'] for item in related}
+    sibling_budget = 40
+    for path in paths:
+        file = Path(path)
+        if file.suffix not in ('.ts', '.tsx', '.js', '.mjs') or re.search(r'\.(test|spec)\.', path):
+            continue
+        for kind in ('test', 'spec'):
+            sibling = str(file.with_suffix('.'+kind+file.suffix))
+            if sibling in known or not sibling_budget:
+                continue
+            sibling_budget -= 1
+            item = source(head,sibling)
+            if item.get('text'):
+                related.append({**item,'url':'https://github.com/'+api.repo+'/blob/'+head+'/'+urllib.parse.quote(sibling)})
+                known.add(sibling)
     curated_entry=curated.get('prs',{}).get(num,{})
     return {'id':'pr-'+num,'number':int(num),'title':clean(pr['title']), 'topics':topic,'purpose':purpose,
             'purpose_basis':'変更パスと表題による分類（意味の確定には原文を確認）',
@@ -246,15 +385,24 @@ def search(cases,query):
     if not tokens: return []
     results=[]
     for c in cases.values():
-        text=json.dumps(c,ensure_ascii=False).lower()
+        decisions=decision_search_text(c).lower()
+        text=decisions+' '+json.dumps(c,ensure_ascii=False).lower()
         hits=sum(t in text for t in tokens)
         if hits == len(tokens):
             priority=hits+3*sum(t in c.get('title','').lower() for t in tokens)+2*sum(t in json.dumps(c.get('curated',{}),ensure_ascii=False).lower() for t in tokens)
+            if decisions and all(t in decisions for t in tokens):
+                priority += 10
             results.append((priority,c['id'],c))
     return [c for _,_,c in sorted(results,key=lambda x:(-x[0],x[1]))]
 
 def md(value):
     return html.escape(clean(value)).replace('|','&#124;')
+
+def render_decision(row):
+    return ['', '### '+md(row['title']), '',
+            '- 条件：'+md(row['condition']), '- 動作・設定：'+md(row['behavior']),
+            '- 検証範囲：'+md(row['verification']), '- 残課題：'+md(row['remaining']),
+            '- 根拠：'+' ／ '.join('[原本]('+url+')' for url in row['links'])]
 
 def render_case(c,repo):
     num=c.get('number'); lines=['# '+md(c['title']),'']
@@ -267,6 +415,11 @@ def render_case(c,repo):
     if c.get('curated'):
         lines+=['## 日本語で確認した成果','',md(c['curated'].get('summary')),'',md(c['curated'].get('conclusion')),'']
         for link in c['curated'].get('evidence',[]): lines+=['- [根拠]('+link+')']
+    if c.get('decisions'):
+        lines+=['','## 実装判断の検索候補（コード・テスト・検証資料）','',
+                'テスト名と期待値は同じコミットのソースを読むための手掛かりです。']
+        for row in c['decisions']:
+            lines+=render_decision(row)
     lines+=['','## 実際の変更処理（コードから抽出）','',md('、'.join(c.get('symbols',[])) or '差分・ソースを参照'),'']
     for fact in c.get('code_facts',[]):
         lines+=['- '+md(fact['kind'])+'：`'+md(fact['expression']).replace('`','&#96;')+'`（['+md(fact['file'])+']('+fact['url']+')）']
@@ -321,7 +474,8 @@ def render_output(state,out,repo):
     for key,c in cases.items():
         summary=c.get('curated',{}).get('summary') or c.get('purpose') or 'ブランチ差分を収録'
         index={'id':key,'title':c['title'],'summary':summary,'state':c.get('state'),'main_status':c.get('main_status','未確認'),'topics':c.get('topics',[]),'conclusion':c.get('curated',{}).get('conclusion','未確認'),'remaining':c.get('remaining','原本の受入条件・未解決事項を照合'),'next':c.get('next','未確認'),'production':c.get('production','未確認')}
-        index['search_text']=' '.join([c['title'],summary,json.dumps(c.get('curated',{}),ensure_ascii=False),c.get('body',''), ' '.join(c.get('symbols',[])), json.dumps(c.get('code_facts',[]),ensure_ascii=False), ' '.join(f['path'] for f in c.get('files',[])), ' '.join(f.get('text','')[:5000] for f in c.get('related_sources',[]))])[:22000]
+        hints = decision_search_text(c)
+        index['search_text']=' '.join([c['title'],summary,hints[:7000],json.dumps(c.get('curated',{}),ensure_ascii=False),c.get('body',''), ' '.join(c.get('symbols',[])), json.dumps(c.get('code_facts',[]),ensure_ascii=False), ' '.join(f['path'] for f in c.get('files',[])), ' '.join(f.get('text','')[:5000] for f in c.get('related_sources',[]))])[:22000]
         search_index.append(index)
         cards.append('<article data-search="'+html.escape(index['search_text'],quote=True)+'"><h2>'+html.escape(c['title'])+'</h2><p>'+html.escape(c.get('curated',{}).get('summary') or c.get('purpose') or 'ブランチ差分を収録')+'</p><p>'+html.escape(str(c.get('state')))+' ／ 本番未確認</p><a href="https://github.com/'+repo+'/blob/development-history/docs/work-history/cases/'+key+'.md">コード・結論・検証根拠を読む</a></article>')
     viewer='''<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>日本語開発履歴</title><style>body{font:16px system-ui;background:#f3f6fa;color:#162c43;margin:auto;max-width:850px;padding:20px}input{box-sizing:border-box;width:100%;padding:15px;font-size:18px;position:sticky;top:8px}article{background:white;padding:18px;border-radius:14px;margin:14px 0;overflow-wrap:anywhere}h2{font-size:19px}a{color:#075daf}#count{padding:10px}</style><h1>日本語開発履歴</h1><p>着手前に機能名・作業内容・コード・検証結果を検索。空白区切りはAND検索。本番反映は別に確認。</p><input id="q" aria-label="検索キーワード" placeholder="例：z4 stride 47／記憶 会話"><div id="count"></div>'''+''.join(cards)+'''<script>const q=document.getElementById('q'),cards=[...document.querySelectorAll('article')];function run(){const terms=q.value.toLowerCase().trim().split(/\\s+/).filter(Boolean);let n=0;for(const c of cards){c.hidden=!terms.every(t=>c.dataset.search.toLowerCase().includes(t));if(!c.hidden)n++}document.getElementById('count').textContent=n+'件'}q.addEventListener('input',run);run()</script></html>'''
@@ -363,6 +517,11 @@ def build(report,api,out,previous=None,curated=None):
     # Deleted branches and closed/deleted source records never erase past conclusions.
     for key,c in old.items():
         if key not in cases: cases[key]=dict(c,archived=True)
+    # Derive search candidates from saved evidence too, without re-fetching
+    # every unchanged PR or losing archived findings.
+    for key,c in cases.items():
+        if key.startswith('pr-') and not c.get('error'):
+            c['decisions'] = decision_candidates(c,repo)
     if api.pending:
         dump(Path(out)/'pending-requests.json',sorted(api.pending)); return None
     state={'schema_version':VERSION,'repository':repo,'generated_at':report['generated_at'], 'cases':cases,
@@ -386,7 +545,10 @@ def main():
     args=parser.parse_args()
     if args.query:
         state=json.loads(Path(args.output,'state.json').read_text())
-        for c in search(state['cases'],args.query)[:30]: print(c['id']+' '+c['title']+'\n既存結論: '+c.get('curated',{}).get('conclusion','原本確認')+'\n残課題: '+c.get('remaining','原本確認')+'\n次の作業: '+c.get('next','原本確認')+'\nhttps://github.com/'+state['repository']+'/blob/development-history/docs/work-history/cases/'+c['id']+'.md\n')
+        for c in search(state['cases'],args.query)[:30]:
+            print(c['id']+' '+c['title']+'\n既存結論: '+c.get('curated',{}).get('conclusion','原本確認')+'\n残課題: '+c.get('remaining','原本確認')+'\n次の作業: '+c.get('next','原本確認')+'\nhttps://github.com/'+state['repository']+'/blob/development-history/docs/work-history/cases/'+c['id']+'.md\n')
+            if c.get('decisions'):
+                print(f'案件ページの「実装判断の検索候補」に条件・動作・根拠 {len(c["decisions"])} 件。\n')
         return
     report=json.loads(Path(args.report).read_text()); previous=json.loads(Path(args.previous).read_text()) if args.previous and Path(args.previous).exists() else None
     curated_path=Path('docs/work-history/curated.json'); curated=json.loads(curated_path.read_text()) if curated_path.exists() else {}

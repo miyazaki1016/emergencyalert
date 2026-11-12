@@ -409,6 +409,18 @@
       ]
     },
     "59": {
+      "test_observations": {
+        "lib/weather/rain/nationalRainCycle.test.ts": {
+          "run_id": 38831518366,
+          "result": "対象HEADのRun npm testで nationalRainCycle.test.ts の7テスト成功を確認。"
+        }
+      },
+      "proof_observations": {
+        "scripts/jma-404-delayed-retry-proof.ts": {
+          "run_id": 38831518366,
+          "result": "2026-10-16の1回。404だった3予報コマから各120件、計360 URLを抽出。開始から2.5・5・7.5・10分の各チェックポイントで360件を再取得し、各回とも200復帰0、404継続360。他ステータス0。検証用の間隔であり、本番間隔を選定する根拠には不足。"
+        }
+      },
       "summary": "全国大雨候補から詳細タイル・自治体照合へ進む処理と、N03分割・キャッシュ・負荷を検証。",
       "conclusion": "readiness資料は代表4県83照合ケースを定義し、座標と穴を保った自治体コード順序の一致を受入条件とする。128MiB想定の復号済み幾何LRUは採用せず、32MiBの符号化バイトLRUを実証用に採用。岩手の最大不可分要素4.13MiBに対し1MiBは梱包目標であり絶対上限ではない。HTTP遅延80/250msと帯域8/2MiB/sは仮定で、本番Storage実測ではない。JMA PNGは合成、DB RPCはスタブ。スケジューラ・スループットの受入は未完了。",
       "evidence": [
