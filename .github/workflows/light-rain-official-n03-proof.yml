@@ -57,5 +57,6 @@ jobs:
             echo "ERROR: two prefectures must never pass 47-prefecture audit" >&2
             exit 1
           fi
-      - name: Match real JMA forecast with official Hokkaido N03 (coarse read-only sample)
-        run: npx tsx scripts/light-rain-jma-n03-live-proof.ts /tmp/n03-hokkaido/N03-20260101_01.geojson 北海道
+      - name: Verify official Hokkaido ward identity independent of local rain
+        run: |
+          jq -e 'any(.[]; .code == "01106" and .prefecture == "北海道" and .municipality == "札幌市南区")' /tmp/n03-local/01.areas.json

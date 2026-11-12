@@ -1,0 +1,120 @@
+name: Issue 219 one-time Bluesky forecast
+
+on:
+  push:
+    branches: [feat/national-rain-1mm-dry-run-216]
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: issue-219-one-time-bluesky
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >-
+      github.repository == 'miyazaki1016/emergencyalert' &&
+      github.event.head_commit.message == 'Authorize the one-time Bluesky forecast for Issue #219'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Require successful checks on the exact Draft PR HEAD
+        id: checks
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          repo="repos/$GITHUB_REPOSITORY"
+          for attempt in $(seq 1 108); do
+            test "$(gh api "$repo/pulls/217" --jq '.head.sha')" = "$GITHUB_SHA"
+            runs=$(gh api --method GET "$repo/actions/runs" \
+              -f event=pull_request -f head_sha="$GITHUB_SHA" -f per_page=50)
+            all_passed=true
+            for workflow in ci.yml development-preflight.yml light-rain-official-n03-proof.yml light-rain-nationwide-n03-acquisition.yml; do
+              result=$(jq -r --arg path ".github/workflows/$workflow" \
+                '[.workflow_runs[] | select(.path == $path)][0] | select(. != null) | [.id, .status, .conclusion] | @tsv' <<< "$runs")
+              if [[ "$result" == *$'\tcompleted\t'* && "$result" != *$'\tcompleted\tsuccess' ]]; then
+                echo "$workflow failed for $GITHUB_SHA: $result" >&2
+                exit 1
+              fi
+              if [[ "$result" != *$'\tcompleted\tsuccess' ]]; then
+                all_passed=false
+              fi
+              if [[ "$workflow" == light-rain-nationwide-n03-acquisition.yml ]]; then
+                proof_run_id="${result%%$'\t'*}"
+              fi
+            done
+            if [[ "$all_passed" == true ]]; then
+              echo "proof_run_id=$proof_run_id" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            sleep 20
+          done
+          echo 'Required checks did not finish in time.' >&2
+          exit 1
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.checks.outputs.proof_run_id }}
+          pattern: n03-*
+          merge-multiple: true
+          path: /tmp/n03-local
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.checks.outputs.proof_run_id }}
+          name: nationwide-rain-z10
+          path: /tmp/issue-219-proof
+      - name: Require three consecutive real five-minute cycles
+        run: |
+          node --input-type=module - <<'JS'
+          import { readFileSync } from 'node:fs';
+          const frames = readFileSync('/tmp/issue-219-proof/nationwide-rain-watch.jsonl', 'utf8').trim().split('\n').map(JSON.parse);
+          const date = t => Date.UTC(+t.slice(0, 4), +t.slice(4, 6) - 1, +t.slice(6, 8), +t.slice(8, 10), +t.slice(10, 12));
+          if (frames.length !== 3 || frames.some((f, i) => f.prefectures !== 47 ||
+            f.mode !== 'READ_ONLY_Z10_REAL_JMA_N03' || f.frames.length !== 6 ||
+            (i > 0 && date(f.basetime) - date(frames[i - 1].basetime) !== 300000))) {
+            throw new Error('Consecutive national JMA proof is incomplete');
+          }
+          JS
+      - run: npm install
+      - name: Verify N03 and regenerate a fresh candidate
+        run: |
+          npx tsx scripts/light-rain-nationwide-n03-audit.ts /tmp/n03-local --require-wards
+          npx tsx scripts/light-rain-z10-refine.ts /tmp/n03-local > nationwide-rain-z10.json
+          npx tsx scripts/light-rain-bluesky-dry-run.ts nationwide-rain-z10.json > bluesky-dry-run.json
+          jq -e '.candidate.intensity == 1 and (.digest | length == 64)' bluesky-dry-run.json
+      - name: Confirm branch has not changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: test "$(gh api "repos/$GITHUB_REPOSITORY/pulls/217" --jq '.head.sha')" = "$GITHUB_SHA"
+      - name: Verify destination and publish the verified candidate once
+        env:
+          BLUESKY_HANDLE: emergencyalert.bsky.social
+          BLUESKY_DID: did:plc:prwg3jthmksrdp6vtal3f7pd
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          export BLUESKY_APPROVED_CANDIDATE="$(jq -er '.digest' bluesky-dry-run.json)"
+          npx tsx scripts/light-rain-bluesky-dry-run.ts nationwide-rain-z10.json --publish-issue-219-once | tee bluesky-publication.jsonl
+          jq -se 'map(select(.mode == "PUBLISHED")) | length == 1' bluesky-publication.jsonl
+          jq -r 'select(.mode == "PUBLISHED") | .url' bluesky-publication.jsonl >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: issue-219-publication-evidence
+          path: |
+            nationwide-rain-z10.json
+            bluesky-dry-run.json
+            bluesky-publication.jsonl
+          retention-days: 30

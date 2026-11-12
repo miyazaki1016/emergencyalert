@@ -47,16 +47,19 @@ const digest = candidate && createHash("sha256")
   .digest("hex");
 console.log(JSON.stringify({ mode: "DRY_RUN", basetime: proof.basetime, candidate, digest }));
 
-if (process.argv[3] === "--publish") {
+const issue219Once = process.argv[3] === "--publish-issue-219-once";
+if (process.argv[3] === "--publish" || issue219Once) {
   const { BLUESKY_HANDLE, BLUESKY_DID, BLUESKY_APP_PASSWORD, BLUESKY_APPROVED_CANDIDATE } = process.env;
   if (!candidate || digest !== BLUESKY_APPROVED_CANDIDATE ||
     !BLUESKY_HANDLE || !BLUESKY_DID || !BLUESKY_APP_PASSWORD) {
     throw new Error("Exact dry-run candidate and configured Bluesky account are required");
   }
+  // Reserve one stable TID for this authorization, even when a rerun uses a different forecast.
+  const recordKey = lightRainRecordKey(issue219Once ? Date.UTC(2026, 10, 12, 22, 20) : base);
   deliverLightRainPost(
     { handle: BLUESKY_HANDLE, did: BLUESKY_DID, appPassword: BLUESKY_APP_PASSWORD },
-    { text: candidate.text, key: lightRainRecordKey(base), validUntil: forecastTime(candidate.validTime) },
-  ).then(url => console.log(JSON.stringify({ mode: "PUBLISHED", url }))).catch(error => {
+    { text: candidate.text, key: recordKey, validUntil: forecastTime(candidate.validTime) },
+  ).then(url => console.log(JSON.stringify({ mode: "PUBLISHED", url, basetime: proof.basetime, candidate }))).catch(error => {
     console.error(error instanceof Error ? error.message : "Bluesky delivery failed");
     process.exitCode = 1;
   });

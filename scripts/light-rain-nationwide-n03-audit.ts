@@ -13,7 +13,12 @@ if (!root) {
     const { prefectures, municipalities, areas } = requireCompleteNationwideN03(root);
     const prefectureNames = new Set(areas.map(area => area.prefecture));
     if (prefectureNames.size !== 47) throw new Error("INCOMPLETE_N03_COVERAGE: expected 47 distinct prefecture names, got " + prefectureNames.size);
-    console.log(JSON.stringify({ mode: "NATIONWIDE_N03_READ_ONLY_AUDIT", prefectures, municipalities, complete: true, source: "PR59 prepared local N03", productionWrites: false, blueskyPosts: false }));
+    const sapporoSouth = areas.find(area => area.code === "01106");
+    if (process.argv.includes("--require-wards") &&
+      (sapporoSouth?.prefecture !== "北海道" || sapporoSouth.municipality !== "札幌市南区")) {
+      throw new Error("Official N03 ward name did not match 01106 / 札幌市南区");
+    }
+    console.log(JSON.stringify({ mode: "NATIONWIDE_N03_READ_ONLY_AUDIT", prefectures, municipalities, sapporoSouth: sapporoSouth?.municipality, complete: true, source: "PR59 prepared local N03", productionWrites: false, blueskyPosts: false }));
   } catch (error) {
     console.error(error);
     process.exitCode = 1;
