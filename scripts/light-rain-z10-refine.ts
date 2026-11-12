@@ -107,7 +107,7 @@ async function refineFrame(
   let rainyTiles=0;
   for(let i=0;i<entries.length;i+=8){
     const batch=entries.slice(i,i+8);
-    const outcomes=await Promise.all(batch.map(async t=>{
+    const outcomes=await Promise.allSettled(batch.map(async t=>{
       const fetchStart=performance.now();
       const buffer=await fetchTile(frame,10,t.x,t.y);
       const fetchMs=performance.now()-fetchStart;
@@ -117,7 +117,14 @@ async function refineFrame(
       const municipalities=scan.rainPixels?municipalitiesForLightRainTile(buffer,10,t.x,t.y,t.areas):[];
       return {scan,municipalities,fetchMs,matchingMs:performance.now()-matchStart};
     }));
-    for(const o of outcomes){z10NetworkMs+=o.fetchMs;z10MatchingMs+=o.matchingMs;if(o.scan.rainPixels)rainyTiles++;for(const a of o.municipalities)matched.set(a.code,a);}
+    for (const outcome of outcomes) {
+      if (outcome.status === "rejected") throw outcome.reason;
+      const { scan, municipalities, fetchMs, matchingMs } = outcome.value;
+      z10NetworkMs += fetchMs;
+      z10MatchingMs += matchingMs;
+      if (scan.rainPixels) rainyTiles++;
+      for (const area of municipalities) matched.set(area.code, area);
+    }
   }
   const z10Done=performance.now();
   const round=(n:number)=>Math.round(n);
@@ -148,7 +155,17 @@ async function main() {
     const frames = selectFrames(targets, Date.now());
     if (frames[0].basetime === previousBase) return;
     const results = [];
-    for (const frame of frames) results.push(await refineFrame(frame, indexed, areaByCode));
+    // Two frames share the cycle budget. Await both before stopping so the next
+    // update does not overlap a failed cycle's remaining requests.
+    for (let i = 0; i < frames.length; i += 2) {
+      const batch = await Promise.allSettled(
+        frames.slice(i, i + 2).map(frame => refineFrame(frame, indexed, areaByCode)),
+      );
+      for (const result of batch) {
+        if (result.status === "rejected") throw result.reason;
+        results.push(result.value);
+      }
+    }
 
     if (Date.now() - forecastTime(frames[0].basetime) >= 2 * FIVE_MINUTES) {
       throw new Error("JMA forecast expired before the scan finished");

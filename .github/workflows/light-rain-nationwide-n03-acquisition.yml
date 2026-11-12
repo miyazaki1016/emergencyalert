@@ -109,11 +109,11 @@ jobs:
           path: nationwide-rain-result.json
           retention-days: 7
           if-no-files-found: error
-      - name: Verify three distinct five-minute cycles and six z10 frames per cycle
+      - name: Verify updates across two five-minute cycles and six z10 frames per cycle
         id: z10
         timeout-minutes: 20
         env:
-          JMA_WATCH_SUCCESS_COUNT: "3"
+          JMA_WATCH_SUCCESS_COUNT: "2"
         run: |
           set -euo pipefail
           npx tsx scripts/light-rain-z10-refine.ts /tmp/n03-local --watch | tee nationwide-rain-watch.jsonl

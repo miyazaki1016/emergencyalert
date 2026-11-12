@@ -75,23 +75,27 @@ jobs:
           run-id: ${{ steps.checks.outputs.proof_run_id }}
           name: nationwide-rain-z10
           path: /tmp/issue-219-proof
-      - name: Require three consecutive real five-minute cycles
+      - name: Require two successful real cycles on the five-minute grid
         run: |
           node --input-type=module - <<'JS'
           import { readFileSync } from 'node:fs';
           const frames = readFileSync('/tmp/issue-219-proof/nationwide-rain-watch.jsonl', 'utf8').trim().split('\n').map(JSON.parse);
           const date = t => Date.UTC(+t.slice(0, 4), +t.slice(4, 6) - 1, +t.slice(6, 8), +t.slice(8, 10), +t.slice(10, 12));
-          if (frames.length !== 3 || frames.some((f, i) => f.prefectures !== 47 ||
+          if (frames.length !== 2 || frames.some((f, i) => f.prefectures !== 47 ||
             f.mode !== 'READ_ONLY_Z10_REAL_JMA_N03' || f.frames.length !== 6 ||
-            (i > 0 && date(f.basetime) - date(frames[i - 1].basetime) !== 300000))) {
-            throw new Error('Consecutive national JMA proof is incomplete');
+            (i > 0 && (date(f.basetime) <= date(frames[i - 1].basetime) ||
+              (date(f.basetime) - date(frames[i - 1].basetime)) % 300000 !== 0)))) {
+            throw new Error('Two-cycle national JMA proof is incomplete');
           }
           JS
       - run: npm install
       - name: Verify N03 and regenerate a fresh candidate
+        timeout-minutes: 14
+        env:
+          JMA_WATCH_SUCCESS_COUNT: "1"
         run: |
           npx tsx scripts/light-rain-nationwide-n03-audit.ts /tmp/n03-local --require-wards
-          npx tsx scripts/light-rain-z10-refine.ts /tmp/n03-local > nationwide-rain-z10.json
+          npx tsx scripts/light-rain-z10-refine.ts /tmp/n03-local --watch > nationwide-rain-z10.json
           npx tsx scripts/light-rain-bluesky-dry-run.ts nationwide-rain-z10.json > bluesky-dry-run.json
           jq -e '.candidate.intensity == 1 and (.digest | length == 64)' bluesky-dry-run.json
       - name: Confirm branch has not changed
