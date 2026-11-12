@@ -40,8 +40,10 @@ async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:num
   throw new Error("INCOMPLETE_JMA_TILE "+z+"/"+x+"/"+y);
 }
 async function main(){
+  const started=performance.now();
   const {areas}=requireCompleteNationwideN03(root);
   const indexed=areas.map(area=>({area,b:bbox(area)}));
+  const n03Ready=performance.now();
   const now=Date.now();
   const frame=(await fetchForecastTargetTimes()).find(f=>stamp(f.validtime)>now&&stamp(f.validtime)<=now+30*60000);
   if(!frame)throw new Error("NO_FRESH_JMA_FRAME");
@@ -54,6 +56,7 @@ async function main(){
     if(scan.unknownPixels)throw new Error("UNKNOWN_JMA_PIXEL_Z4");
     if(scan.rainPixels)for(const area of municipalitiesForLightRainTile(buffer,4,x,y,relevant))candidates.set(area.code,areas.find(a=>a.code===area.code)!);
   }
+  const z4Done=performance.now();
   const tileMap=new Map<string,{x:number;y:number;areas:AdministrativeArea[]}>();
   for(const area of candidates.values()){
     const [w,s,e,n]=bbox(area);
@@ -65,19 +68,28 @@ async function main(){
       if(tileMap.size>MAX_TILES)throw new Error("Z10_TILE_BUDGET_EXCEEDED: "+tileMap.size+" > "+MAX_TILES+"; no partial result accepted");
     }
   }
+  const tilePlanDone=performance.now();
   const matched=new Map<string,{code:string;prefecture:string;municipality:string}>();
+  let z10NetworkMs=0,z10MatchingMs=0;
   const entries=[...tileMap.values()];
   let rainyTiles=0;
   for(let i=0;i<entries.length;i+=8){
     const batch=entries.slice(i,i+8);
     const outcomes=await Promise.all(batch.map(async t=>{
+      const fetchStart=performance.now();
       const buffer=await fetchTile(frame,10,t.x,t.y);
+      const fetchMs=performance.now()-fetchStart;
+      const matchStart=performance.now();
       const scan=scanJmaTileAtLeast1mm(buffer);
       if(scan.unknownPixels)throw new Error("UNKNOWN_JMA_PIXEL_Z10 "+t.x+"/"+t.y);
-      return {scan,municipalities:scan.rainPixels?municipalitiesForLightRainTile(buffer,10,t.x,t.y,t.areas):[]};
+      const municipalities=scan.rainPixels?municipalitiesForLightRainTile(buffer,10,t.x,t.y,t.areas):[];
+      return {scan,municipalities,fetchMs,matchingMs:performance.now()-matchStart};
     }));
-    for(const o of outcomes){if(o.scan.rainPixels)rainyTiles++;for(const a of o.municipalities)matched.set(a.code,a);}
+    for(const o of outcomes){z10NetworkMs+=o.fetchMs;z10MatchingMs+=o.matchingMs;if(o.scan.rainPixels)rainyTiles++;for(const a of o.municipalities)matched.set(a.code,a);}
   }
-  console.log(JSON.stringify({mode:"READ_ONLY_Z10_REAL_JMA_N03",validtime:frame.validtime,checkedAt:new Date().toISOString(),z4Candidates:candidates.size,z10TilesChecked:entries.length,z10RainyTiles:rainyTiles,z10Municipalities:matched.size,municipalities:[...matched.values()].sort((a,b)=>a.code.localeCompare(b.code)),publication:false,productionWrites:false,blueskyPosts:false}));
+  const z10Done=performance.now();
+  const round=(n:number)=>Math.round(n);
+  const timingMs={n03LoadAndIndex:round(n03Ready-started),z4ScanAndCandidateMatch:round(z4Done-n03Ready),z10TilePlanning:round(tilePlanDone-z4Done),z10WallClock:round(z10Done-tilePlanDone),z10NetworkCumulative:round(z10NetworkMs),z10DecodeAndMunicipalityMatchCumulative:round(z10MatchingMs),total:round(z10Done-started)};
+  console.log(JSON.stringify({timingMs,z10Concurrency:8,mode:"READ_ONLY_Z10_REAL_JMA_N03",validtime:frame.validtime,checkedAt:new Date().toISOString(),z4Candidates:candidates.size,z10TilesChecked:entries.length,z10RainyTiles:rainyTiles,z10Municipalities:matched.size,municipalities:[...matched.values()].sort((a,b)=>a.code.localeCompare(b.code)),publication:false,productionWrites:false,blueskyPosts:false}));
 }
 main().catch(e=>{console.error(e);process.exitCode=1});
