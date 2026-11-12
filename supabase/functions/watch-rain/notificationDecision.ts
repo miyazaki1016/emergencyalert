@@ -51,3 +51,35 @@ export function advanceObservationStreak(args: {
     observationValidAt: validAt,
   };
 }
+
+/**
+ * C案: change only the copy for an actionable light-rain approach.
+ * Dispatch, event type, urgency, latches and delivery guards are owned by the caller.
+ * The upstream rain interpretation already rejects stale observations.
+ */
+export function formatLaundryNotificationBody(args: {
+  notificationLabel?: string | null;
+  selectedClass?: string | null;
+  eventType?: string | null;
+  currentStatus?: string | null;
+  previousConfirmedWeather?: string | null;
+}): string {
+  const prefix = args.notificationLabel ? `${args.notificationLabel}：` : "";
+  const legacy = args.selectedClass === "1_TO_5"
+    ? "このあと雨が続きそう。洗濯物を確認してね"
+    : "30分以内に雨が降りそう。洗濯物を確認してね";
+
+  if (
+    args.eventType !== "ACTIONABLE_RAIN_APPROACHING" ||
+    args.selectedClass !== "1_TO_5" ||
+    args.currentStatus !== "NO_RAIN"
+  ) return prefix + legacy;
+
+  if (args.previousConfirmedWeather === "DRY") {
+    return prefix + "このあと雨が降る予報だよ。洗濯物を確認してね";
+  }
+  if (args.previousConfirmedWeather === "RAINING") {
+    return prefix + "いまは雨が検出されていないけど、また降る予報だよ。洗濯物を確認してね";
+  }
+  return prefix + legacy;
+}

@@ -1,6 +1,6 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
-import { advanceObservationStreak, nextLastNotifiedAt, nextRainEndingNotified } from "./notificationDecision.ts";
+import { advanceObservationStreak, formatLaundryNotificationBody, nextLastNotifiedAt, nextRainEndingNotified } from "./notificationDecision.ts";
 
 import { makeSnapshot, timestamp, type Frame } from "../_shared/rainReplay.ts";
 import { bestEffort } from "../_shared/replayRecording.ts";
@@ -70,7 +70,7 @@ Deno.serve(async(req:Request)=>{
   const upcomingClasses=(rain.forecast??[]).filter(f=>f.status==="RAIN"&&f.validTime&&(f.intensityClass==="1_TO_5"||f.intensityClass==="5_TO_10"));
   const actionableAt=rain.event.actionableAt;
   const selectedClass=upcomingClasses.find(f=>f.validTime===actionableAt)?.intensityClass;
-  const laundryBody=notificationLabel?selectedClass==="1_TO_5"?notificationLabel+"：このあと雨が続きそう。洗濯物を確認してね":notificationLabel+"：30分以内に雨が降りそう。洗濯物を確認してね":selectedClass==="1_TO_5"?"このあと雨が続きそう。洗濯物を確認してね":"30分以内に雨が降りそう。洗濯物を確認してね";
+  const laundryBody=formatLaundryNotificationBody({notificationLabel,selectedClass,eventType:rain.event.eventType,currentStatus,previousConfirmedWeather:previous?.confirmed_weather});
   const body=severeEscalation?severeBody:confirmedAndEnding?(notificationLabel?`${notificationLabel}の雨、もうすぐ止みそうだよ🌥️`:"雨、もうすぐ止みそうだよ🌥️"):initialRaining?(notificationLabel?`${notificationLabel}はいま雨が降ってるよ☔️`:"いま雨が降ってるよ☔️"):rainEnding?(notificationLabel?`${notificationLabel}の雨、もうすぐ止みそうだよ🌥️`:"雨、もうすぐ止みそうだよ🌥️"):returningRain?(notificationLabel?`${notificationLabel}：いったん弱まってるけど、また降りそうだよ☔️`:"いったん弱まってるけど、また降りそうだよ☔️"):(rain.event.suggestedAction==="BRING_LAUNDRY_INSIDE"?laundryBody:(notificationLabel?`${notificationLabel}：${rain.event.suggestedAction}`:rain.event.suggestedAction));
   const notificationEventType=severeEscalation?"SEVERE_RAIN":confirmedAndEnding?"RAIN_ENDING":rainEnding?"RAIN_ENDING":returningRain?"RAIN_RETURNING":rain.event.eventType;
   const notificationUrgency=severeEscalation?"DISASTER":rain.event.urgency;
