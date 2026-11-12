@@ -1,5 +1,8 @@
 name: Nationwide official N03 acquisition and audit (read-only)
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/light-rain-nationwide-n03-acquisition.yml"
   workflow_dispatch:
 permissions:
   contents: read
