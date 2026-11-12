@@ -17,6 +17,21 @@ if (!areas.some(a => a.code === "13111")) throw new Error("Official N03 Tokyo mi
 const tiles = [[13, 5], [14, 5], [13, 6], [14, 6], [13, 7], [14, 7]] as const;
 const stamp = (v: string) => Date.UTC(Number(v.slice(0,4)), Number(v.slice(4,6))-1,
   Number(v.slice(6,8)), Number(v.slice(8,10)), Number(v.slice(10,12)));
+async function fetchTileWithRetry(url: string, label: string): Promise<Buffer> {
+  const attempts = 3;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      const response = await fetch(url, {cache:"no-store",signal:AbortSignal.timeout(15000)});
+      if (response.ok) return Buffer.from(await response.arrayBuffer());
+      if (response.status !== 429 && response.status < 500) throw new Error("Non-retryable JMA tile HTTP "+response.status+" "+label);
+      if (attempt === attempts) throw new Error("JMA tile HTTP "+response.status+" after "+attempts+" attempts "+label);
+    } catch (error) {
+      if (attempt === attempts || String(error).includes("Non-retryable")) throw error;
+    }
+    await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+  }
+  throw new Error("Unreachable JMA retry state "+label);
+}
 async function main() {
   const now = Date.now();
   const frames = (await fetchForecastTargetTimes())
@@ -29,9 +44,7 @@ async function main() {
     let rainyPixelsInTokyoMainlandBox = 0;
     const tileDiagnostics: Array<{x:number;y:number;rainyPixels:number;tokyoMainlandBoxPixels:number;sampleRainCoordinates:Array<{longitude:number;latitude:number}>}> = [];
     for (const [x,y] of tiles) {
-      const response = await fetch(buildJmaRainTileUrl(frame,4,x,y), {cache:"no-store"});
-      if (!response.ok) throw new Error("Missing JMA tile "+frame.validtime+" z4/"+x+"/"+y);
-      const buffer = Buffer.from(await response.arrayBuffer());
+      const buffer = await fetchTileWithRetry(buildJmaRainTileUrl(frame,4,x,y),frame.validtime+" z4/"+x+"/"+y);
       const scan = scanJmaTileAtLeast1mm(buffer);
       if (scan.unknownPixels) throw new Error("Unknown JMA palette pixel");
       rainyPixels += scan.rainPixels;
