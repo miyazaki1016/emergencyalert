@@ -27,7 +27,7 @@ async function main() {
     const codes = new Map<string, { code: string; prefecture: string; municipality: string }>();
     let rainyPixels = 0;
     let rainyPixelsInTokyoMainlandBox = 0;
-    const tileDiagnostics: Array<{x:number;y:number;rainyPixels:number;tokyoMainlandBoxPixels:number}> = [];
+    const tileDiagnostics: Array<{x:number;y:number;rainyPixels:number;tokyoMainlandBoxPixels:number;sampleRainCoordinates:Array<{longitude:number;latitude:number}>}> = [];
     for (const [x,y] of tiles) {
       const response = await fetch(buildJmaRainTileUrl(frame,4,x,y), {cache:"no-store"});
       if (!response.ok) throw new Error("Missing JMA tile "+frame.validtime+" z4/"+x+"/"+y);
@@ -38,7 +38,7 @@ async function main() {
       const points = scan.rainPixels ? locateJmaRainPixelsAtLeast1mm(buffer,4,x,y) : [];
       const tokyoBox = points.filter(p => p.longitude >= 138.9 && p.longitude <= 140.2 && p.latitude >= 35.45 && p.latitude <= 35.9).length;
       rainyPixelsInTokyoMainlandBox += tokyoBox;
-      tileDiagnostics.push({x,y,rainyPixels:scan.rainPixels,tokyoMainlandBoxPixels:tokyoBox});
+      tileDiagnostics.push({x,y,rainyPixels:scan.rainPixels,tokyoMainlandBoxPixels:tokyoBox,sampleRainCoordinates:points.filter((_,i)=>i%Math.max(1,Math.floor(points.length/3))===0).slice(0,3).map(p=>({longitude:Number(p.longitude.toFixed(3)),latitude:Number(p.latitude.toFixed(3))}))});
       if (!scan.rainPixels) continue;
       for (const area of municipalitiesForLightRainTile(buffer,4,x,y,areas)) codes.set(area.code,area);
     }
