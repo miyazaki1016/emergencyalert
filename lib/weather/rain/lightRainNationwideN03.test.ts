@@ -30,6 +30,21 @@ test("missing prefectures are explicit and never treated as no rain", () => {
   }
 });
 
+test("prefecture name collisions are rejected even when codes differ", () => {
+  const root = mkdtempSync(join(tmpdir(), "n03-47-"));
+  try {
+    for (const code of ["01", "02"]) {
+      writeFileSync(join(root, code + ".areas.json"), JSON.stringify([{
+        code: code + "001", prefecture: "same-name", municipality: "test-city",
+        geometry: { type: "Polygon", coordinates: [[[140,38],[141,38],[141,39],[140,38]]] }
+      }]));
+    }
+    assert.throws(() => loadNationwidePreparedN03(root), /Duplicate N03 prefecture name/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("all 47 prepared files load with code identity", () => {
   const root = mkdtempSync(join(tmpdir(), "n03-47-"));
   try {
