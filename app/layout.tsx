@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { PwaRegister } from "./pwa-register";
 
 export const metadata: Metadata = {
-  title: "アメくる？ | EmergencyAlert",
+  title: "さきどり ー 暮らしを少し先回りする",
   description: "少し先の変化を、今どう動けばいいか分かる形で。",
   applicationName: "EmergencyAlert",
   appleWebApp: {
