@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - ".github/workflows/light-rain-nationwide-n03-acquisition.yml"
+      - "scripts/light-rain-nationwide-live.ts"
   workflow_dispatch:
 permissions:
   contents: read
@@ -56,3 +57,11 @@ jobs:
           path: /tmp/n03-local
       - name: Audit all 47 official N03 datasets (no production writes)
         run: npx tsx scripts/light-rain-nationwide-n03-audit.ts /tmp/n03-local
+      - name: Extract nationwide JMA >=1mm forecast municipalities (read-only)
+        run: npx tsx scripts/light-rain-nationwide-live.ts /tmp/n03-local > nationwide-rain-result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nationwide-rain-result
+          path: nationwide-rain-result.json
+          retention-days: 7
+          if-no-files-found: error
