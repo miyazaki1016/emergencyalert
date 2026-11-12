@@ -19,6 +19,8 @@ const managementFiles = new Set([
   "docs/DEVELOPMENT_OPERATIONS_INDEX.md",
   "scripts/development_inventory.py",
   "scripts/development_inventory_delta.py",
+  "scripts/development_resume.py",
+  "tests/test_development_resume.py",
   "scripts/pr_approval_routing.py",
   "scripts/pr_review_handoff.py"
 ]);
