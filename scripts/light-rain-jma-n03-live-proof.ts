@@ -1,4 +1,4 @@
-/** Read-only real JMA forecast + official 2026 Tokyo N03 municipality proof.
+/** Read-only real JMA forecast + official 2026 prefecture N03 municipality proof.
  * Coarse z4 tiles are a sampling proof, NOT nationwide coverage or final z10 accuracy.
  * No production Storage, notifications, or Bluesky calls.
  */
@@ -10,10 +10,11 @@ import { municipalitiesForLightRainTile } from "../lib/weather/rain/lightRainMun
 import { parseOfficialN03ForLightRain, type N03FeatureCollection } from "../lib/weather/rain/lightRainOfficialN03";
 
 const file = process.argv[2];
-if (!file) throw new Error("Usage: npx tsx scripts/light-rain-jma-n03-live-proof.ts <official Tokyo N03 GeoJSON>");
+const targetPrefecture = process.argv[3] ?? "東京都";
+if (!file) throw new Error("Usage: npx tsx scripts/light-rain-jma-n03-live-proof.ts <official N03 GeoJSON> [prefecture]");
 const collection = JSON.parse(readFileSync(file, "utf8")) as N03FeatureCollection;
-const areas = parseOfficialN03ForLightRain(collection).filter(a => a.prefecture === "東京都");
-if (!areas.some(a => a.code === "13111")) throw new Error("Official N03 Tokyo missing Ota City");
+const areas = parseOfficialN03ForLightRain(collection).filter(a => a.prefecture === targetPrefecture);
+if (!areas.length) throw new Error("Official N03 missing administrative areas for "+targetPrefecture);
 const tiles = [[13, 5], [14, 5], [13, 6], [14, 6], [13, 7], [14, 7]] as const;
 const stamp = (v: string) => Date.UTC(Number(v.slice(0,4)), Number(v.slice(4,6))-1,
   Number(v.slice(6,8)), Number(v.slice(8,10)), Number(v.slice(10,12)));
@@ -59,11 +60,11 @@ async function main() {
   }
   if (results.every(r => r.rainyPixels === 0)) throw new Error("No real JMA >=1mm rain pixels in sample");
   if (results.every(r => r.municipalities.length === 0)) {
-    console.log(JSON.stringify({status:"INCONCLUSIVE",reason:results.every(r=>r.rainyPixelsInTokyoMainlandBox===0) ? "No rain in Tokyo mainland bounding box at sampled frames" : "Rain in Tokyo bounding box but no official N03 intersection",frames:results}));
+    console.log(JSON.stringify({status:"INCONCLUSIVE",reason:results.every(r=>r.rainyPixelsInTokyoMainlandBox===0) ? "No rain in Tokyo mainland bounding box at sampled frames (diagnostic only)" : "Rain in Tokyo bounding box but no official N03 intersection (diagnostic only)",frames:results}));
     throw new Error("INCOMPLETE_PROOF: no real rainy pixel intersected an official Tokyo municipality; do not claim municipality resolution");
   }
-  console.log(JSON.stringify({mode:"REAL_JMA_OFFICIAL_TOKYO_N03_READ_ONLY",checkedAt:new Date().toISOString(),
-    threshold:">=1mm/h",zoom:4,tiles:tiles.length,frames:results,coverage:"six coarse tiles only",
+  console.log(JSON.stringify({mode:"REAL_JMA_OFFICIAL_N03_READ_ONLY",checkedAt:new Date().toISOString(),
+    prefecture:targetPrefecture,threshold:">=1mm/h",zoom:4,tiles:tiles.length,frames:results,coverage:"six coarse tiles only",
     precision:"coarse pixel footprints; not suitable for publishing municipality alerts",
     productionWrites:false,blueskyPosts:false}));
 }
