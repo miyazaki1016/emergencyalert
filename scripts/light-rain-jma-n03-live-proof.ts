@@ -39,6 +39,7 @@ async function main() {
     results.push({validtime:frame.validtime,rainyPixels,municipalities:[...codes.values()]});
   }
   if (results.every(r => r.rainyPixels === 0)) throw new Error("No real JMA >=1mm rain pixels in sample");
+  if (results.every(r => r.municipalities.length === 0)) throw new Error("INCOMPLETE_PROOF: no real rainy pixel intersected an official Tokyo municipality; do not claim municipality resolution");
   console.log(JSON.stringify({mode:"REAL_JMA_OFFICIAL_TOKYO_N03_READ_ONLY",checkedAt:new Date().toISOString(),
     threshold:">=1mm/h",zoom:4,tiles:tiles.length,frames:results,coverage:"six coarse tiles only",
     precision:"coarse pixel footprints; not suitable for publishing municipality alerts",
