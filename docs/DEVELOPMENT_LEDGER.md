@@ -4,6 +4,66 @@
 
 **案件の状態・担当・次の一手を更新する場所はここ。** 状態を変える際は、確認日・PRやブランチ・該当ファイル・検証証拠を残す。main、本番、実機は別々に判定する。
 
+## 中断・再開チェックポイント
+
+担当ソラは[中断・復帰手順](WORK_RESUME.md)に沿って、再開地点と証拠を記録する。通知文C案は既存の [Issue #205](https://github.com/miyazaki1016/emergencyalert/issues/205) の作業記録から再開できる。
+
+<!-- work-resume:v1
+{
+  "checkpoints": [
+    {
+      "issue": 205,
+      "goal": "弱雨の通知文C案の検証と受入",
+      "status": "active",
+      "updated": "2026-11-12",
+      "blocked_by": [],
+      "next": "Draft PR #206とIssue #205の検証記録を引き継ぎ、最新HEADのCIと残る実機・本番受入条件を確認する。",
+      "completion": "通知本文だけの変更であることを確認し、必要な検証と本番・実機受入の証拠を残す。",
+      "resumed": {
+        "by": "アメふる担当ソラ",
+        "at": "2026-11-11T19:33:16+09:00",
+        "from": "弱雨通知調査の既存記録からC案の本文限定実装に移行し、Draft PR #206に引き継いだ記録",
+        "evidence": "https://github.com/miyazaki1016/emergencyalert/issues/204#issuecomment-6793492527"
+      },
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/issues/202",
+        "https://github.com/miyazaki1016/emergencyalert/issues/204#issuecomment-6770293012",
+        "https://github.com/miyazaki1016/emergencyalert/issues/205#issuecomment-6793489675",
+        "https://github.com/miyazaki1016/emergencyalert/pull/206"
+      ],
+      "stages": {
+        "implementation": {
+          "status": "passed",
+          "evidence": [
+            "https://github.com/miyazaki1016/emergencyalert/pull/206"
+          ]
+        },
+        "verification": {
+          "status": "passed",
+          "pr": 206,
+          "head_sha": "c47298d6b895a6445e99e742969f4221ab2e389e",
+          "evidence": [
+            "https://github.com/miyazaki1016/emergencyalert/actions/runs/43005847163"
+          ]
+        },
+        "main": {
+          "status": "unconfirmed",
+          "evidence": []
+        },
+        "production": {
+          "status": "unconfirmed",
+          "evidence": []
+        },
+        "device": {
+          "status": "unconfirmed",
+          "evidence": []
+        }
+      }
+    }
+  ]
+}
+-->
+
 ## 再開時に見る案件
 
 | 案件 | 確認すること | 根拠・入口 |
@@ -197,7 +257,7 @@
 | #160 | 雨の判定ラボ：現地保留を主判定から外し、降り始め不明を補足表示 | open | `c5a46647e183eb00e335cefc3af4054733db9bd7` | 2026-11-05T04:04:38Z |
 | #161 | ci: stop automatic previews and skip documentation-only builds | merged | `8ee8edff9b9c2fd5ce9d19eea2d408b51c768cab` | 2026-11-05T04:43:39Z |
 | #162 | docs: 総覧を短くし、案件管理を開発台帳へ集約 | merged | `77d576da3d309f65b8f7292c16d8d5a71201adf9` | 2026-11-05T04:58:11Z |
-| #164 | feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階） | open | `bd4a681a605c15be897508ecbc45f1d02daccf7d` | 2026-11-10T03:28:16Z |
+| #164 | feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階） | open | `2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8` | 2026-11-11T13:06:54Z |
 | #165 | docs: 雨の判定ラボ173コマの方式差分・未検証事項を整理 | open | `0ae9da31f65a2afe184a6efd36628a0ac1c2bda3` | 2026-11-08T23:18:57Z |
 | #166 | fix(jaspic): accept trailing slash in Supabase URL | merged | `776fe24e8199cd565625c859b58cf6e1d067284b` | 2026-11-06T04:45:07Z |
 | #167 | style(jaspic): improve iPhone login page layout | merged | `37efdbc992e3a63ea0c91c0b1a267e24742ee875` | 2026-11-06T05:45:33Z |
@@ -233,4 +293,6 @@
 | #197 | feat(history): Issueへ照合結果を返却し、引継ぎと検証・完成を分離 | merged | `575b0dc055505b7eeecae6f06a45e44447d83141` | 2026-11-10T05:03:44Z |
 | #201 | docs: 自動照合の合格確認まで案件調査を開始しない | merged | `77ddf8dfcbc3fd94e6683b6243a4bfb302345751` | 2026-11-10T05:33:45Z |
 | #203 | docs: 照合待機から本題まで追加合図なしで継続する | merged | `06e2757d6b56ca1ff5cbbacd613742683058deec` | 2026-11-10T08:31:17Z |
+| #206 | [Draft] 雨通知文C案：弱雨予報の本文だけを状況別に改善 | open | `c47298d6b895a6445e99e742969f4221ab2e389e` | 2026-11-11T10:44:31Z |
+| #208 | feat(history): 中断・再開と引き継ぎ追跡をアメふるにも展開する | merged | `2866aca5dd45fd09829e55749db6508232141e0c` | 2026-11-12T06:57:38Z |
 <!-- INVENTORY_FACTS_END -->
