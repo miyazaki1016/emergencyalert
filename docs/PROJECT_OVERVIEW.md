@@ -18,7 +18,7 @@
 | **製品理念・完成形・3つの役割（恒久）** | [サキくる製品憲章](SAKIKURU_PRODUCT_CHARTER.md) |
 | **過去の作業内容・検証結果・全PR/ブランチを探す** | [過去作業の履歴索引](WORK_HISTORY_INDEX.md) |
 | **着手前に必ず見る：過去の日本語開発履歴** | [両プロジェクト共通の検索画面](https://miyazaki1016.github.io/misaki/history.html) · [運用手順](WORK_HISTORY_OPERATIONS.md) |
-| 案件の現在地・証拠・次の一手 | [開発台帳](DEVELOPMENT_LEDGER.md) |
+| 案件の現在地・証拠・次の一手 | [開発台帳](DEVELOPMENT_LEDGER.md) · [中断・復帰手順](WORK_RESUME.md) |
 | 自分の判断待ち・担当への引き継ぎ | [美咲 × アメふる承認ボード](https://miyazaki1016.github.io/misaki/) |
 | PR・ブランチの自動棚卸し | [GitHub Actions](https://github.com/miyazaki1016/emergencyalert/actions) → 最新成功の `development-inventory` |
 | 開発・確認・リリースの規約 | [共通運用規約](DEVELOPMENT_MANAGEMENT_STANDARD.md) · [Vercelビルド運用](VERCEL_BUILD_POLICY.md) |

@@ -8,6 +8,9 @@ on:
     paths:
       - 'scripts/development_preflight.py'
       - 'tests/test_development_preflight.py'
+      - 'scripts/development_resume.py'
+      - 'tests/test_development_resume.py'
+      - 'docs/DEVELOPMENT_LEDGER.md'
       - 'scripts/development_inventory.py'
       - 'scripts/development_work_history.py'
       - 'scripts/development_history_evidence.py'
@@ -99,12 +102,23 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_development_work_history.py' -v
       - name: Evidence history regression tests (no API calls)
         run: python3 -m unittest discover -s tests -p 'test_development_history_evidence.py' -v
+      - name: Offline interrupted-work resume tests
+        run: python3 -m unittest discover -s tests -p 'test_development_resume.py' -v
       - name: Read-only inventory
         if: github.event_name != 'pull_request'
         env:
           GITHUB_TOKEN: ${{ github.token }}
           STALE_DAYS: '14'
         run: python3 scripts/development_inventory.py
+      - name: Show interrupted goals and resume candidates (read-only)
+        if: github.event_name != 'pull_request'
+        # Optional report must not stop the existing history collector/publication.
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/development_resume.py --live
+          cat inventory-output/resume-candidates.md >> "$GITHUB_STEP_SUMMARY"
       - name: Render all-PR and branch work history (read-only)
         if: github.event_name != 'pull_request'
         run: python3 scripts/development_work_history.py

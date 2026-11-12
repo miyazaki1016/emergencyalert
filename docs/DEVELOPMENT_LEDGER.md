@@ -4,6 +4,66 @@
 
 **案件の状態・担当・次の一手を更新する場所はここ。** 状態を変える際は、確認日・PRやブランチ・該当ファイル・検証証拠を残す。main、本番、実機は別々に判定する。
 
+## 中断・再開チェックポイント
+
+担当ソラは[中断・復帰手順](WORK_RESUME.md)に沿って、再開地点と証拠を記録する。通知文C案は既存の [Issue #205](https://github.com/miyazaki1016/emergencyalert/issues/205) の作業記録から再開できる。
+
+<!-- work-resume:v1
+{
+  "checkpoints": [
+    {
+      "issue": 205,
+      "goal": "弱雨の通知文C案の検証と受入",
+      "status": "active",
+      "updated": "2026-11-12",
+      "blocked_by": [],
+      "next": "Draft PR #206とIssue #205の検証記録を引き継ぎ、最新HEADのCIと残る実機・本番受入条件を確認する。",
+      "completion": "通知本文だけの変更であることを確認し、必要な検証と本番・実機受入の証拠を残す。",
+      "resumed": {
+        "by": "アメふる担当ソラ",
+        "at": "2026-11-11T19:33:16+09:00",
+        "from": "弱雨通知調査の既存記録からC案の本文限定実装に移行し、Draft PR #206に引き継いだ記録",
+        "evidence": "https://github.com/miyazaki1016/emergencyalert/issues/204#issuecomment-6793492527"
+      },
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/issues/202",
+        "https://github.com/miyazaki1016/emergencyalert/issues/204#issuecomment-6770293012",
+        "https://github.com/miyazaki1016/emergencyalert/issues/205#issuecomment-6793489675",
+        "https://github.com/miyazaki1016/emergencyalert/pull/206"
+      ],
+      "stages": {
+        "implementation": {
+          "status": "passed",
+          "evidence": [
+            "https://github.com/miyazaki1016/emergencyalert/pull/206"
+          ]
+        },
+        "verification": {
+          "status": "passed",
+          "pr": 206,
+          "head_sha": "c47298d6b895a6445e99e742969f4221ab2e389e",
+          "evidence": [
+            "https://github.com/miyazaki1016/emergencyalert/actions/runs/43005847163"
+          ]
+        },
+        "main": {
+          "status": "unconfirmed",
+          "evidence": []
+        },
+        "production": {
+          "status": "unconfirmed",
+          "evidence": []
+        },
+        "device": {
+          "status": "unconfirmed",
+          "evidence": []
+        }
+      }
+    }
+  ]
+}
+-->
+
 ## 再開時に見る案件
 
 | 案件 | 確認すること | 根拠・入口 |
