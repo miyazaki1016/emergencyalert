@@ -3,17 +3,18 @@
  * Usage: npx tsx scripts/light-rain-z10-refine.ts <47-N03-root>
  */
 import { requireCompleteNationwideN03 } from "../lib/weather/rain/lightRainNationwideN03";
-import { fetchForecastTargetTimes } from "../lib/weather/providers/jma/targetTimes";
+import { fetchForecastTargetTimes, type JmaTargetTime } from "../lib/weather/providers/jma/targetTimes";
 import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
 import { scanJmaTileAtLeast1mm } from "../lib/weather/rain/lightRainProof";
 import { municipalitiesForLightRainTile } from "../lib/weather/rain/lightRainMunicipalities";
+import { forecastTime } from "../lib/weather/rain/nationalForecastSnapshot";
 import type { AdministrativeArea } from "../lib/weather/rain/lightRainAdministrativeAreas";
 
 const root=process.argv[2];
 if(!root)throw new Error("N03 root required");
 const MAX_TILES=Number(process.env.Z10_MAX_TILES||"2500");
 const tiles4=[[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;
-const stamp=(v:string)=>Date.UTC(+v.slice(0,4),+v.slice(4,6)-1,+v.slice(6,8),+v.slice(8,10),+v.slice(10,12));
+const FIVE_MINUTES = 300_000;
 const lon=(x:number,z:number)=>x/(2**z)*360-180;
 const lat=(y:number,z:number)=>Math.atan(Math.sinh(Math.PI-2*Math.PI*y/(2**z)))*180/Math.PI;
 function bbox(area:AdministrativeArea):[number,number,number,number]{
@@ -39,14 +40,27 @@ async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:num
   }
   throw new Error("INCOMPLETE_JMA_TILE "+z+"/"+x+"/"+y);
 }
-async function main(){
-  const started=performance.now();
-  const {areas}=requireCompleteNationwideN03(root);
-  const indexed=areas.map(area=>({area,b:bbox(area)}));
-  const n03Ready=performance.now();
-  const now=Date.now();
-  const frame=(await fetchForecastTargetTimes()).find(f=>stamp(f.validtime)>now&&stamp(f.validtime)<=now+30*60000);
-  if(!frame)throw new Error("NO_FRESH_JMA_FRAME");
+function selectFrames(targets: JmaTargetTime[], now: number): JmaTargetTime[] {
+  const basetime = targets
+    .map(frame => frame.basetime)
+    .filter(base => forecastTime(base) <= now && now - forecastTime(base) < 2 * FIVE_MINUTES)
+    .sort().at(-1);
+  if (!basetime) throw new Error("NO_FRESH_JMA_BASETIME");
+  const base = forecastTime(basetime);
+  const frames = targets.filter(frame => frame.basetime === basetime
+    && forecastTime(frame.validtime) > base && forecastTime(frame.validtime) <= base + 6 * FIVE_MINUTES);
+  if (frames.length !== 6 || frames.some((frame, i) => forecastTime(frame.validtime) !== base + (i + 1) * FIVE_MINUTES)) {
+    throw new Error("INCOMPLETE_JMA_FRAMES: expected six consecutive forecast frames from one basetime");
+  }
+  return frames;
+}
+
+async function refineFrame(
+  frame: JmaTargetTime,
+  indexed: Array<{ area: AdministrativeArea; b: ReturnType<typeof bbox> }>,
+  areaByCode: Map<string, AdministrativeArea>,
+) {
+  const started = performance.now();
   const candidates=new Map<string,AdministrativeArea>();
   for(const [x,y]of tiles4){
     const b:[number,number,number,number]=[lon(x,4),lat(y+1,4),lon(x+1,4),lat(y,4)];
@@ -54,7 +68,7 @@ async function main(){
     const buffer=await fetchTile(frame,4,x,y);
     const scan=scanJmaTileAtLeast1mm(buffer);
     if(scan.unknownPixels)throw new Error("UNKNOWN_JMA_PIXEL_Z4");
-    if(scan.rainPixels)for(const area of municipalitiesForLightRainTile(buffer,4,x,y,relevant))candidates.set(area.code,areas.find(a=>a.code===area.code)!);
+    if(scan.rainPixels)for(const area of municipalitiesForLightRainTile(buffer,4,x,y,relevant))candidates.set(area.code,areaByCode.get(area.code)!);
   }
   const z4Done=performance.now();
   const tileMap=new Map<string,{x:number;y:number;areas:AdministrativeArea[]}>();
@@ -89,7 +103,43 @@ async function main(){
   }
   const z10Done=performance.now();
   const round=(n:number)=>Math.round(n);
-  const timingMs={n03LoadAndIndex:round(n03Ready-started),z4ScanAndCandidateMatch:round(z4Done-n03Ready),z10TilePlanning:round(tilePlanDone-z4Done),z10WallClock:round(z10Done-tilePlanDone),z10NetworkCumulative:round(z10NetworkMs),z10DecodeAndMunicipalityMatchCumulative:round(z10MatchingMs),total:round(z10Done-started)};
-  console.log(JSON.stringify({timingMs,z10Concurrency:8,mode:"READ_ONLY_Z10_REAL_JMA_N03",validtime:frame.validtime,checkedAt:new Date().toISOString(),z4Candidates:candidates.size,z10TilesChecked:entries.length,z10RainyTiles:rainyTiles,z10Municipalities:matched.size,municipalities:[...matched.values()].sort((a,b)=>a.code.localeCompare(b.code)),publication:false,productionWrites:false,blueskyPosts:false}));
+  const timingMs={z4ScanAndCandidateMatch:round(z4Done-started),z10TilePlanning:round(tilePlanDone-z4Done),z10WallClock:round(z10Done-tilePlanDone),z10NetworkCumulative:round(z10NetworkMs),z10DecodeAndMunicipalityMatchCumulative:round(z10MatchingMs),total:round(z10Done-started)};
+  return {
+    validtime: frame.validtime,
+    timingMs,
+    z4Candidates: candidates.size,
+    z10TilesChecked: entries.length,
+    z10RainyTiles: rainyTiles,
+    z10Municipalities: matched.size,
+    municipalities: [...matched.values()].sort((a, b) => a.code.localeCompare(b.code)),
+  };
 }
-main().catch(e=>{console.error(e);process.exitCode=1});
+
+async function main() {
+  const started = performance.now();
+  const coverage = requireCompleteNationwideN03(root);
+  const indexed = coverage.areas.map(area => ({ area, b: bbox(area) }));
+  const areaByCode = new Map(coverage.areas.map(area => [area.code, area]));
+  const n03LoadAndIndex = Math.round(performance.now() - started);
+  const targets = await fetchForecastTargetTimes((input, init) =>
+    fetch(input, { ...init, signal: AbortSignal.timeout(25_000) }));
+  const frames = selectFrames(targets, Date.now());
+  const results = [];
+  for (const frame of frames) results.push(await refineFrame(frame, indexed, areaByCode));
+
+  console.log(JSON.stringify({
+    mode: "READ_ONLY_Z10_REAL_JMA_N03",
+    basetime: frames[0].basetime,
+    checkedAt: new Date().toISOString(),
+    prefectures: coverage.prefectures,
+    municipalityDatasetSize: coverage.municipalities,
+    thresholdMmPerHour: 1,
+    timingMs: { n03LoadAndIndex, total: Math.round(performance.now() - started) },
+    frames: results,
+    publication: false,
+    productionWrites: false,
+    blueskyPosts: false,
+  }));
+}
+
+main().catch(error => { console.error(error); process.exitCode = 1; });
