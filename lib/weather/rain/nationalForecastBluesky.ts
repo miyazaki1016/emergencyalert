@@ -57,3 +57,42 @@ export function planForecastPublication(
     nextSnapshot: current,
   };
 }
+
+/** Storage adapter contract. claim() must be atomic across all workers and processes. */
+export interface ForecastPublicationStore {
+  /** Returns false when this forecast has already been claimed or processed. */
+  claim(basetime: string): Promise<boolean>;
+  /** Persist the validated baseline before allowing a later run to compare against it. */
+  getPrevious(): Promise<NationalForecastSnapshot | null>;
+  /** Complete a claim after all publication candidates are durably handled. */
+  complete(basetime: string, snapshot: NationalForecastSnapshot): Promise<void>;
+  /** Release only an uncompleted claim; retry policy belongs to the durable adapter. */
+  release(basetime: string): Promise<void>;
+}
+
+/**
+ * Prepare a single baseline under an atomic storage claim. No network posting occurs here.
+ * The caller must durably record individual delivery outcomes before calling complete().
+ */
+export async function prepareClaimedForecastPublication(
+  current: NationalForecastSnapshot,
+  store: ForecastPublicationStore,
+): Promise<{ plan: ForecastPublishPlan; complete: () => Promise<void>; release: () => Promise<void> } | null> {
+  if (!(await store.claim(current.basetime))) return null;
+  try {
+    const previous = await store.getPrevious();
+    const plan = planForecastPublication(current, previous);
+    if (!plan) {
+      await store.release(current.basetime);
+      return null;
+    }
+    return {
+      plan,
+      complete: () => store.complete(current.basetime, current),
+      release: () => store.release(current.basetime),
+    };
+  } catch (error) {
+    await store.release(current.basetime);
+    throw error;
+  }
+}
