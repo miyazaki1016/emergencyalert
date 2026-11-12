@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/light-rain-official-n03-proof.yml"
       - "scripts/light-rain-official-n03-proof.ts"
+      - "scripts/light-rain-jma-n03-live-proof.ts"
       - "lib/weather/rain/lightRainOfficialN03.ts"
       - "lib/weather/rain/lightRainMunicipalities.ts"
       - "lib/weather/rain/lightRainAdministrativeAreas.ts"
@@ -32,3 +33,5 @@ jobs:
           test -s /tmp/n03-tokyo/N03-20260101_13.geojson
       - name: Match synthetic 1mm pixel with official Ota N03 geometry
         run: npx tsx scripts/light-rain-official-n03-proof.ts /tmp/n03-tokyo/N03-20260101_13.geojson
+      - name: Match real JMA forecast with official Tokyo N03 (coarse read-only sample)
+        run: npx tsx scripts/light-rain-jma-n03-live-proof.ts /tmp/n03-tokyo/N03-20260101_13.geojson
