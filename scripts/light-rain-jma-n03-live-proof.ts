@@ -58,6 +58,7 @@ async function main() {
     }
     results.push({validtime:frame.validtime,rainyPixels,rainyPixelsInTokyoMainlandBox,tileDiagnostics,municipalities:[...codes.values()]});
   }
+  if (results.length !== 6) throw new Error("INCOMPLETE_PROOF: expected six 5-minute forecast frames, got "+results.length);
   if (results.every(r => r.rainyPixels === 0)) throw new Error("No real JMA >=1mm rain pixels in sample");
   if (results.every(r => r.municipalities.length === 0)) {
     console.log(JSON.stringify({status:"INCONCLUSIVE",reason:results.every(r=>r.rainyPixelsInTokyoMainlandBox===0) ? "No rain in Tokyo mainland bounding box at sampled frames (diagnostic only)" : "Rain in Tokyo bounding box but no official N03 intersection (diagnostic only)",frames:results}));
@@ -66,6 +67,7 @@ async function main() {
   console.log(JSON.stringify({mode:"REAL_JMA_OFFICIAL_N03_READ_ONLY",checkedAt:new Date().toISOString(),
     prefecture:targetPrefecture,threshold:">=1mm/h",zoom:4,tiles:tiles.length,frames:results,coverage:"six coarse tiles only",
     precision:"coarse pixel footprints; not suitable for publishing municipality alerts",
+    municipalityIdentity:"use N03 code as key; municipality names alone are not unique (e.g. Sapporo wards)",
     productionWrites:false,blueskyPosts:false}));
 }
 main().catch(e=>{console.error(e);process.exitCode=1;});
