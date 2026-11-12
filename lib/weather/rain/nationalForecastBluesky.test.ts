@@ -27,4 +27,25 @@ describe("national forecast Bluesky candidate",()=>{
   const a=snapshot([{code:"13108",minimumMmPerHour:50}]);
   expect(buildForecastPostCandidates(a)[0].key).toBe(buildForecastPostCandidates(a)[0].key);
  });
+ it("chooses the strongest forecast within a municipality across the rolling 30 minutes",()=>{
+  const data=snapshot([{code:"13108",minimumMmPerHour:30}]);
+  data.frames.push({validTime:"20261112121000",municipalities:[{code:"13108",prefecture:"東京都",municipality:"江東区",minimumMmPerHour:50}]});
+  const rows=buildForecastPostCandidates(data);
+  expect(rows).toHaveLength(1);
+  expect(rows[0].intensity).toBe(50);
+  expect(rows[0].validTime).toBe("20261112121000");
+ });
+ it("does not repost when only the forecast time rolls forward by five minutes",()=>{
+  const previous=snapshot([{code:"13108",minimumMmPerHour:50}]);
+  const current=snapshot([{code:"13108",minimumMmPerHour:50}]);
+  current.basetime="20261112120500";
+  current.frames[0].validTime="20261112121000";
+  expect(significantForecastChanges(current,previous)).toEqual([]);
+ });
+ it("announces a municipality when rain returns after falling below threshold",()=>{
+  const clear=snapshot([]);
+  const returned=snapshot([{code:"13108",minimumMmPerHour:50}]);
+  expect(significantForecastChanges(returned,clear)).toHaveLength(1);
+ });
+
 });
