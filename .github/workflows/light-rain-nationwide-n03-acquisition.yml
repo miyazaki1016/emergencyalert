@@ -4,6 +4,7 @@ on:
     paths:
       - ".github/workflows/light-rain-nationwide-n03-acquisition.yml"
       - "scripts/light-rain-nationwide-live.ts"
+      - "scripts/light-rain-z10-refine.ts"
   workflow_dispatch:
 permissions:
   contents: read
@@ -43,7 +44,7 @@ jobs:
   nationwide-audit:
     needs: prefecture
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -63,5 +64,17 @@ jobs:
         with:
           name: nationwide-rain-result
           path: nationwide-rain-result.json
+          retention-days: 7
+          if-no-files-found: error
+      - name: Refine first forecast frame at z10 (read-only, bounded)
+        id: z10
+        continue-on-error: true
+        timeout-minutes: 25
+        run: npx tsx scripts/light-rain-z10-refine.ts /tmp/n03-local > nationwide-rain-z10.json
+      - uses: actions/upload-artifact@v4
+        if: steps.z10.outcome == 'success'
+        with:
+          name: nationwide-rain-z10
+          path: nationwide-rain-z10.json
           retention-days: 7
           if-no-files-found: error
