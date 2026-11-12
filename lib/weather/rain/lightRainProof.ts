@@ -1,6 +1,6 @@
 import { PNG } from "pngjs";
-import { classifyRainPixel } from "@/lib/weather/providers/jma/classifyPixel";
-import type { RainIntensityClass } from "@/lib/weather/types";
+import { classifyRainPixel } from "../providers/jma/classifyPixel";
+import type { RainIntensityClass } from "../types";
 
 /** Isolated read-only proof: no changes to production >=30mm/h alerts. */
 const AT_LEAST_1: ReadonlySet<RainIntensityClass> = new Set([
