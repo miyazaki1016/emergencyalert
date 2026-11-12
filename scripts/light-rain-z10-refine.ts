@@ -171,7 +171,6 @@ async function main() {
       fetch(input, { ...init, signal: AbortSignal.timeout(25_000) }));
     const frames = selectFrames(targets, Date.now());
     if (frames[0].basetime === previousBase) return;
-    recordGap(frames[0].basetime);
     const results = [];
     // Two frames share the cycle budget. Await both before stopping so the next
     // update does not overlap a failed cycle's remaining requests.
@@ -202,6 +201,9 @@ async function main() {
       productionWrites: false,
       blueskyPosts: false,
     }));
+    // Record a gap only after the new cycle has actually completed. A failed
+    // cycle must not be mistaken for successful progress.
+    recordGap(frames[0].basetime);
     previousBase = frames[0].basetime;
     successfulUpdates++;
   };
