@@ -1,0 +1,1179 @@
+{
+  "id": "pr-164",
+  "number": 164,
+  "title": "feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階）",
+  "topics": [
+    "雨量・全国検知",
+    "開発管理"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更／開発資産の把握・引継ぎ・レビューを支援する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Closes none; relates to #163.\n\n- Vercel APIから指定チームの直近24時間・1時間のデプロイ履歴件数を読み取り専用で集計\n- ページング、重複除去、API失敗時のunknown表示\n- **重要:** 取得したデプロイ記録件数は公式ビルド利用枠とは限らない。自動停止・再開には使用しない\n- 必要な環境変数: `VERCEL_TOKEN`, `VERCEL_TEAM_ID`。オプション: `VERCEL_PROJECT_IDS`\n- Vercel/GitHub Actionsの自動実行設定は変更していない。本番への影響なし\n\n次段階: モックAPIでページング・境界値をテスト、公式制限カウントと照合、チームの全プロジェクトのAPI可視性を確認後にゲート設計。\n\n## 2026-11-10 引継ぎ・安全強化\n- Issue #163 の着手前照合 [Actions #42746003789](https://github.com/miyazaki1016/emergencyalert/actions/runs/42746003789) は REVIEW_RECORDED。既存の監視・テスト・ポリシーを再利用し不足部分だけ拡張。\n- 前任基準コミット `7e61e6c7fc653735dcc327fa2e1ade34beb4dab1` は引継ぎ時のPR headと一致。\n- チーム所属はVercel project APIを読取りで確認済み。取得対象を固定の2プロジェクトIDへ限定し、プロジェクト単位にメンバーシップ検証。欠落・混入・ページ境界不明なら不明扱いでfail-closed。\n- `quota_alert` は純粋なアドバイス用関数で、正式な使用量と認定された入力に対してのみ70/85/95%の段階判定。実際のVercel残り枠は未確認、運用監視出力は常に `safe_to_gate=false`。\n- 自動停止・再開、GitHub release gate、Vercel設定・本番には未接続。CIとは別に本番操作の明示承認が必要。\n- 旧CI失敗は [run #42568821158](https://github.com/miyazaki1016/emergencyalert/actions/runs/42568821158) のVitest検出エラー。現ブランチの `tests/rainLabGrade.test.ts` は既に `vitest` importへ修正されており、同じ修正の重複コミットは不要。最新HEADでのCI結果は別途確認。\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-164\",\"decision\":\"extend\",\"reason\":\"コミット7e61e6c7の既存読み取り専用監視、専用テスト、共通ポリシーをreuseし、チーム内の厳密2プロジェクト限定、APIページ境界・欠損検知、正式利用量がない時の安全な警戒判定だけをextendした。自動制御は未有効化。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/164\"}]}\n-->\n\n\n## 2026-11-10 最新HEAD検証・公式利用量調査（追記）\n- 現在のHEAD `56fe1fc85725c7f88931e5e77ed353a540a2e5eb` に対する GitHub Actions workflow run / check run が一覧に存在しないことを確認。過去の専用テスト成功は新HEADの成功を意味しない。GitHub連携には workflow_dispatch を実行する操作がなく、既存runの再実行は旧SHAになるため、新HEADの CI 合格とは認定しない。**最新HEAD未検証、PRはDraft維持**。\n- 既存Issue #163 の今回の着手前照合は [Actions #42746775708](https://github.com/miyazaki1016/emergencyalert/actions/runs/42746775708) success。\n- 正式資料: https://vercel.com/docs/limits は Hobby の 86,400秒100デプロイ・3,600秒32ビルドの上限を確認。ただし利用済み／残数のチーム固有のREST API公開は確認できない。\n- https://vercel.com/docs/pricing/manage-and-optimize-usage はダッシュボードUsage画面の確認経路。月次リソース使用状況であり、上記2つのローリング制限の残数としてそのまま扱わない。\n- 2026-02-19公開の https://vercel.com/changelog/access-billing-usage-cost-data-api と https://vercel.com/docs/cli/usage の `GET /v1/billing/charges` と `vercel usage` は料金・サービス別使用量の日単位集計。時間単位のビルド回数・秒単位ローリングの作成回数と正式な残枠を取得できるとは確認できないため、ゲートの値に採用禁止。\n- https://vercel.com/docs/rest-api の `X-RateLimit-Remaining` はRESTリクエストの残数であり、デプロイ／ビルド残数ではない。\n- **以後の計画**: 新HEADの Actions が成功するまで監視コードの追加変更や本番自動制御は保留。公式使用量ソースが確定するまで `quota_verified=false` / `safe_to_gate=false` を維持。\n\n\n## 2026-11-10 継続検証（現HEAD対象）\n- 既存Issue #163の実行前照合結果は [Actions #42749128188](https://github.com/miyazaki1016/emergencyalert/actions/runs/42749128188) success (reuse/extend）。\n- 追加: `scripts/vercel_release_request_policy.py` と `tests/test_vercel_release_request_policy.py`。承認・緊急予備・重複排除・最新SHA・障害時保留の**純粋なオフライン判断のみ**。GitHub/Vercelへの書込みやデプロイ命令なし。\n- GitHub Actions専用Workflowを編集イベントでも起動可能な形式へ拡張し、監視テスト＋代替ポリシーテストを実施する。GitHub Actions成功は各runの `head_sha` を照合して判断し、存在しない場合は未検証。\n- Vercelの請求使用量API `GET /v1/billing/charges` は対象チーム／日付で読み取り実行したが `404 costs_not_found`。1日単位の料金APIはHobbyの24時間／1時間ローリング残数の公式根拠としない。GitHub承認ベースのリリース要求はVercel枠管理とは別の自主規制。\n- mainのGit連携自動デプロイを変更していないため、**GitHub上の承認案だけでは本番デプロイを物理的に遮断できない**。自動制御有効化には別途安全検証・明示承認が必要。\n\n\n## 2026-11-10 最終観測（PR #164 / bd4a681）\n- 現HEAD: `bd4a681a605c15be897508ecbc45f1d02daccf7d`。GitHub REST `/commits/{SHA}/check-runs` は `total_count=0`、直近Actions一覧も同SHAのrunなし。専用CI、全体CIの両方とも**未実行であり成功とは記録しない**。\n- GitHub接続のコード/PR本文更新を行ったがActions起動が観測されない。公式GitHub資料 https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow は、`GITHUB_TOKEN`経由のイベントは原則新しいrunを起動せず（`workflow_dispatch`、`repository_dispatch`など例外）、特に`edited`では発火しないと説明する。ただし**今回の接続で利用された認証トークン種別は確認不能**なので真因断定はしない。専用workflowには手動 `workflow_dispatch` が定義済みだが、現在のGitHub連携ツールにはdispatch POST操作がなく実行できない。旧SHAのrun再実行は新HEADの検証にならない。\n- 検証対象のPython専用テストはGitHub Actionsで実行するよう workflow を更新済み。ただし最新SHAに対するテスト結果が得られるまで受入不可。自動制御コードやVercelへのデプロイ経路は作成/有効化していない。\n- Vercel公式API/CLI/UIの追加調査と実際の `GET /v1/billing/charges` 404 結果の詳細は `docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md` に記録。料金集計とローリング枠残数は区別。\n\n\n## 2026-11-10 夜 継続（オフライン競合安全性の追加）\n- 事前照合: [Issue #163 Actions #42833588332](https://github.com/miyazaki1016/emergencyalert/actions/runs/42833588332) で `REVIEW_RECORDED`・`publication_status=confirmed`・`preflight_job_result=success`、依頼の指紋 e7f7009bc06df17f5b8da82e311085ead68f8cd099072a126c8be9eec866c5a6 を確認。\n- 新規成果は `scripts/vercel_release_request_simulation.py` と `tests/test_vercel_release_request_simulation.py`。同一プロセス内での複数要求重複排除、2プロジェクト共通の通常要求上限、緊急枠分離、新SHAが旧要求を破棄、CI欠損時の保留を**オフライン模擬**。\n- 専用workflowへ第三のテストを追加。**GitHub Actionsの最新HEAD成功は未確認**であり、マージ/本番反映は不可。\n- 模擬ロックは複数Actionsランナー間では有効でない。実運用前に耐障害の原子的な台帳、サーバ側署名済み承認、Vercel Git自動デプロイ経路の移行検証が必要。自動制御は無効のまま。\n\n## 引継ぎシステム通し検証（2026-11-10、Issue #163から継続）\n\n**照合の最新合格を確認してから、この検証作業を開始した。** [Issue #163](https://github.com/miyazaki1016/emergencyalert/issues/163) の最新依頼本文（2026-11-10T14:29:26Z、指紋 `2062b5b7c12f3043c24039208ec7b885a9a66919ba1b6da7279bf6a629813692`）に対応する [preflight run #42834600204](https://github.com/miyazaki1016/emergencyalert/actions/runs/42834600204) は、`REVIEW_RECORDED`、`publication_status=confirmed`、`preflight_job_result=success`、run `completed/success`。途中の `PUBLISHING` は合格扱いせず、confirmed後に着手した。\n\n**再利用した原本・判断**：既存PR #164、同ブランチ、[Issue #163 の history-preflight extend 判断](https://github.com/miyazaki1016/emergencyalert/issues/163)、[旧HEAD 56fe1fc までの既存履歴](https://github.com/miyazaki1016/emergencyalert/compare/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1...56fe1fc85725c7f88931e5e77ed353a540a2e5eb)、[開発引継ぎ共通ひな形](https://github.com/miyazaki1016/emergencyalert/blob/main/docs/WORK_HISTORY_HANDOFF_VALIDATION.md)。既存照合器・CI証拠収集器を再実装しない。前回からの追加部分は `scripts/vercel_release_request_simulation.py`、`tests/test_vercel_release_request_simulation.py`、専用workflowの3テスト実行指定、運用ドキュメントの未有効化条件。今回の通し検証では**ソースコード変更なし**、この引継ぎ記録だけを追記。\n\n### 既存ひな形に基づく引継ぎスナップショット\n- **対象**: `miyazaki1016/emergencyalert`、[Draft PR #164](https://github.com/miyazaki1016/emergencyalert/pull/164)、branch `feat/vercel-quota-monitor-20261105`、Issue #163。\n- **引継ぎ**: 成功（対象・制約・既存判断・未解決点を確認）。証拠は上記PR、Issue、[最新preflight](https://github.com/miyazaki1016/emergencyalert/actions/runs/42834600204)。\n- **既存成果の再利用**: 成功（`pr-164` の `extend` 判断と既存コード・研究を引き継ぎ）。追加はオフライン競合シミュレーションとそのテスト・ドキュメントのみ。今回の記録は再実装しない。\n- **新規変更の検証**: **未実行／未完了**。対象HEAD `d535dd263b5fc8b0dac1585d1f9751431dc24045` に対し GitHub REST [Actions一覧](https://github.com/miyazaki1016/emergencyalert/actions?query=branch%3Afeat%2Fvercel-quota-monitor-20261105) と [commit checks](https://github.com/miyazaki1016/emergencyalert/commit/d535dd263b5fc8b0dac1585d1f9751431dc24045/checks) を再確認し、Actions run `0`件、check-runs `0`件。必要な専用Python監視/承認ポリシー/並列シミュレーションテスト、およびPR全体のCIについて、**このSHAでの成功証拠なし**。実行ID・試行番号・成功URLは存在せず、古いrunの成功を流用しない。既存のpreflight runはmain側であり本HEADのCIではない。\n- **終了前に再取得したHEAD SHA**: `d535dd263b5fc8b0dac1585d1f9751431dc24045`（この記録時点）。\n- **案件完成**: **未完成**。公式Hobbyローリング枠残数の取得方法は未確定。GitHub承認/本人性、複数Actions runnerに跨る原子的な台帳、CIの実行・合格、Vercel Git自動デプロイ迂回の解消、本番安全性は未検証。\n- **次に行うこと**: まず GitHub UI等の認可された手段で既存 `Vercel quota monitor unit tests` の `workflow_dispatch` を**同ブランチ指定**で実行し、run `head_sha` と各テストのsuccessを確認。PR全体の必須CIも同SHAで確認する。次にCI不具合を既存ブランチ上で修正し、修正後HEADのCIを再確認する。GitHub承認情報をサーバ側で検証する仕組みと複数ランナー用の永続的CASを設計・オフライン検証する。\n- **禁止事項・未許可操作**: mainマージ、本番デプロイ、Vercel本番設定変更、DB/認証/通知変更、自動停止・自動再開の有効化は不可。 `quota_verified=false` / `safe_to_gate=false` を維持。\n- **別の通常チャットへの引継ぎ検証**: **未実施／未確認**。この会話から新しい通常チャットを自動生成して別の担当AIの再開動作を実証する手段はない。次の通常チャットがPR #164・Issue #163・この記録を取得し、最新照合を確認し、過去作業を再実装せず次作業から着手できたときに成功と判定する。記録の作成自体を引継ぎ先での成功と混同しない。\n\n\n## 2026-11-11 継続開発：オフラインSQLiteトランザクション試作\n- 既存Issue #163の着手前照合合格（[run #42834600204](https://github.com/miyazaki1016/emergencyalert/actions/runs/42834600204)）、同一PR・同一依頼範囲の継続として既存結果を再利用。前回の成果を再実装せず、複数クライアントの同時要求という未解決条件のみ拡張。\n- 追加：`scripts/vercel_release_request_journal.py`、`tests/test_vercel_release_request_journal.py`。SQLiteの`BEGIN IMMEDIATE`、一意な要求ID、通常/緊急の自主的要求予算、2プロジェクトの共有台帳、失敗時の保留を**オフライン模擬**。既存Pythonワークフローを4スイート実行する定義へ拡張。\n- **これは本番分散ロックではない**。別GitHub-hosted runner間ではSQLiteファイルは共有されず、承認/CIの入力は未認証のシミュレーションデータ。実運用では認証済み承認・リアルタイムSHA/CI判定・永続共有CAS・失効/障害復旧・Vercel Git連携経路の遮断確認が必要。自動停止/再開なし、デプロイ権限なし。\n- **最新HEAD `c68aec5efc5d6eae692f1957dca4c339fd4d9722` のActions run 0件、check-runs 0件を実測**。GitHub Actionsの実際のテスト成功は未確認。全4スイートと既存CIをこのHEADで実行してジョブとSHAを一致確認するまで未完了のまま。\n- 引継ぎ：成功（PR/Issue既存原本を継続）、既存成果再利用：成功（extend）、新規変更の検証：未実行、開発案件の完成：未完成。次はActions起動経路の修復/同HEADでの成功確認、次に共有ストア/承認情報の信頼性の検証。PRはDraft、mainマージ/本番Vercel/DB/通知/認証変更は禁止。\n\n- 追加修正：SQLite接続のclose漏れを防ぐ後続コミット `79580cf1028448ba77318c8cf44fdab80e046035`。**最新HEADはこのSHA**。再取得したActions run 0件・check-runs 0件、CI未実行/未完了。直前のc68aec SHAの検証状況を最新HEADの成功と読み替えない。\n\n## 2026-11-11 GitHub Actions起動原因の具体化\n- mainで専用 `.github/workflows/vercel-quota-monitor-tests.yml` を取得すると404。GitHub公式仕様では `workflow_dispatch` は該当workflowがdefault branch上に存在する場合のみ受付。**以前の『専用workflowをUIからRun workflow』という案内は現状では成立しない**ため訂正した（詳細は `docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md`）。\n- mainに既存 `.github/workflows/ci.yml` は存在するため、PR側CI未実行はこの条件だけでは説明できない。botのGitHub tokenイベント抑制、Actions承認待ち、CI設定等の確認が必要。原因未確定。\n- 現HEAD `2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8` のrun 0件・check-runs 0件。必要なCIの成功証拠なし。mainマージ・本番デプロイ・自動制御有効化なし。PR Draft維持。\n",
+  "snapshot_head": "2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8",
+  "snapshot_consistent": true,
+  "head": "2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8",
+  "base": "a11630a208595fa97401db25c21753eab5f9deef",
+  "base_ref": "main",
+  "head_ref": "feat/vercel-quota-monitor-20261105",
+  "state": "open",
+  "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+  "draft": true,
+  "merged_at": null,
+  "merge_commit_sha": null,
+  "updated_at": "2026-11-11T13:06:54Z",
+  "code_facts": [
+    {
+      "file": ".github/workflows/vercel-quota-monitor-tests.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "run: |",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/.github/workflows/vercel-quota-monitor-tests.yml"
+    },
+    {
+      "file": ".github/workflows/vercel-quota-monitor-tests.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "python -m unittest discover -s tests -p 'test_vercel_quota_monitor.py' -v",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/.github/workflows/vercel-quota-monitor-tests.yml"
+    },
+    {
+      "file": ".github/workflows/vercel-quota-monitor-tests.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "python -m unittest discover -s tests -p 'test_vercel_release_request_policy.py' -v",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/.github/workflows/vercel-quota-monitor-tests.yml"
+    },
+    {
+      "file": ".github/workflows/vercel-quota-monitor-tests.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "python -m unittest discover -s tests -p 'test_vercel_release_request_simulation.py' -v",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/.github/workflows/vercel-quota-monitor-tests.yml"
+    },
+    {
+      "file": ".github/workflows/vercel-quota-monitor-tests.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "python -m unittest discover -s tests -p 'test_vercel_release_request_journal.py' -v",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/.github/workflows/vercel-quota-monitor-tests.yml"
+    },
+    {
+      "file": "docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md",
+      "kind": "テストの期待値・条件",
+      "expression": "- API requests with explicit `teamId` have returned 403/404 in this connector; omitting it can work. This is an observed connector behavior, not a guarantee for other tokens.",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md"
+    },
+    {
+      "file": "docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md",
+      "kind": "テストの期待値・条件",
+      "expression": "- The user confirmed that production deployment creation is no longer being rejected. Treat the prior permission incident as resolved; do not change team roles or deployment settings to address it.",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md"
+    },
+    {
+      "file": "docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md",
+      "kind": "テストの期待値・条件",
+      "expression": "- On commit `7d40a5997e100f3bb6495870993a811d80b7d484`, dedicated quota-monitor tests and PR classification succeeded, but general CI run 42568247397 failed: Vitest discovered `tests/rainLabGrade.test.ts` using `node:test` and reported `No test suite found`. The other 49 test files and 327 tests passed. This failure is outside the quota-monitor cha",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md"
+    },
+    {
+      "file": "docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md",
+      "kind": "テストの期待値・条件",
+      "expression": "1. Keep development, CI, PR review and branch work unrestricted; request **production deployment** only using a separately reviewed, manually approved GitHub Issue/PR. The first implementation is the pure offline model `scripts/vercel_release_request_policy.py`; it contains **no Vercel API calls, credentials or deployment command**.",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md"
+    },
+    {
+      "file": "docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md",
+      "kind": "テストの期待値・条件",
+      "expression": "8. On GitHub Actions execution: the existing branch workflow originally listened for `pull_request` default events and relevant changed paths. Connector-created commits at 2026-11-10 were not accompanied by a workflow/check run for their SHA. Do not treat this as successful CI; check actual run SHA. The dedicated offline workflow now includes `edit",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md"
+    },
+    {
+      "file": "docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md",
+      "kind": "テストの期待値・条件",
+      "expression": "- The test workflow now covers three offline Python suites and is restricted to workflow test code; no Vercel build or API call occurs.",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def request_json(path, params=None):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if params:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "HTTP要求",
+      "expression": "with urllib.request.urlopen(req, timeout=20) as response:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not isinstance(data, dict) or data.get(\"error\"):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "HTTP要求",
+      "expression": "def fetch(params):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def verify_projects():",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if (data.get(\"id\") != project_id or data.get(\"name\") != name",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def record_time(record):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if value is None:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if isinstance(value, bool) or not isinstance(value, (int, float)) or value < 0:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def gather(cutoff):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_quota_monitor.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if TEAM:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_journal.py",
+      "kind": "関数・クラス定義",
+      "expression": "class OfflineJournal:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_journal.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_journal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def __init__(self, db_path):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_journal.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_journal.py",
+      "kind": "SQL定義・権限",
+      "expression": "db.execute(\"\"\"CREATE TABLE IF NOT EXISTS requests (",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_journal.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_journal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def _connect(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_journal.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_journal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def submit(self, request, github_snapshot, day):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_journal.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_journal.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not isinstance(day, str):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_journal.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_journal.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if date.fromisoformat(day).isoformat() != day:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_journal.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_journal.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not isinstance(request, dict) or not isinstance(github_snapshot, dict):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_journal.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_journal.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not isinstance(request.get(\"project_id\"), str) or request[\"project_id\"] not in ALLOWED_PROJECTS:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_journal.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_journal.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not isinstance(request.get(\"request_id\"), str) or not request[\"request_id\"].strip():",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_journal.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_journal.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if decision.status != \"REVIEW_READY\":",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_journal.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_journal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def counts(self, day):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_journal.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_policy.py",
+      "kind": "関数・クラス定義",
+      "expression": "class Decision:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_policy.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_policy.py",
+      "kind": "関数・クラス定義",
+      "expression": "def evaluate(request, snapshot):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_policy.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_policy.py",
+      "kind": "関数・クラス定義",
+      "expression": "the function cannot authenticate any caller-supplied facts.",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_policy.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_policy.py",
+      "kind": "関数・クラス定義",
+      "expression": "def hold(reason):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_policy.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_policy.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not isinstance(request, dict) or not isinstance(snapshot, dict):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_policy.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_policy.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if snapshot.get(\"trusted\") is not True:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_policy.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_policy.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not isinstance(project, str) or project not in ALLOWED_PROJECTS:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_policy.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_policy.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not isinstance(sha, str) or not SHA.fullmatch(sha):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_policy.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_policy.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not isinstance(rid, str) or not rid.strip():",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_policy.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_policy.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not isinstance(requester, str) or not requester:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_policy.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_policy.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not isinstance(emergency, bool):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_policy.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_policy.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not isinstance(latest, dict) or not isinstance(seen, (list, tuple, set, frozenset)) or not isinstance(green, (list, tuple, set, frozenset)):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_policy.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_simulation.py",
+      "kind": "関数・クラス定義",
+      "expression": "class SimulationLedger:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_simulation.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_simulation.py",
+      "kind": "関数・クラス定義",
+      "expression": "def __init__(self, latest_sha_by_project, ci_green_shas):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_simulation.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_simulation.py",
+      "kind": "関数・クラス定義",
+      "expression": "def submit(self, request):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_simulation.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_simulation.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if decision.status != \"REVIEW_READY\":",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_simulation.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_simulation.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if previous:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_simulation.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_simulation.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if request[\"emergency\"]:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_simulation.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_simulation.py",
+      "kind": "関数・クラス定義",
+      "expression": "def update_latest(self, project_id, sha, ci_green=False):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_simulation.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_simulation.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if project_id not in self._latest or not isinstance(sha, str):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_simulation.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_simulation.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if ci_green:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_simulation.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_simulation.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if project_id in self._pending and self._pending[project_id][\"sha\"] != sha:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_simulation.py"
+    },
+    {
+      "file": "scripts/vercel_release_request_simulation.py",
+      "kind": "関数・クラス定義",
+      "expression": "def snapshot(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_simulation.py"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { strict as assert } from 'node:assert';",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { test } from 'vitest';",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "test('highest precision match wins', () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MATCH', 'MATCH', 'MATCH')), 'exact');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MISMATCH', 'MATCH', 'MATCH')), 'within5');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MISMATCH', 'MISMATCH', 'MATCH')), 'within10');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "test('red only when every window is definitively mismatched', () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MISMATCH', 'MISMATCH', 'MISMATCH')), 'mismatch');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MISMATCH', 'INDETERMINATE', 'MISMATCH')), 'pending');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('INDETERMINATE', 'MISMATCH', 'MISMATCH')), 'pending');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MISMATCH', 'INDETERMINATE', 'MATCH')), 'within10');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade({ state: 'PENDING' }), 'pending');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def item(uid, project=MISAKI, age=1000):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "class MonitorTests(unittest.TestCase):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def run_monitor(self, pages):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def verify(path, params=None):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_empty_both_projects(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_dedup_and_per_project_scope(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_malformed_response_rejected(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_foreign_project_rejected(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_missing_id_or_timestamp_rejected(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_exact_team_and_id_allowlist(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_membership_fail_closed(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_quota_monitor.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_pagination_full_page_and_next_page(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_journal.py",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "sys.path.insert(0, str(Path(__file__).resolve().parents[1] / \"scripts\"))",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_journal.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_journal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def request(rid, project=P1, sha=S1, emergency=False):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_journal.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_journal.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if emergency:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_journal.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_journal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def snapshot():",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_journal.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_journal.py",
+      "kind": "関数・クラス定義",
+      "expression": "class JournalTests(unittest.TestCase):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_journal.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_journal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def setUp(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_journal.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_journal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_two_independent_instances_cannot_double_admit(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_journal.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_journal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_shared_budget_across_projects_and_instances(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_journal.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_journal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def submit(i):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_journal.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_journal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_emergency_reserve_is_separate(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_journal.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_journal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_failed_checks_and_approval_do_not_reserve(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_journal.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_journal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_bad_day_never_writes(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_journal.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_policy.py",
+      "kind": "関数・クラス定義",
+      "expression": "class ReleaseRequestPolicyTests(unittest.TestCase):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_policy.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_policy.py",
+      "kind": "関数・クラス定義",
+      "expression": "def setUp(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_policy.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_policy.py",
+      "kind": "関数・クラス定義",
+      "expression": "def evaluate(self, **changes):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_policy.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_policy.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_review_ready_is_never_permission_to_deploy(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_policy.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_policy.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_rejects_untrusted_snapshot(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_policy.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_policy.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_scope_cannot_be_expanded(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_policy.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_policy.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_stale_sha_never_deployed(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_policy.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_policy.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_ci_failure_or_missing(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_policy.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_policy.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_duplicate_requests(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_policy.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_policy.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_author_is_not_approver(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_policy.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_policy.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_normal_budget_does_not_use_emergency_reserve(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_policy.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_policy.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_emergency_requires_separate_authorization(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_policy.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_simulation.py",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "sys.path.insert(0, str(ROOT / \"scripts\"))",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_simulation.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_simulation.py",
+      "kind": "関数・クラス定義",
+      "expression": "def req(request_id, project=P1, sha=SHA1, emergency=False):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_simulation.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_simulation.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if emergency:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_simulation.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_simulation.py",
+      "kind": "関数・クラス定義",
+      "expression": "class ConcurrentRequestSimulationTests(unittest.TestCase):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_simulation.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_simulation.py",
+      "kind": "関数・クラス定義",
+      "expression": "def setUp(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_simulation.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_simulation.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_atomic_duplicate_request_under_threads(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_simulation.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_simulation.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_cross_project_reserve_does_not_exceed_voluntary_budget(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_simulation.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_simulation.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_emergency_reserve_and_authorization(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_simulation.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_simulation.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_new_commit_invalidates_pending_and_blocks_stale_sha(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_simulation.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_simulation.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_check_failure_and_bad_project_hold(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_simulation.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_simulation.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_simulation_never_grants_deployment(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_simulation.py"
+    },
+    {
+      "file": "tests/test_vercel_release_request_simulation.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if __name__ == \"__main__\":",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_simulation.py"
+    }
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/vercel-quota-monitor-tests.yml",
+      "status": "modified",
+      "additions": 31,
+      "deletions": 0,
+      "patch": "diff --git a/.github/workflows/vercel-quota-monitor-tests.yml b/.github/workflows/vercel-quota-monitor-tests.yml\nnew file mode 100644\nindex 00000000..3bfb98a6\n--- /dev/null\n+++ b/.github/workflows/vercel-quota-monitor-tests.yml\n@@ -0,0 +1,31 @@\n+name: Vercel quota monitor unit tests\n+on:\n+  pull_request:\n+    types: [opened, synchronize, reopened, edited]\n+    paths:\n+      - 'scripts/vercel_quota_monitor.py'\n+      - 'scripts/vercel_release_request_policy.py'\n+      - 'scripts/vercel_release_request_simulation.py'\n+      - 'scripts/vercel_release_request_journal.py'\n+      - 'tests/test_vercel_quota_monitor.py'\n+      - 'tests/test_vercel_release_request_policy.py'\n+      - 'tests/test_vercel_release_request_simulation.py'\n+      - 'tests/test_vercel_release_request_journal.py'\n+      - '.github/workflows/vercel-quota-monitor-tests.yml'\n+  workflow_dispatch:\n+permissions:\n+  contents: read\n+jobs:\n+  offline-tests:\n+    runs-on: ubuntu-latest\n+    steps:\n+      - uses: actions/checkout@v4\n+      - uses: actions/setup-python@v5\n+        with:\n+          python-version: '3.12'\n+      - name: Run quota-monitor and release-request offline tests\n+        run: |\n+          python -m unittest discover -s tests -p 'test_vercel_quota_monitor.py' -v\n+          python -m unittest discover -s tests -p 'test_vercel_release_request_policy.py' -v\n+          python -m unittest discover -s tests -p 'test_vercel_release_request_simulation.py' -v\n+          python -m unittest discover -s tests -p 'test_vercel_release_request_journal.py' -v\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/.github/workflows/vercel-quota-monitor-tests.yml",
+      "source": {
+        "path": ".github/workflows/vercel-quota-monitor-tests.yml",
+        "coverage": "全文",
+        "text": "name: Vercel quota monitor unit tests\non:\n  pull_request:\n    types: [opened, synchronize, reopened, edited]\n    paths:\n      - 'scripts/vercel_quota_monitor.py'\n      - 'scripts/vercel_release_request_policy.py'\n      - 'scripts/vercel_release_request_simulation.py'\n      - 'scripts/vercel_release_request_journal.py'\n      - 'tests/test_vercel_quota_monitor.py'\n      - 'tests/test_vercel_release_request_policy.py'\n      - 'tests/test_vercel_release_request_simulation.py'\n      - 'tests/test_vercel_release_request_journal.py'\n      - '.github/workflows/vercel-quota-monitor-tests.yml'\n  workflow_dispatch:\npermissions:\n  contents: read\njobs:\n  offline-tests:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: '3.12'\n      - name: Run quota-monitor and release-request offline tests\n        run: |\n          python -m unittest discover -s tests -p 'test_vercel_quota_monitor.py' -v\n          python -m unittest discover -s tests -p 'test_vercel_release_request_policy.py' -v\n          python -m unittest discover -s tests -p 'test_vercel_release_request_simulation.py' -v\n          python -m unittest discover -s tests -p 'test_vercel_release_request_journal.py' -v\n",
+        "sha256": "ab404b1c603ef7f5b807b951331a1e7640061bcc449bf516343eb57b693f1e60"
+      }
+    },
+    {
+      "path": "docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md",
+      "status": "modified",
+      "additions": 104,
+      "deletions": 0,
+      "patch": "diff --git a/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md b/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md\nnew file mode 100644\nindex 00000000..9d8f2b5f\n--- /dev/null\n+++ b/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md\n@@ -0,0 +1,104 @@\n+# Vercel shared deployment operating policy (draft, 2026-11-06)\n+\n+Scope: KISHIBOJIM Hobby team, projects `misaki` and `emergencyalert`. This is an operational proposal, not an enabled gate.\n+\n+## Separation of duties\n+- Develop and review on GitHub branches; run offline tests with GitHub Actions. Do not trigger Vercel preview builds by default.\n+- Do not equate GitHub CI success with deployed-site verification.\n+- Batch approved production changes; deploy only when needed, with rollback plan and a reserved emergency margin.\n+- Changes to `main` may trigger production builds. Docs-only changes should use existing build guards, but confirm behavior rather than assuming no quota impact.\n+- Keep production service available when deployment automation is paused. Never delete or roll back a live deployment just to conserve quota.\n+\n+## Observability before enforcement\n+- Use read-only API requests. Verify that both project IDs belong to team `team_VIfp8TXktY4DegRNpPhFb5uT`.\n+- Known project IDs: `misaki=prj_71NgSxGkNXkKECXc9jJRrJHdAkDS`, `emergencyalert=prj_LDqpPAqNGDaY4Aaix8ulwPc8oXmu`.\n+- API requests with explicit `teamId` have returned 403/404 in this connector; omitting it can work. This is an observed connector behavior, not a guarantee for other tokens.\n+- Deployment records (including CANCELED/ERROR) are **not** authoritative Vercel usage; verify the actual plan quota, counting semantics, and rolling windows from Vercel's usage/billing UI or authoritative API before gating.\n+- If team membership, pagination, API access, or quota semantics cannot be verified, mark monitoring `unknown` and do not automatically release deployments.\n+\n+## Proposed escalation levels (not enabled)\n+- 70%: notify and batch nonurgent releases.\n+- 85%: pause routine releases after verified quota measurement.\n+- 95%: reserve emergency capacity; require manual approval.\n+- Resume only after confirmed capacity recovery, green CI, and an explicit check that the queued commit is still the latest approved SHA. Never replay every queued deployment.\n+\n+## Release prerequisites\n+1. Read-only monitor tests green.\n+2. Live data verified for both projects, with pagination and cross-project totals.\n+3. Measured counts reconciled against Vercel's authoritative quota.\n+4. Stop/resume behavior tested in a non-production simulation, including concurrent requests, API errors, and emergency override.\n+5. Explicit approval before modifying production deployment settings or enabling automatic gates.\n+\n+## Verification update (2026-11-09)\n+- The user confirmed that production deployment creation is no longer being rejected. Treat the prior permission incident as resolved; do not change team roles or deployment settings to address it.\n+- Vercel team membership API confirms the connected account is OWNER of KISHIBOJIM. This verifies role, not available deployment quota.\n+- Both projects are visible via the Vercel connector. The deployment history endpoint is available, but no authoritative remaining-quota value has yet been verified.\n+- Keep automated gating disabled. Do not infer remaining quota from the count of deployment records or from project `live` flags.\n+\n+## Official limit validation and CI triage (2026-11-09)\n+- Vercel documentation (https://vercel.com/docs/limits, last updated Feb 3, 2026) confirms Hobby: **100 deployments created per 86,400 seconds** and **32 deployment builds per 3,600 seconds**. These are different counters; a deployment-history total cannot be interpreted as the build counter.\n+- `X-RateLimit-Remaining` in Vercel REST API responses measures **API request** rate limits, not the above deployment/build limits (https://vercel.com/docs/rest-api).\n+- Live remaining allocation and quota counter semantics are **not yet verified** for KISHIBOJIM; keep `quota_verified=false` and `safe_to_gate=false`. Do not activate automation based only on the official maximum limits.\n+- On commit `7d40a5997e100f3bb6495870993a811d80b7d484`, dedicated quota-monitor tests and PR classification succeeded, but general CI run 42568247397 failed: Vitest discovered `tests/rainLabGrade.test.ts` using `node:test` and reported `No test suite found`. The other 49 test files and 327 tests passed. This failure is outside the quota-monitor change; resolve it separately before PR promotion, not by weakening the CI requirement.\n+\n+## Safety hardening (2026-11-10, PR #164 only)\n+- Verified via connected Vercel project reads: both project IDs have `accountId=team_VIfp8TXktY4DegRNpPhFb5uT`. This is not an authoritative quota count. Project `live` / latest canceled deployment cannot diagnose site availability.\n+- Monitor allowlist is fixed to exactly `prj_71NgSxGkNXkKECXc9jJRrJHdAkDS` and `prj_LDqpPAqNGDaY4Aaix8ulwPc8oXmu`. The optional `VERCEL_PROJECT_IDS` must equal these two exact IDs, not names; `VERCEL_TEAM_ID`, if present, must match the expected team. Each project is independently verified with `GET /v9/projects/{id}` and filtered via deployment API `projectId`; mismatches and unreadable results fail closed.\n+- Each project's history pages are paginated separately. Duplicate IDs are deduplicated; invalid IDs/timestamps, foreign project records, nonadvancing pages, ambiguous full-page timestamp ties, and the page limit abort rather than silently report an undercount. Failures emit `unknown`; they do **not** stop serving existing production sites and do not authorize a deployment.\n+- Dashboard/API `X-RateLimit-Remaining` concerns REST requests, **not** deployment creation or build quota. The official published Hobby maxima remain 100 created deployments / 86,400 seconds and 32 builds / 3,600 seconds. No verified API for the team's actual consumed/remaining counts has been identified; history remains observational. Thus 70% / 85% / 95% apply only to explicitly authoritative inputs in the *pure* `quota_alert` advisory function; all live output stays `unknown`, `quota_verified=false`, `safe_to_gate=false`.\n+- No automated stop, automatic resume, gate bypass, or replay is enabled. A future gate must use a trusted quota source, explicit team/project scopes, serialized reservations across both projects, idempotency, manual emergency allowance, and per-project newest approved SHA verification. Network/validation failures must hold new automated releases for manual review **without disabling a running service**. Resume requires fresh authoritative readings and green CI; do not release a queue of stale SHAs.\n+- Vercel API `teamId` scope can fail with connector-specific 403/404; never silently fall back to unverified cross-team totals. GitHub Actions tests use mocks and no Vercel token. Avoid triggering any Vercel build from this research branch.\n+- Evidence: https://github.com/miyazaki1016/emergencyalert/pull/164 , https://github.com/miyazaki1016/emergencyalert/issues/163 , https://vercel.com/docs/limits , https://vercel.com/docs/rest-api .\n+\n+## 2026-11-10: GitHub approval-based alternative (offline proposal; NOT enabled)\n+\n+### Official source investigation\n+- https://vercel.com/docs/limits documents **100 deployments created in 86,400 seconds** and **32 builds in 3,600 seconds** on Hobby. These are rolling platform limits, not equivalent to deployments listed in a project history endpoint.\n+- https://vercel.com/docs/cli/usage describes `vercel usage [--format json] [--breakdown daily]`, which returns billing/resource usage per service at **day** granularity. It does not document exact rolling deployment/build counter balances.\n+- https://vercel.com/docs/pricing/manage-and-optimize-usage documents the dashboard **Usage** allotment indicators for billable resources, not a supported 3,600-second build remaining counter or a 86,400-second deployment remaining counter.\n+- Team billing endpoint `GET /v1/billing/charges` was called read-only for KISHIBOJIM, UTC 2026-11-09 to 2026-11-10. Result: **404 `costs_not_found`**, not a balance and not evidence that the team has unused quota. No other billing period is inferred.\n+- `X-RateLimit-Remaining` is Vercel API **request rate** headroom, not build/deployment headroom.\n+- No supported authoritative rolling remaining-count API or CLI command was verified. Therefore this feature must **not** compute Vercel remaining quota, estimate official available capacity from deployment history, automatically stop a production site, or automatically resume deployments. A dashboard might expose additional indicators: they must be checked against the relevant rolling quota with a documented definition before use.\n+\n+### Alternative: voluntarily reduce deployment requests on GitHub\n+1. Keep development, CI, PR review and branch work unrestricted; request **production deployment** only using a separately reviewed, manually approved GitHub Issue/PR. The first implementation is the pure offline model `scripts/vercel_release_request_policy.py`; it contains **no Vercel API calls, credentials or deployment command**.\n+2. Each request pins exactly one approved project ID, a 40-character Git commit SHA, a unique idempotency key and a requester. Require independent human approver, all required GitHub checks passing **on the pinned SHA**, and fresh comparison against that project's latest approved SHA. A stale SHA is discarded rather than queued to replay.\n+3. `REVIEW_READY` means **human review is still required**. It never means that capacity exists or a deployment is authorized. All outcomes have `can_auto_deploy=false`. Duplicate request IDs produce `DUPLICATE`; unavailable/ambiguous GitHub state, CI failures, invalid team/project, missing reviewer or unknown internal ledger produce `HOLD`.\n+4. Maintain an **internal voluntary request budget**, separate from Vercel's real limit. The offline example uses at most **5 normal requests/day** and a separately tracked **2 emergency requests/day**, with explicit emergency authorization; these numbers are local operating defaults, **not guaranteed unused Vercel slots**. Emergency approvals must not bypass CI, freshness or authentication. If external projects/CLI can deploy, even this internal budget is only an advisory ceiling.\n+5. A future deployment runner (not present) would require GitHub Environments required reviewers, protected environment secrets, a single cross-project `concurrency` group, a durable idempotency ledger with atomic compare-and-set, explicit source identity checks, audit log, manual emergency path and renewed SHA/CI checks immediately before the call. A mere in-memory set is **not** concurrency-safe.\n+6. **Critical bypass limitation:** the existing `vercel.json` has `main: true` under `git.deploymentEnabled`. Git pushes/merges to `main` may therefore create a deployment independently of any proposed GitHub gate. A real enforceable gate needs a later separately approved migration to GitHub-controlled deployment initiation, with verified Git integration / Vercel routing and rollback. This PR does **not** change production Vercel settings or main branch behavior. See https://vercel.com/docs/project-configuration/git-configuration and https://vercel.com/docs/git .\n+7. On API/CI/ledger failure: hold **new requests for manual review**, keep the currently serving production deployment available, preserve development/CI, never disable existing sites or replay queued commits. Do not auto-restart based on a rolling-window guess.\n+8. On GitHub Actions execution: the existing branch workflow originally listened for `pull_request` default events and relevant changed paths. Connector-created commits at 2026-11-10 were not accompanied by a workflow/check run for their SHA. Do not treat this as successful CI; check actual run SHA. The dedicated offline workflow now includes `edited` in PR event types and includes the new test file paths to provide a possible CI retrigger via PR metadata editing; whether this works must be verified in Actions and otherwise reported as an execution blocker. GitHub `workflow_dispatch` remains available via GitHub UI, if authorized. It runs tests only and never calls Vercel.\n+\n+### Acceptance requirements still open\n+- GitHub Actions success for the **latest branch SHA**, not merely successful preflight on main or an earlier commit.\n+- Concurrency/atomic idempotency tests and trustworthy review/commit identity verification with a real GitHub-backed transaction store.\n+- Proof that the future gate cannot be bypassed by Vercel's existing automatic `main` deployment hook, before any enablement.\n+- No main merge, Vercel build, production deployment, changes to production Vercel settings, or automatic pause/resume in this PR.\n+\n+## 2026-11-10 continued work: offline concurrency simulation, no gate\n+\n+- Existing-work preflight for Issue #163: [run 42833588332](https://github.com/miyazaki1016/emergencyalert/actions/runs/42833588332), `REVIEW_RECORDED`, `publication_status=confirmed`, preflight job `success`; issue request fingerprint `e7f7009bc06df17f5b8da82e311085ead68f8cd099072a126c8be9eec866c5a6`. This establishes reuse/extension authorization only, not CI success.\n+- Added `scripts/vercel_release_request_simulation.py`, a **single-process thread-safe in-memory simulation** only. It serializes voluntary request accounting and idempotency, simulates emergency reserve separation, and drops pending requests when a newer SHA supersedes them. It cannot deploy or set any Vercel/GitHub configuration.\n+- Added `tests/test_vercel_release_request_simulation.py`: concurrent duplicate submissions, 40 cross-project concurrent requests against a shared voluntary normal budget, emergency authorization and reserve exhaustion, stale SHA supersession, missing CI, invalid project and permanent `can_auto_deploy=false`.\n+- The in-memory `threading.Lock` is a simulation convenience **not a production locking mechanism across CI runners, servers, or processes**. Proper enforceable coordination needs a durable atomic compare-and-swap or unique-constrained transactional store and an auditable trusted-identity/approval source. Simulated `trusted=True` is fixture data, never attestation.\n+- The test workflow now covers three offline Python suites and is restricted to workflow test code; no Vercel build or API call occurs.\n+- The previous branch HEAD `bd4a681a605c15be897508ecbc45f1d02daccf7d` had zero checks (unverified). For every subsequent HEAD, verify actual `check-runs` and Actions `head_sha` before claiming validation. Connector-origin commits can lack triggering runs; `workflow_dispatch` on the exact branch through an authorized GitHub executor is still a possible path but has not been invoked by this agent. Preflight success on main is *not* PR code CI success.\n+- Production prerequisites remain: source of authenticated GitHub approvals, cross-runner durable reservation, request schema and deadline/idempotency model, visibility/approval of all deploy routes including Vercel auto-deploy on main, independent rollback/incident release path, and explicit user authorization before activation. Do not interpret these voluntary budgets as official Vercel remaining capacity.\n+\n+## 2026-11-11: next offline milestone — transactional local journal (inactive)\n+\n+- Added `scripts/vercel_release_request_journal.py` and `tests/test_vercel_release_request_journal.py` on existing Draft PR #164; updated the offline workflow to run these as a **fourth** Python suite.\n+- The journal uses SQLite `BEGIN IMMEDIATE` and a unique request ID to model serialized admissions from **multiple Python clients sharing one file**, including two authorized projects, voluntary normal/emergency request budgets, duplicate rejection, approval and CI absence, and invalid days. It neither makes an API call nor changes deployment settings; returns `can_auto_deploy=false` at all times.\n+- **Boundary:** Separate GitHub-hosted runners do not share a local SQLite filesystem. This is NOT a production distributed lock or quota reservation. Authoritative approval signatures, current project/SHA/CI attestation, transactional remote storage, clock/window policy, crash recovery, cancellation/expiry and deployment bypass closure remain unsolved; no real quotas verified. The model's caller-supplied `trusted` snapshot is expressly simulated.\n+- Since GitHub Actions has not previously launched on connector-origin changes, execution of all four suites and the repository CI on the latest branch HEAD **must be demonstrated separately**; adding tests and workflow declarations does not count as passing CI.\n+- Operating constraints unchanged: Draft only, no main merge, no production deploy, no Vercel setting change, no enabling automatic stop/resume, no production DB/auth/notifications.\n+\n+## 2026-11-11: CI起動不具合の追加調査（着手前合格の継続案件）\n+\n+- 最新 `main` の `.github/workflows/ci.yml` は存在するが、**専用 `.github/workflows/vercel-quota-monitor-tests.yml` は `main` に存在しない**（GitHub contents API 404）。専用workflowはPR #164ブランチ内のみ。\n+- GitHub公式[Events that trigger workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch)は `workflow_dispatch` の受付に**workflowファイルがdefault branchに存在すること**を要求。したがって、この状態では以前記載した「専用workflowをGitHub UIのRun workflowから同ブランチ指定で起動」という経路は**前提不足で実行できない**。UIボタンが表示されると案内しないこと。\n+- 一方、GitHub公式[GITHUB_TOKEN](https://docs.github.com/en/actions/concepts/security/github_token#when-github_token-triggers-workflow-runs)は自動更新が発生させるActions抑制を説明するが、`pull_request` の `opened/synchronize/reopened` に承認待ち例外も記載されている。今回のGitHub接続に使用されたトークン種別およびPR上の実際のワークフロー承認待ち状態は未確認。**原因を一つに断定しない**。\n+- 既存 `CI` workflowは `main` に定義されていてPRに適用可能な構成だが、現PR HEADに対応する実行記録はなく合格不能。専用workflowをdefault branchに配置するためのmain変更は、今回の明示的な**mainマージ禁止**に抵触するため行わない。\n+- 次の許可範囲内作業: PRのActions承認待ち表示・CI無効化設定・bot actor/eventの一次証拠を確認し、可能な既存のrun承認があれば承認権限者に依頼する。GitHub接続で新HEADのworkflow_dispatchを発行できる操作は現状見つからない。専用workflowの起動には、将来的に**明示的に許可されたmain側のテスト用workflow登録**などが必要になる可能性がある。ただしそれは別承認と安全審査を伴う。コードのローカル動作確認はGitHub Actions CI成功とは別扱い。\n+- 本番・main・デプロイ設定を変更せず、自動停止/自動再開を有効化せず、最新HEADの `check-runs` と `workflow_runs` を検証するまで未完了を維持する。\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md",
+      "source": {
+        "path": "docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md",
+        "coverage": "全文",
+        "text": "# Vercel shared deployment operating policy (draft, 2026-11-06)\n\nScope: KISHIBOJIM Hobby team, projects `misaki` and `emergencyalert`. This is an operational proposal, not an enabled gate.\n\n## Separation of duties\n- Develop and review on GitHub branches; run offline tests with GitHub Actions. Do not trigger Vercel preview builds by default.\n- Do not equate GitHub CI success with deployed-site verification.\n- Batch approved production changes; deploy only when needed, with rollback plan and a reserved emergency margin.\n- Changes to `main` may trigger production builds. Docs-only changes should use existing build guards, but confirm behavior rather than assuming no quota impact.\n- Keep production service available when deployment automation is paused. Never delete or roll back a live deployment just to conserve quota.\n\n## Observability before enforcement\n- Use read-only API requests. Verify that both project IDs belong to team `team_VIfp8TXktY4DegRNpPhFb5uT`.\n- Known project IDs: `misaki=prj_71NgSxGkNXkKECXc9jJRrJHdAkDS`, `emergencyalert=prj_LDqpPAqNGDaY4Aaix8ulwPc8oXmu`.\n- API requests with explicit `teamId` have returned 403/404 in this connector; omitting it can work. This is an observed connector behavior, not a guarantee for other tokens.\n- Deployment records (including CANCELED/ERROR) are **not** authoritative Vercel usage; verify the actual plan quota, counting semantics, and rolling windows from Vercel's usage/billing UI or authoritative API before gating.\n- If team membership, pagination, API access, or quota semantics cannot be verified, mark monitoring `unknown` and do not automatically release deployments.\n\n## Proposed escalation levels (not enabled)\n- 70%: notify and batch nonurgent releases.\n- 85%: pause routine releases after verified quota measurement.\n- 95%: reserve emergency capacity; require manual approval.\n- Resume only after confirmed capacity recovery, green CI, and an explicit check that the queued commit is still the latest approved SHA. Never replay every queued deployment.\n\n## Release prerequisites\n1. Read-only monitor tests green.\n2. Live data verified for both projects, with pagination and cross-project totals.\n3. Measured counts reconciled against Vercel's authoritative quota.\n4. Stop/resume behavior tested in a non-production simulation, including concurrent requests, API errors, and emergency override.\n5. Explicit approval before modifying production deployment settings or enabling automatic gates.\n\n## Verification update (2026-11-09)\n- The user confirmed that production deployment creation is no longer being rejected. Treat the prior permission incident as resolved; do not change team roles or deployment settings to address it.\n- Vercel team membership API confirms the connected account is OWNER of KISHIBOJIM. This verifies role, not available deployment quota.\n- Both projects are visible via the Vercel connector. The deployment history endpoint is available, but no authoritative remaining-quota value has yet been verified.\n- Keep automated gating disabled. Do not infer remaining quota from the count of deployment records or from project `live` flags.\n\n## Official limit validation and CI triage (2026-11-09)\n- Vercel documentation (https://vercel.com/docs/limits, last updated Feb 3, 2026) confirms Hobby: **100 deployments created per 86,400 seconds** and **32 deployment builds per 3,600 seconds**. These are different counters; a deployment-history total cannot be interpreted as the build counter.\n- `X-RateLimit-Remaining` in Vercel REST API responses measures **API request** rate limits, not the above deployment/build limits (https://vercel.com/docs/rest-api).\n- Live remaining allocation and quota counter semantics are **not yet verified** for KISHIBOJIM; keep `quota_verified=false` and `safe_to_gate=false`. Do not activate automation based only on the official maximum limits.\n- On commit `7d40a5997e100f3bb6495870993a811d80b7d484`, dedicated quota-monitor tests and PR classification succeeded, but general CI run 42568247397 failed: Vitest discovered `tests/rainLabGrade.test.ts` using `node:test` and reported `No test suite found`. The other 49 test files and 327 tests passed. This failure is outside the quota-monitor change; resolve it separately before PR promotion, not by weakening the CI requirement.\n\n## Safety hardening (2026-11-10, PR #164 only)\n- Verified via connected Vercel project reads: both project IDs have `accountId=team_VIfp8TXktY4DegRNpPhFb5uT`. This is not an authoritative quota count. Project `live` / latest canceled deployment cannot diagnose site availability.\n- Monitor allowlist is fixed to exactly `prj_71NgSxGkNXkKECXc9jJRrJHdAkDS` and `prj_LDqpPAqNGDaY4Aaix8ulwPc8oXmu`. The optional `VERCEL_PROJECT_IDS` must equal these two exact IDs, not names; `VERCEL_TEAM_ID`, if present, must match the expected team. Each project is independently verified with `GET /v9/projects/{id}` and filtered via deployment API `projectId`; mismatches and unreadable results fail closed.\n- Each project's history pages are paginated separately. Duplicate IDs are deduplicated; invalid IDs/timestamps, foreign project records, nonadvancing pages, ambiguous full-page timestamp ties, and the page limit abort rather than silently report an undercount. Failures emit `unknown`; they do **not** stop serving existing production sites and do not authorize a deployment.\n- Dashboard/API `X-RateLimit-Remaining` concerns REST requests, **not** deployment creation or build quota. The official published Hobby maxima remain 100 created deployments / 86,400 seconds and 32 builds / 3,600 seconds. No verified API for the team's actual consumed/remaining counts has been identified; history remains observational. Thus 70% / 85% / 95% apply only to explicitly authoritative inputs in the *pure* `quota_alert` advisory function; all live output stays `unknown`, `quota_verified=false`, `safe_to_gate=false`.\n- No automated stop, automatic resume, gate bypass, or replay is enabled. A future gate must use a trusted quota source, explicit team/project scopes, serialized reservations across both projects, idempotency, manual emergency allowance, and per-project newest approved SHA verification. Network/validation failures must hold new automated releases for manual review **without disabling a running service**. Resume requires fresh authoritative readings and green CI; do not release a queue of stale SHAs.\n- Vercel API `teamId` scope can fail with connector-specific 403/404; never silently fall back to unverified cross-team totals. GitHub Actions tests use mocks and no Vercel token. Avoid triggering any Vercel build from this research branch.\n- Evidence: https://github.com/miyazaki1016/emergencyalert/pull/164 , https://github.com/miyazaki1016/emergencyalert/issues/163 , https://vercel.com/docs/limits , https://vercel.com/docs/rest-api .\n\n## 2026-11-10: GitHub approval-based alternative (offline proposal; NOT enabled)\n\n### Official source investigation\n- https://vercel.com/docs/limits documents **100 deployments created in 86,400 seconds** and **32 builds in 3,600 seconds** on Hobby. These are rolling platform limits, not equivalent to deployments listed in a project history endpoint.\n- https://vercel.com/docs/cli/usage describes `vercel usage [--format json] [--breakdown daily]`, which returns billing/resource usage per service at **day** granularity. It does not document exact rolling deployment/build counter balances.\n- https://vercel.com/docs/pricing/manage-and-optimize-usage documents the dashboard **Usage** allotment indicators for billable resources, not a supported 3,600-second build remaining counter or a 86,400-second deployment remaining counter.\n- Team billing endpoint `GET /v1/billing/charges` was called read-only for KISHIBOJIM, UTC 2026-11-09 to 2026-11-10. Result: **404 `costs_not_found`**, not a balance and not evidence that the team has unused quota. No other billing period is inferred.\n- `X-RateLimit-Remaining` is Vercel API **request rate** headroom, not build/deployment headroom.\n- No supported authoritative rolling remaining-count API or CLI command was verified. Therefore this feature must **not** compute Vercel remaining quota, estimate official available capacity from deployment history, automatically stop a production site, or automatically resume deployments. A dashboard might expose additional indicators: they must be checked against the relevant rolling quota with a documented definition before use.\n\n### Alternative: voluntarily reduce deployment requests on GitHub\n1. Keep development, CI, PR review and branch work unrestricted; request **production deployment** only using a separately reviewed, manually approved GitHub Issue/PR. The first implementation is the pure offline model `scripts/vercel_release_request_policy.py`; it contains **no Vercel API calls, credentials or deployment command**.\n2. Each request pins exactly one approved project ID, a 40-character Git commit SHA, a unique idempotency key and a requester. Require independent human approver, all required GitHub checks passing **on the pinned SHA**, and fresh comparison against that project's latest approved SHA. A stale SHA is discarded rather than queued to replay.\n3. `REVIEW_READY` means **human review is still required**. It never means that capacity exists or a deployment is authorized. All outcomes have `can_auto_deploy=false`. Duplicate request IDs produce `DUPLICATE`; unavailable/ambiguous GitHub state, CI failures, invalid team/project, missing reviewer or unknown internal ledger produce `HOLD`.\n4. Maintain an **internal voluntary request budget**, separate from Vercel's real limit. The offline example uses at most **5 normal requests/day** and a separately tracked **2 emergency requests/day**, with explicit emergency authorization; these numbers are local operating defaults, **not guaranteed unused Vercel slots**. Emergency approvals must not bypass CI, freshness or authentication. If external projects/CLI can deploy, even this internal budget is only an advisory ceiling.\n5. A future deployment runner (not present) would require GitHub Environments required reviewers, protected environment secrets, a single cross-project `concurrency` group, a durable idempotency ledger with atomic compare-and-set, explicit source identity checks, audit log, manual emergency path and renewed SHA/CI checks immediately before the call. A mere in-memory set is **not** concurrency-safe.\n6. **Critical bypass limitation:** the existing `vercel.json` has `main: true` under `git.deploymentEnabled`. Git pushes/merges to `main` may therefore create a deployment independently of any proposed GitHub gate. A real enforceable gate needs a later separately approved migration to GitHub-controlled deployment initiation, with verified Git integration / Vercel routing and rollback. This PR does **not** change production Vercel settings or main branch behavior. See https://vercel.com/docs/project-configuration/git-configuration and https://vercel.com/docs/git .\n7. On API/CI/ledger failure: hold **new requests for manual review**, keep the currently serving production deployment available, preserve development/CI, never disable existing sites or replay queued commits. Do not auto-restart based on a rolling-window guess.\n8. On GitHub Actions execution: the existing branch workflow originally listened for `pull_request` default events and relevant changed paths. Connector-created commits at 2026-11-10 were not accompanied by a workflow/check run for their SHA. Do not treat this as successful CI; check actual run SHA. The dedicated offline workflow now includes `edited` in PR event types and includes the new test file paths to provide a possible CI retrigger via PR metadata editing; whether this works must be verified in Actions and otherwise reported as an execution blocker. GitHub `workflow_dispatch` remains available via GitHub UI, if authorized. It runs tests only and never calls Vercel.\n\n### Acceptance requirements still open\n- GitHub Actions success for the **latest branch SHA**, not merely successful preflight on main or an earlier commit.\n- Concurrency/atomic idempotency tests and trustworthy review/commit identity verification with a real GitHub-backed transaction store.\n- Proof that the future gate cannot be bypassed by Vercel's existing automatic `main` deployment hook, before any enablement.\n- No main merge, Vercel build, production deployment, changes to production Vercel settings, or automatic pause/resume in this PR.\n\n## 2026-11-10 continued work: offline concurrency simulation, no gate\n\n- Existing-work preflight for Issue #163: [run 42833588332](https://github.com/miyazaki1016/emergencyalert/actions/runs/42833588332), `REVIEW_RECORDED`, `publication_status=confirmed`, preflight job `success`; issue request fingerprint `e7f7009bc06df17f5b8da82e311085ead68f8cd099072a126c8be9eec866c5a6`. This establishes reuse/extension authorization only, not CI success.\n- Added `scripts/vercel_release_request_simulation.py`, a **single-process thread-safe in-memory simulation** only. It serializes voluntary request accounting and idempotency, simulates emergency reserve separation, and drops pending requests when a newer SHA supersedes them. It cannot deploy or set any Vercel/GitHub configuration.\n- Added `tests/test_vercel_release_request_simulation.py`: concurrent duplicate submissions, 40 cross-project concurrent requests against a shared voluntary normal budget, emergency authorization and reserve exhaustion, stale SHA supersession, missing CI, invalid project and permanent `can_auto_deploy=false`.\n- The in-memory `threading.Lock` is a simulation convenience **not a production locking mechanism across CI runners, servers, or processes**. Proper enforceable coordination needs a durable atomic compare-and-swap or unique-constrained transactional store and an auditable trusted-identity/approval source. Simulated `trusted=True` is fixture data, never attestation.\n- The test workflow now covers three offline Python suites and is restricted to workflow test code; no Vercel build or API call occurs.\n- The previous branch HEAD `bd4a681a605c15be897508ecbc45f1d02daccf7d` had zero checks (unverified). For every subsequent HEAD, verify actual `check-runs` and Actions `head_sha` before claiming validation. Connector-origin commits can lack triggering runs; `workflow_dispatch` on the exact branch through an authorized GitHub executor is still a possible path but has not been invoked by this agent. Preflight success on main is *not* PR code CI success.\n- Production prerequisites remain: source of authenticated GitHub approvals, cross-runner durable reservation, request schema and deadline/idempotency model, visibility/approval of all deploy routes including Vercel auto-deploy on main, independent rollback/incident release path, and explicit user authorization before activation. Do not interpret these voluntary budgets as official Vercel remaining capacity.\n\n## 2026-11-11: next offline milestone — transactional local journal (inactive)\n\n- Added `scripts/vercel_release_request_journal.py` and `tests/test_vercel_release_request_journal.py` on existing Draft PR #164; updated the offline workflow to run these as a **fourth** Python suite.\n- The journal uses SQLite `BEGIN IMMEDIATE` and a unique request ID to model serialized admissions from **multiple Python clients sharing one file**, including two authorized projects, voluntary normal/emergency request budgets, duplicate rejection, approval and CI absence, and invalid days. It neither makes an API call nor changes deployment settings; returns `can_auto_deploy=false` at all times.\n- **Boundary:** Separate GitHub-hosted runners do not share a local SQLite filesystem. This is NOT a production distributed lock or quota reservation. Authoritative approval signatures, current project/SHA/CI attestation, transactional remote storage, clock/window policy, crash recovery, cancellation/expiry and deployment bypass closure remain unsolved; no real quotas verified. The model's caller-supplied `trusted` snapshot is expressly simulated.\n- Since GitHub Actions has not previously launched on connector-origin changes, execution of all four suites and the repository CI on the latest branch HEAD **must be demonstrated separately**; adding tests and workflow declarations does not count as passing CI.\n- Operating constraints unchanged: Draft only, no main merge, no production deploy, no Vercel setting change, no enabling automatic stop/resume, no production DB/auth/notifications.\n\n## 2026-11-11: CI起動不具合の追加調査（着手前合格の継続案件）\n\n- 最新 `main` の `.github/workflows/ci.yml` は存在するが、**専用 `.github/workflows/vercel-quota-monitor-tests.yml` は `main` に存在しない**（GitHub contents API 404）。専用workflowはPR #164ブランチ内のみ。\n- GitHub公式[Events that trigger workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch)は `workflow_dispatch` の受付に**workflowファイルがdefault branchに存在すること**を要求。したがって、この状態では以前記載した「専用workflowをGitHub UIのRun workflowから同ブランチ指定で起動」という経路は**前提不足で実行できない**。UIボタンが表示されると案内しないこと。\n- 一方、GitHub公式[GITHUB_TOKEN](https://docs.github.com/en/actions/concepts/security/github_token#when-github_token-triggers-workflow-runs)は自動更新が発生させるActions抑制を説明するが、`pull_request` の `opened/synchronize/reopened` に承認待ち例外も記載されている。今回のGitHub接続に使用されたトークン種別およびPR上の実際のワークフロー承認待ち状態は未確認。**原因を一つに断定しない**。\n- 既存 `CI` workflowは `main` に定義されていてPRに適用可能な構成だが、現PR HEADに対応する実行記録はなく合格不能。専用workflowをdefault branchに配置するためのmain変更は、今回の明示的な**mainマージ禁止**に抵触するため行わない。\n- 次の許可範囲内作業: PRのActions承認待ち表示・CI無効化設定・bot actor/eventの一次証拠を確認し、可能な既存のrun承認があれば承認権限者に依頼する。GitHub接続で新HEADのworkflow_dispatchを発行できる操作は現状見つからない。専用workflowの起動には、将来的に**明示的に許可されたmain側のテスト用workflow登録**などが必要になる可能性がある。ただしそれは別承認と安全審査を伴う。コードのローカル動作確認はGitHub Actions CI成功とは別扱い。\n- 本番・main・デプロイ設定を変更せず、自動停止/自動再開を有効化せず、最新HEADの `check-runs` と `workflow_runs` を検証するまで未完了を維持する。\n",
+        "sha256": "958e70dd0cf0f76bfb981a0188a676bff5820cda4ef147f581613fa55827c481"
+      }
+    },
+    {
+      "path": "scripts/vercel_quota_monitor.py",
+      "status": "modified",
+      "additions": 164,
+      "deletions": 0,
+      "patch": "diff --git a/scripts/vercel_quota_monitor.py b/scripts/vercel_quota_monitor.py\nnew file mode 100644\nindex 00000000..527c0f85\n--- /dev/null\n+++ b/scripts/vercel_quota_monitor.py\n@@ -0,0 +1,164 @@\n+#!/usr/bin/env python3\n+\"\"\"Read-only observation of EXACTLY two Vercel projects; never controls deployments.\n+\n+Deployment history is NOT authoritative quota usage. This program cannot enable a gate.\n+\"\"\"\n+import datetime as dt\n+import json\n+import os\n+import sys\n+import urllib.error\n+import urllib.parse\n+import urllib.request\n+\n+BASE = os.getenv(\"VERCEL_API_BASE\", \"https://api.vercel.com\").rstrip(\"/\")\n+TOKEN = os.getenv(\"VERCEL_TOKEN\")\n+EXPECTED_TEAM = \"team_VIfp8TXktY4DegRNpPhFb5uT\"\n+EXPECTED_PROJECTS = {\n+    \"prj_71NgSxGkNXkKECXc9jJRrJHdAkDS\": \"misaki\",\n+    \"prj_LDqpPAqNGDaY4Aaix8ulwPc8oXmu\": \"emergencyalert\",\n+}\n+TEAM = os.getenv(\"VERCEL_TEAM_ID\")\n+PROJECTS = {p.strip() for p in os.getenv(\"VERCEL_PROJECT_IDS\", \"\").split(\",\") if p.strip()}\n+PAGE_LIMIT = 100\n+MAX_PAGES = 100\n+\n+\n+def request_json(path, params=None):\n+    url = BASE + path\n+    if params:\n+        url += \"?\" + urllib.parse.urlencode(params)\n+    req = urllib.request.Request(\n+        url, headers={\"Authorization\": \"Bearer \" + TOKEN, \"Accept\": \"application/json\"}\n+    )\n+    with urllib.request.urlopen(req, timeout=20) as response:\n+        data = json.load(response)\n+    if not isinstance(data, dict) or data.get(\"error\"):\n+        raise RuntimeError(\"invalid Vercel API response\")\n+    return data\n+\n+\n+def fetch(params):\n+    return request_json(\"/v6/deployments\", params)\n+\n+\n+def verify_projects():\n+    \"\"\"Verify project ID, name, and team individually: no default first-page assumptions.\"\"\"\n+    for project_id, name in EXPECTED_PROJECTS.items():\n+        data = request_json(\"/v9/projects/\" + project_id)\n+        if (data.get(\"id\") != project_id or data.get(\"name\") != name\n+                or data.get(\"accountId\") != EXPECTED_TEAM):\n+            raise RuntimeError(\"project membership not verified: \" + project_id)\n+\n+\n+def record_time(record):\n+    value = record.get(\"created\")\n+    if value is None:\n+        value = record.get(\"createdAt\")\n+    if isinstance(value, bool) or not isinstance(value, (int, float)) or value < 0:\n+        raise RuntimeError(\"deployment record has invalid created timestamp\")\n+    return int(value)\n+\n+\n+def gather(cutoff):\n+    \"\"\"Request each project separately and reject ambiguous/truncated pages.\"\"\"\n+    seen = set()\n+    deployments = []\n+    for project_id in EXPECTED_PROJECTS:\n+        before = None\n+        for _ in range(MAX_PAGES):\n+            params = {\"limit\": PAGE_LIMIT, \"since\": cutoff, \"projectId\": project_id}\n+            if TEAM:\n+                params[\"teamId\"] = TEAM\n+            if before is not None:\n+                params[\"until\"] = before\n+            page = fetch(params)\n+            items = page.get(\"deployments\")\n+            if not isinstance(items, list) or len(items) > PAGE_LIMIT:\n+                raise RuntimeError(\"invalid deployments response; monitoring incomplete\")\n+            if not items:\n+                break\n+            times = []\n+            for item in items:\n+                if not isinstance(item, dict):\n+                    raise RuntimeError(\"invalid deployment item\")\n+                key = item.get(\"uid\") or item.get(\"id\")\n+                if not isinstance(key, str) or not key:\n+                    raise RuntimeError(\"missing deployment identifier\")\n+                created = record_time(item)\n+                times.append(created)\n+                # The API can include other projects despite a request filter.\n+                if item.get(\"projectId\") != project_id:\n+                    raise RuntimeError(\"API returned foreign/unknown project\")\n+                if before is not None and created > before:\n+                    raise RuntimeError(\"pagination boundary violated\")\n+                if key not in seen and created >= cutoff:\n+                    seen.add(key)\n+                    deployments.append(item)\n+            oldest = min(times)\n+            if len(items) < PAGE_LIMIT or oldest < cutoff:\n+                break\n+            # Cannot safely use oldest-1 if an entire full page shares its timestamp.\n+            if times.count(oldest) > 1:\n+                raise RuntimeError(\"ambiguous page boundary; monitoring incomplete\")\n+            next_before = oldest - 1\n+            if before is not None and next_before >= before:\n+                raise RuntimeError(\"pagination did not advance\")\n+            before = next_before\n+        else:\n+            raise RuntimeError(\"pagination safety limit reached; count incomplete\")\n+    return deployments\n+\n+\n+def quota_alert(usage, limit, authoritative=False):\n+    \"\"\"Pure advisory classifier, never an authorization to deploy.\"\"\"\n+    if not authoritative or not isinstance(usage, int) or isinstance(usage, bool) or usage < 0:\n+        return \"unknown\"\n+    if not isinstance(limit, int) or isinstance(limit, bool) or limit <= 0:\n+        return \"unknown\"\n+    ratio = usage / limit\n+    if ratio >= .95:\n+        return \"critical\"\n+    if ratio >= .85:\n+        return \"high\"\n+    if ratio >= .70:\n+        return \"warning\"\n+    return \"normal\"\n+\n+\n+def main():\n+    if not TOKEN:\n+        print(\"VERCEL_TOKEN is required\", file=sys.stderr)\n+        return 2\n+    if TEAM and TEAM != EXPECTED_TEAM:\n+        raise RuntimeError(\"unexpected team ID\")\n+    if PROJECTS and PROJECTS != set(EXPECTED_PROJECTS):\n+        raise RuntimeError(\"project IDs must be exactly the two approved IDs\")\n+    verify_projects()\n+    now = dt.datetime.now(dt.timezone.utc)\n+    cutoff = int((now - dt.timedelta(hours=24)).timestamp() * 1000)\n+    hour = int((now - dt.timedelta(hours=1)).timestamp() * 1000)\n+    deployments = gather(cutoff)\n+    print(json.dumps({\n+        \"team_id\": EXPECTED_TEAM,\n+        \"projects_filter\": sorted(EXPECTED_PROJECTS),\n+        \"observed_at\": now.isoformat(),\n+        \"window\": \"rolling\",\n+        \"deployment_records_24h\": len(deployments),\n+        \"deployment_records_1h\": sum(record_time(d) >= hour for d in deployments),\n+        \"status\": \"unknown\",\n+        \"status_basis\": \"authoritative_quota_unavailable\",\n+        \"quota_alert\": quota_alert(None, 100),\n+        \"safe_to_gate\": False,\n+        \"quota_verified\": False,\n+        \"note\": \"History only; NOT quota used/remaining. No automatic pause/resume.\",\n+    }, ensure_ascii=False))\n+    return 0\n+\n+\n+if __name__ == \"__main__\":\n+    try:\n+        sys.exit(main())\n+    except (urllib.error.URLError, ValueError, RuntimeError, KeyError) as exc:\n+        print(json.dumps({\"status\": \"unknown\", \"error\": str(exc), \"safe_to_gate\": False}), file=sys.stderr)\n+        sys.exit(1)\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_quota_monitor.py",
+      "source": {
+        "path": "scripts/vercel_quota_monitor.py",
+        "coverage": "全文",
+        "text": "#!/usr/bin/env python3\n\"\"\"Read-only observation of EXACTLY two Vercel projects; never controls deployments.\n\nDeployment history is NOT authoritative quota usage. This program cannot enable a gate.\n\"\"\"\nimport datetime as dt\nimport json\nimport os\nimport sys\nimport urllib.error\nimport urllib.parse\nimport urllib.request\n\nBASE = os.getenv(\"VERCEL_API_BASE\", \"https://api.vercel.com\").rstrip(\"/\")\nTOKEN = os.getenv(\"VERCEL_TOKEN\")\nEXPECTED_TEAM = \"team_VIfp8TXktY4DegRNpPhFb5uT\"\nEXPECTED_PROJECTS = {\n    \"prj_71NgSxGkNXkKECXc9jJRrJHdAkDS\": \"misaki\",\n    \"prj_LDqpPAqNGDaY4Aaix8ulwPc8oXmu\": \"emergencyalert\",\n}\nTEAM = os.getenv(\"VERCEL_TEAM_ID\")\nPROJECTS = {p.strip() for p in os.getenv(\"VERCEL_PROJECT_IDS\", \"\").split(\",\") if p.strip()}\nPAGE_LIMIT = 100\nMAX_PAGES = 100\n\n\ndef request_json(path, params=None):\n    url = BASE + path\n    if params:\n        url += \"?\" + urllib.parse.urlencode(params)\n    req = urllib.request.Request(\n        url, headers={\"Authorization\": \"Bearer \" + TOKEN, \"Accept\": \"application/json\"}\n    )\n    with urllib.request.urlopen(req, timeout=20) as response:\n        data = json.load(response)\n    if not isinstance(data, dict) or data.get(\"error\"):\n        raise RuntimeError(\"invalid Vercel API response\")\n    return data\n\n\ndef fetch(params):\n    return request_json(\"/v6/deployments\", params)\n\n\ndef verify_projects():\n    \"\"\"Verify project ID, name, and team individually: no default first-page assumptions.\"\"\"\n    for project_id, name in EXPECTED_PROJECTS.items():\n        data = request_json(\"/v9/projects/\" + project_id)\n        if (data.get(\"id\") != project_id or data.get(\"name\") != name\n                or data.get(\"accountId\") != EXPECTED_TEAM):\n            raise RuntimeError(\"project membership not verified: \" + project_id)\n\n\ndef record_time(record):\n    value = record.get(\"created\")\n    if value is None:\n        value = record.get(\"createdAt\")\n    if isinstance(value, bool) or not isinstance(value, (int, float)) or value < 0:\n        raise RuntimeError(\"deployment record has invalid created timestamp\")\n    return int(value)\n\n\ndef gather(cutoff):\n    \"\"\"Request each project separately and reject ambiguous/truncated pages.\"\"\"\n    seen = set()\n    deployments = []\n    for project_id in EXPECTED_PROJECTS:\n        before = None\n        for _ in range(MAX_PAGES):\n            params = {\"limit\": PAGE_LIMIT, \"since\": cutoff, \"projectId\": project_id}\n            if TEAM:\n                params[\"teamId\"] = TEAM\n            if before is not None:\n                params[\"until\"] = before\n            page = fetch(params)\n            items = page.get(\"deployments\")\n            if not isinstance(items, list) or len(items) > PAGE_LIMIT:\n                raise RuntimeError(\"invalid deployments response; monitoring incomplete\")\n            if not items:\n                break\n            times = []\n            for item in items:\n                if not isinstance(item, dict):\n                    raise RuntimeError(\"invalid deployment item\")\n                key = item.get(\"uid\") or item.get(\"id\")\n                if not isinstance(key, str) or not key:\n                    raise RuntimeError(\"missing deployment identifier\")\n                created = record_time(item)\n                times.append(created)\n                # The API can include other projects despite a request filter.\n                if item.get(\"projectId\") != project_id:\n                    raise RuntimeError(\"API returned foreign/unknown project\")\n                if before is not None and created > before:\n                    raise RuntimeError(\"pagination boundary violated\")\n                if key not in seen and created >= cutoff:\n                    seen.add(key)\n                    deployments.append(item)\n            oldest = min(times)\n            if len(items) < PAGE_LIMIT or oldest < cutoff:\n                break\n            # Cannot safely use oldest-1 if an entire full page shares its timestamp.\n            if times.count(oldest) > 1:\n                raise RuntimeError(\"ambiguous page boundary; monitoring incomplete\")\n            next_before = oldest - 1\n            if before is not None and next_before >= before:\n                raise RuntimeError(\"pagination did not advance\")\n            before = next_before\n        else:\n            raise RuntimeError(\"pagination safety limit reached; count incomplete\")\n    return deployments\n\n\ndef quota_alert(usage, limit, authoritative=False):\n    \"\"\"Pure advisory classifier, never an authorization to deploy.\"\"\"\n    if not authoritative or not isinstance(usage, int) or isinstance(usage, bool) or usage < 0:\n        return \"unknown\"\n    if not isinstance(limit, int) or isinstance(limit, bool) or limit <= 0:\n        return \"unknown\"\n    ratio = usage / limit\n    if ratio >= .95:\n        return \"critical\"\n    if ratio >= .85:\n        return \"high\"\n    if ratio >= .70:\n        return \"warning\"\n    return \"normal\"\n\n\ndef main():\n    if not TOKEN:\n        print(\"VERCEL_TOKEN is required\", file=sys.stderr)\n        return 2\n    if TEAM and TEAM != EXPECTED_TEAM:\n        raise RuntimeError(\"unexpected team ID\")\n    if PROJECTS and PROJECTS != set(EXPECTED_PROJECTS):\n        raise RuntimeError(\"project IDs must be exactly the two approved IDs\")\n    verify_projects()\n    now = dt.datetime.now(dt.timezone.utc)\n    cutoff = int((now - dt.timedelta(hours=24)).timestamp() * 1000)\n    hour = int((now - dt.timedelta(hours=1)).timestamp() * 1000)\n    deployments = gather(cutoff)\n    print(json.dumps({\n        \"team_id\": EXPECTED_TEAM,\n        \"projects_filter\": sorted(EXPECTED_PROJECTS),\n        \"observed_at\": now.isoformat(),\n        \"window\": \"rolling\",\n        \"deployment_records_24h\": len(deployments),\n        \"deployment_records_1h\": sum(record_time(d) >= hour for d in deployments),\n        \"status\": \"unknown\",\n        \"status_basis\": \"authoritative_quota_unavailable\",\n        \"quota_alert\": quota_alert(None, 100),\n        \"safe_to_gate\": False,\n        \"quota_verified\": False,\n        \"note\": \"History only; NOT quota used/remaining. No automatic pause/resume.\",\n    }, ensure_ascii=False))\n    return 0\n\n\nif __name__ == \"__main__\":\n    try:\n        sys.exit(main())\n    except (urllib.error.URLError, ValueError, RuntimeError, KeyError) as exc:\n        print(json.dumps({\"status\": \"unknown\", \"error\": str(exc), \"safe_to_gate\": False}), file=sys.stderr)\n        sys.exit(1)\n",
+        "sha256": "2a85d93fed596f06e0411457234707927d0b6c097d96352a7cb7aebca16beb5c"
+      }
+    },
+    {
+      "path": "scripts/vercel_release_request_journal.py",
+      "status": "modified",
+      "additions": 88,
+      "deletions": 0,
+      "patch": "diff --git a/scripts/vercel_release_request_journal.py b/scripts/vercel_release_request_journal.py\nnew file mode 100644\nindex 00000000..ceebe4f8\n--- /dev/null\n+++ b/scripts/vercel_release_request_journal.py\n@@ -0,0 +1,88 @@\n+\"\"\"Offline SQLite journal prototype for cross-process release request deduplication.\n+\n+Demonstration only. No network, CI authentication, GitHub writes, Vercel\n+calls, deployment credentials or deployment authority. Local SQLite files\n+are NOT shared between separate GitHub Actions runners. Real deployment\n+coordination requires an independently operated, authenticated shared store.\n+\"\"\"\n+import sqlite3\n+from contextlib import closing\n+from datetime import date\n+\n+from vercel_release_request_policy import ALLOWED_PROJECTS, Decision, evaluate\n+\n+\n+class OfflineJournal:\n+    \"\"\"Use SQLite BEGIN IMMEDIATE to serialize simulated admissions.\"\"\"\n+\n+    def __init__(self, db_path):\n+        self.db_path = str(db_path)\n+        with closing(self._connect()) as db:\n+            db.execute(\"\"\"CREATE TABLE IF NOT EXISTS requests (\n+                request_id TEXT PRIMARY KEY, project_id TEXT NOT NULL,\n+                sha TEXT NOT NULL, day TEXT NOT NULL,\n+                emergency INTEGER NOT NULL CHECK(emergency IN (0,1))\n+            )\"\"\")\n+\n+    def _connect(self):\n+        return sqlite3.connect(self.db_path, timeout=20, isolation_level=None)\n+\n+    def submit(self, request, github_snapshot, day):\n+        \"\"\"Atomic journal admission. GitHub snapshot is UNAUTHENTICATED mock.\n+\n+        In particular, an earlier snapshot becoming stale after insertion is\n+        possible; this journal is not a production deployment gate.\n+        \"\"\"\n+        if not isinstance(day, str):\n+            return Decision(\"HOLD\", \"invalid simulation calendar day\")\n+        try:\n+            if date.fromisoformat(day).isoformat() != day:\n+                return Decision(\"HOLD\", \"invalid simulation calendar day\")\n+        except ValueError:\n+            return Decision(\"HOLD\", \"invalid simulation calendar day\")\n+        if not isinstance(request, dict) or not isinstance(github_snapshot, dict):\n+            return Decision(\"HOLD\", \"missing mock inputs\")\n+        if not isinstance(request.get(\"project_id\"), str) or request[\"project_id\"] not in ALLOWED_PROJECTS:\n+            return Decision(\"HOLD\", \"project not in allowlist\")\n+        if not isinstance(request.get(\"request_id\"), str) or not request[\"request_id\"].strip():\n+            return Decision(\"HOLD\", \"invalid request identity\")\n+        with self._connect() as db:\n+            db.execute(\"BEGIN IMMEDIATE\")\n+            try:\n+                seen = {row[0] for row in db.execute(\"SELECT request_id FROM requests\")}\n+                counts = db.execute(\n+                    \"SELECT emergency, COUNT(*) FROM requests WHERE day=? GROUP BY emergency\",\n+                    (day,),\n+                ).fetchall()\n+                per_kind = dict(counts)\n+                # Existing caller-supplied data is never a source of authority\n+                # for journal counts or request identities.\n+                mock = dict(github_snapshot)\n+                mock[\"seen_request_ids\"] = seen\n+                mock[\"normal_requests_today\"] = per_kind.get(0, 0)\n+                mock[\"emergency_requests_today\"] = per_kind.get(1, 0)\n+                decision = evaluate(request, mock)\n+                if decision.status != \"REVIEW_READY\":\n+                    db.execute(\"ROLLBACK\")\n+                    return decision\n+                db.execute(\n+                    \"INSERT INTO requests (request_id, project_id, sha, day, emergency) \"\n+                    \"VALUES (?, ?, ?, ?, ?)\",\n+                    (request[\"request_id\"], request[\"project_id\"], request[\"sha\"],\n+                     day, int(request[\"emergency\"])),\n+                )\n+                db.execute(\"COMMIT\")\n+                return Decision(\"RECORDED_FOR_MANUAL_REVIEW\",\n+                                \"offline journal only; no deployment authority\")\n+            except BaseException:\n+                db.execute(\"ROLLBACK\")\n+                raise\n+\n+    def counts(self, day):\n+        with self._connect() as db:\n+            rows = db.execute(\n+                \"SELECT emergency, COUNT(*) FROM requests WHERE day=? GROUP BY emergency\",\n+                (day,),\n+            ).fetchall()\n+        counts = dict(rows)\n+        return counts.get(0, 0), counts.get(1, 0)\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_journal.py",
+      "source": {
+        "path": "scripts/vercel_release_request_journal.py",
+        "coverage": "全文",
+        "text": "\"\"\"Offline SQLite journal prototype for cross-process release request deduplication.\n\nDemonstration only. No network, CI authentication, GitHub writes, Vercel\ncalls, deployment credentials or deployment authority. Local SQLite files\nare NOT shared between separate GitHub Actions runners. Real deployment\ncoordination requires an independently operated, authenticated shared store.\n\"\"\"\nimport sqlite3\nfrom contextlib import closing\nfrom datetime import date\n\nfrom vercel_release_request_policy import ALLOWED_PROJECTS, Decision, evaluate\n\n\nclass OfflineJournal:\n    \"\"\"Use SQLite BEGIN IMMEDIATE to serialize simulated admissions.\"\"\"\n\n    def __init__(self, db_path):\n        self.db_path = str(db_path)\n        with closing(self._connect()) as db:\n            db.execute(\"\"\"CREATE TABLE IF NOT EXISTS requests (\n                request_id TEXT PRIMARY KEY, project_id TEXT NOT NULL,\n                sha TEXT NOT NULL, day TEXT NOT NULL,\n                emergency INTEGER NOT NULL CHECK(emergency IN (0,1))\n            )\"\"\")\n\n    def _connect(self):\n        return sqlite3.connect(self.db_path, timeout=20, isolation_level=None)\n\n    def submit(self, request, github_snapshot, day):\n        \"\"\"Atomic journal admission. GitHub snapshot is UNAUTHENTICATED mock.\n\n        In particular, an earlier snapshot becoming stale after insertion is\n        possible; this journal is not a production deployment gate.\n        \"\"\"\n        if not isinstance(day, str):\n            return Decision(\"HOLD\", \"invalid simulation calendar day\")\n        try:\n            if date.fromisoformat(day).isoformat() != day:\n                return Decision(\"HOLD\", \"invalid simulation calendar day\")\n        except ValueError:\n            return Decision(\"HOLD\", \"invalid simulation calendar day\")\n        if not isinstance(request, dict) or not isinstance(github_snapshot, dict):\n            return Decision(\"HOLD\", \"missing mock inputs\")\n        if not isinstance(request.get(\"project_id\"), str) or request[\"project_id\"] not in ALLOWED_PROJECTS:\n            return Decision(\"HOLD\", \"project not in allowlist\")\n        if not isinstance(request.get(\"request_id\"), str) or not request[\"request_id\"].strip():\n            return Decision(\"HOLD\", \"invalid request identity\")\n        with self._connect() as db:\n            db.execute(\"BEGIN IMMEDIATE\")\n            try:\n                seen = {row[0] for row in db.execute(\"SELECT request_id FROM requests\")}\n                counts = db.execute(\n                    \"SELECT emergency, COUNT(*) FROM requests WHERE day=? GROUP BY emergency\",\n                    (day,),\n                ).fetchall()\n                per_kind = dict(counts)\n                # Existing caller-supplied data is never a source of authority\n                # for journal counts or request identities.\n                mock = dict(github_snapshot)\n                mock[\"seen_request_ids\"] = seen\n                mock[\"normal_requests_today\"] = per_kind.get(0, 0)\n                mock[\"emergency_requests_today\"] = per_kind.get(1, 0)\n                decision = evaluate(request, mock)\n                if decision.status != \"REVIEW_READY\":\n                    db.execute(\"ROLLBACK\")\n                    return decision\n                db.execute(\n                    \"INSERT INTO requests (request_id, project_id, sha, day, emergency) \"\n                    \"VALUES (?, ?, ?, ?, ?)\",\n                    (request[\"request_id\"], request[\"project_id\"], request[\"sha\"],\n                     day, int(request[\"emergency\"])),\n                )\n                db.execute(\"COMMIT\")\n                return Decision(\"RECORDED_FOR_MANUAL_REVIEW\",\n                                \"offline journal only; no deployment authority\")\n            except BaseException:\n                db.execute(\"ROLLBACK\")\n                raise\n\n    def counts(self, day):\n        with self._connect() as db:\n            rows = db.execute(\n                \"SELECT emergency, COUNT(*) FROM requests WHERE day=? GROUP BY emergency\",\n                (day,),\n            ).fetchall()\n        counts = dict(rows)\n        return counts.get(0, 0), counts.get(1, 0)\n",
+        "sha256": "731287fd1d02392e4d25a3ef8660ecd6f1e801d4651a4e80d1c06c7fd32f857e"
+      }
+    },
+    {
+      "path": "scripts/vercel_release_request_policy.py",
+      "status": "modified",
+      "additions": 91,
+      "deletions": 0,
+      "patch": "diff --git a/scripts/vercel_release_request_policy.py b/scripts/vercel_release_request_policy.py\nnew file mode 100644\nindex 00000000..94121259\n--- /dev/null\n+++ b/scripts/vercel_release_request_policy.py\n@@ -0,0 +1,91 @@\n+\"\"\"Offline-only Vercel release request decision model.\n+\n+IMPORTANT: This module has no network, GitHub writes, or deployment capability.\n+REVIEW_READY is a request for a human to review, NEVER permission to deploy.\n+Internal request budgets are voluntary workflow controls, NOT Vercel quota.\n+\"\"\"\n+from dataclasses import dataclass\n+import re\n+\n+ALLOWED_PROJECTS = frozenset({\n+    \"prj_71NgSxGkNXkKECXc9jJRrJHdAkDS\",\n+    \"prj_LDqpPAqNGDaY4Aaix8ulwPc8oXmu\",\n+})\n+NORMAL_DAILY_REQUEST_BUDGET = 5\n+EMERGENCY_DAILY_REQUEST_BUDGET = 2\n+SHA = re.compile(r\"^[0-9a-f]{40}$\")\n+\n+\n+@dataclass(frozen=True)\n+class Decision:\n+    status: str\n+    reason: str\n+    can_auto_deploy: bool = False\n+\n+\n+def evaluate(request, snapshot):\n+    \"\"\"Fail-closed, pure triage. Never authorizes Vercel deployment.\n+\n+    request: project_id, sha, request_id, requester, approved_by, emergency\n+    snapshot: trusted, latest_sha_by_project, seen_request_ids, ci_green_shas,\n+              normal_requests_today, emergency_requests_today\n+\n+    The caller MUST obtain the latest GitHub SHA, checks and approvals anew;\n+    the function cannot authenticate any caller-supplied facts.\n+    GitHub-side locking/persistence is required before enabling any gate.\n+    \"\"\"\n+    def hold(reason):\n+        return Decision(\"HOLD\", reason)\n+\n+    if not isinstance(request, dict) or not isinstance(snapshot, dict):\n+        return hold(\"missing request or trusted snapshot\")\n+    if snapshot.get(\"trusted\") is not True:\n+        return hold(\"snapshot unavailable or untrusted\")\n+    project = request.get(\"project_id\")\n+    sha = request.get(\"sha\")\n+    rid = request.get(\"request_id\")\n+    requester = request.get(\"requester\")\n+    approver = request.get(\"approved_by\")\n+    emergency = request.get(\"emergency\")\n+    if not isinstance(project, str) or project not in ALLOWED_PROJECTS:\n+        return hold(\"project outside two-project allowlist\")\n+    if not isinstance(sha, str) or not SHA.fullmatch(sha):\n+        return hold(\"invalid pinned commit SHA\")\n+    if not isinstance(rid, str) or not rid.strip():\n+        return hold(\"missing idempotency key\")\n+    if not isinstance(requester, str) or not requester:\n+        return hold(\"missing requester\")\n+    if not isinstance(emergency, bool):\n+        return hold(\"invalid emergency flag\")\n+    latest = snapshot.get(\"latest_sha_by_project\")\n+    seen = snapshot.get(\"seen_request_ids\")\n+    green = snapshot.get(\"ci_green_shas\")\n+    if not isinstance(latest, dict) or not isinstance(seen, (list, tuple, set, frozenset)) or not isinstance(green, (list, tuple, set, frozenset)):\n+        return hold(\"incomplete authoritative GitHub snapshot\")\n+    if not all(isinstance(x, str) for x in seen) or not all(isinstance(x, str) for x in green):\n+        return hold(\"malformed GitHub snapshot\")\n+    # Enforce uniqueness BEFORE evaluating approvals and quotas.\n+    if rid in seen:\n+        return Decision(\"DUPLICATE\", \"request already recorded\")\n+    if latest.get(project) != sha:\n+        return hold(\"stale commit; only latest approved SHA may be considered\")\n+    if sha not in green:\n+        return hold(\"required GitHub checks are not green for pinned SHA\")\n+    if not isinstance(approver, str) or not approver or requester == approver:\n+        return hold(\"independent human approval required\")\n+    normal = snapshot.get(\"normal_requests_today\")\n+    urgent = snapshot.get(\"emergency_requests_today\")\n+    if any(isinstance(x, bool) or not isinstance(x, int) or x < 0 for x in (normal, urgent)):\n+        return hold(\"internal request ledger unavailable\")\n+    if emergency:\n+        if urgent >= EMERGENCY_DAILY_REQUEST_BUDGET:\n+            return hold(\"voluntary emergency request reserve exhausted\")\n+        if request.get(\"emergency_authorized\") is not True:\n+            return hold(\"explicit emergency authorization required\")\n+    elif normal >= NORMAL_DAILY_REQUEST_BUDGET:\n+        return hold(\"voluntary normal request budget exhausted; emergency reserve untouched\")\n+    return Decision(\"REVIEW_READY\", \"manual review only; deployment disabled\")\n+\n+\n+if __name__ == \"__main__\":\n+    raise SystemExit(\"Offline policy library: no executable deployment path\")\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_policy.py",
+      "source": {
+        "path": "scripts/vercel_release_request_policy.py",
+        "coverage": "全文",
+        "text": "\"\"\"Offline-only Vercel release request decision model.\n\nIMPORTANT: This module has no network, GitHub writes, or deployment capability.\nREVIEW_READY is a request for a human to review, NEVER permission to deploy.\nInternal request budgets are voluntary workflow controls, NOT Vercel quota.\n\"\"\"\nfrom dataclasses import dataclass\nimport re\n\nALLOWED_PROJECTS = frozenset({\n    \"prj_71NgSxGkNXkKECXc9jJRrJHdAkDS\",\n    \"prj_LDqpPAqNGDaY4Aaix8ulwPc8oXmu\",\n})\nNORMAL_DAILY_REQUEST_BUDGET = 5\nEMERGENCY_DAILY_REQUEST_BUDGET = 2\nSHA = re.compile(r\"^[0-9a-f]{40}$\")\n\n\n@dataclass(frozen=True)\nclass Decision:\n    status: str\n    reason: str\n    can_auto_deploy: bool = False\n\n\ndef evaluate(request, snapshot):\n    \"\"\"Fail-closed, pure triage. Never authorizes Vercel deployment.\n\n    request: project_id, sha, request_id, requester, approved_by, emergency\n    snapshot: trusted, latest_sha_by_project, seen_request_ids, ci_green_shas,\n              normal_requests_today, emergency_requests_today\n\n    The caller MUST obtain the latest GitHub SHA, checks and approvals anew;\n    the function cannot authenticate any caller-supplied facts.\n    GitHub-side locking/persistence is required before enabling any gate.\n    \"\"\"\n    def hold(reason):\n        return Decision(\"HOLD\", reason)\n\n    if not isinstance(request, dict) or not isinstance(snapshot, dict):\n        return hold(\"missing request or trusted snapshot\")\n    if snapshot.get(\"trusted\") is not True:\n        return hold(\"snapshot unavailable or untrusted\")\n    project = request.get(\"project_id\")\n    sha = request.get(\"sha\")\n    rid = request.get(\"request_id\")\n    requester = request.get(\"requester\")\n    approver = request.get(\"approved_by\")\n    emergency = request.get(\"emergency\")\n    if not isinstance(project, str) or project not in ALLOWED_PROJECTS:\n        return hold(\"project outside two-project allowlist\")\n    if not isinstance(sha, str) or not SHA.fullmatch(sha):\n        return hold(\"invalid pinned commit SHA\")\n    if not isinstance(rid, str) or not rid.strip():\n        return hold(\"missing idempotency key\")\n    if not isinstance(requester, str) or not requester:\n        return hold(\"missing requester\")\n    if not isinstance(emergency, bool):\n        return hold(\"invalid emergency flag\")\n    latest = snapshot.get(\"latest_sha_by_project\")\n    seen = snapshot.get(\"seen_request_ids\")\n    green = snapshot.get(\"ci_green_shas\")\n    if not isinstance(latest, dict) or not isinstance(seen, (list, tuple, set, frozenset)) or not isinstance(green, (list, tuple, set, frozenset)):\n        return hold(\"incomplete authoritative GitHub snapshot\")\n    if not all(isinstance(x, str) for x in seen) or not all(isinstance(x, str) for x in green):\n        return hold(\"malformed GitHub snapshot\")\n    # Enforce uniqueness BEFORE evaluating approvals and quotas.\n    if rid in seen:\n        return Decision(\"DUPLICATE\", \"request already recorded\")\n    if latest.get(project) != sha:\n        return hold(\"stale commit; only latest approved SHA may be considered\")\n    if sha not in green:\n        return hold(\"required GitHub checks are not green for pinned SHA\")\n    if not isinstance(approver, str) or not approver or requester == approver:\n        return hold(\"independent human approval required\")\n    normal = snapshot.get(\"normal_requests_today\")\n    urgent = snapshot.get(\"emergency_requests_today\")\n    if any(isinstance(x, bool) or not isinstance(x, int) or x < 0 for x in (normal, urgent)):\n        return hold(\"internal request ledger unavailable\")\n    if emergency:\n        if urgent >= EMERGENCY_DAILY_REQUEST_BUDGET:\n            return hold(\"voluntary emergency request reserve exhausted\")\n        if request.get(\"emergency_authorized\") is not True:\n            return hold(\"explicit emergency authorization required\")\n    elif normal >= NORMAL_DAILY_REQUEST_BUDGET:\n        return hold(\"voluntary normal request budget exhausted; emergency reserve untouched\")\n    return Decision(\"REVIEW_READY\", \"manual review only; deployment disabled\")\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(\"Offline policy library: no executable deployment path\")\n",
+        "sha256": "020233bfb87f73e82f995b9a67bf0c78fa317f034818184291a9f2d1fb8f6636"
+      }
+    },
+    {
+      "path": "scripts/vercel_release_request_simulation.py",
+      "status": "modified",
+      "additions": 78,
+      "deletions": 0,
+      "patch": "diff --git a/scripts/vercel_release_request_simulation.py b/scripts/vercel_release_request_simulation.py\nnew file mode 100644\nindex 00000000..23a15ac9\n--- /dev/null\n+++ b/scripts/vercel_release_request_simulation.py\n@@ -0,0 +1,78 @@\n+\"\"\"Single-process ONLY simulation of atomic release-request intake.\n+\n+No GitHub/Vercel network calls, secrets, deployment, or production gate.\n+The lock does NOT protect multiple GitHub Actions runners. An actual runner\n+would require durable storage with atomic CAS and server-side approvals.\n+\"\"\"\n+from copy import deepcopy\n+from threading import Lock\n+\n+try:\n+    from scripts.vercel_release_request_policy import evaluate, Decision\n+except ModuleNotFoundError:\n+    from vercel_release_request_policy import evaluate, Decision\n+\n+\n+class SimulationLedger:\n+    \"\"\"Model concurrent admissions and replacement of stale requests offline.\"\"\"\n+\n+    def __init__(self, latest_sha_by_project, ci_green_shas):\n+        self._lock = Lock()\n+        self._seen = set()\n+        self._pending = {}\n+        self._latest = dict(latest_sha_by_project)\n+        self._ci_green = set(ci_green_shas)\n+        self._normal_count = 0\n+        self._emergency_count = 0\n+        self._revision = 0\n+\n+    def submit(self, request):\n+        with self._lock:\n+            snapshot = {\n+                \"trusted\": True,  # Simulation fixture, NOT real GitHub attestation\n+                \"latest_sha_by_project\": dict(self._latest),\n+                \"ci_green_shas\": set(self._ci_green),\n+                \"seen_request_ids\": set(self._seen),\n+                \"normal_requests_today\": self._normal_count,\n+                \"emergency_requests_today\": self._emergency_count,\n+            }\n+            decision = evaluate(request, snapshot)\n+            if decision.status != \"REVIEW_READY\":\n+                return decision\n+            project = request[\"project_id\"]\n+            # Supersede any earlier request for the same project. The earlier\n+            # SHA is never replayed, but audit identity is remembered.\n+            previous = self._pending.get(project)\n+            if previous:\n+                self._seen.add(previous[\"request_id\"])\n+            self._pending[project] = deepcopy(request)\n+            self._seen.add(request[\"request_id\"])\n+            if request[\"emergency\"]:\n+                self._emergency_count += 1\n+            else:\n+                self._normal_count += 1\n+            self._revision += 1\n+            return Decision(\"RECORDED_FOR_MANUAL_REVIEW\", \"no deployment authority\")\n+\n+    def update_latest(self, project_id, sha, ci_green=False):\n+        \"\"\"Simulate a new commit; invalidate a superseded pending request.\"\"\"\n+        with self._lock:\n+            if project_id not in self._latest or not isinstance(sha, str):\n+                raise ValueError(\"unknown project or invalid SHA\")\n+            self._latest[project_id] = sha\n+            if ci_green:\n+                self._ci_green.add(sha)\n+            if project_id in self._pending and self._pending[project_id][\"sha\"] != sha:\n+                self._pending.pop(project_id)\n+            self._revision += 1\n+\n+    def snapshot(self):\n+        with self._lock:\n+            return {\n+                \"revision\": self._revision,\n+                \"pending\": deepcopy(self._pending),\n+                \"seen_request_ids\": sorted(self._seen),\n+                \"normal_requests_today\": self._normal_count,\n+                \"emergency_requests_today\": self._emergency_count,\n+                \"can_auto_deploy\": False,\n+            }\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_simulation.py",
+      "source": {
+        "path": "scripts/vercel_release_request_simulation.py",
+        "coverage": "全文",
+        "text": "\"\"\"Single-process ONLY simulation of atomic release-request intake.\n\nNo GitHub/Vercel network calls, secrets, deployment, or production gate.\nThe lock does NOT protect multiple GitHub Actions runners. An actual runner\nwould require durable storage with atomic CAS and server-side approvals.\n\"\"\"\nfrom copy import deepcopy\nfrom threading import Lock\n\ntry:\n    from scripts.vercel_release_request_policy import evaluate, Decision\nexcept ModuleNotFoundError:\n    from vercel_release_request_policy import evaluate, Decision\n\n\nclass SimulationLedger:\n    \"\"\"Model concurrent admissions and replacement of stale requests offline.\"\"\"\n\n    def __init__(self, latest_sha_by_project, ci_green_shas):\n        self._lock = Lock()\n        self._seen = set()\n        self._pending = {}\n        self._latest = dict(latest_sha_by_project)\n        self._ci_green = set(ci_green_shas)\n        self._normal_count = 0\n        self._emergency_count = 0\n        self._revision = 0\n\n    def submit(self, request):\n        with self._lock:\n            snapshot = {\n                \"trusted\": True,  # Simulation fixture, NOT real GitHub attestation\n                \"latest_sha_by_project\": dict(self._latest),\n                \"ci_green_shas\": set(self._ci_green),\n                \"seen_request_ids\": set(self._seen),\n                \"normal_requests_today\": self._normal_count,\n                \"emergency_requests_today\": self._emergency_count,\n            }\n            decision = evaluate(request, snapshot)\n            if decision.status != \"REVIEW_READY\":\n                return decision\n            project = request[\"project_id\"]\n            # Supersede any earlier request for the same project. The earlier\n            # SHA is never replayed, but audit identity is remembered.\n            previous = self._pending.get(project)\n            if previous:\n                self._seen.add(previous[\"request_id\"])\n            self._pending[project] = deepcopy(request)\n            self._seen.add(request[\"request_id\"])\n            if request[\"emergency\"]:\n                self._emergency_count += 1\n            else:\n                self._normal_count += 1\n            self._revision += 1\n            return Decision(\"RECORDED_FOR_MANUAL_REVIEW\", \"no deployment authority\")\n\n    def update_latest(self, project_id, sha, ci_green=False):\n        \"\"\"Simulate a new commit; invalidate a superseded pending request.\"\"\"\n        with self._lock:\n            if project_id not in self._latest or not isinstance(sha, str):\n                raise ValueError(\"unknown project or invalid SHA\")\n            self._latest[project_id] = sha\n            if ci_green:\n                self._ci_green.add(sha)\n            if project_id in self._pending and self._pending[project_id][\"sha\"] != sha:\n                self._pending.pop(project_id)\n            self._revision += 1\n\n    def snapshot(self):\n        with self._lock:\n            return {\n                \"revision\": self._revision,\n                \"pending\": deepcopy(self._pending),\n                \"seen_request_ids\": sorted(self._seen),\n                \"normal_requests_today\": self._normal_count,\n                \"emergency_requests_today\": self._emergency_count,\n                \"can_auto_deploy\": False,\n            }\n",
+        "sha256": "a0ad8d6ffc32ef66dae00c9d9db1d7c65ff09a2b9cf0cfeb04e50ba8ffb77940"
+      }
+    },
+    {
+      "path": "tests/rainLabGrade.test.ts",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 0,
+      "patch": "diff --git a/tests/rainLabGrade.test.ts b/tests/rainLabGrade.test.ts\nnew file mode 100644\nindex 00000000..0cdf7f27\n--- /dev/null\n+++ b/tests/rainLabGrade.test.ts\n@@ -0,0 +1,22 @@\n+import { strict as assert } from 'node:assert';\n+import { test } from 'vitest';\n+import { matchGrade } from '../lib/research/rainLab';\n+\n+const make = (exact: string, within5: string, within10: string, state = 'COMPLETE') => ({\n+  state,\n+  radar_result: { exact, within5, within10 },\n+});\n+\n+test('highest precision match wins', () => {\n+  assert.equal(matchGrade(make('MATCH', 'MATCH', 'MATCH')), 'exact');\n+  assert.equal(matchGrade(make('MISMATCH', 'MATCH', 'MATCH')), 'within5');\n+  assert.equal(matchGrade(make('MISMATCH', 'MISMATCH', 'MATCH')), 'within10');\n+});\n+\n+test('red only when every window is definitively mismatched', () => {\n+  assert.equal(matchGrade(make('MISMATCH', 'MISMATCH', 'MISMATCH')), 'mismatch');\n+  assert.equal(matchGrade(make('MISMATCH', 'INDETERMINATE', 'MISMATCH')), 'pending');\n+  assert.equal(matchGrade(make('INDETERMINATE', 'MISMATCH', 'MISMATCH')), 'pending');\n+  assert.equal(matchGrade(make('MISMATCH', 'INDETERMINATE', 'MATCH')), 'within10');\n+  assert.equal(matchGrade({ state: 'PENDING' }), 'pending');\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/rainLabGrade.test.ts",
+      "source": {
+        "path": "tests/rainLabGrade.test.ts",
+        "coverage": "全文",
+        "text": "import { strict as assert } from 'node:assert';\nimport { test } from 'vitest';\nimport { matchGrade } from '../lib/research/rainLab';\n\nconst make = (exact: string, within5: string, within10: string, state = 'COMPLETE') => ({\n  state,\n  radar_result: { exact, within5, within10 },\n});\n\ntest('highest precision match wins', () => {\n  assert.equal(matchGrade(make('MATCH', 'MATCH', 'MATCH')), 'exact');\n  assert.equal(matchGrade(make('MISMATCH', 'MATCH', 'MATCH')), 'within5');\n  assert.equal(matchGrade(make('MISMATCH', 'MISMATCH', 'MATCH')), 'within10');\n});\n\ntest('red only when every window is definitively mismatched', () => {\n  assert.equal(matchGrade(make('MISMATCH', 'MISMATCH', 'MISMATCH')), 'mismatch');\n  assert.equal(matchGrade(make('MISMATCH', 'INDETERMINATE', 'MISMATCH')), 'pending');\n  assert.equal(matchGrade(make('INDETERMINATE', 'MISMATCH', 'MISMATCH')), 'pending');\n  assert.equal(matchGrade(make('MISMATCH', 'INDETERMINATE', 'MATCH')), 'within10');\n  assert.equal(matchGrade({ state: 'PENDING' }), 'pending');\n});\n",
+        "sha256": "d1657389867e80b607452d8d5c540786f7fa51dac28df788cc7065478d2b7c11"
+      }
+    },
+    {
+      "path": "tests/test_vercel_quota_monitor.py",
+      "status": "modified",
+      "additions": 120,
+      "deletions": 0,
+      "patch": "diff --git a/tests/test_vercel_quota_monitor.py b/tests/test_vercel_quota_monitor.py\nnew file mode 100644\nindex 00000000..b25f658c\n--- /dev/null\n+++ b/tests/test_vercel_quota_monitor.py\n@@ -0,0 +1,120 @@\n+\"\"\"Offline tests: mock all API calls; no token, build or deployment required.\"\"\"\n+import contextlib\n+import datetime as dt\n+import importlib.util\n+import io\n+import json\n+from pathlib import Path\n+import unittest\n+from unittest.mock import patch\n+\n+MODULE = Path(__file__).resolve().parents[1] / \"scripts\" / \"vercel_quota_monitor.py\"\n+spec = importlib.util.spec_from_file_location(\"vercel_quota_monitor\", MODULE)\n+monitor = importlib.util.module_from_spec(spec)\n+spec.loader.exec_module(monitor)\n+MISAKI, ALERT = list(monitor.EXPECTED_PROJECTS)\n+NOW = int(dt.datetime.now(dt.timezone.utc).timestamp() * 1000)\n+\n+\n+def item(uid, project=MISAKI, age=1000):\n+    return {\"uid\": uid, \"projectId\": project, \"created\": NOW - age}\n+\n+\n+class MonitorTests(unittest.TestCase):\n+    def run_monitor(self, pages):\n+        out = io.StringIO()\n+        def verify(path, params=None):\n+            pid = path.rsplit(\"/\", 1)[-1]\n+            return {\"id\": pid, \"name\": monitor.EXPECTED_PROJECTS[pid],\n+                    \"accountId\": monitor.EXPECTED_TEAM}\n+        with patch.object(monitor, \"TOKEN\", \"test\"), patch.object(monitor, \"TEAM\", None), \\\n+             patch.object(monitor, \"PROJECTS\", set()), \\\n+             patch.object(monitor, \"request_json\", side_effect=verify), \\\n+             patch.object(monitor, \"fetch\", side_effect=pages) as fetch, \\\n+             contextlib.redirect_stdout(out):\n+            code = monitor.main()\n+        return code, json.loads(out.getvalue()), fetch\n+\n+    def test_empty_both_projects(self):\n+        code, result, fetch = self.run_monitor([{\"deployments\": []}, {\"deployments\": []}])\n+        self.assertEqual(code, 0)\n+        self.assertEqual(fetch.call_count, 2)\n+        self.assertEqual(result[\"deployment_records_24h\"], 0)\n+        self.assertEqual(result[\"status\"], \"unknown\")\n+        self.assertFalse(result[\"safe_to_gate\"])\n+        self.assertFalse(result[\"quota_verified\"])\n+        self.assertEqual(set(result[\"projects_filter\"]), set(monitor.EXPECTED_PROJECTS))\n+\n+    def test_dedup_and_per_project_scope(self):\n+        code, result, calls = self.run_monitor([\n+            {\"deployments\": [item(\"a\"), item(\"a\"), item(\"old\", age=25*3600*1000)]},\n+            {\"deployments\": [item(\"b\", ALERT, age=2*3600*1000)]}])\n+        self.assertEqual(code, 0)\n+        self.assertEqual((result[\"deployment_records_24h\"], result[\"deployment_records_1h\"]), (2, 1))\n+        self.assertEqual([c.args[0][\"projectId\"] for c in calls.call_args_list], [MISAKI, ALERT])\n+\n+    def test_malformed_response_rejected(self):\n+        with self.assertRaisesRegex(RuntimeError, \"invalid deployments\"):\n+            self.run_monitor([{\"unexpected\": []}])\n+\n+    def test_foreign_project_rejected(self):\n+        with self.assertRaisesRegex(RuntimeError, \"foreign\"):\n+            self.run_monitor([{\"deployments\": [item(\"x\", ALERT)]}])\n+\n+    def test_missing_id_or_timestamp_rejected(self):\n+        with self.assertRaisesRegex(RuntimeError, \"identifier\"):\n+            self.run_monitor([{\"deployments\": [{\"projectId\": MISAKI, \"created\": NOW}]}])\n+        with self.assertRaisesRegex(RuntimeError, \"timestamp\"):\n+            self.run_monitor([{\"deployments\": [{\"projectId\": MISAKI, \"uid\": \"x\"}]}])\n+\n+    def test_exact_team_and_id_allowlist(self):\n+        with patch.object(monitor, \"TOKEN\", \"test\"), patch.object(monitor, \"TEAM\", \"other\"):\n+            with self.assertRaisesRegex(RuntimeError, \"unexpected team\"):\n+                monitor.main()\n+        with patch.object(monitor, \"TOKEN\", \"test\"), patch.object(monitor, \"TEAM\", None), \\\n+             patch.object(monitor, \"PROJECTS\", {\"misaki\"}):\n+            with self.assertRaisesRegex(RuntimeError, \"exactly\"):\n+                monitor.main()\n+\n+    def test_membership_fail_closed(self):\n+        with patch.object(monitor, \"TOKEN\", \"test\"), patch.object(monitor, \"TEAM\", None), \\\n+             patch.object(monitor, \"PROJECTS\", set()), \\\n+             patch.object(monitor, \"request_json\", return_value={\n+                 \"id\": MISAKI, \"name\": \"misaki\", \"accountId\": \"wrong\"}):\n+            with self.assertRaisesRegex(RuntimeError, \"membership\"):\n+                monitor.main()\n+\n+    def test_pagination_full_page_and_next_page(self):\n+        records = [item(\"id\"+str(i), age=1000+i*1000) for i in range(100)]\n+        code, result, calls = self.run_monitor([\n+            {\"deployments\": records}, {\"deployments\": [item(\"next\", age=110000)]},\n+            {\"deployments\": []}])\n+        self.assertEqual(code, 0)\n+        self.assertEqual(result[\"deployment_records_24h\"], 101)\n+        self.assertEqual(calls.call_args_list[1].args[0][\"until\"], min(x[\"created\"] for x in records)-1)\n+\n+    def test_ambiguous_page_boundary_fail_closed(self):\n+        records = [item(\"id\"+str(i)) for i in range(100)]\n+        with self.assertRaisesRegex(RuntimeError, \"ambiguous page boundary\"):\n+            self.run_monitor([{\"deployments\": records}])\n+\n+    def test_api_error_not_zero(self):\n+        with self.assertRaises(OSError):\n+            self.run_monitor([OSError(\"network unavailable\")])\n+\n+    def test_quota_thresholds_only_authoritative(self):\n+        self.assertEqual(monitor.quota_alert(99, 100), \"unknown\")\n+        self.assertEqual(monitor.quota_alert(69, 100, True), \"normal\")\n+        self.assertEqual(monitor.quota_alert(70, 100, True), \"warning\")\n+        self.assertEqual(monitor.quota_alert(85, 100, True), \"high\")\n+        self.assertEqual(monitor.quota_alert(95, 100, True), \"critical\")\n+        self.assertEqual(monitor.quota_alert(None, 100, True), \"unknown\")\n+        self.assertEqual(monitor.quota_alert(3, 0, True), \"unknown\")\n+\n+    def test_missing_credentials(self):\n+        with patch.object(monitor, \"TOKEN\", None):\n+            self.assertEqual(monitor.main(), 2)\n+\n+\n+if __name__ == \"__main__\":\n+    unittest.main()\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_quota_monitor.py",
+      "source": {
+        "path": "tests/test_vercel_quota_monitor.py",
+        "coverage": "全文",
+        "text": "\"\"\"Offline tests: mock all API calls; no token, build or deployment required.\"\"\"\nimport contextlib\nimport datetime as dt\nimport importlib.util\nimport io\nimport json\nfrom pathlib import Path\nimport unittest\nfrom unittest.mock import patch\n\nMODULE = Path(__file__).resolve().parents[1] / \"scripts\" / \"vercel_quota_monitor.py\"\nspec = importlib.util.spec_from_file_location(\"vercel_quota_monitor\", MODULE)\nmonitor = importlib.util.module_from_spec(spec)\nspec.loader.exec_module(monitor)\nMISAKI, ALERT = list(monitor.EXPECTED_PROJECTS)\nNOW = int(dt.datetime.now(dt.timezone.utc).timestamp() * 1000)\n\n\ndef item(uid, project=MISAKI, age=1000):\n    return {\"uid\": uid, \"projectId\": project, \"created\": NOW - age}\n\n\nclass MonitorTests(unittest.TestCase):\n    def run_monitor(self, pages):\n        out = io.StringIO()\n        def verify(path, params=None):\n            pid = path.rsplit(\"/\", 1)[-1]\n            return {\"id\": pid, \"name\": monitor.EXPECTED_PROJECTS[pid],\n                    \"accountId\": monitor.EXPECTED_TEAM}\n        with patch.object(monitor, \"TOKEN\", \"test\"), patch.object(monitor, \"TEAM\", None), \\\n             patch.object(monitor, \"PROJECTS\", set()), \\\n             patch.object(monitor, \"request_json\", side_effect=verify), \\\n             patch.object(monitor, \"fetch\", side_effect=pages) as fetch, \\\n             contextlib.redirect_stdout(out):\n            code = monitor.main()\n        return code, json.loads(out.getvalue()), fetch\n\n    def test_empty_both_projects(self):\n        code, result, fetch = self.run_monitor([{\"deployments\": []}, {\"deployments\": []}])\n        self.assertEqual(code, 0)\n        self.assertEqual(fetch.call_count, 2)\n        self.assertEqual(result[\"deployment_records_24h\"], 0)\n        self.assertEqual(result[\"status\"], \"unknown\")\n        self.assertFalse(result[\"safe_to_gate\"])\n        self.assertFalse(result[\"quota_verified\"])\n        self.assertEqual(set(result[\"projects_filter\"]), set(monitor.EXPECTED_PROJECTS))\n\n    def test_dedup_and_per_project_scope(self):\n        code, result, calls = self.run_monitor([\n            {\"deployments\": [item(\"a\"), item(\"a\"), item(\"old\", age=25*3600*1000)]},\n            {\"deployments\": [item(\"b\", ALERT, age=2*3600*1000)]}])\n        self.assertEqual(code, 0)\n        self.assertEqual((result[\"deployment_records_24h\"], result[\"deployment_records_1h\"]), (2, 1))\n        self.assertEqual([c.args[0][\"projectId\"] for c in calls.call_args_list], [MISAKI, ALERT])\n\n    def test_malformed_response_rejected(self):\n        with self.assertRaisesRegex(RuntimeError, \"invalid deployments\"):\n            self.run_monitor([{\"unexpected\": []}])\n\n    def test_foreign_project_rejected(self):\n        with self.assertRaisesRegex(RuntimeError, \"foreign\"):\n            self.run_monitor([{\"deployments\": [item(\"x\", ALERT)]}])\n\n    def test_missing_id_or_timestamp_rejected(self):\n        with self.assertRaisesRegex(RuntimeError, \"identifier\"):\n            self.run_monitor([{\"deployments\": [{\"projectId\": MISAKI, \"created\": NOW}]}])\n        with self.assertRaisesRegex(RuntimeError, \"timestamp\"):\n            self.run_monitor([{\"deployments\": [{\"projectId\": MISAKI, \"uid\": \"x\"}]}])\n\n    def test_exact_team_and_id_allowlist(self):\n        with patch.object(monitor, \"TOKEN\", \"test\"), patch.object(monitor, \"TEAM\", \"other\"):\n            with self.assertRaisesRegex(RuntimeError, \"unexpected team\"):\n                monitor.main()\n        with patch.object(monitor, \"TOKEN\", \"test\"), patch.object(monitor, \"TEAM\", None), \\\n             patch.object(monitor, \"PROJECTS\", {\"misaki\"}):\n            with self.assertRaisesRegex(RuntimeError, \"exactly\"):\n                monitor.main()\n\n    def test_membership_fail_closed(self):\n        with patch.object(monitor, \"TOKEN\", \"test\"), patch.object(monitor, \"TEAM\", None), \\\n             patch.object(monitor, \"PROJECTS\", set()), \\\n             patch.object(monitor, \"request_json\", return_value={\n                 \"id\": MISAKI, \"name\": \"misaki\", \"accountId\": \"wrong\"}):\n            with self.assertRaisesRegex(RuntimeError, \"membership\"):\n                monitor.main()\n\n    def test_pagination_full_page_and_next_page(self):\n        records = [item(\"id\"+str(i), age=1000+i*1000) for i in range(100)]\n        code, result, calls = self.run_monitor([\n            {\"deployments\": records}, {\"deployments\": [item(\"next\", age=110000)]},\n            {\"deployments\": []}])\n        self.assertEqual(code, 0)\n        self.assertEqual(result[\"deployment_records_24h\"], 101)\n        self.assertEqual(calls.call_args_list[1].args[0][\"until\"], min(x[\"created\"] for x in records)-1)\n\n    def test_ambiguous_page_boundary_fail_closed(self):\n        records = [item(\"id\"+str(i)) for i in range(100)]\n        with self.assertRaisesRegex(RuntimeError, \"ambiguous page boundary\"):\n            self.run_monitor([{\"deployments\": records}])\n\n    def test_api_error_not_zero(self):\n        with self.assertRaises(OSError):\n            self.run_monitor([OSError(\"network unavailable\")])\n\n    def test_quota_thresholds_only_authoritative(self):\n        self.assertEqual(monitor.quota_alert(99, 100), \"unknown\")\n        self.assertEqual(monitor.quota_alert(69, 100, True), \"normal\")\n        self.assertEqual(monitor.quota_alert(70, 100, True), \"warning\")\n        self.assertEqual(monitor.quota_alert(85, 100, True), \"high\")\n        self.assertEqual(monitor.quota_alert(95, 100, True), \"critical\")\n        self.assertEqual(monitor.quota_alert(None, 100, True), \"unknown\")\n        self.assertEqual(monitor.quota_alert(3, 0, True), \"unknown\")\n\n    def test_missing_credentials(self):\n        with patch.object(monitor, \"TOKEN\", None):\n            self.assertEqual(monitor.main(), 2)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+        "sha256": "46d0fd403cf468519de53dbc191263b99df240758726ba1db331458ca4518a4f"
+      }
+    },
+    {
+      "path": "tests/test_vercel_release_request_journal.py",
+      "status": "modified",
+      "additions": 92,
+      "deletions": 0,
+      "patch": "diff --git a/tests/test_vercel_release_request_journal.py b/tests/test_vercel_release_request_journal.py\nnew file mode 100644\nindex 00000000..fcb7107e\n--- /dev/null\n+++ b/tests/test_vercel_release_request_journal.py\n@@ -0,0 +1,92 @@\n+\"\"\"Offline-only SQLite journal tests: no GitHub or Vercel calls.\"\"\"\n+from concurrent.futures import ThreadPoolExecutor\n+from pathlib import Path\n+import sys\n+import tempfile\n+import unittest\n+\n+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / \"scripts\"))\n+from vercel_release_request_journal import OfflineJournal\n+from vercel_release_request_policy import ALLOWED_PROJECTS, NORMAL_DAILY_REQUEST_BUDGET, EMERGENCY_DAILY_REQUEST_BUDGET\n+\n+P1, P2 = sorted(ALLOWED_PROJECTS)\n+DAY = \"2026-11-11\"\n+S1, S2 = \"a\" * 40, \"b\" * 40\n+\n+\n+def request(rid, project=P1, sha=S1, emergency=False):\n+    item = dict(request_id=rid, project_id=project, sha=sha, emergency=emergency,\n+                requester=\"requester\", approved_by=\"different-reviewer\")\n+    if emergency:\n+        item[\"emergency_authorized\"] = True\n+    return item\n+\n+\n+def snapshot():\n+    return dict(trusted=True, latest_sha_by_project={P1: S1, P2: S2},\n+                ci_green_shas={S1, S2})\n+\n+\n+class JournalTests(unittest.TestCase):\n+    def setUp(self):\n+        self.tmp = tempfile.TemporaryDirectory()\n+        self.path = Path(self.tmp.name) / \"mock-journal.sqlite3\"\n+        self.addCleanup(self.tmp.cleanup)\n+        self.journal = OfflineJournal(self.path)\n+\n+    def test_two_independent_instances_cannot_double_admit(self):\n+        other = OfflineJournal(self.path)\n+        with ThreadPoolExecutor(max_workers=16) as pool:\n+            outcomes = list(pool.map(lambda i: (self.journal if i % 2 else other).submit(\n+                request(\"same-id\"), snapshot(), DAY), range(30)))\n+        self.assertEqual(sum(d.status == \"RECORDED_FOR_MANUAL_REVIEW\" for d in outcomes), 1)\n+        self.assertEqual(sum(d.status == \"DUPLICATE\" for d in outcomes), 29)\n+        self.assertEqual(self.journal.counts(DAY), (1, 0))\n+\n+    def test_shared_budget_across_projects_and_instances(self):\n+        other = OfflineJournal(self.path)\n+        def submit(i):\n+            project = P1 if i % 2 else P2\n+            sha = S1 if i % 2 else S2\n+            return (self.journal if i % 3 else other).submit(\n+                request(\"r-%d\" % i, project, sha), snapshot(), DAY)\n+        with ThreadPoolExecutor(max_workers=12) as pool:\n+            outcomes = list(pool.map(submit, range(25)))\n+        self.assertEqual(sum(d.status == \"RECORDED_FOR_MANUAL_REVIEW\" for d in outcomes),\n+                         NORMAL_DAILY_REQUEST_BUDGET)\n+        self.assertEqual(self.journal.counts(DAY), (NORMAL_DAILY_REQUEST_BUDGET, 0))\n+\n+    def test_emergency_reserve_is_separate(self):\n+        for i in range(NORMAL_DAILY_REQUEST_BUDGET):\n+            self.assertEqual(self.journal.submit(request(\"n-%d\" % i), snapshot(), DAY).status,\n+                             \"RECORDED_FOR_MANUAL_REVIEW\")\n+        for i in range(EMERGENCY_DAILY_REQUEST_BUDGET):\n+            self.assertEqual(self.journal.submit(request(\"e-%d\" % i, emergency=True),\n+                                                 snapshot(), DAY).status,\n+                             \"RECORDED_FOR_MANUAL_REVIEW\")\n+        self.assertEqual(self.journal.submit(request(\"overflow\", emergency=True),\n+                                             snapshot(), DAY).status, \"HOLD\")\n+        self.assertEqual(self.journal.counts(DAY),\n+                         (NORMAL_DAILY_REQUEST_BUDGET, EMERGENCY_DAILY_REQUEST_BUDGET))\n+\n+    def test_failed_checks_and_approval_do_not_reserve(self):\n+        bad = snapshot()\n+        bad[\"ci_green_shas\"] = set()\n+        self.assertEqual(self.journal.submit(request(\"bad-ci\"), bad, DAY).status, \"HOLD\")\n+        x = request(\"bad-approval\")\n+        x[\"approved_by\"] = x[\"requester\"]\n+        self.assertEqual(self.journal.submit(x, snapshot(), DAY).status, \"HOLD\")\n+        self.assertEqual(self.journal.counts(DAY), (0, 0))\n+\n+    def test_bad_day_never_writes(self):\n+        self.assertEqual(self.journal.submit(request(\"bad-day\"), snapshot(), \"yesterday\").status,\n+                         \"HOLD\")\n+        self.assertEqual(self.journal.counts(DAY), (0, 0))\n+\n+    def test_returns_no_deployment_authority(self):\n+        result = self.journal.submit(request(\"safe\"), snapshot(), DAY)\n+        self.assertFalse(result.can_auto_deploy)\n+\n+\n+if __name__ == \"__main__\":\n+    unittest.main()\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_journal.py",
+      "source": {
+        "path": "tests/test_vercel_release_request_journal.py",
+        "coverage": "全文",
+        "text": "\"\"\"Offline-only SQLite journal tests: no GitHub or Vercel calls.\"\"\"\nfrom concurrent.futures import ThreadPoolExecutor\nfrom pathlib import Path\nimport sys\nimport tempfile\nimport unittest\n\nsys.path.insert(0, str(Path(__file__).resolve().parents[1] / \"scripts\"))\nfrom vercel_release_request_journal import OfflineJournal\nfrom vercel_release_request_policy import ALLOWED_PROJECTS, NORMAL_DAILY_REQUEST_BUDGET, EMERGENCY_DAILY_REQUEST_BUDGET\n\nP1, P2 = sorted(ALLOWED_PROJECTS)\nDAY = \"2026-11-11\"\nS1, S2 = \"a\" * 40, \"b\" * 40\n\n\ndef request(rid, project=P1, sha=S1, emergency=False):\n    item = dict(request_id=rid, project_id=project, sha=sha, emergency=emergency,\n                requester=\"requester\", approved_by=\"different-reviewer\")\n    if emergency:\n        item[\"emergency_authorized\"] = True\n    return item\n\n\ndef snapshot():\n    return dict(trusted=True, latest_sha_by_project={P1: S1, P2: S2},\n                ci_green_shas={S1, S2})\n\n\nclass JournalTests(unittest.TestCase):\n    def setUp(self):\n        self.tmp = tempfile.TemporaryDirectory()\n        self.path = Path(self.tmp.name) / \"mock-journal.sqlite3\"\n        self.addCleanup(self.tmp.cleanup)\n        self.journal = OfflineJournal(self.path)\n\n    def test_two_independent_instances_cannot_double_admit(self):\n        other = OfflineJournal(self.path)\n        with ThreadPoolExecutor(max_workers=16) as pool:\n            outcomes = list(pool.map(lambda i: (self.journal if i % 2 else other).submit(\n                request(\"same-id\"), snapshot(), DAY), range(30)))\n        self.assertEqual(sum(d.status == \"RECORDED_FOR_MANUAL_REVIEW\" for d in outcomes), 1)\n        self.assertEqual(sum(d.status == \"DUPLICATE\" for d in outcomes), 29)\n        self.assertEqual(self.journal.counts(DAY), (1, 0))\n\n    def test_shared_budget_across_projects_and_instances(self):\n        other = OfflineJournal(self.path)\n        def submit(i):\n            project = P1 if i % 2 else P2\n            sha = S1 if i % 2 else S2\n            return (self.journal if i % 3 else other).submit(\n                request(\"r-%d\" % i, project, sha), snapshot(), DAY)\n        with ThreadPoolExecutor(max_workers=12) as pool:\n            outcomes = list(pool.map(submit, range(25)))\n        self.assertEqual(sum(d.status == \"RECORDED_FOR_MANUAL_REVIEW\" for d in outcomes),\n                         NORMAL_DAILY_REQUEST_BUDGET)\n        self.assertEqual(self.journal.counts(DAY), (NORMAL_DAILY_REQUEST_BUDGET, 0))\n\n    def test_emergency_reserve_is_separate(self):\n        for i in range(NORMAL_DAILY_REQUEST_BUDGET):\n            self.assertEqual(self.journal.submit(request(\"n-%d\" % i), snapshot(), DAY).status,\n                             \"RECORDED_FOR_MANUAL_REVIEW\")\n        for i in range(EMERGENCY_DAILY_REQUEST_BUDGET):\n            self.assertEqual(self.journal.submit(request(\"e-%d\" % i, emergency=True),\n                                                 snapshot(), DAY).status,\n                             \"RECORDED_FOR_MANUAL_REVIEW\")\n        self.assertEqual(self.journal.submit(request(\"overflow\", emergency=True),\n                                             snapshot(), DAY).status, \"HOLD\")\n        self.assertEqual(self.journal.counts(DAY),\n                         (NORMAL_DAILY_REQUEST_BUDGET, EMERGENCY_DAILY_REQUEST_BUDGET))\n\n    def test_failed_checks_and_approval_do_not_reserve(self):\n        bad = snapshot()\n        bad[\"ci_green_shas\"] = set()\n        self.assertEqual(self.journal.submit(request(\"bad-ci\"), bad, DAY).status, \"HOLD\")\n        x = request(\"bad-approval\")\n        x[\"approved_by\"] = x[\"requester\"]\n        self.assertEqual(self.journal.submit(x, snapshot(), DAY).status, \"HOLD\")\n        self.assertEqual(self.journal.counts(DAY), (0, 0))\n\n    def test_bad_day_never_writes(self):\n        self.assertEqual(self.journal.submit(request(\"bad-day\"), snapshot(), \"yesterday\").status,\n                         \"HOLD\")\n        self.assertEqual(self.journal.counts(DAY), (0, 0))\n\n    def test_returns_no_deployment_authority(self):\n        result = self.journal.submit(request(\"safe\"), snapshot(), DAY)\n        self.assertFalse(result.can_auto_deploy)\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+        "sha256": "b8f89e84710947f0583a83bf105641773ab23959b6b2192daa0f834e3d1a1dfc"
+      }
+    },
+    {
+      "path": "tests/test_vercel_release_request_policy.py",
+      "status": "modified",
+      "additions": 84,
+      "deletions": 0,
+      "patch": "diff --git a/tests/test_vercel_release_request_policy.py b/tests/test_vercel_release_request_policy.py\nnew file mode 100644\nindex 00000000..e5a97e5a\n--- /dev/null\n+++ b/tests/test_vercel_release_request_policy.py\n@@ -0,0 +1,84 @@\n+\"\"\"No credentials, API calls, GitHub writes or Vercel builds.\"\"\"\n+import importlib.util\n+from pathlib import Path\n+import unittest\n+\n+PATH = Path(__file__).resolve().parents[1] / \"scripts\" / \"vercel_release_request_policy.py\"\n+spec = importlib.util.spec_from_file_location(\"vercel_release_request_policy\", PATH)\n+policy = importlib.util.module_from_spec(spec)\n+import sys\n+sys.modules[spec.name] = policy\n+spec.loader.exec_module(policy)\n+\n+MISAKI, ALERT = sorted(policy.ALLOWED_PROJECTS)\n+SHA1 = \"a\" * 40\n+SHA2 = \"b\" * 40\n+\n+\n+class ReleaseRequestPolicyTests(unittest.TestCase):\n+    def setUp(self):\n+        self.request = dict(project_id=MISAKI, sha=SHA1, request_id=\"issue-7\",\n+                            requester=\"author\", approved_by=\"owner\", emergency=False)\n+        self.snapshot = dict(trusted=True, latest_sha_by_project={MISAKI: SHA1, ALERT: SHA2},\n+                             seen_request_ids=[], ci_green_shas=[SHA1, SHA2],\n+                             normal_requests_today=0, emergency_requests_today=0)\n+\n+    def evaluate(self, **changes):\n+        return policy.evaluate(dict(self.request, **changes), self.snapshot)\n+\n+    def test_review_ready_is_never_permission_to_deploy(self):\n+        d = self.evaluate()\n+        self.assertEqual(d.status, \"REVIEW_READY\")\n+        self.assertFalse(d.can_auto_deploy)\n+\n+    def test_rejects_untrusted_snapshot(self):\n+        self.snapshot[\"trusted\"] = False\n+        self.assertEqual(self.evaluate().status, \"HOLD\")\n+\n+    def test_scope_cannot_be_expanded(self):\n+        self.assertEqual(self.evaluate(project_id=\"other\").status, \"HOLD\")\n+\n+    def test_stale_sha_never_deployed(self):\n+        self.assertEqual(self.evaluate(sha=SHA2).status, \"HOLD\")\n+\n+    def test_ci_failure_or_missing(self):\n+        self.snapshot[\"ci_green_shas\"] = []\n+        self.assertEqual(self.evaluate().status, \"HOLD\")\n+\n+    def test_duplicate_requests(self):\n+        self.snapshot[\"seen_request_ids\"] = [\"issue-7\"]\n+        self.assertEqual(self.evaluate().status, \"DUPLICATE\")\n+\n+    def test_author_is_not_approver(self):\n+        self.assertEqual(self.evaluate(approved_by=\"author\").status, \"HOLD\")\n+        self.assertEqual(self.evaluate(approved_by=None).status, \"HOLD\")\n+\n+    def test_normal_budget_does_not_use_emergency_reserve(self):\n+        self.snapshot[\"normal_requests_today\"] = policy.NORMAL_DAILY_REQUEST_BUDGET\n+        self.assertEqual(self.evaluate().status, \"HOLD\")\n+        self.assertEqual(self.evaluate(emergency=True, emergency_authorized=True).status, \"REVIEW_READY\")\n+\n+    def test_emergency_requires_separate_authorization(self):\n+        self.assertEqual(self.evaluate(emergency=True).status, \"HOLD\")\n+        self.assertEqual(self.evaluate(emergency=True, emergency_authorized=True).status, \"REVIEW_READY\")\n+\n+    def test_emergency_reserve_exhaustion(self):\n+        self.snapshot[\"emergency_requests_today\"] = policy.EMERGENCY_DAILY_REQUEST_BUDGET\n+        self.assertEqual(self.evaluate(emergency=True, emergency_authorized=True).status, \"HOLD\")\n+\n+    def test_unknown_ledger_fails_closed(self):\n+        self.snapshot[\"normal_requests_today\"] = None\n+        self.assertEqual(self.evaluate().status, \"HOLD\")\n+\n+    def test_invalid_request_or_snapshot_fails_closed(self):\n+        self.assertEqual(policy.evaluate(None, self.snapshot).status, \"HOLD\")\n+        self.assertEqual(policy.evaluate(self.request, None).status, \"HOLD\")\n+        self.assertEqual(self.evaluate(sha=\"not-a-sha\").status, \"HOLD\")\n+        self.assertEqual(self.evaluate(emergency=None).status, \"HOLD\")\n+\n+    def test_each_project_tracked_independently(self):\n+        self.assertEqual(self.evaluate(project_id=ALERT, sha=SHA2).status, \"REVIEW_READY\")\n+\n+\n+if __name__ == \"__main__\":\n+    unittest.main()\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_policy.py",
+      "source": {
+        "path": "tests/test_vercel_release_request_policy.py",
+        "coverage": "全文",
+        "text": "\"\"\"No credentials, API calls, GitHub writes or Vercel builds.\"\"\"\nimport importlib.util\nfrom pathlib import Path\nimport unittest\n\nPATH = Path(__file__).resolve().parents[1] / \"scripts\" / \"vercel_release_request_policy.py\"\nspec = importlib.util.spec_from_file_location(\"vercel_release_request_policy\", PATH)\npolicy = importlib.util.module_from_spec(spec)\nimport sys\nsys.modules[spec.name] = policy\nspec.loader.exec_module(policy)\n\nMISAKI, ALERT = sorted(policy.ALLOWED_PROJECTS)\nSHA1 = \"a\" * 40\nSHA2 = \"b\" * 40\n\n\nclass ReleaseRequestPolicyTests(unittest.TestCase):\n    def setUp(self):\n        self.request = dict(project_id=MISAKI, sha=SHA1, request_id=\"issue-7\",\n                            requester=\"author\", approved_by=\"owner\", emergency=False)\n        self.snapshot = dict(trusted=True, latest_sha_by_project={MISAKI: SHA1, ALERT: SHA2},\n                             seen_request_ids=[], ci_green_shas=[SHA1, SHA2],\n                             normal_requests_today=0, emergency_requests_today=0)\n\n    def evaluate(self, **changes):\n        return policy.evaluate(dict(self.request, **changes), self.snapshot)\n\n    def test_review_ready_is_never_permission_to_deploy(self):\n        d = self.evaluate()\n        self.assertEqual(d.status, \"REVIEW_READY\")\n        self.assertFalse(d.can_auto_deploy)\n\n    def test_rejects_untrusted_snapshot(self):\n        self.snapshot[\"trusted\"] = False\n        self.assertEqual(self.evaluate().status, \"HOLD\")\n\n    def test_scope_cannot_be_expanded(self):\n        self.assertEqual(self.evaluate(project_id=\"other\").status, \"HOLD\")\n\n    def test_stale_sha_never_deployed(self):\n        self.assertEqual(self.evaluate(sha=SHA2).status, \"HOLD\")\n\n    def test_ci_failure_or_missing(self):\n        self.snapshot[\"ci_green_shas\"] = []\n        self.assertEqual(self.evaluate().status, \"HOLD\")\n\n    def test_duplicate_requests(self):\n        self.snapshot[\"seen_request_ids\"] = [\"issue-7\"]\n        self.assertEqual(self.evaluate().status, \"DUPLICATE\")\n\n    def test_author_is_not_approver(self):\n        self.assertEqual(self.evaluate(approved_by=\"author\").status, \"HOLD\")\n        self.assertEqual(self.evaluate(approved_by=None).status, \"HOLD\")\n\n    def test_normal_budget_does_not_use_emergency_reserve(self):\n        self.snapshot[\"normal_requests_today\"] = policy.NORMAL_DAILY_REQUEST_BUDGET\n        self.assertEqual(self.evaluate().status, \"HOLD\")\n        self.assertEqual(self.evaluate(emergency=True, emergency_authorized=True).status, \"REVIEW_READY\")\n\n    def test_emergency_requires_separate_authorization(self):\n        self.assertEqual(self.evaluate(emergency=True).status, \"HOLD\")\n        self.assertEqual(self.evaluate(emergency=True, emergency_authorized=True).status, \"REVIEW_READY\")\n\n    def test_emergency_reserve_exhaustion(self):\n        self.snapshot[\"emergency_requests_today\"] = policy.EMERGENCY_DAILY_REQUEST_BUDGET\n        self.assertEqual(self.evaluate(emergency=True, emergency_authorized=True).status, \"HOLD\")\n\n    def test_unknown_ledger_fails_closed(self):\n        self.snapshot[\"normal_requests_today\"] = None\n        self.assertEqual(self.evaluate().status, \"HOLD\")\n\n    def test_invalid_request_or_snapshot_fails_closed(self):\n        self.assertEqual(policy.evaluate(None, self.snapshot).status, \"HOLD\")\n        self.assertEqual(policy.evaluate(self.request, None).status, \"HOLD\")\n        self.assertEqual(self.evaluate(sha=\"not-a-sha\").status, \"HOLD\")\n        self.assertEqual(self.evaluate(emergency=None).status, \"HOLD\")\n\n    def test_each_project_tracked_independently(self):\n        self.assertEqual(self.evaluate(project_id=ALERT, sha=SHA2).status, \"REVIEW_READY\")\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+        "sha256": "125b93cf87230b89ced6fc4a683d5c26ca43a019620e670ef40d987269287476"
+      }
+    },
+    {
+      "path": "tests/test_vercel_release_request_simulation.py",
+      "status": "modified",
+      "additions": 79,
+      "deletions": 0,
+      "patch": "diff --git a/tests/test_vercel_release_request_simulation.py b/tests/test_vercel_release_request_simulation.py\nnew file mode 100644\nindex 00000000..31bba28a\n--- /dev/null\n+++ b/tests/test_vercel_release_request_simulation.py\n@@ -0,0 +1,79 @@\n+\"\"\"Threaded offline-only tests; never contacts GitHub or Vercel.\"\"\"\n+from concurrent.futures import ThreadPoolExecutor\n+import importlib.util\n+from pathlib import Path\n+import sys\n+import unittest\n+\n+ROOT = Path(__file__).resolve().parents[1]\n+sys.path.insert(0, str(ROOT / \"scripts\"))\n+from vercel_release_request_simulation import SimulationLedger\n+from vercel_release_request_policy import ALLOWED_PROJECTS, NORMAL_DAILY_REQUEST_BUDGET, EMERGENCY_DAILY_REQUEST_BUDGET\n+\n+P1, P2 = sorted(ALLOWED_PROJECTS)\n+SHA1, SHA2, SHA3 = \"a\" * 40, \"b\" * 40, \"c\" * 40\n+\n+\n+def req(request_id, project=P1, sha=SHA1, emergency=False):\n+    result = dict(request_id=request_id, project_id=project, sha=sha,\n+                  requester=\"developer\", approved_by=\"reviewer\", emergency=emergency)\n+    if emergency:\n+        result[\"emergency_authorized\"] = True\n+    return result\n+\n+\n+class ConcurrentRequestSimulationTests(unittest.TestCase):\n+    def setUp(self):\n+        self.ledger = SimulationLedger({P1: SHA1, P2: SHA2}, [SHA1, SHA2])\n+\n+    def test_atomic_duplicate_request_under_threads(self):\n+        with ThreadPoolExecutor(max_workers=20) as pool:\n+            results = list(pool.map(self.ledger.submit, [req(\"issue-77\")] * 50))\n+        self.assertEqual(sum(d.status == \"RECORDED_FOR_MANUAL_REVIEW\" for d in results), 1)\n+        self.assertEqual(sum(d.status == \"DUPLICATE\" for d in results), 49)\n+        s = self.ledger.snapshot()\n+        self.assertEqual(s[\"normal_requests_today\"], 1)\n+        self.assertFalse(s[\"can_auto_deploy\"])\n+\n+    def test_cross_project_reserve_does_not_exceed_voluntary_budget(self):\n+        requests = [req(\"normal-%s\" % i, P1 if i % 2 else P2, SHA1 if i % 2 else SHA2)\n+                    for i in range(40)]\n+        with ThreadPoolExecutor(max_workers=16) as pool:\n+            results = list(pool.map(self.ledger.submit, requests))\n+        self.assertEqual(sum(d.status == \"RECORDED_FOR_MANUAL_REVIEW\" for d in results),\n+                         NORMAL_DAILY_REQUEST_BUDGET)\n+        self.assertEqual(self.ledger.snapshot()[\"normal_requests_today\"], NORMAL_DAILY_REQUEST_BUDGET)\n+        self.assertEqual(self.ledger.snapshot()[\"emergency_requests_today\"], 0)\n+\n+    def test_emergency_reserve_and_authorization(self):\n+        self.assertEqual(self.ledger.submit(req(\"unapproved\", emergency=True) | {\n+            \"emergency_authorized\": False\n+        }).status, \"HOLD\")\n+        for i in range(EMERGENCY_DAILY_REQUEST_BUDGET):\n+            self.assertEqual(self.ledger.submit(req(\"urgent-%d\" % i, emergency=True)).status,\n+                             \"RECORDED_FOR_MANUAL_REVIEW\")\n+        self.assertEqual(self.ledger.submit(req(\"urgent-over\", emergency=True)).status, \"HOLD\")\n+        self.assertEqual(self.ledger.snapshot()[\"emergency_requests_today\"],\n+                         EMERGENCY_DAILY_REQUEST_BUDGET)\n+\n+    def test_new_commit_invalidates_pending_and_blocks_stale_sha(self):\n+        self.assertEqual(self.ledger.submit(req(\"old\")).status, \"RECORDED_FOR_MANUAL_REVIEW\")\n+        self.ledger.update_latest(P1, SHA3, ci_green=True)\n+        self.assertNotIn(P1, self.ledger.snapshot()[\"pending\"])\n+        self.assertEqual(self.ledger.submit(req(\"stale\")).status, \"HOLD\")\n+        self.assertEqual(self.ledger.submit(req(\"new\", sha=SHA3)).status,\n+                         \"RECORDED_FOR_MANUAL_REVIEW\")\n+        self.assertEqual(self.ledger.snapshot()[\"pending\"][P1][\"sha\"], SHA3)\n+\n+    def test_check_failure_and_bad_project_hold(self):\n+        self.assertEqual(self.ledger.submit(req(\"wrong\", project=\"other\")).status, \"HOLD\")\n+        self.ledger.update_latest(P1, SHA3, ci_green=False)\n+        self.assertEqual(self.ledger.submit(req(\"missing-ci\", sha=SHA3)).status, \"HOLD\")\n+\n+    def test_simulation_never_grants_deployment(self):\n+        self.ledger.submit(req(\"ok\"))\n+        self.assertFalse(self.ledger.snapshot()[\"can_auto_deploy\"])\n+\n+\n+if __name__ == \"__main__\":\n+    unittest.main()\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_simulation.py",
+      "source": {
+        "path": "tests/test_vercel_release_request_simulation.py",
+        "coverage": "全文",
+        "text": "\"\"\"Threaded offline-only tests; never contacts GitHub or Vercel.\"\"\"\nfrom concurrent.futures import ThreadPoolExecutor\nimport importlib.util\nfrom pathlib import Path\nimport sys\nimport unittest\n\nROOT = Path(__file__).resolve().parents[1]\nsys.path.insert(0, str(ROOT / \"scripts\"))\nfrom vercel_release_request_simulation import SimulationLedger\nfrom vercel_release_request_policy import ALLOWED_PROJECTS, NORMAL_DAILY_REQUEST_BUDGET, EMERGENCY_DAILY_REQUEST_BUDGET\n\nP1, P2 = sorted(ALLOWED_PROJECTS)\nSHA1, SHA2, SHA3 = \"a\" * 40, \"b\" * 40, \"c\" * 40\n\n\ndef req(request_id, project=P1, sha=SHA1, emergency=False):\n    result = dict(request_id=request_id, project_id=project, sha=sha,\n                  requester=\"developer\", approved_by=\"reviewer\", emergency=emergency)\n    if emergency:\n        result[\"emergency_authorized\"] = True\n    return result\n\n\nclass ConcurrentRequestSimulationTests(unittest.TestCase):\n    def setUp(self):\n        self.ledger = SimulationLedger({P1: SHA1, P2: SHA2}, [SHA1, SHA2])\n\n    def test_atomic_duplicate_request_under_threads(self):\n        with ThreadPoolExecutor(max_workers=20) as pool:\n            results = list(pool.map(self.ledger.submit, [req(\"issue-77\")] * 50))\n        self.assertEqual(sum(d.status == \"RECORDED_FOR_MANUAL_REVIEW\" for d in results), 1)\n        self.assertEqual(sum(d.status == \"DUPLICATE\" for d in results), 49)\n        s = self.ledger.snapshot()\n        self.assertEqual(s[\"normal_requests_today\"], 1)\n        self.assertFalse(s[\"can_auto_deploy\"])\n\n    def test_cross_project_reserve_does_not_exceed_voluntary_budget(self):\n        requests = [req(\"normal-%s\" % i, P1 if i % 2 else P2, SHA1 if i % 2 else SHA2)\n                    for i in range(40)]\n        with ThreadPoolExecutor(max_workers=16) as pool:\n            results = list(pool.map(self.ledger.submit, requests))\n        self.assertEqual(sum(d.status == \"RECORDED_FOR_MANUAL_REVIEW\" for d in results),\n                         NORMAL_DAILY_REQUEST_BUDGET)\n        self.assertEqual(self.ledger.snapshot()[\"normal_requests_today\"], NORMAL_DAILY_REQUEST_BUDGET)\n        self.assertEqual(self.ledger.snapshot()[\"emergency_requests_today\"], 0)\n\n    def test_emergency_reserve_and_authorization(self):\n        self.assertEqual(self.ledger.submit(req(\"unapproved\", emergency=True) | {\n            \"emergency_authorized\": False\n        }).status, \"HOLD\")\n        for i in range(EMERGENCY_DAILY_REQUEST_BUDGET):\n            self.assertEqual(self.ledger.submit(req(\"urgent-%d\" % i, emergency=True)).status,\n                             \"RECORDED_FOR_MANUAL_REVIEW\")\n        self.assertEqual(self.ledger.submit(req(\"urgent-over\", emergency=True)).status, \"HOLD\")\n        self.assertEqual(self.ledger.snapshot()[\"emergency_requests_today\"],\n                         EMERGENCY_DAILY_REQUEST_BUDGET)\n\n    def test_new_commit_invalidates_pending_and_blocks_stale_sha(self):\n        self.assertEqual(self.ledger.submit(req(\"old\")).status, \"RECORDED_FOR_MANUAL_REVIEW\")\n        self.ledger.update_latest(P1, SHA3, ci_green=True)\n        self.assertNotIn(P1, self.ledger.snapshot()[\"pending\"])\n        self.assertEqual(self.ledger.submit(req(\"stale\")).status, \"HOLD\")\n        self.assertEqual(self.ledger.submit(req(\"new\", sha=SHA3)).status,\n                         \"RECORDED_FOR_MANUAL_REVIEW\")\n        self.assertEqual(self.ledger.snapshot()[\"pending\"][P1][\"sha\"], SHA3)\n\n    def test_check_failure_and_bad_project_hold(self):\n        self.assertEqual(self.ledger.submit(req(\"wrong\", project=\"other\")).status, \"HOLD\")\n        self.ledger.update_latest(P1, SHA3, ci_green=False)\n        self.assertEqual(self.ledger.submit(req(\"missing-ci\", sha=SHA3)).status, \"HOLD\")\n\n    def test_simulation_never_grants_deployment(self):\n        self.ledger.submit(req(\"ok\"))\n        self.assertFalse(self.ledger.snapshot()[\"can_auto_deploy\"])\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+        "sha256": "2ffcca9644566ac87003999726a4e72cf952206597e9db9b73a22b53566d9ace"
+      }
+    }
+  ],
+  "file_count": 11,
+  "reported_file_count": 11,
+  "commits": [
+    {
+      "sha": "24c8e1e73623db259702a99c50c001bb8789e8c6",
+      "message": "feat: add read-only Vercel deployment activity monitor\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/24c8e1e73623db259702a99c50c001bb8789e8c6"
+    },
+    {
+      "sha": "e1306f89bd5773f2c3403052c2d94c07b34eb5c8",
+      "message": "test: cover Vercel monitor windows and failure handling\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/e1306f89bd5773f2c3403052c2d94c07b34eb5c8"
+    },
+    {
+      "sha": "2b77505b751674f8c6dd204adf4c574bfb2fba50",
+      "message": "ci: test read-only Vercel quota monitor without credentials\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/2b77505b751674f8c6dd204adf4c574bfb2fba50"
+    },
+    {
+      "sha": "9f2bcc7eb1fd3a5907db02fee2ac33e1bd24386d",
+      "message": "fix: verify both projects when Vercel default scope is used\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/9f2bcc7eb1fd3a5907db02fee2ac33e1bd24386d"
+    },
+    {
+      "sha": "0070c34941498704e7c0a183e4ddfcd8025a9cd2",
+      "message": "test: fail closed if either project is missing from default Vercel scope\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/0070c34941498704e7c0a183e4ddfcd8025a9cd2"
+    },
+    {
+      "sha": "08876bf1fa60b7badf6fcb11c35ddb0d8b449e70",
+      "message": "fix: repair malformed test source after CI syntax error\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/08876bf1fa60b7badf6fcb11c35ddb0d8b449e70"
+    },
+    {
+      "sha": "5ed0ef9c67f5f498c51bde10b2a6851cca949953",
+      "message": "fix: replace escaped newline literals in quota monitor\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/5ed0ef9c67f5f498c51bde10b2a6851cca949953"
+    },
+    {
+      "sha": "a05ecc3146c59c55f6b77f7d152c434e7231302d",
+      "message": "fix: permit verified default scope when team ID omitted\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/a05ecc3146c59c55f6b77f7d152c434e7231302d"
+    },
+    {
+      "sha": "900497857cfb4f960057459f0489c31ea1961787",
+      "message": "docs: define safe shared Vercel deployment policy and release gates\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/900497857cfb4f960057459f0489c31ea1961787"
+    },
+    {
+      "sha": "b098bf90f1cf73d606d8e4be476b1ee22a88f2ca",
+      "message": "docs: mark production permission issue resolved and keep quota gate disabled\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/b098bf90f1cf73d606d8e4be476b1ee22a88f2ca"
+    },
+    {
+      "sha": "358ab030929dc3a2d42e08d30dd807c2cf222a3c",
+      "message": "fix: explicitly prohibit quota gating from deployment record counts\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/358ab030929dc3a2d42e08d30dd807c2cf222a3c"
+    },
+    {
+      "sha": "c8cfb4fd5ab49d0c6e78c3a6c66f3c4178947d57",
+      "message": "fix: restore Python newlines in explicit quota safety flags\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/c8cfb4fd5ab49d0c6e78c3a6c66f3c4178947d57"
+    },
+    {
+      "sha": "7d40a5997e100f3bb6495870993a811d80b7d484",
+      "message": "test: ensure monitor never authorizes automatic production gating\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/7d40a5997e100f3bb6495870993a811d80b7d484"
+    },
+    {
+      "sha": "96d1b7244f8e75b73fdb2485e8c30a964ebd273a",
+      "message": "docs: verify Vercel Hobby limits and record unrelated CI blocker\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/96d1b7244f8e75b73fdb2485e8c30a964ebd273a"
+    },
+    {
+      "sha": "61f58b4efc5debbc101eec59c99821eb4ff81992",
+      "message": "test: run rain lab grade checks under Vitest in PR CI\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/61f58b4efc5debbc101eec59c99821eb4ff81992"
+    },
+    {
+      "sha": "f36105513c1015f21952623427f6bbd52c3bcc44",
+      "message": "fix: fail closed when Vercel deployments API returns malformed data\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/f36105513c1015f21952623427f6bbd52c3bcc44"
+    },
+    {
+      "sha": "7e61e6c7fc653735dcc327fa2e1ade34beb4dab1",
+      "message": "test: malformed Vercel response must not appear as zero activity\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1"
+    },
+    {
+      "sha": "0dbc76f260f5da39543f7ceb1b937f2e76ce160e",
+      "message": "fix: fail closed on unknown project scope and incomplete Vercel pagination\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/0dbc76f260f5da39543f7ceb1b937f2e76ce160e"
+    },
+    {
+      "sha": "9ff1861cf889df7b086fd15d38116b0fe7f40b4d",
+      "message": "test: cover strict two-project scope and fail-closed pagination\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/9ff1861cf889df7b086fd15d38116b0fe7f40b4d"
+    },
+    {
+      "sha": "56fe1fc85725c7f88931e5e77ed353a540a2e5eb",
+      "message": "docs: record authoritative-quota gap and safe gate prerequisites\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/56fe1fc85725c7f88931e5e77ed353a540a2e5eb"
+    },
+    {
+      "sha": "b59aa26f401ccf0d3566a9e449ae7d50f9ad3689",
+      "message": "feat: add offline-only manual release request policy (never deploys)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/b59aa26f401ccf0d3566a9e449ae7d50f9ad3689"
+    },
+    {
+      "sha": "714779c8e68cdddf3fe82d6d925a59fb9eedfab2",
+      "message": "test: verify offline approval, reserve, dedup, stale SHA and failure holds\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/714779c8e68cdddf3fe82d6d925a59fb9eedfab2"
+    },
+    {
+      "sha": "9fe395086c9103eaaa4de5177e532347bbf05eec",
+      "message": "fix: fail closed on malformed project identifier\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/9fe395086c9103eaaa4de5177e532347bbf05eec"
+    },
+    {
+      "sha": "ae20481ea4edf0ac59153e455f67ab84195f8fb5",
+      "message": "ci: include dry-run release policy tests and allow PR metadata retrigger\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/ae20481ea4edf0ac59153e455f67ab84195f8fb5"
+    },
+    {
+      "sha": "bd4a681a605c15be897508ecbc45f1d02daccf7d",
+      "message": "docs: assess official quota API and design non-enforcing GitHub approval gate\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/bd4a681a605c15be897508ecbc45f1d02daccf7d"
+    },
+    {
+      "sha": "ac23f17ec4812b8573e0cebf6d1f8bf941d5fdfe",
+      "message": "test-design: model atomic concurrent request admission without production access\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/ac23f17ec4812b8573e0cebf6d1f8bf941d5fdfe"
+    },
+    {
+      "sha": "c2a2a6335e84e088d574341d074d5951482dd069",
+      "message": "test: offline concurrent dedup, voluntary reserves, stale SHA and fail closed\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/c2a2a6335e84e088d574341d074d5951482dd069"
+    },
+    {
+      "sha": "46a005a29f0aaca1ad95c0dcb7d5ac611b7de9e0",
+      "message": "ci: include concurrent release-request simulator tests\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/46a005a29f0aaca1ad95c0dcb7d5ac611b7de9e0"
+    },
+    {
+      "sha": "d535dd263b5fc8b0dac1585d1f9751431dc24045",
+      "message": "docs: record offline concurrency-only verification scope and CI limitations\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/d535dd263b5fc8b0dac1585d1f9751431dc24045"
+    },
+    {
+      "sha": "5f31f34af3a77fad8fab08331b5fd32993b38460",
+      "message": "prototype: transactional offline SQLite release request journal without deploy path\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/5f31f34af3a77fad8fab08331b5fd32993b38460"
+    },
+    {
+      "sha": "3ae7026ef234157b316ae0063cdb18d0b10b463e",
+      "message": "test: offline transaction and shared ledger concurrency with no Vercel access\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/3ae7026ef234157b316ae0063cdb18d0b10b463e"
+    },
+    {
+      "sha": "7c1644b3222f7d1492f660be5b71ba420495dcd5",
+      "message": "fix: fail closed on malformed unhashable project in offline journal\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/7c1644b3222f7d1492f660be5b71ba420495dcd5"
+    },
+    {
+      "sha": "a5a24675a384501b11c8ba4e261871766b29464e",
+      "message": "ci: include offline transactional journal tests in quota monitor workflow\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/a5a24675a384501b11c8ba4e261871766b29464e"
+    },
+    {
+      "sha": "c68aec5efc5d6eae692f1957dca4c339fd4d9722",
+      "message": "docs: separate offline SQLite transaction prototype from production distributed locking\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/c68aec5efc5d6eae692f1957dca4c339fd4d9722"
+    },
+    {
+      "sha": "79580cf1028448ba77318c8cf44fdab80e046035",
+      "message": "fix: close SQLite journal connections after offline transaction simulations\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/79580cf1028448ba77318c8cf44fdab80e046035"
+    },
+    {
+      "sha": "2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8",
+      "message": "docs: identify missing main workflow_dispatch prerequisite and correct CI recovery path\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8"
+    }
+  ],
+  "comments": [
+    {
+      "body": "## 2026-11-10 新しい通常チャットからの引継ぎ検証（追記・未完成）\n\n- 引継ぎ：**成功**。最新mainの AGENTS.md、docs/WORK_HISTORY_PREFLIGHT.md、docs/WORK_HISTORY_HANDOFF_VALIDATION.md、Issue #163本文・bot結果、PR #164本文とHEADを取得。既存ブランチ feat/vercel-quota-monitor-20261105 を継続。\n- 着手前照合：Issue #163 の最新本文に対応する request_sha256 `2062b5b7c12f3043c24039208ec7b885a9a66919ba1b6da7279bf6a629813692`、run #42834600204（attempt 1）、REVIEW_RECORDED / publication_status=confirmed / preflight_job_result=success をbotコメントで確認。既存のextend判断を再利用。https://github.com/miyazaki1016/emergencyalert/issues/163#issuecomment-6769827658 / https://github.com/miyazaki1016/emergencyalert/actions/runs/42834600204\n- 既存成果の再利用：**成功（読み取り・判断）**。既存 scripts/vercel_release_request_policy.py と scripts/vercel_release_request_simulation.py を取得。前者は承認情報を呼出側で検証する前提の純粋関数、後者のLockは単一プロセス内のみ。重複実装なし。https://github.com/miyazaki1016/emergencyalert/blob/d535dd263b5fc8b0dac1585d1f9751431dc24045/scripts/vercel_release_request_simulation.py\n- 最新コミットCI検証：**未実行／未完了**。取得時PR HEAD `d535dd263b5fc8b0dac1585d1f9751431dc24045`。GitHub連携のcommit workflow runs（PRイベント対象）0件、combined statuses 0件。check-runs全種類の再取得はこの連携では未確認。対象SHAの成功run ID・ジョブ結果・URLなし。照合runはmain上の別用途でありCI成功に流用しない。https://github.com/miyazaki1016/emergencyalert/commit/d535dd263b5fc8b0dac1585d1f9751431dc24045/checks\n- Actions起動：現GitHub連携にはworkflow_dispatch新規実行操作が見つからず、未実施。既存runのrerunでは対象SHA検証を代替できない。workflowは手動dispatch定義済み。https://github.com/miyazaki1016/emergencyalert/blob/d535dd263b5fc8b0dac1585d1f9751431dc24045/.github/workflows/vercel-quota-monitor-tests.yml\n- 案件完成：**未完成**。複数runner間での永続的原子CAS、サーバ側承認の本人性・権限・時刻検証、Git自動デプロイ経路との整合、障害時の競合・再試行・停止条件、公式ローリング枠残数、最新SHAの必須CIが未検証。\n- 次の作業：同ブランチを指定して既存workflow_dispatchを実行できる認可手段を確保し、run.head_sha/ジョブ/成功URLを検証。次に永続CAS・署名/権限確認・障害時fail-closedをオフラインで設計・テストし、変更後HEADでCI再検証。新しいIssue/PR/ブランチは不要。\n- 安全条件：`quota_verified=false` / `safe_to_gate=false` を維持。mainマージ、本番デプロイ、Vercel設定・DB・認証・通知変更、自動停止・再開の有効化、不要なVercelビルドは実施しない。\n- 4段階：①引継ぎ成功 ②既存成果再利用成功 ③最新HEADのCI成功未達 ④案件未完成。新しい通常チャットから実際に既存情報を取得して継続点を特定できたが、CI・完成は別判定。\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/164#issuecomment-6770322098"
+    }
+  ],
+  "reviews": [],
+  "runs": [],
+  "symbols": [
+    "ConcurrentRequestSimulationTests",
+    "Decision",
+    "JournalTests",
+    "MonitorTests",
+    "OfflineJournal",
+    "ReleaseRequestPolicyTests",
+    "SimulationLedger",
+    "__init__",
+    "_connect",
+    "cannot",
+    "counts",
+    "evaluate",
+    "fetch",
+    "gather",
+    "hold",
+    "import",
+    "item",
+    "main",
+    "make",
+    "quota_alert",
+    "record_time",
+    "req",
+    "request",
+    "request_json",
+    "run_monitor",
+    "setUp",
+    "snapshot",
+    "submit",
+    "test_ambiguous_page_boundary_fail_closed",
+    "test_api_error_not_zero",
+    "test_atomic_duplicate_request_under_threads",
+    "test_author_is_not_approver",
+    "test_bad_day_never_writes",
+    "test_check_failure_and_bad_project_hold",
+    "test_ci_failure_or_missing",
+    "test_cross_project_reserve_does_not_exceed_voluntary_budget",
+    "test_dedup_and_per_project_scope",
+    "test_duplicate_requests",
+    "test_each_project_tracked_independently",
+    "test_emergency_requires_separate_authorization",
+    "test_emergency_reserve_and_authorization",
+    "test_emergency_reserve_exhaustion",
+    "test_emergency_reserve_is_separate",
+    "test_empty_both_projects",
+    "test_exact_team_and_id_allowlist",
+    "test_failed_checks_and_approval_do_not_reserve",
+    "test_foreign_project_rejected",
+    "test_invalid_request_or_snapshot_fails_closed",
+    "test_malformed_response_rejected",
+    "test_membership_fail_closed",
+    "test_missing_credentials",
+    "test_missing_id_or_timestamp_rejected",
+    "test_new_commit_invalidates_pending_and_blocks_stale_sha",
+    "test_normal_budget_does_not_use_emergency_reserve",
+    "test_pagination_full_page_and_next_page",
+    "test_quota_thresholds_only_authoritative",
+    "test_rejects_untrusted_snapshot",
+    "test_returns_no_deployment_authority",
+    "test_review_ready_is_never_permission_to_deploy",
+    "test_scope_cannot_be_expanded"
+  ],
+  "related_sources": [
+    {
+      "path": "docs/WORK_HISTORY_HANDOFF_VALIDATION.md",
+      "coverage": "削除済み／取得不能・差分参照"
+    }
+  ],
+  "curated": {
+    "summary": "Vercelデプロイ履歴を読み取り専用で監視する準備",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。 2026-11-10追記：アメふる（miyazaki1016/emergencyalert）Draft PR #164で、既存Issue #163・既存PR/ブランチを再利用して引継ぎを継続した成功事例を確認。前任7e61e6c7から56fe1fc8まで3コミット。引継ぎ成功と再利用成功は確認できたが、報告対象HEAD 56fe1fc85725c7f88931e5e77ed353a540a2e5eb のActions・check-runsは今回のAPI確認で0件で、新規変更の検証は未完了。Issue照合run42746003789のREVIEW_RECORDEDはmainの072cf6d7に対する照合であり、対象コードのCI合格ではない。正式使用量・残量取得等が未解決で案件は未完成。後続のCI確認は日時・SHA・実行URLを別途追記し、この記録を消さない。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/164",
+      "https://github.com/miyazaki1016/emergencyalert/issues/163",
+      "https://github.com/miyazaki1016/emergencyalert/actions/runs/42746003789",
+      "https://github.com/miyazaki1016/emergencyalert/compare/7e61e6c7fc653735dcc327fa2e1ade34beb4dab1...56fe1fc85725c7f88931e5e77ed353a540a2e5eb"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "765003cabf176a147bb1a11e3d4bd85e263b88d6afa278471b73e857b2f6eda4",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-12T06:57:50.495729+00:00"
+}

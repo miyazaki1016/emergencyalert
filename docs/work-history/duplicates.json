@@ -1028,6 +1028,10 @@
     "branch-01116240ec96678b",
     "pr-188"
   ],
+  "scripts/development_resume.py": [
+    "branch-da4ff3297fb6648a",
+    "pr-208"
+  ],
   "scripts/development_work_history.py": [
     "branch-a05fbbad807e392f",
     "pr-182"
@@ -1393,16 +1397,22 @@
   "scripts/vercel-build-guard.mjs": [
     "branch-01116240ec96678b",
     "branch-5d674c9a5e5cf44c",
+    "branch-da4ff3297fb6648a",
     "branch-eecb7d45ce962418",
     "pr-161",
     "pr-188",
-    "pr-194"
+    "pr-194",
+    "pr-208"
   ],
   "scripts/vercel_build_guard.py": [
     "branch-2fcb912568edd503",
     "pr-141"
   ],
   "scripts/vercel_quota_monitor.py": [
+    "branch-2b0a1b21c1150676",
+    "pr-164"
+  ],
+  "scripts/vercel_release_request_journal.py": [
     "branch-2b0a1b21c1150676",
     "pr-164"
   ],
@@ -1622,6 +1632,7 @@
     "branch-6f858d7bdec005b4",
     "branch-98720101eac846e9",
     "branch-9aa299e0ae564704",
+    "branch-9d42220fd7e8297f",
     "branch-b9691c1437f39bb8",
     "branch-e2f0df54260ffb77",
     "branch-e35c9eb31cd3459b",
@@ -1634,6 +1645,7 @@
     "pr-109",
     "pr-16",
     "pr-17",
+    "pr-206",
     "pr-37",
     "pr-38",
     "pr-39",
@@ -1651,9 +1663,11 @@
   "supabase/functions/watch-rain/notificationDecision.ts": [
     "branch-2d4d1257bf897e74",
     "branch-6f858d7bdec005b4",
+    "branch-9d42220fd7e8297f",
     "branch-b9691c1437f39bb8",
     "branch-f28e11c53b06fa5f",
     "pr-17",
+    "pr-206",
     "pr-53",
     "pr-58",
     "pr-89"

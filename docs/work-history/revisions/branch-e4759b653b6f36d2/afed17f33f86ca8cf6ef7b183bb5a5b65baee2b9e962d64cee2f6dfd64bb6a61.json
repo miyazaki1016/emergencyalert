@@ -1,0 +1,28 @@
+{
+  "id": "branch-e4759b653b6f36d2",
+  "title": "test-early-rain-api-smoke",
+  "head": "0d9bea1c83478b525faddc73628e320bb430f1ae",
+  "head_ref": "test-early-rain-api-smoke",
+  "linked_prs": [
+    24
+  ],
+  "files": [
+    {
+      "path": "app/api/rain/early/route.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0d9bea1c83478b525faddc73628e320bb430f1ae/app/api/rain/early/route.test.ts"
+    }
+  ],
+  "commits": "0d9bea1c83478b525faddc73628e320bb430f1ae test: add early rain API smoke coverage",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "0fbcb1ebdc091a90c30d9dbc017e3895c52d94c80b7f5a6dcaace61b027cdd68",
+  "collected_at": "2026-11-12T06:57:50.495729+00:00"
+}
