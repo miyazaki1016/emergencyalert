@@ -21,6 +21,7 @@ export function loadNationwidePreparedN03(root: string): NationwideN03Coverage {
   const areas: AdministrativeArea[] = [];
   const missing: string[] = [];
   const codes = new Set<string>();
+  const prefectureNames = new Set<string>();
   for (const prefectureCode of ALL_PREFECTURE_CODES) {
     const file = join(root, prefectureCode + ".areas.json");
     if (!existsSync(file)) {
@@ -28,6 +29,11 @@ export function loadNationwidePreparedN03(root: string): NationwideN03Coverage {
       continue;
     }
     const loaded = loadPreparedN03ForProof(file, prefectureCode);
+    const names = new Set(loaded.map(area => area.prefecture));
+    if (names.size !== 1) throw new Error("Conflicting prefecture names for N03 code " + prefectureCode);
+    const name = loaded[0].prefecture;
+    if (prefectureNames.has(name)) throw new Error("Duplicate N03 prefecture name " + name);
+    prefectureNames.add(name);
     for (const area of loaded) {
       if (codes.has(area.code)) throw new Error("Duplicate nationwide N03 code " + area.code);
       codes.add(area.code);
