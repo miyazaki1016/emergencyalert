@@ -1,0 +1,55 @@
+name: Nationwide official N03 acquisition and audit (read-only)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prefecture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        code: ["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Download official 2026 N03 GeoJSON archive
+        env:
+          CODE: ${{ matrix.code }}
+        run: |
+          set -euo pipefail
+          base="N03-20260101_${CODE}"
+          curl --fail --location --retry 3 --retry-delay 3 --connect-timeout 20 --max-time 600 "https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-2026/${base}_GML.zip" -o /tmp/n03.zip
+          mkdir -p /tmp/n03-source /tmp/n03-local
+          unzip -q /tmp/n03.zip -d /tmp/n03-source
+          test -s "/tmp/n03-source/${base}.geojson"
+          npx tsx scripts/light-rain-prepare-official-n03.ts "${CODE}" "/tmp/n03-source/${base}.geojson" /tmp/n03-local
+          test -s "/tmp/n03-local/${CODE}.areas.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: n03-${{ matrix.code }}
+          path: /tmp/n03-local/*.areas.json
+          retention-days: 1
+          if-no-files-found: error
+  nationwide-audit:
+    needs: prefecture
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: n03-*
+          merge-multiple: true
+          path: /tmp/n03-local
+      - name: Audit all 47 official N03 datasets (no production writes)
+        run: npx tsx scripts/light-rain-nationwide-n03-audit.ts /tmp/n03-local
