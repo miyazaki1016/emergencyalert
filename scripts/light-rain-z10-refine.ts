@@ -148,12 +148,30 @@ async function main() {
   const n03LoadAndIndex = Math.round(performance.now() - started);
   let previousBase: string | undefined;
   let successfulUpdates = 0;
+  // A successful watch is not evidence of uninterrupted five-minute coverage.
+  // Keep gaps visible and fail the read-only audit rather than silently skipping them.
+  const missingBasetimes: string[] = [];
+  const observedBasetimes = new Set<string>();
+  const recordGap = (base: string) => {
+    if (observedBasetimes.has(base)) return;
+    observedBasetimes.add(base);
+    if (!previousBase) return;
+    const from = forecastTime(previousBase);
+    const to = forecastTime(base);
+    if (to <= from) return;
+    for (let t = from + FIVE_MINUTES; t < to; t += FIVE_MINUTES) {
+      const missing = new Date(t).toISOString();
+      missingBasetimes.push(missing);
+      console.error(JSON.stringify({ event: "MISSING_JMA_BASETIME", basetime: missing, nextBasetime: base, recovered: false, publication: false }));
+    }
+  };
   const update = async () => {
     const scanStarted = performance.now();
     const targets = await fetchForecastTargetTimes((input, init) =>
       fetch(input, { ...init, signal: AbortSignal.timeout(25_000) }));
     const frames = selectFrames(targets, Date.now());
     if (frames[0].basetime === previousBase) return;
+    recordGap(frames[0].basetime);
     const results = [];
     // Two frames share the cycle budget. Await both before stopping so the next
     // update does not overlap a failed cycle's remaining requests.
@@ -197,7 +215,12 @@ async function main() {
     } catch (error) {
       console.error(error);
     }
-    if (watchCount > 0 && successfulUpdates >= watchCount) return;
+    if (watchCount > 0 && successfulUpdates >= watchCount) {
+      if (missingBasetimes.length) {
+        throw new Error("INCOMPLETE_FIVE_MINUTE_COVERAGE: " + missingBasetimes.join(", "));
+      }
+      return;
+    }
     // Let JMA publish the new cycle before polling the next five-minute slot.
     const now = Date.now();
     const offset = 120_000;
