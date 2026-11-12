@@ -45,7 +45,6 @@
 | #179 | Research: distinguish rain onset from strengthening in failed alerts | research/rain-approach-timing-20261109 |
 | #181 | fix: exhaustive z4 heavy-rain scan and fail-closed missing tiles (PR #62 evidence) | fix/national-preview-fail-closed-20261109 |
 | #195 | 研究: 未通知ケースを含む雨のエピソード評価基盤 | research/rain-episode-evaluation-api-20261110 |
-| #206 | [Draft] 雨通知文C案：弱雨予報の本文だけを状況別に改善 | fix/rain-notification-copy-c-20261111 |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
