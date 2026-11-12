@@ -1,5 +1,6 @@
 "use client";
 
+import NationalHeavyRainForecast from "./components/NationalHeavyRainForecast";
 import { useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "../lib/supabase/browser";
 
@@ -516,8 +517,10 @@ export default function Home() {
 
   return (
     <main style={{ maxWidth: 680, margin: "0 auto", minHeight: "100vh", padding: "36px 20px 72px", fontFamily: "system-ui", lineHeight: 1.7, color: "#eaf2ff" }}>
-      <p style={{ marginBottom: 4, color: "#eef5ff", fontSize: 13, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase" }}>EmergencyAlert 2026</p>
-      <h1 style={{ marginTop: 0, marginBottom: 8, fontSize: "clamp(42px, 12vw, 64px)", lineHeight: 1.05, letterSpacing: "-0.05em" }}>アメくる？</h1>
+      <h1 style={{ margin: 0, fontSize: "clamp(42px, 12vw, 64px)" }}>さきどり</h1>
+      <p>暮らしを少し先回りする</p>
+      <NationalHeavyRainForecast />
+      <h2>myアメふる</h2>
       <p style={{ marginTop: 0, color: "#e3edf8", fontSize: 18 }}>{status}</p>
 
       <button onClick={check} disabled={busy} style={{ width: "100%", padding: "15px 20px", fontSize: 16, cursor: busy ? "default" : "pointer", border: 0, borderRadius: 14, background: "linear-gradient(135deg,#5eb9ff,#6d7cff)", color: "white", fontWeight: 800, boxShadow: "0 12px 30px rgba(56,130,246,.25)" }}>

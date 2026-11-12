@@ -125,7 +125,7 @@ describe("national rain worker route", () => {
       loadManifest: vi.fn().mockRejectedValue(new Error("missing partition manifest")),
       readChunk: vi.fn(),
     }));
-    processJobs.mockImplementation(async (_client: unknown, options: { resolveMunicipalities: (footprint: typeof footprint) => Promise<unknown> }) => {
+    processJobs.mockImplementation(async (_client: unknown, options: { resolveMunicipalities: (polygons: typeof footprint) => Promise<unknown> }) => {
       await options.resolveMunicipalities(footprint);
       return { claimed: 1, done: 1, failed: 0, strongPixels: 1, deferred: 0 };
     });
