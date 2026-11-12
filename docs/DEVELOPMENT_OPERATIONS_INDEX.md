@@ -46,6 +46,8 @@
 | #181 | fix: exhaustive z4 heavy-rain scan and fail-closed missing tiles (PR #62 evidence) | fix/national-preview-fail-closed-20261109 |
 | #195 | 研究: 未通知ケースを含む雨のエピソード評価基盤 | research/rain-episode-evaluation-api-20261110 |
 | #210 | 固定版N03の全国大雨予報をさきどりトップに接続 | work/national-rain-fixed-n03-209 |
+| #215 | Draft: 全国大雨予報からBluesky投稿候補を生成（Issue #213） | feat/bluesky-national-forecast-213 |
+| #217 | [Draft] 1mm/h全国雨域検証の独立スキャナ（Issue #216） | feat/national-rain-1mm-dry-run-216 |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
