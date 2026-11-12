@@ -29,19 +29,20 @@ const xy=(longitude:number,latitude:number,z:number):[number,number]=>{
   const rad=safe*Math.PI/180;
   return [Math.floor((longitude+180)/360*2**z),Math.floor((1-Math.asinh(Math.tan(rad))/Math.PI)/2*2**z)];
 };
-async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:number,y:number){
+async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:number,y:number, signal:AbortSignal){
   const url=buildJmaRainTileUrl(frame,z,x,y);
   const attempts: string[] = [];
-  for (let attempt = 0; attempt < 4; attempt++) {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    signal.throwIfAborted();
     try {
-      const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(10_000) });
+      const response = await fetch(url, { cache: "no-store", signal: AbortSignal.any([signal, AbortSignal.timeout(8_000)]) });
       if (response.ok) return Buffer.from(await response.arrayBuffer());
       attempts.push("HTTP " + response.status);
       if (![404, 408, 429, 500, 502, 503, 504].includes(response.status)) break;
     } catch (error) {
       attempts.push(error instanceof Error ? error.name : "TransportError");
     }
-    if (attempt < 3) await delay(1000 * 2 ** attempt);
+    if (attempt < 1) await delay(500, undefined, { signal });
   }
   throw new Error(`INCOMPLETE_JMA_TILE ${url} attempts: ${attempts.join(", ")}`);
 }
@@ -64,6 +65,7 @@ async function refineFrame(
   frame: JmaTargetTime,
   indexed: Array<{ area: AdministrativeArea; b: ReturnType<typeof bbox> }>,
   areaByCode: Map<string, AdministrativeArea>,
+  signal: AbortSignal,
 ) {
   const started = performance.now();
   const candidates = new Map<string, AdministrativeArea>();
@@ -72,7 +74,7 @@ async function refineFrame(
     const bounds = [lon(x, 4), lat(y + 1, 4), lon(x + 1, 4), lat(y, 4)];
     const relevant = indexed.filter(({ b }) => b[0] <= bounds[2] && b[2] >= bounds[0]
       && b[1] <= bounds[3] && b[3] >= bounds[1]).map(({ area }) => area);
-    const buffer = await fetchTile(frame, 4, x, y);
+    const buffer = await fetchTile(frame, 4, x, y, signal);
     const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 4, x, y);
     if (!pixels.length) continue;
     for (const area of municipalitiesForLightRainTile(buffer, 4, x, y, relevant)) {
@@ -106,10 +108,11 @@ async function refineFrame(
   const entries=[...tileMap.values()];
   let rainyTiles=0;
   for(let i=0;i<entries.length;i+=8){
+    signal.throwIfAborted();
     const batch=entries.slice(i,i+8);
     const outcomes=await Promise.allSettled(batch.map(async t=>{
       const fetchStart=performance.now();
-      const buffer=await fetchTile(frame,10,t.x,t.y);
+      const buffer=await fetchTile(frame,10,t.x,t.y,signal);
       const fetchMs=performance.now()-fetchStart;
       const matchStart=performance.now();
       const scan=scanJmaTileAtLeast1mm(buffer);
@@ -167,16 +170,22 @@ async function main() {
   };
   const update = async () => {
     const scanStarted = performance.now();
+    // Stop this slot before the next JMA publication window; never recover old slots.
+    const slotEnd = Math.floor(Date.now() / FIVE_MINUTES) * FIVE_MINUTES + FIVE_MINUTES + 90_000;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(new Error("JMA_SLOT_DEADLINE_EXCEEDED")), Math.max(0, slotEnd - Date.now()));
+    try {
     const targets = await fetchForecastTargetTimes((input, init) =>
-      fetch(input, { ...init, signal: AbortSignal.timeout(25_000) }));
+      fetch(input, { ...init, signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]) }));
     const frames = selectFrames(targets, Date.now());
     if (frames[0].basetime === previousBase) return;
+    controller.signal.throwIfAborted();
     const results = [];
     // Two frames share the cycle budget. Await both before stopping so the next
     // update does not overlap a failed cycle's remaining requests.
     for (let i = 0; i < frames.length; i += 2) {
       const batch = await Promise.allSettled(
-        frames.slice(i, i + 2).map(frame => refineFrame(frame, indexed, areaByCode)),
+        frames.slice(i, i + 2).map(frame => refineFrame(frame, indexed, areaByCode, controller.signal)),
       );
       for (const result of batch) {
         if (result.status === "rejected") throw result.reason;
@@ -206,6 +215,7 @@ async function main() {
     recordGap(frames[0].basetime);
     previousBase = frames[0].basetime;
     successfulUpdates++;
+    } finally { clearTimeout(timer); }
   };
 
   if (!process.argv.includes("--watch")) return update();
@@ -215,7 +225,7 @@ async function main() {
     try {
       await update();
     } catch (error) {
-      console.error(error);
+      console.error(JSON.stringify({ event: "JMA_SLOT_FAILED", at: new Date().toISOString(), error: String(error), recovery: false, publication: false }));
     }
     if (watchCount > 0 && successfulUpdates >= watchCount) {
       if (missingBasetimes.length) {
