@@ -5,7 +5,7 @@
 import { readFileSync } from "node:fs";
 import { fetchForecastTargetTimes } from "../lib/weather/providers/jma/targetTimes";
 import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
-import { scanJmaTileAtLeast1mm } from "../lib/weather/rain/lightRainProof";
+import { locateJmaRainPixelsAtLeast1mm, scanJmaTileAtLeast1mm } from "../lib/weather/rain/lightRainProof";
 import { municipalitiesForLightRainTile } from "../lib/weather/rain/lightRainMunicipalities";
 import { parseOfficialN03ForLightRain, type N03FeatureCollection } from "../lib/weather/rain/lightRainOfficialN03";
 
@@ -26,6 +26,8 @@ async function main() {
   for (const frame of frames) {
     const codes = new Map<string, { code: string; prefecture: string; municipality: string }>();
     let rainyPixels = 0;
+    let rainyPixelsInTokyoMainlandBox = 0;
+    const tileDiagnostics: Array<{x:number;y:number;rainyPixels:number;tokyoMainlandBoxPixels:number}> = [];
     for (const [x,y] of tiles) {
       const response = await fetch(buildJmaRainTileUrl(frame,4,x,y), {cache:"no-store"});
       if (!response.ok) throw new Error("Missing JMA tile "+frame.validtime+" z4/"+x+"/"+y);
@@ -33,13 +35,20 @@ async function main() {
       const scan = scanJmaTileAtLeast1mm(buffer);
       if (scan.unknownPixels) throw new Error("Unknown JMA palette pixel");
       rainyPixels += scan.rainPixels;
+      const points = scan.rainPixels ? locateJmaRainPixelsAtLeast1mm(buffer,4,x,y) : [];
+      const tokyoBox = points.filter(p => p.longitude >= 138.9 && p.longitude <= 140.2 && p.latitude >= 35.45 && p.latitude <= 35.9).length;
+      rainyPixelsInTokyoMainlandBox += tokyoBox;
+      tileDiagnostics.push({x,y,rainyPixels:scan.rainPixels,tokyoMainlandBoxPixels:tokyoBox});
       if (!scan.rainPixels) continue;
       for (const area of municipalitiesForLightRainTile(buffer,4,x,y,areas)) codes.set(area.code,area);
     }
-    results.push({validtime:frame.validtime,rainyPixels,municipalities:[...codes.values()]});
+    results.push({validtime:frame.validtime,rainyPixels,rainyPixelsInTokyoMainlandBox,tileDiagnostics,municipalities:[...codes.values()]});
   }
   if (results.every(r => r.rainyPixels === 0)) throw new Error("No real JMA >=1mm rain pixels in sample");
-  if (results.every(r => r.municipalities.length === 0)) throw new Error("INCOMPLETE_PROOF: no real rainy pixel intersected an official Tokyo municipality; do not claim municipality resolution");
+  if (results.every(r => r.municipalities.length === 0)) {
+    console.log(JSON.stringify({status:"INCONCLUSIVE",reason:results.every(r=>r.rainyPixelsInTokyoMainlandBox===0) ? "No rain in Tokyo mainland bounding box at sampled frames" : "Rain in Tokyo bounding box but no official N03 intersection",frames:results}));
+    throw new Error("INCOMPLETE_PROOF: no real rainy pixel intersected an official Tokyo municipality; do not claim municipality resolution");
+  }
   console.log(JSON.stringify({mode:"REAL_JMA_OFFICIAL_TOKYO_N03_READ_ONLY",checkedAt:new Date().toISOString(),
     threshold:">=1mm/h",zoom:4,tiles:tiles.length,frames:results,coverage:"six coarse tiles only",
     precision:"coarse pixel footprints; not suitable for publishing municipality alerts",
