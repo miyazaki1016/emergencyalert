@@ -1,4 +1,5 @@
-import { access } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
+import { access, rename, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fetchForecastTargetTimes, type JmaTargetTime } from "../lib/weather/providers/jma/targetTimes";
 import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
@@ -7,6 +8,7 @@ import { N03_DATASET_DATE } from "../lib/weather/rain/n03Dataset";
 import { N03_PREFECTURE_INDEX_2026 } from "../lib/weather/rain/n03PrefectureIndex2026";
 import { resolveNationalRainMunicipalities } from "../lib/weather/rain/nationalRainMunicipalityResolver";
 import { stagedRefinementJobsFromCoarseCandidates } from "../lib/weather/rain/nationalRainQueue";
+import { readNationalForecastSnapshot } from "../lib/weather/rain/nationalForecastSnapshot";
 import { localPreparedLoader } from "./national-rain-proof-n03";
 
 const japanTiles = [[13, 5], [14, 5], [13, 6], [14, 6], [13, 7], [14, 7]] as const;
@@ -87,7 +89,22 @@ async function main() {
     results.push({ validTime: frame.validtime, municipalities: await scanForecast(frame, load) });
   }
   if (results[0].validTime <= jmaTimestamp(Date.now())) throw new Error("Forecast expired during the scan");
-  console.log(JSON.stringify({ source: "JMA", n03Version: N03_DATASET_DATE, basetime, frames: results }, null, 2));
+  const snapshot = { source: "JMA", n03Version: N03_DATASET_DATE, basetime, frames: results };
+  readNationalForecastSnapshot(snapshot);
+  const json = JSON.stringify(snapshot, null, 2);
+  const output = process.env.NATIONAL_RAIN_SNAPSHOT_PATH;
+  if (!output) {
+    console.log(json);
+    return;
+  }
+
+  const temporary = `${output}.${randomUUID()}.tmp`;
+  try {
+    await writeFile(temporary, json, { flag: "wx" });
+    await rename(temporary, output);
+  } finally {
+    await rm(temporary, { force: true });
+  }
 }
 
 main().catch((error) => {
