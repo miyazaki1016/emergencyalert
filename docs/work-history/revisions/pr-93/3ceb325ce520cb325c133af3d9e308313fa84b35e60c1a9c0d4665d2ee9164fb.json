@@ -1,0 +1,109 @@
+{
+  "id": "pr-93",
+  "number": 93,
+  "title": "WIP: 通知重複防止・配信整合性の第1優先監査",
+  "topics": [
+    "通知・配信"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Issue #64再開。現行workerの並行cron競合、Push送信後DB失敗、PR #63とDB CHECKの不整合を確認。監査記録のみ。本番変更なし。",
+  "snapshot_head": "a0a4cc891065a52333c7aaca8b93193d8cb7c2d9",
+  "snapshot_consistent": true,
+  "head": "a0a4cc891065a52333c7aaca8b93193d8cb7c2d9",
+  "base": "0baa0bc681e7f0e7993ae8753c25d6dbeab219f4",
+  "base_ref": "main",
+  "head_ref": "audit/push-concurrency-20261026",
+  "state": "open",
+  "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+  "draft": true,
+  "merged_at": null,
+  "merge_commit_sha": null,
+  "updated_at": "2026-10-27T19:02:36Z",
+  "code_facts": [
+    {
+      "file": "docs/audits/PUSH_CONCURRENCY_20261026.md",
+      "kind": "テストの期待値・条件",
+      "expression": "- `tests/deliveryAttemptSafety.test.ts` には二重claim、lease期限切れ、タイムアウト、成功後再送、404/410、claimなしの結果、空worker ID、遅延した結果の8テストが**コードとして存在**。今回のテスト実行結果ではない。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a0a4cc891065a52333c7aaca8b93193d8cb7c2d9/docs/audits/PUSH_CONCURRENCY_20261026.md"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/audits/PUSH_CONCURRENCY_20261026.md",
+      "status": "modified",
+      "additions": 85,
+      "deletions": 0,
+      "patch": "diff --git a/docs/audits/PUSH_CONCURRENCY_20261026.md b/docs/audits/PUSH_CONCURRENCY_20261026.md\nnew file mode 100644\nindex 0000000..092330d\n--- /dev/null\n+++ b/docs/audits/PUSH_CONCURRENCY_20261026.md\n@@ -0,0 +1,85 @@\n+# 通知安定化・重複防止：2026-10-26 第1優先の再開監査\n+\n+## 確認した現状\n+- Issue #64 はopen。過去の「後日保留」からユーザーの2026-10-26決定で第1優先へ変更。\n+- PR #63 は未統合。pendingレコード案は本番の delivered_count > 0 CHECK と不整合のため直接マージ禁止。\n+- mainの watch-rain/index.ts は watch_states読取 → Push送信 → notification_deliveries insert → watch_states upsert の順。\n+- 同一targetへの並行cronを防ぐ原子的claimや永続イベント一意キーは確認できない。両workerが同じ旧状態を読み、同一Pushを二重送信する競合が理論上ある。実測再現は未実施。\n+- Push成功後のDB insert失敗やwatch_states upsert失敗で通知とDBの状態がずれる恐れがある。送信結果不明時の無条件再送も避ける必要。\n+\n+## 実施順\n+1. 現行worker・DB制約・PR #63の既存設計とテストを詳細照合。\n+2. 使い捨てDBで並行実行、送信成功後DB失敗、送信タイムアウト、状態更新失敗の再現テストを作る。\n+3. target/eventごとの永続claim、購読別試行、未知結果の運用を設計。pending採用ならDB移行順序と後方互換を先に確認。\n+4. CIと並行試験の後、明示承認を得て初めて本番DB/Edge/Pushを変更し、iPhoneで検証。\n+\n+## 作業境界と次の一手\n+このチェックポイントは静的監査。コード修正・実測並行試験・本番変更は未実施。次はPR #63のテストとmainのworkerを突き合わせてオフライン失敗注入テストから着手する。\n+\n+## 2026-10-28 既存試験と本番workerの突合（静的確認）\n+\n+### 既存資産を再利用\n+- PR #63の `deliveryAttemptSafety.ts` は `CREATED → CLAIMED → ACCEPTED/FAILED_TERMINAL/UNCERTAIN` をモデル化。送信タイムアウト・lease切れを `UNCERTAIN` とし、再送不可にする。\n+- `tests/deliveryAttemptSafety.test.ts` には二重claim、lease期限切れ、タイムアウト、成功後再送、404/410、claimなしの結果、空worker ID、遅延した結果の8テストが**コードとして存在**。今回のテスト実行結果ではない。\n+- `docs/sql/my-rain-push-outbox-prototype.sql` は `UNIQUE(owner_id,target_id,event_key)` と `PRIMARY KEY(event_claim_id,subscription_id)` を設計済み。ただし `notification_id` が既存配信行へのNOT NULL FKで、現行 `delivered_count > 0` 制約下では**Push前のpending行を作れない**。先にDB移行設計が必要。\n+\n+### 現行workerの問題箇所と故障注入の期待結果\n+| ケース | 現状の危険 | 修正後の必須条件 |\n+| --- | --- | --- |\n+| 同一targetに2 cronが同時到着 | 両者が同じwatch_statesを読み、二重Push可能 | 同一イベント/購読は一方だけが永続claim成功、送信権を持つ |\n+| Push受理→delivery insert失敗 | 端末には通知、履歴なし | 配信試行の永続記録と要調査状態を残し、無条件再送しない |\n+| Push受理→watch_states upsert失敗 | 次回も未通知と誤判定し得る | 配信claimが再送を抑え、状態修復は独立して行う |\n+| Push送信タイムアウト | 受理済みか不明 | UNCERTAINを記録し、自動再送せず照合対象とする |\n+| workerがclaim後にクラッシュ | 送信前/送信後を判別できない | lease期限切れだけで再送許可しない |\n+| 複数購読の一部のみ成功 | owner単位の履歴だけでは購読別結果が曖昧 | 購読別の試行・確定・不明を保持 |\n+| 404/410購読 | 無効購読が残る可能性 | 無効購読を終端化し、他購読の送信状態に影響させない |\n+| 3回連続NO_RAIN後の新エピソード | 古いevent_keyで新しい雨を抑止する危険 | イベントIDの世代更新を観測有効時刻と乾燥確定に紐づける |\n+\n+### 未解決の設計判断\n+- `event_key` の雨エピソードIDをいつ生成/再生成するか。予報更新ごとにキーを変えると重複抑止が破綻する。\n+- 既存DB制約をどの順で安全に移行するか。workerを先に変更しない。\n+- Pushは外部サービスなのでDBと完全な原子的トランザクションにできず、**厳密な一度だけの端末到達保証はできない**。重複抑止と不明結果の安全な扱いを優先する。\n+\n+**次の実装ゲート**：使い捨てPostgresの別接続2本で同時INSERT/claimを競争させ、同じevent_keyとsubscription_idで送信権が1件だけになるテストを作る。これが通るまで本番workerに接続しない。\n+\n+## 2026-10-28 ユーザー実例：「雨が降っていないのに止むよ」／歯抜けの雨雲\n+\n+**第1優先の意味を訂正**：ユーザーの主眼は「誤った降る／止む通知を減らすこと」。技術的な重複Push/障害対策は別トラックとして保持し、通知内容・タイミングの判定改善を先行して調査する。ユーザー仮説：中心画素の歯抜けで状態が揺れる。直前に**実際に送った通知**と、その後に雨が継続したかを組み合わせたい。\n+\n+### mainのコード追跡（静的確認）\n+- `notificationDecision.ts/advanceObservationStreak`：新しい有効時刻の `RAIN` は rain_streak+1、`NO_RAIN` は rain_streak=0。逆も同様。**一回の歯抜けで連続雨カウントは0に戻る**。同じ観測時刻やUNKNOWNはカウントしない。\n+- `watch-rain/index.ts`：`confirmed_weather` は rain_streak>=3 で RAINING、clear_streak>=3 で DRY。それ以外は以前の値を**維持**。歯抜け1〜2回では古いRAININGが残る。\n+- `rainEnding` は `eventType === RAIN_ENDING`、直前eventがRAIN_ENDINGではない、`rain_ending_notified` がfalse、**confirmed_weatherがRAINING**等で成立し得る。**現在のrain_streak>=3を必須にしていない**。\n+- `confirmedAndEnding` は rain_streak>=3、まだrain_confirmed_notifiedでない、かつ eventType=RAIN_ENDING で成立。**同じ判定サイクル内に雨確認と止む予測が重なる**ケースがある。\n+- `rain_confirmed_notified` は実際のPush成功ではなく rain_streak>=3 でtrueになり得るため、変数名と「実際に通知済み」の意味が一致しない。\n+- `last_notified_at` は最後のPush時刻だけで、**直前の配信種類（降る／止む）とその後の観測履歴を明示的に結び付けていない**。一方 `rain_ending_notified` は止む通知の送信済み状態を持つ。\n+- 以上はコード上の経路。実際の誤通知の原因と断定するには、その通知時点のrain_diagnostic_historyとnotification_deliveriesの時系列照合が必要。\n+\n+### 最小再現シナリオ（これからテスト化）\n+1. 有効時刻の異なるRAINを3回観測 → confirmed_weather=RAINING。\n+2. NO_RAINを1回（歯抜け） → rain_streak=0、clear_streak=1、confirmed_weatherはRAININGのまま。\n+3. その時点で予報eventがRAIN_ENDINGに変わる → 条件次第で「止むよ」を送る。実際に地上で降っていたかは不明。\n+4. 直前の実送信が「降るよ」でも、送信後に地上雨を確認できていなければ「止むよ」を保留する候補を比較。\n+\n+### 次の作業\n+- `RAIN, RAIN, RAIN, NO_RAIN, RAIN_ENDING` と `RAIN, NO_RAIN, RAIN, NO_RAIN` を含む純粋関数の回帰テストを追加。\n+- 直前に**実送信成功**したイベント種別と、通知後の**新規の有効時刻**での観測を区別する設計。直前の通知だけで降雨を証明しない。\n+- 点／面／併用による歯抜け対策は研究ブランチで精度比較。地上雨の独立観測なしに「正解」とは呼ばない。\n+- 本番のPush条件・DB・Edgeは変更しない。\n+\n+## 2026-10-28 ユーザー確定：アメふるの最重要価値と評価順\n+\n+**最優先の製品価値は「降るよ」を、実際に降り始める前に、できるだけ正確に届けること。** 誤報だけを減らして通知が遅くなる・見逃すのは成功ではない。\n+\n+### 通知別の非対称な優先度\n+1. **「降るよ」最優先**：地点ごとの降り始めに先行して通知。誤報率・見逃し率・通知リードタイムを**同時に**評価する。\n+2. **大雨警戒**：危険な雨の見逃しと通知遅れを重視。\n+3. **「止むよ」補助**：過去に雨を予測しただけでは送らない。直前の実送信イベント種別、通知後の新規有効時刻での雨観測、歯抜けによる状態の揺れを考慮し、根拠不足なら保留する。\n+\n+### 優先研究・実装の順番\n+A. 現行「降るよ」の通知条件・予測時刻と、実際の雨開始時刻の関係をテストで再現する。3回連続観測の待ちが通知リードタイムを失わせていないか確認する（予報フレームと現在観測の連続性は区別）。\n+B. 中心点、周辺雨域、点＋面併用で、歯抜け時の見逃し・空振り・リードタイムを比較する。独立した地上観測なしに精度向上を宣言しない。\n+C. 「止むよ」の履歴・状態条件を強化する。ただし「降るよ」の配信を遅らせる共通ゲートにはしない。\n+D. 技術的な二重Push・DB障害は別の安全対策トラック（Issue #64）として保持し、ユーザー体験上の通知判定改善と混同しない。\n+\n+**今回の変更は方針の記録のみ。通知判定コード・DB・Edge・本番Pushは無変更。**\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a0a4cc891065a52333c7aaca8b93193d8cb7c2d9/docs/audits/PUSH_CONCURRENCY_20261026.md",
+      "source": {
+        "path": "docs/audits/PUSH_CONCURRENCY_20261026.md",
+        "coverage": "全文",
+        "text": "# 通知安定化・重複防止：2026-10-26 第1優先の再開監査\n\n## 確認した現状\n- Issue #64 はopen。過去の「後日保留」からユーザーの2026-10-26決定で第1優先へ変更。\n- PR #63 は未統合。pendingレコード案は本番の delivered_count > 0 CHECK と不整合のため直接マージ禁止。\n- mainの watch-rain/index.ts は watch_states読取 → Push送信 → notification_deliveries insert → watch_states upsert の順。\n- 同一targetへの並行cronを防ぐ原子的claimや永続イベント一意キーは確認できない。両workerが同じ旧状態を読み、同一Pushを二重送信する競合が理論上ある。実測再現は未実施。\n- Push成功後のDB insert失敗やwatch_states upsert失敗で通知とDBの状態がずれる恐れがある。送信結果不明時の無条件再送も避ける必要。\n\n## 実施順\n1. 現行worker・DB制約・PR #63の既存設計とテストを詳細照合。\n2. 使い捨てDBで並行実行、送信成功後DB失敗、送信タイムアウト、状態更新失敗の再現テストを作る。\n3. target/eventごとの永続claim、購読別試行、未知結果の運用を設計。pending採用ならDB移行順序と後方互換を先に確認。\n4. CIと並行試験の後、明示承認を得て初めて本番DB/Edge/Pushを変更し、iPhoneで検証。\n\n## 作業境界と次の一手\nこのチェックポイントは静的監査。コード修正・実測並行試験・本番変更は未実施。次はPR #63のテストとmainのworkerを突き合わせてオフライン失敗注入テストから着手する。\n\n## 2026-10-28 既存試験と本番workerの突合（静的確認）\n\n### 既存資産を再利用\n- PR #63の `deliveryAttemptSafety.ts` は `CREATED → CLAIMED → ACCEPTED/FAILED_TERMINAL/UNCERTAIN` をモデル化。送信タイムアウト・lease切れを `UNCERTAIN` とし、再送不可にする。\n- `tests/deliveryAttemptSafety.test.ts` には二重claim、lease期限切れ、タイムアウト、成功後再送、404/410、claimなしの結果、空worker ID、遅延した結果の8テストが**コードとして存在**。今回のテスト実行結果ではない。\n- `docs/sql/my-rain-push-outbox-prototype.sql` は `UNIQUE(owner_id,target_id,event_key)` と `PRIMARY KEY(event_claim_id,subscription_id)` を設計済み。ただし `notification_id` が既存配信行へのNOT NULL FKで、現行 `delivered_count > 0` 制約下では**Push前のpending行を作れない**。先にDB移行設計が必要。\n\n### 現行workerの問題箇所と故障注入の期待結果\n| ケース | 現状の危険 | 修正後の必須条件 |\n| --- | --- | --- |\n| 同一targetに2 cronが同時到着 | 両者が同じwatch_statesを読み、二重Push可能 | 同一イベント/購読は一方だけが永続claim成功、送信権を持つ |\n| Push受理→delivery insert失敗 | 端末には通知、履歴なし | 配信試行の永続記録と要調査状態を残し、無条件再送しない |\n| Push受理→watch_states upsert失敗 | 次回も未通知と誤判定し得る | 配信claimが再送を抑え、状態修復は独立して行う |\n| Push送信タイムアウト | 受理済みか不明 | UNCERTAINを記録し、自動再送せず照合対象とする |\n| workerがclaim後にクラッシュ | 送信前/送信後を判別できない | lease期限切れだけで再送許可しない |\n| 複数購読の一部のみ成功 | owner単位の履歴だけでは購読別結果が曖昧 | 購読別の試行・確定・不明を保持 |\n| 404/410購読 | 無効購読が残る可能性 | 無効購読を終端化し、他購読の送信状態に影響させない |\n| 3回連続NO_RAIN後の新エピソード | 古いevent_keyで新しい雨を抑止する危険 | イベントIDの世代更新を観測有効時刻と乾燥確定に紐づける |\n\n### 未解決の設計判断\n- `event_key` の雨エピソードIDをいつ生成/再生成するか。予報更新ごとにキーを変えると重複抑止が破綻する。\n- 既存DB制約をどの順で安全に移行するか。workerを先に変更しない。\n- Pushは外部サービスなのでDBと完全な原子的トランザクションにできず、**厳密な一度だけの端末到達保証はできない**。重複抑止と不明結果の安全な扱いを優先する。\n\n**次の実装ゲート**：使い捨てPostgresの別接続2本で同時INSERT/claimを競争させ、同じevent_keyとsubscription_idで送信権が1件だけになるテストを作る。これが通るまで本番workerに接続しない。\n\n## 2026-10-28 ユーザー実例：「雨が降っていないのに止むよ」／歯抜けの雨雲\n\n**第1優先の意味を訂正**：ユーザーの主眼は「誤った降る／止む通知を減らすこと」。技術的な重複Push/障害対策は別トラックとして保持し、通知内容・タイミングの判定改善を先行して調査する。ユーザー仮説：中心画素の歯抜けで状態が揺れる。直前に**実際に送った通知**と、その後に雨が継続したかを組み合わせたい。\n\n### mainのコード追跡（静的確認）\n- `notificationDecision.ts/advanceObservationStreak`：新しい有効時刻の `RAIN` は rain_streak+1、`NO_RAIN` は rain_streak=0。逆も同様。**一回の歯抜けで連続雨カウントは0に戻る**。同じ観測時刻やUNKNOWNはカウントしない。\n- `watch-rain/index.ts`：`confirmed_weather` は rain_streak>=3 で RAINING、clear_streak>=3 で DRY。それ以外は以前の値を**維持**。歯抜け1〜2回では古いRAININGが残る。\n- `rainEnding` は `eventType === RAIN_ENDING`、直前eventがRAIN_ENDINGではない、`rain_ending_notified` がfalse、**confirmed_weatherがRAINING**等で成立し得る。**現在のrain_streak>=3を必須にしていない**。\n- `confirmedAndEnding` は rain_streak>=3、まだrain_confirmed_notifiedでない、かつ eventType=RAIN_ENDING で成立。**同じ判定サイクル内に雨確認と止む予測が重なる**ケースがある。\n- `rain_confirmed_notified` は実際のPush成功ではなく rain_streak>=3 でtrueになり得るため、変数名と「実際に通知済み」の意味が一致しない。\n- `last_notified_at` は最後のPush時刻だけで、**直前の配信種類（降る／止む）とその後の観測履歴を明示的に結び付けていない**。一方 `rain_ending_notified` は止む通知の送信済み状態を持つ。\n- 以上はコード上の経路。実際の誤通知の原因と断定するには、その通知時点のrain_diagnostic_historyとnotification_deliveriesの時系列照合が必要。\n\n### 最小再現シナリオ（これからテスト化）\n1. 有効時刻の異なるRAINを3回観測 → confirmed_weather=RAINING。\n2. NO_RAINを1回（歯抜け） → rain_streak=0、clear_streak=1、confirmed_weatherはRAININGのまま。\n3. その時点で予報eventがRAIN_ENDINGに変わる → 条件次第で「止むよ」を送る。実際に地上で降っていたかは不明。\n4. 直前の実送信が「降るよ」でも、送信後に地上雨を確認できていなければ「止むよ」を保留する候補を比較。\n\n### 次の作業\n- `RAIN, RAIN, RAIN, NO_RAIN, RAIN_ENDING` と `RAIN, NO_RAIN, RAIN, NO_RAIN` を含む純粋関数の回帰テストを追加。\n- 直前に**実送信成功**したイベント種別と、通知後の**新規の有効時刻**での観測を区別する設計。直前の通知だけで降雨を証明しない。\n- 点／面／併用による歯抜け対策は研究ブランチで精度比較。地上雨の独立観測なしに「正解」とは呼ばない。\n- 本番のPush条件・DB・Edgeは変更しない。\n\n## 2026-10-28 ユーザー確定：アメふるの最重要価値と評価順\n\n**最優先の製品価値は「降るよ」を、実際に降り始める前に、できるだけ正確に届けること。** 誤報だけを減らして通知が遅くなる・見逃すのは成功ではない。\n\n### 通知別の非対称な優先度\n1. **「降るよ」最優先**：地点ごとの降り始めに先行して通知。誤報率・見逃し率・通知リードタイムを**同時に**評価する。\n2. **大雨警戒**：危険な雨の見逃しと通知遅れを重視。\n3. **「止むよ」補助**：過去に雨を予測しただけでは送らない。直前の実送信イベント種別、通知後の新規有効時刻での雨観測、歯抜けによる状態の揺れを考慮し、根拠不足なら保留する。\n\n### 優先研究・実装の順番\nA. 現行「降るよ」の通知条件・予測時刻と、実際の雨開始時刻の関係をテストで再現する。3回連続観測の待ちが通知リードタイムを失わせていないか確認する（予報フレームと現在観測の連続性は区別）。\nB. 中心点、周辺雨域、点＋面併用で、歯抜け時の見逃し・空振り・リードタイムを比較する。独立した地上観測なしに精度向上を宣言しない。\nC. 「止むよ」の履歴・状態条件を強化する。ただし「降るよ」の配信を遅らせる共通ゲートにはしない。\nD. 技術的な二重Push・DB障害は別の安全対策トラック（Issue #64）として保持し、ユーザー体験上の通知判定改善と混同しない。\n\n**今回の変更は方針の記録のみ。通知判定コード・DB・Edge・本番Pushは無変更。**\n",
+        "sha256": "46888d96199fcea887d4fed209f43af249d32aaf66d01d1ca8856fa5aaa20a4d"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "9113a8e780e1be4cb570c045b22853fe06513b7c",
+      "message": "docs: restart priority-one push concurrency audit\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/9113a8e780e1be4cb570c045b22853fe06513b7c"
+    },
+    {
+      "sha": "73f1d2fd5b69955453a9116947327b770c654b85",
+      "message": "audit: map concurrency and failure-injection cases against existing prototype\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/73f1d2fd5b69955453a9116947327b770c654b85"
+    },
+    {
+      "sha": "0f2c56824ddfb3848aaddbdc7d8655d4b9e57be9",
+      "message": "audit: trace false rain-ending alert under patchy radar and stale confirmed state\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/0f2c56824ddfb3848aaddbdc7d8655d4b9e57be9"
+    },
+    {
+      "sha": "a0a4cc891065a52333c7aaca8b93193d8cb7c2d9",
+      "message": "docs: prioritize timely accurate rain-start alerts over rain-ending alerts\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/a0a4cc891065a52333c7aaca8b93193d8cb7c2d9"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "a0a4cc891065a52333c7aaca8b93193d8cb7c2d9",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/40565395757",
+      "id": 40565395757,
+      "updated_at": "2026-10-27T19:02:47Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [],
+  "related_sources": [
+    {
+      "path": "tests/deliveryAttemptSafety.test.ts",
+      "coverage": "削除済み／取得不能・差分参照"
+    }
+  ],
+  "curated": {
+    "summary": "WIP: 通知重複防止・配信整合性の第1優先監査",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/93"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "187a1f18bd9308741e5b4cdd33962ab7c67bca26955bb907d1f05b2c9866f8bb",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00",
+  "decisions": []
+}

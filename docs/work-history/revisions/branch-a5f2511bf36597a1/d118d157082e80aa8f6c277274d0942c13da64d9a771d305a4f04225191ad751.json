@@ -1,0 +1,115 @@
+{
+  "id": "branch-a5f2511bf36597a1",
+  "title": "research/pwa-feedback-resume-auth-20261023",
+  "head": "b641fb38a6341b56fa72af5abafb41634a04a1fb",
+  "head_ref": "research/pwa-feedback-resume-auth-20261023",
+  "linked_prs": [
+    76
+  ],
+  "files": [
+    {
+      "path": "app/components/NotificationFeedbackHistory.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b641fb38a6341b56fa72af5abafb41634a04a1fb/app/components/NotificationFeedbackHistory.tsx"
+    },
+    {
+      "path": "app/components/ResumeDiagnosticsPanel.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b641fb38a6341b56fa72af5abafb41634a04a1fb/app/components/ResumeDiagnosticsPanel.tsx"
+    },
+    {
+      "path": "app/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b641fb38a6341b56fa72af5abafb41634a04a1fb/app/page.tsx"
+    },
+    {
+      "path": "docs/research/DEVELOPER_DIAGNOSTICS_CENTER_PLAN_20261023.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b641fb38a6341b56fa72af5abafb41634a04a1fb/docs/research/DEVELOPER_DIAGNOSTICS_CENTER_PLAN_20261023.md"
+    },
+    {
+      "path": "docs/research/DIAGNOSTICS_AUTH_SW_IMPLEMENTATION_20261023.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b641fb38a6341b56fa72af5abafb41634a04a1fb/docs/research/DIAGNOSTICS_AUTH_SW_IMPLEMENTATION_20261023.md"
+    },
+    {
+      "path": "docs/research/PWA_DIAGNOSTICS_RELEASE_GATE_20261024.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b641fb38a6341b56fa72af5abafb41634a04a1fb/docs/research/PWA_DIAGNOSTICS_RELEASE_GATE_20261024.md"
+    },
+    {
+      "path": "docs/research/PWA_FEEDBACK_RACE_HYPOTHESIS_20261023.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b641fb38a6341b56fa72af5abafb41634a04a1fb/docs/research/PWA_FEEDBACK_RACE_HYPOTHESIS_20261023.md"
+    },
+    {
+      "path": "docs/research/PWA_FEEDBACK_RESUME_AUTH_20261023.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b641fb38a6341b56fa72af5abafb41634a04a1fb/docs/research/PWA_FEEDBACK_RESUME_AUTH_20261023.md"
+    },
+    {
+      "path": "docs/research/PWA_RESUME_CI_GATE_20261023.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b641fb38a6341b56fa72af5abafb41634a04a1fb/docs/research/PWA_RESUME_CI_GATE_20261023.md"
+    },
+    {
+      "path": "docs/research/PWA_RESUME_CI_RESULT_20261023.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b641fb38a6341b56fa72af5abafb41634a04a1fb/docs/research/PWA_RESUME_CI_RESULT_20261023.md"
+    },
+    {
+      "path": "docs/research/PWA_RESUME_TEST_PLAN_20261023.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b641fb38a6341b56fa72af5abafb41634a04a1fb/docs/research/PWA_RESUME_TEST_PLAN_20261023.md"
+    },
+    {
+      "path": "docs/research/PWA_SAFARI_RESUME_OBSERVATION_20261023.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b641fb38a6341b56fa72af5abafb41634a04a1fb/docs/research/PWA_SAFARI_RESUME_OBSERVATION_20261023.md"
+    },
+    {
+      "path": "lib/diagnostics/pwaResumeDiagnostics.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/b641fb38a6341b56fa72af5abafb41634a04a1fb/lib/diagnostics/pwaResumeDiagnostics.ts"
+    }
+  ],
+  "commits": "b641fb38a6341b56fa72af5abafb41634a04a1fb fix: tolerate unavailable sessionStorage in opt-in PWA diagnostics\nc8ef1433920873667c55ff64e7e2dcad2b8c0ec3 fix: keep resume diagnostics panel inside iPhone viewport\n5fa6055ff58547575313db98f590415f067803a4 research: gate history diagnostic instrumentation behind explicit debug flag\n199592a74d70bac7f80cca62a73fca114964e29d research: pause snapshot persistence after diagnostic-only clear\n613ff628b6a99e122de9dff7df6afd5d97e75d0a docs: record PWA diagnostics release gates and remaining risks\n320f13ac517f8679921642b984c03a691e8f402a research: add scoped diagnostic snapshot clearing control\nd5ca840dedd5abaec28d957020fffbf58c203ec6 research: add privacy-minimized diagnostic report copy button\n5816872687c5e7a24fa3f6e633cfedf01cf44a40 research: show passive anonymous session availability without IDs\n4e761341ce8e302735fabe677527b0f20af5e481 research: emit ID-free auth availability from existing history session check\nfd85b34370985a5af1484b8bb045d7e8515ac3e4 research: observe service worker lifecycle events in opt-in panel\n7f99e7f7d92f54f4420abcd4b2b08aef2342929d docs: specify read-only auth and service worker diagnostics\nf12e04eeac391fa5d56cf309d0ee940f1f80ede0 fix: render persisted diagnostic events on separate lines\ndbfffbf94cc89b32673b57006bcf0a8c15aacfbe research: show read-only PWA service worker network and visibility status\n0e2311ea0ab69d1e7b20212d0deb24e9c7ad47f6 research: preserve allowlisted resume event names across reload in sessionStorage\n02fcf9b133508e899c99e014739275e2e1abfc94 docs: plan reusable privacy-safe developer diagnostics center\ncb7aef24ca11e5947f1393e99f3089969e9778ce research: distinguish refresh races from full feedback section disappearance\n643cb104ec7a7d46d97e2a8fe970cf73f07099cb research: record user-confirmed Safari resume reset without manual refresh\nd929601dbd17b78daf00776a9767d744f36d7515 research: mount opt-in diagnostic overlay outside feedback history\n68ce655154ec7a66e047721feda4121393ab92ca research: add opt-in on-screen PWA resume diagnostic panel\nb148d528a9824bf1779ea6f1ffebeca221b67dd9 docs: record successful CI test and build for PWA research PR\n1137bb2eef5318c6d2ff60d04757a6858a846ecb docs: verify CI triggers and safe validation options for PWA research\n92015fa3aea0083bac82c85731dc9509abaa9d83 research: ensure refresh diagnostics close on missing configuration\nd291f8a0b38e1475541711072f0a7fd42190abc7 research: redact diagnostic error details to protect user data\n68f2e8d36b16e0da7f61acca7fcc62d80b1fffaf docs: define safe iPhone PWA resume diagnostic validation plan\n751df260a4967ef476321417e1436478c45bf71f research: instrument feedback lifecycle in isolated branch\ne08d6d6f82a3a8bcde2a51e16c347019026f9657 research: add opt-in local-only PWA lifecycle diagnostic utility\n65dbb6a77cc00056e633c716162c4e7aa86560f0 docs: record PWA feedback resume and anonymous auth investigation",
+  "topics": [
+    "通知・配信",
+    "開発管理",
+    "認証・安全性",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "80085b2888324818b0a94c0c948e7ca5faeedb9656c305f758289d3af4d8dff3",
+  "collected_at": "2026-11-12T15:33:28.142823+00:00"
+}

@@ -1,0 +1,410 @@
+{
+  "id": "pr-62",
+  "number": 62,
+  "title": "test: measure real JMA Z4 stride-2 missed rain regions (read-only)",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Draft experiment only; DO NOT MERGE. Adds an isolated GitHub Actions workflow to fetch public JMA Z4 PNGs and compare full-pixel vs even/even stride-2 scanning across observation and forecast frames. No production deployment, DB access, secrets, or notifications. Report incomplete data explicitly. Results to be recorded in source audit.",
+  "snapshot_head": "e746d022179a99daa2d16b2d31542aaa41f95698",
+  "snapshot_consistent": true,
+  "head": "e746d022179a99daa2d16b2d31542aaa41f95698",
+  "base": "0f5ec30e20bf53f470cdff621f31436a6d52a992",
+  "base_ref": "feat/national-heavy-rain-preview",
+  "head_ref": "test/z4-stride-parity-20261016",
+  "state": "open",
+  "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+  "draft": true,
+  "merged_at": null,
+  "merge_commit_sha": null,
+  "updated_at": "2026-10-16T21:13:32Z",
+  "code_facts": [
+    {
+      "file": ".github/workflows/z4-stride-parity-proof.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "- run: npm install",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/.github/workflows/z4-stride-parity-proof.yml"
+    },
+    {
+      "file": ".github/workflows/z4-stride-parity-proof.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "run: npx tsx scripts/z4-stride-parity-proof.ts",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/.github/workflows/z4-stride-parity-proof.yml"
+    },
+    {
+      "file": ".github/workflows/z4-stride-parity-proof.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "run: npx tsx scripts/z4-stride-performance-proof.ts",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/.github/workflows/z4-stride-parity-proof.yml"
+    },
+    {
+      "file": "scripts/z4-stride-parity-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "const TILES = [[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-parity-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-parity-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "const HEAVY = new Set([\"30_TO_50\",\"50_TO_80\",\"GTE_80\"]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-parity-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-parity-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "const FRAME_LIMIT = Math.max(1,Number(process.env.Z4_FRAME_LIMIT ?? \"3\"));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-parity-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-parity-proof.ts",
+      "kind": "関数・クラス定義",
+      "expression": "async function check(frame:Frame,kind:string) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-parity-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-parity-proof.ts",
+      "kind": "HTTP要求",
+      "expression": "const response=await fetch(buildJmaRainTileUrl(frame,4,tx,ty),{cache:\"no-store\"});",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-parity-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-parity-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if(!response.ok){skipped++;continue;}",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-parity-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-parity-proof.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const raw=Buffer.from(await response.arrayBuffer());bytes+=raw.length;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-parity-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-parity-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if(png.width!==256||png.height!==256)throw Error(\"Unexpected PNG dimensions\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-parity-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-parity-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if(c&&HEAVY.has(c))m[y*256+x]=1;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-parity-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-parity-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "const m=mask.get(tx+\":\"+ty);if(!m)continue;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-parity-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-parity-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if(!m[py*256+px])continue;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-parity-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-parity-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "all++;if(px%2===0&&py%2===0)sampled++;else missed++;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-parity-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-performance-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "const TILES=[[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-performance-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-performance-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "const REPEATS=Number(process.env.Z4_BENCH_REPEATS??\"15\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-performance-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-performance-proof.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function scan(png:PNG,stride:number){",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-performance-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-performance-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if(c===\"30_TO_50\"||c===\"50_TO_80\"||c===\"GTE_80\")heavy++;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-performance-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-performance-proof.ts",
+      "kind": "関数・クラス定義",
+      "expression": "async function main(){",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-performance-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-performance-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if(!frame)throw Error(\"No JMA observation frame\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-performance-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-performance-proof.ts",
+      "kind": "HTTP要求",
+      "expression": "const res=await fetch(buildJmaRainTileUrl(frame,4,x,y),{cache:\"no-store\"});",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-performance-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-performance-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if(!res.ok)throw Error(\"JMA tile unavailable: \"+x+\",\"+y+\" HTTP \"+res.status);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-performance-proof.ts"
+    },
+    {
+      "file": "scripts/z4-stride-performance-proof.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const raw=Buffer.from(await res.arrayBuffer());fetchMs+=performance.now()-t;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-performance-proof.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/z4-stride-parity-proof.yml",
+      "status": "modified",
+      "additions": 29,
+      "deletions": 0,
+      "patch": "diff --git a/.github/workflows/z4-stride-parity-proof.yml b/.github/workflows/z4-stride-parity-proof.yml\nnew file mode 100644\nindex 0000000..e970aae\n--- /dev/null\n+++ b/.github/workflows/z4-stride-parity-proof.yml\n@@ -0,0 +1,29 @@\n+name: Z4 stride parity read-only proof\n+\n+on:\n+  pull_request:\n+    paths:\n+      - \"scripts/z4-stride-parity-proof.ts\"\n+      - \"scripts/z4-stride-performance-proof.ts\"\n+      - \".github/workflows/z4-stride-parity-proof.yml\"\n+  workflow_dispatch:\n+\n+permissions:\n+  contents: read\n+\n+jobs:\n+  compare:\n+    runs-on: ubuntu-latest\n+    timeout-minutes: 8\n+    steps:\n+      - uses: actions/checkout@v4\n+      - uses: actions/setup-node@v4\n+        with:\n+          node-version: \"22\"\n+      - run: npm install\n+      - name: Compare real JMA z4 stride 1 vs stride 2\n+        env:\n+          Z4_FRAME_LIMIT: \"3\"\n+        run: npx tsx scripts/z4-stride-parity-proof.ts\n+      - name: Benchmark full Z4 scan vs stride 2 time and memory\n+        run: npx tsx scripts/z4-stride-performance-proof.ts\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/.github/workflows/z4-stride-parity-proof.yml",
+      "source": {
+        "path": ".github/workflows/z4-stride-parity-proof.yml",
+        "coverage": "全文",
+        "text": "name: Z4 stride parity read-only proof\n\non:\n  pull_request:\n    paths:\n      - \"scripts/z4-stride-parity-proof.ts\"\n      - \"scripts/z4-stride-performance-proof.ts\"\n      - \".github/workflows/z4-stride-parity-proof.yml\"\n  workflow_dispatch:\n\npermissions:\n  contents: read\n\njobs:\n  compare:\n    runs-on: ubuntu-latest\n    timeout-minutes: 8\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: \"22\"\n      - run: npm install\n      - name: Compare real JMA z4 stride 1 vs stride 2\n        env:\n          Z4_FRAME_LIMIT: \"3\"\n        run: npx tsx scripts/z4-stride-parity-proof.ts\n      - name: Benchmark full Z4 scan vs stride 2 time and memory\n        run: npx tsx scripts/z4-stride-performance-proof.ts\n",
+        "sha256": "6e4593a994838f2399d8ace8e0139141af7197f98e58bc997b2efa21ccb310e4"
+      }
+    },
+    {
+      "path": "scripts/z4-stride-parity-proof.ts",
+      "status": "modified",
+      "additions": 209,
+      "deletions": 0,
+      "patch": "diff --git a/scripts/z4-stride-parity-proof.ts b/scripts/z4-stride-parity-proof.ts\nnew file mode 100644\nindex 0000000..ced9eeb\n--- /dev/null\n+++ b/scripts/z4-stride-parity-proof.ts\n@@ -0,0 +1,209 @@\n+/**\n+ * Read-only live JMA Z4 stride=1 vs stride=2 experiment.\n+ * Usage: npx tsx scripts/z4-stride-parity-proof.ts\n+ * Requires network access to JMA. Does not write DB or call application APIs.\n+ */\n+import { PNG } from \"pngjs\";\n+import { fetchObservationTargetTimes } from \"../lib/weather/providers/jma/observationTargetTimes\";\n+import { fetchForecastTargetTimes } from \"../lib/weather/providers/jma/targetTimes\";\n+import { buildJmaRainTileUrl } from \"../lib/weather/providers/jma/tileUrl\";\n+import { classifyRainPixel } from \"../lib/weather/providers/jma/classifyPixel\";\n+import { performance } from \"node:perf_hooks\";\n+import { scanHeavyRainTile } from \"../lib/weather/rain/nationalHeavyRain\";\n+import { stagedRefinementJobsFromCoarseCandidates } from \"../lib/weather/rain/nationalRainQueue\";\n+\n+const TILES = [[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;\n+const HEAVY = new Set([\"30_TO_50\",\"50_TO_80\",\"GTE_80\"]);\n+const FRAME_LIMIT = Math.max(1,Number(process.env.Z4_FRAME_LIMIT ?? \"3\"));\n+const directions = [[-1,0],[1,0],[0,-1],[0,1]] as const;\n+type Frame = {basetime:string;validtime:string};\n+async function check(frame:Frame,kind:string) {\n+  const mask = new Map<string,Uint8Array>();\n+  let fetched=0, skipped=0, bytes=0;\n+  const sourceTiles: Array<{x:number;y:number;buffer:Buffer}>=[];\n+  for(const [tx,ty] of TILES){\n+    const response=await fetch(buildJmaRainTileUrl(frame,4,tx,ty),{cache:\"no-store\"});\n+    if(!response.ok){skipped++;continue;}\n+    const raw=Buffer.from(await response.arrayBuffer());bytes+=raw.length;\n+    sourceTiles.push({x:tx,y:ty,buffer:raw});\n+    const png=PNG.sync.read(raw);\n+    if(png.width!==256||png.height!==256)throw Error(\"Unexpected PNG dimensions\");\n+    const m=new Uint8Array(256*256);\n+    for(let y=0;y<256;y++)for(let x=0;x<256;x++){\n+      const i=(y*256+x)*4;\n+      const c=classifyRainPixel({r:png.data[i],g:png.data[i+1],b:png.data[i+2],a:png.data[i+3]}).intensityClass;\n+      if(c&&HEAVY.has(c))m[y*256+x]=1;\n+    }\n+    mask.set(tx+\":\"+ty,m);fetched++;\n+  }\n+  // Count 4-connected >=30mm/h components over all 6 Z4 tiles,\n+  // including connections across tile boundaries.\n+  const seen=new Set<string>();let all=0,sampled=0,missed=0,components=0,entirelyMissed=0;\n+  const has=(gx:number,gy:number)=>{const tx=Math.floor(gx/256),ty=Math.floor(gy/256);\n+    const m=mask.get(tx+\":\"+ty);return !!m&&m[(gy%256)*256+(gx%256)]===1;};\n+  for(const [tx,ty] of TILES){\n+    const m=mask.get(tx+\":\"+ty);if(!m)continue;\n+    for(let py=0;py<256;py++)for(let px=0;px<256;px++){\n+      if(!m[py*256+px])continue;\n+      const gx=tx*256+px,gy=ty*256+py,k=gx+\":\"+gy;\n+      all++;if(px%2===0&&py%2===0)sampled++;else missed++;\n+      if(seen.has(k))continue;\n+      components++;let touched=false;const stack:[[number,number]]|Array<[number,number]>=[[gx,gy]];seen.add(k);\n+      while(stack.length){const [x,y]=stack.pop()!;\n+        if(x%2===0&&y%2===0)touched=true;\n+        for(const [dx,dy] of directions){const nx=x+dx,ny=y+dy,nk=nx+\":\"+ny;\n+          if(!seen.has(nk)&&has(nx,ny)){seen.add(nk);stack.push([nx,ny]);}}\n+      }\n+      if(!touched)entirelyMissed++;\n+    }\n+  }\n+  const bench=[];\n+  for(const stride of [2,1]){\n+    const timings:number[]=[];let candidates=[] as ReturnType<typeof scanHeavyRainTile>;\n+    const memBefore=process.memoryUsage();\n+    for(let rep=0;rep<8;rep++){\n+      const start=performance.now();\n+      candidates=sourceTiles.flatMap(t=>scanHeavyRainTile(t.buffer,4,t.x,t.y,stride));\n+      timings.push(performance.now()-start);\n+    }\n+    const memAfter=process.memoryUsage();\n+    bench.push({stride,meanScanMs:timings.reduce((a,v)=>a+v,0)/timings.length,\n+      minScanMs:Math.min(...timings),maxScanMs:Math.max(...timings),\n+      rssDeltaBytes:memAfter.rss-memBefore.rss,heapDeltaBytes:memAfter.heapUsed-memBefore.heapUsed,\n+      candidateCount:candidates.length,\n+      z10JobsInMemory:stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).length,\n+      z10DistinctTiles:new Set(stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).map(j=>j.tileX+\":\"+j.tileY)).size,\n+      z10RepeatedTileJobs:stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).length-new Set(stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).map(j=>j.tileX+\":\"+j.tileY)).size,\n+      z10WindowPixelChecks:stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).reduce((s,j)=>s+(j.scanWindow!.maxX-j.scanWindow!.minX+1)*(j.scanWindow!.maxY-j.scanWindow!.minY+1),0),\n+      z10UniqueWindowPixels:(()=>{const seen=new Set<string>();for(const j of stagedRefinementJobsFromCoarseCandidates(candidates,frame,10)){const w=j.scanWindow!;for(let y=w.minY;y<=w.maxY;y++)for(let x=w.minX;x<=w.maxX;x++)seen.add(j.tileX+\":\"+j.tileY+\":\"+x+\":\"+y);}return seen.size;})()});\n+  }\n+\n+  // Isolated decode-parity benchmark: simulate worker's extra PNG.sync.read\n+  // before scanHeavyRainTile, versus scanHeavyRainTile alone.\n+  const decodeParity=[];\n+  for(const stride of [1]){\n+    const rounds=8;\n+    const twoDecodeMs:number[]=[];\n+    const oneDecodeMs:number[]=[];\n+    let twoCandidates=0,oneCandidates=0,identical=true;\n+    for(let rep=0;rep<rounds;rep++){\n+      const run=(doubleDecode:boolean)=>{\n+        const started=performance.now();\n+        const candidates=sourceTiles.flatMap(t=>{\n+          if(doubleDecode)PNG.sync.read(t.buffer);\n+          return scanHeavyRainTile(t.buffer,4,t.x,t.y,stride);\n+        });\n+        return {ms:performance.now()-started,keys:candidates.map(c=>[c.tileX,c.tileY,c.pixelX,c.pixelY,c.intensityClass].join(\":\")).sort()};\n+      };\n+      const first=rep%2===0?run(true):run(false);\n+      const second=rep%2===0?run(false):run(true);\n+      const double=rep%2===0?first:second;\n+      const single=rep%2===0?second:first;\n+      twoDecodeMs.push(double.ms);oneDecodeMs.push(single.ms);\n+      twoCandidates=double.keys.length;oneCandidates=single.keys.length;\n+      if(JSON.stringify(double.keys)!==JSON.stringify(single.keys))identical=false;\n+    }\n+    decodeParity.push({stride,rounds,twoDecodeMeanMs:twoDecodeMs.reduce((a,v)=>a+v,0)/rounds,\n+      oneDecodeMeanMs:oneDecodeMs.reduce((a,v)=>a+v,0)/rounds,\n+      twoCandidates,oneCandidates,identical});\n+  }\n+\n+  // Sample distinct Z6 tiles, not merely the first several windows of one tile.\n+  // Fetch each distinct image once and evaluate up to three of its original\n+  // windows; retain each window's detection result independently.\n+  const z6Sample=[];\n+  const z4Candidates=sourceTiles.flatMap(t=>scanHeavyRainTile(t.buffer,4,t.x,t.y,1));\n+  const z6Jobs=stagedRefinementJobsFromCoarseCandidates(z4Candidates,frame,6,4);\n+  const groups=new Map<string,typeof z6Jobs>();\n+  for(const job of z6Jobs){\n+    const key=job.tileX+\":\"+job.tileY;\n+    if(!groups.has(key))groups.set(key,[]);\n+    groups.get(key)!.push(job);\n+  }\n+  const sampleLimit=Math.max(0,Math.min(6,Number(process.env.Z6_SAMPLE_LIMIT??\"3\")));\n+  for(const jobs of [...groups.values()].slice(0,sampleLimit)){\n+    const job=jobs[0];\n+    const response=await fetch(buildJmaRainTileUrl(frame,6,job.tileX,job.tileY),{cache:\"no-store\"});\n+    if(!response.ok){z6Sample.push({tileX:job.tileX,tileY:job.tileY,httpStatus:response.status});continue;}\n+    const buffer=Buffer.from(await response.arrayBuffer());\n+    const windows=[];\n+    for(const selected of jobs.slice(0,3)){\n+      const window=selected.scanWindow!;\n+      const results=[];\n+      for(const doubleDecode of [true,false]){\n+        const timings:number[]=[];let keys:string[]=[];\n+        for(let rep=0;rep<8;rep++){\n+          const started=performance.now();\n+          if(doubleDecode)PNG.sync.read(buffer);\n+          const candidates=scanHeavyRainTile(buffer,6,selected.tileX,selected.tileY,1,window);\n+          timings.push(performance.now()-started);\n+          keys=candidates.map(c=>[c.pixelX,c.pixelY,c.intensityClass].join(\":\")).sort();\n+        }\n+        results.push({doubleDecode,meanMs:timings.reduce((a,v)=>a+v,0)/timings.length,keys});\n+      }\n+      windows.push({window,twoDecodeMeanMs:results[0].meanMs,oneDecodeMeanMs:results[1].meanMs,\n+        detected:results[0].keys.length,identical:JSON.stringify(results[0].keys)===JSON.stringify(results[1].keys)});\n+    }\n+    // Decode once and verify that every original window retains the same pixels.\n+    const decoded=PNG.sync.read(buffer);\n+    const sharedWindowKeys=(w:NonNullable<typeof job.scanWindow>)=>{\n+      const keys:string[]=[];\n+      for(let y=w.minY;y<=w.maxY;y++)for(let x=w.minX;x<=w.maxX;x++){\n+        const i=(y*decoded.width+x)*4;\n+        const intensity=classifyRainPixel({r:decoded.data[i],g:decoded.data[i+1],b:decoded.data[i+2],a:decoded.data[i+3]}).intensityClass;\n+        if(intensity&&HEAVY.has(intensity))keys.push(x+\":\"+y+\":\"+intensity);\n+      }\n+      return keys;\n+    };\n+    const allWindowParity=jobs.every(j=>{\n+      const expected=scanHeavyRainTile(buffer,6,j.tileX,j.tileY,1,j.scanWindow)\n+        .map(c=>c.pixelX+\":\"+c.pixelY+\":\"+c.intensityClass);\n+      return JSON.stringify(sharedWindowKeys(j.scanWindow!))===JSON.stringify(expected);\n+    });\n+    z6Sample.push({tileX:job.tileX,tileY:job.tileY,totalWindowsForTile:jobs.length,windows,allWindowParity});\n+  }\n+  const z6DistinctTiles=groups.size;\n+\n+  // Bounded, real Z6 -> Z8 -> Z10 chain, with no DB writes.\n+  const stageChain=[];\n+  let parents=z6Jobs.slice(0,1);\n+  for(const zoom of [6,8,10] as const){\n+    if(!parents.length){stageChain.push({zoom,reason:\"NO_PARENT_CANDIDATES\"});break;}\n+    const job=parents[0];\n+    const response=await fetch(buildJmaRainTileUrl(frame,zoom,job.tileX,job.tileY),{cache:\"no-store\"});\n+    if(!response.ok){stageChain.push({zoom,httpStatus:response.status});break;}\n+    const buffer=Buffer.from(await response.arrayBuffer());\n+    const original=scanHeavyRainTile(buffer,zoom,job.tileX,job.tileY,1,job.scanWindow);\n+    const decoded=PNG.sync.read(buffer);\n+    const sharedKeys:string[]=[];\n+    const w=job.scanWindow!;\n+    for(let y=w.minY;y<=w.maxY;y++)for(let x=w.minX;x<=w.maxX;x++){\n+      const i=(y*decoded.width+x)*4;\n+      const intensity=classifyRainPixel({r:decoded.data[i],g:decoded.data[i+1],b:decoded.data[i+2],a:decoded.data[i+3]}).intensityClass;\n+      if(intensity&&HEAVY.has(intensity))sharedKeys.push(x+\":\"+y+\":\"+intensity);\n+    }\n+    const originalKeys=original.map(c=>c.pixelX+\":\"+c.pixelY+\":\"+c.intensityClass);\n+    stageChain.push({zoom,tileX:job.tileX,tileY:job.tileY,window:w,\n+      candidates:original.length,identical:JSON.stringify(sharedKeys)===JSON.stringify(originalKeys)});\n+    if(zoom===10)break;\n+    parents=stagedRefinementJobsFromCoarseCandidates(original,frame,zoom===6?8:10,zoom);\n+  }\n+\n+  return {kind,validtime:frame.validtime,bench,decodeParity,z6Sample,z6TotalJobs:z6Jobs.length,z6DistinctTiles,stageChain,fetchedTiles:fetched,unavailableTiles:skipped,\n+    compressedBytes:bytes,allHeavyPixels:all,stride2HeavyPixels:sampled,\n+    omittedHeavyPixels:missed,omittedFraction:all?missed/all:null,\n+    fourConnectedHeavyRegions:components,regionsWithNoStride2Pixel:entirelyMissed,\n+    complete:fetched===TILES.length};\n+}\n+async function main(){\n+  const start=performance.now();\n+  const [obs,forecast]=await Promise.all([fetchObservationTargetTimes(),fetchForecastTargetTimes()]);\n+  const frames=[...obs.slice(0,FRAME_LIMIT).map(frame=>({frame,kind:\"observation\"})),\n+    ...forecast.slice(0,FRAME_LIMIT).map(frame=>({frame,kind:\"forecast\"}))];\n+  const results=[];for(const {frame,kind} of frames)results.push(await check(frame,kind));\n+  console.log(JSON.stringify({mode:\"Z4_STRIDE_PARITY_READ_ONLY\",thresholdMmPerHour:30,\n+    connectivity:4,frames:results,elapsedMs:Math.round(performance.now()-start),\n+    caveat:\"Missing tiles make counts incomplete; component connectivity is only within fetched tiles. One or several frames do not prove universal safety.\"},null,2));\n+  if(results.some(x=>!x.complete))process.exitCode=2;\n+}\n+main().catch(e=>{console.error(e);process.exitCode=1;});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-parity-proof.ts",
+      "source": {
+        "path": "scripts/z4-stride-parity-proof.ts",
+        "coverage": "全文",
+        "text": "/**\n * Read-only live JMA Z4 stride=1 vs stride=2 experiment.\n * Usage: npx tsx scripts/z4-stride-parity-proof.ts\n * Requires network access to JMA. Does not write DB or call application APIs.\n */\nimport { PNG } from \"pngjs\";\nimport { fetchObservationTargetTimes } from \"../lib/weather/providers/jma/observationTargetTimes\";\nimport { fetchForecastTargetTimes } from \"../lib/weather/providers/jma/targetTimes\";\nimport { buildJmaRainTileUrl } from \"../lib/weather/providers/jma/tileUrl\";\nimport { classifyRainPixel } from \"../lib/weather/providers/jma/classifyPixel\";\nimport { performance } from \"node:perf_hooks\";\nimport { scanHeavyRainTile } from \"../lib/weather/rain/nationalHeavyRain\";\nimport { stagedRefinementJobsFromCoarseCandidates } from \"../lib/weather/rain/nationalRainQueue\";\n\nconst TILES = [[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;\nconst HEAVY = new Set([\"30_TO_50\",\"50_TO_80\",\"GTE_80\"]);\nconst FRAME_LIMIT = Math.max(1,Number(process.env.Z4_FRAME_LIMIT ?? \"3\"));\nconst directions = [[-1,0],[1,0],[0,-1],[0,1]] as const;\ntype Frame = {basetime:string;validtime:string};\nasync function check(frame:Frame,kind:string) {\n  const mask = new Map<string,Uint8Array>();\n  let fetched=0, skipped=0, bytes=0;\n  const sourceTiles: Array<{x:number;y:number;buffer:Buffer}>=[];\n  for(const [tx,ty] of TILES){\n    const response=await fetch(buildJmaRainTileUrl(frame,4,tx,ty),{cache:\"no-store\"});\n    if(!response.ok){skipped++;continue;}\n    const raw=Buffer.from(await response.arrayBuffer());bytes+=raw.length;\n    sourceTiles.push({x:tx,y:ty,buffer:raw});\n    const png=PNG.sync.read(raw);\n    if(png.width!==256||png.height!==256)throw Error(\"Unexpected PNG dimensions\");\n    const m=new Uint8Array(256*256);\n    for(let y=0;y<256;y++)for(let x=0;x<256;x++){\n      const i=(y*256+x)*4;\n      const c=classifyRainPixel({r:png.data[i],g:png.data[i+1],b:png.data[i+2],a:png.data[i+3]}).intensityClass;\n      if(c&&HEAVY.has(c))m[y*256+x]=1;\n    }\n    mask.set(tx+\":\"+ty,m);fetched++;\n  }\n  // Count 4-connected >=30mm/h components over all 6 Z4 tiles,\n  // including connections across tile boundaries.\n  const seen=new Set<string>();let all=0,sampled=0,missed=0,components=0,entirelyMissed=0;\n  const has=(gx:number,gy:number)=>{const tx=Math.floor(gx/256),ty=Math.floor(gy/256);\n    const m=mask.get(tx+\":\"+ty);return !!m&&m[(gy%256)*256+(gx%256)]===1;};\n  for(const [tx,ty] of TILES){\n    const m=mask.get(tx+\":\"+ty);if(!m)continue;\n    for(let py=0;py<256;py++)for(let px=0;px<256;px++){\n      if(!m[py*256+px])continue;\n      const gx=tx*256+px,gy=ty*256+py,k=gx+\":\"+gy;\n      all++;if(px%2===0&&py%2===0)sampled++;else missed++;\n      if(seen.has(k))continue;\n      components++;let touched=false;const stack:[[number,number]]|Array<[number,number]>=[[gx,gy]];seen.add(k);\n      while(stack.length){const [x,y]=stack.pop()!;\n        if(x%2===0&&y%2===0)touched=true;\n        for(const [dx,dy] of directions){const nx=x+dx,ny=y+dy,nk=nx+\":\"+ny;\n          if(!seen.has(nk)&&has(nx,ny)){seen.add(nk);stack.push([nx,ny]);}}\n      }\n      if(!touched)entirelyMissed++;\n    }\n  }\n  const bench=[];\n  for(const stride of [2,1]){\n    const timings:number[]=[];let candidates=[] as ReturnType<typeof scanHeavyRainTile>;\n    const memBefore=process.memoryUsage();\n    for(let rep=0;rep<8;rep++){\n      const start=performance.now();\n      candidates=sourceTiles.flatMap(t=>scanHeavyRainTile(t.buffer,4,t.x,t.y,stride));\n      timings.push(performance.now()-start);\n    }\n    const memAfter=process.memoryUsage();\n    bench.push({stride,meanScanMs:timings.reduce((a,v)=>a+v,0)/timings.length,\n      minScanMs:Math.min(...timings),maxScanMs:Math.max(...timings),\n      rssDeltaBytes:memAfter.rss-memBefore.rss,heapDeltaBytes:memAfter.heapUsed-memBefore.heapUsed,\n      candidateCount:candidates.length,\n      z10JobsInMemory:stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).length,\n      z10DistinctTiles:new Set(stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).map(j=>j.tileX+\":\"+j.tileY)).size,\n      z10RepeatedTileJobs:stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).length-new Set(stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).map(j=>j.tileX+\":\"+j.tileY)).size,\n      z10WindowPixelChecks:stagedRefinementJobsFromCoarseCandidates(candidates,frame,10).reduce((s,j)=>s+(j.scanWindow!.maxX-j.scanWindow!.minX+1)*(j.scanWindow!.maxY-j.scanWindow!.minY+1),0),\n      z10UniqueWindowPixels:(()=>{const seen=new Set<string>();for(const j of stagedRefinementJobsFromCoarseCandidates(candidates,frame,10)){const w=j.scanWindow!;for(let y=w.minY;y<=w.maxY;y++)for(let x=w.minX;x<=w.maxX;x++)seen.add(j.tileX+\":\"+j.tileY+\":\"+x+\":\"+y);}return seen.size;})()});\n  }\n\n  // Isolated decode-parity benchmark: simulate worker's extra PNG.sync.read\n  // before scanHeavyRainTile, versus scanHeavyRainTile alone.\n  const decodeParity=[];\n  for(const stride of [1]){\n    const rounds=8;\n    const twoDecodeMs:number[]=[];\n    const oneDecodeMs:number[]=[];\n    let twoCandidates=0,oneCandidates=0,identical=true;\n    for(let rep=0;rep<rounds;rep++){\n      const run=(doubleDecode:boolean)=>{\n        const started=performance.now();\n        const candidates=sourceTiles.flatMap(t=>{\n          if(doubleDecode)PNG.sync.read(t.buffer);\n          return scanHeavyRainTile(t.buffer,4,t.x,t.y,stride);\n        });\n        return {ms:performance.now()-started,keys:candidates.map(c=>[c.tileX,c.tileY,c.pixelX,c.pixelY,c.intensityClass].join(\":\")).sort()};\n      };\n      const first=rep%2===0?run(true):run(false);\n      const second=rep%2===0?run(false):run(true);\n      const double=rep%2===0?first:second;\n      const single=rep%2===0?second:first;\n      twoDecodeMs.push(double.ms);oneDecodeMs.push(single.ms);\n      twoCandidates=double.keys.length;oneCandidates=single.keys.length;\n      if(JSON.stringify(double.keys)!==JSON.stringify(single.keys))identical=false;\n    }\n    decodeParity.push({stride,rounds,twoDecodeMeanMs:twoDecodeMs.reduce((a,v)=>a+v,0)/rounds,\n      oneDecodeMeanMs:oneDecodeMs.reduce((a,v)=>a+v,0)/rounds,\n      twoCandidates,oneCandidates,identical});\n  }\n\n  // Sample distinct Z6 tiles, not merely the first several windows of one tile.\n  // Fetch each distinct image once and evaluate up to three of its original\n  // windows; retain each window's detection result independently.\n  const z6Sample=[];\n  const z4Candidates=sourceTiles.flatMap(t=>scanHeavyRainTile(t.buffer,4,t.x,t.y,1));\n  const z6Jobs=stagedRefinementJobsFromCoarseCandidates(z4Candidates,frame,6,4);\n  const groups=new Map<string,typeof z6Jobs>();\n  for(const job of z6Jobs){\n    const key=job.tileX+\":\"+job.tileY;\n    if(!groups.has(key))groups.set(key,[]);\n    groups.get(key)!.push(job);\n  }\n  const sampleLimit=Math.max(0,Math.min(6,Number(process.env.Z6_SAMPLE_LIMIT??\"3\")));\n  for(const jobs of [...groups.values()].slice(0,sampleLimit)){\n    const job=jobs[0];\n    const response=await fetch(buildJmaRainTileUrl(frame,6,job.tileX,job.tileY),{cache:\"no-store\"});\n    if(!response.ok){z6Sample.push({tileX:job.tileX,tileY:job.tileY,httpStatus:response.status});continue;}\n    const buffer=Buffer.from(await response.arrayBuffer());\n    const windows=[];\n    for(const selected of jobs.slice(0,3)){\n      const window=selected.scanWindow!;\n      const results=[];\n      for(const doubleDecode of [true,false]){\n        const timings:number[]=[];let keys:string[]=[];\n        for(let rep=0;rep<8;rep++){\n          const started=performance.now();\n          if(doubleDecode)PNG.sync.read(buffer);\n          const candidates=scanHeavyRainTile(buffer,6,selected.tileX,selected.tileY,1,window);\n          timings.push(performance.now()-started);\n          keys=candidates.map(c=>[c.pixelX,c.pixelY,c.intensityClass].join(\":\")).sort();\n        }\n        results.push({doubleDecode,meanMs:timings.reduce((a,v)=>a+v,0)/timings.length,keys});\n      }\n      windows.push({window,twoDecodeMeanMs:results[0].meanMs,oneDecodeMeanMs:results[1].meanMs,\n        detected:results[0].keys.length,identical:JSON.stringify(results[0].keys)===JSON.stringify(results[1].keys)});\n    }\n    // Decode once and verify that every original window retains the same pixels.\n    const decoded=PNG.sync.read(buffer);\n    const sharedWindowKeys=(w:NonNullable<typeof job.scanWindow>)=>{\n      const keys:string[]=[];\n      for(let y=w.minY;y<=w.maxY;y++)for(let x=w.minX;x<=w.maxX;x++){\n        const i=(y*decoded.width+x)*4;\n        const intensity=classifyRainPixel({r:decoded.data[i],g:decoded.data[i+1],b:decoded.data[i+2],a:decoded.data[i+3]}).intensityClass;\n        if(intensity&&HEAVY.has(intensity))keys.push(x+\":\"+y+\":\"+intensity);\n      }\n      return keys;\n    };\n    const allWindowParity=jobs.every(j=>{\n      const expected=scanHeavyRainTile(buffer,6,j.tileX,j.tileY,1,j.scanWindow)\n        .map(c=>c.pixelX+\":\"+c.pixelY+\":\"+c.intensityClass);\n      return JSON.stringify(sharedWindowKeys(j.scanWindow!))===JSON.stringify(expected);\n    });\n    z6Sample.push({tileX:job.tileX,tileY:job.tileY,totalWindowsForTile:jobs.length,windows,allWindowParity});\n  }\n  const z6DistinctTiles=groups.size;\n\n  // Bounded, real Z6 -> Z8 -> Z10 chain, with no DB writes.\n  const stageChain=[];\n  let parents=z6Jobs.slice(0,1);\n  for(const zoom of [6,8,10] as const){\n    if(!parents.length){stageChain.push({zoom,reason:\"NO_PARENT_CANDIDATES\"});break;}\n    const job=parents[0];\n    const response=await fetch(buildJmaRainTileUrl(frame,zoom,job.tileX,job.tileY),{cache:\"no-store\"});\n    if(!response.ok){stageChain.push({zoom,httpStatus:response.status});break;}\n    const buffer=Buffer.from(await response.arrayBuffer());\n    const original=scanHeavyRainTile(buffer,zoom,job.tileX,job.tileY,1,job.scanWindow);\n    const decoded=PNG.sync.read(buffer);\n    const sharedKeys:string[]=[];\n    const w=job.scanWindow!;\n    for(let y=w.minY;y<=w.maxY;y++)for(let x=w.minX;x<=w.maxX;x++){\n      const i=(y*decoded.width+x)*4;\n      const intensity=classifyRainPixel({r:decoded.data[i],g:decoded.data[i+1],b:decoded.data[i+2],a:decoded.data[i+3]}).intensityClass;\n      if(intensity&&HEAVY.has(intensity))sharedKeys.push(x+\":\"+y+\":\"+intensity);\n    }\n    const originalKeys=original.map(c=>c.pixelX+\":\"+c.pixelY+\":\"+c.intensityClass);\n    stageChain.push({zoom,tileX:job.tileX,tileY:job.tileY,window:w,\n      candidates:original.length,identical:JSON.stringify(sharedKeys)===JSON.stringify(originalKeys)});\n    if(zoom===10)break;\n    parents=stagedRefinementJobsFromCoarseCandidates(original,frame,zoom===6?8:10,zoom);\n  }\n\n  return {kind,validtime:frame.validtime,bench,decodeParity,z6Sample,z6TotalJobs:z6Jobs.length,z6DistinctTiles,stageChain,fetchedTiles:fetched,unavailableTiles:skipped,\n    compressedBytes:bytes,allHeavyPixels:all,stride2HeavyPixels:sampled,\n    omittedHeavyPixels:missed,omittedFraction:all?missed/all:null,\n    fourConnectedHeavyRegions:components,regionsWithNoStride2Pixel:entirelyMissed,\n    complete:fetched===TILES.length};\n}\nasync function main(){\n  const start=performance.now();\n  const [obs,forecast]=await Promise.all([fetchObservationTargetTimes(),fetchForecastTargetTimes()]);\n  const frames=[...obs.slice(0,FRAME_LIMIT).map(frame=>({frame,kind:\"observation\"})),\n    ...forecast.slice(0,FRAME_LIMIT).map(frame=>({frame,kind:\"forecast\"}))];\n  const results=[];for(const {frame,kind} of frames)results.push(await check(frame,kind));\n  console.log(JSON.stringify({mode:\"Z4_STRIDE_PARITY_READ_ONLY\",thresholdMmPerHour:30,\n    connectivity:4,frames:results,elapsedMs:Math.round(performance.now()-start),\n    caveat:\"Missing tiles make counts incomplete; component connectivity is only within fetched tiles. One or several frames do not prove universal safety.\"},null,2));\n  if(results.some(x=>!x.complete))process.exitCode=2;\n}\nmain().catch(e=>{console.error(e);process.exitCode=1;});\n",
+        "sha256": "4c9374c63e0ac2a2d3e34d144264ca64718ac01dda0d1fecda5c5dbf08a57ff3"
+      }
+    },
+    {
+      "path": "scripts/z4-stride-performance-proof.ts",
+      "status": "modified",
+      "additions": 55,
+      "deletions": 0,
+      "patch": "diff --git a/scripts/z4-stride-performance-proof.ts b/scripts/z4-stride-performance-proof.ts\nnew file mode 100644\nindex 0000000..70550b3\n--- /dev/null\n+++ b/scripts/z4-stride-performance-proof.ts\n@@ -0,0 +1,55 @@\n+/** Read-only JMA Z4 performance benchmark. No DB writes, notifications, or production changes.\n+ * Uses identical PNG buffers for both stride modes; excludes HTTP/PNG decode from\n+ * timed classification and reports those costs separately.\n+ */\n+import {PNG} from \"pngjs\";\n+import {performance} from \"node:perf_hooks\";\n+import {fetchObservationTargetTimes} from \"../lib/weather/providers/jma/observationTargetTimes\";\n+import {buildJmaRainTileUrl} from \"../lib/weather/providers/jma/tileUrl\";\n+import {classifyRainPixel} from \"../lib/weather/providers/jma/classifyPixel\";\n+const TILES=[[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;\n+const REPEATS=Number(process.env.Z4_BENCH_REPEATS??\"15\");\n+function scan(png:PNG,stride:number){\n+ let heavy=0;\n+ for(let y=0;y<png.height;y+=stride)for(let x=0;x<png.width;x+=stride){\n+  const i=(y*png.width+x)*4;\n+  const c=classifyRainPixel({r:png.data[i],g:png.data[i+1],b:png.data[i+2],a:png.data[i+3]}).intensityClass;\n+  if(c===\"30_TO_50\"||c===\"50_TO_80\"||c===\"GTE_80\")heavy++;\n+ }\n+ return heavy;\n+}\n+async function main(){\n+ const [frame]=await fetchObservationTargetTimes();\n+ if(!frame)throw Error(\"No JMA observation frame\");\n+ const pngs:PNG[]=[];let fetchMs=0,decodeMs=0,compressedBytes=0;\n+ for(const [x,y] of TILES){\n+  let t=performance.now();\n+  const res=await fetch(buildJmaRainTileUrl(frame,4,x,y),{cache:\"no-store\"});\n+  if(!res.ok)throw Error(\"JMA tile unavailable: \"+x+\",\"+y+\" HTTP \"+res.status);\n+  const raw=Buffer.from(await res.arrayBuffer());fetchMs+=performance.now()-t;\n+  compressedBytes+=raw.length;t=performance.now();pngs.push(PNG.sync.read(raw));decodeMs+=performance.now()-t;\n+ }\n+ const measurements=[];\n+ for(const stride of [2,1,1,2]){\n+  const times:number[]=[];const heapBefore=process.memoryUsage();\n+  let totalHeavy=0,peakRss=heapBefore.rss,peakHeap=heapBefore.heapUsed;\n+  for(let rep=0;rep<REPEATS;rep++){\n+   const t=performance.now();let n=0;\n+   for(const png of pngs)n+=scan(png,stride);\n+   times.push(performance.now()-t);totalHeavy=n;\n+   const mem=process.memoryUsage();peakRss=Math.max(peakRss,mem.rss);peakHeap=Math.max(peakHeap,mem.heapUsed);\n+  }\n+  times.sort((a,b)=>a-b);\n+  measurements.push({stride,pixelsPerFrame:6*256*256/(stride*stride),\n+   detectedHeavyPixels:totalHeavy,repeats:REPEATS,\n+   medianScanMs:times[Math.floor(times.length/2)],\n+   minScanMs:times[0],maxScanMs:times[times.length-1],\n+   heapBeforeBytes:heapBefore.heapUsed,peakHeapUsedBytes:peakHeap,\n+   rssBeforeBytes:heapBefore.rss,peakRssBytes:peakRss});\n+ }\n+ console.log(JSON.stringify({mode:\"Z4_STRIDE_BENCH_READ_ONLY\",frame:frame.validtime,\n+  tiles:pngs.length,compressedBytes,fetchMs,decodeMs,\n+  decodedRGBABytes:pngs.reduce((n,p)=>n+p.data.byteLength,0),\n+  measurements,caveat:\"Memory is process-level high-water RSS/heap (includes loaded PNG and runtime), not per-stride allocation; no GC isolation. Timings classify pixels only, not queue generation or DB.\"},null,2));\n+}\n+main().catch(e=>{console.error(e);process.exitCode=1;});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e746d022179a99daa2d16b2d31542aaa41f95698/scripts/z4-stride-performance-proof.ts",
+      "source": {
+        "path": "scripts/z4-stride-performance-proof.ts",
+        "coverage": "全文",
+        "text": "/** Read-only JMA Z4 performance benchmark. No DB writes, notifications, or production changes.\n * Uses identical PNG buffers for both stride modes; excludes HTTP/PNG decode from\n * timed classification and reports those costs separately.\n */\nimport {PNG} from \"pngjs\";\nimport {performance} from \"node:perf_hooks\";\nimport {fetchObservationTargetTimes} from \"../lib/weather/providers/jma/observationTargetTimes\";\nimport {buildJmaRainTileUrl} from \"../lib/weather/providers/jma/tileUrl\";\nimport {classifyRainPixel} from \"../lib/weather/providers/jma/classifyPixel\";\nconst TILES=[[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;\nconst REPEATS=Number(process.env.Z4_BENCH_REPEATS??\"15\");\nfunction scan(png:PNG,stride:number){\n let heavy=0;\n for(let y=0;y<png.height;y+=stride)for(let x=0;x<png.width;x+=stride){\n  const i=(y*png.width+x)*4;\n  const c=classifyRainPixel({r:png.data[i],g:png.data[i+1],b:png.data[i+2],a:png.data[i+3]}).intensityClass;\n  if(c===\"30_TO_50\"||c===\"50_TO_80\"||c===\"GTE_80\")heavy++;\n }\n return heavy;\n}\nasync function main(){\n const [frame]=await fetchObservationTargetTimes();\n if(!frame)throw Error(\"No JMA observation frame\");\n const pngs:PNG[]=[];let fetchMs=0,decodeMs=0,compressedBytes=0;\n for(const [x,y] of TILES){\n  let t=performance.now();\n  const res=await fetch(buildJmaRainTileUrl(frame,4,x,y),{cache:\"no-store\"});\n  if(!res.ok)throw Error(\"JMA tile unavailable: \"+x+\",\"+y+\" HTTP \"+res.status);\n  const raw=Buffer.from(await res.arrayBuffer());fetchMs+=performance.now()-t;\n  compressedBytes+=raw.length;t=performance.now();pngs.push(PNG.sync.read(raw));decodeMs+=performance.now()-t;\n }\n const measurements=[];\n for(const stride of [2,1,1,2]){\n  const times:number[]=[];const heapBefore=process.memoryUsage();\n  let totalHeavy=0,peakRss=heapBefore.rss,peakHeap=heapBefore.heapUsed;\n  for(let rep=0;rep<REPEATS;rep++){\n   const t=performance.now();let n=0;\n   for(const png of pngs)n+=scan(png,stride);\n   times.push(performance.now()-t);totalHeavy=n;\n   const mem=process.memoryUsage();peakRss=Math.max(peakRss,mem.rss);peakHeap=Math.max(peakHeap,mem.heapUsed);\n  }\n  times.sort((a,b)=>a-b);\n  measurements.push({stride,pixelsPerFrame:6*256*256/(stride*stride),\n   detectedHeavyPixels:totalHeavy,repeats:REPEATS,\n   medianScanMs:times[Math.floor(times.length/2)],\n   minScanMs:times[0],maxScanMs:times[times.length-1],\n   heapBeforeBytes:heapBefore.heapUsed,peakHeapUsedBytes:peakHeap,\n   rssBeforeBytes:heapBefore.rss,peakRssBytes:peakRss});\n }\n console.log(JSON.stringify({mode:\"Z4_STRIDE_BENCH_READ_ONLY\",frame:frame.validtime,\n  tiles:pngs.length,compressedBytes,fetchMs,decodeMs,\n  decodedRGBABytes:pngs.reduce((n,p)=>n+p.data.byteLength,0),\n  measurements,caveat:\"Memory is process-level high-water RSS/heap (includes loaded PNG and runtime), not per-stride allocation; no GC isolation. Timings classify pixels only, not queue generation or DB.\"},null,2));\n}\nmain().catch(e=>{console.error(e);process.exitCode=1;});\n",
+        "sha256": "569415fc31a3613c2dd6579b595711e63757d42eaf6de2e8c380ab28b8665ce8"
+      }
+    }
+  ],
+  "file_count": 3,
+  "reported_file_count": 3,
+  "commits": [
+    {
+      "sha": "946db1ee4830b668e2813d4bf30946382b622d3d",
+      "message": "test: add read-only real JMA z4 stride parity and missed-region measurement\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/946db1ee4830b668e2813d4bf30946382b622d3d"
+    },
+    {
+      "sha": "dc2f6a6ae7c9eadb68f45ca9960aca0ad1715586",
+      "message": "ci: run read-only z4 parity measurement on isolated draft PR\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/dc2f6a6ae7c9eadb68f45ca9960aca0ad1715586"
+    },
+    {
+      "sha": "5548b96aa64f6b6903dcf32da32af008da771e56",
+      "message": "ci: use npm install in z4 proof (repository has no package lock)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/5548b96aa64f6b6903dcf32da32af008da771e56"
+    },
+    {
+      "sha": "c1ff9f54fe009e317ee33bd3af404f98d6b75777",
+      "message": "test: add read-only JMA z4 full vs stride2 time and process-memory benchmark\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/c1ff9f54fe009e317ee33bd3af404f98d6b75777"
+    },
+    {
+      "sha": "23e6e122ae015afcf71f953d1900d699bff7e0a5",
+      "message": "ci: measure Z4 scan timing and process memory alongside parity proof\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/23e6e122ae015afcf71f953d1900d699bff7e0a5"
+    },
+    {
+      "sha": "77c6c3200d4551cce5afec89c21ecf657c911d52",
+      "message": "test: benchmark Z4 scan duration memory and Z10 queue fanout in read-only proof\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/77c6c3200d4551cce5afec89c21ecf657c911d52"
+    },
+    {
+      "sha": "17b1c5ce9a3598862a320480fafd5e274413e918",
+      "message": "test: measure distinct Z10 tile count and repeated-window job fanout\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/17b1c5ce9a3598862a320480fafd5e274413e918"
+    },
+    {
+      "sha": "e58fbae5ebe6dcb07a1a7a465aa9ab4a3616c006",
+      "message": "test: prove whether repeated Z10 tile windows overlap at pixel level\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/e58fbae5ebe6dcb07a1a7a465aa9ab4a3616c006"
+    },
+    {
+      "sha": "64a593ecf5da58395f2c514d985dedb093503f04",
+      "message": "test: benchmark redundant worker PNG decode with output parity, read-only\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/64a593ecf5da58395f2c514d985dedb093503f04"
+    },
+    {
+      "sha": "a47620d9d19e6a8eabed83a695cc3a84af4f87ac",
+      "message": "test: compare single vs double PNG decode on real Z6 refinement windows\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/a47620d9d19e6a8eabed83a695cc3a84af4f87ac"
+    },
+    {
+      "sha": "7c64aba3226eaa6055c68a6002c4ca7fef5bc1eb",
+      "message": "test: sample distinct real Z6 tiles and preserve all window parity checks\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/7c64aba3226eaa6055c68a6002c4ca7fef5bc1eb"
+    },
+    {
+      "sha": "354a9eb15eaf587eea2e41e8d63eda0811c10534",
+      "message": "test: prove decoded-once Z6 pixel parity across all windows\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/354a9eb15eaf587eea2e41e8d63eda0811c10534"
+    },
+    {
+      "sha": "e746d022179a99daa2d16b2d31542aaa41f95698",
+      "message": "test: follow bounded live Z6 Z8 Z10 refinement chain with decoded pixel parity\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/e746d022179a99daa2d16b2d31542aaa41f95698"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "e746d022179a99daa2d16b2d31542aaa41f95698",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/38967793351",
+      "id": 38967793351,
+      "updated_at": "2026-10-16T21:53:16Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Z4 stride parity read-only proof",
+      "head_sha": "e746d022179a99daa2d16b2d31542aaa41f95698",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/38967793373",
+      "id": 38967793373,
+      "updated_at": "2026-10-16T21:13:56Z",
+      "event": "pull_request"
+    },
+    {
+      "name": ".github/workflows/n03-administrative-area-proof.yml",
+      "head_sha": "e746d022179a99daa2d16b2d31542aaa41f95698",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/38967789218",
+      "id": 38967789218,
+      "updated_at": "2026-10-16T21:12:53Z",
+      "event": "push"
+    },
+    {
+      "name": ".github/workflows/national-forecast-lowzoom-proof.yml",
+      "head_sha": "e746d022179a99daa2d16b2d31542aaa41f95698",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/38967787818",
+      "id": 38967787818,
+      "updated_at": "2026-10-16T21:12:53Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "FRAME_LIMIT",
+    "HEAVY",
+    "REPEATS",
+    "TILES",
+    "all",
+    "allWindowParity",
+    "bench",
+    "buffer",
+    "c",
+    "candidates",
+    "check",
+    "decodeParity",
+    "decoded",
+    "directions",
+    "double",
+    "doubleDecode",
+    "expected",
+    "fetchMs",
+    "fetched",
+    "first",
+    "frames",
+    "groups",
+    "gx",
+    "has",
+    "heapBefore",
+    "heavy",
+    "i",
+    "intensity",
+    "j",
+    "job",
+    "jobs",
+    "key",
+    "keys",
+    "m",
+    "main",
+    "mask",
+    "measurements",
+    "mem",
+    "memAfter",
+    "memBefore",
+    "n",
+    "nx",
+    "oneDecodeMs",
+    "original",
+    "originalKeys",
+    "parents",
+    "png",
+    "pngs",
+    "px",
+    "py",
+    "raw",
+    "rep",
+    "res",
+    "response",
+    "results",
+    "rounds",
+    "run",
+    "sampleLimit",
+    "scan",
+    "second"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "ズーム4全画素走査と1ピクセル飛ばしを実JMA画像6時刻で比較。全画素177画素・独立雨域88に対し、間引き45画素・47雨域を完全見逃し。",
+    "conclusion": "2026-10-16の実況3時刻＋予報3時刻、各6タイル、30mm/h以上、4近傍連結。全タイル取得済み。stride2は132/177画素（74.6%）を省略し、47/88雨域（53.4%）を丸ごと見逃した。この条件で間引きの安全性は支持されない。PNG復号を含む平均走査はstride2約20.8〜24.8ms、stride1約24.9〜26.5ms。二重復号を一重にした比較では候補一致を6時刻すべてで確認。これは特定時刻・z4内の比較で、z4対z10の解像度保証、実際の的中率、本番負荷上限の保証ではない。PRは未統合の研究。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/62",
+      "https://github.com/miyazaki1016/emergencyalert/actions/runs/38967793373/job/117198479484",
+      "https://github.com/miyazaki1016/emergencyalert/blob/main/docs/work-history/z4-stride-proof-38967793373.json"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "688f105f456e40c8674074c0da0dc24b807ab121c21f32358c36423420871f57",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00",
+  "decisions": []
+}

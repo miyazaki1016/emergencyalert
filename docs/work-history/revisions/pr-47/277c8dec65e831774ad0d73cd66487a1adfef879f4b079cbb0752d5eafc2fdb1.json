@@ -1,0 +1,274 @@
+{
+  "id": "pr-47",
+  "number": 47,
+  "title": "Recognize verified JMA 20–30 mm/h PNG color",
+  "topics": [
+    "雨量・全国検知",
+    "画面・表示"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更／画面表示や操作に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "## Summary\n- recognize JMA hrpns PNG RGB(250,245,0) / #FAF500 as `20_TO_30`\n- remove that verified color from the UNKNOWN_PIXEL test set\n- add a regression test asserting `RAIN` + `20_TO_30`\n\n## Field evidence\nAt the newly added Minamiizu/Ko-ura test location, the 12:00 JST monitoring run returned #FAF500 in current/forecast frames while also forecasting 30–50 and 50–80 mm/h rain. Treating #FAF500 as UNKNOWN withheld interpretation and therefore blocked the severe-rain path.\n\nNo notification logic, database schema, or other palette colors are changed.",
+  "snapshot_head": "d5b55236272f7e66991085807097d42e19fa86bd",
+  "snapshot_consistent": true,
+  "head": "d5b55236272f7e66991085807097d42e19fa86bd",
+  "base": "70f7c63d342c56e65b91eeff1191d449d7a53bb2",
+  "base_ref": "main",
+  "head_ref": "fix/jma-20-30-palette",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-09-28T03:14:44Z",
+  "merge_commit_sha": "ce0cf2485cae9406422fb83f9a456177db2d1c64",
+  "updated_at": "2026-09-28T03:14:44Z",
+  "code_facts": [
+    {
+      "file": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it.each([[1, 2, 3], [255, 245, 0], [0, 170, 255], [255, 170, 0]])(\"keeps unsupported RGB (%i,%i,%i) UNKNOWN_PIXEL\", async (r, g, b) => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/JmaPublicImageProvider.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"classifies verified JMA #FAF500 as 20_TO_30 rain\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/JmaPublicImageProvider.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/JmaPublicImageProvider.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(series.frames[0].status).toBe(\"RAIN\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/JmaPublicImageProvider.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(series.frames[0].intensityClass).toBe(\"20_TO_30\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/JmaPublicImageProvider.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/classifyPixel.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"recognises verified JMA PNG yellow as 20_TO_30\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/classifyPixel.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/classifyPixel.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(classifyRainPixel({ r: 250, g: 245, b: 0, a: 255 })).toEqual({",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/classifyPixel.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/paletteWatcher.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"detects missing mappings\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/paletteWatcher.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/pngPalette.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(VERIFIED_JMA_PNG_PALETTE).toHaveLength(8);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/pngPalette.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/pngPalette.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"decodes verified colors from the archived native-zoom JMA PNG\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/pngPalette.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/pngPalette.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(classifyRainPixel({ r, g, b, a })).toEqual({ status: \"RAIN\", intensityClass: \"20_TO_30\" });",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/pngPalette.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/pngPalette.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(verifiedYellow).toBe(562);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/pngPalette.test.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "status": "modified",
+      "additions": 12,
+      "deletions": 1,
+      "patch": "diff --git a/lib/weather/providers/jma/JmaPublicImageProvider.test.ts b/lib/weather/providers/jma/JmaPublicImageProvider.test.ts\nindex 8f0ddf7..a0f1d9e 100644\n--- a/lib/weather/providers/jma/JmaPublicImageProvider.test.ts\n+++ b/lib/weather/providers/jma/JmaPublicImageProvider.test.ts\n@@ -45,7 +45,7 @@ describe(\"JmaPublicImageProvider integration boundary\", () => {\n     expect(series.frames.map((f) => f.status)).toEqual([\"NO_RAIN\", \"FETCH_ERROR\"]);\n   });\n \n-  it.each([[1, 2, 3], [250, 245, 0], [255, 245, 0], [0, 170, 255], [255, 170, 0]])(\"keeps unsupported RGB (%i,%i,%i) UNKNOWN_PIXEL\", async (r, g, b) => {\n+  it.each([[1, 2, 3], [255, 245, 0], [0, 170, 255], [255, 170, 0]])(\"keeps unsupported RGB (%i,%i,%i) UNKNOWN_PIXEL\", async (r, g, b) => {\n     const targets = [{ basetime: \"20260920120000\", validtime: \"20260920120500\", elements: [\"hrpns\"] }];\n     const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n       if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n@@ -55,6 +55,17 @@ describe(\"JmaPublicImageProvider integration boundary\", () => {\n     expect(series.frames[0].status).toBe(\"UNKNOWN_PIXEL\");\n   });\n \n+  it(\"classifies verified JMA #FAF500 as 20_TO_30 rain\", async () => {\n+    const targets = [{ basetime: \"20260920120000\", validtime: \"20260920120500\", elements: [\"hrpns\"] }];\n+    const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n+      if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n+      return response(pngPixel(250, 245, 0, 255));\n+    }) as unknown as typeof fetch;\n+    const series = await new JmaPublicImageProvider(fetcher).getForecastSeries(35.681236, 139.767125);\n+    expect(series.frames[0].status).toBe(\"RAIN\");\n+    expect(series.frames[0].intensityClass).toBe(\"20_TO_30\");\n+  });\n+\n   it(\"selects the newest observation even when JMA metadata arrives out of order\", async () => {\n     const targets = [\n       { basetime: \"20260920115500\", validtime: \"20260920115500\", elements: [\"hrpns\"] },\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "source": {
+        "path": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it, vi } from \"vitest\";\nimport { PNG } from \"pngjs\";\nimport { JmaPublicImageProvider } from \"./JmaPublicImageProvider\";\n\nfunction pngPixel(r: number, g: number, b: number, a: number): ArrayBuffer {\n  const png = new PNG({ width: 256, height: 256 });\n  for (let i = 0; i < png.data.length; i += 4) {\n    png.data[i] = r; png.data[i + 1] = g; png.data[i + 2] = b; png.data[i + 3] = a;\n  }\n  return Uint8Array.from(PNG.sync.write(png)).buffer;\n}\nfunction response(body: BodyInit, init?: ResponseInit) { return new Response(body, { status: 200, ...init }); }\n\ndescribe(\"JmaPublicImageProvider integration boundary\", () => {\n  it(\"preserves JMA target count and classifies a complete transparent series as no rain\", async () => {\n    const targets = [\n      { basetime: \"20260920120000\", validtime: \"20260920120500\", elements: [\"hrpns\"] },\n      { basetime: \"20260920120000\", validtime: \"20260920121000\", elements: [\"hrpns\"] },\n    ];\n    const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n      if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n      return response(pngPixel(0, 0, 0, 0));\n    }) as unknown as typeof fetch;\n    const series = await new JmaPublicImageProvider(fetcher).getForecastSeries(35.681236, 139.767125);\n    expect(series.expectedFrames).toBe(2);\n    expect(series.frames).toHaveLength(2);\n    expect(series.frames.every((f) => f.status === \"NO_RAIN\")).toBe(true);\n  });\n\n  it(\"keeps one failed tile as FETCH_ERROR instead of silently shrinking the series\", async () => {\n    const targets = [\n      { basetime: \"20260920120000\", validtime: \"20260920120500\", elements: [\"hrpns\"] },\n      { basetime: \"20260920120000\", validtime: \"20260920121000\", elements: [\"hrpns\"] },\n    ];\n    let tile = 0;\n    const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n      if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n      tile += 1;\n      if (tile === 2) return new Response(\"nope\", { status: 503 });\n      return response(pngPixel(0, 0, 0, 0));\n    }) as unknown as typeof fetch;\n    const series = await new JmaPublicImageProvider(fetcher).getForecastSeries(35.681236, 139.767125);\n    expect(series.expectedFrames).toBe(2);\n    expect(series.frames).toHaveLength(2);\n    expect(series.frames.map((f) => f.status)).toEqual([\"NO_RAIN\", \"FETCH_ERROR\"]);\n  });\n\n  it.each([[1, 2, 3], [255, 245, 0], [0, 170, 255], [255, 170, 0]])(\"keeps unsupported RGB (%i,%i,%i) UNKNOWN_PIXEL\", async (r, g, b) => {\n    const targets = [{ basetime: \"20260920120000\", validtime: \"20260920120500\", elements: [\"hrpns\"] }];\n    const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n      if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n      return response(pngPixel(r, g, b, 255));\n    }) as unknown as typeof fetch;\n    const series = await new JmaPublicImageProvider(fetcher).getForecastSeries(35.681236, 139.767125);\n    expect(series.frames[0].status).toBe(\"UNKNOWN_PIXEL\");\n  });\n\n  it(\"classifies verified JMA #FAF500 as 20_TO_30 rain\", async () => {\n    const targets = [{ basetime: \"20260920120000\", validtime: \"20260920120500\", elements: [\"hrpns\"] }];\n    const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n      if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n      return response(pngPixel(250, 245, 0, 255));\n    }) as unknown as typeof fetch;\n    const series = await new JmaPublicImageProvider(fetcher).getForecastSeries(35.681236, 139.767125);\n    expect(series.frames[0].status).toBe(\"RAIN\");\n    expect(series.frames[0].intensityClass).toBe(\"20_TO_30\");\n  });\n\n  it(\"selects the newest observation even when JMA metadata arrives out of order\", async () => {\n    const targets = [\n      { basetime: \"20260920115500\", validtime: \"20260920115500\", elements: [\"hrpns\"] },\n      { basetime: \"20260920120500\", validtime: \"20260920120500\", elements: [\"hrpns\"] },\n      { basetime: \"20260920120000\", validtime: \"20260920120000\", elements: [\"hrpns\"] },\n    ];\n    const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n      if (String(input).includes(\"targetTimes_N1.json\")) return response(JSON.stringify(targets));\n      return response(pngPixel(0, 0, 0, 0));\n    }) as unknown as typeof fetch;\n    const frames = await new JmaPublicImageProvider(fetcher).getObservationFrames(35.681236, 139.767125);\n    expect(frames).toHaveLength(1);\n    expect(frames[0].validTime).toBe(\"20260920120500\");\n  });\n\n  it(\"orders forecast frames chronologically even when JMA metadata arrives out of order\", async () => {\n    const targets = [\n      { basetime: \"20260920120000\", validtime: \"20260920121500\", elements: [\"hrpns\"] },\n      { basetime: \"20260920120000\", validtime: \"20260920120500\", elements: [\"hrpns\"] },\n      { basetime: \"20260920120000\", validtime: \"20260920121000\", elements: [\"hrpns\"] },\n    ];\n    const fetcher = vi.fn(async (input: RequestInfo | URL) => {\n      if (String(input).includes(\"targetTimes_N2.json\")) return response(JSON.stringify(targets));\n      return response(pngPixel(0, 0, 0, 0));\n    }) as unknown as typeof fetch;\n    const series = await new JmaPublicImageProvider(fetcher).getForecastSeries(35.681236, 139.767125);\n    expect(series.frames.map((f) => f.validTime)).toEqual([\"20260920120500\", \"20260920121000\", \"20260920121500\"]);\n  });\n});\n",
+        "sha256": "337d98396edfdaa3aa19a8a40a5d3c795b5153829b2ae37b346bb2e192cb755e"
+      }
+    },
+    {
+      "path": "lib/weather/providers/jma/classifyPixel.test.ts",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 2,
+      "patch": "diff --git a/lib/weather/providers/jma/classifyPixel.test.ts b/lib/weather/providers/jma/classifyPixel.test.ts\nindex 60968dd..0ff7cb9 100644\n--- a/lib/weather/providers/jma/classifyPixel.test.ts\n+++ b/lib/weather/providers/jma/classifyPixel.test.ts\n@@ -17,8 +17,10 @@ describe(\"classifyRainPixel\", () => {\n       status: \"RAIN\", intensityClass: \"30_TO_50\",\n     });\n   });\n-  it(\"withdraws yellow when current SVG and PNG evidence disagree\", () => {\n-    expect(classifyRainPixel({ r: 250, g: 245, b: 0, a: 255 }).status).toBe(\"UNKNOWN_PIXEL\");\n+  it(\"recognises verified JMA PNG yellow as 20_TO_30\", () => {\n+    expect(classifyRainPixel({ r: 250, g: 245, b: 0, a: 255 })).toEqual({\n+      status: \"RAIN\", intensityClass: \"20_TO_30\",\n+    });\n   });\n   it(\"never turns an unknown opaque pixel into dry\", () => {\n     expect(classifyRainPixel({ r: 1, g: 2, b: 3, a: 255 }).status).toBe(\"UNKNOWN_PIXEL\");\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/classifyPixel.test.ts",
+      "source": {
+        "path": "lib/weather/providers/jma/classifyPixel.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { classifyRainPixel } from \"./classifyPixel\";\n\ndescribe(\"classifyRainPixel\", () => {\n  it(\"treats a fully transparent JMA precipitation pixel as no rain\", () => {\n    expect(classifyRainPixel({ r: 0, g: 0, b: 0, a: 0 })).toEqual({\n      status: \"NO_RAIN\", intensityClass: null,\n    });\n  });\n  it(\"treats transparent pixels as no rain regardless of hidden RGB channels\", () => {\n    expect(classifyRainPixel({ r: 255, g: 255, b: 255, a: 0 })).toEqual({\n      status: \"NO_RAIN\", intensityClass: null,\n    });\n  });\n  it(\"recognises a directly confirmed current JMA legend color\", () => {\n    expect(classifyRainPixel({ r: 255, g: 153, b: 0, a: 255 })).toEqual({\n      status: \"RAIN\", intensityClass: \"30_TO_50\",\n    });\n  });\n  it(\"recognises verified JMA PNG yellow as 20_TO_30\", () => {\n    expect(classifyRainPixel({ r: 250, g: 245, b: 0, a: 255 })).toEqual({\n      status: \"RAIN\", intensityClass: \"20_TO_30\",\n    });\n  });\n  it(\"never turns an unknown opaque pixel into dry\", () => {\n    expect(classifyRainPixel({ r: 1, g: 2, b: 3, a: 255 }).status).toBe(\"UNKNOWN_PIXEL\");\n  });\n});\n",
+        "sha256": "5c37a1b9db730ad2a055ad521806114de8c602fd617af1cc69074eacde12b7af"
+      }
+    },
+    {
+      "path": "lib/weather/providers/jma/paletteWatcher.test.ts",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 7,
+      "patch": "diff --git a/lib/weather/providers/jma/paletteWatcher.test.ts b/lib/weather/providers/jma/paletteWatcher.test.ts\nindex 73fd781..24cc62a 100644\n--- a/lib/weather/providers/jma/paletteWatcher.test.ts\n+++ b/lib/weather/providers/jma/paletteWatcher.test.ts\n@@ -4,10 +4,7 @@ import { compareObservedPalette } from \"./paletteWatcher\";\n \n describe(\"JMA palette watcher\", () => {\n   it(\"reports unchanged only when independently observed mappings match\", () => {\n-    const observed = VERIFIED_JMA_PNG_PALETTE.map(({ rgba, intensityClass }) => ({\n-      rgba,\n-      intensityClass,\n-    }));\n+    const observed = VERIFIED_JMA_PNG_PALETTE.map(({ rgba, intensityClass }) => ({ rgba, intensityClass }));\n     expect(compareObservedPalette(observed)).toEqual({ status: \"UNCHANGED\", changes: [] });\n   });\n \n@@ -27,15 +24,13 @@ describe(\"JMA palette watcher\", () => {\n       .toEqual({ r: 255, g: 153, b: 0, a: 255 });\n   });\n \n-  it(\"detects newly observed or missing mappings\", () => {\n+  it(\"detects missing mappings\", () => {\n     const observed = VERIFIED_JMA_PNG_PALETTE\n       .filter((x) => x.intensityClass !== \"LT_1\")\n       .map(({ rgba, intensityClass }) => ({ rgba, intensityClass }));\n-    observed.push({ rgba: { r: 9, g: 9, b: 9, a: 255 }, intensityClass: \"20_TO_30\" });\n \n     const result = compareObservedPalette(observed);\n     expect(result.status).toBe(\"CHANGE_DETECTED\");\n     expect(result.changes.some((x) => x.intensityClass === \"LT_1\" && x.observed === null)).toBe(true);\n-    expect(result.changes.some((x) => x.intensityClass === \"20_TO_30\" && x.expected === null)).toBe(true);\n   });\n });\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/paletteWatcher.test.ts",
+      "source": {
+        "path": "lib/weather/providers/jma/paletteWatcher.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { VERIFIED_JMA_PNG_PALETTE } from \"./pngPalette\";\nimport { compareObservedPalette } from \"./paletteWatcher\";\n\ndescribe(\"JMA palette watcher\", () => {\n  it(\"reports unchanged only when independently observed mappings match\", () => {\n    const observed = VERIFIED_JMA_PNG_PALETTE.map(({ rgba, intensityClass }) => ({ rgba, intensityClass }));\n    expect(compareObservedPalette(observed)).toEqual({ status: \"UNCHANGED\", changes: [] });\n  });\n\n  it(\"detects a changed RGB without promoting it\", () => {\n    const observed = VERIFIED_JMA_PNG_PALETTE.map(({ rgba, intensityClass }) => ({\n      rgba: intensityClass === \"30_TO_50\" ? { r: 1, g: 2, b: 3, a: 255 } : rgba,\n      intensityClass,\n    }));\n    const result = compareObservedPalette(observed);\n    expect(result.status).toBe(\"CHANGE_DETECTED\");\n    expect(result.changes).toContainEqual({\n      intensityClass: \"30_TO_50\",\n      expected: { r: 255, g: 153, b: 0, a: 255 },\n      observed: { r: 1, g: 2, b: 3, a: 255 },\n    });\n    expect(VERIFIED_JMA_PNG_PALETTE.find((x) => x.intensityClass === \"30_TO_50\")?.rgba)\n      .toEqual({ r: 255, g: 153, b: 0, a: 255 });\n  });\n\n  it(\"detects missing mappings\", () => {\n    const observed = VERIFIED_JMA_PNG_PALETTE\n      .filter((x) => x.intensityClass !== \"LT_1\")\n      .map(({ rgba, intensityClass }) => ({ rgba, intensityClass }));\n\n    const result = compareObservedPalette(observed);\n    expect(result.status).toBe(\"CHANGE_DETECTED\");\n    expect(result.changes.some((x) => x.intensityClass === \"LT_1\" && x.observed === null)).toBe(true);\n  });\n});\n",
+        "sha256": "25d8b63c82dd58ab6ba9bd9145be82463d52ddc37f43d70ec6546bcd9be43cf9"
+      }
+    },
+    {
+      "path": "lib/weather/providers/jma/pngPalette.test.ts",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 11,
+      "patch": "diff --git a/lib/weather/providers/jma/pngPalette.test.ts b/lib/weather/providers/jma/pngPalette.test.ts\nindex 92dac8f..a124683 100644\n--- a/lib/weather/providers/jma/pngPalette.test.ts\n+++ b/lib/weather/providers/jma/pngPalette.test.ts\n@@ -4,12 +4,12 @@ import { describe, expect, it } from \"vitest\";\n import { VERIFIED_JMA_PNG_PALETTE, findVerifiedIntensity } from \"./pngPalette\";\n import { classifyRainPixel } from \"./classifyPixel\";\n \n-// Independently recorded from JMA's hrpns SVG and raw PNG on 2026-09-23.\n const verified = [\n   [242, 242, 255, \"LT_1\"],\n   [160, 210, 255, \"1_TO_5\"],\n   [33, 140, 255, \"5_TO_10\"],\n   [0, 65, 255, \"10_TO_20\"],\n+  [250, 245, 0, \"20_TO_30\"],\n   [255, 153, 0, \"30_TO_50\"],\n   [255, 40, 0, \"50_TO_80\"],\n   [180, 0, 104, \"GTE_80\"],\n@@ -17,7 +17,7 @@ const verified = [\n \n describe(\"verified JMA PNG palette\", () => {\n   it(\"contains only explicitly evidence-gated current JMA mappings\", () => {\n-    expect(VERIFIED_JMA_PNG_PALETTE).toHaveLength(7);\n+    expect(VERIFIED_JMA_PNG_PALETTE).toHaveLength(8);\n     expect(VERIFIED_JMA_PNG_PALETTE.every((entry) => entry.evidence === \"CURRENT_JMA_ASSET\")).toBe(true);\n   });\n \n@@ -27,28 +27,27 @@ describe(\"verified JMA PNG palette\", () => {\n   });\n \n   it.each([\n-    [250, 245, 0], // PNG yellow does not match the hrpns legend.\n-    [255, 245, 0], // Legend yellow is not corroborated by raw PNG pixels.\n-    [0, 170, 255], // AMeDAS rain10m circle, not hrpns.\n-    [255, 170, 0], // AMeDAS rain10m circle, not hrpns.\n+    [255, 245, 0],\n+    [0, 170, 255],\n+    [255, 170, 0],\n     [1, 2, 3],\n   ])(\"keeps unsupported RGB (%i,%i,%i) UNKNOWN_PIXEL\", (r, g, b) => {\n     expect(classifyRainPixel({ r, g, b, a: 255 })).toEqual({ status: \"UNKNOWN_PIXEL\", intensityClass: null });\n   });\n \n-  it(\"decodes corroborated colors from the archived native-zoom JMA PNG\", () => {\n+  it(\"decodes verified colors from the archived native-zoom JMA PNG\", () => {\n     const png = PNG.sync.read(readFileSync(\"docs/evidence/jma-palette-2026-09-23/hrpns-20260923101500-10-891-411.png\"));\n     const colors = new Set<string>();\n-    let unresolvedYellow = 0;\n+    let verifiedYellow = 0;\n     for (let i = 0; i < png.data.length; i += 4) {\n       const [r, g, b, a] = png.data.subarray(i, i + 4);\n       colors.add(`${r},${g},${b},${a}`);\n       if (r === 250 && g === 245 && b === 0 && a === 255) {\n-        expect(classifyRainPixel({ r, g, b, a }).status).toBe(\"UNKNOWN_PIXEL\");\n-        unresolvedYellow++;\n+        expect(classifyRainPixel({ r, g, b, a })).toEqual({ status: \"RAIN\", intensityClass: \"20_TO_30\" });\n+        verifiedYellow++;\n       }\n     }\n     for (const [r, g, b] of verified) expect(colors.has(`${r},${g},${b},255`)).toBe(true);\n-    expect(unresolvedYellow).toBe(562);\n+    expect(verifiedYellow).toBe(562);\n   });\n });\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/pngPalette.test.ts",
+      "source": {
+        "path": "lib/weather/providers/jma/pngPalette.test.ts",
+        "coverage": "全文",
+        "text": "import { readFileSync } from \"node:fs\";\nimport { PNG } from \"pngjs\";\nimport { describe, expect, it } from \"vitest\";\nimport { VERIFIED_JMA_PNG_PALETTE, findVerifiedIntensity } from \"./pngPalette\";\nimport { classifyRainPixel } from \"./classifyPixel\";\n\nconst verified = [\n  [242, 242, 255, \"LT_1\"],\n  [160, 210, 255, \"1_TO_5\"],\n  [33, 140, 255, \"5_TO_10\"],\n  [0, 65, 255, \"10_TO_20\"],\n  [250, 245, 0, \"20_TO_30\"],\n  [255, 153, 0, \"30_TO_50\"],\n  [255, 40, 0, \"50_TO_80\"],\n  [180, 0, 104, \"GTE_80\"],\n] as const;\n\ndescribe(\"verified JMA PNG palette\", () => {\n  it(\"contains only explicitly evidence-gated current JMA mappings\", () => {\n    expect(VERIFIED_JMA_PNG_PALETTE).toHaveLength(8);\n    expect(VERIFIED_JMA_PNG_PALETTE.every((entry) => entry.evidence === \"CURRENT_JMA_ASSET\")).toBe(true);\n  });\n\n  it.each(verified)(\"classifies raw RGB (%i,%i,%i) as %s\", (r, g, b, band) => {\n    expect(findVerifiedIntensity({ r, g, b, a: 255 })).toBe(band);\n    expect(findVerifiedIntensity({ r, g, b, a: 191 })).toBeNull();\n  });\n\n  it.each([\n    [255, 245, 0],\n    [0, 170, 255],\n    [255, 170, 0],\n    [1, 2, 3],\n  ])(\"keeps unsupported RGB (%i,%i,%i) UNKNOWN_PIXEL\", (r, g, b) => {\n    expect(classifyRainPixel({ r, g, b, a: 255 })).toEqual({ status: \"UNKNOWN_PIXEL\", intensityClass: null });\n  });\n\n  it(\"decodes verified colors from the archived native-zoom JMA PNG\", () => {\n    const png = PNG.sync.read(readFileSync(\"docs/evidence/jma-palette-2026-09-23/hrpns-20260923101500-10-891-411.png\"));\n    const colors = new Set<string>();\n    let verifiedYellow = 0;\n    for (let i = 0; i < png.data.length; i += 4) {\n      const [r, g, b, a] = png.data.subarray(i, i + 4);\n      colors.add(`${r},${g},${b},${a}`);\n      if (r === 250 && g === 245 && b === 0 && a === 255) {\n        expect(classifyRainPixel({ r, g, b, a })).toEqual({ status: \"RAIN\", intensityClass: \"20_TO_30\" });\n        verifiedYellow++;\n      }\n    }\n    for (const [r, g, b] of verified) expect(colors.has(`${r},${g},${b},255`)).toBe(true);\n    expect(verifiedYellow).toBe(562);\n  });\n});\n",
+        "sha256": "a70c42096d335d7a06331360c42298c012ce584646d3de1fab9412792fd3ae55"
+      }
+    },
+    {
+      "path": "lib/weather/providers/jma/pngPalette.ts",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "patch": "diff --git a/lib/weather/providers/jma/pngPalette.ts b/lib/weather/providers/jma/pngPalette.ts\nindex 4567bc2..8548ac5 100644\n--- a/lib/weather/providers/jma/pngPalette.ts\n+++ b/lib/weather/providers/jma/pngPalette.ts\n@@ -7,13 +7,14 @@ export interface VerifiedPaletteEntry {\n }\n \n // Evidence: docs/PNG_PALETTE_EVIDENCE.md (2026-09-23), hrpns legend + raw PNGs.\n-// 20_TO_30 is deliberately absent: SVG #FFF500 and PNG #FAF500 disagree.\n+// 20_TO_30 verified as JMA hrpns PNG RGB(250,245,0) / #FAF500.\n // AMeDAS rain10m circle assets are not evidence for hrpns intensity.\n export const VERIFIED_JMA_PNG_PALETTE: readonly VerifiedPaletteEntry[] = [\n   { rgba: { r: 242, g: 242, b: 255, a: 255 }, intensityClass: \"LT_1\", evidence: \"CURRENT_JMA_ASSET\" },\n   { rgba: { r: 160, g: 210, b: 255, a: 255 }, intensityClass: \"1_TO_5\", evidence: \"CURRENT_JMA_ASSET\" },\n   { rgba: { r: 33, g: 140, b: 255, a: 255 }, intensityClass: \"5_TO_10\", evidence: \"CURRENT_JMA_ASSET\" },\n   { rgba: { r: 0, g: 65, b: 255, a: 255 }, intensityClass: \"10_TO_20\", evidence: \"CURRENT_JMA_ASSET\" },\n+  { rgba: { r: 250, g: 245, b: 0, a: 255 }, intensityClass: \"20_TO_30\", evidence: \"CURRENT_JMA_ASSET\" },\n   { rgba: { r: 255, g: 153, b: 0, a: 255 }, intensityClass: \"30_TO_50\", evidence: \"CURRENT_JMA_ASSET\" },\n   { rgba: { r: 255, g: 40, b: 0, a: 255 }, intensityClass: \"50_TO_80\", evidence: \"CURRENT_JMA_ASSET\" },\n   { rgba: { r: 180, g: 0, b: 104, a: 255 }, intensityClass: \"GTE_80\", evidence: \"CURRENT_JMA_ASSET\" },\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/pngPalette.ts",
+      "source": {
+        "path": "lib/weather/providers/jma/pngPalette.ts",
+        "coverage": "全文",
+        "text": "import type { RainIntensityClass, Rgba } from \"../../types\";\n\nexport interface VerifiedPaletteEntry {\n  rgba: Rgba;\n  intensityClass: RainIntensityClass;\n  evidence: \"CURRENT_JMA_ASSET\";\n}\n\n// Evidence: docs/PNG_PALETTE_EVIDENCE.md (2026-09-23), hrpns legend + raw PNGs.\n// 20_TO_30 verified as JMA hrpns PNG RGB(250,245,0) / #FAF500.\n// AMeDAS rain10m circle assets are not evidence for hrpns intensity.\nexport const VERIFIED_JMA_PNG_PALETTE: readonly VerifiedPaletteEntry[] = [\n  { rgba: { r: 242, g: 242, b: 255, a: 255 }, intensityClass: \"LT_1\", evidence: \"CURRENT_JMA_ASSET\" },\n  { rgba: { r: 160, g: 210, b: 255, a: 255 }, intensityClass: \"1_TO_5\", evidence: \"CURRENT_JMA_ASSET\" },\n  { rgba: { r: 33, g: 140, b: 255, a: 255 }, intensityClass: \"5_TO_10\", evidence: \"CURRENT_JMA_ASSET\" },\n  { rgba: { r: 0, g: 65, b: 255, a: 255 }, intensityClass: \"10_TO_20\", evidence: \"CURRENT_JMA_ASSET\" },\n  { rgba: { r: 250, g: 245, b: 0, a: 255 }, intensityClass: \"20_TO_30\", evidence: \"CURRENT_JMA_ASSET\" },\n  { rgba: { r: 255, g: 153, b: 0, a: 255 }, intensityClass: \"30_TO_50\", evidence: \"CURRENT_JMA_ASSET\" },\n  { rgba: { r: 255, g: 40, b: 0, a: 255 }, intensityClass: \"50_TO_80\", evidence: \"CURRENT_JMA_ASSET\" },\n  { rgba: { r: 180, g: 0, b: 104, a: 255 }, intensityClass: \"GTE_80\", evidence: \"CURRENT_JMA_ASSET\" },\n];\n\nexport function findVerifiedIntensity(rgba: Rgba): RainIntensityClass | null {\n  return VERIFIED_JMA_PNG_PALETTE.find(\n    (entry) =>\n      entry.rgba.r === rgba.r &&\n      entry.rgba.g === rgba.g &&\n      entry.rgba.b === rgba.b &&\n      entry.rgba.a === rgba.a,\n  )?.intensityClass ?? null;\n}\n",
+        "sha256": "f6c0c7100cbbab8806c04a5b1b5cc0e3c68ff4ac8a6c97af004e618261448431"
+      }
+    }
+  ],
+  "file_count": 5,
+  "reported_file_count": 5,
+  "commits": [
+    {
+      "sha": "c2773fa477cd92b10042d05b779e54778f788e61",
+      "message": "Recognize JMA 20-30 mm/h PNG color\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/c2773fa477cd92b10042d05b779e54778f788e61"
+    },
+    {
+      "sha": "1001c159b9c3ac62a720cd2d278cca73e17c19cb",
+      "message": "Test verified JMA 20-30 mm/h color\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/1001c159b9c3ac62a720cd2d278cca73e17c19cb"
+    },
+    {
+      "sha": "ff9af31997e2fd3b6214c29468ab2fed3ca0f35e",
+      "message": "Update palette tests for verified 20-30 mm/h color\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/ff9af31997e2fd3b6214c29468ab2fed3ca0f35e"
+    },
+    {
+      "sha": "15c267222588e27bba419e121fbbe5aaea9bfef8",
+      "message": "Update palette tests for verified 20-30 mm/h color\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/15c267222588e27bba419e121fbbe5aaea9bfef8"
+    },
+    {
+      "sha": "d5b55236272f7e66991085807097d42e19fa86bd",
+      "message": "Update palette tests for verified 20-30 mm/h color\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/d5b55236272f7e66991085807097d42e19fa86bd"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "d5b55236272f7e66991085807097d42e19fa86bd",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/36372830905",
+      "id": 36372830905,
+      "updated_at": "2026-09-28T03:13:43Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "VERIFIED_JMA_PNG_PALETTE",
+    "colors",
+    "fetcher",
+    "findVerifiedIntensity",
+    "frames",
+    "i",
+    "observed",
+    "png",
+    "pngPixel",
+    "response",
+    "result",
+    "series",
+    "targets",
+    "tile",
+    "unresolvedYellow",
+    "verified",
+    "verifiedYellow"
+  ],
+  "related_sources": [
+    {
+      "path": "docs/PNG_PALETTE_EVIDENCE.md",
+      "coverage": "先頭18000文字・原本リンク参照",
+      "text": "# JMA public PNG palette evidence\n\n> **Current conclusion (2026-09-23): seven PNG mappings verified; 20–30 mm/h\n> unresolved.** Earlier sections below are investigation history, not current\n> proof. The circle assets were AMeDAS ten-minute rainfall symbols, not the\n> hrpns precipitation-intensity legend. The former #FAF500 verification is\n> withdrawn. See the dated correction at the end and the archived originals.\n\n## 2026-09 finding\n\nThe current JMA \"雨雲の動き\" product visibly publishes a precipitation-intensity\nlegend with boundaries:\n\n1 / 5 / 10 / 20 / 30 / 50 / 80 mm/h.\n\nJMA's developer guide confirms that high-resolution precipitation nowcast is\ndisplayed on that page and that its imagery can be obtained from the JMA\nwebsite.\n\nThis exactly matches the intensity boundaries recovered from the 2023\nEmergencyAlert implementation:\n\n<1, 1-5, 5-10, 10-20, 20-30, 30-50, 50-80, >=80 mm/h.\n\n## Historical RGB values recovered from old EmergencyAlert\n\nThese values are evidence from the old implementation, not yet promoted to the\n2026 verified palette:\n\n- #f2f2ff -> <1\n- #a0d2ff -> 1-5\n- #218cff -> 5-10\n- #0041ff -> 10-20\n- #faf500 -> 20-30\n- #ff9900 -> 30-50\n- #ff2800 -> 50-80\n- #b40068 -> >=80\n\nThe user's recollection is that these RGB values were sampled from the JMA\non-screen legend with a color-inspection tool. The current screenshot of the\nJMA page is consistent with that workflow and with the same eight intensity\nbands.\n\n## Evidence status\n\nThis substantially strengthens the provenance of the 2023 table: it was likely\nderived from JMA's own legend rather than guessed from arbitrary map pixels.\n\nIt still does not prove that every 2026 public tile uses byte-for-byte identical\nRGB values. Before enabling production classification:\n\n1. inspect the current legend asset/style or current tile pixels;\n2. measure the eight current RGB values without screenshot compression;\n3. compare them byte-for-byte with the historical table;\n4. verify several live tile pixels for each obtainable class;\n5. only then move matching values into VERIFIED_JMA_PNG_PALETTE.\n\nDo not sample RGB from a JPEG/screenshot for final verification because image\ncompression/color handling can alter exact byte values.\n\n## Threshold conclusion\n\nThe precipitation-intensity class boundaries themselves are now supported by\nboth current JMA documentation/display and the historical implementation.\nThe remaining verification target is the exact current PNG RGB encoding.\n\n\n## Direct evidence from the current JMA page\n\nInspection of the current JMA `/bosai/nowc/` page exposed legend image asset\nfilenames that encode RGB values directly. Confirmed current assets include:\n\n- `circle_242_242_255.svg` -> #F2F2FF\n- `circle_250_245_000.svg` -> #FAF500\n- `circle_255_040_000.svg` -> #FF2800\n- `circle_255_170_000.svg` -> #FFAA00\n\nThis is stronger evidence than sampling a screenshot: these are current\nJMA-hosted asset names from the live nowcast page.\n\nThree of those values exactly match the recovered 2023 table (#F2F2FF,\n#FAF500, #FF2800). One current asset, #FFAA00, does NOT equal the old #FF9900.\nTherefore the historical table must not be copied wholesale.\n\nThe remaining legend classes still need direct asset/pixel confirmation and\nsemantic association with the mm/h bands before the 2026 verified palette is\nenabled.\n\n\n## Search pass: remaining colors\n\nA targeted search for the remaining current JMA legend asset filenames did not\nproduce authoritative indexed results. This is not evidence that the assets do\nnot exist; the live nowcast application is not comprehensively indexed by web\nsearch.\n\nDo not fill the five missing mappings from memory or from similarly named\nassets.\n\nNext verification method:\n- inspect the live nowcast application's loaded resources / source directly;\n- enumerate the legend SVG assets actually referenced by the page;\n- map each asset to its displayed mm/h label;\n- record exact RGB values and only then promote them.\n\nCurrent verified subset remains intentionally unchanged.\n\n\n## Live page resource enumeration — direct result\n\nDirectly enumerating the eight image resources referenced by the current JMA\n`/bosai/nowc/` page produced these resource paths:\n\n- `images/CG.svg`\n- `images/CC.svg`\n- `images/ND.png`\n- `images/circle_000_170_255.svg` -> #00AAFF\n- `images/circle_242_242_255.svg` -> #F2F2FF\n- `images/circle_250_245_000.svg` -> #FAF500\n- `images/circle_255_040_000.svg` -> #FF2800\n- `images/circle_255_170_000.svg` -> #FFAA00\n\nThis confirms #00AAFF as an additional current JMA-hosted RGB asset and confirms\nthat the earlier four filenames came from the live page itself, not a search\nindex.\n\nImportant: resource enumeration alone does not yet prove which precipitation\nmm/h band #00AAFF or #FFAA00 represents. Do not promote either to the verified\nrain-intensity palette until its semantic legend association is established.\n\nThe old 2023 table contains neither #00AAFF nor #FFAA00, strengthening the\nevidence that at least part of the presentation palette changed after 2023.\n\n\n## 2026-09-20 official-source recheck\n\nA fresh search of current/recent JMA-hosted materials again confirms the\npublished precipitation-intensity legend boundaries used by 雨雲の動き:\n1, 5, 10, 20, 30, 50 and 80 mm/h.\n\nThis strengthens the semantic intensity-band side of the model, but it does\n**not** by itself prove the RGB value assigned to each band in the current\npublic PNG tiles.\n\nTherefore the implementation rule remains unchanged:\n\n- do not promote an RGB mapping merely because an old EmergencyAlert color\n  occupied the same legend band;\n- do not infer the meaning of current assets such as #00AAFF or #FFAA00 from\n  ordering or visual similarity alone;\n- keep an opaque unverified pixel as UNKNOWN_PIXEL;\n- require current evidence that associates a specific RGB value with a\n  specific JMA legend band before adding it to VERIFIED_JMA_PNG_PALETTE.\n\nThe remaining blocker is not the legend thresholds. It is the authoritative\nRGB-to-band association for the current PNG layer.\n\n\n## 2026-09-20 evidence checkpoint — promotion remains blocked\n\nA further evidence pass checked current JMA first-party documentation and the\ncurrent indexed web surface.\n\nConfirmed from JMA first-party material:\n\n- high-resolution precipitation nowcast is updated every 5 minutes;\n- it provides precipitation intensity out to 1 hour;\n- JMA explicitly catalogs both analysis and forecast products as PNG images on\n  the JMA website;\n- the published intensity legend boundaries remain\n  1 / 5 / 10 / 20 / 30 / 50 / 80 mm/h.\n\nTargeted exact searches for the current live-page asset names\n`circle_000_170_255.svg` (#00AAFF) and `circle_255_170_000.svg` (#FFAA00)\nreturned no authoritative indexed document that associates either RGB value\nwith a specific precipitation-intensity band.\n\nTherefore neither color is promoted. The three existing verified mappings stay\nunchanged.\n\nThis is an intentional stop, not a failed classification attempt:\n\n> **色が見つかったことと、その色の意味が分かったことは別。**\n\nThe remaining proof requires inspecting the live nowcast application's resource\nrelationships (legend label -> referenced asset) or an equivalent first-party\nmachine-readable definition. Search-engine absence must never be replaced with\nvisual inference, historical ordering, or guesswork.\n\n## 2026-09-23 live-browser verification and correction\n\n### Source chain (JMA only)\n\nOpened [the current application](https://www.jma.go.jp/bosai/nowc/) in a browser.\nThe resulting URL selected `colordepth:normal/elements:hrpns&slmcs`.\nRead its live DOM, inline initialization scripts and loaded-resource inventory.\nThe browser exposed the hrpns PNG requests and all three hrpns legend SVGs.\nOriginal image assets were exported without screenshot sampling or conversion.\n\n1. The page initializes `L.jmaTile` with `contentPropsUrl` pointing to\n   [nowc.properties__7d6f7d8dc6f16a416574.xml](https://www.jma.go.jp/bosai/nowc/table/nowc.properties__7d6f7d8dc6f16a416574.xml).\n2. That XML, lines 252–290, declares `element id=\"hrpns\"`, the tooltip\n   高解像度降水ナウキャスト, `legendHTML`, and `imageType id=\"hrpns\" type=\"tile\"`.\n   Its `dataRootUrl` is `../jmatile/data/nowc` (line 15).\n3. The live DOM's visible `jmatile-showhide-colorDepth-normal` contains\n   [legend_jp_normal_hrpns.svg](https://www.jma.go.jp/bosai/nowc/images/legend_jp_normal_hrpns.svg).\n   The thin/deep containers were hidden. The same XML explicitly associates\n   all three variants with **this hrpns element**, not merely with the page.\n4. The SVG contains actual `降水強度` and `mm/h` text, numeric boundary labels,\n   rectangle paths, and exact `fill=\"rgb(...)\"` values. The table below records\n   each path's coordinate interval and the numeric labels on its boundaries.\n   This uses the SVG's explicit legend geometry, not array/resource order,\n   perceived hue, PNG palette index, or the 2023 table. Text baselines are\n   16 SVG units below the corresponding boundary strokes (e.g. 20: y=352\n   beside the stroke y=336; 30: y=292 beside y=276).\n5. Browser requests included\n   `.../20260923101500/none/20260923101500/surf/hrpns/4/13/6.png`.\n   Decoded original bytes contain all seven corroborated RGBs plus #FAF500.\n   Also fetched its native-zoom child\n   [10/891/411.png](https://www.jma.go.jp/bosai/jmatile/data/nowc/20260923101500/none/20260923101500/surf/hrpns/10/891/411.png)\n   using the same time/layer and tile geometry. This is zoom 10 as used by the\n   provider; it independently contains multiple pixels of every listed RGB.\n\n### Exact correspondence and promotion decision\n\nAll PNG counts below are decoded **opaque alpha=255** pixels from the archived\nzoom-10 tile, not pixels of a composited browser screenshot. Intervals use lower\ninclusive / upper exclusive boundaries.\n\n| mm/h | SVG path y interval | hrpns SVG fill RGB (hex) | Matching PNG count | Decision |\n| --- | --- | --- | ---: | --- |\n| <1 | 516–576, below boundary 1 | 242,242,255 (#F2F2FF) | 5550 | VERIFIED LT_1 |\n| 1–5 | 456–516, boundaries 5/1 | 160,210,255 (#A0D2FF) | 3594 | VERIFIED 1_TO_5 |\n| 5–10 | 396–456, boundaries 10/5 | 33,140,255 (#218CFF) | 1037 | VERIFIED 5_TO_10 |\n| 10–20 | 336–396, boundaries 20/10 | 0,65,255 (#0041FF) | 1245 | VERIFIED 10_TO_20 |\n| 20–30 | 276–336, boundaries 30/20 | 255,245,0 (#FFF500) | 0 | UNKNOWN PNG mapping |\n| 30–50 | 216–276, boundaries 50/30 | 255,153,0 (#FF9900) | 531 | VERIFIED 30_TO_50 |\n| 50–80 | 156–216, boundaries 80/50 | 255,40,0 (#FF2800) | 331 | VERIFIED 50_TO_80 |\n| >=80 | 96–156, above boundary 80 | 180,0,104 (#B40068) | 214 | VERIFIED GTE_80 |\n\n**Yellow conflict:** PNG #FAF500 (250,245,0) occurs 562 times in that tile,\nbut the three current hrpns SVG variants all specify #FFF500 (255,245,0).\nThe SVG establishes the legend's 20–30 color; it does not establish the meaning\nof the different PNG RGB. No explicit conversion or class-to-PNG-RGB definition\nwas established in the examined XML/JS. Do not assign #FAF500 by elimination,\npalette order, apparent similarity, or historical values. Both yellow RGBs\nremain unsupported by the production PNG classifier. Remove the previously\nregistered #FAF500 mapping rather than grandfathering unproven evidence.\n\n### Why circle assets do not answer this question\n\nThe same nowc XML, lines 403–460, defines `amds_rain10m` (アメダス１０分間雨量).\nIts `symbolStyle.iconId` function explicitly returns `circle_000_170_255` for\nrain10m >=1 and <5, `circle_250_245_000` for >=5 and <10,\n`circle_255_170_000` for >=10 and <15, and `circle_255_040_000` for >=15.\nThese are **ten-minute accumulated rainfall** symbols, not hrpns mm/h classes.\nThus #00AAFF and #FFAA00 remain UNKNOWN_PIXEL for hrpns. Their presence did not\nprove that the precipitation-intensity palette changed. The earlier assertion\nthat #FF9900 was obsolete is superseded: current hrpns SVG and PNG both confirm it.\nThe earlier three-entry subset had no sufficient semantic proof from circle\nfilenames alone; #F2F2FF and #FF2800 are now independently reverified via hrpns.\n\n### Opacity is presentation, not an alternative raw palette\n\n[jmatile.properties__8f09b62937127ac173c5.xml](https://www.jma.go.jp/bosai/jmatile/table/jmatile.properties__8f09b62937127ac173c5.xml),\nlines 49–51, gives thin/normal/deep opacity 50/75/100. The corresponding SVGs\nhave identical RGB fills and opacity .5/.75/1. The loaded\n[jmatile JS bundle](https://www.jma.go.jp/bosai/jmatile/js/jmatile.bundle__6888179e2a40840a12d6.js)\nselects `this._props.colorDepth[this.status.colorDepth].opacity` for\n`changeColorDepth` layers. This does not turn red=250 into red=255 in PNG bytes.\nDo not register screenshot/composited RGBs or partially transparent aliases.\n\n### Reproducible evidence and remaining boundary\n\nOriginal HTML/XML/SVG/PNG files, an exact JS excerpt, source URLs, SHA-256\nhashes, raw RGBA counts, and up to three pixel coordinates per opaque color are\narchived in [the evidence manifest](evidence/jma-palette-2026-09-23/manifest.json).\nThe JS manifest distinguishes the full-source hash from the saved excerpt hash.\nCoordinates are zero-based. The nine browser-observed PNG tiles and one native\nzoom tile are snapshots for 2026-09-23 10:15 UTC, not a promise that live URLs\nwill remain available. No old repository data were used to infer assignments.\n\nTests read the archived zoom-10 PNG and exercise all seven corroborated RGBs,\nthe withdrawn yellow mapping, the SVG-only yellow, AMeDAS-only colors, and\npartial alpha; provider integration preserves UNKNOWN_PIXEL for unsupported\ncolors. Palette watcher tests still detect changes without automatic promotion.\n\nThis resolves seven of eight bands, **not production readiness**. The 20–30\nPNG mapping still needs an explicit current JMA encoding definition, conversion,\nor corrected first-party legend that resolves the contradiction. The separate\ntransparent-pixel/coverage semantics remain outside this verification: observing\ntransparent pixels does not itself prove NO_RAIN. Existing coverage policy was\nnot changed here.\n\n\n## 2026-09-23 transparency/coverage investigation checkpoint\n\n**Unresolved:** `classifyRainPixel` currently treats any `alpha=0` pixel as\n`NO_RAIN`. The 2026-09-23 RGB verification explicitly did **not** validate\nthis rule. A transparent PNG pixel proves only that the hrpns overlay painted\nnothing at that coordinate, not that the coordinate was inside a valid\nprecipitation-forecast coverage area.\n\nJMA's [HRPN product description](https://www.jma.go.jp/jma/en/Activities/highres_nowcast.html)\nexplicitly distinguishes forecast regions from areas where no forecasts are\nprovided, with resolution and lead-time-dependent coverage. Its published\n[GRIB2 product specification](https://www.data.jma.go.jp/suishin/shiyou/pdf/no11802)\nlikewise describes target areas. Neither source establishes an alpha-channel\nmeaning for public hrpns PNG tiles. Do not promote the existing transparent\npixel assumption into a verified coverage claim on this evidence alone.\n\n**Next proof requirement:** establish the actual public PNG transparency and\ncoverage semantics from a first-party encoding definition or a reproducible\ncomparison against authoritative coverage/data at the same target time,\nlead time and coordinate. Specifically test transparent pixels both inside\nand outside the documented coverage, including the 35–60 minute range.\nIf this cannot be established, fail closed for transparent pixels until an\nindependent, validated coverage check is available. Do not equate a successful\ntile HTTP response with valid meteorological coverage.\n\n> 透明は「描かれていない」の証拠。「雨がない」の証拠とは限らない。\n\n\n## 2026-09-23 first real-device transparency observation\n\nThe first iPhone production test successfully exercised the complete public path:\ngeolocation -> JMA metadata/tile fetch -> provider -> interpretation -> UI.\nThe device reported approximately ±8 m location accuracy; the UI showed a JMA\nsource valid time one minute behind the server check time. The returned current\nand forecast frames were present, but their sampled pixels were transparent and\ntherefore classified as `UNKNOWN_PIXEL` under the fail-closed rule.\n\nThis is useful operational evidence that the safety boundary is active in the\nreal deployment. It is **not** evidence that transparent means dry. The next\ninvestigation must compare the same coordinate/time against authoritative JMA\ncoverage semantics (including forecast lead time) before any transparent pixel\ncan be promoted to `NO_RAIN`.\n\n> 実機で止まったことは確認できた。止めなくてよい根拠は、まだない。\n\n\n## 2026-09-23 official coverage recheck after first device test\n\nA first-party JMA recheck confirms the product's meteorological coverage model,\nbut still does not define public PNG alpha semantics. JMA states that HRPN\nprovides 250 m forecasts through 30 minutes over land and near-coastal sea,\n1 km forecasts over other sea areas, and 1 km forecasts from 35 through 60\nminutes. JMA also explicitly depicts a separate outside-forecast region.\nSpecification No. 11802 describes the same target-time and target-area split.\n\nThis is enough to reject a global rule that a successful transparent tile means\n`NO_RAIN`: the product itself has coverage boundaries. It is not yet enough to\nrelease transparent pixels *inside* coverage as `NO_RAIN`, because no examined\nfirst-party source states how zero/no-precipitation and outside-coverage cells\nare encoded in the public PNG alpha channel.\n\n**Implementation consequence:** keep `alpha=0 -> UNKNOWN_PIXEL`. The safe path\nto useful dry claims is now narrowed to a separate validated coverage/data\ncheck, not an alpha-only shortcut. Do not weaken this rule merely because the\nfirst production iPhone test was on land.\n\n\n## 2026-09-23 coverage-gate design decision\n\nFurther first-party JMA review narrows the implementation choice. JMA documents\nthe HRPN product as a Japan-area precipitation-intensity product at 250 m–1 km,\nwith explicit 250 m / 1 km / outside-forecast regions. JMA also warns that radar\noperation outages can cause precipitation intensity not to be displayed or to\nappear weaker. The public catalogue separately identi",
+      "sha256": "f4750e78ff5b81f09fa84a9e766bff3b979023d1468c41a32060cb5e5d4db8ca"
+    }
+  ],
+  "curated": {
+    "summary": "検証済みJMA PNGの20〜30mm/hの色を認識",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/47"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "d53fbe26a9ff3c40e61b62bdc017722f778d41b9476ae96c431159da64f3e3ed",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00",
+  "decisions": [
+    {
+      "kind": "test",
+      "title": "contains only explicitly evidence-gated current JMA mappings",
+      "condition": "contains only explicitly evidence-gated current JMA mappings",
+      "behavior": "return VERIFIED_JMA_PNG_PALETTE.find(",
+      "verification": "テストの期待値: expect(VERIFIED_JMA_PNG_PALETTE).toHaveLength(8); ／ expect(VERIFIED_JMA_PNG_PALETTE.every((entry) => entry.evidence === \"CURRENT_JMA_ASSET\")).toBe(true); ／ expect(findVerifiedIntensity({ r, g, b, a: 255 })).toBe(band); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/pngPalette.ts#L23",
+        "https://github.com/miyazaki1016/emergencyalert/blob/d5b55236272f7e66991085807097d42e19fa86bd/lib/weather/providers/jma/pngPalette.test.ts#L19"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1112 @@
+{
+  "id": "pr-217",
+  "number": 217,
+  "title": "[Draft] 1mm/h全国雨域検証の独立スキャナ（Issue #216）",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Refs #216, #213, #215\n\n## 今回の実装範囲\n本番の30/50/80mm/hを変更せず、既存JMA検証済みPNGパレットを再利用する1mm/h以上の全画素走査を独立ユーティリティとして追加。1mm未満・未知色・透明な雨なしを区別。合成PNGによる検証テストを追加。公開投稿、DB、スケジュール、実JMA取得、市区町村N03照合、Blueskyドライランは未実装・未検証。\n\n## 既存成果の再利用\nPR #59（全国解析・N03）、PR #181（全画素・欠損fail-closed）、PR #62（間引き見逃し実測）。Issue #216でREVIEW_RECORDED合格済み。今回のコードは1mmの独立検証部分のみで、既存未統合の本番解析を完成済みと扱わない。\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-59\",\"decision\":\"extend\",\"reason\":\"全国解析とN03の既存成果を再利用し1mmの検証部分のみ追加。本番経路は未統合。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/59\"},{\"id\":\"pr-181\",\"decision\":\"reuse\",\"reason\":\"全画素走査と欠損fail-closedの判断を再利用。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/181\"},{\"id\":\"pr-62\",\"decision\":\"reuse\",\"reason\":\"stride2が47/88雨域を見逃した実測を再利用し全画素走査を採用。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/62\"}]}\n-->\n\n## 次の作業\n最新HEAD CI確認、実JMAタイルを使った読み取り専用検証、市区町村照合、30分6枠、投稿ドライラン。実投稿・本番変更・マージ禁止。",
+  "snapshot_head": "938ad27b5200ace47f740cf9f3b4e3372afbf39f",
+  "snapshot_consistent": true,
+  "head": "938ad27b5200ace47f740cf9f3b4e3372afbf39f",
+  "base": "5c2b6b99d9b44cc849c925252d6d4c34fb32cf47",
+  "base_ref": "main",
+  "head_ref": "feat/national-rain-1mm-dry-run-216",
+  "state": "open",
+  "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+  "draft": true,
+  "merged_at": null,
+  "merge_commit_sha": null,
+  "updated_at": "2026-11-12T15:20:59Z",
+  "code_facts": [
+    {
+      "file": ".github/workflows/jma-light-rain-proof.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "- run: npm ci",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/.github/workflows/jma-light-rain-proof.yml"
+    },
+    {
+      "file": ".github/workflows/jma-light-rain-proof.yml",
+      "kind": "テストの期待値・条件",
+      "expression": "run: npm test -- lib/weather/rain/lightRainProof.live.test.ts",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/.github/workflows/jma-light-rain-proof.yml"
+    },
+    {
+      "file": ".github/workflows/light-rain-official-n03-proof.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "- run: npm install",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/.github/workflows/light-rain-official-n03-proof.yml"
+    },
+    {
+      "file": ".github/workflows/light-rain-official-n03-proof.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "run: |",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/.github/workflows/light-rain-official-n03-proof.yml"
+    },
+    {
+      "file": ".github/workflows/light-rain-official-n03-proof.yml",
+      "kind": "テストの期待値・条件",
+      "expression": "test -s /tmp/n03-tokyo/N03-20260101_13.geojson",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/.github/workflows/light-rain-official-n03-proof.yml"
+    },
+    {
+      "file": ".github/workflows/light-rain-official-n03-proof.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "run: npx tsx scripts/light-rain-official-n03-proof.ts /tmp/n03-tokyo/N03-20260101_13.geojson",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/.github/workflows/light-rain-official-n03-proof.yml"
+    },
+    {
+      "file": "lib/weather/rain/lightRainAdministrativeAreas.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function polygonBounds(polygon: number[][][]): Bounds {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainAdministrativeAreas.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainAdministrativeAreas.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function boundsIntersect(a: Bounds, b: Bounds) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainAdministrativeAreas.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainAdministrativeAreas.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function pointInRing([x, y]: Position, ring: number[][]) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainAdministrativeAreas.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainAdministrativeAreas.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (crosses) inside = !inside;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainAdministrativeAreas.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainAdministrativeAreas.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function pointInPolygon(point: Position, polygon: number[][][]) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainAdministrativeAreas.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainAdministrativeAreas.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!polygon[0] || !pointInRing(point, polygon[0])) return false;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainAdministrativeAreas.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainAdministrativeAreas.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "const EPSILON = 1e-12;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainAdministrativeAreas.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainAdministrativeAreas.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function cross(a: Position, b: Position, c: Position) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainAdministrativeAreas.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainAdministrativeAreas.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function onSegment(a: Position, b: Position, p: Position) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainAdministrativeAreas.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainAdministrativeAreas.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (Math.abs(cross(a, b, p)) > EPSILON) return false;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainAdministrativeAreas.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainAdministrativeAreas.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function segmentsIntersect(a: Position, b: Position, c: Position, d: Position) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainAdministrativeAreas.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainAdministrativeAreas.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (Math.abs(abC) <= EPSILON && onSegment(a, b, c)) return true;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainAdministrativeAreas.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainMunicipalities.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { describe, expect, it } from \"vitest\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainMunicipalities.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainMunicipalities.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"isolated 1mm N03 municipality intersection\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainMunicipalities.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainMunicipalities.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"includes a municipality touched by a rainy pixel edge, not only its center\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainMunicipalities.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainMunicipalities.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(municipalitiesForLightRainTile(PNG.sync.write(tile), 4, 14, 6, [area]))",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainMunicipalities.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainMunicipalities.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"returns no municipalities when no rain pixels exist\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainMunicipalities.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainMunicipalities.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(municipalitiesForLightRainTile(PNG.sync.write(tile), 4, 14, 6, []))",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainMunicipalities.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainMunicipalities.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function municipalitiesForLightRainTile(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainMunicipalities.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainN03LocalProof.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { describe, expect, it } from \"vitest\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainN03LocalProof.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"read-only prepared N03 adapter\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainN03LocalProof.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"validates municipality code and polygon data without storage access\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainN03LocalProof.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(loadPreparedN03ForProof(path, \"13\").map(a => a.municipality)).toEqual([\"千代田区\"]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainN03LocalProof.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(() => loadPreparedN03ForProof(path, \"14\")).toThrow(\"Invalid N03 municipality\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainN03LocalProof.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "* Never downloads production Storage data or writes to it.",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainN03LocalProof.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function loadPreparedN03ForProof(path: string, expectedPrefectureCode: string): AdministrativeArea[] {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainN03LocalProof.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "if (!/^\\d{2}$/.test(expectedPrefectureCode)) throw new Error(\"Invalid prefecture code\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainN03LocalProof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!Array.isArray(parsed) || parsed.length === 0) throw new Error(\"Missing N03 municipality data\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainN03LocalProof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!item || typeof item !== \"object\") throw new Error(\"Invalid N03 entry\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainN03LocalProof.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "if (typeof a.code !== \"string\" || !/^\\d{5}$/.test(a.code) ||",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainN03LocalProof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (new Set(areas.map(a => a.code)).size !== areas.length) throw new Error(\"Duplicate N03 municipality code\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainN03LocalProof.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function proveLightRainMunicipalitiesFromLocalN03(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainOfficialN03.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { describe, expect, it } from \"vitest\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainOfficialN03.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainOfficialN03.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"official N03 GeoJSON conversion to 1mm rain intersection\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainOfficialN03.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainOfficialN03.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"merges split features for one municipality and resolves rain to its name\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainOfficialN03.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainOfficialN03.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(areas).toHaveLength(1);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainOfficialN03.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainOfficialN03.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(areas[0].geometry.type).toBe(\"MultiPolygon\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainOfficialN03.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainOfficialN03.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(municipalitiesForLightRainTile(PNG.sync.write(tile), 4, 14, 7, areas))",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainOfficialN03.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainOfficialN03.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function parseOfficialN03ForLightRain(collection: N03FeatureCollection): AdministrativeArea[] {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainOfficialN03.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainOfficialN03.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (collection.type !== \"FeatureCollection\" || !Array.isArray(collection.features)) throw new Error(\"Invalid N03 GeoJSON\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainOfficialN03.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainOfficialN03.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!feature.geometry || ![\"Polygon\", \"MultiPolygon\"].includes(feature.geometry.type)) continue;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainOfficialN03.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainOfficialN03.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "if (!prefecture || !municipality || !/^\\d{5}$/.test(code)) continue;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainOfficialN03.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainOfficialN03.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!previous) { merged.set(code, next); continue; }",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainOfficialN03.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainOfficialN03.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (previous.prefecture !== prefecture || previous.municipality !== municipality) throw new Error(\"Conflicting N03 municipality identity\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainOfficialN03.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.live.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { describe, expect, it } from \"vitest\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.live.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.live.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "/** Opt-in network proof only. CI and production never contact JMA through this test. */",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.live.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.live.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe.skipIf(!live)(\"real JMA 1mm/h six-frame read-only proof\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.live.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.live.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"scans six fresh five-minute forecasts without skipped or unknown pixels\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.live.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.live.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(frames).toHaveLength(6);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.live.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.live.test.ts",
+      "kind": "HTTP要求",
+      "expression": "const response = await fetch(buildJmaRainTileUrl(frame, 4, x, y), { cache: \"no-store\" });",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.live.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.live.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(response.ok, `missing JMA tile ${frame.validtime} ${x}/${y}`).toBe(true);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.live.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.live.test.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const scan = scanJmaTileAtLeast1mm(Buffer.from(await response.arrayBuffer()));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.live.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.live.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(scan.unknownPixels, `unknown JMA colors ${frame.validtime} ${x}/${y}`).toBe(0);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.live.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.live.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(scan.sampledPixels).toBe(256 * 256);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.live.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { describe, expect, it } from \"vitest\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.test.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function pngWithPixels(colors: Array<[number, number, number, number]>): Buffer {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"isolated 1mm JMA rain proof\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"counts verified 1mm rain, excludes sub-1mm, and preserves unknown\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(scanJmaTileAtLeast1mm(tile)).toEqual({",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"does not skip odd-position rain pixels\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(scanJmaTileAtLeast1mm(tile).rainPixels).toBe(1);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"1mm geographic pixel locator\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"keeps each rainy pixel and yields bounded geographic coordinates\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(points.map(p => [p.pixelX, p.pixelY])).toEqual([[1, 1], [255, 255]]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(points.every(p => Number.isFinite(p.latitude) && Number.isFinite(p.longitude))).toBe(true);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"fails closed on unknown colors\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function scanJmaTileAtLeast1mm(buffer: Buffer): LightRainScanResult {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (classified.intensityClass && AT_LEAST_1.has(classified.intensityClass)) result.rainPixels++;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "else if (classified.intensityClass === \"LT_1\") result.belowOnePixels++;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "else if (classified.status === \"UNKNOWN_PIXEL\") result.unknownPixels++;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function locateJmaRainPixelsAtLeast1mm(buffer: Buffer, zoom: number, tileX: number, tileY: number): Array<{ pixelX: number; pixelY: number; longitude: number; latitude: number }> {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (png.width !== 256 || png.height !== 256) throw new Error(\"Unexpected JMA tile dimensions\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (result.status === \"UNKNOWN_PIXEL\") throw new Error(\"Unrecognized JMA pixel\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainProof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!result.intensityClass || !AT_LEAST_1.has(result.intensityClass)) continue;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.ts"
+    },
+    {
+      "file": "scripts/light-rain-official-n03-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!path) throw new Error(\"Usage: npx tsx scripts/light-rain-official-n03-proof.ts <N03-20260101_13.geojson>\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/scripts/light-rain-official-n03-proof.ts"
+    },
+    {
+      "file": "scripts/light-rain-official-n03-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!ota) throw new Error(\"Official N03 Tokyo does not include Ota City / 13111\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/scripts/light-rain-official-n03-proof.ts"
+    },
+    {
+      "file": "scripts/light-rain-official-n03-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!vertices.length) throw new Error(\"Ota City has no outer ring\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/scripts/light-rain-official-n03-proof.ts"
+    },
+    {
+      "file": "scripts/light-rain-official-n03-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!matches.some(m => m.code === \"13111\")) throw new Error(\"Synthetic 1mm pixel did not intersect real Ota geometry\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/scripts/light-rain-official-n03-proof.ts"
+    },
+    {
+      "file": "scripts/national-light-rain-jma-proof.ts",
+      "kind": "関数・クラス定義",
+      "expression": "async function main() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/scripts/national-light-rain-jma-proof.ts"
+    },
+    {
+      "file": "scripts/national-light-rain-jma-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!frames.length) throw new Error(\"No fresh forecast frames: cannot claim real-data success\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/scripts/national-light-rain-jma-proof.ts"
+    },
+    {
+      "file": "scripts/national-light-rain-jma-proof.ts",
+      "kind": "HTTP要求",
+      "expression": "const response = await fetch(url, { cache: \"no-store\" });",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/scripts/national-light-rain-jma-proof.ts"
+    },
+    {
+      "file": "scripts/national-light-rain-jma-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!response.ok) throw new Error(`JMA tile unavailable: ${response.status} z4/${x}/${y} ${frame.validtime}`);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/scripts/national-light-rain-jma-proof.ts"
+    },
+    {
+      "file": "scripts/national-light-rain-jma-proof.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const scan = scanJmaTileAtLeast1mm(Buffer.from(await response.arrayBuffer()));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/scripts/national-light-rain-jma-proof.ts"
+    },
+    {
+      "file": "scripts/national-light-rain-jma-proof.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (scan.unknownPixels) throw new Error(`Unrecognized JMA pixels: ${scan.unknownPixels} z4/${x}/${y} ${frame.validtime}`);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/scripts/national-light-rain-jma-proof.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/jma-light-rain-proof.yml",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 0,
+      "patch": "diff --git a/.github/workflows/jma-light-rain-proof.yml b/.github/workflows/jma-light-rain-proof.yml\nnew file mode 100644\nindex 00000000..a01cc80c\n--- /dev/null\n+++ b/.github/workflows/jma-light-rain-proof.yml\n@@ -0,0 +1,22 @@\n+name: JMA 1mm rain read-only proof (manual)\n+\n+on:\n+  workflow_dispatch:\n+\n+permissions:\n+  contents: read\n+\n+jobs:\n+  live-jma-proof:\n+    runs-on: ubuntu-latest\n+    timeout-minutes: 8\n+    steps:\n+      - uses: actions/checkout@v4\n+      - uses: actions/setup-node@v4\n+        with:\n+          node-version: '22'\n+      - run: npm ci\n+      - name: Scan six real JMA frames (read only; no publish)\n+        env:\n+          RUN_JMA_LIGHT_RAIN_LIVE: '1'\n+        run: npm test -- lib/weather/rain/lightRainProof.live.test.ts\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/.github/workflows/jma-light-rain-proof.yml",
+      "source": {
+        "path": ".github/workflows/jma-light-rain-proof.yml",
+        "coverage": "全文",
+        "text": "name: JMA 1mm rain read-only proof (manual)\n\non:\n  workflow_dispatch:\n\npermissions:\n  contents: read\n\njobs:\n  live-jma-proof:\n    runs-on: ubuntu-latest\n    timeout-minutes: 8\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: '22'\n      - run: npm ci\n      - name: Scan six real JMA frames (read only; no publish)\n        env:\n          RUN_JMA_LIGHT_RAIN_LIVE: '1'\n        run: npm test -- lib/weather/rain/lightRainProof.live.test.ts\n",
+        "sha256": "c3fb41ee725e5b82d9b954959cbe34105333ae06ef467ab5bc97265ca0e1dbda"
+      }
+    },
+    {
+      "path": ".github/workflows/light-rain-official-n03-proof.yml",
+      "status": "modified",
+      "additions": 34,
+      "deletions": 0,
+      "patch": "diff --git a/.github/workflows/light-rain-official-n03-proof.yml b/.github/workflows/light-rain-official-n03-proof.yml\nnew file mode 100644\nindex 00000000..665d44da\n--- /dev/null\n+++ b/.github/workflows/light-rain-official-n03-proof.yml\n@@ -0,0 +1,34 @@\n+name: Official N03 light rain proof (read-only)\n+\n+on:\n+  pull_request:\n+    paths:\n+      - \".github/workflows/light-rain-official-n03-proof.yml\"\n+      - \"scripts/light-rain-official-n03-proof.ts\"\n+      - \"lib/weather/rain/lightRainOfficialN03.ts\"\n+      - \"lib/weather/rain/lightRainMunicipalities.ts\"\n+      - \"lib/weather/rain/lightRainAdministrativeAreas.ts\"\n+  workflow_dispatch:\n+\n+permissions:\n+  contents: read\n+\n+jobs:\n+  official-n03:\n+    runs-on: ubuntu-latest\n+    timeout-minutes: 20\n+    steps:\n+      - uses: actions/checkout@v4\n+      - uses: actions/setup-node@v4\n+        with:\n+          node-version: 22\n+      - run: npm install\n+      - name: Download official Tokyo 2026 N03 (read-only)\n+        run: |\n+          set -euo pipefail\n+          curl --fail --location --retry 3 --connect-timeout 20 --max-time 240 \"https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-2026/N03-20260101_13_GML.zip\" -o /tmp/n03-tokyo.zip\n+          mkdir -p /tmp/n03-tokyo\n+          unzip -q /tmp/n03-tokyo.zip -d /tmp/n03-tokyo\n+          test -s /tmp/n03-tokyo/N03-20260101_13.geojson\n+      - name: Match synthetic 1mm pixel with official Ota N03 geometry\n+        run: npx tsx scripts/light-rain-official-n03-proof.ts /tmp/n03-tokyo/N03-20260101_13.geojson\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/.github/workflows/light-rain-official-n03-proof.yml",
+      "source": {
+        "path": ".github/workflows/light-rain-official-n03-proof.yml",
+        "coverage": "全文",
+        "text": "name: Official N03 light rain proof (read-only)\n\non:\n  pull_request:\n    paths:\n      - \".github/workflows/light-rain-official-n03-proof.yml\"\n      - \"scripts/light-rain-official-n03-proof.ts\"\n      - \"lib/weather/rain/lightRainOfficialN03.ts\"\n      - \"lib/weather/rain/lightRainMunicipalities.ts\"\n      - \"lib/weather/rain/lightRainAdministrativeAreas.ts\"\n  workflow_dispatch:\n\npermissions:\n  contents: read\n\njobs:\n  official-n03:\n    runs-on: ubuntu-latest\n    timeout-minutes: 20\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 22\n      - run: npm install\n      - name: Download official Tokyo 2026 N03 (read-only)\n        run: |\n          set -euo pipefail\n          curl --fail --location --retry 3 --connect-timeout 20 --max-time 240 \"https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-2026/N03-20260101_13_GML.zip\" -o /tmp/n03-tokyo.zip\n          mkdir -p /tmp/n03-tokyo\n          unzip -q /tmp/n03-tokyo.zip -d /tmp/n03-tokyo\n          test -s /tmp/n03-tokyo/N03-20260101_13.geojson\n      - name: Match synthetic 1mm pixel with official Ota N03 geometry\n        run: npx tsx scripts/light-rain-official-n03-proof.ts /tmp/n03-tokyo/N03-20260101_13.geojson\n",
+        "sha256": "e0ff28f75c7b56e7edbb973dd7400ade63579c318b0c5aaa217fe18554eec65b"
+      }
+    },
+    {
+      "path": "lib/weather/rain/lightRainAdministrativeAreas.ts",
+      "status": "modified",
+      "additions": 138,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/lightRainAdministrativeAreas.ts b/lib/weather/rain/lightRainAdministrativeAreas.ts\nnew file mode 100644\nindex 00000000..5108c0d2\n--- /dev/null\n+++ b/lib/weather/rain/lightRainAdministrativeAreas.ts\n@@ -0,0 +1,138 @@\n+/** Reused from nationwide rain proof PR #59; isolated geometry matcher. */\n+export type HeavyRainPolygon = { coordinates: number[][][] };\n+\n+export interface AdministrativeArea {\n+  code: string;\n+  prefecture: string;\n+  municipality: string;\n+  geometry: {\n+    type: \"Polygon\" | \"MultiPolygon\";\n+    coordinates: number[][][] | number[][][][];\n+  };\n+}\n+\n+type Position = [number, number];\n+type Bounds = [west: number, south: number, east: number, north: number];\n+\n+function polygonBounds(polygon: number[][][]): Bounds {\n+  let west = Infinity, south = Infinity, east = -Infinity, north = -Infinity;\n+  for (const ring of polygon) for (const [x, y] of ring) {\n+    west = Math.min(west, x); south = Math.min(south, y);\n+    east = Math.max(east, x); north = Math.max(north, y);\n+  }\n+  return [west, south, east, north];\n+}\n+\n+function boundsIntersect(a: Bounds, b: Bounds) {\n+  return a[0] <= b[2] && a[2] >= b[0] && a[1] <= b[3] && a[3] >= b[1];\n+}\n+\n+function pointInRing([x, y]: Position, ring: number[][]) {\n+  let inside = false;\n+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {\n+    const [xi, yi] = ring[i];\n+    const [xj, yj] = ring[j];\n+    const crosses = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;\n+    if (crosses) inside = !inside;\n+  }\n+  return inside;\n+}\n+\n+function pointInPolygon(point: Position, polygon: number[][][]) {\n+  if (!polygon[0] || !pointInRing(point, polygon[0])) return false;\n+  return !polygon.slice(1).some((hole) => pointInRing(point, hole));\n+}\n+\n+const EPSILON = 1e-12;\n+\n+function cross(a: Position, b: Position, c: Position) {\n+  return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);\n+}\n+\n+function onSegment(a: Position, b: Position, p: Position) {\n+  if (Math.abs(cross(a, b, p)) > EPSILON) return false;\n+  return p[0] >= Math.min(a[0], b[0]) - EPSILON &&\n+    p[0] <= Math.max(a[0], b[0]) + EPSILON &&\n+    p[1] >= Math.min(a[1], b[1]) - EPSILON &&\n+    p[1] <= Math.max(a[1], b[1]) + EPSILON;\n+}\n+\n+function segmentsIntersect(a: Position, b: Position, c: Position, d: Position) {\n+  const abC = cross(a, b, c);\n+  const abD = cross(a, b, d);\n+  const cdA = cross(c, d, a);\n+  const cdB = cross(c, d, b);\n+\n+  if (Math.abs(abC) <= EPSILON && onSegment(a, b, c)) return true;\n+  if (Math.abs(abD) <= EPSILON && onSegment(a, b, d)) return true;\n+  if (Math.abs(cdA) <= EPSILON && onSegment(c, d, a)) return true;\n+  if (Math.abs(cdB) <= EPSILON && onSegment(c, d, b)) return true;\n+\n+  return (abC > EPSILON) !== (abD > EPSILON) &&\n+    (cdA > EPSILON) !== (cdB > EPSILON);\n+}\n+\n+function ringsIntersect(a: number[][], b: number[][]) {\n+  for (let i = 1; i < a.length; i++) {\n+    for (let j = 1; j < b.length; j++) {\n+      if (segmentsIntersect(a[i - 1] as Position, a[i] as Position, b[j - 1] as Position, b[j] as Position)) return true;\n+    }\n+  }\n+  return false;\n+}\n+\n+function polygonsIntersect(a: number[][][], b: number[][][]) {\n+  const ar = a[0], br = b[0];\n+  if (!ar || !br) return false;\n+  return ringsIntersect(ar, br) ||\n+    pointInPolygon(ar[0] as Position, b) ||\n+    pointInPolygon(br[0] as Position, a);\n+}\n+\n+export function rainPolygonIntersectsAdministrativeArea(rain: HeavyRainPolygon, area: AdministrativeArea) {\n+  const rainPolygon = rain.coordinates;\n+  const areaPolygons = area.geometry.type === \"Polygon\"\n+    ? [area.geometry.coordinates as number[][][]]\n+    : area.geometry.coordinates as number[][][][];\n+  const rainBounds = polygonBounds(rainPolygon);\n+  return areaPolygons.some((polygon) =>\n+    boundsIntersect(rainBounds, polygonBounds(polygon)) && polygonsIntersect(rainPolygon, polygon),\n+  );\n+}\n+\n+export function affectedAdministrativeAreas(rainPolygons: HeavyRainPolygon[], areas: AdministrativeArea[]) {\n+  const rainWithBounds = rainPolygons.map((rain) => ({\n+    rain,\n+    bounds: polygonBounds(rain.coordinates),\n+  }));\n+  const areasWithBounds = areas.map((area) => {\n+    const polygons = area.geometry.type === \"Polygon\"\n+      ? [area.geometry.coordinates as number[][][]]\n+      : area.geometry.coordinates as number[][][][];\n+    const prepared = polygons.map((polygon) => ({\n+      polygon,\n+      bounds: polygonBounds(polygon),\n+    }));\n+    return {\n+      area,\n+      polygons: prepared,\n+      west: Math.min(...prepared.map(({ bounds }) => bounds[0])),\n+      south: Math.min(...prepared.map(({ bounds }) => bounds[1])),\n+      east: Math.max(...prepared.map(({ bounds }) => bounds[2])),\n+      north: Math.max(...prepared.map(({ bounds }) => bounds[3])),\n+    };\n+  });\n+\n+  return areasWithBounds\n+    .filter(({ polygons, west, south, east, north }) =>\n+      rainWithBounds.some(({ rain, bounds: rainBounds }) => {\n+        if (west > rainBounds[2] || east < rainBounds[0] ||\n+            south > rainBounds[3] || north < rainBounds[1]) return false;\n+        return polygons.some(({ polygon, bounds: areaBounds }) =>\n+          boundsIntersect(rainBounds, areaBounds) &&\n+          polygonsIntersect(rain.coordinates, polygon),\n+        );\n+      }),\n+    )\n+    .map(({ area }) => area);\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainAdministrativeAreas.ts",
+      "source": {
+        "path": "lib/weather/rain/lightRainAdministrativeAreas.ts",
+        "coverage": "全文",
+        "text": "/** Reused from nationwide rain proof PR #59; isolated geometry matcher. */\nexport type HeavyRainPolygon = { coordinates: number[][][] };\n\nexport interface AdministrativeArea {\n  code: string;\n  prefecture: string;\n  municipality: string;\n  geometry: {\n    type: \"Polygon\" | \"MultiPolygon\";\n    coordinates: number[][][] | number[][][][];\n  };\n}\n\ntype Position = [number, number];\ntype Bounds = [west: number, south: number, east: number, north: number];\n\nfunction polygonBounds(polygon: number[][][]): Bounds {\n  let west = Infinity, south = Infinity, east = -Infinity, north = -Infinity;\n  for (const ring of polygon) for (const [x, y] of ring) {\n    west = Math.min(west, x); south = Math.min(south, y);\n    east = Math.max(east, x); north = Math.max(north, y);\n  }\n  return [west, south, east, north];\n}\n\nfunction boundsIntersect(a: Bounds, b: Bounds) {\n  return a[0] <= b[2] && a[2] >= b[0] && a[1] <= b[3] && a[3] >= b[1];\n}\n\nfunction pointInRing([x, y]: Position, ring: number[][]) {\n  let inside = false;\n  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {\n    const [xi, yi] = ring[i];\n    const [xj, yj] = ring[j];\n    const crosses = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;\n    if (crosses) inside = !inside;\n  }\n  return inside;\n}\n\nfunction pointInPolygon(point: Position, polygon: number[][][]) {\n  if (!polygon[0] || !pointInRing(point, polygon[0])) return false;\n  return !polygon.slice(1).some((hole) => pointInRing(point, hole));\n}\n\nconst EPSILON = 1e-12;\n\nfunction cross(a: Position, b: Position, c: Position) {\n  return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);\n}\n\nfunction onSegment(a: Position, b: Position, p: Position) {\n  if (Math.abs(cross(a, b, p)) > EPSILON) return false;\n  return p[0] >= Math.min(a[0], b[0]) - EPSILON &&\n    p[0] <= Math.max(a[0], b[0]) + EPSILON &&\n    p[1] >= Math.min(a[1], b[1]) - EPSILON &&\n    p[1] <= Math.max(a[1], b[1]) + EPSILON;\n}\n\nfunction segmentsIntersect(a: Position, b: Position, c: Position, d: Position) {\n  const abC = cross(a, b, c);\n  const abD = cross(a, b, d);\n  const cdA = cross(c, d, a);\n  const cdB = cross(c, d, b);\n\n  if (Math.abs(abC) <= EPSILON && onSegment(a, b, c)) return true;\n  if (Math.abs(abD) <= EPSILON && onSegment(a, b, d)) return true;\n  if (Math.abs(cdA) <= EPSILON && onSegment(c, d, a)) return true;\n  if (Math.abs(cdB) <= EPSILON && onSegment(c, d, b)) return true;\n\n  return (abC > EPSILON) !== (abD > EPSILON) &&\n    (cdA > EPSILON) !== (cdB > EPSILON);\n}\n\nfunction ringsIntersect(a: number[][], b: number[][]) {\n  for (let i = 1; i < a.length; i++) {\n    for (let j = 1; j < b.length; j++) {\n      if (segmentsIntersect(a[i - 1] as Position, a[i] as Position, b[j - 1] as Position, b[j] as Position)) return true;\n    }\n  }\n  return false;\n}\n\nfunction polygonsIntersect(a: number[][][], b: number[][][]) {\n  const ar = a[0], br = b[0];\n  if (!ar || !br) return false;\n  return ringsIntersect(ar, br) ||\n    pointInPolygon(ar[0] as Position, b) ||\n    pointInPolygon(br[0] as Position, a);\n}\n\nexport function rainPolygonIntersectsAdministrativeArea(rain: HeavyRainPolygon, area: AdministrativeArea) {\n  const rainPolygon = rain.coordinates;\n  const areaPolygons = area.geometry.type === \"Polygon\"\n    ? [area.geometry.coordinates as number[][][]]\n    : area.geometry.coordinates as number[][][][];\n  const rainBounds = polygonBounds(rainPolygon);\n  return areaPolygons.some((polygon) =>\n    boundsIntersect(rainBounds, polygonBounds(polygon)) && polygonsIntersect(rainPolygon, polygon),\n  );\n}\n\nexport function affectedAdministrativeAreas(rainPolygons: HeavyRainPolygon[], areas: AdministrativeArea[]) {\n  const rainWithBounds = rainPolygons.map((rain) => ({\n    rain,\n    bounds: polygonBounds(rain.coordinates),\n  }));\n  const areasWithBounds = areas.map((area) => {\n    const polygons = area.geometry.type === \"Polygon\"\n      ? [area.geometry.coordinates as number[][][]]\n      : area.geometry.coordinates as number[][][][];\n    const prepared = polygons.map((polygon) => ({\n      polygon,\n      bounds: polygonBounds(polygon),\n    }));\n    return {\n      area,\n      polygons: prepared,\n      west: Math.min(...prepared.map(({ bounds }) => bounds[0])),\n      south: Math.min(...prepared.map(({ bounds }) => bounds[1])),\n      east: Math.max(...prepared.map(({ bounds }) => bounds[2])),\n      north: Math.max(...prepared.map(({ bounds }) => bounds[3])),\n    };\n  });\n\n  return areasWithBounds\n    .filter(({ polygons, west, south, east, north }) =>\n      rainWithBounds.some(({ rain, bounds: rainBounds }) => {\n        if (west > rainBounds[2] || east < rainBounds[0] ||\n            south > rainBounds[3] || north < rainBounds[1]) return false;\n        return polygons.some(({ polygon, bounds: areaBounds }) =>\n          boundsIntersect(rainBounds, areaBounds) &&\n          polygonsIntersect(rain.coordinates, polygon),\n        );\n      }),\n    )\n    .map(({ area }) => area);\n}\n",
+        "sha256": "5936f875fd77749b03dd42d528910a12743dd0b42e16f12af901705ed850e2ae"
+      }
+    },
+    {
+      "path": "lib/weather/rain/lightRainMunicipalities.test.ts",
+      "status": "modified",
+      "additions": 37,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/lightRainMunicipalities.test.ts b/lib/weather/rain/lightRainMunicipalities.test.ts\nnew file mode 100644\nindex 00000000..727d343e\n--- /dev/null\n+++ b/lib/weather/rain/lightRainMunicipalities.test.ts\n@@ -0,0 +1,37 @@\n+import { describe, expect, it } from \"vitest\";\n+import { PNG } from \"pngjs\";\n+import { municipalitiesForLightRainTile } from \"./lightRainMunicipalities\";\n+import type { AdministrativeArea } from \"./lightRainAdministrativeAreas\";\n+\n+describe(\"isolated 1mm N03 municipality intersection\", () => {\n+  it(\"includes a municipality touched by a rainy pixel edge, not only its center\", () => {\n+    const tile = new PNG({ width: 256, height: 256 });\n+    tile.data.fill(0);\n+    tile.data.set([160, 210, 255, 255], 0);\n+    // z4 tile (14,6), first pixel spans longitudes 135..135.087890625.\n+    // Thin N03 polygon near western pixel edge, away from its center.\n+    const area: AdministrativeArea = {\n+      code: \"test-1\", prefecture: \"検証県\", municipality: \"境界市\",\n+      geometry: { type: \"Polygon\", coordinates: [[\n+        [135.001, 44.99], [135.005, 44.99], [135.005, 45.0],\n+        [135.001, 45.0], [135.001, 44.99],\n+      ]] },\n+    };\n+    // Use a synthetic polygon centered inside the first pixel's real latitude bounds.\n+    const lat = (y: number) => Math.atan(Math.sinh(Math.PI - 2 * Math.PI * y / 4096)) * 180 / Math.PI;\n+    const north = lat(6 * 256), south = lat(6 * 256 + 1);\n+    area.geometry.coordinates = [[\n+      [135.001, south + 0.001], [135.005, south + 0.001],\n+      [135.005, north - 0.001], [135.001, north - 0.001],\n+      [135.001, south + 0.001],\n+    ]];\n+    expect(municipalitiesForLightRainTile(PNG.sync.write(tile), 4, 14, 6, [area]))\n+      .toEqual([{ code: \"test-1\", prefecture: \"検証県\", municipality: \"境界市\" }]);\n+  });\n+  it(\"returns no municipalities when no rain pixels exist\", () => {\n+    const tile = new PNG({ width: 256, height: 256 });\n+    tile.data.fill(0);\n+    expect(municipalitiesForLightRainTile(PNG.sync.write(tile), 4, 14, 6, []))\n+      .toEqual([]);\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainMunicipalities.test.ts",
+      "source": {
+        "path": "lib/weather/rain/lightRainMunicipalities.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { PNG } from \"pngjs\";\nimport { municipalitiesForLightRainTile } from \"./lightRainMunicipalities\";\nimport type { AdministrativeArea } from \"./lightRainAdministrativeAreas\";\n\ndescribe(\"isolated 1mm N03 municipality intersection\", () => {\n  it(\"includes a municipality touched by a rainy pixel edge, not only its center\", () => {\n    const tile = new PNG({ width: 256, height: 256 });\n    tile.data.fill(0);\n    tile.data.set([160, 210, 255, 255], 0);\n    // z4 tile (14,6), first pixel spans longitudes 135..135.087890625.\n    // Thin N03 polygon near western pixel edge, away from its center.\n    const area: AdministrativeArea = {\n      code: \"test-1\", prefecture: \"検証県\", municipality: \"境界市\",\n      geometry: { type: \"Polygon\", coordinates: [[\n        [135.001, 44.99], [135.005, 44.99], [135.005, 45.0],\n        [135.001, 45.0], [135.001, 44.99],\n      ]] },\n    };\n    // Use a synthetic polygon centered inside the first pixel's real latitude bounds.\n    const lat = (y: number) => Math.atan(Math.sinh(Math.PI - 2 * Math.PI * y / 4096)) * 180 / Math.PI;\n    const north = lat(6 * 256), south = lat(6 * 256 + 1);\n    area.geometry.coordinates = [[\n      [135.001, south + 0.001], [135.005, south + 0.001],\n      [135.005, north - 0.001], [135.001, north - 0.001],\n      [135.001, south + 0.001],\n    ]];\n    expect(municipalitiesForLightRainTile(PNG.sync.write(tile), 4, 14, 6, [area]))\n      .toEqual([{ code: \"test-1\", prefecture: \"検証県\", municipality: \"境界市\" }]);\n  });\n  it(\"returns no municipalities when no rain pixels exist\", () => {\n    const tile = new PNG({ width: 256, height: 256 });\n    tile.data.fill(0);\n    expect(municipalitiesForLightRainTile(PNG.sync.write(tile), 4, 14, 6, []))\n      .toEqual([]);\n  });\n});\n",
+        "sha256": "c1e794498fe7c292755f3ee4f16ef3221b4734a64bdd4c630d74a6ce84b5a9f0"
+      }
+    },
+    {
+      "path": "lib/weather/rain/lightRainMunicipalities.ts",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/lightRainMunicipalities.ts b/lib/weather/rain/lightRainMunicipalities.ts\nnew file mode 100644\nindex 00000000..b62ed7b7\n--- /dev/null\n+++ b/lib/weather/rain/lightRainMunicipalities.ts\n@@ -0,0 +1,19 @@\n+import { affectedAdministrativeAreas, type AdministrativeArea, type HeavyRainPolygon } from \"./lightRainAdministrativeAreas\";\n+import { locateJmaRainPixelsAtLeast1mm } from \"./lightRainProof\";\n+\n+/** Proof-only N03 municipality intersection, preserving each rainy pixel's full footprint. */\n+export function municipalitiesForLightRainTile(\n+  tile: Buffer, zoom: number, tileX: number, tileY: number, areas: AdministrativeArea[],\n+): Array<Pick<AdministrativeArea, \"code\" | \"prefecture\" | \"municipality\">> {\n+  const pixels = locateJmaRainPixelsAtLeast1mm(tile, zoom, tileX, tileY);\n+  const size = 256 * 2 ** zoom;\n+  const longitude = (x: number) => x / size * 360 - 180;\n+  const latitude = (y: number) => Math.atan(Math.sinh(Math.PI - 2 * Math.PI * y / size)) * 180 / Math.PI;\n+  const footprint: HeavyRainPolygon[] = pixels.map(({ pixelX, pixelY }) => {\n+    const x = tileX * 256 + pixelX, y = tileY * 256 + pixelY;\n+    const w = longitude(x), e = longitude(x + 1), n = latitude(y), s = latitude(y + 1);\n+    return { coordinates: [[[w, n], [e, n], [e, s], [w, s], [w, n]]] };\n+  });\n+  return affectedAdministrativeAreas(footprint, areas)\n+    .map(({ code, prefecture, municipality }) => ({ code, prefecture, municipality }));\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainMunicipalities.ts",
+      "source": {
+        "path": "lib/weather/rain/lightRainMunicipalities.ts",
+        "coverage": "全文",
+        "text": "import { affectedAdministrativeAreas, type AdministrativeArea, type HeavyRainPolygon } from \"./lightRainAdministrativeAreas\";\nimport { locateJmaRainPixelsAtLeast1mm } from \"./lightRainProof\";\n\n/** Proof-only N03 municipality intersection, preserving each rainy pixel's full footprint. */\nexport function municipalitiesForLightRainTile(\n  tile: Buffer, zoom: number, tileX: number, tileY: number, areas: AdministrativeArea[],\n): Array<Pick<AdministrativeArea, \"code\" | \"prefecture\" | \"municipality\">> {\n  const pixels = locateJmaRainPixelsAtLeast1mm(tile, zoom, tileX, tileY);\n  const size = 256 * 2 ** zoom;\n  const longitude = (x: number) => x / size * 360 - 180;\n  const latitude = (y: number) => Math.atan(Math.sinh(Math.PI - 2 * Math.PI * y / size)) * 180 / Math.PI;\n  const footprint: HeavyRainPolygon[] = pixels.map(({ pixelX, pixelY }) => {\n    const x = tileX * 256 + pixelX, y = tileY * 256 + pixelY;\n    const w = longitude(x), e = longitude(x + 1), n = latitude(y), s = latitude(y + 1);\n    return { coordinates: [[[w, n], [e, n], [e, s], [w, s], [w, n]]] };\n  });\n  return affectedAdministrativeAreas(footprint, areas)\n    .map(({ code, prefecture, municipality }) => ({ code, prefecture, municipality }));\n}\n",
+        "sha256": "685744197d2d04a2b52d150397ef653ab5a071c78c2c121ea7758b87db49ccd6"
+      }
+    },
+    {
+      "path": "lib/weather/rain/lightRainN03LocalProof.test.ts",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/lightRainN03LocalProof.test.ts b/lib/weather/rain/lightRainN03LocalProof.test.ts\nnew file mode 100644\nindex 00000000..2910cb97\n--- /dev/null\n+++ b/lib/weather/rain/lightRainN03LocalProof.test.ts\n@@ -0,0 +1,20 @@\n+import { describe, expect, it } from \"vitest\";\n+import { mkdtempSync, writeFileSync, rmSync } from \"node:fs\";\n+import { tmpdir } from \"node:os\";\n+import { join } from \"node:path\";\n+import { loadPreparedN03ForProof } from \"./lightRainN03LocalProof\";\n+\n+describe(\"read-only prepared N03 adapter\", () => {\n+  it(\"validates municipality code and polygon data without storage access\", () => {\n+    const dir = mkdtempSync(join(tmpdir(), \"n03-light-proof-\"));\n+    const path = join(dir, \"13.areas.json\");\n+    try {\n+      writeFileSync(path, JSON.stringify([{\n+        code: \"13101\", prefecture: \"東京都\", municipality: \"千代田区\",\n+        geometry: { type: \"Polygon\", coordinates: [[[139.7,35.6],[139.8,35.6],[139.8,35.7],[139.7,35.7],[139.7,35.6]]] },\n+      }]));\n+      expect(loadPreparedN03ForProof(path, \"13\").map(a => a.municipality)).toEqual([\"千代田区\"]);\n+      expect(() => loadPreparedN03ForProof(path, \"14\")).toThrow(\"Invalid N03 municipality\");\n+    } finally { rmSync(dir, { recursive: true, force: true }); }\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.test.ts",
+      "source": {
+        "path": "lib/weather/rain/lightRainN03LocalProof.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { mkdtempSync, writeFileSync, rmSync } from \"node:fs\";\nimport { tmpdir } from \"node:os\";\nimport { join } from \"node:path\";\nimport { loadPreparedN03ForProof } from \"./lightRainN03LocalProof\";\n\ndescribe(\"read-only prepared N03 adapter\", () => {\n  it(\"validates municipality code and polygon data without storage access\", () => {\n    const dir = mkdtempSync(join(tmpdir(), \"n03-light-proof-\"));\n    const path = join(dir, \"13.areas.json\");\n    try {\n      writeFileSync(path, JSON.stringify([{\n        code: \"13101\", prefecture: \"東京都\", municipality: \"千代田区\",\n        geometry: { type: \"Polygon\", coordinates: [[[139.7,35.6],[139.8,35.6],[139.8,35.7],[139.7,35.7],[139.7,35.6]]] },\n      }]));\n      expect(loadPreparedN03ForProof(path, \"13\").map(a => a.municipality)).toEqual([\"千代田区\"]);\n      expect(() => loadPreparedN03ForProof(path, \"14\")).toThrow(\"Invalid N03 municipality\");\n    } finally { rmSync(dir, { recursive: true, force: true }); }\n  });\n});\n",
+        "sha256": "6d6e8d0c89d3d41b949cdd83069a7c63edc82dd1be7686ca448c53f42c429636"
+      }
+    },
+    {
+      "path": "lib/weather/rain/lightRainN03LocalProof.ts",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/lightRainN03LocalProof.ts b/lib/weather/rain/lightRainN03LocalProof.ts\nnew file mode 100644\nindex 00000000..ae7c4fb2\n--- /dev/null\n+++ b/lib/weather/rain/lightRainN03LocalProof.ts\n@@ -0,0 +1,32 @@\n+import { readFileSync } from \"node:fs\";\n+import type { AdministrativeArea } from \"./lightRainAdministrativeAreas\";\n+import { municipalitiesForLightRainTile } from \"./lightRainMunicipalities\";\n+\n+/** Offline/read-only proof using prepared N03 .areas.json from PR #59.\n+ * Never downloads production Storage data or writes to it.\n+ */\n+export function loadPreparedN03ForProof(path: string, expectedPrefectureCode: string): AdministrativeArea[] {\n+  if (!/^\\d{2}$/.test(expectedPrefectureCode)) throw new Error(\"Invalid prefecture code\");\n+  const parsed: unknown = JSON.parse(readFileSync(path, \"utf8\"));\n+  if (!Array.isArray(parsed) || parsed.length === 0) throw new Error(\"Missing N03 municipality data\");\n+  const areas: AdministrativeArea[] = parsed.map((item: unknown) => {\n+    if (!item || typeof item !== \"object\") throw new Error(\"Invalid N03 entry\");\n+    const a = item as Partial<AdministrativeArea>;\n+    if (typeof a.code !== \"string\" || !/^\\d{5}$/.test(a.code) ||\n+      !a.code.startsWith(expectedPrefectureCode) ||\n+      typeof a.prefecture !== \"string\" || !a.prefecture ||\n+      typeof a.municipality !== \"string\" || !a.municipality ||\n+      !a.geometry || ![\"Polygon\", \"MultiPolygon\"].includes(a.geometry.type) ||\n+      !Array.isArray(a.geometry.coordinates)) throw new Error(\"Invalid N03 municipality identity/geometry\");\n+    return a as AdministrativeArea;\n+  });\n+  if (new Set(areas.map(a => a.code)).size !== areas.length) throw new Error(\"Duplicate N03 municipality code\");\n+  return areas;\n+}\n+\n+export function proveLightRainMunicipalitiesFromLocalN03(\n+  tile: Buffer, zoom: number, tileX: number, tileY: number, n03Path: string, prefectureCode: string,\n+) {\n+  return municipalitiesForLightRainTile(tile, zoom, tileX, tileY,\n+    loadPreparedN03ForProof(n03Path, prefectureCode));\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.ts",
+      "source": {
+        "path": "lib/weather/rain/lightRainN03LocalProof.ts",
+        "coverage": "全文",
+        "text": "import { readFileSync } from \"node:fs\";\nimport type { AdministrativeArea } from \"./lightRainAdministrativeAreas\";\nimport { municipalitiesForLightRainTile } from \"./lightRainMunicipalities\";\n\n/** Offline/read-only proof using prepared N03 .areas.json from PR #59.\n * Never downloads production Storage data or writes to it.\n */\nexport function loadPreparedN03ForProof(path: string, expectedPrefectureCode: string): AdministrativeArea[] {\n  if (!/^\\d{2}$/.test(expectedPrefectureCode)) throw new Error(\"Invalid prefecture code\");\n  const parsed: unknown = JSON.parse(readFileSync(path, \"utf8\"));\n  if (!Array.isArray(parsed) || parsed.length === 0) throw new Error(\"Missing N03 municipality data\");\n  const areas: AdministrativeArea[] = parsed.map((item: unknown) => {\n    if (!item || typeof item !== \"object\") throw new Error(\"Invalid N03 entry\");\n    const a = item as Partial<AdministrativeArea>;\n    if (typeof a.code !== \"string\" || !/^\\d{5}$/.test(a.code) ||\n      !a.code.startsWith(expectedPrefectureCode) ||\n      typeof a.prefecture !== \"string\" || !a.prefecture ||\n      typeof a.municipality !== \"string\" || !a.municipality ||\n      !a.geometry || ![\"Polygon\", \"MultiPolygon\"].includes(a.geometry.type) ||\n      !Array.isArray(a.geometry.coordinates)) throw new Error(\"Invalid N03 municipality identity/geometry\");\n    return a as AdministrativeArea;\n  });\n  if (new Set(areas.map(a => a.code)).size !== areas.length) throw new Error(\"Duplicate N03 municipality code\");\n  return areas;\n}\n\nexport function proveLightRainMunicipalitiesFromLocalN03(\n  tile: Buffer, zoom: number, tileX: number, tileY: number, n03Path: string, prefectureCode: string,\n) {\n  return municipalitiesForLightRainTile(tile, zoom, tileX, tileY,\n    loadPreparedN03ForProof(n03Path, prefectureCode));\n}\n",
+        "sha256": "b6673bc7db9ec621e4332a4c75f5dddf6a7f5539a3ecc39831cb2d16c00df1e0"
+      }
+    },
+    {
+      "path": "lib/weather/rain/lightRainOfficialN03.test.ts",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/lightRainOfficialN03.test.ts b/lib/weather/rain/lightRainOfficialN03.test.ts\nnew file mode 100644\nindex 00000000..c07ba02b\n--- /dev/null\n+++ b/lib/weather/rain/lightRainOfficialN03.test.ts\n@@ -0,0 +1,25 @@\n+import { describe, expect, it } from \"vitest\";\n+import { PNG } from \"pngjs\";\n+import { parseOfficialN03ForLightRain } from \"./lightRainOfficialN03\";\n+import { municipalitiesForLightRainTile } from \"./lightRainMunicipalities\";\n+\n+describe(\"official N03 GeoJSON conversion to 1mm rain intersection\", () => {\n+  it(\"merges split features for one municipality and resolves rain to its name\", () => {\n+    const geometry = { type: \"Polygon\" as const, coordinates: [[\n+      [135, 0], [136, 0], [136, 1], [135, 1], [135, 0],\n+    ]] };\n+    const areas = parseOfficialN03ForLightRain({ type: \"FeatureCollection\", features: [\n+      { type: \"Feature\", properties: { N03_001: \"検証県\", N03_004: \"検証市\", N03_007: \"99101\" }, geometry },\n+      { type: \"Feature\", properties: { N03_001: \"検証県\", N03_004: \"検証市\", N03_007: \"99101\" }, geometry },\n+    ] });\n+    expect(areas).toHaveLength(1);\n+    expect(areas[0].geometry.type).toBe(\"MultiPolygon\");\n+    const tile = new PNG({ width: 256, height: 256 });\n+    tile.data.fill(0);\n+    // Tile z4 x14 y7 covers 0..~21.9 degrees latitude; pixel 0 at ~21.9,\n+    // so use pixel y=255 near the equator, with matching polygon 0..1 degrees.\n+    tile.data.set([160, 210, 255, 255], (255 * 256) * 4);\n+    expect(municipalitiesForLightRainTile(PNG.sync.write(tile), 4, 14, 7, areas))\n+      .toEqual([{ code: \"99101\", prefecture: \"検証県\", municipality: \"検証市\" }]);\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainOfficialN03.test.ts",
+      "source": {
+        "path": "lib/weather/rain/lightRainOfficialN03.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { PNG } from \"pngjs\";\nimport { parseOfficialN03ForLightRain } from \"./lightRainOfficialN03\";\nimport { municipalitiesForLightRainTile } from \"./lightRainMunicipalities\";\n\ndescribe(\"official N03 GeoJSON conversion to 1mm rain intersection\", () => {\n  it(\"merges split features for one municipality and resolves rain to its name\", () => {\n    const geometry = { type: \"Polygon\" as const, coordinates: [[\n      [135, 0], [136, 0], [136, 1], [135, 1], [135, 0],\n    ]] };\n    const areas = parseOfficialN03ForLightRain({ type: \"FeatureCollection\", features: [\n      { type: \"Feature\", properties: { N03_001: \"検証県\", N03_004: \"検証市\", N03_007: \"99101\" }, geometry },\n      { type: \"Feature\", properties: { N03_001: \"検証県\", N03_004: \"検証市\", N03_007: \"99101\" }, geometry },\n    ] });\n    expect(areas).toHaveLength(1);\n    expect(areas[0].geometry.type).toBe(\"MultiPolygon\");\n    const tile = new PNG({ width: 256, height: 256 });\n    tile.data.fill(0);\n    // Tile z4 x14 y7 covers 0..~21.9 degrees latitude; pixel 0 at ~21.9,\n    // so use pixel y=255 near the equator, with matching polygon 0..1 degrees.\n    tile.data.set([160, 210, 255, 255], (255 * 256) * 4);\n    expect(municipalitiesForLightRainTile(PNG.sync.write(tile), 4, 14, 7, areas))\n      .toEqual([{ code: \"99101\", prefecture: \"検証県\", municipality: \"検証市\" }]);\n  });\n});\n",
+        "sha256": "17a4a517a2ea6867ed1fb663d97b7df611ace299d7db9f6dbe63f91f198afd0b"
+      }
+    },
+    {
+      "path": "lib/weather/rain/lightRainOfficialN03.ts",
+      "status": "modified",
+      "additions": 27,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/lightRainOfficialN03.ts b/lib/weather/rain/lightRainOfficialN03.ts\nnew file mode 100644\nindex 00000000..46a3914f\n--- /dev/null\n+++ b/lib/weather/rain/lightRainOfficialN03.ts\n@@ -0,0 +1,27 @@\n+import type { AdministrativeArea } from \"./lightRainAdministrativeAreas\";\n+\n+type N03Geometry = AdministrativeArea[\"geometry\"];\n+type N03Feature = { type: \"Feature\"; properties?: Record<string, unknown> | null; geometry: N03Geometry | null };\n+export type N03FeatureCollection = { type: \"FeatureCollection\"; features: N03Feature[] };\n+\n+/** Reused PR #59 official N03 feature conversion, isolated from production. */\n+export function parseOfficialN03ForLightRain(collection: N03FeatureCollection): AdministrativeArea[] {\n+  if (collection.type !== \"FeatureCollection\" || !Array.isArray(collection.features)) throw new Error(\"Invalid N03 GeoJSON\");\n+  const merged = new Map<string, AdministrativeArea>();\n+  for (const feature of collection.features) {\n+    if (!feature.geometry || ![\"Polygon\", \"MultiPolygon\"].includes(feature.geometry.type)) continue;\n+    const p = feature.properties ?? {};\n+    const prefecture = typeof p.N03_001 === \"string\" ? p.N03_001.trim() : \"\";\n+    const municipality = typeof p.N03_004 === \"string\" ? p.N03_004.trim() : \"\";\n+    const code = typeof p.N03_007 === \"string\" ? p.N03_007.trim() : \"\";\n+    if (!prefecture || !municipality || !/^\\d{5}$/.test(code)) continue;\n+    const next: AdministrativeArea = { code, prefecture, municipality, geometry: feature.geometry };\n+    const previous = merged.get(code);\n+    if (!previous) { merged.set(code, next); continue; }\n+    if (previous.prefecture !== prefecture || previous.municipality !== municipality) throw new Error(\"Conflicting N03 municipality identity\");\n+    const polygons = (a: AdministrativeArea): number[][][][] =>\n+      a.geometry.type === \"Polygon\" ? [a.geometry.coordinates as number[][][]] : a.geometry.coordinates as number[][][][];\n+    previous.geometry = { type: \"MultiPolygon\", coordinates: [...polygons(previous), ...polygons(next)] };\n+  }\n+  return [...merged.values()];\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainOfficialN03.ts",
+      "source": {
+        "path": "lib/weather/rain/lightRainOfficialN03.ts",
+        "coverage": "全文",
+        "text": "import type { AdministrativeArea } from \"./lightRainAdministrativeAreas\";\n\ntype N03Geometry = AdministrativeArea[\"geometry\"];\ntype N03Feature = { type: \"Feature\"; properties?: Record<string, unknown> | null; geometry: N03Geometry | null };\nexport type N03FeatureCollection = { type: \"FeatureCollection\"; features: N03Feature[] };\n\n/** Reused PR #59 official N03 feature conversion, isolated from production. */\nexport function parseOfficialN03ForLightRain(collection: N03FeatureCollection): AdministrativeArea[] {\n  if (collection.type !== \"FeatureCollection\" || !Array.isArray(collection.features)) throw new Error(\"Invalid N03 GeoJSON\");\n  const merged = new Map<string, AdministrativeArea>();\n  for (const feature of collection.features) {\n    if (!feature.geometry || ![\"Polygon\", \"MultiPolygon\"].includes(feature.geometry.type)) continue;\n    const p = feature.properties ?? {};\n    const prefecture = typeof p.N03_001 === \"string\" ? p.N03_001.trim() : \"\";\n    const municipality = typeof p.N03_004 === \"string\" ? p.N03_004.trim() : \"\";\n    const code = typeof p.N03_007 === \"string\" ? p.N03_007.trim() : \"\";\n    if (!prefecture || !municipality || !/^\\d{5}$/.test(code)) continue;\n    const next: AdministrativeArea = { code, prefecture, municipality, geometry: feature.geometry };\n    const previous = merged.get(code);\n    if (!previous) { merged.set(code, next); continue; }\n    if (previous.prefecture !== prefecture || previous.municipality !== municipality) throw new Error(\"Conflicting N03 municipality identity\");\n    const polygons = (a: AdministrativeArea): number[][][][] =>\n      a.geometry.type === \"Polygon\" ? [a.geometry.coordinates as number[][][]] : a.geometry.coordinates as number[][][][];\n    previous.geometry = { type: \"MultiPolygon\", coordinates: [...polygons(previous), ...polygons(next)] };\n  }\n  return [...merged.values()];\n}\n",
+        "sha256": "67ab8c6c504b4d136f7dc53dc9af350127fd206b96b7656b475f9bf933435542"
+      }
+    },
+    {
+      "path": "lib/weather/rain/lightRainProof.live.test.ts",
+      "status": "modified",
+      "additions": 35,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/lightRainProof.live.test.ts b/lib/weather/rain/lightRainProof.live.test.ts\nnew file mode 100644\nindex 00000000..7fde96f0\n--- /dev/null\n+++ b/lib/weather/rain/lightRainProof.live.test.ts\n@@ -0,0 +1,35 @@\n+import { describe, expect, it } from \"vitest\";\n+import { fetchForecastTargetTimes } from \"../providers/jma/targetTimes\";\n+import { buildJmaRainTileUrl } from \"../providers/jma/tileUrl\";\n+import { scanJmaTileAtLeast1mm } from \"./lightRainProof\";\n+\n+/** Opt-in network proof only. CI and production never contact JMA through this test. */\n+const live = process.env.RUN_JMA_LIGHT_RAIN_LIVE === \"1\";\n+const tiles = [[13, 5], [14, 5], [13, 6], [14, 6], [13, 7], [14, 7]] as const;\n+const toMillis = (value: string) => Date.UTC(\n+  +value.slice(0, 4), +value.slice(4, 6) - 1, +value.slice(6, 8),\n+  +value.slice(8, 10), +value.slice(10, 12),\n+);\n+\n+describe.skipIf(!live)(\"real JMA 1mm/h six-frame read-only proof\", () => {\n+  it(\"scans six fresh five-minute forecasts without skipped or unknown pixels\", async () => {\n+    const now = Date.now();\n+    const frames = (await fetchForecastTargetTimes())\n+      .filter(f => toMillis(f.validtime) > now && toMillis(f.validtime) <= now + 30 * 60_000)\n+      .slice(0, 6);\n+    expect(frames).toHaveLength(6);\n+    const results = [];\n+    for (const frame of frames) {\n+      const perTile = await Promise.all(tiles.map(async ([x, y]) => {\n+        const response = await fetch(buildJmaRainTileUrl(frame, 4, x, y), { cache: \"no-store\" });\n+        expect(response.ok, `missing JMA tile ${frame.validtime} ${x}/${y}`).toBe(true);\n+        const scan = scanJmaTileAtLeast1mm(Buffer.from(await response.arrayBuffer()));\n+        expect(scan.unknownPixels, `unknown JMA colors ${frame.validtime} ${x}/${y}`).toBe(0);\n+        expect(scan.sampledPixels).toBe(256 * 256);\n+        return { x, y, rainPixels: scan.rainPixels };\n+      }));\n+      results.push({ validtime: frame.validtime, perTile });\n+    }\n+    console.info(\"READ_ONLY_JMA_1MM_PROOF\", JSON.stringify({ checkedAt: new Date().toISOString(), results }));\n+  }, 120_000);\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.live.test.ts",
+      "source": {
+        "path": "lib/weather/rain/lightRainProof.live.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { fetchForecastTargetTimes } from \"../providers/jma/targetTimes\";\nimport { buildJmaRainTileUrl } from \"../providers/jma/tileUrl\";\nimport { scanJmaTileAtLeast1mm } from \"./lightRainProof\";\n\n/** Opt-in network proof only. CI and production never contact JMA through this test. */\nconst live = process.env.RUN_JMA_LIGHT_RAIN_LIVE === \"1\";\nconst tiles = [[13, 5], [14, 5], [13, 6], [14, 6], [13, 7], [14, 7]] as const;\nconst toMillis = (value: string) => Date.UTC(\n  +value.slice(0, 4), +value.slice(4, 6) - 1, +value.slice(6, 8),\n  +value.slice(8, 10), +value.slice(10, 12),\n);\n\ndescribe.skipIf(!live)(\"real JMA 1mm/h six-frame read-only proof\", () => {\n  it(\"scans six fresh five-minute forecasts without skipped or unknown pixels\", async () => {\n    const now = Date.now();\n    const frames = (await fetchForecastTargetTimes())\n      .filter(f => toMillis(f.validtime) > now && toMillis(f.validtime) <= now + 30 * 60_000)\n      .slice(0, 6);\n    expect(frames).toHaveLength(6);\n    const results = [];\n    for (const frame of frames) {\n      const perTile = await Promise.all(tiles.map(async ([x, y]) => {\n        const response = await fetch(buildJmaRainTileUrl(frame, 4, x, y), { cache: \"no-store\" });\n        expect(response.ok, `missing JMA tile ${frame.validtime} ${x}/${y}`).toBe(true);\n        const scan = scanJmaTileAtLeast1mm(Buffer.from(await response.arrayBuffer()));\n        expect(scan.unknownPixels, `unknown JMA colors ${frame.validtime} ${x}/${y}`).toBe(0);\n        expect(scan.sampledPixels).toBe(256 * 256);\n        return { x, y, rainPixels: scan.rainPixels };\n      }));\n      results.push({ validtime: frame.validtime, perTile });\n    }\n    console.info(\"READ_ONLY_JMA_1MM_PROOF\", JSON.stringify({ checkedAt: new Date().toISOString(), results }));\n  }, 120_000);\n});\n",
+        "sha256": "d1e3ff44f04b00959fae22d24f1c5e919b7cc17e9953c09dd9abfa9fad694adc"
+      }
+    },
+    {
+      "path": "lib/weather/rain/lightRainProof.test.ts",
+      "status": "modified",
+      "additions": 51,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/lightRainProof.test.ts b/lib/weather/rain/lightRainProof.test.ts\nnew file mode 100644\nindex 00000000..6a64dab8\n--- /dev/null\n+++ b/lib/weather/rain/lightRainProof.test.ts\n@@ -0,0 +1,51 @@\n+import { describe, expect, it } from \"vitest\";\n+import { PNG } from \"pngjs\";\n+import { scanJmaTileAtLeast1mm, locateJmaRainPixelsAtLeast1mm } from \"./lightRainProof\";\n+\n+function pngWithPixels(colors: Array<[number, number, number, number]>): Buffer {\n+  const png = new PNG({ width: colors.length, height: 1 });\n+  colors.forEach((color, index) => color.forEach((channel, offset) => {\n+    png.data[index * 4 + offset] = channel;\n+  }));\n+  return PNG.sync.write(png);\n+}\n+\n+describe(\"isolated 1mm JMA rain proof\", () => {\n+  it(\"counts verified 1mm rain, excludes sub-1mm, and preserves unknown\", () => {\n+    const tile = pngWithPixels([\n+      [160, 210, 255, 255], // verified 1-5mm\n+      [242, 242, 255, 255], // verified below 1mm\n+      [255, 153, 0, 255], // verified 30-50mm\n+      [1, 2, 3, 255], // unrecognized, not dry\n+      [0, 0, 0, 0], // dry\n+    ]);\n+    expect(scanJmaTileAtLeast1mm(tile)).toEqual({\n+      rainPixels: 2, belowOnePixels: 1, unknownPixels: 1, sampledPixels: 5,\n+    });\n+  });\n+  it(\"does not skip odd-position rain pixels\", () => {\n+    const tile = pngWithPixels([[0,0,0,0], [160,210,255,255], [0,0,0,0]]);\n+    expect(scanJmaTileAtLeast1mm(tile).rainPixels).toBe(1);\n+  });\n+});\n+\n+\n+describe(\"1mm geographic pixel locator\", () => {\n+  it(\"keeps each rainy pixel and yields bounded geographic coordinates\", () => {\n+    const tile = new PNG({ width: 256, height: 256 });\n+    tile.data.fill(0);\n+    for (const [x, y] of [[1, 1], [255, 255]]) {\n+      const i = (y * 256 + x) * 4;\n+      tile.data.set([160, 210, 255, 255], i);\n+    }\n+    const points = locateJmaRainPixelsAtLeast1mm(PNG.sync.write(tile), 4, 14, 6);\n+    expect(points.map(p => [p.pixelX, p.pixelY])).toEqual([[1, 1], [255, 255]]);\n+    expect(points.every(p => Number.isFinite(p.latitude) && Number.isFinite(p.longitude))).toBe(true);\n+  });\n+  it(\"fails closed on unknown colors\", () => {\n+    const tile = new PNG({ width: 256, height: 256 });\n+    tile.data.fill(0);\n+    tile.data.set([1, 2, 3, 255], 0);\n+    expect(() => locateJmaRainPixelsAtLeast1mm(PNG.sync.write(tile), 4, 14, 6)).toThrow(\"Unrecognized JMA pixel\");\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts",
+      "source": {
+        "path": "lib/weather/rain/lightRainProof.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { PNG } from \"pngjs\";\nimport { scanJmaTileAtLeast1mm, locateJmaRainPixelsAtLeast1mm } from \"./lightRainProof\";\n\nfunction pngWithPixels(colors: Array<[number, number, number, number]>): Buffer {\n  const png = new PNG({ width: colors.length, height: 1 });\n  colors.forEach((color, index) => color.forEach((channel, offset) => {\n    png.data[index * 4 + offset] = channel;\n  }));\n  return PNG.sync.write(png);\n}\n\ndescribe(\"isolated 1mm JMA rain proof\", () => {\n  it(\"counts verified 1mm rain, excludes sub-1mm, and preserves unknown\", () => {\n    const tile = pngWithPixels([\n      [160, 210, 255, 255], // verified 1-5mm\n      [242, 242, 255, 255], // verified below 1mm\n      [255, 153, 0, 255], // verified 30-50mm\n      [1, 2, 3, 255], // unrecognized, not dry\n      [0, 0, 0, 0], // dry\n    ]);\n    expect(scanJmaTileAtLeast1mm(tile)).toEqual({\n      rainPixels: 2, belowOnePixels: 1, unknownPixels: 1, sampledPixels: 5,\n    });\n  });\n  it(\"does not skip odd-position rain pixels\", () => {\n    const tile = pngWithPixels([[0,0,0,0], [160,210,255,255], [0,0,0,0]]);\n    expect(scanJmaTileAtLeast1mm(tile).rainPixels).toBe(1);\n  });\n});\n\n\ndescribe(\"1mm geographic pixel locator\", () => {\n  it(\"keeps each rainy pixel and yields bounded geographic coordinates\", () => {\n    const tile = new PNG({ width: 256, height: 256 });\n    tile.data.fill(0);\n    for (const [x, y] of [[1, 1], [255, 255]]) {\n      const i = (y * 256 + x) * 4;\n      tile.data.set([160, 210, 255, 255], i);\n    }\n    const points = locateJmaRainPixelsAtLeast1mm(PNG.sync.write(tile), 4, 14, 6);\n    expect(points.map(p => [p.pixelX, p.pixelY])).toEqual([[1, 1], [255, 255]]);\n    expect(points.every(p => Number.isFinite(p.latitude) && Number.isFinite(p.longitude))).toBe(true);\n  });\n  it(\"fails closed on unknown colors\", () => {\n    const tile = new PNG({ width: 256, height: 256 });\n    tile.data.fill(0);\n    tile.data.set([1, 2, 3, 255], 0);\n    expect(() => locateJmaRainPixelsAtLeast1mm(PNG.sync.write(tile), 4, 14, 6)).toThrow(\"Unrecognized JMA pixel\");\n  });\n});\n",
+        "sha256": "6c508550149c789dc171d028365c2ffec7995699644261effb444c1c9489cd1f"
+      }
+    },
+    {
+      "path": "lib/weather/rain/lightRainProof.ts",
+      "status": "modified",
+      "additions": 56,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/lightRainProof.ts b/lib/weather/rain/lightRainProof.ts\nnew file mode 100644\nindex 00000000..db295f42\n--- /dev/null\n+++ b/lib/weather/rain/lightRainProof.ts\n@@ -0,0 +1,56 @@\n+import { PNG } from \"pngjs\";\n+import { classifyRainPixel } from \"../providers/jma/classifyPixel\";\n+import type { RainIntensityClass } from \"../types\";\n+\n+/** Isolated read-only proof: no changes to production >=30mm/h alerts. */\n+const AT_LEAST_1: ReadonlySet<RainIntensityClass> = new Set([\n+  \"1_TO_5\", \"5_TO_10\", \"10_TO_20\", \"20_TO_30\",\n+  \"30_TO_50\", \"50_TO_80\", \"GTE_80\",\n+]);\n+\n+export type LightRainScanResult = {\n+  rainPixels: number;\n+  belowOnePixels: number;\n+  unknownPixels: number;\n+  sampledPixels: number;\n+};\n+\n+/** Full-pixel scan: never use stride=2; unknown pixels are not dry. */\n+export function scanJmaTileAtLeast1mm(buffer: Buffer): LightRainScanResult {\n+  const png = PNG.sync.read(buffer);\n+  const result: LightRainScanResult = {\n+    rainPixels: 0, belowOnePixels: 0, unknownPixels: 0, sampledPixels: 0,\n+  };\n+  for (let i = 0; i < png.data.length; i += 4) {\n+    result.sampledPixels++;\n+    const classified = classifyRainPixel({\n+      r: png.data[i], g: png.data[i + 1], b: png.data[i + 2], a: png.data[i + 3],\n+    });\n+    if (classified.intensityClass && AT_LEAST_1.has(classified.intensityClass)) result.rainPixels++;\n+    else if (classified.intensityClass === \"LT_1\") result.belowOnePixels++;\n+    else if (classified.status === \"UNKNOWN_PIXEL\") result.unknownPixels++;\n+  }\n+  return result;\n+}\n+\n+/** Exact rainy pixel coordinates for downstream z10/N03 footprint matching.\n+ * Keep every pixel; no stride or center-point-only municipality guess.\n+ */\n+export function locateJmaRainPixelsAtLeast1mm(buffer: Buffer, zoom: number, tileX: number, tileY: number): Array<{ pixelX: number; pixelY: number; longitude: number; latitude: number }> {\n+  const png = PNG.sync.read(buffer);\n+  if (png.width !== 256 || png.height !== 256) throw new Error(\"Unexpected JMA tile dimensions\");\n+  const points = [];\n+  const size = 256 * 2 ** zoom;\n+  for (let py = 0; py < png.height; py++) for (let px = 0; px < png.width; px++) {\n+    const i = (py * png.width + px) * 4;\n+    const result = classifyRainPixel({ r: png.data[i], g: png.data[i + 1], b: png.data[i + 2], a: png.data[i + 3] });\n+    if (result.status === \"UNKNOWN_PIXEL\") throw new Error(\"Unrecognized JMA pixel\");\n+    if (!result.intensityClass || !AT_LEAST_1.has(result.intensityClass)) continue;\n+    const worldX = tileX * 256 + px + 0.5;\n+    const worldY = tileY * 256 + py + 0.5;\n+    const n = Math.PI - 2 * Math.PI * worldY / size;\n+    points.push({ pixelX: px, pixelY: py, longitude: worldX / size * 360 - 180,\n+      latitude: Math.atan(Math.sinh(n)) * 180 / Math.PI });\n+  }\n+  return points;\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.ts",
+      "source": {
+        "path": "lib/weather/rain/lightRainProof.ts",
+        "coverage": "全文",
+        "text": "import { PNG } from \"pngjs\";\nimport { classifyRainPixel } from \"../providers/jma/classifyPixel\";\nimport type { RainIntensityClass } from \"../types\";\n\n/** Isolated read-only proof: no changes to production >=30mm/h alerts. */\nconst AT_LEAST_1: ReadonlySet<RainIntensityClass> = new Set([\n  \"1_TO_5\", \"5_TO_10\", \"10_TO_20\", \"20_TO_30\",\n  \"30_TO_50\", \"50_TO_80\", \"GTE_80\",\n]);\n\nexport type LightRainScanResult = {\n  rainPixels: number;\n  belowOnePixels: number;\n  unknownPixels: number;\n  sampledPixels: number;\n};\n\n/** Full-pixel scan: never use stride=2; unknown pixels are not dry. */\nexport function scanJmaTileAtLeast1mm(buffer: Buffer): LightRainScanResult {\n  const png = PNG.sync.read(buffer);\n  const result: LightRainScanResult = {\n    rainPixels: 0, belowOnePixels: 0, unknownPixels: 0, sampledPixels: 0,\n  };\n  for (let i = 0; i < png.data.length; i += 4) {\n    result.sampledPixels++;\n    const classified = classifyRainPixel({\n      r: png.data[i], g: png.data[i + 1], b: png.data[i + 2], a: png.data[i + 3],\n    });\n    if (classified.intensityClass && AT_LEAST_1.has(classified.intensityClass)) result.rainPixels++;\n    else if (classified.intensityClass === \"LT_1\") result.belowOnePixels++;\n    else if (classified.status === \"UNKNOWN_PIXEL\") result.unknownPixels++;\n  }\n  return result;\n}\n\n/** Exact rainy pixel coordinates for downstream z10/N03 footprint matching.\n * Keep every pixel; no stride or center-point-only municipality guess.\n */\nexport function locateJmaRainPixelsAtLeast1mm(buffer: Buffer, zoom: number, tileX: number, tileY: number): Array<{ pixelX: number; pixelY: number; longitude: number; latitude: number }> {\n  const png = PNG.sync.read(buffer);\n  if (png.width !== 256 || png.height !== 256) throw new Error(\"Unexpected JMA tile dimensions\");\n  const points = [];\n  const size = 256 * 2 ** zoom;\n  for (let py = 0; py < png.height; py++) for (let px = 0; px < png.width; px++) {\n    const i = (py * png.width + px) * 4;\n    const result = classifyRainPixel({ r: png.data[i], g: png.data[i + 1], b: png.data[i + 2], a: png.data[i + 3] });\n    if (result.status === \"UNKNOWN_PIXEL\") throw new Error(\"Unrecognized JMA pixel\");\n    if (!result.intensityClass || !AT_LEAST_1.has(result.intensityClass)) continue;\n    const worldX = tileX * 256 + px + 0.5;\n    const worldY = tileY * 256 + py + 0.5;\n    const n = Math.PI - 2 * Math.PI * worldY / size;\n    points.push({ pixelX: px, pixelY: py, longitude: worldX / size * 360 - 180,\n      latitude: Math.atan(Math.sinh(n)) * 180 / Math.PI });\n  }\n  return points;\n}\n",
+        "sha256": "28444ae8f322d245f072f9e4ab6d71f9c1b191f8e9557be9fcb52d1c3bb940b6"
+      }
+    },
+    {
+      "path": "scripts/light-rain-official-n03-proof.ts",
+      "status": "modified",
+      "additions": 29,
+      "deletions": 0,
+      "patch": "diff --git a/scripts/light-rain-official-n03-proof.ts b/scripts/light-rain-official-n03-proof.ts\nnew file mode 100644\nindex 00000000..1b272715\n--- /dev/null\n+++ b/scripts/light-rain-official-n03-proof.ts\n@@ -0,0 +1,29 @@\n+import { readFileSync } from \"node:fs\";\n+import { PNG } from \"pngjs\";\n+import { parseOfficialN03ForLightRain, type N03FeatureCollection } from \"../lib/weather/rain/lightRainOfficialN03\";\n+import { municipalitiesForLightRainTile } from \"../lib/weather/rain/lightRainMunicipalities\";\n+\n+/** Read-only official N03 + synthetic 1mm pixel proof. No Supabase or Bluesky access. */\n+const path = process.argv[2];\n+if (!path) throw new Error(\"Usage: npx tsx scripts/light-rain-official-n03-proof.ts <N03-20260101_13.geojson>\");\n+const collection = JSON.parse(readFileSync(path, \"utf8\")) as N03FeatureCollection;\n+const areas = parseOfficialN03ForLightRain(collection);\n+const ota = areas.find(a => a.code === \"13111\" && a.prefecture === \"東京都\" && a.municipality === \"大田区\");\n+if (!ota) throw new Error(\"Official N03 Tokyo does not include Ota City / 13111\");\n+const rings = ota.geometry.type === \"Polygon\" ? [ota.geometry.coordinates] : ota.geometry.coordinates;\n+const vertices = rings.flatMap(p => p[0] ?? []);\n+if (!vertices.length) throw new Error(\"Ota City has no outer ring\");\n+const lon = vertices.reduce((sum, p) => sum + p[0], 0) / vertices.length;\n+const lat = vertices.reduce((sum, p) => sum + p[1], 0) / vertices.length;\n+const zoom = 10, n = 2 ** zoom;\n+const wx = (lon + 180) / 360 * n * 256;\n+const wy = (1 - Math.asinh(Math.tan(lat * Math.PI / 180)) / Math.PI) / 2 * n * 256;\n+const tx = Math.floor(wx / 256), ty = Math.floor(wy / 256);\n+const px = Math.floor(wx) - tx * 256, py = Math.floor(wy) - ty * 256;\n+const png = new PNG({ width: 256, height: 256 });\n+png.data.fill(0);\n+png.data.set([160, 210, 255, 255], (py * 256 + px) * 4);\n+const matches = municipalitiesForLightRainTile(PNG.sync.write(png), zoom, tx, ty, areas);\n+if (!matches.some(m => m.code === \"13111\")) throw new Error(\"Synthetic 1mm pixel did not intersect real Ota geometry\");\n+console.log(JSON.stringify({ mode: \"OFFICIAL_N03_SYNTHETIC_1MM_PIXEL\", source: path, municipalities: areas.length,\n+  target: \"13111 大田区\", matched: matches.filter(m => m.code === \"13111\"), rain: \"synthetic\", productionWrites: false }));\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/scripts/light-rain-official-n03-proof.ts",
+      "source": {
+        "path": "scripts/light-rain-official-n03-proof.ts",
+        "coverage": "全文",
+        "text": "import { readFileSync } from \"node:fs\";\nimport { PNG } from \"pngjs\";\nimport { parseOfficialN03ForLightRain, type N03FeatureCollection } from \"../lib/weather/rain/lightRainOfficialN03\";\nimport { municipalitiesForLightRainTile } from \"../lib/weather/rain/lightRainMunicipalities\";\n\n/** Read-only official N03 + synthetic 1mm pixel proof. No Supabase or Bluesky access. */\nconst path = process.argv[2];\nif (!path) throw new Error(\"Usage: npx tsx scripts/light-rain-official-n03-proof.ts <N03-20260101_13.geojson>\");\nconst collection = JSON.parse(readFileSync(path, \"utf8\")) as N03FeatureCollection;\nconst areas = parseOfficialN03ForLightRain(collection);\nconst ota = areas.find(a => a.code === \"13111\" && a.prefecture === \"東京都\" && a.municipality === \"大田区\");\nif (!ota) throw new Error(\"Official N03 Tokyo does not include Ota City / 13111\");\nconst rings = ota.geometry.type === \"Polygon\" ? [ota.geometry.coordinates] : ota.geometry.coordinates;\nconst vertices = rings.flatMap(p => p[0] ?? []);\nif (!vertices.length) throw new Error(\"Ota City has no outer ring\");\nconst lon = vertices.reduce((sum, p) => sum + p[0], 0) / vertices.length;\nconst lat = vertices.reduce((sum, p) => sum + p[1], 0) / vertices.length;\nconst zoom = 10, n = 2 ** zoom;\nconst wx = (lon + 180) / 360 * n * 256;\nconst wy = (1 - Math.asinh(Math.tan(lat * Math.PI / 180)) / Math.PI) / 2 * n * 256;\nconst tx = Math.floor(wx / 256), ty = Math.floor(wy / 256);\nconst px = Math.floor(wx) - tx * 256, py = Math.floor(wy) - ty * 256;\nconst png = new PNG({ width: 256, height: 256 });\npng.data.fill(0);\npng.data.set([160, 210, 255, 255], (py * 256 + px) * 4);\nconst matches = municipalitiesForLightRainTile(PNG.sync.write(png), zoom, tx, ty, areas);\nif (!matches.some(m => m.code === \"13111\")) throw new Error(\"Synthetic 1mm pixel did not intersect real Ota geometry\");\nconsole.log(JSON.stringify({ mode: \"OFFICIAL_N03_SYNTHETIC_1MM_PIXEL\", source: path, municipalities: areas.length,\n  target: \"13111 大田区\", matched: matches.filter(m => m.code === \"13111\"), rain: \"synthetic\", productionWrites: false }));\n",
+        "sha256": "af20644244bee530df61c66cba20f38f254bcbb84023ccf2f630d918a9ca89b9"
+      }
+    },
+    {
+      "path": "scripts/national-light-rain-jma-proof.ts",
+      "status": "modified",
+      "additions": 35,
+      "deletions": 0,
+      "patch": "diff --git a/scripts/national-light-rain-jma-proof.ts b/scripts/national-light-rain-jma-proof.ts\nnew file mode 100644\nindex 00000000..1ba8888e\n--- /dev/null\n+++ b/scripts/national-light-rain-jma-proof.ts\n@@ -0,0 +1,35 @@\n+/** Read-only real-JMA 1mm/h proof. No DB, notification, or Bluesky calls. */\n+import { fetchForecastTargetTimes } from \"../lib/weather/providers/jma/targetTimes\";\n+import { buildJmaRainTileUrl } from \"../lib/weather/providers/jma/tileUrl\";\n+import { scanJmaTileAtLeast1mm } from \"../lib/weather/rain/lightRainProof\";\n+\n+const tiles = [[13, 5], [14, 5], [13, 6], [14, 6], [13, 7], [14, 7]] as const;\n+const stamp = (value: string) => Date.UTC(\n+  Number(value.slice(0, 4)), Number(value.slice(4, 6)) - 1,\n+  Number(value.slice(6, 8)), Number(value.slice(8, 10)), Number(value.slice(10, 12)),\n+);\n+\n+async function main() {\n+  const now = Date.now();\n+  const frames = (await fetchForecastTargetTimes())\n+    .filter(frame => stamp(frame.validtime) > now && stamp(frame.validtime) <= now + 30 * 60_000)\n+    .slice(0, 6);\n+  if (!frames.length) throw new Error(\"No fresh forecast frames: cannot claim real-data success\");\n+  const output = [];\n+  for (const frame of frames) {\n+    const perTile = await Promise.all(tiles.map(async ([x, y]) => {\n+      const url = buildJmaRainTileUrl(frame, 4, x, y);\n+      const response = await fetch(url, { cache: \"no-store\" });\n+      if (!response.ok) throw new Error(`JMA tile unavailable: ${response.status} z4/${x}/${y} ${frame.validtime}`);\n+      const scan = scanJmaTileAtLeast1mm(Buffer.from(await response.arrayBuffer()));\n+      if (scan.unknownPixels) throw new Error(`Unrecognized JMA pixels: ${scan.unknownPixels} z4/${x}/${y} ${frame.validtime}`);\n+      return { x, y, ...scan };\n+    }));\n+    output.push({ basetime: frame.basetime, validtime: frame.validtime, perTile,\n+      rainPixels: perTile.reduce((sum, tile) => sum + tile.rainPixels, 0),\n+      belowOnePixels: perTile.reduce((sum, tile) => sum + tile.belowOnePixels, 0) });\n+  }\n+  process.stdout.write(JSON.stringify({ mode: \"read-only-jma-1mm\", checkedAt: new Date().toISOString(),\n+    threshold: \">=1mm/h\", zoom: 4, municipalityResolution: false, publication: false, frames: output }, null, 2) + \"\\n\");\n+}\n+main().catch(error => { console.error(error); process.exitCode = 1; });\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/scripts/national-light-rain-jma-proof.ts",
+      "source": {
+        "path": "scripts/national-light-rain-jma-proof.ts",
+        "coverage": "全文",
+        "text": "/** Read-only real-JMA 1mm/h proof. No DB, notification, or Bluesky calls. */\nimport { fetchForecastTargetTimes } from \"../lib/weather/providers/jma/targetTimes\";\nimport { buildJmaRainTileUrl } from \"../lib/weather/providers/jma/tileUrl\";\nimport { scanJmaTileAtLeast1mm } from \"../lib/weather/rain/lightRainProof\";\n\nconst tiles = [[13, 5], [14, 5], [13, 6], [14, 6], [13, 7], [14, 7]] as const;\nconst stamp = (value: string) => Date.UTC(\n  Number(value.slice(0, 4)), Number(value.slice(4, 6)) - 1,\n  Number(value.slice(6, 8)), Number(value.slice(8, 10)), Number(value.slice(10, 12)),\n);\n\nasync function main() {\n  const now = Date.now();\n  const frames = (await fetchForecastTargetTimes())\n    .filter(frame => stamp(frame.validtime) > now && stamp(frame.validtime) <= now + 30 * 60_000)\n    .slice(0, 6);\n  if (!frames.length) throw new Error(\"No fresh forecast frames: cannot claim real-data success\");\n  const output = [];\n  for (const frame of frames) {\n    const perTile = await Promise.all(tiles.map(async ([x, y]) => {\n      const url = buildJmaRainTileUrl(frame, 4, x, y);\n      const response = await fetch(url, { cache: \"no-store\" });\n      if (!response.ok) throw new Error(`JMA tile unavailable: ${response.status} z4/${x}/${y} ${frame.validtime}`);\n      const scan = scanJmaTileAtLeast1mm(Buffer.from(await response.arrayBuffer()));\n      if (scan.unknownPixels) throw new Error(`Unrecognized JMA pixels: ${scan.unknownPixels} z4/${x}/${y} ${frame.validtime}`);\n      return { x, y, ...scan };\n    }));\n    output.push({ basetime: frame.basetime, validtime: frame.validtime, perTile,\n      rainPixels: perTile.reduce((sum, tile) => sum + tile.rainPixels, 0),\n      belowOnePixels: perTile.reduce((sum, tile) => sum + tile.belowOnePixels, 0) });\n  }\n  process.stdout.write(JSON.stringify({ mode: \"read-only-jma-1mm\", checkedAt: new Date().toISOString(),\n    threshold: \">=1mm/h\", zoom: 4, municipalityResolution: false, publication: false, frames: output }, null, 2) + \"\\n\");\n}\nmain().catch(error => { console.error(error); process.exitCode = 1; });\n",
+        "sha256": "aab5468e1cd5fc31d707c604f6a107b7bacd9e5d13ca2d2a5664b27b170c4354"
+      }
+    }
+  ],
+  "file_count": 14,
+  "reported_file_count": 14,
+  "commits": [
+    {
+      "sha": "c4066f4e6e4b7e13305e2cb7027f976d06e00bb0",
+      "message": "feat: add isolated 1mm JMA full-pixel scan for dry-run proof\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/c4066f4e6e4b7e13305e2cb7027f976d06e00bb0"
+    },
+    {
+      "sha": "1c22e740e10fbad3e2d08e2633f5d167b998b282",
+      "message": "test: verify 1mm rain classification and no skipped pixels\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/1c22e740e10fbad3e2d08e2633f5d167b998b282"
+    },
+    {
+      "sha": "22893f4c69aceb8a83d2e296353ed3129b549e6e",
+      "message": "fix: use relative imports compatible with Vitest in 1mm proof\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/22893f4c69aceb8a83d2e296353ed3129b549e6e"
+    },
+    {
+      "sha": "b4cc390b7e13deb28ee6385beb0a077828dd0b09",
+      "message": "feat: add read-only real JMA six-frame 1mm rain proof runner\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/b4cc390b7e13deb28ee6385beb0a077828dd0b09"
+    },
+    {
+      "sha": "4c85d3c4674c3a907f5c7c8a886dd41f404e9b13",
+      "message": "test: add opt-in live JMA six-frame read-only integration proof\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/4c85d3c4674c3a907f5c7c8a886dd41f404e9b13"
+    },
+    {
+      "sha": "19b15c21155376e4bef472ebca3c643e31250a9d",
+      "message": "ci: add manually triggered read-only JMA 1mm six-frame proof\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/19b15c21155376e4bef472ebca3c643e31250a9d"
+    },
+    {
+      "sha": "f72583f95fb1fb7eb2327a1cd75f0efe30867270",
+      "message": "test: run one-shot read-only live JMA proof in PR CI for evidence\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/f72583f95fb1fb7eb2327a1cd75f0efe30867270"
+    },
+    {
+      "sha": "95dc89cff0c12d84b22c82f08099359e4909e1fc",
+      "message": "test: restore opt-in live JMA gate after successful real-data proof\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/95dc89cff0c12d84b22c82f08099359e4909e1fc"
+    },
+    {
+      "sha": "2029b3b80856b931bb7b4b1645ecf6fa6a2c5637",
+      "message": "feat: locate every 1mm rain pixel for later exact N03 footprint mapping\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/2029b3b80856b931bb7b4b1645ecf6fa6a2c5637"
+    },
+    {
+      "sha": "65209a76345fecc8375587339f5cc9f5cb03c962",
+      "message": "test: verify rain pixel geographic locations and unknown-color fail closed\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/65209a76345fecc8375587339f5cc9f5cb03c962"
+    },
+    {
+      "sha": "155fac6feca7e8723a81dad9a7fcb26075682eb1",
+      "message": "feat: reuse PR59 N03 polygon intersection in isolated light rain proof\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/155fac6feca7e8723a81dad9a7fcb26075682eb1"
+    },
+    {
+      "sha": "85a08887432e7af23e66e55130666c7cab78dcd0",
+      "message": "feat: match complete 1mm rainy pixel footprints against N03 municipalities\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/85a08887432e7af23e66e55130666c7cab78dcd0"
+    },
+    {
+      "sha": "2e47b6d74769b3b08ad6a164520fe400a9535b97",
+      "message": "test: prove N03 matching uses complete rainy pixel footprint\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/2e47b6d74769b3b08ad6a164520fe400a9535b97"
+    },
+    {
+      "sha": "108ebd472f486497282064213f27c4de2bf92502",
+      "message": "feat: add read-only local prepared N03 proof adapter with identity validation\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/108ebd472f486497282064213f27c4de2bf92502"
+    },
+    {
+      "sha": "4d1b89a82c4f13e959574621b46dc88c8353fec0",
+      "message": "test: validate local N03 prepared data without production storage\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/4d1b89a82c4f13e959574621b46dc88c8353fec0"
+    },
+    {
+      "sha": "98b787f9fec74543eacbd69480e616b56cf3f75b",
+      "message": "fix: correct N03 prefecture and municipality code validation regex\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/98b787f9fec74543eacbd69480e616b56cf3f75b"
+    },
+    {
+      "sha": "180bfaedb6bf1ff25624949fadcb244f41e310fe",
+      "message": "feat: reuse PR59 official N03 GeoJSON conversion for isolated rain proof\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/180bfaedb6bf1ff25624949fadcb244f41e310fe"
+    },
+    {
+      "sha": "720ac739d90436ae68f1b6e02392c9960b0d1253",
+      "message": "test: verify official N03 properties merge and municipality rain intersection\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/720ac739d90436ae68f1b6e02392c9960b0d1253"
+    },
+    {
+      "sha": "51a27361727ef4d635b1b85e16a6c4a7df1790a7",
+      "message": "test: add offline official Tokyo N03 and synthetic 1mm pixel end-to-end proof\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/51a27361727ef4d635b1b85e16a6c4a7df1790a7"
+    },
+    {
+      "sha": "938ad27b5200ace47f740cf9f3b4e3372afbf39f",
+      "message": "ci: verify isolated 1mm pixel against official Tokyo N03 on PR only\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/938ad27b5200ace47f740cf9f3b4e3372afbf39f"
+    }
+  ],
+  "comments": [
+    {
+      "body": "## 実JMA 1mm/h 検証証拠（2026-11-12 23:45 JST頃）\n- 一時的にPR CIから実行した読み取り専用ライブテスト成功: https://github.com/miyazaki1016/emergencyalert/actions/runs/43240323389\n- JMAの予報6枠（23:45, 23:50, 23:55, 00:00, 00:05, 00:10 JST）、z4の6タイルを各枠全画素走査。1mm/h以上の検出画素数は順に **737, 723, 710, 719, 710, 732**。\n- 57テストファイル、370テスト成功、失敗0。未知色は0を検証。実データ取得・PNG判定までの成功であり、z4の粗い範囲に限る。市区町村N03照合、全国全域網羅、Blueskyドライランは**未実施**。\n- 一時的なCI強制実行ゲートはコミット `95dc89cff0c12d84b22c82f08099359e4909e1fc` で元の明示的オプトインに復元。最新HEADのCI結果は別途確認が必要。\n- 本番変更・公開投稿・マージなし。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/217#issuecomment-6826805362"
+    }
+  ],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "Official N03 light rain proof (read-only)",
+      "head_sha": "938ad27b5200ace47f740cf9f3b4e3372afbf39f",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43246831992",
+      "id": 43246831992,
+      "updated_at": "2026-11-12T15:21:39Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "938ad27b5200ace47f740cf9f3b4e3372afbf39f",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43246831860",
+      "id": 43246831860,
+      "updated_at": "2026-11-12T15:21:16Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "938ad27b5200ace47f740cf9f3b4e3372afbf39f",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43246831823",
+      "id": 43246831823,
+      "updated_at": "2026-11-12T15:21:20Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "938ad27b5200ace47f740cf9f3b4e3372afbf39f",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43246832308",
+      "id": 43246832308,
+      "updated_at": "2026-11-12T15:23:06Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "AT_LEAST_1",
+    "EPSILON",
+    "a",
+    "abC",
+    "abD",
+    "affectedAdministrativeAreas",
+    "ar",
+    "area",
+    "areaPolygons",
+    "areas",
+    "areasWithBounds",
+    "boundsIntersect",
+    "cdA",
+    "cdB",
+    "classified",
+    "code",
+    "collection",
+    "cross",
+    "crosses",
+    "dir",
+    "feature",
+    "footprint",
+    "frame",
+    "frames",
+    "geometry",
+    "i",
+    "inside",
+    "j",
+    "lat",
+    "latitude",
+    "live",
+    "loadPreparedN03ForProof",
+    "locateJmaRainPixelsAtLeast1mm",
+    "lon",
+    "longitude",
+    "main",
+    "matches",
+    "merged",
+    "municipalitiesForLightRainTile",
+    "municipality",
+    "n",
+    "next",
+    "north",
+    "now",
+    "onSegment",
+    "ota",
+    "output",
+    "p",
+    "parseOfficialN03ForLightRain",
+    "parsed",
+    "path",
+    "perTile",
+    "pixels",
+    "png",
+    "pngWithPixels",
+    "pointInPolygon",
+    "pointInRing",
+    "points",
+    "polygonBounds",
+    "polygons"
+  ],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "5af361d9a5ebf01bcdbb24365a2e713788da836892ae56d392f21c943ed90dbd",
+  "ci_digest": "f84f0e3e3416b1cd9576a373f1744628d8dab284190454da68e80599b71dc608",
+  "collected_at": "2026-11-12T15:33:28.142823+00:00",
+  "decisions": [
+    {
+      "kind": "test",
+      "title": "includes a municipality touched by a rainy pixel edge, not only its center",
+      "condition": "includes a municipality touched by a rainy pixel edge, not only its center",
+      "behavior": "return { coordinates: [[[w, n], [e, n], [e, s], [w, s], [w, n]]] }; ／ return affectedAdministrativeAreas(footprint, areas)",
+      "verification": "テストの期待値: expect(municipalitiesForLightRainTile(PNG.sync.write(tile), 4, 14, 6, [area])) .toEqual([{ code: \"test-1\", prefecture: \"検証県\", municipality: \"境界市\" }]); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainMunicipalities.ts#L5",
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainMunicipalities.test.ts#L7"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "returns no municipalities when no rain pixels exist",
+      "condition": "returns no municipalities when no rain pixels exist",
+      "behavior": "return { coordinates: [[[w, n], [e, n], [e, s], [w, s], [w, n]]] }; ／ return affectedAdministrativeAreas(footprint, areas)",
+      "verification": "テストの期待値: expect(municipalitiesForLightRainTile(PNG.sync.write(tile), 4, 14, 6, [])) .toEqual([]); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainMunicipalities.ts#L5",
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainMunicipalities.test.ts#L31"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "validates municipality code and polygon data without storage access",
+      "condition": "validates municipality code and polygon data without storage access",
+      "behavior": "if (!/^\\d{2}$/.test(expectedPrefectureCode)) throw new Error(\"Invalid prefecture code\"); ／ if (!Array.isArray(parsed) || parsed.length === 0) throw new Error(\"Missing N03 municipality data\"); ／ if (!item || typeof item !== \"object\") throw new Error(\"Invalid N03 entry\"); ／ if (typeof a.code !== \"string\" || !/^\\d{5}$/.test(a.code) || ／ return a as AdministrativeArea; ／ if (new Set(areas.map(a => a.code)).size !== areas.length) throw new Error(\"Duplicate N03 municipality code\"); ／ return areas;",
+      "verification": "テストの期待値: expect(loadPreparedN03ForProof(path, \"13\").map(a => a.municipality)).toEqual([\"千代田区\"]); ／ expect(() => loadPreparedN03ForProof(path, \"14\")).toThrow(\"Invalid N03 municipality\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.ts#L8",
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.test.ts#L8"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "merges split features for one municipality and resolves rain to its name",
+      "condition": "merges split features for one municipality and resolves rain to its name",
+      "behavior": "return { coordinates: [[[w, n], [e, n], [e, s], [w, s], [w, n]]] }; ／ return affectedAdministrativeAreas(footprint, areas)",
+      "verification": "テストの期待値: expect(areas).toHaveLength(1); ／ expect(areas[0].geometry.type).toBe(\"MultiPolygon\"); ／ expect(municipalitiesForLightRainTile(PNG.sync.write(tile), 4, 14, 7, areas)) .toEqual([{ code: \"99101\", prefecture: \"検証県\", municipality: \"検証市\" }]); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainMunicipalities.ts#L5",
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainOfficialN03.test.ts#L7"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "scans six fresh five-minute forecasts without skipped or unknown pixels",
+      "condition": "scans six fresh five-minute forecasts without skipped or unknown pixels",
+      "behavior": "if (classified.intensityClass && AT_LEAST_1.has(classified.intensityClass)) result.rainPixels++; ／ return result;",
+      "verification": "テストの期待値: expect(frames).toHaveLength(6); ／ expect(response.ok, `missing JMA tile ${frame.validtime} ${x}/${y}`).toBe(true); ／ expect(scan.unknownPixels, `unknown JMA colors ${frame.validtime} ${x}/${y}`).toBe(0); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.ts#L19",
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.live.test.ts#L15"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "counts verified 1mm rain, excludes sub-1mm, and preserves unknown",
+      "condition": "counts verified 1mm rain, excludes sub-1mm, and preserves unknown",
+      "behavior": "if (classified.intensityClass && AT_LEAST_1.has(classified.intensityClass)) result.rainPixels++; ／ return result;",
+      "verification": "テストの期待値: expect(scanJmaTileAtLeast1mm(tile)).toEqual({ rainPixels: 2, belowOnePixels: 1, unknownPixels: 1, sampledPixels: 5, ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.ts#L19",
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts#L14"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "does not skip odd-position rain pixels",
+      "condition": "does not skip odd-position rain pixels",
+      "behavior": "if (classified.intensityClass && AT_LEAST_1.has(classified.intensityClass)) result.rainPixels++; ／ return result;",
+      "verification": "テストの期待値: expect(scanJmaTileAtLeast1mm(tile).rainPixels).toBe(1); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.ts#L19",
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts#L26"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "keeps each rainy pixel and yields bounded geographic coordinates",
+      "condition": "keeps each rainy pixel and yields bounded geographic coordinates",
+      "behavior": "if (png.width !== 256 || png.height !== 256) throw new Error(\"Unexpected JMA tile dimensions\"); ／ if (result.status === \"UNKNOWN_PIXEL\") throw new Error(\"Unrecognized JMA pixel\"); ／ if (!result.intensityClass || !AT_LEAST_1.has(result.intensityClass)) continue; ／ return points;",
+      "verification": "テストの期待値: expect(points.map(p => [p.pixelX, p.pixelY])).toEqual([[1, 1], [255, 255]]); ／ expect(points.every(p => Number.isFinite(p.latitude) && Number.isFinite(p.longitude))).toBe(true); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.ts#L39",
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts#L34"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "fails closed on unknown colors",
+      "condition": "fails closed on unknown colors",
+      "behavior": "if (png.width !== 256 || png.height !== 256) throw new Error(\"Unexpected JMA tile dimensions\"); ／ if (result.status === \"UNKNOWN_PIXEL\") throw new Error(\"Unrecognized JMA pixel\"); ／ if (!result.intensityClass || !AT_LEAST_1.has(result.intensityClass)) continue; ／ return points;",
+      "verification": "テストの期待値: expect(() => locateJmaRainPixelsAtLeast1mm(PNG.sync.write(tile), 4, 14, 6)).toThrow(\"Unrecognized JMA pixel\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.ts#L39",
+        "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts#L45"
+      ]
+    }
+  ]
+}

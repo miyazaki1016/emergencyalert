@@ -1,0 +1,350 @@
+{
+  "id": "pr-176",
+  "number": 176,
+  "title": "Rain Lab: clearer case summaries and color-coded match grades",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "UI-only changes for the developer Rain Lab. Green exact, yellow ±5m, orange ±10m, red definite mismatch, gray pending. Mobile-friendly forecast/observation images and collapsible technical details. No notification algorithm or database changes.",
+  "snapshot_head": "8b556eeee0ce0443a47efbb1077981951a27a00b",
+  "snapshot_consistent": true,
+  "head": "8b556eeee0ce0443a47efbb1077981951a27a00b",
+  "base": "f1a60887f0d218a4d6de875725037860f8409545",
+  "base_ref": "main",
+  "head_ref": "fix/rain-lab-clear-grades-20261109",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-09T02:15:07Z",
+  "merge_commit_sha": "4317cc86777fab8ae1524a2d024ebc0b2f6fcfdc",
+  "updated_at": "2026-11-09T02:15:07Z",
+  "code_facts": [
+    {
+      "file": "app/dev/rain-lab/RainLab.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "return <details className={s.case} onToggle={event=>{if(event.currentTarget.open&&images===null&&!loading)void load();}}><summary><span><strong>{label} · {EVENT_LABELS[evaluation.event_type]??'雨通知'}</strong><br/><span className={s.muted}>{tokyo(evaluation.created_at)} 通知 · 予測対象 {tokyo(evaluation.target_time)}</span></span><span className={`${s.grad",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/app/dev/rain-lab/RainLab.tsx"
+    },
+    {
+      "file": "lib/research/rainLab.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function matchGrade(e:Pick<Evaluation,'radar_result'|'state'>):MatchGrade{",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/lib/research/rainLab.ts"
+    },
+    {
+      "file": "lib/research/rainLab.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if(r?.exact==='MATCH')return 'exact';",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/lib/research/rainLab.ts"
+    },
+    {
+      "file": "lib/research/rainLab.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if(r?.within5==='MATCH')return 'within5';",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/lib/research/rainLab.ts"
+    },
+    {
+      "file": "lib/research/rainLab.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if(r?.within10==='MATCH')return 'within10';",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/lib/research/rainLab.ts"
+    },
+    {
+      "file": "lib/research/rainLab.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if(r?.exact==='MISMATCH'&&r?.within5==='MISMATCH'&&r?.within10==='MISMATCH')return 'mismatch';",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/lib/research/rainLab.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "test('highest precision match wins',()=>{",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MATCH','MATCH','MATCH')),'exact');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MISMATCH','MATCH','MATCH')),'within5');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MISMATCH','MISMATCH','MATCH')),'within10');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "test('red only when every window is definitively mismatched',()=>{",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MISMATCH','MISMATCH','MISMATCH')),'mismatch');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MISMATCH','INDETERMINATE','MISMATCH')),'pending');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('INDETERMINATE','MISMATCH','MISMATCH')),'pending');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade(make('MISMATCH','INDETERMINATE','MATCH')),'within10');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/tests/rainLabGrade.test.ts"
+    },
+    {
+      "file": "tests/rainLabGrade.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "assert.equal(matchGrade({state:'PENDING'}),'pending');",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/tests/rainLabGrade.test.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/dev/rain-lab/RainLab.tsx",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 7,
+      "patch": "diff --git a/app/dev/rain-lab/RainLab.tsx b/app/dev/rain-lab/RainLab.tsx\nindex c16bfe9..18d9c9d 100644\n--- a/app/dev/rain-lab/RainLab.tsx\n+++ b/app/dev/rain-lab/RainLab.tsx\n@@ -1,7 +1,7 @@\n 'use client';\n import {useCallback,useEffect,useId,useMemo,useRef,useState,type FormEvent} from 'react';\n import {getSupabaseBrowserClient} from '../../../lib/supabase/browser';\n-import {EXCLUSION_LABELS,centerPixelLabel,imageDataUrl,METHODS,METHOD_LABELS,percent,REASONS,STATE_LABELS,summarize,tokyo,type Evaluation,type GroundReport,type Health,type ImageRow,type LabData,type Shadow} from '../../../lib/research/rainLab';\n+import {EXCLUSION_LABELS,centerPixelLabel,imageDataUrl,METHODS,METHOD_LABELS,MATCH_GRADE_LABELS,matchGrade,percent,REASONS,STATE_LABELS,summarize,tokyo,type Evaluation,type GroundReport,type Health,type ImageRow,type LabData,type Shadow} from '../../../lib/research/rainLab';\n import {LabAccessError,loadCaseImages,loadLab,saveGround} from '../../../lib/research/rainLabRepository';\n import s from './lab.module.css';\n import {explainCase,PATTERNS,VERDICT_LABELS} from '../../../lib/research/rainMismatch';\n@@ -43,21 +43,22 @@ function CaseCard({evaluation,shadow,label,reports,feedback,threshold,onSaved}:{\n  const observationFeature=shadow?.features.find(f=>f.kind==='OBSERVATION'&&f.validTime===selectedTime);\n  const feature=shadow?.features.find(f=>f.kind==='FORECAST'&&f.validTime===selectedTime&&(!group||f.baseTime===group.baseTime));\n  const explanations=explainCase(evaluation,shadow,selectedTime,group?.baseTime,threshold,reports);\n+ const grade=matchGrade(evaluation);\n  const candidates={point:group?.point.series.find(f=>f.validTime===selectedTime),area:variant?.area.series.find(f=>f.validTime===selectedTime),combined:variant?.combined.series.find(f=>f.validTime===selectedTime)};\n- return <details className={s.case} onToggle={event=>{if(event.currentTarget.open&&images===null&&!loading)void load();}}><summary><span><strong>{label} · {EVENT_LABELS[evaluation.event_type]??'雨通知'}</strong><br/><span className={s.muted}>{tokyo(evaluation.created_at)} 通知 · 予測対象 {tokyo(evaluation.target_time)}</span></span><span className={s.pill}>{evaluation.shadow_state==='PENDING'?'比較の処理待ち':'比較結果あり'}</span></summary>\n- <div className={s.caseBody}><p>{evaluation.snapshot.body}</p><span className={s.tag}>実況 {evaluation.state==='PENDING'?'回収中':evaluation.state==='COMPLETE'?'照合済み':'一部確認できず'}</span><span className={s.tag}>画像 {evaluation.image_state==='COMPLETE'?'保存済み':evaluation.image_state==='PENDING'?'回収中':'一部未取得'}</span>\n- <div className={s.notes}>処理回数：実況 {evaluation.attempts??'—'} / 画像 {evaluation.image_attempts??'—'} / 比較 {evaluation.shadow_attempts??'—'}（初回を含むclaim回数）<br/>実況締切 {tokyo(evaluation.deadline_at)} · 画像は締切＋10分または60回、比較は締切＋20分または24回が通常処理の終了目安です。例外が続く場合や容量制限時の停止は別途監査が必要です。<br/>実況で未回収の時刻：{evaluation.radar_result?.missingTimes?.length?evaluation.radar_result.missingTimes.map(tokyo).join('、'):'なし／まだ未集計'}{evaluation.last_error||evaluation.image_error||evaluation.shadow_error?<><br/>取得・処理エラーあり。正常終了の記録とは分けて確認してください。</>:null}</div>\n+ return <details className={s.case} onToggle={event=>{if(event.currentTarget.open&&images===null&&!loading)void load();}}><summary><span><strong>{label} · {EVENT_LABELS[evaluation.event_type]??'雨通知'}</strong><br/><span className={s.muted}>{tokyo(evaluation.created_at)} 通知 · 予測対象 {tokyo(evaluation.target_time)}</span></span><span className={`${s.grade} ${s[`grade_${grade}`]}`}>{MATCH_GRADE_LABELS[grade]}</span></summary>\n+ <div className={s.caseBody}><div className={s.caseOverview}><strong className={`${s.grade} ${s[`grade_${grade}`]}`}>{MATCH_GRADE_LABELS[grade]}</strong><p>{grade==='exact'?'予測した時刻にレーダーの変化が一致しました。':grade==='within5'?'予測時刻から5分以内にレーダーの変化が一致しました。':grade==='within10'?'予測時刻から10分以内にレーダーの変化が一致しました。':grade==='mismatch'?'予測時刻の前後10分まで確認しましたが、レーダーの変化は一致しませんでした。':'必要な実況が不足しているなどの理由で、まだ一致・不一致を決められません。'}</p><div className={s.overviewTimes}><span>通知 <strong>{tokyo(evaluation.created_at)}</strong></span><span>予測した時刻 <strong>{tokyo(evaluation.target_time)}</strong></span></div><p className={s.notes}>※これはレーダーとの比較で、現地の雨を証明するものではありません。</p></div><p>{evaluation.snapshot.body}</p><span className={s.tag}>実況 {evaluation.state==='PENDING'?'回収中':evaluation.state==='COMPLETE'?'照合済み':'一部確認できず'}</span><span className={s.tag}>画像 {evaluation.image_state==='COMPLETE'?'保存済み':evaluation.image_state==='PENDING'?'回収中':'一部未取得'}</span>\n+ <details className={s.technical}><summary>処理状況・回収回数などの詳細</summary><div className={s.notes}>処理回数：実況 {evaluation.attempts??'—'} / 画像 {evaluation.image_attempts??'—'} / 比較 {evaluation.shadow_attempts??'—'}（初回を含むclaim回数）<br/>実況締切 {tokyo(evaluation.deadline_at)} · 画像は締切＋10分または60回、比較は締切＋20分または24回が通常処理の終了目安です。例外が続く場合や容量制限時の停止は別途監査が必要です。<br/>実況で未回収の時刻：{evaluation.radar_result?.missingTimes?.length?evaluation.radar_result.missingTimes.map(tokyo).join('、'):'なし／まだ未集計'}{evaluation.last_error||evaluation.image_error||evaluation.shadow_error?<><br/>取得・処理エラーあり。正常終了の記録とは分けて確認してください。</>:null}</div></details>\n  <div className={s.filters}><label className={s.label}>比較する時刻<select value={selectedTime} onChange={e=>setSelectedTime(e.target.value)}>{times.map(t=><option key={t} value={t}>{tokyo(t)}</option>)}</select></label>{(shadow?.comparison.groups.length??0)>1?<label className={s.label}>予測の発表時刻<select value={group?.baseTime} onChange={e=>setBase(e.target.value)}>{shadow?.comparison.groups.map(g=><option key={g.baseTime} value={g.baseTime}>{tokyo(g.baseTime)}</option>)}</select></label>:null}<button type='button' disabled={loading} onClick={()=>void load()}>{loading?'画像を読込中…':'画像を更新'}</button></div>\n  {error?<p className={s.error}>{error}</p>:null}<div className={s.images}><Crop image={forecast} location={evaluation.snapshot.location} title='当時の予測（後から回収）'/><Crop image={observation} location={evaluation.snapshot.location} title='対象時刻の実況'/></div>\n- <div className={s.legend}><span style={{color:'#159786'}}>○ 250m</span><span style={{color:'#3476c4'}}>○ 500m</span><span style={{color:'#a16a19'}}>○ 1km</span><span>＋ 登録地点</span><span>市松＝取得済み透明（雨色なし） · 斜線＝未取得 · ほぼ白色も弱い雨</span></div>\n- <section className={s.explanation}><h3>レーダーの不一致・判定不能の具体的な理由</h3><p className={s.notes}>画像の対象 {tokyo(selectedTime)}。時刻のずれは通知対象 {tokyo(evaluation.target_time)} を基準に確認します。レーダー上の差を表示します。現地報告は任意の参考情報であり、判定には使用しません。</p><p className={s.notes}>自動評価（雨色への遷移）：ぴったり {VERDICT_LABELS[evaluation.radar_result?.exact??'']??'未評価'} ／ ±5分 {VERDICT_LABELS[evaluation.radar_result?.within5??'']??'未評価'} ／ ±10分 {VERDICT_LABELS[evaluation.radar_result?.within10??'']??'未評価'}{evaluation.state==='PENDING'?'（処理中の暫定値）':''}</p>{explanations.length?<ul className={s.reasonList}>{explanations.map((x,i)=><li key={`${x.code}-${i}`} className={x.kind==='difference'?s.difference:s.hold}><strong>{x.kind==='difference'?'差あり':x.kind==='hold'?'保留':'比較の前提'}：{x.title}</strong><p>{x.detail}</p></li>)}</ul>:<p>この時刻の取得済みデータから、表示対象の不一致は検出されていません。地上の精度保証ではありません。</p>}</section>\n+ <p className={s.notes}>左が通知時点の予測、右が予測対象時刻の実況です。＋は登録地点、円は周辺250m・500m・1kmを表します。</p><div className={s.legend}><span style={{color:'#159786'}}>○ 250m</span><span style={{color:'#3476c4'}}>○ 500m</span><span style={{color:'#a16a19'}}>○ 1km</span><span>＋ 登録地点</span><span>市松＝取得済み透明（雨色なし） · 斜線＝未取得 · ほぼ白色も弱い雨</span></div>\n+ <details className={s.technical}><summary>詳しい判定理由・研究用の比較を見る</summary><section className={s.explanation}><h3>レーダーの不一致・判定不能の具体的な理由</h3><p className={s.notes}>画像の対象 {tokyo(selectedTime)}。時刻のずれは通知対象 {tokyo(evaluation.target_time)} を基準に確認します。レーダー上の差を表示します。現地報告は任意の参考情報であり、判定には使用しません。</p><p className={s.notes}>自動評価（雨色への遷移）：ぴったり {VERDICT_LABELS[evaluation.radar_result?.exact??'']??'未評価'} ／ ±5分 {VERDICT_LABELS[evaluation.radar_result?.within5??'']??'未評価'} ／ ±10分 {VERDICT_LABELS[evaluation.radar_result?.within10??'']??'未評価'}{evaluation.state==='PENDING'?'（処理中の暫定値）':''}</p>{explanations.length?<ul className={s.reasonList}>{explanations.map((x,i)=><li key={`${x.code}-${i}`} className={x.kind==='difference'?s.difference:s.hold}><strong>{x.kind==='difference'?'差あり':x.kind==='hold'?'保留':'比較の前提'}：{x.title}</strong><p>{x.detail}</p></li>)}</ul>:<p>この時刻の取得済みデータから、表示対象の不一致は検出されていません。地上の精度保証ではありません。</p>}</section>\n  <div className={s.tableWrap}><table className={s.table}><thead><tr><th>方式</th><th>この時刻の候補</th><th>判定の根拠・保留理由</th></tr></thead><tbody>{METHODS.map(m=><tr key={m}><td className={s.method}>{METHOD_LABELS[m]}</td><td>{STATE_LABELS[candidates[m]?.state??'INDETERMINATE']}</td><td>{REASONS[candidates[m]?.reason??(m==='point'?'POINT_INPUT':'IMAGE_MISSING')]??'未確認'}</td></tr>)}</tbody></table></div>\n  {[{name:'予測の面積内訳',feature},{name:'実況の面積内訳',feature:observationFeature}].map(({name,feature})=>feature?<div className={s.tableWrap} key={name}><table className={s.table}><caption>{name}</caption><thead><tr><th>範囲</th><th>雨域占有率</th><th>分類可能</th><th>欠測 / 未知色</th><th>中心の穴</th></tr></thead><tbody>{[250,500,1000].map(r=>{const c=feature.metrics.circles[String(r)];return c?<tr key={r}><td>{r===1000?'1km':`${r}m`}</td><td>{percent(c.rainFraction)}</td><td>{percent(c.usableCoverage)}</td><td>{percent(c.missingFraction)} / {percent(c.unknownFraction)}</td><td>{c.centerDryHoleM2===null?'—':`${Math.round(c.centerDryHoleM2).toLocaleString()}m²`}</td></tr>:null;})}</tbody></table></div>:<p className={s.notes} key={name}>{name}：画像の解析待ちです。</p>)}\n  <p className={s.notes}>透明は取得できた画素で雨色がない状態です。未取得や、パレットにない未知色とは分けます。地上の無降雨を証明するものではありません。</p>\n  <p className={s.notes}>占有率は「範囲の何％に雨色があるか」で、地点の降雨確率ではありません。表示用画素数も、独立したレーダー観測数ではありません。</p>\n  {feedback?<p className={s.report}>一般向け履歴の回答：{FEEDBACK[feedback.actual_weather]??feedback.actual_weather} · 確認時刻 {tokyo(feedback.observed_at)}<br/>この回答は補助表示です。下の地点確認とは別に扱います。</p>:null}\n  {reports.map(r=><p className={s.report} key={r.observed_at}>現地の参考報告 {tokyo(r.observed_at)}：{r.weather==='UNKNOWN'?'未確認':STATE_LABELS[r.weather]} · {r.report_source==='AT_LOCATION'?'現地':r.report_source==='CAMERA'?'地点カメラ':'近隣の参考情報'}{r.note?` · ${r.note}`:''}</p>)}\n- <GroundForm evaluation={evaluation} onSaved={onSaved}/></div></details>;\n+ </details><GroundForm evaluation={evaluation} onSaved={onSaved}/></div></details>;\n }\n function HealthCard({label,value,maxMinutes}:{label:string;value:Health|null;maxMinutes:number}){const age=value?(Date.now()-Date.parse(value.started_at))/60000:Infinity,ok=value?.status==='OK'&&age<=maxMinutes;return <div className={s.healthItem}><span className={`${s.dot} ${ok?'':s.dotWarn}`}/><strong>{label}</strong><div className={s.muted}>{!value?'記録なし':ok?'正常':value.status==='RUNNING'?'処理中':value.status==='UNKNOWN'?'雨情報を確認できず':age>maxMinutes?'更新が遅れています':'要確認'}</div><div className={s.notes}>{value?tokyo(value.started_at):'—'}</div></div>;}\n export default function RainLab(){\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/app/dev/rain-lab/RainLab.tsx",
+      "source": {
+        "path": "app/dev/rain-lab/RainLab.tsx",
+        "coverage": "先頭18000文字・原本リンク参照",
+        "text": "'use client';\nimport {useCallback,useEffect,useId,useMemo,useRef,useState,type FormEvent} from 'react';\nimport {getSupabaseBrowserClient} from '../../../lib/supabase/browser';\nimport {EXCLUSION_LABELS,centerPixelLabel,imageDataUrl,METHODS,METHOD_LABELS,MATCH_GRADE_LABELS,matchGrade,percent,REASONS,STATE_LABELS,summarize,tokyo,type Evaluation,type GroundReport,type Health,type ImageRow,type LabData,type Shadow} from '../../../lib/research/rainLab';\nimport {LabAccessError,loadCaseImages,loadLab,saveGround} from '../../../lib/research/rainLabRepository';\nimport s from './lab.module.css';\nimport {explainCase,PATTERNS,VERDICT_LABELS} from '../../../lib/research/rainMismatch';\nconst jma=(value:string|null)=>{if(!value)return '';if(/^\\d{14}$/.test(value))return value;const d=new Date(value);return Number.isFinite(d.getTime())?d.toISOString().replace(/[-:TZ.]/g,'').slice(0,14):'';};\nconst EVENT_LABELS:Record<string,string>={RAIN_ENDING:'止むよ',RAIN_APPROACHING:'降るよ',ACTIONABLE_RAIN_APPROACHING:'降るよ'};\nconst FEEDBACK:Record<string,string>={RAINED:'降った',DID_NOT_RAIN:'降らなかった',ALREADY_RAINING:'すでに降っていた',STOPPED:'止んだ',DID_NOT_STOP:'止まなかった',ALREADY_DRY:'すでに降っていなかった',UNKNOWN:'わからない'};\nfunction Crop({image,location,title}:{image:ImageRow|null;location:{latitude:number;longitude:number};title:string}){\n const patternId=useId().replace(/:/g,'');const [dark,setDark]=useState(false);\n const url=image?imageDataUrl(image.crop_png):null,w=image?.metadata.window;\n const worldX=(location.longitude+180)/360*262144,worldY=(1-Math.asinh(Math.tan(location.latitude*Math.PI/180))/Math.PI)/2*262144;\n const masks=image?.availability_mask.slice(2).match(/../g)??[];\n return <figure className={s.figure}><figcaption>{title}</figcaption>{image&&url&&w?<><div className={s.crop} style={dark?{backgroundColor:'#263d50',backgroundImage:'none'}:undefined}>\n  {/* Raw PNG pixels, not a resampled weather prediction. */}<img src={url} alt={`${title} ${tokyo(image.valid_time)}の雨量画像`} />\n  <svg viewBox={`0 0 ${image.width} ${image.height}`} aria-hidden='true'><defs><pattern id={`missing-${patternId}`} width='0.6' height='0.6' patternUnits='userSpaceOnUse'><path d='M0 0L.6 .6' stroke='#c12d6b' strokeWidth='.12'/></pattern></defs>\n   {masks.map((v,i)=>v==='00'?<rect key={i} x={i%image.width} y={Math.floor(i/image.width)} width='1' height='1' fill={`url(#missing-${patternId})`}/>:null)}\n   {[250,500,1000].map((r,i)=><circle key={r} cx={worldX-w.originX} cy={worldY-w.originY} r={r/w.metersPerPixel} fill='none' stroke={['#159786','#3476c4','#c58a2a'][i]} strokeWidth='1.2' vectorEffect='non-scaling-stroke'/>)}\n   <path d={`M${worldX-w.originX-.6} ${worldY-w.originY}h1.2M${worldX-w.originX} ${worldY-w.originY-.6}v1.2`} stroke='#c63c54' strokeWidth='1.6' vectorEffect='non-scaling-stroke'/>\n  </svg></div><button type='button' className={s.contrast} aria-pressed={dark} onClick={()=>setDark(!dark)}>{dark?'市松背景に戻す':'淡い雨色を暗い背景で見る'}</button><div className={s.muted}>対象 {tokyo(image.valid_time)}</div><div className={s.notes}>中心：{centerPixelLabel(image,(Math.floor(worldY)-w.originY)*image.width+Math.floor(worldX)-w.originX)}<br/>RGBA {image.metadata.centerRgba?['r','g','b','a'].map(k=>image.metadata.centerRgba![k as 'r'|'g'|'b'|'a']).join(', '):'未取得'}</div><div className={s.notes}>発表 {tokyo(image.base_time)}<br/>取得 {tokyo(image.metadata.capturedAt)}<br/>{image.complete?'全画素取得':'欠けた画素あり'}{image.frame_kind==='FORECAST'?image.metadata.matchesInputPixel===true?' · 当時の中心と一致':' · 入力中心は未確認':''}</div>{image.frame_kind==='FORECAST'?<p className={s.notes}>同じ発表・対象時刻・地点のURLから後で回収した画像です。中心画素の一致は、通知時の画像全体が同一だった証明にはなりません。当時の画像全体のハッシュは未保存です。</p>:null}</>:<div className={s.noImage}>この時刻の画像は未保存です<br/>保存対象外・未回収を含みます</div>}</figure>;\n}\nfunction GroundForm({evaluation,onSaved}:{evaluation:Evaluation;onSaved:()=>Promise<void>}){\n const [weather,setWeather]=useState<GroundReport['weather']|''>(''),[time,setTime]=useState(''),[source,setSource]=useState<GroundReport['report_source']>('AT_LOCATION'),[confirmed,setConfirmed]=useState(false),[note,setNote]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[success,setSuccess]=useState(false);\n const submit=async(event:FormEvent)=>{event.preventDefault();setSuccess(false);setMessage('');if(!weather||!time){setMessage('天気と実際に確認した時刻を入力してください。');return;}setBusy(true);try{await saveGround(getSupabaseBrowserClient(),{evaluation_id:evaluation.id,observed_at:new Date(time).toISOString(),weather,report_source:source,location_confirmed:confirmed,note});setSuccess(true);setMessage('開発用の観測を保存しました。一般向け履歴の回答は変更していません。');await onSaved();}catch{setMessage('保存できませんでした。確認時刻・地点の確認・閲覧権限を確認してください。');}finally{setBusy(false);}};\n const now=()=>{const d=new Date(),local=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);setTime(local);};\n return <form className={s.form} onSubmit={event=>void submit(event)}><h3>現地の参考情報を記録（任意）</h3><p className={s.muted}>現地にいた場合だけ、確認できた事実を任意で記録してください。入力しなくても自動評価は進みます。近隣情報も参考として保存します。</p>\n  <div className={s.formGrid}><label className={s.label}>実際の天気<select value={weather} onChange={e=>setWeather(e.target.value as typeof weather)} required><option value=''>選んでください</option><option value='RAIN'>雨が降っていた</option><option value='NO_RAIN'>雨は降っていなかった</option><option value='UNKNOWN'>確認できない</option></select></label>\n   <label className={s.label}>確認方法<select value={source} onChange={e=>{setSource(e.target.value as typeof source);setConfirmed(false);}}><option value='AT_LOCATION'>登録地点そのもので確認</option><option value='CAMERA'>登録地点のカメラで確認</option><option value='NEARBY_REFERENCE'>近隣の情報・雨量計など（参考）</option></select></label>\n   <label className={s.label}>実際に確認した時刻<input type='datetime-local' value={time} onChange={e=>setTime(e.target.value)} required/></label><div><button type='button' onClick={now}>いまの時刻を入力</button></div></div>\n  {source!=='NEARBY_REFERENCE'?<label className={s.check}><input type='checkbox' checked={confirmed} onChange={e=>setConfirmed(e.target.checked)} required/>登録地点そのものと、入力した時刻の天気を確認しました</label>:<p className={s.notes}>近隣の情報は、登録地点の正解として一致率に使いません。</p>}\n  <label className={s.label}>メモ（任意・300文字まで）<textarea maxLength={300} value={note} onChange={e=>setNote(e.target.value)}/></label><p className={s.notes}>同じケース・同じ時刻の再保存は訂正になります。現地報告がない場合や報告同士が食い違う場合でも、レーダーによる自動評価は保留にしません。</p>\n  <button disabled={busy} type='submit'>{busy?'保存中…':'開発用の観測を保存'}</button>{message?<p role='status' className={success?s.success:s.error}>{message}</p>:null}</form>;\n}\nfunction CaseCard({evaluation,shadow,label,reports,feedback,threshold,onSaved}:{evaluation:Evaluation;shadow:Shadow|undefined;label:string;reports:GroundReport[];feedback:LabData['feedback'][number]|undefined;threshold:number;onSaved:()=>Promise<void>}){\n const [images,setImages]=useState<ImageRow[]|null>(null),[loading,setLoading]=useState(false),[error,setError]=useState(''),[selectedTime,setSelectedTime]=useState(jma(evaluation.target_time)),[base,setBase]=useState(shadow?.comparison.groups[0]?.baseTime??'');const request=useRef(0);\n useEffect(()=>()=>{request.current++;},[]);\n const load=async()=>{const rid=++request.current;setLoading(true);setError('');try{const rows=await loadCaseImages(getSupabaseBrowserClient(),evaluation.id);if(rid===request.current)setImages(rows);}catch{if(rid===request.current)setError('画像を取得できません。権限と接続を確認してください。');}finally{if(rid===request.current)setLoading(false);}};\n const group=shadow?.comparison.groups.find(g=>g.baseTime===base)??shadow?.comparison.groups[0],variant=group?.variants.find(v=>Math.abs(v.threshold-threshold)<.0001);\n const times=[...new Set([selectedTime,...(images??[]).filter(i=>i.frame_kind!=='INPUT_OBSERVATION').map(i=>i.valid_time),...(group?.point.series??[]).map(f=>f.validTime)].filter(Boolean))].sort();\n const forecast=images?.find(i=>i.frame_kind==='FORECAST'&&i.valid_time===selectedTime&&(!group||i.base_time===group.baseTime))??null,observation=images?.find(i=>i.frame_kind==='OBSERVATION'&&i.valid_time===selectedTime)??null;\n const observationFeature=shadow?.features.find(f=>f.kind==='OBSERVATION'&&f.validTime===selectedTime);\n const feature=shadow?.features.find(f=>f.kind==='FORECAST'&&f.validTime===selectedTime&&(!group||f.baseTime===group.baseTime));\n const explanations=explainCase(evaluation,shadow,selectedTime,group?.baseTime,threshold,reports);\n const grade=matchGrade(evaluation);\n const candidates={point:group?.point.series.find(f=>f.validTime===selectedTime),area:variant?.area.series.find(f=>f.validTime===selectedTime),combined:variant?.combined.series.find(f=>f.validTime===selectedTime)};\n return <details className={s.case} onToggle={event=>{if(event.currentTarget.open&&images===null&&!loading)void load();}}><summary><span><strong>{label} · {EVENT_LABELS[evaluation.event_type]??'雨通知'}</strong><br/><span className={s.muted}>{tokyo(evaluation.created_at)} 通知 · 予測対象 {tokyo(evaluation.target_time)}</span></span><span className={`${s.grade} ${s[`grade_${grade}`]}`}>{MATCH_GRADE_LABELS[grade]}</span></summary>\n <div className={s.caseBody}><div className={s.caseOverview}><strong className={`${s.grade} ${s[`grade_${grade}`]}`}>{MATCH_GRADE_LABELS[grade]}</strong><p>{grade==='exact'?'予測した時刻にレーダーの変化が一致しました。':grade==='within5'?'予測時刻から5分以内にレーダーの変化が一致しました。':grade==='within10'?'予測時刻から10分以内にレーダーの変化が一致しました。':grade==='mismatch'?'予測時刻の前後10分まで確認しましたが、レーダーの変化は一致しませんでした。':'必要な実況が不足しているなどの理由で、まだ一致・不一致を決められません。'}</p><div className={s.overviewTimes}><span>通知 <strong>{tokyo(evaluation.created_at)}</strong></span><span>予測した時刻 <strong>{tokyo(evaluation.target_time)}</strong></span></div><p className={s.notes}>※これはレーダーとの比較で、現地の雨を証明するものではありません。</p></div><p>{evaluation.snapshot.body}</p><span className={s.tag}>実況 {evaluation.state==='PENDING'?'回収中':evaluation.state==='COMPLETE'?'照合済み':'一部確認できず'}</span><span className={s.tag}>画像 {evaluation.image_state==='COMPLETE'?'保存済み':evaluation.image_state==='PENDING'?'回収中':'一部未取得'}</span>\n <details className={s.technical}><summary>処理状況・回収回数などの詳細</summary><div className={s.notes}>処理回数：実況 {evaluation.attempts??'—'} / 画像 {evaluation.image_attempts??'—'} / 比較 {evaluation.shadow_attempts??'—'}（初回を含むclaim回数）<br/>実況締切 {tokyo(evaluation.deadline_at)} · 画像は締切＋10分または60回、比較は締切＋20分または24回が通常処理の終了目安です。例外が続く場合や容量制限時の停止は別途監査が必要です。<br/>実況で未回収の時刻：{evaluation.radar_result?.missingTimes?.length?evaluation.radar_result.missingTimes.map(tokyo).join('、'):'なし／まだ未集計'}{evaluation.last_error||evaluation.image_error||evaluation.shadow_error?<><br/>取得・処理エラーあり。正常終了の記録とは分けて確認してください。</>:null}</div></details>\n <div className={s.filters}><label className={s.label}>比較する時刻<select value={selectedTime} onChange={e=>setSelectedTime(e.target.value)}>{times.map(t=><option key={t} value={t}>{tokyo(t)}</option>)}</select></label>{(shadow?.comparison.groups.length??0)>1?<label className={s.label}>予測の発表時刻<select value={group?.baseTime} onChange={e=>setBase(e.target.value)}>{shadow?.comparison.groups.map(g=><option key={g.baseTime} value={g.baseTime}>{tokyo(g.baseTime)}</option>)}</select></label>:null}<button type='button' disabled={loading} onClick={()=>void load()}>{loading?'画像を読込中…':'画像を更新'}</button></div>\n {error?<p className={s.error}>{error}</p>:null}<div className={s.images}><Crop image={forecast} location={evaluation.snapshot.location} title='当時の予測（後から回収）'/><Crop image={observation} location={evaluation.snapshot.location} title='対象時刻の実況'/></div>\n <p className={s.notes}>左が通知時点の予測、右が予測対象時刻の実況です。＋は登録地点、円は周辺250m・500m・1kmを表します。</p><div className={s.legend}><span style={{color:'#159786'}}>○ 250m</span><span style={{color:'#3476c4'}}>○ 500m</span><span style={{color:'#a16a19'}}>○ 1km</span><span>＋ 登録地点</span><span>市松＝取得済み透明（雨色なし） · 斜線＝未取得 · ほぼ白色も弱い雨</span></div>\n <details className={s.technical}><summary>詳しい判定理由・研究用の比較を見る</summary><section className={s.explanation}><h3>レーダーの不一致・判定不能の具体的な理由</h3><p className={s.notes}>画像の対象 {tokyo(selectedTime)}。時刻のずれは通知対象 {tokyo(evaluation.target_time)} を基準に確認します。レーダー上の差を表示します。現地報告は任意の参考情報であり、判定には使用しません。</p><p className={s.notes}>自動評価（雨色への遷移）：ぴったり {VERDICT_LABELS[evaluation.radar_result?.exact??'']??'未評価'} ／ ±5分 {VERDICT_LABELS[evaluation.radar_result?.within5??'']??'未評価'} ／ ±10分 {VERDICT_LABELS[evaluation.radar_result?.within10??'']??'未評価'}{evaluation.state==='PENDING'?'（処理中の暫定値）':''}</p>{explanations.length?<ul className={s.reasonList}>{explanations.map((x,i)=><li key={`${x.code}-${i}`} className={x.kind==='difference'?s.difference:s.hold}><strong>{x.kind==='difference'?'差あり':x.kind==='hold'?'保留':'比較の前提'}：{x.title}</strong><p>{x.detail}</p></li>)}</ul>:<p>この時刻の取得済みデータから、表示対象の不一致は検出されていません。地上の精度保証ではありません。</p>}</section>\n <div className={s.tableWrap}><table className={s.table}><thead><tr><th>方式</th><th>この時刻の候補</th><th>判定の根拠・保留理由</th></tr></thead><tbody>{METHODS.map(m=><tr key={m}><td className={s.method}>{METHOD_LABELS[m]}</td><td>{STATE_LABELS[candidates[m]?.state??'INDETERMINATE']}</td><td>{REASONS[candidates[m]?.reason??(m==='point'?'POINT_INPUT':'IMAGE_MISSING')]??'未確認'}</td></tr>)}</tbody></table></div>\n {[{name:'予測の面積内訳',feature},{name:'実況の面積内訳',feature:observationFeature}].map(({name,feature})=>feature?<div className={s.tableWrap} key={name}><table className={s.table}><caption>{name}</caption><thead><tr><th>範囲</th><th>雨域占有率</th><th>分類可能</th><th>欠測 / 未知色</th><th>中心の穴</th></tr></thead><tbody>{[250,500,1000].map(r=>{const c=feature.metrics.circles[String(r)];return c?<tr key={r}><td>{r===1000?'1km':`${r}m`}</td><td>{percent(c.rainFraction)}</td><td>{percent(c.usableCoverage)}</td><td>{percent(c.missingFraction)} / {percent(c.unknownFraction)}</td><td>{c.centerDryHoleM2===null?'—':`${Math.round(c.centerDryHoleM2).toLocaleString()}m²`}</td></tr>:null;})}</tbody></table></div>:<p className={s.notes} key={name}>{name}：画像の解析待ちです。</p>)}\n <p className={s.notes}>透明は取得できた画素で雨色がない状態です。未取得や、パレットにない未知色とは分けます。地上の無降雨を証明するものではありません。</p>\n <p className={s.notes}>占有率は「範囲の何％に雨色があるか」で、地点の降雨確率ではありません。表示用画素数も、独立したレーダー観測数ではありません。</p>\n {feedback?<p className={s.report}>一般向け履歴の回答：{FEEDBACK[feedback.actual_weather]??feedback.actual_weather} · 確認時刻 {tokyo(feedback.observed_at)}<br/>この回答は補助表示です。下の地点確認とは別に扱います。</p>:null}\n {reports.map(r=><p className={s.report} key={r.observed_at}>現地の参考報告 {tokyo(r.observed_at)}：{r.weather==='UNKNOWN'?'未確認':STATE_LABELS[r.weather]} · {r.report_source==='AT_LOCATION'?'現地':r.report_source==='CAMERA'?'地点カメラ':'近隣の参考情報'}{r.note?` · ${r.note}`:''}</p>)}\n </details><GroundForm evaluation={evaluation} onSaved={onSaved}/></div></details>;\n}\nfunction HealthCard({label,value,maxMinutes}:{label:string;value:Health|null;maxMinutes:number}){const age=value?(Date.now()-Date.parse(value.started_at))/60000:Infinity,ok=value?.status==='OK'&&age<=maxMinutes;return <div className={s.healthItem}><span className={`${s.dot} ${ok?'':s.dotWarn}`}/><strong>{label}</strong><div className={s.muted}>{!value?'記録なし':ok?'正常':value.status==='RUNNING'?'処理中':value.status==='UNKNOWN'?'雨情報を確認できず':age>maxMinutes?'更新が遅れています':'要確認'}</div><div className={s.notes}>{value?tokyo(value.started_at):'—'}</div></div>;}\nexport default function RainLab(){\n const [data,setData]=useState<LabData|null>(null),[gate,setGate]=useState<'checking'|'session'|'forbidden'|'error'|'ready'>('checking'),[message,setMessage]=useState(''),[busy,setBusy]=useState(false),[days,setDays]=useState(7),[target,setTarget]=useState('all'),[eventType,setEventType]=useState('all'),[threshold,setThreshold]=useState(.4),[updated,setUpdated]=useState<string|null>(null);const request=useRef(0);\n const refresh=useCallback(async()=>{const rid=++request.current;setBusy(true);setMessage('');try{const loaded=await loadLab(getSupabaseBrowserClient(),days);if(rid!==request.current)return;setData(loaded);setGate('ready');setUpdated(new Date().toISOString());}catch(error){if(rid!==request.current)return;setData(null);if(error instanceof LabAccessError)setGate(error.reason==='SESSION'?'session':'forbidden');else{setGate('error');setMessage('データを取得できません。接続を確認して再読込してください。');}}finally{if(rid===request.current)setBusy(false);}},[days]);\n useEffect(()=>{let timer:ReturnType<typeof setTimeout>|undefined;const invalidate=()=>{request.current++;setData(null);setGate('checking');if(timer)clearTimeout(timer);timer=setTimeout(()=>void refresh(),0);};let unsubscribe=()=>{};try{const sub=getSupabaseBrowserClient().auth.onAuthStateChange(invalidate);unsubscribe=()=>sub.data.subscription.unsubscribe();}catch{}\n  const visible=()=>{if(document.visibilityState==='visible')void refresh();};void refresh();const poll=setInterval(visible,60000);document.addEventListener('visibilitychange',visible);window.addEventListener('pageshow',visible);return()=>{request.current++;if(timer)clearTimeout(timer);clearInterval(poll);unsubscribe();document.removeEventListener('visibilitychange',visible);window.removeEventListener('pageshow',visible);};\n },[refresh]);\n const filtered=useMemo(()=>data?{...data,evaluations:data.evaluations.filter(e=>(target==='all'||e.target_id===target)&&(eventType==='all'||(eventType==='ending'?e.event_type==='RAIN_ENDING':e.event_type!=='RAIN_ENDING')))}:null,[data,target,eventType]);\n const summary=useMemo(()=>filtered?summarize(filtered,threshold,'radar'):null,[filtered,threshold]);\n if(gate!=='ready'||!data||!filtered||!summary)return <main className={s.shell}><div className={s.gate}><div className={s.eyebrow}>DEVELOPER ONLY</div><h1>雨の判定ラボ</h1><p>{gate==='checking'?'閲覧権限を確認しています…':gate==='session'?'通知を受け取っている、いつものPWA・アカウントで開いてください。':gate==='forbidden'?'このアカウントは開発用画面の閲覧を許可されていません。':message}</p><p className={s.muted}>比較データは、許可された開発者の登録地点だけに限定しています。URLだけでは閲覧できません。</p><button onClick={()=>void refresh()} disabled={busy}>再確認</button> <a href='/'>いつもの画面へ</a></div></main>;\n const patternCases=new Map<string,Set<string>>();for(const e of filtered.evaluations){const sh=data.shadows.find(x=>x.evaluation_id===e.id);for(const reason of explainCase(e,sh,jma(e.target_time),sh?.comparison.groups[0]?.baseTime,threshold,data.reports)){const ids=patternCases.get(reason.code)??new Set<string>();ids.add(e.id);patternCases.set(reason.code,ids);}}\n",
+        "sha256": "34016a7ba683be3ddcd6d380eeb673aec1d32148cde51ca4bfcca2931b5276a0"
+      }
+    },
+    {
+      "path": "app/dev/rain-lab/lab.module.css",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "patch": "diff --git a/app/dev/rain-lab/lab.module.css b/app/dev/rain-lab/lab.module.css\nindex 7831113..07eda5a 100644\n--- a/app/dev/rain-lab/lab.module.css\n+++ b/app/dev/rain-lab/lab.module.css\n@@ -5,3 +5,18 @@\n .contrast{font-size:12px!important;padding:7px 9px!important;margin-top:10px}.table caption{text-align:left;font-weight:700;padding:12px 0;color:#29475c}\n \n .explanation{margin:20px 0}.reasonList{list-style:none;padding:0;display:grid;gap:10px}.reasonList li{padding:13px;border-radius:10px;border-left:4px solid #b18536}.reasonList p{font-size:14px;margin:8px 0 0}.difference{background:#fff3df}.hold{background:#edf3f6}\n+\n+/* Compact, accessible status badges: color is always accompanied by text. */\n+.grade{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-width:100%;padding:7px 10px;border-radius:12px;font-size:13px;font-weight:800;line-height:1.35;text-align:center;white-space:normal;flex-shrink:0}\n+.grade_exact{background:#e2f4e9;color:#145c37;border:1px solid #8cc8a1}\n+.grade_within5{background:#fff5cb;color:#705000;border:1px solid #e2c563}\n+.grade_within10{background:#fff0dc;color:#86430b;border:1px solid #e5ae6b}\n+.grade_mismatch{background:#ffe6e3;color:#9b2823;border:1px solid #e5a19b}\n+.grade_pending{background:#eaf0f4;color:#455c6b;border:1px solid #bac9d2}\n+.caseOverview{background:#f4f8fa;border:1px solid #dbe6eb;border-radius:12px;padding:14px;margin-bottom:14px}\n+.caseOverview p{margin:9px 0}\n+.overviewTimes{display:flex;gap:10px;flex-wrap:wrap;font-size:14px}\n+.overviewTimes span{background:white;border:1px solid #dae5ea;border-radius:8px;padding:6px 9px}\n+.technical{margin:12px 0;border-top:1px solid #e1e9ee;padding-top:10px}\n+.technical>summary{font-weight:700;color:#345b6d;padding:8px 0}\n+@media(max-width:700px){.case summary{align-items:center;flex-wrap:wrap}.case summary>span:first-child{flex:1 1 175px;min-width:0}.case summary .grade{margin-left:auto}.overviewTimes{flex-direction:column}.images{grid-template-columns:1fr}.crop{max-width:280px}}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/app/dev/rain-lab/lab.module.css",
+      "source": {
+        "path": "app/dev/rain-lab/lab.module.css",
+        "coverage": "全文",
+        "text": ".shell{min-height:100vh;background:#f2f5f8;color:#172c3d;font-family:system-ui,-apple-system,sans-serif;line-height:1.65;padding:28px 22px 70px;box-sizing:border-box}.wrap{max-width:1120px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:16px}.top a{color:#315267;text-decoration:none}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;color:#27756e}.heading{font-size:clamp(27px,5vw,40px);line-height:1.3;letter-spacing:-.03em;margin:20px 0 9px}.muted{color:#526879;font-size:14px}.banner{background:#fff7e4;border:1px solid #e8d7a4;border-left:5px solid #b28b36;padding:16px 20px;border-radius:12px;margin:24px 0}.banner h2{font-size:19px;margin:0 0 5px}.banner p{margin:0;color:#6a562d;font-size:14px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0}.stat{background:#fff;border:1px solid #dce4eb;border-radius:14px;padding:18px 22px}.stat strong{display:block;font-size:32px;font-variant-numeric:tabular-nums}.stat span{font-size:13px;color:#526879}.panel{background:white;border:1px solid #dce4eb;border-radius:16px;padding:24px;margin:20px 0;box-shadow:0 4px 16px #21395404}.panel h2{font-size:21px;margin:0 0 12px}.panel h3{font-size:17px;margin:16px 0 8px}.filters{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end}.label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700;min-width:130px}.shell select,.shell input,.shell textarea{font:inherit;font-size:16px;border:1px solid #b8c8d3;border-radius:9px;background:white;padding:9px 11px;color:#183447;max-width:100%;box-sizing:border-box}.shell button,.button{font:inherit;font-size:15px;font-weight:700;padding:10px 16px;border-radius:9px;border:1px solid #1c6a65;background:#1c6a65;color:white;cursor:pointer;text-decoration:none;display:inline-block}.shell button:disabled{opacity:.5;cursor:wait}.shell button:focus-visible,.shell a:focus-visible,.shell select:focus-visible,.shell input:focus-visible{outline:3px solid #65aaa6;outline-offset:3px}.tableWrap{overflow-x:auto}.table{border-collapse:collapse;width:100%;min-width:580px;font-size:14px}.table th{text-align:left;font-size:12px;color:#526879;font-weight:700;white-space:nowrap;border-bottom:1px solid #cfdce4;padding:12px 10px}.table td{padding:16px 10px;border-bottom:1px solid #e6edf1;font-variant-numeric:tabular-nums}.method{font-weight:750}.rate{font-size:22px;font-weight:800;color:#216b65}.empty{padding:30px 15px;background:#f7fafb;border:1px dashed #b8ccd6;border-radius:12px;color:#526879}.empty strong{display:block;color:#263f50;font-size:18px;margin-bottom:8px}.case{border:1px solid #dce4eb;border-radius:12px;margin:12px 0;overflow:hidden}.case summary{cursor:pointer;padding:17px;background:#f8fbfc;list-style:none;display:flex;justify-content:space-between;gap:12px}.case summary::after{content:'＋';color:#32746f}.case[open] summary::after{content:'−'}.caseBody{padding:18px}.tag{display:inline-block;font-size:12px;background:#e8f2f0;color:#285e59;border-radius:20px;padding:3px 10px;margin:3px 5px 3px 0}.tagWarn{background:#fff1d7;color:#755916}.images{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}.figure{margin:0;min-width:0;background:#f7fafb;border:1px solid #dce4eb;border-radius:12px;padding:14px}.figure figcaption{font-weight:700;font-size:14px}.crop{position:relative;aspect-ratio:1;max-width:280px;width:100%;margin:12px auto;background-color:#f4f6f8;background-image:linear-gradient(45deg,#e1e6eb 25%,transparent 25%),linear-gradient(-45deg,#e1e6eb 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e1e6eb 75%),linear-gradient(-45deg,transparent 75%,#e1e6eb 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0}.crop img,.crop svg{position:absolute;inset:0;width:100%;height:100%}.crop img{image-rendering:pixelated}.legend{font-size:12px;display:flex;gap:12px;flex-wrap:wrap;color:#526879}.health{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.healthItem{border:1px solid #dde6ec;border-radius:10px;padding:14px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#348575;margin-right:7px}.dotWarn{background:#b18536}.form{border-top:1px solid #dce4eb;margin-top:22px;padding-top:12px}.formGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.check{display:flex;align-items:flex-start;gap:10px;font-size:14px;margin:15px 0}.check input{margin-top:5px;width:18px;height:18px}.form textarea{width:100%;min-height:75px}.error{color:#973b32;background:#fff0ed;padding:12px;border-radius:9px}.success{color:#1d6c51;background:#e7f5ee;padding:12px;border-radius:9px}.pill{padding:4px 10px;border-radius:15px;background:#e8eeef;color:#506572;font-size:12px}.links{display:flex;gap:20px;font-size:13px}.report{font-size:13px;background:#f2f7f6;border-radius:9px;padding:10px;margin:8px 0}.divider{border:0;border-top:1px solid #e0e8ed;margin:22px 0}.gate{max-width:620px;margin:12vh auto;background:white;padding:30px;border-radius:18px;border:1px solid #dce4eb}.gate h1{font-size:28px}.shell details>summary{cursor:pointer}.nowrap{white-space:nowrap}.notes{font-size:13px;color:#526879;margin-top:14px}.noImage{min-height:190px;display:grid;place-items:center;text-align:center;color:#647b89}.sourceTabs{display:flex;gap:8px;margin:15px 0}.sourceTabs button{background:#edf3f6;border-color:#c5d5de;color:#395769}.sourceTabs button[aria-pressed=true]{background:#1c6a65;color:#fff;border-color:#1c6a65}@media(max-width:700px){.shell{padding:18px 13px 50px}.panel{padding:18px 14px}.stats{gap:8px}.stat{padding:13px 11px}.stat strong{font-size:27px}.stat span{font-size:11px}.health{grid-template-columns:1fr 1fr}.images{gap:8px}.figure{padding:9px}.formGrid{grid-template-columns:1fr}.top{align-items:flex-start}.links{gap:12px}.label{flex:1;min-width:130px}.case summary{padding:13px}.caseBody{padding:12px}.crop{max-width:220px}.banner{padding:14px}.heading{margin-top:20px}}\n\n.table th:first-child,.table td:first-child{position:sticky;left:0;background:#fff;z-index:1}\n\n.contrast{font-size:12px!important;padding:7px 9px!important;margin-top:10px}.table caption{text-align:left;font-weight:700;padding:12px 0;color:#29475c}\n\n.explanation{margin:20px 0}.reasonList{list-style:none;padding:0;display:grid;gap:10px}.reasonList li{padding:13px;border-radius:10px;border-left:4px solid #b18536}.reasonList p{font-size:14px;margin:8px 0 0}.difference{background:#fff3df}.hold{background:#edf3f6}\n\n/* Compact, accessible status badges: color is always accompanied by text. */\n.grade{display:inline-flex;align-items:center;justify-content:center;align-self:center;max-width:100%;padding:7px 10px;border-radius:12px;font-size:13px;font-weight:800;line-height:1.35;text-align:center;white-space:normal;flex-shrink:0}\n.grade_exact{background:#e2f4e9;color:#145c37;border:1px solid #8cc8a1}\n.grade_within5{background:#fff5cb;color:#705000;border:1px solid #e2c563}\n.grade_within10{background:#fff0dc;color:#86430b;border:1px solid #e5ae6b}\n.grade_mismatch{background:#ffe6e3;color:#9b2823;border:1px solid #e5a19b}\n.grade_pending{background:#eaf0f4;color:#455c6b;border:1px solid #bac9d2}\n.caseOverview{background:#f4f8fa;border:1px solid #dbe6eb;border-radius:12px;padding:14px;margin-bottom:14px}\n.caseOverview p{margin:9px 0}\n.overviewTimes{display:flex;gap:10px;flex-wrap:wrap;font-size:14px}\n.overviewTimes span{background:white;border:1px solid #dae5ea;border-radius:8px;padding:6px 9px}\n.technical{margin:12px 0;border-top:1px solid #e1e9ee;padding-top:10px}\n.technical>summary{font-weight:700;color:#345b6d;padding:8px 0}\n@media(max-width:700px){.case summary{align-items:center;flex-wrap:wrap}.case summary>span:first-child{flex:1 1 175px;min-width:0}.case summary .grade{margin-left:auto}.overviewTimes{flex-direction:column}.images{grid-template-columns:1fr}.crop{max-width:280px}}\n",
+        "sha256": "4255f2127136123b80f74901688c39cb5594af72a1b078c5c42b81e53621952c"
+      }
+    },
+    {
+      "path": "lib/research/rainLab.ts",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "patch": "diff --git a/lib/research/rainLab.ts b/lib/research/rainLab.ts\nindex 5223474..0adc433 100644\n--- a/lib/research/rainLab.ts\n+++ b/lib/research/rainLab.ts\n@@ -2,6 +2,21 @@ import {classifyRainPixel} from '../weather/providers/jma/classifyPixel';\n export type State='RAIN'|'NO_RAIN'|'INDETERMINATE';\n export type Method='point'|'area'|'combined';\n export type Evaluation={id:string;target_id:string;event_type:string;target_time:string|null;created_at:string;notification_id:number|null;state:string;image_state:string;shadow_state:string;delivery_record_status?:string;attempts?:number;image_attempts?:number;shadow_attempts?:number;deadline_at?:string;last_error?:string|null;image_error?:string|null;shadow_error?:string|null;evidence?:unknown;radar_result?:{reason?:string;missingTimes?:string[];exact?:string;within5?:string;within10?:string};snapshot:{decidedAt:string;body?:string;location:{latitude:number;longitude:number};[key:string]:unknown}};\n+export type MatchGrade='exact'|'within5'|'within10'|'mismatch'|'pending';\n+export const MATCH_GRADE_LABELS:Record<MatchGrade,string>={\n+ exact:'🟢 ぴったり一致',within5:'🟡 ±5分以内',within10:'🟠 ±10分以内',\n+ mismatch:'🔴 不一致',pending:'⚪ 判定保留',\n+};\n+/** A wider matching window takes precedence over an indeterminate narrower window.\n+ * A red mismatch requires all three windows to be definitively mismatched. */\n+export function matchGrade(e:Pick<Evaluation,'radar_result'|'state'>):MatchGrade{\n+ const r=e.radar_result;\n+ if(r?.exact==='MATCH')return 'exact';\n+ if(r?.within5==='MATCH')return 'within5';\n+ if(r?.within10==='MATCH')return 'within10';\n+ if(r?.exact==='MISMATCH'&&r?.within5==='MISMATCH'&&r?.within10==='MISMATCH')return 'mismatch';\n+ return 'pending';\n+}\n export type Score={validTime:string;predicted:State;actual:State;verdict:string;reason?:string;leadMinutes?:number};\n export type Series={series:Array<{validTime:string;state:State;reason?:string}>;scores:Score[];transitions?:{rainStartsAt:string|null;rainEndsAt:string|null}};\n export type Shadow={evaluation_id:string;algorithm_version:string;features:Array<{kind:string;baseTime:string;validTime:string;matchesInputPixel:boolean|null;capturedAt:string;metrics:{circles:Record<string,{rainFraction:number|null;usableCoverage:number;missingFraction:number;unknownFraction:number;rainComponentCount:number;centerDryHoleM2:number|null}>}}>;\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/lib/research/rainLab.ts",
+      "source": {
+        "path": "lib/research/rainLab.ts",
+        "coverage": "全文",
+        "text": "import {classifyRainPixel} from '../weather/providers/jma/classifyPixel';\nexport type State='RAIN'|'NO_RAIN'|'INDETERMINATE';\nexport type Method='point'|'area'|'combined';\nexport type Evaluation={id:string;target_id:string;event_type:string;target_time:string|null;created_at:string;notification_id:number|null;state:string;image_state:string;shadow_state:string;delivery_record_status?:string;attempts?:number;image_attempts?:number;shadow_attempts?:number;deadline_at?:string;last_error?:string|null;image_error?:string|null;shadow_error?:string|null;evidence?:unknown;radar_result?:{reason?:string;missingTimes?:string[];exact?:string;within5?:string;within10?:string};snapshot:{decidedAt:string;body?:string;location:{latitude:number;longitude:number};[key:string]:unknown}};\nexport type MatchGrade='exact'|'within5'|'within10'|'mismatch'|'pending';\nexport const MATCH_GRADE_LABELS:Record<MatchGrade,string>={\n exact:'🟢 ぴったり一致',within5:'🟡 ±5分以内',within10:'🟠 ±10分以内',\n mismatch:'🔴 不一致',pending:'⚪ 判定保留',\n};\n/** A wider matching window takes precedence over an indeterminate narrower window.\n * A red mismatch requires all three windows to be definitively mismatched. */\nexport function matchGrade(e:Pick<Evaluation,'radar_result'|'state'>):MatchGrade{\n const r=e.radar_result;\n if(r?.exact==='MATCH')return 'exact';\n if(r?.within5==='MATCH')return 'within5';\n if(r?.within10==='MATCH')return 'within10';\n if(r?.exact==='MISMATCH'&&r?.within5==='MISMATCH'&&r?.within10==='MISMATCH')return 'mismatch';\n return 'pending';\n}\nexport type Score={validTime:string;predicted:State;actual:State;verdict:string;reason?:string;leadMinutes?:number};\nexport type Series={series:Array<{validTime:string;state:State;reason?:string}>;scores:Score[];transitions?:{rainStartsAt:string|null;rainEndsAt:string|null}};\nexport type Shadow={evaluation_id:string;algorithm_version:string;features:Array<{kind:string;baseTime:string;validTime:string;matchesInputPixel:boolean|null;capturedAt:string;metrics:{circles:Record<string,{rainFraction:number|null;usableCoverage:number;missingFraction:number;unknownFraction:number;rainComponentCount:number;centerDryHoleM2:number|null}>}}>;\n comparison:{groups:Array<{baseTime:string;point:Series;variants:Array<{threshold:number;area:Series;combined:Series}>}>;imageErrors?:unknown[]};computed_at:string};\nexport type GroundReport={evaluation_id:string;observed_at:string;weather:'RAIN'|'NO_RAIN'|'UNKNOWN';report_source:'AT_LOCATION'|'CAMERA'|'NEARBY_REFERENCE';location_confirmed:boolean;note:string;updated_at?:string};\nexport type Health={started_at:string;finished_at?:string|null;status:string;summary?:Record<string,unknown>;mode?:string};\nexport type ImageRow={frame_kind:string;base_time:string;valid_time:string;crop_png:string;availability_mask:string;width:number;height:number;complete:boolean;metadata:{centerRgba?:{r:number;g:number;b:number;a:number}|null;pngSha256?:string;capturedAt?:string;matchesInputPixel?:boolean|null;window:{originX:number;originY:number;metersPerPixel:number;width:number;height:number};[key:string]:unknown}};\nexport type LabData={evaluations:Evaluation[];total:number;shadows:Shadow[];reports:GroundReport[];targets:Array<{id:string;label:string}>;feedback:Array<{notification_id:number;actual_weather:string;observed_at:string|null;observed_time_source:string|null}>;health:{observation:Health|null;radar:Health|null;images:Health|null;shadow:Health|null};probe:{image:ImageRow;sourceValidTime:string}|null};\nexport const METHODS:Method[]=['point','area','combined'];\nexport const METHOD_LABELS:Record<Method,string>={point:'点（共通ルール）',area:'面（500m）',combined:'点と面の併用'};\nexport const STATE_LABELS:Record<State,string>={RAIN:'雨',NO_RAIN:'雨なし',INDETERMINATE:'保留'};\nexport const REASONS:Record<string,string>={IMAGE_MISSING:'画像の回収待ち',INPUT_CENTER_UNVERIFIED:'当時の中心画素と未照合',INVALID_CAPTURE_TIME:'取得時刻を確認できない',POST_VALID_RETRIEVAL:'予測時刻を過ぎて画像を取得',COARSE_SOURCE_HORIZON:'元データの解像度が粗い',INSUFFICIENT_KNOWN_COVERAGE:'欠測・未知色が多い',EXPERIMENTAL_RULE:'研究用の比較ルール',POINT_INPUT:'当時の中心画素'};\nexport function parseTime(value:string|null|undefined):number|null{if(!value)return null;const iso=/^\\d{14}$/.test(value)?`${value.slice(0,4)}-${value.slice(4,6)}-${value.slice(6,8)}T${value.slice(8,10)}:${value.slice(10,12)}:${value.slice(12,14)}Z`:value;const n=Date.parse(iso);return Number.isFinite(n)?n:null;}\nexport function tokyo(value:string|null|undefined){const n=parseTime(value);return n===null?'—':new Date(n).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});}\nexport function percent(value:number|null|undefined){return typeof value==='number'&&Number.isFinite(value)?`${Math.round(value*100)}%`:'—';}\nexport function groundAt(reports:GroundReport[],id:string,time:string,now=Date.now()):State{\n const t=parseTime(time);if(t===null||t>now)return 'INDETERMINATE';\n const matching=reports.filter(r=>r.evaluation_id===id&&r.location_confirmed&&r.report_source!=='NEARBY_REFERENCE'&&r.weather!=='UNKNOWN'&&parseTime(r.observed_at)!==null&&parseTime(r.observed_at)!<=now&&Math.abs(parseTime(r.observed_at)!-t)<=150000);\n const states=new Set(matching.map(r=>r.weather));return states.size===1?[...states][0] as State:'INDETERMINATE';\n}\nexport function summarize(data:LabData,threshold:number,source:'ground'|'radar',now=Date.now()){\n const totals=Object.fromEntries(METHODS.map(m=>[m,{matched:0,falseRain:0,falseDry:0,abstained:0}])) as Record<Method,{matched:number;falseRain:number;falseDry:number;abstained:number}>;\n let potential=0,truthMissing=0,paired=0,pendingCases=0;const exclusions:Record<string,number>={};const exclude=(reason:string)=>{exclusions[reason]=(exclusions[reason]??0)+1;};const conflictingWindows=new Set<string>();const cases=new Set<string>(),rainCases=new Set<string>(),dryCases=new Set<string>();\n for(const e of data.evaluations){if(e.shadow_state==='PENDING'){pendingCases++;continue;}const shadow=data.shadows.find(s=>s.evaluation_id===e.id);if(!shadow){pendingCases++;continue;}\n  for(const group of shadow.comparison.groups??[]){const variant=group.variants.find(v=>Math.abs(v.threshold-threshold)<0.0001);if(!variant)continue;\n   const pointRows=group.point.scores??[];\n   for(const p of pointRows){const t=parseTime(p.validTime),decided=parseTime(e.snapshot.decidedAt);if(t===null||decided===null){exclude('INVALID_TIME');continue;}if(t<=decided){exclude('NOT_FUTURE_AT_DECISION');continue;}if(t>now){exclude('NOT_YET_VALID');continue;}\n    const a=variant.area.series.find(x=>x.validTime===p.validTime),c=variant.combined.series.find(x=>x.validTime===p.validTime);potential++;\n    if(!a||!c)exclude('TIME_NOT_ALIGNED');\n    for(const row of [a,c])if(row?.state==='INDETERMINATE')exclude(row.reason??'RULE_UNDECIDED');\n    if(p.predicted==='INDETERMINATE')exclude('POINT_UNDECIDED');\n    const truth=source==='ground'?groundAt(data.reports,e.id,p.validTime,now):p.actual;\n    if(truth==='INDETERMINATE') {truthMissing++;exclude(source==='ground'?'GROUND_UNCONFIRMED':'RADAR_MISSING');if(source==='ground'){const states=new Set(data.reports.filter(r=>r.evaluation_id===e.id&&r.location_confirmed&&r.report_source!=='NEARBY_REFERENCE'&&r.weather!=='UNKNOWN'&&(parseTime(r.observed_at)??Infinity)<=now&&Math.abs((parseTime(r.observed_at)??Infinity)-t)<=150000).map(r=>r.weather));if(states.size>1)conflictingWindows.add(`${e.id}:${p.validTime}`);}continue;}\n    const predicted:Record<Method,State>={point:p.predicted,area:a?.state??'INDETERMINATE',combined:c?.state??'INDETERMINATE'};\n    for(const m of METHODS)if(predicted[m]==='INDETERMINATE')totals[m].abstained++;\n    if(METHODS.some(m=>predicted[m]==='INDETERMINATE'))continue;\n    paired++;cases.add(e.id);if(truth==='RAIN')rainCases.add(e.id);else dryCases.add(e.id);\n    for(const m of METHODS){if(predicted[m]===truth)totals[m].matched++;else if(predicted[m]==='RAIN')totals[m].falseRain++;else totals[m].falseDry++;}\n   }\n  }\n }\n return {totals,potential,truthMissing,paired,pendingCases,exclusions,caseCount:cases.size,rainCaseCount:rainCases.size,dryCaseCount:dryCases.size,conflictingReports:conflictingWindows.size};\n}\nexport function validateGroundReport(r:GroundReport,now=Date.now()):string|null{\n if(!['RAIN','NO_RAIN','UNKNOWN'].includes(r.weather))return '天気を選んでください。';\n if(!['AT_LOCATION','CAMERA','NEARBY_REFERENCE'].includes(r.report_source))return '確認方法を選んでください。';\n const t=parseTime(r.observed_at);if(t===null||t>now+60000)return '実際に確認した過去の時刻を入力してください。';\n if(r.report_source!=='NEARBY_REFERENCE'&&!r.location_confirmed)return '登録地点そのものの確認であることを確認してください。';\n if(r.note.length>300)return 'メモは300文字以内にしてください。';return null;\n}\nexport function imageDataUrl(hex:string):string|null{if(!/^\\\\x(?:[0-9a-f]{2})+$/i.test(hex)||hex.length>32770)return null;const parts=hex.slice(2).match(/../g)??[];const bytes=Uint8Array.from(parts.map(p=>parseInt(p,16)));if(bytes[0]!==137||bytes[1]!==80||bytes[2]!==78||bytes[3]!==71)return null;return `data:image/png;base64,${btoa(Array.from(bytes,b=>String.fromCharCode(b)).join(''))}`;}\n\nexport function centerPixelLabel(image:ImageRow,index:number):string{\n const mask=image.availability_mask.slice(2).match(/../g)??[];\n if(mask[index]==='00')return '未取得（雨なしには数えない）';\n if(mask[index]!=='01')return '取得状態を確認できない';\n const rgba=image.metadata.centerRgba;\n if(!rgba||!['r','g','b','a'].every(k=>Number.isInteger(rgba[k as keyof typeof rgba])&&rgba[k as keyof typeof rgba]>=0&&rgba[k as keyof typeof rgba]<=255))return '中心の色情報なし';\n if(rgba.a===0)return '取得済み透明（レーダー雨色なし）';\n const c=classifyRainPixel(rgba);return c.status==='RAIN'?`雨色（${c.intensityClass==='LT_1'?'1mm/h未満':c.intensityClass==='1_TO_5'?'1〜5mm/h':c.intensityClass}）`:'未知色（判定保留）';\n}\n\nexport const EXCLUSION_LABELS:Record<string,string>={...REASONS,INVALID_TIME:'予測・通知時刻が不正',NOT_FUTURE_AT_DECISION:'通知時点で未来の予測ではない',NOT_YET_VALID:'まだ対象時刻に到達していない',TIME_NOT_ALIGNED:'3方式で同じ対象時刻が揃わない',RULE_UNDECIDED:'判定条件を満たさず保留',POINT_UNDECIDED:'点候補が判定保留',GROUND_UNCONFIRMED:'現地・地点カメラの正解記録なし／矛盾',RADAR_MISSING:'対象時刻の実況中心が欠測／判定不能',IMAGE_MISSING:'予測画像が未保存（保存対象外・回収待ち・失敗）'};\n",
+        "sha256": "ec78b368707431cab07146bd6c56fca4f07d27fe0d810c4085eb5bdf256918c0"
+      }
+    },
+    {
+      "path": "tests/rainLabGrade.test.ts",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 0,
+      "patch": "diff --git a/tests/rainLabGrade.test.ts b/tests/rainLabGrade.test.ts\nnew file mode 100644\nindex 0000000..5cb0b18\n--- /dev/null\n+++ b/tests/rainLabGrade.test.ts\n@@ -0,0 +1,19 @@\n+import {strict as assert} from 'node:assert';\n+import {test} from 'node:test';\n+import {matchGrade} from '../lib/research/rainLab';\n+\n+const make=(exact:string,within5:string,within10:string,state='COMPLETE')=>({\n+ state,radar_result:{exact,within5,within10},\n+});\n+test('highest precision match wins',()=>{\n+ assert.equal(matchGrade(make('MATCH','MATCH','MATCH')),'exact');\n+ assert.equal(matchGrade(make('MISMATCH','MATCH','MATCH')),'within5');\n+ assert.equal(matchGrade(make('MISMATCH','MISMATCH','MATCH')),'within10');\n+});\n+test('red only when every window is definitively mismatched',()=>{\n+ assert.equal(matchGrade(make('MISMATCH','MISMATCH','MISMATCH')),'mismatch');\n+ assert.equal(matchGrade(make('MISMATCH','INDETERMINATE','MISMATCH')),'pending');\n+ assert.equal(matchGrade(make('INDETERMINATE','MISMATCH','MISMATCH')),'pending');\n+ assert.equal(matchGrade(make('MISMATCH','INDETERMINATE','MATCH')),'within10');\n+ assert.equal(matchGrade({state:'PENDING'}),'pending');\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8b556eeee0ce0443a47efbb1077981951a27a00b/tests/rainLabGrade.test.ts",
+      "source": {
+        "path": "tests/rainLabGrade.test.ts",
+        "coverage": "全文",
+        "text": "import {strict as assert} from 'node:assert';\nimport {test} from 'node:test';\nimport {matchGrade} from '../lib/research/rainLab';\n\nconst make=(exact:string,within5:string,within10:string,state='COMPLETE')=>({\n state,radar_result:{exact,within5,within10},\n});\ntest('highest precision match wins',()=>{\n assert.equal(matchGrade(make('MATCH','MATCH','MATCH')),'exact');\n assert.equal(matchGrade(make('MISMATCH','MATCH','MATCH')),'within5');\n assert.equal(matchGrade(make('MISMATCH','MISMATCH','MATCH')),'within10');\n});\ntest('red only when every window is definitively mismatched',()=>{\n assert.equal(matchGrade(make('MISMATCH','MISMATCH','MISMATCH')),'mismatch');\n assert.equal(matchGrade(make('MISMATCH','INDETERMINATE','MISMATCH')),'pending');\n assert.equal(matchGrade(make('INDETERMINATE','MISMATCH','MISMATCH')),'pending');\n assert.equal(matchGrade(make('MISMATCH','INDETERMINATE','MATCH')),'within10');\n assert.equal(matchGrade({state:'PENDING'}),'pending');\n});\n",
+        "sha256": "a41b6246148e8de8a7a4250ce90f7e6fd27365edce6c6dd7a1d14ed64fa78aac"
+      }
+    }
+  ],
+  "file_count": 4,
+  "reported_file_count": 4,
+  "commits": [
+    {
+      "sha": "cf3421d237378e2d6cffaa9008600c7d83ba5d2f",
+      "message": "fix(rain-lab): simplify case results and color-coded verdicts\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/cf3421d237378e2d6cffaa9008600c7d83ba5d2f"
+    },
+    {
+      "sha": "6bdf63232208d787fe5f591c6f97419c9df31656",
+      "message": "fix(rain-lab): simplify case results and color-coded verdicts\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/6bdf63232208d787fe5f591c6f97419c9df31656"
+    },
+    {
+      "sha": "f551b951a2caea8efc5d23e6fce83067d26b5e1a",
+      "message": "fix(rain-lab): simplify case results and color-coded verdicts\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/f551b951a2caea8efc5d23e6fce83067d26b5e1a"
+    },
+    {
+      "sha": "8b556eeee0ce0443a47efbb1077981951a27a00b",
+      "message": "test: verify rain-lab color grade precedence\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/8b556eeee0ce0443a47efbb1077981951a27a00b"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "8b556eeee0ce0443a47efbb1077981951a27a00b",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42549867239",
+      "id": 42549867239,
+      "updated_at": "2026-11-09T02:15:10Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "8b556eeee0ce0443a47efbb1077981951a27a00b",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42549867233",
+      "id": 42549867233,
+      "updated_at": "2026-11-09T02:15:33Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "4317cc86777fab8ae1524a2d024ebc0b2f6fcfdc",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42550239176",
+      "id": 42550239176,
+      "updated_at": "2026-11-09T02:20:46Z",
+      "event": "create"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "4317cc86777fab8ae1524a2d024ebc0b2f6fcfdc",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42549883356",
+      "id": 42549883356,
+      "updated_at": "2026-11-09T02:15:26Z",
+      "event": "push"
+    },
+    {
+      "name": "CI",
+      "head_sha": "4317cc86777fab8ae1524a2d024ebc0b2f6fcfdc",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42549883391",
+      "id": 42549883391,
+      "updated_at": "2026-11-09T02:15:48Z",
+      "event": "push"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "4317cc86777fab8ae1524a2d024ebc0b2f6fcfdc",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42549883426",
+      "id": 42549883426,
+      "updated_at": "2026-11-09T02:16:35Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "CaseCard",
+    "Crop",
+    "EVENT_LABELS",
+    "EXCLUSION_LABELS",
+    "FEEDBACK",
+    "GroundForm",
+    "HealthCard",
+    "MATCH_GRADE_LABELS",
+    "METHODS",
+    "METHOD_LABELS",
+    "REASONS",
+    "RainLab",
+    "STATE_LABELS",
+    "a",
+    "age",
+    "bytes",
+    "c",
+    "candidates",
+    "cases",
+    "centerPixelLabel",
+    "conflictingWindows",
+    "d",
+    "e",
+    "exclude",
+    "exclusions",
+    "explanations",
+    "feature",
+    "filtered",
+    "forecast",
+    "grade",
+    "groundAt",
+    "group",
+    "ids",
+    "imageDataUrl",
+    "invalidate",
+    "iso",
+    "jma",
+    "load",
+    "loaded",
+    "m",
+    "make",
+    "mask",
+    "masks",
+    "matchGrade",
+    "matching",
+    "n",
+    "now",
+    "observationFeature",
+    "p",
+    "parseTime",
+    "parts",
+    "patternCases",
+    "patternId",
+    "percent",
+    "pointRows",
+    "poll",
+    "potential",
+    "predicted",
+    "r",
+    "reason"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "雨判定ラボの事例要約と一致度の色分けを改善",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/176"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "77d5431baca0bbf2938317b064f8f5089209504bcccef341e0605d7af772794e",
+  "ci_digest": "c677d14753776b87b4c2503e7de1071b02bf3160326e324ea6304cd46e6d3f41",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00",
+  "decisions": []
+}

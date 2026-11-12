@@ -1,0 +1,450 @@
+{
+  "id": "pr-215",
+  "number": 215,
+  "title": "Draft: 全国大雨予報からBluesky投稿候補を生成（Issue #213）",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Draft: 全国大雨予報からBluesky投稿候補を生成（Issue #213）\n\nRelates to #213 and #214.\n\n## 実装済み（第一段階）\n- トップ画面と同じ全国大雨予報スナップショットを入力とする市区町村単位の投稿候補生成\n- 市区町村ごとの最大雨量、予報時刻、重複判定キー\n- 前回予報との比較による新規地域・雨量強化の抽出（初回は送信しない）\n- オフライン単体テスト\n\n## 未実装・未検証\n- Bluesky認証・投稿API、永続的な投稿済み記録、原子的な二重送信防止、再試行、定期起動\n- 自動投稿はまだ動作しない。main・本番未反映\n- 実投稿・DB本番変更・マージ・本番デプロイは別途承認が必要\n\n## 検証\n- CI: https://github.com/miyazaki1016/emergencyalert/actions/runs/43230833902 (success, HEAD 6d8677dc02cd447d436b775f1d0c04ae563f9ac5)\n- PR着手前照合: https://github.com/miyazaki1016/emergencyalert/actions/runs/43232517095 (success)\n- Issue着手前照合: https://github.com/miyazaki1016/emergencyalert/actions/runs/43230619709 (success)\n\n\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-59\",\"decision\":\"reuse\",\"reason\":\"全国の自治体照合とN03データの検証・未解決制約を参照する。今回は予報スナップショットから投稿候補を作るだけで全国タイル解析を再実装せず、実測未完了を完成扱いしない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/59\"},{\"id\":\"pr-211\",\"decision\":\"extend\",\"reason\":\"mainに統合済みの全国予報API・トップ表示・検証済みスナップショットをそのまま再利用し、未実装のBluesky投稿候補と差分判定のみ追加する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/211\"},{\"id\":\"pr-181\",\"decision\":\"reuse\",\"reason\":\"全国z4全画素化と欠損を雨なしとしない既存研究を参照する。今回の投稿候補生成は既に確定したスナップショットのみを入力とし、未統合の抽出処理を変更・再実験しない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/181\"}]}\n-->\n",
+  "snapshot_head": "2e79ef53556d49decb0a868a9716f62ff1e5780d",
+  "snapshot_consistent": true,
+  "head": "2e79ef53556d49decb0a868a9716f62ff1e5780d",
+  "base": "5c2b6b99d9b44cc849c925252d6d4c34fb32cf47",
+  "base_ref": "main",
+  "head_ref": "feat/bluesky-national-forecast-213",
+  "state": "open",
+  "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+  "draft": true,
+  "merged_at": null,
+  "merge_commit_sha": null,
+  "updated_at": "2026-11-12T14:17:47Z",
+  "code_facts": [
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { describe, expect, it } from \"vitest\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"national forecast Bluesky candidate\",()=>{",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"uses the same municipality labels and intensity as the top forecast\",()=>{",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(rows[0].text).toContain(\"東京都 江東区\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(rows[0].text).toContain(\"50mm\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"does not announce identical or weaker forecasts\",()=>{",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(significantForecastChanges(old,old)).toEqual([]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(significantForecastChanges(snapshot([{code:\"13108\",minimumMmPerHour:30}]),old)).toEqual([]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"announces new areas and stronger rainfall\",()=>{",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(significantForecastChanges(snapshot([{code:\"13108\",minimumMmPerHour:80},{code:\"13102\",minimumMmPerHour:50}]),old)).toHaveLength(2);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"requires a previous valid snapshot rather than treating startup as an alert\",()=>{",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(significantForecastChanges(snapshot([{code:\"13108\",minimumMmPerHour:80}]),null)).toEqual([]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function buildForecastPostCandidates(snapshot: NationalForecastSnapshot): ForecastPostCandidate[] {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!old || area.minimumMmPerHour > old.area.minimumMmPerHour ||",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const key = createHash(\"sha256\").update(JSON.stringify([snapshot.n03Version, area.code, validTime, area.minimumMmPerHour])).digest(\"hex\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function significantForecastChanges(current: NationalForecastSnapshot, previous: NationalForecastSnapshot | null): ForecastPostCandidate[] {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (previous) for (const frame of previous.frames) for (const area of frame.municipalities)",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function planForecastPublication(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (previous && forecastTime(current.basetime) <= forecastTime(previous.basetime)) return null;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "/** Persist the validated baseline before allowing a later run to compare against it. */",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export async function prepareClaimedForecastPublication(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!(await store.claim(current.basetime))) return null;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastBluesky.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!plan) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "lib/weather/rain/nationalForecastBluesky.test.ts",
+      "status": "modified",
+      "additions": 98,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/nationalForecastBluesky.test.ts b/lib/weather/rain/nationalForecastBluesky.test.ts\nnew file mode 100644\nindex 00000000..48aef6ad\n--- /dev/null\n+++ b/lib/weather/rain/nationalForecastBluesky.test.ts\n@@ -0,0 +1,98 @@\n+import { describe, expect, it } from \"vitest\";\n+import { buildForecastPostCandidates, significantForecastChanges, planForecastPublication, prepareClaimedForecastPublication, type ForecastPublicationStore } from \"./nationalForecastBluesky\";\n+import type { NationalForecastSnapshot } from \"./nationalForecastSnapshot\";\n+const snapshot = (areas: Array<{code:string;minimumMmPerHour:30|50|80}>): NationalForecastSnapshot => ({\n+ source:\"JMA\",n03Version:\"20260101\",basetime:\"20261112120000\",\n+ frames:[{validTime:\"20261112120500\",municipalities:areas.map(a=>({...a,prefecture:\"東京都\",municipality:a.code===\"13108\"?\"江東区\":\"中央区\"}))}]\n+});\n+describe(\"national forecast Bluesky candidate\",()=>{\n+ it(\"uses the same municipality labels and intensity as the top forecast\",()=>{\n+  const rows=buildForecastPostCandidates(snapshot([{code:\"13108\",minimumMmPerHour:50}]));\n+  expect(rows[0].text).toContain(\"東京都 江東区\");\n+  expect(rows[0].text).toContain(\"50mm\");\n+ });\n+ it(\"does not announce identical or weaker forecasts\",()=>{\n+  const old=snapshot([{code:\"13108\",minimumMmPerHour:50}]);\n+  expect(significantForecastChanges(old,old)).toEqual([]);\n+  expect(significantForecastChanges(snapshot([{code:\"13108\",minimumMmPerHour:30}]),old)).toEqual([]);\n+ });\n+ it(\"announces new areas and stronger rainfall\",()=>{\n+  const old=snapshot([{code:\"13108\",minimumMmPerHour:30}]);\n+  expect(significantForecastChanges(snapshot([{code:\"13108\",minimumMmPerHour:80},{code:\"13102\",minimumMmPerHour:50}]),old)).toHaveLength(2);\n+ });\n+ it(\"requires a previous valid snapshot rather than treating startup as an alert\",()=>{\n+  expect(significantForecastChanges(snapshot([{code:\"13108\",minimumMmPerHour:80}]),null)).toEqual([]);\n+ });\n+ it(\"produces stable dedupe keys\",()=>{\n+  const a=snapshot([{code:\"13108\",minimumMmPerHour:50}]);\n+  expect(buildForecastPostCandidates(a)[0].key).toBe(buildForecastPostCandidates(a)[0].key);\n+ });\n+ it(\"chooses the strongest forecast within a municipality across the rolling 30 minutes\",()=>{\n+  const data=snapshot([{code:\"13108\",minimumMmPerHour:30}]);\n+  data.frames.push({validTime:\"20261112121000\",municipalities:[{code:\"13108\",prefecture:\"東京都\",municipality:\"江東区\",minimumMmPerHour:50}]});\n+  const rows=buildForecastPostCandidates(data);\n+  expect(rows).toHaveLength(1);\n+  expect(rows[0].intensity).toBe(50);\n+  expect(rows[0].validTime).toBe(\"20261112121000\");\n+ });\n+ it(\"does not repost when only the forecast time rolls forward by five minutes\",()=>{\n+  const previous=snapshot([{code:\"13108\",minimumMmPerHour:50}]);\n+  const current=snapshot([{code:\"13108\",minimumMmPerHour:50}]);\n+  current.basetime=\"20261112120500\";\n+  current.frames[0].validTime=\"20261112121000\";\n+  expect(significantForecastChanges(current,previous)).toEqual([]);\n+ });\n+ it(\"announces a municipality when rain returns after falling below threshold\",()=>{\n+  const clear=snapshot([]);\n+  const returned=snapshot([{code:\"13108\",minimumMmPerHour:50}]);\n+  expect(significantForecastChanges(returned,clear)).toHaveLength(1);\n+ });\n+\n+ it(\"does not process a repeated or out-of-order baseline\",()=>{\n+  const previous=snapshot([{code:\"13108\",minimumMmPerHour:30}]);\n+  const repeated=snapshot([{code:\"13108\",minimumMmPerHour:80}]);\n+  expect(planForecastPublication(repeated,previous)).toBeNull();\n+  repeated.basetime=\"20261112115500\";\n+  expect(planForecastPublication(repeated,previous)).toBeNull();\n+ });\n+ it(\"advances a newer baseline even when there is no meaningful change\",()=>{\n+  const previous=snapshot([{code:\"13108\",minimumMmPerHour:50}]);\n+  const current=snapshot([{code:\"13108\",minimumMmPerHour:50}]);\n+  current.basetime=\"20261112120500\";\n+  current.frames[0].validTime=\"20261112121000\";\n+  const plan=planForecastPublication(current,previous);\n+  expect(plan?.candidates).toEqual([]);\n+  expect(plan?.nextSnapshot).toBe(current);\n+ });\n+\n+ it(\"requires an atomic claim before preparing a publication\",async()=>{\n+  let claimed=false;\n+  const current=snapshot([{code:\"13108\",minimumMmPerHour:50}]);\n+  const store:ForecastPublicationStore={\n+   claim:async()=>{if(claimed)return false;claimed=true;return true;},\n+   getPrevious:async()=>null,\n+   complete:async()=>{},\n+   release:async()=>{claimed=false;},\n+  };\n+  const [first,second]=await Promise.all([\n+   prepareClaimedForecastPublication(current,store),\n+   prepareClaimedForecastPublication(current,store),\n+  ]);\n+  expect([first,second].filter(Boolean)).toHaveLength(1);\n+  expect(first?.plan.candidates).toEqual([]);\n+  await first?.release();\n+ });\n+ it(\"releases a claim if loading the previous baseline fails\",async()=>{\n+  const current=snapshot([]);\n+  let released=false;\n+  const store:ForecastPublicationStore={\n+   claim:async()=>true,\n+   getPrevious:async()=>{throw new Error(\"storage unavailable\");},\n+   complete:async()=>{},\n+   release:async()=>{released=true;},\n+  };\n+  await expect(prepareClaimedForecastPublication(current,store)).rejects.toThrow(\"storage unavailable\");\n+  expect(released).toBe(true);\n+ });\n+\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts",
+      "source": {
+        "path": "lib/weather/rain/nationalForecastBluesky.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { buildForecastPostCandidates, significantForecastChanges, planForecastPublication, prepareClaimedForecastPublication, type ForecastPublicationStore } from \"./nationalForecastBluesky\";\nimport type { NationalForecastSnapshot } from \"./nationalForecastSnapshot\";\nconst snapshot = (areas: Array<{code:string;minimumMmPerHour:30|50|80}>): NationalForecastSnapshot => ({\n source:\"JMA\",n03Version:\"20260101\",basetime:\"20261112120000\",\n frames:[{validTime:\"20261112120500\",municipalities:areas.map(a=>({...a,prefecture:\"東京都\",municipality:a.code===\"13108\"?\"江東区\":\"中央区\"}))}]\n});\ndescribe(\"national forecast Bluesky candidate\",()=>{\n it(\"uses the same municipality labels and intensity as the top forecast\",()=>{\n  const rows=buildForecastPostCandidates(snapshot([{code:\"13108\",minimumMmPerHour:50}]));\n  expect(rows[0].text).toContain(\"東京都 江東区\");\n  expect(rows[0].text).toContain(\"50mm\");\n });\n it(\"does not announce identical or weaker forecasts\",()=>{\n  const old=snapshot([{code:\"13108\",minimumMmPerHour:50}]);\n  expect(significantForecastChanges(old,old)).toEqual([]);\n  expect(significantForecastChanges(snapshot([{code:\"13108\",minimumMmPerHour:30}]),old)).toEqual([]);\n });\n it(\"announces new areas and stronger rainfall\",()=>{\n  const old=snapshot([{code:\"13108\",minimumMmPerHour:30}]);\n  expect(significantForecastChanges(snapshot([{code:\"13108\",minimumMmPerHour:80},{code:\"13102\",minimumMmPerHour:50}]),old)).toHaveLength(2);\n });\n it(\"requires a previous valid snapshot rather than treating startup as an alert\",()=>{\n  expect(significantForecastChanges(snapshot([{code:\"13108\",minimumMmPerHour:80}]),null)).toEqual([]);\n });\n it(\"produces stable dedupe keys\",()=>{\n  const a=snapshot([{code:\"13108\",minimumMmPerHour:50}]);\n  expect(buildForecastPostCandidates(a)[0].key).toBe(buildForecastPostCandidates(a)[0].key);\n });\n it(\"chooses the strongest forecast within a municipality across the rolling 30 minutes\",()=>{\n  const data=snapshot([{code:\"13108\",minimumMmPerHour:30}]);\n  data.frames.push({validTime:\"20261112121000\",municipalities:[{code:\"13108\",prefecture:\"東京都\",municipality:\"江東区\",minimumMmPerHour:50}]});\n  const rows=buildForecastPostCandidates(data);\n  expect(rows).toHaveLength(1);\n  expect(rows[0].intensity).toBe(50);\n  expect(rows[0].validTime).toBe(\"20261112121000\");\n });\n it(\"does not repost when only the forecast time rolls forward by five minutes\",()=>{\n  const previous=snapshot([{code:\"13108\",minimumMmPerHour:50}]);\n  const current=snapshot([{code:\"13108\",minimumMmPerHour:50}]);\n  current.basetime=\"20261112120500\";\n  current.frames[0].validTime=\"20261112121000\";\n  expect(significantForecastChanges(current,previous)).toEqual([]);\n });\n it(\"announces a municipality when rain returns after falling below threshold\",()=>{\n  const clear=snapshot([]);\n  const returned=snapshot([{code:\"13108\",minimumMmPerHour:50}]);\n  expect(significantForecastChanges(returned,clear)).toHaveLength(1);\n });\n\n it(\"does not process a repeated or out-of-order baseline\",()=>{\n  const previous=snapshot([{code:\"13108\",minimumMmPerHour:30}]);\n  const repeated=snapshot([{code:\"13108\",minimumMmPerHour:80}]);\n  expect(planForecastPublication(repeated,previous)).toBeNull();\n  repeated.basetime=\"20261112115500\";\n  expect(planForecastPublication(repeated,previous)).toBeNull();\n });\n it(\"advances a newer baseline even when there is no meaningful change\",()=>{\n  const previous=snapshot([{code:\"13108\",minimumMmPerHour:50}]);\n  const current=snapshot([{code:\"13108\",minimumMmPerHour:50}]);\n  current.basetime=\"20261112120500\";\n  current.frames[0].validTime=\"20261112121000\";\n  const plan=planForecastPublication(current,previous);\n  expect(plan?.candidates).toEqual([]);\n  expect(plan?.nextSnapshot).toBe(current);\n });\n\n it(\"requires an atomic claim before preparing a publication\",async()=>{\n  let claimed=false;\n  const current=snapshot([{code:\"13108\",minimumMmPerHour:50}]);\n  const store:ForecastPublicationStore={\n   claim:async()=>{if(claimed)return false;claimed=true;return true;},\n   getPrevious:async()=>null,\n   complete:async()=>{},\n   release:async()=>{claimed=false;},\n  };\n  const [first,second]=await Promise.all([\n   prepareClaimedForecastPublication(current,store),\n   prepareClaimedForecastPublication(current,store),\n  ]);\n  expect([first,second].filter(Boolean)).toHaveLength(1);\n  expect(first?.plan.candidates).toEqual([]);\n  await first?.release();\n });\n it(\"releases a claim if loading the previous baseline fails\",async()=>{\n  const current=snapshot([]);\n  let released=false;\n  const store:ForecastPublicationStore={\n   claim:async()=>true,\n   getPrevious:async()=>{throw new Error(\"storage unavailable\");},\n   complete:async()=>{},\n   release:async()=>{released=true;},\n  };\n  await expect(prepareClaimedForecastPublication(current,store)).rejects.toThrow(\"storage unavailable\");\n  expect(released).toBe(true);\n });\n\n});\n",
+        "sha256": "81db0ea7a887bfe1327234d3add4994943da260067330894c7e153763c1c21d0"
+      }
+    },
+    {
+      "path": "lib/weather/rain/nationalForecastBluesky.ts",
+      "status": "modified",
+      "additions": 98,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/nationalForecastBluesky.ts b/lib/weather/rain/nationalForecastBluesky.ts\nnew file mode 100644\nindex 00000000..d69a9f43\n--- /dev/null\n+++ b/lib/weather/rain/nationalForecastBluesky.ts\n@@ -0,0 +1,98 @@\n+import { createHash } from \"node:crypto\";\n+import { forecastTime, type NationalForecastSnapshot } from \"./nationalForecastSnapshot\";\n+\n+export type ForecastPostCandidate = {\n+  key: string;\n+  text: string;\n+  municipalityCode: string;\n+  validTime: string;\n+  intensity: 30 | 50 | 80;\n+};\n+type ForecastArea = NationalForecastSnapshot[\"frames\"][number][\"municipalities\"][number];\n+\n+/** Shared validated snapshot is the only source; never fetch JMA separately. */\n+export function buildForecastPostCandidates(snapshot: NationalForecastSnapshot): ForecastPostCandidate[] {\n+  const strongest = new Map<string, { area: ForecastArea; validTime: string }>();\n+  for (const frame of snapshot.frames) for (const area of frame.municipalities) {\n+    const old = strongest.get(area.code);\n+    if (!old || area.minimumMmPerHour > old.area.minimumMmPerHour ||\n+      (area.minimumMmPerHour === old.area.minimumMmPerHour && forecastTime(frame.validTime) < forecastTime(old.validTime))) {\n+      strongest.set(area.code, { area, validTime: frame.validTime });\n+    }\n+  }\n+  return [...strongest.values()].sort((a, b) =>\n+    b.area.minimumMmPerHour - a.area.minimumMmPerHour ||\n+    forecastTime(a.validTime) - forecastTime(b.validTime) ||\n+    a.area.code.localeCompare(b.area.code)\n+  ).map(({ area, validTime }) => {\n+    const text = `【アメふる 全国大雨予報】\\n${area.prefecture} ${area.municipality}\\n${new Intl.DateTimeFormat(\"ja-JP\", {timeZone:\"Asia/Tokyo\",month:\"numeric\",day:\"numeric\",hour:\"2-digit\",minute:\"2-digit\",hourCycle:\"h23\"}).format(forecastTime(validTime))}ごろ、1時間に${area.minimumMmPerHour}mm以上の雨の予報\\n#大雨 #アメふる`;\n+    const key = createHash(\"sha256\").update(JSON.stringify([snapshot.n03Version, area.code, validTime, area.minimumMmPerHour])).digest(\"hex\");\n+    return { key, text, municipalityCode: area.code, validTime, intensity: area.minimumMmPerHour };\n+  });\n+}\n+\n+/** Compare meaningful increases against a prior *valid* published snapshot. */\n+export function significantForecastChanges(current: NationalForecastSnapshot, previous: NationalForecastSnapshot | null): ForecastPostCandidate[] {\n+  const oldMax = new Map<string, number>();\n+  if (previous) for (const frame of previous.frames) for (const area of frame.municipalities)\n+    oldMax.set(area.code, Math.max(oldMax.get(area.code) ?? 0, area.minimumMmPerHour));\n+  return buildForecastPostCandidates(current).filter(row =>\n+    previous !== null && row.intensity > (oldMax.get(row.municipalityCode) ?? 0));\n+}\n+\n+/** A dry-run decision only: callers must persist a successful publish atomically before any live delivery. */\n+export type ForecastPublishPlan = {\n+  candidates: ForecastPostCandidate[];\n+  nextSnapshot: NationalForecastSnapshot;\n+};\n+\n+/** Never interpret a repeated or older baseline as a new forecast. */\n+export function planForecastPublication(\n+  current: NationalForecastSnapshot,\n+  previous: NationalForecastSnapshot | null,\n+): ForecastPublishPlan | null {\n+  if (previous && forecastTime(current.basetime) <= forecastTime(previous.basetime)) return null;\n+  return {\n+    candidates: significantForecastChanges(current, previous),\n+    nextSnapshot: current,\n+  };\n+}\n+\n+/** Storage adapter contract. claim() must be atomic across all workers and processes. */\n+export interface ForecastPublicationStore {\n+  /** Returns false when this forecast has already been claimed or processed. */\n+  claim(basetime: string): Promise<boolean>;\n+  /** Persist the validated baseline before allowing a later run to compare against it. */\n+  getPrevious(): Promise<NationalForecastSnapshot | null>;\n+  /** Complete a claim after all publication candidates are durably handled. */\n+  complete(basetime: string, snapshot: NationalForecastSnapshot): Promise<void>;\n+  /** Release only an uncompleted claim; retry policy belongs to the durable adapter. */\n+  release(basetime: string): Promise<void>;\n+}\n+\n+/**\n+ * Prepare a single baseline under an atomic storage claim. No network posting occurs here.\n+ * The caller must durably record individual delivery outcomes before calling complete().\n+ */\n+export async function prepareClaimedForecastPublication(\n+  current: NationalForecastSnapshot,\n+  store: ForecastPublicationStore,\n+): Promise<{ plan: ForecastPublishPlan; complete: () => Promise<void>; release: () => Promise<void> } | null> {\n+  if (!(await store.claim(current.basetime))) return null;\n+  try {\n+    const previous = await store.getPrevious();\n+    const plan = planForecastPublication(current, previous);\n+    if (!plan) {\n+      await store.release(current.basetime);\n+      return null;\n+    }\n+    return {\n+      plan,\n+      complete: () => store.complete(current.basetime, current),\n+      release: () => store.release(current.basetime),\n+    };\n+  } catch (error) {\n+    await store.release(current.basetime);\n+    throw error;\n+  }\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts",
+      "source": {
+        "path": "lib/weather/rain/nationalForecastBluesky.ts",
+        "coverage": "全文",
+        "text": "import { createHash } from \"node:crypto\";\nimport { forecastTime, type NationalForecastSnapshot } from \"./nationalForecastSnapshot\";\n\nexport type ForecastPostCandidate = {\n  key: string;\n  text: string;\n  municipalityCode: string;\n  validTime: string;\n  intensity: 30 | 50 | 80;\n};\ntype ForecastArea = NationalForecastSnapshot[\"frames\"][number][\"municipalities\"][number];\n\n/** Shared validated snapshot is the only source; never fetch JMA separately. */\nexport function buildForecastPostCandidates(snapshot: NationalForecastSnapshot): ForecastPostCandidate[] {\n  const strongest = new Map<string, { area: ForecastArea; validTime: string }>();\n  for (const frame of snapshot.frames) for (const area of frame.municipalities) {\n    const old = strongest.get(area.code);\n    if (!old || area.minimumMmPerHour > old.area.minimumMmPerHour ||\n      (area.minimumMmPerHour === old.area.minimumMmPerHour && forecastTime(frame.validTime) < forecastTime(old.validTime))) {\n      strongest.set(area.code, { area, validTime: frame.validTime });\n    }\n  }\n  return [...strongest.values()].sort((a, b) =>\n    b.area.minimumMmPerHour - a.area.minimumMmPerHour ||\n    forecastTime(a.validTime) - forecastTime(b.validTime) ||\n    a.area.code.localeCompare(b.area.code)\n  ).map(({ area, validTime }) => {\n    const text = `【アメふる 全国大雨予報】\\n${area.prefecture} ${area.municipality}\\n${new Intl.DateTimeFormat(\"ja-JP\", {timeZone:\"Asia/Tokyo\",month:\"numeric\",day:\"numeric\",hour:\"2-digit\",minute:\"2-digit\",hourCycle:\"h23\"}).format(forecastTime(validTime))}ごろ、1時間に${area.minimumMmPerHour}mm以上の雨の予報\\n#大雨 #アメふる`;\n    const key = createHash(\"sha256\").update(JSON.stringify([snapshot.n03Version, area.code, validTime, area.minimumMmPerHour])).digest(\"hex\");\n    return { key, text, municipalityCode: area.code, validTime, intensity: area.minimumMmPerHour };\n  });\n}\n\n/** Compare meaningful increases against a prior *valid* published snapshot. */\nexport function significantForecastChanges(current: NationalForecastSnapshot, previous: NationalForecastSnapshot | null): ForecastPostCandidate[] {\n  const oldMax = new Map<string, number>();\n  if (previous) for (const frame of previous.frames) for (const area of frame.municipalities)\n    oldMax.set(area.code, Math.max(oldMax.get(area.code) ?? 0, area.minimumMmPerHour));\n  return buildForecastPostCandidates(current).filter(row =>\n    previous !== null && row.intensity > (oldMax.get(row.municipalityCode) ?? 0));\n}\n\n/** A dry-run decision only: callers must persist a successful publish atomically before any live delivery. */\nexport type ForecastPublishPlan = {\n  candidates: ForecastPostCandidate[];\n  nextSnapshot: NationalForecastSnapshot;\n};\n\n/** Never interpret a repeated or older baseline as a new forecast. */\nexport function planForecastPublication(\n  current: NationalForecastSnapshot,\n  previous: NationalForecastSnapshot | null,\n): ForecastPublishPlan | null {\n  if (previous && forecastTime(current.basetime) <= forecastTime(previous.basetime)) return null;\n  return {\n    candidates: significantForecastChanges(current, previous),\n    nextSnapshot: current,\n  };\n}\n\n/** Storage adapter contract. claim() must be atomic across all workers and processes. */\nexport interface ForecastPublicationStore {\n  /** Returns false when this forecast has already been claimed or processed. */\n  claim(basetime: string): Promise<boolean>;\n  /** Persist the validated baseline before allowing a later run to compare against it. */\n  getPrevious(): Promise<NationalForecastSnapshot | null>;\n  /** Complete a claim after all publication candidates are durably handled. */\n  complete(basetime: string, snapshot: NationalForecastSnapshot): Promise<void>;\n  /** Release only an uncompleted claim; retry policy belongs to the durable adapter. */\n  release(basetime: string): Promise<void>;\n}\n\n/**\n * Prepare a single baseline under an atomic storage claim. No network posting occurs here.\n * The caller must durably record individual delivery outcomes before calling complete().\n */\nexport async function prepareClaimedForecastPublication(\n  current: NationalForecastSnapshot,\n  store: ForecastPublicationStore,\n): Promise<{ plan: ForecastPublishPlan; complete: () => Promise<void>; release: () => Promise<void> } | null> {\n  if (!(await store.claim(current.basetime))) return null;\n  try {\n    const previous = await store.getPrevious();\n    const plan = planForecastPublication(current, previous);\n    if (!plan) {\n      await store.release(current.basetime);\n      return null;\n    }\n    return {\n      plan,\n      complete: () => store.complete(current.basetime, current),\n      release: () => store.release(current.basetime),\n    };\n  } catch (error) {\n    await store.release(current.basetime);\n    throw error;\n  }\n}\n",
+        "sha256": "60410ac72469537a3d96948ff53f0565f4a39c06cf622b4b5c42246c5a7d17df"
+      }
+    }
+  ],
+  "file_count": 2,
+  "reported_file_count": 2,
+  "commits": [
+    {
+      "sha": "acbff92eed681bbf4b1222564a8419dbafd1b9d6",
+      "message": "feat: prepare municipality-level Bluesky forecast candidates and tests\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/acbff92eed681bbf4b1222564a8419dbafd1b9d6"
+    },
+    {
+      "sha": "6d8677dc02cd447d436b775f1d0c04ae563f9ac5",
+      "message": "feat: prepare municipality-level Bluesky forecast candidates and tests\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/6d8677dc02cd447d436b775f1d0c04ae563f9ac5"
+    },
+    {
+      "sha": "dbc64eb3cdcaf746cfb3a1292d1ecc176bdba454",
+      "message": "test: cover rolling 30-minute municipality maximum and five-minute refresh\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/dbc64eb3cdcaf746cfb3a1292d1ecc176bdba454"
+    },
+    {
+      "sha": "6c28f48014d8bfafe0e8df83182b7438a84c619b",
+      "message": "feat: add safe dry-run forecast publication plan with monotonic baseline\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/6c28f48014d8bfafe0e8df83182b7438a84c619b"
+    },
+    {
+      "sha": "d86cbad5746b26e3716551b9c4e25dfbc884d000",
+      "message": "test: prevent duplicate and out-of-order forecast baseline processing\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/d86cbad5746b26e3716551b9c4e25dfbc884d000"
+    },
+    {
+      "sha": "f9d3fd5362a350332f8681f603d61a5f0dab3f9c",
+      "message": "feat: define atomic publication claim adapter and safe preparation flow\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/f9d3fd5362a350332f8681f603d61a5f0dab3f9c"
+    },
+    {
+      "sha": "2e79ef53556d49decb0a868a9716f62ff1e5780d",
+      "message": "test: verify atomic claim exclusion and storage failure cleanup\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/2e79ef53556d49decb0a868a9716f62ff1e5780d"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "2e79ef53556d49decb0a868a9716f62ff1e5780d",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43235717918",
+      "id": 43235717918,
+      "updated_at": "2026-11-12T14:18:03Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "2e79ef53556d49decb0a868a9716f62ff1e5780d",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43235718092",
+      "id": 43235718092,
+      "updated_at": "2026-11-12T14:18:21Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "2e79ef53556d49decb0a868a9716f62ff1e5780d",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43235717666",
+      "id": 43235717666,
+      "updated_at": "2026-11-12T14:18:40Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "a",
+    "area",
+    "buildForecastPostCandidates",
+    "claimed",
+    "clear",
+    "current",
+    "data",
+    "frame",
+    "key",
+    "old",
+    "oldMax",
+    "plan",
+    "planForecastPublication",
+    "prepareClaimedForecastPublication",
+    "previous",
+    "released",
+    "repeated",
+    "returned",
+    "rows",
+    "significantForecastChanges",
+    "snapshot",
+    "store",
+    "strongest",
+    "text"
+  ],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "f2496a8beede8ddc4913a70f9fcee3b530e1a1a42ecd67c2c98161e83050fd74",
+  "ci_digest": "a2fb61a5bde485ae6b893b632abe34b36467db3a16ff884b4d6238f4743ca1ef",
+  "collected_at": "2026-11-12T15:33:28.142823+00:00",
+  "decisions": [
+    {
+      "kind": "test",
+      "title": "uses the same municipality labels and intensity as the top forecast",
+      "condition": "uses the same municipality labels and intensity as the top forecast",
+      "behavior": "if (!old || area.minimumMmPerHour > old.area.minimumMmPerHour || ／ return [...strongest.values()].sort((a, b) => ／ return { key, text, municipalityCode: area.code, validTime, intensity: area.minimumMmPerHour };",
+      "verification": "テストの期待値: expect(rows[0].text).toContain(\"東京都 江東区\"); ／ expect(rows[0].text).toContain(\"50mm\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts#L14",
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts#L9"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "does not announce identical or weaker forecasts",
+      "condition": "does not announce identical or weaker forecasts",
+      "behavior": "if (previous) for (const frame of previous.frames) for (const area of frame.municipalities) ／ return buildForecastPostCandidates(current).filter(row =>",
+      "verification": "テストの期待値: expect(significantForecastChanges(old,old)).toEqual([]); ／ expect(significantForecastChanges(snapshot([{code:\"13108\",minimumMmPerHour:30}]),old)).toEqual([]); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts#L35",
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts#L14"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "announces new areas and stronger rainfall",
+      "condition": "announces new areas and stronger rainfall",
+      "behavior": "if (previous) for (const frame of previous.frames) for (const area of frame.municipalities) ／ return buildForecastPostCandidates(current).filter(row =>",
+      "verification": "テストの期待値: expect(significantForecastChanges(snapshot([{code:\"13108\",minimumMmPerHour:80},{code:\"13102\",minimumMmPerHour:50}]),old)).toHaveLength(2); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts#L35",
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts#L19"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "requires a previous valid snapshot rather than treating startup as an alert",
+      "condition": "requires a previous valid snapshot rather than treating startup as an alert",
+      "behavior": "if (previous) for (const frame of previous.frames) for (const area of frame.municipalities) ／ return buildForecastPostCandidates(current).filter(row =>",
+      "verification": "テストの期待値: expect(significantForecastChanges(snapshot([{code:\"13108\",minimumMmPerHour:80}]),null)).toEqual([]); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts#L35",
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts#L23"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "produces stable dedupe keys",
+      "condition": "produces stable dedupe keys",
+      "behavior": "if (!old || area.minimumMmPerHour > old.area.minimumMmPerHour || ／ return [...strongest.values()].sort((a, b) => ／ return { key, text, municipalityCode: area.code, validTime, intensity: area.minimumMmPerHour };",
+      "verification": "テストの期待値: expect(buildForecastPostCandidates(a)[0].key).toBe(buildForecastPostCandidates(a)[0].key); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts#L14",
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts#L26"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "chooses the strongest forecast within a municipality across the rolling 30 minutes",
+      "condition": "chooses the strongest forecast within a municipality across the rolling 30 minutes",
+      "behavior": "if (!old || area.minimumMmPerHour > old.area.minimumMmPerHour || ／ return [...strongest.values()].sort((a, b) => ／ return { key, text, municipalityCode: area.code, validTime, intensity: area.minimumMmPerHour };",
+      "verification": "テストの期待値: expect(rows).toHaveLength(1); ／ expect(rows[0].intensity).toBe(50); ／ expect(rows[0].validTime).toBe(\"20261112121000\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts#L14",
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts#L30"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "does not repost when only the forecast time rolls forward by five minutes",
+      "condition": "does not repost when only the forecast time rolls forward by five minutes",
+      "behavior": "if (previous) for (const frame of previous.frames) for (const area of frame.municipalities) ／ return buildForecastPostCandidates(current).filter(row =>",
+      "verification": "テストの期待値: expect(significantForecastChanges(current,previous)).toEqual([]); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts#L35",
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts#L38"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "announces a municipality when rain returns after falling below threshold",
+      "condition": "announces a municipality when rain returns after falling below threshold",
+      "behavior": "if (previous) for (const frame of previous.frames) for (const area of frame.municipalities) ／ return buildForecastPostCandidates(current).filter(row =>",
+      "verification": "テストの期待値: expect(significantForecastChanges(returned,clear)).toHaveLength(1); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts#L35",
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts#L45"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "does not process a repeated or out-of-order baseline",
+      "condition": "does not process a repeated or out-of-order baseline",
+      "behavior": "if (previous && forecastTime(current.basetime) <= forecastTime(previous.basetime)) return null; ／ return {",
+      "verification": "テストの期待値: expect(planForecastPublication(repeated,previous)).toBeNull(); ／ expect(planForecastPublication(repeated,previous)).toBeNull(); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts#L50",
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts#L51"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "advances a newer baseline even when there is no meaningful change",
+      "condition": "advances a newer baseline even when there is no meaningful change",
+      "behavior": "if (previous && forecastTime(current.basetime) <= forecastTime(previous.basetime)) return null; ／ return {",
+      "verification": "テストの期待値: expect(plan?.candidates).toEqual([]); ／ expect(plan?.nextSnapshot).toBe(current); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts#L50",
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts#L58"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "requires an atomic claim before preparing a publication",
+      "condition": "requires an atomic claim before preparing a publication",
+      "behavior": "if (!(await store.claim(current.basetime))) return null; ／ if (!plan) { ／ return null; ／ return {",
+      "verification": "テストの期待値: expect([first,second].filter(Boolean)).toHaveLength(1); ／ expect(first?.plan.candidates).toEqual([]); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts#L77",
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts#L68"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "releases a claim if loading the previous baseline fails",
+      "condition": "releases a claim if loading the previous baseline fails",
+      "behavior": "if (!(await store.claim(current.basetime))) return null; ／ if (!plan) { ／ return null; ／ return {",
+      "verification": "テストの期待値: expect(prepareClaimedForecastPublication(current,store)).rejects.toThrow(\"storage unavailable\"); expect(released).toBe(true); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts#L77",
+        "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts#L85"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "id": "pr-78",
+  "number": 78,
+  "title": "feat: read-only check of PWA push registration ownership",
+  "topics": [
+    "通知・配信",
+    "画面・表示"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更／画面表示や操作に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Adds a user-triggered, read-only check of the installed PWA's existing PushSubscription endpoint against the current anonymous Supabase owner. No endpoints, credentials or IDs displayed; no unsubscribe, resubscribe, DB writes or identity changes. Shows whether repair is needed. Requires CI and iPhone verification before production.",
+  "snapshot_head": "14294fbf960c5dd0bc38e81c96904faa194ab38f",
+  "snapshot_consistent": true,
+  "head": "14294fbf960c5dd0bc38e81c96904faa194ab38f",
+  "base": "dbd1489fdec1b0218cb6b2cf8880cf88a164161b",
+  "base_ref": "main",
+  "head_ref": "feature/push-registration-status-20261024",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-10-23T18:01:37Z",
+  "merge_commit_sha": "3dd953dc4040a22e5e640960d63324c560375476",
+  "updated_at": "2026-10-23T18:01:37Z",
+  "code_facts": [
+    {
+      "file": "app/page.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (pushChecking) return;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/14294fbf960c5dd0bc38e81c96904faa194ab38f/app/page.tsx"
+    },
+    {
+      "file": "app/page.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!(\"serviceWorker\" in navigator) || !(\"PushManager\" in window) || !(\"Notification\" in window)) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/14294fbf960c5dd0bc38e81c96904faa194ab38f/app/page.tsx"
+    },
+    {
+      "file": "app/page.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (Notification.permission !== \"granted\") {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/14294fbf960c5dd0bc38e81c96904faa194ab38f/app/page.tsx"
+    },
+    {
+      "file": "app/page.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!subscription) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/14294fbf960c5dd0bc38e81c96904faa194ab38f/app/page.tsx"
+    },
+    {
+      "file": "app/page.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (sessionError || !session) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/14294fbf960c5dd0bc38e81c96904faa194ab38f/app/page.tsx"
+    },
+    {
+      "file": "app/page.tsx",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const { data, error } = await client.from(\"push_subscriptions\")",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/14294fbf960c5dd0bc38e81c96904faa194ab38f/app/page.tsx"
+    },
+    {
+      "file": "app/page.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (error) throw error;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/14294fbf960c5dd0bc38e81c96904faa194ab38f/app/page.tsx"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/page.tsx",
+      "status": "modified",
+      "additions": 51,
+      "deletions": 0,
+      "patch": "diff --git a/app/page.tsx b/app/page.tsx\nindex 12f4d81..f10d8d5 100644\n--- a/app/page.tsx\n+++ b/app/page.tsx\n@@ -85,6 +85,8 @@ export default function Home() {\n   const [pushStatus, setPushStatus] = useState(\"\");\n   const [pushBusy, setPushBusy] = useState(false);\n   const [pushEnabled, setPushEnabled] = useState(false);\n+  const [pushRegistrationStatus, setPushRegistrationStatus] = useState<string | null>(null);\n+  const [pushChecking, setPushChecking] = useState(false);\n   const [testPushBusy, setTestPushBusy] = useState(false);\n   const [latestAlerts, setLatestAlerts] = useState<NotificationDelivery[]>([]);\n   const [mapPickerOpen, setMapPickerOpen] = useState(false);\n@@ -230,6 +232,48 @@ export default function Home() {\n     }\n   };\n \n+  const checkPushRegistration = async () => {\n+    if (pushChecking) return;\n+    setPushChecking(true);\n+    setPushRegistrationStatus(null);\n+    try {\n+      if (!(\"serviceWorker\" in navigator) || !(\"PushManager\" in window) || !(\"Notification\" in window)) {\n+        setPushRegistrationStatus(\"この端末はプッシュ通知に対応していないよ。\");\n+        return;\n+      }\n+      if (Notification.permission !== \"granted\") {\n+        setPushRegistrationStatus(\"端末の通知許可がないよ。\");\n+        return;\n+      }\n+      const registration = await navigator.serviceWorker.ready;\n+      const subscription = await registration.pushManager.getSubscription();\n+      if (!subscription) {\n+        setPushRegistrationStatus(\"端末のプッシュ登録が見つからないよ。\");\n+        return;\n+      }\n+      // Read-only verification: do not reveal or copy endpoint or encryption keys.\n+      const client = getSupabaseBrowserClient();\n+      const { data: { session }, error: sessionError } = await client.auth.getSession();\n+      if (sessionError || !session) {\n+        setPushRegistrationStatus(\"認証状態を確認できないよ。\");\n+        return;\n+      }\n+      const { data, error } = await client.from(\"push_subscriptions\")\n+        .select(\"id\")\n+        .eq(\"owner_id\", session.user.id)\n+        .eq(\"endpoint\", subscription.endpoint)\n+        .limit(1);\n+      if (error) throw error;\n+      setPushRegistrationStatus(data && data.length > 0\n+        ? \"確認OK：この端末の通知登録は現在のアカウントに保存されているよ。\"\n+        : \"要修復：端末には通知登録があるけど、現在のアカウントには保存されていないよ。\");\n+    } catch {\n+      setPushRegistrationStatus(\"登録状態の照合に失敗したよ。時間をおいて再確認してね。\");\n+    } finally {\n+      setPushChecking(false);\n+    }\n+  };\n+\n   const restorePushStatus = async () => {\n     if (!(\"serviceWorker\" in navigator) || !(\"PushManager\" in window) || !(\"Notification\" in window)) return;\n     if (Notification.permission !== \"granted\") return;\n@@ -587,6 +631,13 @@ export default function Home() {\n           {pushBusy ? \"設定中…\" : pushEnabled ? \"✓ 通知ON\" : \"通知を受け取る\"}\n         </button>\n         {pushStatus && <p style={{ color: \"#eef5ff\" }}>{pushStatus}</p>}\n+        <div style={{ marginTop: 12 }}>\n+          <button type=\"button\" onClick={() => void checkPushRegistration()} disabled={pushChecking}\n+            style={{ padding: \"8px 12px\", borderRadius: 9, border: \"1px solid rgba(255,255,255,.3)\", background: \"transparent\", color: \"#eef5ff\" }}>\n+            {pushChecking ? \"確認中…\" : \"🔍 通知の登録状態を確認\"}\n+          </button>\n+          {pushRegistrationStatus && <p role=\"status\" style={{ color: \"#eef5ff\", fontSize: 14 }}>{pushRegistrationStatus}</p>}\n+        </div>\n       </section>\n \n       <section style={{ marginTop: 40, paddingTop: 28, borderTop: \"1px solid rgba(255,255,255,.10)\" }}>\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/14294fbf960c5dd0bc38e81c96904faa194ab38f/app/page.tsx",
+      "source": {
+        "path": "app/page.tsx",
+        "coverage": "先頭18000文字・原本リンク参照",
+        "text": "\"use client\";\n\nimport { useEffect, useRef, useState } from \"react\";\nimport { getSupabaseBrowserClient } from \"../lib/supabase/browser\";\nimport NotificationFeedbackHistory from \"./components/NotificationFeedbackHistory\";\nimport ResumeDiagnosticsPanel from \"./components/ResumeDiagnosticsPanel\";\nimport PwaDiagnosticsToggle from \"./components/PwaDiagnosticsToggle\";\n\ntype RainMessage = { headline: string; detail: string };\ntype RainInterpretation = {\n  state: \"INSUFFICIENT_DATA\" | \"DRY\" | \"RAIN_AHEAD\" | \"ACTIONABLE_RAIN\" | \"RAINING\" | \"EASING\" | \"ENDING\";\n  shouldNotify: boolean;\n  firstRainTime: string | null;\n  firstActionableRainTime: string | null;\n  endingTime: string | null;\n};\ntype RainSemanticEvent = {\n  schemaVersion: 1;\n  eventType: \"RAIN_CLEAR\" | \"RAIN_APPROACHING\" | \"ACTIONABLE_RAIN_APPROACHING\" | \"RAINING\" | \"RAIN_EASING\" | \"RAIN_ENDING\";\n  urgency: \"INFO\" | \"LIFESTYLE_ACTION\";\n  suggestedAction: \"NONE\" | \"BRING_LAUNDRY_INSIDE\";\n  startsAt: string | null;\n  actionableAt: string | null;\n  endingAt: string | null;\n  source: \"JMA_HIGH_RESOLUTION_PRECIPITATION_NOWCAST\";\n  checkedAt: string;\n  sourceValidAt: string | null;\n};\ntype NotificationDelivery = { id: number; target_id: string; event_type: string; title: string; body: string; delivered_at: string; };\n\ntype SavedWatchTarget = {\n  id: string;\n  label: string;\n  display_address: string | null;\n  enabled: boolean;\n};\n\ntype RainResponse = {\n  source: string;\n  checkedAt: string;\n  sourceValidAt: string | null;\n  location: { lat: number; lon: number };\n  observation: unknown[];\n  forecast: unknown[];\n  interpretation: RainInterpretation | null;\n  event: RainSemanticEvent | null;\n  message: RainMessage | null;\n  interpretationEnabled: boolean;\n  note: string;\n};\n\nfunction urlBase64ToUint8Array(value: string): Uint8Array<ArrayBuffer> {\n  const padding = \"=\".repeat((4 - value.length % 4) % 4);\n  const base64 = (value + padding).replace(/-/g, \"+\").replace(/_/g, \"/\");\n  const raw = window.atob(base64);\n  return Uint8Array.from(raw, (char) => char.charCodeAt(0));\n}\n\nfunction stateLabel(state: RainInterpretation[\"state\"]): string {\n  switch (state) {\n    case \"DRY\": return \"☀️ この先、雨の予報なし\";\n    case \"RAIN_AHEAD\": return \"☁️ このあと雨くるよ\";\n    case \"ACTIONABLE_RAIN\": return \"☔ もうすぐ雨くるよ\";\n    case \"RAINING\": return \"🌧️ いま雨だよ\";\n    case \"EASING\": return \"🌦️ 弱くなりそう\";\n    case \"ENDING\": return \"🌤️ もうすぐやみそう\";\n    default: return \"いまは、はっきり言えないよ\";\n  }\n}\n\nexport default function Home() {\n  const [status, setStatus] = useState(\"このあとの雨、見てみる？\");\n  const [data, setData] = useState<RainResponse | null>(null);\n  const [busy, setBusy] = useState(false);\n  const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);\n  const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null);\n  const [placeQuery, setPlaceQuery] = useState(\"\");\n  const [placeResults, setPlaceResults] = useState<Array<{ id: string; displayName: string; displayAddress: string; latitude: number; longitude: number }>>([]);\n  const [placeStatus, setPlaceStatus] = useState(\"\");\n  const [placeBusy, setPlaceBusy] = useState(false);\n  const [placeLabels, setPlaceLabels] = useState<Record<string, string>>({});\n  const [savingPlaceId, setSavingPlaceId] = useState<string | null>(null);\n  const [savedTargets, setSavedTargets] = useState<SavedWatchTarget[]>([]);\n  const [targetsBusy, setTargetsBusy] = useState(false);\n  const [pushStatus, setPushStatus] = useState(\"\");\n  const [pushBusy, setPushBusy] = useState(false);\n  const [pushEnabled, setPushEnabled] = useState(false);\n  const [pushRegistrationStatus, setPushRegistrationStatus] = useState<string | null>(null);\n  const [pushChecking, setPushChecking] = useState(false);\n  const [testPushBusy, setTestPushBusy] = useState(false);\n  const [latestAlerts, setLatestAlerts] = useState<NotificationDelivery[]>([]);\n  const [mapPickerOpen, setMapPickerOpen] = useState(false);\n  const [mapLatitude, setMapLatitude] = useState(\"35.681236\");\n  const [mapLongitude, setMapLongitude] = useState(\"139.767125\");\n  const mapContainerRef = useRef<HTMLDivElement | null>(null);\n  const mapInstanceRef = useRef<any>(null);\n\n  useEffect(() => {\n    if (!mapPickerOpen || !mapContainerRef.current || mapInstanceRef.current) return;\n\n    let cancelled = false;\n    const setupMap = async () => {\n      const L = await import(\"leaflet\");\n      if (cancelled || !mapContainerRef.current) return;\n\n      const map = L.map(mapContainerRef.current, { center: [35.681236, 139.767125], zoom: 14 });\n      L.tileLayer(\"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png\", {\n        attribution: '&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors',\n        maxZoom: 19,\n      }).addTo(map);\n\n      try {\n        const response = await fetch(\"https://www.jma.go.jp/bosai/jmatile/data/nowc/targetTimes_N1.json\", { cache: \"no-store\" });\n        if (response.ok) {\n          const frames = await response.json() as Array<{ basetime?: string; validtime?: string; elements?: string[] }>;\n          const latest = frames\n            .filter((frame) => frame.basetime && frame.validtime && frame.basetime === frame.validtime && frame.elements?.includes(\"hrpns\"))\n            .sort((a, b) => String(b.validtime).localeCompare(String(a.validtime)))[0];\n          if (latest?.basetime && latest.validtime) {\n            const radarUrl = `https://www.jma.go.jp/bosai/jmatile/data/nowc/${latest.basetime}/none/${latest.validtime}/surf/hrpns/{z}/{x}/{y}.png`;\n            let radarLayer: any = null;\n            let radarNativeZoom: number | null = null;\n\n            const syncRadarLayer = () => {\n              const mapZoom = map.getZoom();\n              if (mapZoom < 4) {\n                if (radarLayer) {\n                  map.removeLayer(radarLayer);\n                  radarLayer = null;\n                  radarNativeZoom = null;\n                }\n                return;\n              }\n\n              // JMA's current HRPN tiles are rendered at even native zooms.\n              // On odd map zooms, upscale the preceding even zoom instead of\n              // requesting a non-rendered odd-z tile.\n              const nextNativeZoom = Math.min(10, mapZoom % 2 === 0 ? mapZoom : mapZoom - 1);\n              if (radarLayer && radarNativeZoom === nextNativeZoom) return;\n\n              if (radarLayer) map.removeLayer(radarLayer);\n              radarLayer = L.tileLayer(radarUrl, {\n                opacity: 0.58,\n                minNativeZoom: 4,\n                maxNativeZoom: nextNativeZoom,\n                maxZoom: 19,\n                attribution: \"気象庁\",\n              }).addTo(map);\n              radarNativeZoom = nextNativeZoom;\n            };\n\n            map.on(\"zoomend\", syncRadarLayer);\n            syncRadarLayer();\n          }\n        }\n      } catch {\n        // The map remains usable when the optional radar overlay cannot be loaded.\n      }\n\n      const syncCenter = () => {\n        const center = map.getCenter();\n        setMapLatitude(center.lat.toFixed(6));\n        setMapLongitude(center.lng.toFixed(6));\n      };\n      map.on(\"moveend\", syncCenter);\n      syncCenter();\n      mapInstanceRef.current = map;\n    };\n    void setupMap();\n\n    return () => {\n      cancelled = true;\n      if (mapInstanceRef.current) {\n        mapInstanceRef.current.remove();\n        mapInstanceRef.current = null;\n      }\n    };\n  }, [mapPickerOpen]);\n\n  const enablePush = async () => {\n    if (!(\"serviceWorker\" in navigator) || !(\"PushManager\" in window) || !(\"Notification\" in window)) {\n      setPushStatus(\"この端末では通知を使えないよ。\");\n      return;\n    }\n    const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;\n    if (!vapidPublicKey) {\n      setPushStatus(\"通知の準備中だよ。\");\n      return;\n    }\n    setPushBusy(true);\n    try {\n      const permission = await Notification.requestPermission();\n      if (permission !== \"granted\") {\n        setPushStatus(\"通知が許可されていないよ。端末の通知設定を確認してね。\");\n        return;\n      }\n      const registration = await navigator.serviceWorker.ready;\n      const configuredKey = urlBase64ToUint8Array(vapidPublicKey);\n      let existing = await registration.pushManager.getSubscription();\n      if (existing?.options.applicationServerKey) {\n        const existingKey = new Uint8Array(existing.options.applicationServerKey);\n        const keyMatches = existingKey.length === configuredKey.length\n          && existingKey.every((value, index) => value === configuredKey[index]);\n        if (!keyMatches) {\n          await existing.unsubscribe();\n          existing = null;\n        }\n      }\n      const subscription = existing ?? await registration.pushManager.subscribe({\n        userVisibleOnly: true,\n        applicationServerKey: configuredKey,\n      });\n      const json = subscription.toJSON();\n      if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) throw new Error(\"Incomplete push subscription\");\n      const session = await ensureAnonymousSession();\n      const supabase = getSupabaseBrowserClient();\n      const { error } = await supabase.from(\"push_subscriptions\").upsert({\n        owner_id: session.user.id,\n        endpoint: json.endpoint,\n        p256dh: json.keys.p256dh,\n        auth: json.keys.auth,\n        user_agent: navigator.userAgent,\n        updated_at: new Date().toISOString(),\n      }, { onConflict: \"owner_id,endpoint\" });\n      if (error) throw error;\n      setPushEnabled(true);\n      setPushStatus(\"通知を受け取れるようになったよ。\");\n    } catch {\n      setPushStatus(\"通知の登録ができなかったよ。少しあとでもう一度試してね。\");\n    } finally {\n      setPushBusy(false);\n    }\n  };\n\n  const checkPushRegistration = async () => {\n    if (pushChecking) return;\n    setPushChecking(true);\n    setPushRegistrationStatus(null);\n    try {\n      if (!(\"serviceWorker\" in navigator) || !(\"PushManager\" in window) || !(\"Notification\" in window)) {\n        setPushRegistrationStatus(\"この端末はプッシュ通知に対応していないよ。\");\n        return;\n      }\n      if (Notification.permission !== \"granted\") {\n        setPushRegistrationStatus(\"端末の通知許可がないよ。\");\n        return;\n      }\n      const registration = await navigator.serviceWorker.ready;\n      const subscription = await registration.pushManager.getSubscription();\n      if (!subscription) {\n        setPushRegistrationStatus(\"端末のプッシュ登録が見つからないよ。\");\n        return;\n      }\n      // Read-only verification: do not reveal or copy endpoint or encryption keys.\n      const client = getSupabaseBrowserClient();\n      const { data: { session }, error: sessionError } = await client.auth.getSession();\n      if (sessionError || !session) {\n        setPushRegistrationStatus(\"認証状態を確認できないよ。\");\n        return;\n      }\n      const { data, error } = await client.from(\"push_subscriptions\")\n        .select(\"id\")\n        .eq(\"owner_id\", session.user.id)\n        .eq(\"endpoint\", subscription.endpoint)\n        .limit(1);\n      if (error) throw error;\n      setPushRegistrationStatus(data && data.length > 0\n        ? \"確認OK：この端末の通知登録は現在のアカウントに保存されているよ。\"\n        : \"要修復：端末には通知登録があるけど、現在のアカウントには保存されていないよ。\");\n    } catch {\n      setPushRegistrationStatus(\"登録状態の照合に失敗したよ。時間をおいて再確認してね。\");\n    } finally {\n      setPushChecking(false);\n    }\n  };\n\n  const restorePushStatus = async () => {\n    if (!(\"serviceWorker\" in navigator) || !(\"PushManager\" in window) || !(\"Notification\" in window)) return;\n    if (Notification.permission !== \"granted\") return;\n    try {\n      const registration = await navigator.serviceWorker.ready;\n      const subscription = await registration.pushManager.getSubscription();\n      if (!subscription) return;\n      setPushEnabled(true);\n      setPushStatus(\"通知を受け取れるようになってるよ。\");\n    } catch {\n      // Keep the setup button available if the current subscription cannot be checked.\n    }\n  };\n\n  const loadSavedTargets = async () => {\n    try {\n      const supabase = getSupabaseBrowserClient();\n      const session = (await supabase.auth.getSession()).data.session;\n      if (!session) return;\n      const { data, error } = await supabase\n        .from(\"watch_targets\")\n        .select(\"id,label,display_address,enabled\")\n        .order(\"created_at\", { ascending: true });\n      if (error) throw error;\n      setSavedTargets((data ?? []) as SavedWatchTarget[]);\n    } catch {\n      // Registration still works even if the saved list cannot be refreshed.\n    }\n  };\n\n  const loadLatestAlerts = async () => {\n    try {\n      const supabase = getSupabaseBrowserClient();\n      const session = (await supabase.auth.getSession()).data.session;\n      if (!session) return;\n      const tokyoDate = new Intl.DateTimeFormat(\"en-CA\", { timeZone: \"Asia/Tokyo\", year: \"numeric\", month: \"2-digit\", day: \"2-digit\" }).format(new Date());\n      const start = new Date(`${tokyoDate}T00:00:00+09:00`);\n      const { data, error } = await supabase\n        .from(\"notification_deliveries\")\n        .select(\"id,target_id,event_type,title,body,delivered_at\")\n        .gte(\"delivered_at\", start.toISOString())\n        .order(\"delivered_at\", { ascending: false });\n      if (error) throw error;\n      const seen = new Set<string>();\n      setLatestAlerts(((data ?? []) as NotificationDelivery[]).filter((item) => {\n        if (seen.has(item.target_id)) return false;\n        seen.add(item.target_id);\n        return true;\n      }));\n    } catch {\n      // Alerts are supplemental; keep the rest of the app usable.\n    }\n  };\n\n  useEffect(() => {\n    void loadSavedTargets();\n    void loadLatestAlerts();\n    void restorePushStatus();\n\n    const alertRefreshInterval = window.setInterval(() => {\n      void loadLatestAlerts();\n    }, 5 * 60 * 1000);\n\n    const refreshAlertsWhenVisible = () => {\n      if (document.visibilityState === \"visible\") void loadLatestAlerts();\n    };\n    document.addEventListener(\"visibilitychange\", refreshAlertsWhenVisible);\n\n    return () => {\n      window.clearInterval(alertRefreshInterval);\n      document.removeEventListener(\"visibilitychange\", refreshAlertsWhenVisible);\n    };\n  }, []);\n\n  const deleteTarget = async (target: SavedWatchTarget) => {\n    if (!window.confirm(`「${target.label}」を削除する？\nこの場所の見張り登録も消えるよ。`)) return;\n    setTargetsBusy(true);\n    try {\n      const supabase = getSupabaseBrowserClient();\n      const { error } = await supabase\n        .from(\"watch_targets\")\n        .delete()\n        .eq(\"id\", target.id);\n      if (error) throw error;\n      setSavedTargets((targets) => targets.filter((item) => item.id !== target.id));\n      setPlaceStatus(`「${target.label}」を見張る場所から削除したよ。`);\n    } catch {\n      setPlaceStatus(\"削除できなかったよ。少しあとでもう一度試してね。\");\n    } finally {\n      setTargetsBusy(false);\n    }\n  };\n\n  const toggleTarget = async (target: SavedWatchTarget) => {\n    setTargetsBusy(true);\n    try {\n      const supabase = getSupabaseBrowserClient();\n      const { error } = await supabase\n        .from(\"watch_targets\")\n        .update({ enabled: !target.enabled })\n        .eq(\"id\", target.id);\n      if (error) throw error;\n      setSavedTargets((targets) =>\n        targets.map((item) => item.id === target.id ? { ...item, enabled: !item.enabled } : item),\n      );\n    } catch {\n      setPlaceStatus(\"見張りの切り替えができなかったよ。少しあとでもう一度試してね。\");\n    } finally {\n      setTargetsBusy(false);\n    }\n  };\n\n  const searchPlace = async () => {\n    const q = placeQuery.trim();\n    if (q.length < 2) return setPlaceStatus(\"住所や施設名を2文字以上入れてね。\");\n    setPlaceBusy(true);\n    setPlaceStatus(\"場所を探してるよ…\");\n    setPlaceResults([]);\n    try {\n      const res = await fetch(`/api/places/search?q=${encodeURIComponent(q)}`, { cache: \"no-store\" });\n      if (!res.ok) throw new Error();\n      const json = await res.json() as { results: typeof placeResults };\n      setPlaceResults(json.results);\n      setPlaceStatus(json.results.length ? \"この中にある？\" : \"見つからなかったよ。住所を少し詳しくしてみてね。\");\n    } catch {\n      setPlaceStatus(\"いま場所を検索できないよ。少しあとでもう一度試してね。\");\n    } finally {\n      setPlaceBusy(false);\n    }\n  };\n\n  const previewCurrentPlace = () => {\n    if (!navigator.geolocation) return setPlaceStatus(\"この端末では現在地を確認できないよ。\");\n    setPlaceBusy(true);\n    setPlaceStatus(\"いまいる場所を確認中…\");\n    navigator.geolocation.getCurrentPosition(async ({ coords }) => {\n      try {\n        const res = await fetch(`/api/places/reverse?lat=${coords.latitude}&lon=${coords.longitude}`, { cache: \"no-store\" });\n        const json = res.ok ? await res.json() as { result: { displayName: string | null; displayAddress: string; latitude: number; longitude: number } | null } : { result: null };\n        setPlaceResults([{\n          id: \"current-location\",\n          displayName: json.result?.displayName || \"現在地\",\n          displayAddress: json.result?.displayAddress || `緯度 ${coords.latitude.toFixed(5)} / 経度 ${coords.longitude.toFixed(5)}`,\n          latitude: coords.latitude,\n          longitude: coords.longitude,\n        }]);\n        setPlaceStatus(\"この場所で合ってる？\");\n      } finally {\n        setPlaceBusy(false);\n      }\n    }, () => {\n      setPlaceStatus(\"現在地を確認できなかったよ。位置情報の許可を確認してね。\");\n      setPlaceBusy(false);\n    }, { enableHighAccuracy: true, timeout: 10000 });\n  };\n\n  const previewMapPoint = async () => {\n    const latitude = Number(mapLatitude);\n    const longitude = Number(mapLongitude);\n    if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90 || !Number.isFinite(longitude) || longitude < -180 || longitude > 180) {\n      setPlaceStatus(\"緯度・経度を確認してね。\");\n      return;\n    }\n    setPlaceBusy(true);\n    setPlaceStatus(\"指定した地点を確認中…\");\n    try {\n      const res = await fetch(`/api/places/reverse?lat=${latitude}&lon=${longitude}`, { cache: \"no-store\" });\n      const json = res.ok ? await res.json() as { result: { displayName: string | null; displayAddress: string } | null } : { result: null };\n      setPlaceResults([{\n        id: `map-${latitude.toFixed(6)}-${longitude.toFixed(6)}`,\n        displayName: json.result?.displayName || \"地図指定地点\",\n        displayAddress: json.result?.displayAddress || `緯度 ${latitude.toFixed(5)} / 経度 ${longitude.toFixed(5)}`,\n        latitude, longitude,\n      }]);\n      setPlaceStatus(json.result ? \"この場所で合ってる？\" : \"住所のない場所でも、この座標を見張れるよ。\");\n    } catch ",
+        "sha256": "5cc9f0404032d16714919ac42c3f42364ff8a9178e03065bed656ce092cf008b"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "40b442dae1a8a1d967480f72a6dff4da08e29230",
+      "message": "feat: add read-only push subscription ownership verification\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/40b442dae1a8a1d967480f72a6dff4da08e29230"
+    },
+    {
+      "sha": "14294fbf960c5dd0bc38e81c96904faa194ab38f",
+      "message": "feat: expose safe push registration check in notification section\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/14294fbf960c5dd0bc38e81c96904faa194ab38f"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "14294fbf960c5dd0bc38e81c96904faa194ab38f",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/39998956518",
+      "id": 39998956518,
+      "updated_at": "2026-10-23T17:55:41Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "Home",
+    "L",
+    "alertRefreshInterval",
+    "base64",
+    "cancelled",
+    "center",
+    "checkPushRegistration",
+    "client",
+    "configuredKey",
+    "deleteTarget",
+    "enablePush",
+    "existing",
+    "existingKey",
+    "frames",
+    "json",
+    "keyMatches",
+    "latest",
+    "latitude",
+    "loadLatestAlerts",
+    "loadSavedTargets",
+    "longitude",
+    "map",
+    "mapContainerRef",
+    "mapInstanceRef",
+    "mapZoom",
+    "nextNativeZoom",
+    "padding",
+    "permission",
+    "previewCurrentPlace",
+    "previewMapPoint",
+    "q",
+    "radarLayer",
+    "radarNativeZoom",
+    "radarUrl",
+    "raw",
+    "refreshAlertsWhenVisible",
+    "registration",
+    "res",
+    "response",
+    "restorePushStatus",
+    "searchPlace",
+    "seen",
+    "session",
+    "setupMap",
+    "start",
+    "stateLabel",
+    "subscription",
+    "supabase",
+    "syncCenter",
+    "syncRadarLayer",
+    "toggleTarget",
+    "tokyoDate",
+    "urlBase64ToUint8Array",
+    "vapidPublicKey"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "Push購読の所有者を読み取り専用で確認",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/78"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "55113562b12c0610ead312b3ef6bb568acad3c26d637f7815949fb78fa7ac150",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00",
+  "decisions": []
+}

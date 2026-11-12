@@ -1,0 +1,196 @@
+{
+  "id": "pr-178",
+  "number": 178,
+  "title": "Rain Lab: keep notification and forecast timestamps in case list",
+  "topics": [
+    "雨量・全国検知",
+    "通知・配信"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更／通知・メール配信とその運用に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Keep emoji + location/event on the first line, restore notification and predicted target timestamps on the second line. No backend changes.",
+  "snapshot_head": "26f68c8668654f1db20469c2815bf36ce41e3587",
+  "snapshot_consistent": true,
+  "head": "26f68c8668654f1db20469c2815bf36ce41e3587",
+  "base": "6be471df40968359f6395f48eb6f48ad475e93e6",
+  "base_ref": "main",
+  "head_ref": "fix/rain-lab-restore-times-20261109",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-09T02:23:17Z",
+  "merge_commit_sha": "f6552b6b16e3001de1a8f1ee1abd75ad114ba151",
+  "updated_at": "2026-11-09T02:23:17Z",
+  "code_facts": [
+    {
+      "file": "app/dev/rain-lab/RainLab.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "return <details className={s.case} onToggle={event=>{if(event.currentTarget.open&&images===null&&!loading)void load();}}><summary><span><strong>{MATCH_GRADE_LABELS[grade].split(' ')[0]} {label}・{EVENT_LABELS[evaluation.event_type]??'雨通知'}</strong><br/><span className={s.muted}>{tokyo(evaluation.created_at)} 通知 · 予測対象 {tokyo(evaluation.target_time)}",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/26f68c8668654f1db20469c2815bf36ce41e3587/app/dev/rain-lab/RainLab.tsx"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/dev/rain-lab/RainLab.tsx",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "diff --git a/app/dev/rain-lab/RainLab.tsx b/app/dev/rain-lab/RainLab.tsx\nindex c8dafb7..e1799c4 100644\n--- a/app/dev/rain-lab/RainLab.tsx\n+++ b/app/dev/rain-lab/RainLab.tsx\n@@ -45,7 +45,7 @@ function CaseCard({evaluation,shadow,label,reports,feedback,threshold,onSaved}:{\n  const explanations=explainCase(evaluation,shadow,selectedTime,group?.baseTime,threshold,reports);\n  const grade=matchGrade(evaluation);\n  const candidates={point:group?.point.series.find(f=>f.validTime===selectedTime),area:variant?.area.series.find(f=>f.validTime===selectedTime),combined:variant?.combined.series.find(f=>f.validTime===selectedTime)};\n- return <details className={s.case} onToggle={event=>{if(event.currentTarget.open&&images===null&&!loading)void load();}}><summary><strong>{MATCH_GRADE_LABELS[grade].split(' ')[0]} {label}・{EVENT_LABELS[evaluation.event_type]??'雨通知'}</strong></summary>\n+ return <details className={s.case} onToggle={event=>{if(event.currentTarget.open&&images===null&&!loading)void load();}}><summary><span><strong>{MATCH_GRADE_LABELS[grade].split(' ')[0]} {label}・{EVENT_LABELS[evaluation.event_type]??'雨通知'}</strong><br/><span className={s.muted}>{tokyo(evaluation.created_at)} 通知 · 予測対象 {tokyo(evaluation.target_time)}</span></span></summary>\n  <div className={s.caseBody}><div className={s.caseOverview}><strong className={`${s.grade} ${s[`grade_${grade}`]}`}>{MATCH_GRADE_LABELS[grade]}</strong><p>{grade==='exact'?'予測した時刻にレーダーの変化が一致しました。':grade==='within5'?'予測時刻から5分以内にレーダーの変化が一致しました。':grade==='within10'?'予測時刻から10分以内にレーダーの変化が一致しました。':grade==='mismatch'?'予測時刻の前後10分まで確認しましたが、レーダーの変化は一致しませんでした。':'必要な実況が不足しているなどの理由で、まだ一致・不一致を決められません。'}</p><div className={s.overviewTimes}><span>通知 <strong>{tokyo(evaluation.created_at)}</strong></span><span>予測した時刻 <strong>{tokyo(evaluation.target_time)}</strong></span></div><p className={s.notes}>※これはレーダーとの比較で、現地の雨を証明するものではありません。</p></div><p>{evaluation.snapshot.body}</p><span className={s.tag}>実況 {evaluation.state==='PENDING'?'回収中':evaluation.state==='COMPLETE'?'照合済み':'一部確認できず'}</span><span className={s.tag}>画像 {evaluation.image_state==='COMPLETE'?'保存済み':evaluation.image_state==='PENDING'?'回収中':'一部未取得'}</span>\n  <details className={s.technical}><summary>処理状況・回収回数などの詳細</summary><div className={s.notes}>処理回数：実況 {evaluation.attempts??'—'} / 画像 {evaluation.image_attempts??'—'} / 比較 {evaluation.shadow_attempts??'—'}（初回を含むclaim回数）<br/>実況締切 {tokyo(evaluation.deadline_at)} · 画像は締切＋10分または60回、比較は締切＋20分または24回が通常処理の終了目安です。例外が続く場合や容量制限時の停止は別途監査が必要です。<br/>実況で未回収の時刻：{evaluation.radar_result?.missingTimes?.length?evaluation.radar_result.missingTimes.map(tokyo).join('、'):'なし／まだ未集計'}{evaluation.last_error||evaluation.image_error||evaluation.shadow_error?<><br/>取得・処理エラーあり。正常終了の記録とは分けて確認してください。</>:null}</div></details>\n  <div className={s.filters}><label className={s.label}>比較する時刻<select value={selectedTime} onChange={e=>setSelectedTime(e.target.value)}>{times.map(t=><option key={t} value={t}>{tokyo(t)}</option>)}</select></label>{(shadow?.comparison.groups.length??0)>1?<label className={s.label}>予測の発表時刻<select value={group?.baseTime} onChange={e=>setBase(e.target.value)}>{shadow?.comparison.groups.map(g=><option key={g.baseTime} value={g.baseTime}>{tokyo(g.baseTime)}</option>)}</select></label>:null}<button type='button' disabled={loading} onClick={()=>void load()}>{loading?'画像を読込中…':'画像を更新'}</button></div>\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/26f68c8668654f1db20469c2815bf36ce41e3587/app/dev/rain-lab/RainLab.tsx",
+      "source": {
+        "path": "app/dev/rain-lab/RainLab.tsx",
+        "coverage": "先頭18000文字・原本リンク参照",
+        "text": "'use client';\nimport {useCallback,useEffect,useId,useMemo,useRef,useState,type FormEvent} from 'react';\nimport {getSupabaseBrowserClient} from '../../../lib/supabase/browser';\nimport {EXCLUSION_LABELS,centerPixelLabel,imageDataUrl,METHODS,METHOD_LABELS,MATCH_GRADE_LABELS,matchGrade,percent,REASONS,STATE_LABELS,summarize,tokyo,type Evaluation,type GroundReport,type Health,type ImageRow,type LabData,type Shadow} from '../../../lib/research/rainLab';\nimport {LabAccessError,loadCaseImages,loadLab,saveGround} from '../../../lib/research/rainLabRepository';\nimport s from './lab.module.css';\nimport {explainCase,PATTERNS,VERDICT_LABELS} from '../../../lib/research/rainMismatch';\nconst jma=(value:string|null)=>{if(!value)return '';if(/^\\d{14}$/.test(value))return value;const d=new Date(value);return Number.isFinite(d.getTime())?d.toISOString().replace(/[-:TZ.]/g,'').slice(0,14):'';};\nconst EVENT_LABELS:Record<string,string>={RAIN_ENDING:'止むよ',RAIN_APPROACHING:'降るよ',ACTIONABLE_RAIN_APPROACHING:'降るよ'};\nconst FEEDBACK:Record<string,string>={RAINED:'降った',DID_NOT_RAIN:'降らなかった',ALREADY_RAINING:'すでに降っていた',STOPPED:'止んだ',DID_NOT_STOP:'止まなかった',ALREADY_DRY:'すでに降っていなかった',UNKNOWN:'わからない'};\nfunction Crop({image,location,title}:{image:ImageRow|null;location:{latitude:number;longitude:number};title:string}){\n const patternId=useId().replace(/:/g,'');const [dark,setDark]=useState(false);\n const url=image?imageDataUrl(image.crop_png):null,w=image?.metadata.window;\n const worldX=(location.longitude+180)/360*262144,worldY=(1-Math.asinh(Math.tan(location.latitude*Math.PI/180))/Math.PI)/2*262144;\n const masks=image?.availability_mask.slice(2).match(/../g)??[];\n return <figure className={s.figure}><figcaption>{title}</figcaption>{image&&url&&w?<><div className={s.crop} style={dark?{backgroundColor:'#263d50',backgroundImage:'none'}:undefined}>\n  {/* Raw PNG pixels, not a resampled weather prediction. */}<img src={url} alt={`${title} ${tokyo(image.valid_time)}の雨量画像`} />\n  <svg viewBox={`0 0 ${image.width} ${image.height}`} aria-hidden='true'><defs><pattern id={`missing-${patternId}`} width='0.6' height='0.6' patternUnits='userSpaceOnUse'><path d='M0 0L.6 .6' stroke='#c12d6b' strokeWidth='.12'/></pattern></defs>\n   {masks.map((v,i)=>v==='00'?<rect key={i} x={i%image.width} y={Math.floor(i/image.width)} width='1' height='1' fill={`url(#missing-${patternId})`}/>:null)}\n   {[250,500,1000].map((r,i)=><circle key={r} cx={worldX-w.originX} cy={worldY-w.originY} r={r/w.metersPerPixel} fill='none' stroke={['#159786','#3476c4','#c58a2a'][i]} strokeWidth='1.2' vectorEffect='non-scaling-stroke'/>)}\n   <path d={`M${worldX-w.originX-.6} ${worldY-w.originY}h1.2M${worldX-w.originX} ${worldY-w.originY-.6}v1.2`} stroke='#c63c54' strokeWidth='1.6' vectorEffect='non-scaling-stroke'/>\n  </svg></div><button type='button' className={s.contrast} aria-pressed={dark} onClick={()=>setDark(!dark)}>{dark?'市松背景に戻す':'淡い雨色を暗い背景で見る'}</button><div className={s.muted}>対象 {tokyo(image.valid_time)}</div><div className={s.notes}>中心：{centerPixelLabel(image,(Math.floor(worldY)-w.originY)*image.width+Math.floor(worldX)-w.originX)}<br/>RGBA {image.metadata.centerRgba?['r','g','b','a'].map(k=>image.metadata.centerRgba![k as 'r'|'g'|'b'|'a']).join(', '):'未取得'}</div><div className={s.notes}>発表 {tokyo(image.base_time)}<br/>取得 {tokyo(image.metadata.capturedAt)}<br/>{image.complete?'全画素取得':'欠けた画素あり'}{image.frame_kind==='FORECAST'?image.metadata.matchesInputPixel===true?' · 当時の中心と一致':' · 入力中心は未確認':''}</div>{image.frame_kind==='FORECAST'?<p className={s.notes}>同じ発表・対象時刻・地点のURLから後で回収した画像です。中心画素の一致は、通知時の画像全体が同一だった証明にはなりません。当時の画像全体のハッシュは未保存です。</p>:null}</>:<div className={s.noImage}>この時刻の画像は未保存です<br/>保存対象外・未回収を含みます</div>}</figure>;\n}\nfunction GroundForm({evaluation,onSaved}:{evaluation:Evaluation;onSaved:()=>Promise<void>}){\n const [weather,setWeather]=useState<GroundReport['weather']|''>(''),[time,setTime]=useState(''),[source,setSource]=useState<GroundReport['report_source']>('AT_LOCATION'),[confirmed,setConfirmed]=useState(false),[note,setNote]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[success,setSuccess]=useState(false);\n const submit=async(event:FormEvent)=>{event.preventDefault();setSuccess(false);setMessage('');if(!weather||!time){setMessage('天気と実際に確認した時刻を入力してください。');return;}setBusy(true);try{await saveGround(getSupabaseBrowserClient(),{evaluation_id:evaluation.id,observed_at:new Date(time).toISOString(),weather,report_source:source,location_confirmed:confirmed,note});setSuccess(true);setMessage('開発用の観測を保存しました。一般向け履歴の回答は変更していません。');await onSaved();}catch{setMessage('保存できませんでした。確認時刻・地点の確認・閲覧権限を確認してください。');}finally{setBusy(false);}};\n const now=()=>{const d=new Date(),local=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);setTime(local);};\n return <form className={s.form} onSubmit={event=>void submit(event)}><h3>現地の参考情報を記録（任意）</h3><p className={s.muted}>現地にいた場合だけ、確認できた事実を任意で記録してください。入力しなくても自動評価は進みます。近隣情報も参考として保存します。</p>\n  <div className={s.formGrid}><label className={s.label}>実際の天気<select value={weather} onChange={e=>setWeather(e.target.value as typeof weather)} required><option value=''>選んでください</option><option value='RAIN'>雨が降っていた</option><option value='NO_RAIN'>雨は降っていなかった</option><option value='UNKNOWN'>確認できない</option></select></label>\n   <label className={s.label}>確認方法<select value={source} onChange={e=>{setSource(e.target.value as typeof source);setConfirmed(false);}}><option value='AT_LOCATION'>登録地点そのもので確認</option><option value='CAMERA'>登録地点のカメラで確認</option><option value='NEARBY_REFERENCE'>近隣の情報・雨量計など（参考）</option></select></label>\n   <label className={s.label}>実際に確認した時刻<input type='datetime-local' value={time} onChange={e=>setTime(e.target.value)} required/></label><div><button type='button' onClick={now}>いまの時刻を入力</button></div></div>\n  {source!=='NEARBY_REFERENCE'?<label className={s.check}><input type='checkbox' checked={confirmed} onChange={e=>setConfirmed(e.target.checked)} required/>登録地点そのものと、入力した時刻の天気を確認しました</label>:<p className={s.notes}>近隣の情報は、登録地点の正解として一致率に使いません。</p>}\n  <label className={s.label}>メモ（任意・300文字まで）<textarea maxLength={300} value={note} onChange={e=>setNote(e.target.value)}/></label><p className={s.notes}>同じケース・同じ時刻の再保存は訂正になります。現地報告がない場合や報告同士が食い違う場合でも、レーダーによる自動評価は保留にしません。</p>\n  <button disabled={busy} type='submit'>{busy?'保存中…':'開発用の観測を保存'}</button>{message?<p role='status' className={success?s.success:s.error}>{message}</p>:null}</form>;\n}\nfunction CaseCard({evaluation,shadow,label,reports,feedback,threshold,onSaved}:{evaluation:Evaluation;shadow:Shadow|undefined;label:string;reports:GroundReport[];feedback:LabData['feedback'][number]|undefined;threshold:number;onSaved:()=>Promise<void>}){\n const [images,setImages]=useState<ImageRow[]|null>(null),[loading,setLoading]=useState(false),[error,setError]=useState(''),[selectedTime,setSelectedTime]=useState(jma(evaluation.target_time)),[base,setBase]=useState(shadow?.comparison.groups[0]?.baseTime??'');const request=useRef(0);\n useEffect(()=>()=>{request.current++;},[]);\n const load=async()=>{const rid=++request.current;setLoading(true);setError('');try{const rows=await loadCaseImages(getSupabaseBrowserClient(),evaluation.id);if(rid===request.current)setImages(rows);}catch{if(rid===request.current)setError('画像を取得できません。権限と接続を確認してください。');}finally{if(rid===request.current)setLoading(false);}};\n const group=shadow?.comparison.groups.find(g=>g.baseTime===base)??shadow?.comparison.groups[0],variant=group?.variants.find(v=>Math.abs(v.threshold-threshold)<.0001);\n const times=[...new Set([selectedTime,...(images??[]).filter(i=>i.frame_kind!=='INPUT_OBSERVATION').map(i=>i.valid_time),...(group?.point.series??[]).map(f=>f.validTime)].filter(Boolean))].sort();\n const forecast=images?.find(i=>i.frame_kind==='FORECAST'&&i.valid_time===selectedTime&&(!group||i.base_time===group.baseTime))??null,observation=images?.find(i=>i.frame_kind==='OBSERVATION'&&i.valid_time===selectedTime)??null;\n const observationFeature=shadow?.features.find(f=>f.kind==='OBSERVATION'&&f.validTime===selectedTime);\n const feature=shadow?.features.find(f=>f.kind==='FORECAST'&&f.validTime===selectedTime&&(!group||f.baseTime===group.baseTime));\n const explanations=explainCase(evaluation,shadow,selectedTime,group?.baseTime,threshold,reports);\n const grade=matchGrade(evaluation);\n const candidates={point:group?.point.series.find(f=>f.validTime===selectedTime),area:variant?.area.series.find(f=>f.validTime===selectedTime),combined:variant?.combined.series.find(f=>f.validTime===selectedTime)};\n return <details className={s.case} onToggle={event=>{if(event.currentTarget.open&&images===null&&!loading)void load();}}><summary><span><strong>{MATCH_GRADE_LABELS[grade].split(' ')[0]} {label}・{EVENT_LABELS[evaluation.event_type]??'雨通知'}</strong><br/><span className={s.muted}>{tokyo(evaluation.created_at)} 通知 · 予測対象 {tokyo(evaluation.target_time)}</span></span></summary>\n <div className={s.caseBody}><div className={s.caseOverview}><strong className={`${s.grade} ${s[`grade_${grade}`]}`}>{MATCH_GRADE_LABELS[grade]}</strong><p>{grade==='exact'?'予測した時刻にレーダーの変化が一致しました。':grade==='within5'?'予測時刻から5分以内にレーダーの変化が一致しました。':grade==='within10'?'予測時刻から10分以内にレーダーの変化が一致しました。':grade==='mismatch'?'予測時刻の前後10分まで確認しましたが、レーダーの変化は一致しませんでした。':'必要な実況が不足しているなどの理由で、まだ一致・不一致を決められません。'}</p><div className={s.overviewTimes}><span>通知 <strong>{tokyo(evaluation.created_at)}</strong></span><span>予測した時刻 <strong>{tokyo(evaluation.target_time)}</strong></span></div><p className={s.notes}>※これはレーダーとの比較で、現地の雨を証明するものではありません。</p></div><p>{evaluation.snapshot.body}</p><span className={s.tag}>実況 {evaluation.state==='PENDING'?'回収中':evaluation.state==='COMPLETE'?'照合済み':'一部確認できず'}</span><span className={s.tag}>画像 {evaluation.image_state==='COMPLETE'?'保存済み':evaluation.image_state==='PENDING'?'回収中':'一部未取得'}</span>\n <details className={s.technical}><summary>処理状況・回収回数などの詳細</summary><div className={s.notes}>処理回数：実況 {evaluation.attempts??'—'} / 画像 {evaluation.image_attempts??'—'} / 比較 {evaluation.shadow_attempts??'—'}（初回を含むclaim回数）<br/>実況締切 {tokyo(evaluation.deadline_at)} · 画像は締切＋10分または60回、比較は締切＋20分または24回が通常処理の終了目安です。例外が続く場合や容量制限時の停止は別途監査が必要です。<br/>実況で未回収の時刻：{evaluation.radar_result?.missingTimes?.length?evaluation.radar_result.missingTimes.map(tokyo).join('、'):'なし／まだ未集計'}{evaluation.last_error||evaluation.image_error||evaluation.shadow_error?<><br/>取得・処理エラーあり。正常終了の記録とは分けて確認してください。</>:null}</div></details>\n <div className={s.filters}><label className={s.label}>比較する時刻<select value={selectedTime} onChange={e=>setSelectedTime(e.target.value)}>{times.map(t=><option key={t} value={t}>{tokyo(t)}</option>)}</select></label>{(shadow?.comparison.groups.length??0)>1?<label className={s.label}>予測の発表時刻<select value={group?.baseTime} onChange={e=>setBase(e.target.value)}>{shadow?.comparison.groups.map(g=><option key={g.baseTime} value={g.baseTime}>{tokyo(g.baseTime)}</option>)}</select></label>:null}<button type='button' disabled={loading} onClick={()=>void load()}>{loading?'画像を読込中…':'画像を更新'}</button></div>\n {error?<p className={s.error}>{error}</p>:null}<div className={s.images}><Crop image={forecast} location={evaluation.snapshot.location} title='当時の予測（後から回収）'/><Crop image={observation} location={evaluation.snapshot.location} title='対象時刻の実況'/></div>\n <p className={s.notes}>左が通知時点の予測、右が予測対象時刻の実況です。＋は登録地点、円は周辺250m・500m・1kmを表します。</p><div className={s.legend}><span style={{color:'#159786'}}>○ 250m</span><span style={{color:'#3476c4'}}>○ 500m</span><span style={{color:'#a16a19'}}>○ 1km</span><span>＋ 登録地点</span><span>市松＝取得済み透明（雨色なし） · 斜線＝未取得 · ほぼ白色も弱い雨</span></div>\n <details className={s.technical}><summary>詳しい判定理由・研究用の比較を見る</summary><section className={s.explanation}><h3>レーダーの不一致・判定不能の具体的な理由</h3><p className={s.notes}>画像の対象 {tokyo(selectedTime)}。時刻のずれは通知対象 {tokyo(evaluation.target_time)} を基準に確認します。レーダー上の差を表示します。現地報告は任意の参考情報であり、判定には使用しません。</p><p className={s.notes}>自動評価（雨色への遷移）：ぴったり {VERDICT_LABELS[evaluation.radar_result?.exact??'']??'未評価'} ／ ±5分 {VERDICT_LABELS[evaluation.radar_result?.within5??'']??'未評価'} ／ ±10分 {VERDICT_LABELS[evaluation.radar_result?.within10??'']??'未評価'}{evaluation.state==='PENDING'?'（処理中の暫定値）':''}</p>{explanations.length?<ul className={s.reasonList}>{explanations.map((x,i)=><li key={`${x.code}-${i}`} className={x.kind==='difference'?s.difference:s.hold}><strong>{x.kind==='difference'?'差あり':x.kind==='hold'?'保留':'比較の前提'}：{x.title}</strong><p>{x.detail}</p></li>)}</ul>:<p>この時刻の取得済みデータから、表示対象の不一致は検出されていません。地上の精度保証ではありません。</p>}</section>\n <div className={s.tableWrap}><table className={s.table}><thead><tr><th>方式</th><th>この時刻の候補</th><th>判定の根拠・保留理由</th></tr></thead><tbody>{METHODS.map(m=><tr key={m}><td className={s.method}>{METHOD_LABELS[m]}</td><td>{STATE_LABELS[candidates[m]?.state??'INDETERMINATE']}</td><td>{REASONS[candidates[m]?.reason??(m==='point'?'POINT_INPUT':'IMAGE_MISSING')]??'未確認'}</td></tr>)}</tbody></table></div>\n {[{name:'予測の面積内訳',feature},{name:'実況の面積内訳',feature:observationFeature}].map(({name,feature})=>feature?<div className={s.tableWrap} key={name}><table className={s.table}><caption>{name}</caption><thead><tr><th>範囲</th><th>雨域占有率</th><th>分類可能</th><th>欠測 / 未知色</th><th>中心の穴</th></tr></thead><tbody>{[250,500,1000].map(r=>{const c=feature.metrics.circles[String(r)];return c?<tr key={r}><td>{r===1000?'1km':`${r}m`}</td><td>{percent(c.rainFraction)}</td><td>{percent(c.usableCoverage)}</td><td>{percent(c.missingFraction)} / {percent(c.unknownFraction)}</td><td>{c.centerDryHoleM2===null?'—':`${Math.round(c.centerDryHoleM2).toLocaleString()}m²`}</td></tr>:null;})}</tbody></table></div>:<p className={s.notes} key={name}>{name}：画像の解析待ちです。</p>)}\n <p className={s.notes}>透明は取得できた画素で雨色がない状態です。未取得や、パレットにない未知色とは分けます。地上の無降雨を証明するものではありません。</p>\n <p className={s.notes}>占有率は「範囲の何％に雨色があるか」で、地点の降雨確率ではありません。表示用画素数も、独立したレーダー観測数ではありません。</p>\n {feedback?<p className={s.report}>一般向け履歴の回答：{FEEDBACK[feedback.actual_weather]??feedback.actual_weather} · 確認時刻 {tokyo(feedback.observed_at)}<br/>この回答は補助表示です。下の地点確認とは別に扱います。</p>:null}\n {reports.map(r=><p className={s.report} key={r.observed_at}>現地の参考報告 {tokyo(r.observed_at)}：{r.weather==='UNKNOWN'?'未確認':STATE_LABELS[r.weather]} · {r.report_source==='AT_LOCATION'?'現地':r.report_source==='CAMERA'?'地点カメラ':'近隣の参考情報'}{r.note?` · ${r.note}`:''}</p>)}\n </details><GroundForm evaluation={evaluation} onSaved={onSaved}/></div></details>;\n}\nfunction HealthCard({label,value,maxMinutes}:{label:string;value:Health|null;maxMinutes:number}){const age=value?(Date.now()-Date.parse(value.started_at))/60000:Infinity,ok=value?.status==='OK'&&age<=maxMinutes;return <div className={s.healthItem}><span className={`${s.dot} ${ok?'':s.dotWarn}`}/><strong>{label}</strong><div className={s.muted}>{!value?'記録なし':ok?'正常':value.status==='RUNNING'?'処理中':value.status==='UNKNOWN'?'雨情報を確認できず':age>maxMinutes?'更新が遅れています':'要確認'}</div><div className={s.notes}>{value?tokyo(value.started_at):'—'}</div></div>;}\nexport default function RainLab(){\n const [data,setData]=useState<LabData|null>(null),[gate,setGate]=useState<'checking'|'session'|'forbidden'|'error'|'ready'>('checking'),[message,setMessage]=useState(''),[busy,setBusy]=useState(false),[days,setDays]=useState(7),[target,setTarget]=useState('all'),[eventType,setEventType]=useState('all'),[threshold,setThreshold]=useState(.4),[updated,setUpdated]=useState<string|null>(null);const request=useRef(0);\n const refresh=useCallback(async()=>{const rid=++request.current;setBusy(true);setMessage('');try{const loaded=await loadLab(getSupabaseBrowserClient(),days);if(rid!==request.current)return;setData(loaded);setGate('ready');setUpdated(new Date().toISOString());}catch(error){if(rid!==request.current)return;setData(null);if(error instanceof LabAccessError)setGate(error.reason==='SESSION'?'session':'forbidden');else{setGate('error');setMessage('データを取得できません。接続を確認して再読込してください。');}}finally{if(rid===request.current)setBusy(false);}},[days]);\n useEffect(()=>{let timer:ReturnType<typeof setTimeout>|undefined;const invalidate=()=>{request.current++;setData(null);setGate('checking');if(timer)clearTimeout(timer);timer=setTimeout(()=>void refresh(),0);};let unsubscribe=()=>{};try{const sub=getSupabaseBrowserClient().auth.onAuthStateChange(invalidate);unsubscribe=()=>sub.data.subscription.unsubscribe();}catch{}\n  const visible=()=>{if(document.visibilityState==='visible')void refresh();};void refresh();const poll=setInterval(visible,60000);document.addEventListener('visibilitychange',visible);window.addEventListener('pageshow',visible);return()=>{request.current++;if(timer)clearTimeout(timer);clearInterval(poll);unsubscribe();document.removeEventListener('visibilitychange',visible);window.removeEventListener('pageshow',visible);};\n },[refresh]);\n const filtered=useMemo(()=>data?{...data,evaluations:data.evaluations.filter(e=>(target==='all'||e.target_id===target)&&(eventType==='all'||(eventType==='ending'?e.event_type==='RAIN_ENDING':e.event_type!=='RAIN_ENDING')))}:null,[data,target,eventType]);\n const summary=useMemo(()=>filtered?summarize(filtered,threshold,'radar'):null,[filtered,threshold]);\n if(gate!=='ready'||!data||!filtered||!summary)return <main className={s.shell}><div className={s.gate}><div className={s.eyebrow}>DEVELOPER ONLY</div><h1>雨の判定ラボ</h1><p>{gate==='checking'?'閲覧権限を確認しています…':gate==='session'?'通知を受け取っている、いつものPWA・アカウントで開いてください。':gate==='forbidden'?'このアカウントは開発用画面の閲覧を許可されていません。':message}</p><p className={s.muted}>比較データは、許可された開発者の登録地点だけに限定しています。URLだけでは閲覧できません。</p><button onClick={()=>void refresh()} disabled={busy}>再確認</button> <a href='/'>いつもの画面へ</a></div></main>;\n const patternCases=new Map<string,Set<string>>();for(const e of filtered.evaluations){const sh=data.shadows.find(x=>x.evaluation_id===e.id);for(const reason of explainCase(e,sh,jma(e.target_time),sh?.comparison.groups[0]?.baseTime,threshold,data.reports)){const ids=patternCases.get(reason.code)??new Set<string>();ids.add(e.id);patternCases.set(reason.code,ids);}}\n const count=filtered.evaluations.length,reporte",
+        "sha256": "4460689f9f0d0fabd8f63653e0e925f5fecd59577091e950eb967181cb6441b9"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "26f68c8668654f1db20469c2815bf36ce41e3587",
+      "message": "ui: retain notification and forecast times below compact verdict\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/26f68c8668654f1db20469c2815bf36ce41e3587"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "26f68c8668654f1db20469c2815bf36ce41e3587",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42550640651",
+      "id": 42550640651,
+      "updated_at": "2026-11-09T02:23:25Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "26f68c8668654f1db20469c2815bf36ce41e3587",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42550641018",
+      "id": 42550641018,
+      "updated_at": "2026-11-09T02:23:52Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "f6552b6b16e3001de1a8f1ee1abd75ad114ba151",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42574945109",
+      "id": 42574945109,
+      "updated_at": "2026-11-09T06:46:46Z",
+      "event": "create"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "f6552b6b16e3001de1a8f1ee1abd75ad114ba151",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42552026368",
+      "id": 42552026368,
+      "updated_at": "2026-11-09T02:40:04Z",
+      "event": "create"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "f6552b6b16e3001de1a8f1ee1abd75ad114ba151",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42550651015",
+      "id": 42550651015,
+      "updated_at": "2026-11-09T02:23:35Z",
+      "event": "push"
+    },
+    {
+      "name": "CI",
+      "head_sha": "f6552b6b16e3001de1a8f1ee1abd75ad114ba151",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42550651197",
+      "id": 42550651197,
+      "updated_at": "2026-11-09T02:23:52Z",
+      "event": "push"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "f6552b6b16e3001de1a8f1ee1abd75ad114ba151",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42550651021",
+      "id": 42550651021,
+      "updated_at": "2026-11-09T02:25:18Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "CaseCard",
+    "Crop",
+    "EVENT_LABELS",
+    "FEEDBACK",
+    "GroundForm",
+    "HealthCard",
+    "RainLab",
+    "age",
+    "c",
+    "candidates",
+    "count",
+    "d",
+    "e",
+    "explanations",
+    "feature",
+    "filtered",
+    "forecast",
+    "grade",
+    "group",
+    "ids",
+    "invalidate",
+    "jma",
+    "load",
+    "loaded",
+    "masks",
+    "now",
+    "observationFeature",
+    "patternCases",
+    "patternId",
+    "poll",
+    "reason",
+    "refresh",
+    "request",
+    "rid",
+    "rows",
+    "sh",
+    "sub",
+    "submit",
+    "summary",
+    "timer",
+    "times",
+    "unsubscribe",
+    "url",
+    "visible",
+    "worldX"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "事例一覧で通知時刻と予測対象時刻を保持",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/178"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "e0e79997a45bc8623d72af906da407b9b22134c4a8e40bf737302c59b5517557",
+  "ci_digest": "cdfbf742be6bd85f69615c04c15716b20e1e975c6d1c8abf8b3d99764ae1a388",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00",
+  "decisions": []
+}

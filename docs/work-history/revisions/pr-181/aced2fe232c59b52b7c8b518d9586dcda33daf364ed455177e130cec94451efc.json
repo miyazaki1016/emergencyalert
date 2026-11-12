@@ -1,0 +1,466 @@
+{
+  "id": "pr-181",
+  "number": 181,
+  "title": "fix: exhaustive z4 heavy-rain scan and fail-closed missing tiles (PR #62 evidence)",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "## Background\nPR #62 ran real-JMA stride parity on 2026-10-16 (Actions run 38967793373): six fully available z4 frames showed 177 >=30mm/h pixels with full coverage versus 45 using stride 2; 47 of 88 independent 4-connected heavy-rain regions had no stride-2 detection. These values apply to that sample only, not a global missed-alert rate.\n\n## Changes\n- Explicit `stride=1` in BOTH nationwide z4 first-pass routes (`national-preview`, `national-queue`) for observation and forecast frames. Keep shared scan function default untouched until detailed worker throughput is tested.\n- Preview returns 503 when any required z4 tile is unavailable or corrupt, rather than silently treating missing coverage as no rain.\n- Regression tests assert explicit stride=1 and incomplete-tile failure.\n- `docs/NATIONAL_Z4_STRIDE_EVIDENCE_20261109.md` captures PR #62 results, methods and next gates.\n\n## Limits and release scope\nTargets existing feature branch PR #59, **not main**. No Supabase data, MYアメふる push, cron, storage, production deploy, or merge. Tests committed; CI result still unconfirmed. This is not production readiness: z4-to-z10 sensitivity, detailed worker’s stride, partition IO and scheduler remain to be verified.",
+  "snapshot_head": "011ca047241641a2af4c4bf12412063e19d0e5bd",
+  "snapshot_consistent": true,
+  "head": "011ca047241641a2af4c4bf12412063e19d0e5bd",
+  "base": "0f5ec30e20bf53f470cdff621f31436a6d52a992",
+  "base_ref": "feat/national-heavy-rain-preview",
+  "head_ref": "fix/national-preview-fail-closed-20261109",
+  "state": "open",
+  "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+  "draft": true,
+  "merged_at": null,
+  "merge_commit_sha": null,
+  "updated_at": "2026-11-09T08:07:40Z",
+  "code_facts": [
+    {
+      "file": "app/api/rain/national-preview/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"nationwide rain preview fail-closed coverage\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/national-preview/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "test(\"returns unavailable if an observation tile cannot be retrieved\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/national-preview/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(response.status).toBe(503);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/national-preview/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(await response.json()).toEqual({ error: \"NATIONAL_RAIN_SCAN_UNAVAILABLE\" });",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/national-preview/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "test(\"returns unavailable instead of a partial clear forecast when a forecast tile is missing\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/national-preview/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(response.status).toBe(503);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/national-preview/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(await response.json()).toEqual({ error: \"NATIONAL_RAIN_SCAN_UNAVAILABLE\" });",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/national-preview/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "test(\"returns forecast frames when all tiles are available\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/national-preview/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(response.status).toBe(200);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/national-preview/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(scanTile).toHaveBeenCalledTimes(12);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/national-preview/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(scanTile.mock.calls.every((call) => call[4] === 1)).toBe(true);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/national-preview/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(await response.json()).toMatchObject({",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/national-queue/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(scanTile.mock.calls.length).toBeGreaterThan(0);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-queue/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/national-queue/route.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(scanTile.mock.calls.every((call) => call[4] === 1)).toBe(true);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-queue/route.test.ts"
+    },
+    {
+      "file": "app/api/rain/national-queue/route.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "return scanHeavyRainTile(Buffer.from(await response.arrayBuffer()), COARSE_ZOOM, x, y, 1);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-queue/route.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/api/rain/national-preview/route.test.ts",
+      "status": "modified",
+      "additions": 91,
+      "deletions": 0,
+      "patch": "diff --git a/app/api/rain/national-preview/route.test.ts b/app/api/rain/national-preview/route.test.ts\nnew file mode 100644\nindex 00000000..067501dc\n--- /dev/null\n+++ b/app/api/rain/national-preview/route.test.ts\n@@ -0,0 +1,91 @@\n+import { afterEach, describe, expect, test, vi } from \"vitest\";\n+\n+const { fetchObs, fetchForecast, scanTile } = vi.hoisted(() => ({\n+  fetchObs: vi.fn(),\n+  fetchForecast: vi.fn(),\n+  scanTile: vi.fn(),\n+}));\n+\n+vi.mock(\"@/lib/weather/providers/jma/observationTargetTimes\", () => ({\n+  fetchObservationTargetTimes: fetchObs,\n+}));\n+vi.mock(\"@/lib/weather/providers/jma/targetTimes\", () => ({\n+  fetchForecastTargetTimes: fetchForecast,\n+}));\n+vi.mock(\"@/lib/weather/providers/jma/tileUrl\", () => ({\n+  buildJmaRainTileUrl: (frame: { validtime: string }, _zoom: number, x: number, y: number) =>\n+    `https://jma.test/${frame.validtime}/${x}/${y}`,\n+}));\n+vi.mock(\"@/lib/weather/rain/nationalHeavyRain\", () => ({\n+  candidateKey: (candidate: { key: string }) => candidate.key,\n+  scanHeavyRainTile: scanTile,\n+}));\n+\n+import { GET } from \"./route\";\n+\n+const observation = { basetime: \"20260930000000\", validtime: \"20260930000000\" };\n+const forecast = { basetime: \"20260930000000\", validtime: \"20260930000500\" };\n+\n+describe(\"nationwide rain preview fail-closed coverage\", () => {\n+  afterEach(() => {\n+    vi.unstubAllGlobals();\n+    vi.clearAllMocks();\n+  });\n+\n+  test(\"returns unavailable if an observation tile cannot be retrieved\", async () => {\n+    fetchObs.mockResolvedValue([observation]);\n+    fetchForecast.mockResolvedValue([forecast]);\n+    vi.stubGlobal(\"fetch\", vi.fn(async (url: string) =>\n+      new Response(new Uint8Array([1]), { status: url.includes(\"/13/5\") && url.includes(observation.validtime) ? 503 : 200 })\n+    ));\n+    scanTile.mockReturnValue([]);\n+\n+    const response = await GET();\n+\n+    expect(response.status).toBe(503);\n+    expect(await response.json()).toEqual({ error: \"NATIONAL_RAIN_SCAN_UNAVAILABLE\" });\n+  });\n+\n+  test(\"returns unavailable instead of a partial clear forecast when a forecast tile is missing\", async () => {\n+    fetchObs.mockResolvedValue([observation]);\n+    fetchForecast.mockResolvedValue([forecast]);\n+    vi.stubGlobal(\"fetch\", vi.fn(async (url: string) =>\n+      new Response(new Uint8Array([1]), { status: url.includes(forecast.validtime) && url.includes(\"/14/6\") ? 503 : 200 })\n+    ));\n+    scanTile.mockReturnValue([]);\n+\n+    const response = await GET();\n+\n+    expect(response.status).toBe(503);\n+    expect(await response.json()).toEqual({ error: \"NATIONAL_RAIN_SCAN_UNAVAILABLE\" });\n+  });\n+\n+  test(\"returns forecast frames when all tiles are available\", async () => {\n+    fetchObs.mockResolvedValue([observation]);\n+    fetchForecast.mockResolvedValue([forecast]);\n+    vi.stubGlobal(\"fetch\", vi.fn(async () => new Response(new Uint8Array([1]), { status: 200 })));\n+    scanTile.mockReturnValue([]);\n+\n+    const response = await GET();\n+\n+    expect(response.status).toBe(200);\n+    // PR #62 real-JMA parity evidence: the z4 scan must not skip odd pixels.\n+    expect(scanTile).toHaveBeenCalledTimes(12);\n+    expect(scanTile.mock.calls.every((call) => call[4] === 1)).toBe(true);\n+    expect(await response.json()).toMatchObject({\n+      mode: \"NATIONWIDE_HEAVY_RAIN_PROOF\",\n+      frames: [{ validTime: forecast.validtime, counts: { heavy: 0, veryHeavy: 0, torrential: 0 } }],\n+    });\n+  });\n+\n+  test(\"fails closed when a tile decoder throws\", async () => {\n+    fetchObs.mockResolvedValue([observation]);\n+    fetchForecast.mockResolvedValue([forecast]);\n+    vi.stubGlobal(\"fetch\", vi.fn(async () => new Response(new Uint8Array([1]), { status: 200 })));\n+    scanTile.mockImplementationOnce(() => { throw new Error(\"invalid tile\"); }).mockReturnValue([]);\n+\n+    const response = await GET();\n+\n+    expect(response.status).toBe(503);\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts",
+      "source": {
+        "path": "app/api/rain/national-preview/route.test.ts",
+        "coverage": "全文",
+        "text": "import { afterEach, describe, expect, test, vi } from \"vitest\";\n\nconst { fetchObs, fetchForecast, scanTile } = vi.hoisted(() => ({\n  fetchObs: vi.fn(),\n  fetchForecast: vi.fn(),\n  scanTile: vi.fn(),\n}));\n\nvi.mock(\"@/lib/weather/providers/jma/observationTargetTimes\", () => ({\n  fetchObservationTargetTimes: fetchObs,\n}));\nvi.mock(\"@/lib/weather/providers/jma/targetTimes\", () => ({\n  fetchForecastTargetTimes: fetchForecast,\n}));\nvi.mock(\"@/lib/weather/providers/jma/tileUrl\", () => ({\n  buildJmaRainTileUrl: (frame: { validtime: string }, _zoom: number, x: number, y: number) =>\n    `https://jma.test/${frame.validtime}/${x}/${y}`,\n}));\nvi.mock(\"@/lib/weather/rain/nationalHeavyRain\", () => ({\n  candidateKey: (candidate: { key: string }) => candidate.key,\n  scanHeavyRainTile: scanTile,\n}));\n\nimport { GET } from \"./route\";\n\nconst observation = { basetime: \"20260930000000\", validtime: \"20260930000000\" };\nconst forecast = { basetime: \"20260930000000\", validtime: \"20260930000500\" };\n\ndescribe(\"nationwide rain preview fail-closed coverage\", () => {\n  afterEach(() => {\n    vi.unstubAllGlobals();\n    vi.clearAllMocks();\n  });\n\n  test(\"returns unavailable if an observation tile cannot be retrieved\", async () => {\n    fetchObs.mockResolvedValue([observation]);\n    fetchForecast.mockResolvedValue([forecast]);\n    vi.stubGlobal(\"fetch\", vi.fn(async (url: string) =>\n      new Response(new Uint8Array([1]), { status: url.includes(\"/13/5\") && url.includes(observation.validtime) ? 503 : 200 })\n    ));\n    scanTile.mockReturnValue([]);\n\n    const response = await GET();\n\n    expect(response.status).toBe(503);\n    expect(await response.json()).toEqual({ error: \"NATIONAL_RAIN_SCAN_UNAVAILABLE\" });\n  });\n\n  test(\"returns unavailable instead of a partial clear forecast when a forecast tile is missing\", async () => {\n    fetchObs.mockResolvedValue([observation]);\n    fetchForecast.mockResolvedValue([forecast]);\n    vi.stubGlobal(\"fetch\", vi.fn(async (url: string) =>\n      new Response(new Uint8Array([1]), { status: url.includes(forecast.validtime) && url.includes(\"/14/6\") ? 503 : 200 })\n    ));\n    scanTile.mockReturnValue([]);\n\n    const response = await GET();\n\n    expect(response.status).toBe(503);\n    expect(await response.json()).toEqual({ error: \"NATIONAL_RAIN_SCAN_UNAVAILABLE\" });\n  });\n\n  test(\"returns forecast frames when all tiles are available\", async () => {\n    fetchObs.mockResolvedValue([observation]);\n    fetchForecast.mockResolvedValue([forecast]);\n    vi.stubGlobal(\"fetch\", vi.fn(async () => new Response(new Uint8Array([1]), { status: 200 })));\n    scanTile.mockReturnValue([]);\n\n    const response = await GET();\n\n    expect(response.status).toBe(200);\n    // PR #62 real-JMA parity evidence: the z4 scan must not skip odd pixels.\n    expect(scanTile).toHaveBeenCalledTimes(12);\n    expect(scanTile.mock.calls.every((call) => call[4] === 1)).toBe(true);\n    expect(await response.json()).toMatchObject({\n      mode: \"NATIONWIDE_HEAVY_RAIN_PROOF\",\n      frames: [{ validTime: forecast.validtime, counts: { heavy: 0, veryHeavy: 0, torrential: 0 } }],\n    });\n  });\n\n  test(\"fails closed when a tile decoder throws\", async () => {\n    fetchObs.mockResolvedValue([observation]);\n    fetchForecast.mockResolvedValue([forecast]);\n    vi.stubGlobal(\"fetch\", vi.fn(async () => new Response(new Uint8Array([1]), { status: 200 })));\n    scanTile.mockImplementationOnce(() => { throw new Error(\"invalid tile\"); }).mockReturnValue([]);\n\n    const response = await GET();\n\n    expect(response.status).toBe(503);\n  });\n});\n",
+        "sha256": "73ae59747cc6aa7128f5c423aaff3f97710ff6dd833c60606edf7e9e31f594c8"
+      }
+    },
+    {
+      "path": "app/api/rain/national-preview/route.ts",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 8,
+      "patch": "diff --git a/app/api/rain/national-preview/route.ts b/app/api/rain/national-preview/route.ts\nindex 01f052aa..e1e9b0a7 100644\n--- a/app/api/rain/national-preview/route.ts\n+++ b/app/api/rain/national-preview/route.ts\n@@ -2,7 +2,7 @@ import { NextResponse } from \"next/server\";\n import { fetchObservationTargetTimes } from \"@/lib/weather/providers/jma/observationTargetTimes\";\n import { fetchForecastTargetTimes } from \"@/lib/weather/providers/jma/targetTimes\";\n import { buildJmaRainTileUrl } from \"@/lib/weather/providers/jma/tileUrl\";\n-import { candidateKey, scanHeavyRainTile, type HeavyRainCandidate } from \"@/lib/weather/rain/nationalHeavyRain\";\n+import { candidateKey, scanHeavyRainTile } from \"@/lib/weather/rain/nationalHeavyRain\";\n \n export const dynamic = \"force-dynamic\";\n export const maxDuration = 60;\n@@ -23,13 +23,11 @@ async function fetchTile(frame: { basetime: string; validtime: string }, x: numb\n }\n \n async function scanFrame(frame: { basetime: string; validtime: string }) {\n-  const parts = await Promise.all(JAPAN_TILES.map(async ([x, y]) => {\n-    try {\n-      return scanHeavyRainTile(await fetchTile(frame, x, y), ZOOM, x, y);\n-    } catch {\n-      return [] as HeavyRainCandidate[];\n-    }\n-  }));\n+  // Missing tiles are unknown coverage, not proof of zero heavy rain.\n+  // Fail the complete preview instead of silently treating failed regions as clear.\n+  const parts = await Promise.all(JAPAN_TILES.map(async ([x, y]) =>\n+    scanHeavyRainTile(await fetchTile(frame, x, y), ZOOM, x, y, 1)\n+  ));\n   return parts.flat();\n }\n \n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.ts",
+      "source": {
+        "path": "app/api/rain/national-preview/route.ts",
+        "coverage": "全文",
+        "text": "import { NextResponse } from \"next/server\";\nimport { fetchObservationTargetTimes } from \"@/lib/weather/providers/jma/observationTargetTimes\";\nimport { fetchForecastTargetTimes } from \"@/lib/weather/providers/jma/targetTimes\";\nimport { buildJmaRainTileUrl } from \"@/lib/weather/providers/jma/tileUrl\";\nimport { candidateKey, scanHeavyRainTile } from \"@/lib/weather/rain/nationalHeavyRain\";\n\nexport const dynamic = \"force-dynamic\";\nexport const maxDuration = 60;\n\nconst ZOOM = 4;\n// JMA zoom-4 tiles covering Japan and nearby islands. This is intentionally\n// coarse for the first nationwide proof; later stages will refine detected areas.\nconst JAPAN_TILES = [\n  [13, 5], [14, 5],\n  [13, 6], [14, 6],\n  [13, 7], [14, 7],\n] as const;\n\nasync function fetchTile(frame: { basetime: string; validtime: string }, x: number, y: number) {\n  const response = await fetch(buildJmaRainTileUrl(frame, ZOOM, x, y), { cache: \"no-store\" });\n  if (!response.ok) throw new Error(`tile fetch failed: ${response.status}`);\n  return Buffer.from(await response.arrayBuffer());\n}\n\nasync function scanFrame(frame: { basetime: string; validtime: string }) {\n  // Missing tiles are unknown coverage, not proof of zero heavy rain.\n  // Fail the complete preview instead of silently treating failed regions as clear.\n  const parts = await Promise.all(JAPAN_TILES.map(async ([x, y]) =>\n    scanHeavyRainTile(await fetchTile(frame, x, y), ZOOM, x, y, 1)\n  ));\n  return parts.flat();\n}\n\nexport async function GET() {\n  try {\n    const [observations, forecasts] = await Promise.all([\n      fetchObservationTargetTimes(),\n      fetchForecastTargetTimes(),\n    ]);\n    const current = observations[0];\n    if (!current) throw new Error(\"observation unavailable\");\n\n    const currentStrong = new Set((await scanFrame(current)).map(candidateKey));\n    const frames = [];\n    for (const forecast of forecasts) {\n      const candidates = (await scanFrame(forecast)).filter((candidate) => !currentStrong.has(candidateKey(candidate)));\n      const counts = { heavy: 0, veryHeavy: 0, torrential: 0 };\n      for (const candidate of candidates) {\n        if (candidate.level === \"HEAVY\") counts.heavy++;\n        if (candidate.level === \"VERY_HEAVY\") counts.veryHeavy++;\n        if (candidate.level === \"TORRENTIAL\") counts.torrential++;\n      }\n      frames.push({\n        baseTime: forecast.basetime,\n        validTime: forecast.validtime,\n        counts,\n        // Preview only: cap payload. Area clustering/geocoding is the next stage.\n        candidates: candidates.slice(0, 200),\n      });\n    }\n\n    return NextResponse.json({\n      mode: \"NATIONWIDE_HEAVY_RAIN_PROOF\",\n      threshold: \"forecast >= 30 mm/h while current corresponding pixel is < 30 mm/h\",\n      zoom: ZOOM,\n      checkedAt: new Date().toISOString(),\n      currentValidTime: current.validtime,\n      frames,\n      note: \"Proof endpoint only. It does not publish alerts or affect existing watch targets/push notifications.\",\n    });\n  } catch {\n    return NextResponse.json({ error: \"NATIONAL_RAIN_SCAN_UNAVAILABLE\" }, { status: 503 });\n  }\n}\n",
+        "sha256": "7228bc40af9fb4160d96a22ae498c0871c09d6897c331e56179e9070b70f659a"
+      }
+    },
+    {
+      "path": "app/api/rain/national-queue/route.test.ts",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "patch": "diff --git a/app/api/rain/national-queue/route.test.ts b/app/api/rain/national-queue/route.test.ts\nindex f199f192..e2b50e9b 100644\n--- a/app/api/rain/national-queue/route.test.ts\n+++ b/app/api/rain/national-queue/route.test.ts\n@@ -115,6 +115,10 @@ describe(\"national rain queue proof route\", () => {\n \n     const response = await POST(request(\"Bearer proof-secret\"));\n     expect(response.status).toBe(200);\n+    // Coarse candidate selection must inspect all pixels, not just even/even.\n+    // PR #62 verified real-JMA severe-region losses with stride 2.\n+    expect(scanTile.mock.calls.length).toBeGreaterThan(0);\n+    expect(scanTile.mock.calls.every((call) => call[4] === 1)).toBe(true);\n     expect(enqueue).toHaveBeenCalledTimes(1);\n     const jobs = enqueue.mock.calls[0][1];\n     expect(jobs).toHaveLength(1);\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-queue/route.test.ts",
+      "source": {
+        "path": "app/api/rain/national-queue/route.test.ts",
+        "coverage": "全文",
+        "text": "import { NextRequest } from \"next/server\";\nimport { afterEach, describe, expect, test, vi } from \"vitest\";\n\nconst { fetchObs, fetchForecast, scanTile, createClient, enqueue, getLastCompleted, saveCycle, stagedMapJobs } = vi.hoisted(() => ({\n  fetchObs: vi.fn(),\n  fetchForecast: vi.fn(),\n  scanTile: vi.fn(),\n  createClient: vi.fn(() => ({ marker: \"client\" })),\n  enqueue: vi.fn().mockResolvedValue({ count: 0 }),\n  getLastCompleted: vi.fn().mockResolvedValue(null),\n  saveCycle: vi.fn().mockResolvedValue(undefined),\n  stagedMapJobs: vi.fn((candidates: any[], frame: any, childZoom: number) => {\n    const seen = new Set<string>();\n    return candidates.flatMap((candidate: any) => {\n      const key = `${childZoom}:${candidate.refineX}:${candidate.refineY}`;\n      if (seen.has(key)) return [];\n      seen.add(key);\n      return [{\n        runKey: `${frame.basetime}:${frame.validtime}`,\n        basetime: frame.basetime,\n        validtime: frame.validtime,\n        zoom: childZoom,\n        tileX: candidate.refineX,\n        tileY: candidate.refineY,\n        priority: 0,\n      }];\n    });\n  }),\n}));\n\nvi.mock(\"@/lib/weather/providers/jma/observationTargetTimes\", () => ({\n  fetchObservationTargetTimes: fetchObs,\n}));\nvi.mock(\"@/lib/weather/providers/jma/targetTimes\", () => ({\n  fetchForecastTargetTimes: fetchForecast,\n}));\nvi.mock(\"@/lib/weather/providers/jma/tileUrl\", () => ({\n  buildJmaRainTileUrl: (_frame: any, _zoom: number, x: number, y: number) => `https://jma.test/${x}/${y}`,\n}));\nvi.mock(\"@/lib/weather/rain/nationalHeavyRain\", () => ({\n  candidateKey: (candidate: any) => candidate.key,\n  scanHeavyRainTile: scanTile,\n}));\nvi.mock(\"@/lib/weather/rain/nationalRainQueue\", () => ({\n  createNationalRainQueueClient: createClient,\n  enqueueNationalRainJobs: enqueue,\n  getLastCompletedNationalRainBasetime: getLastCompleted,\n  saveNationalRainCycleState: saveCycle,\n  stagedRefinementJobsFromCoarseCandidates: stagedMapJobs,\n}));\n\nimport { POST } from \"./route\";\n\nfunction request(auth?: string) {\n  return new NextRequest(\"http://localhost/api/rain/national-queue\", {\n    method: \"POST\",\n    headers: auth ? { authorization: auth } : {},\n  });\n}\n\nconst current = { basetime: \"20260930000000\", validtime: \"20260930000000\" };\nconst forecast = { basetime: \"20260930000000\", validtime: \"20260930000500\" };\n\ndescribe(\"national rain queue proof route\", () => {\n  afterEach(() => {\n    vi.unstubAllGlobals();\n    vi.clearAllMocks();\n    getLastCompleted.mockResolvedValue(null);\n    delete process.env.NATIONAL_RAIN_WORKER_SECRET;\n  });\n\n  test(\"rejects unauthenticated requests before scanning or queueing\", async () => {\n    const response = await POST(request());\n    expect(response.status).toBe(401);\n    expect(fetchObs).not.toHaveBeenCalled();\n    expect(enqueue).not.toHaveBeenCalled();\n  });\n\n\n  test(\"skips the nationwide scan when the latest basetime is already completed\", async () => {\n    process.env.NATIONAL_RAIN_WORKER_SECRET = \"proof-secret\";\n    fetchForecast.mockResolvedValue([forecast]);\n    getLastCompleted.mockResolvedValue(forecast.basetime);\n\n    const response = await POST(request(\"Bearer proof-secret\"));\n    expect(response.status).toBe(200);\n    expect(fetchObs).not.toHaveBeenCalled();\n    expect(scanTile).not.toHaveBeenCalled();\n    expect(enqueue).not.toHaveBeenCalled();\n    expect(saveCycle).not.toHaveBeenCalled();\n    expect(await response.json()).toMatchObject({\n      cycleAction: \"SKIP\",\n      cycleReason: \"ALREADY_COMPLETED\",\n      requestedRefinementTiles: 0,\n    });\n  });\n\n  test(\"excludes current strong rain and deduplicates refinement tiles\", async () => {\n    process.env.NATIONAL_RAIN_WORKER_SECRET = \"proof-secret\";\n    fetchObs.mockResolvedValue([current]);\n    fetchForecast.mockResolvedValue([forecast]);\n    vi.stubGlobal(\"fetch\", vi.fn().mockImplementation(async () => new Response(new Uint8Array([1]), { status: 200 })));\n\n    let calls = 0;\n    scanTile.mockImplementation(() => {\n      calls += 1;\n      if (calls <= 6) return calls === 1 ? [{ key: \"already\", refineX: 10, refineY: 20 }] : [];\n      if (calls === 7) return [\n        { key: \"already\", refineX: 10, refineY: 20 },\n        { key: \"new-a\", refineX: 30, refineY: 40 },\n        { key: \"new-b\", refineX: 30, refineY: 40 },\n      ];\n      return [];\n    });\n\n    const response = await POST(request(\"Bearer proof-secret\"));\n    expect(response.status).toBe(200);\n    // Coarse candidate selection must inspect all pixels, not just even/even.\n    // PR #62 verified real-JMA severe-region losses with stride 2.\n    expect(scanTile.mock.calls.length).toBeGreaterThan(0);\n    expect(scanTile.mock.calls.every((call) => call[4] === 1)).toBe(true);\n    expect(enqueue).toHaveBeenCalledTimes(1);\n    const jobs = enqueue.mock.calls[0][1];\n    expect(jobs).toHaveLength(1);\n    expect(jobs[0]).toMatchObject({ zoom: 10, tileX: 30, tileY: 40 });\n    expect((await response.json()).requestedRefinementTiles).toBe(1);\n    expect(saveCycle).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({\n      basetime: forecast.basetime,\n      requiredFrames: 1,\n      usableFrames: 1,\n      completed: true,\n    }));\n  });\n\n\n  test(\"enqueues only usable forecast frames when a later frame is not ready\", async () => {\n    process.env.NATIONAL_RAIN_WORKER_SECRET = \"proof-secret\";\n    const later = { basetime: \"20260930000000\", validtime: \"20260930001000\" };\n    fetchObs.mockResolvedValue([current]);\n    fetchForecast.mockResolvedValue([forecast, later]);\n\n    let fetchCalls = 0;\n    vi.stubGlobal(\"fetch\", vi.fn().mockImplementation(async () => {\n      fetchCalls += 1;\n      // observation: 1..6, first forecast: 7..12, later forecast fails at 13\n      if (fetchCalls === 13) return new Response(\"unavailable\", { status: 503 });\n      return new Response(new Uint8Array([1]), { status: 200 });\n    }));\n    scanTile.mockImplementation(() => {\n      // Observation has no current strong rain. The first forecast is usable\n      // and contributes one candidate; the later unavailable frame must\n      // contribute nothing.\n      if (fetchCalls <= 6) return [];\n      return [{ key: `candidate-${fetchCalls}`, refineX: 30, refineY: 40 }];\n    });\n\n    const response = await POST(request(\"Bearer proof-secret\"));\n    expect(response.status).toBe(200);\n    expect(createClient).toHaveBeenCalledTimes(1);\n    expect(enqueue).toHaveBeenCalledTimes(1);\n    const jobs = enqueue.mock.calls[0][1];\n    expect(jobs).toHaveLength(1);\n    expect(jobs[0]).toMatchObject({\n      runKey: `${forecast.basetime}:${forecast.validtime}`,\n      validtime: forecast.validtime,\n      zoom: 10,\n      tileX: 30,\n      tileY: 40,\n    });\n    expect(jobs.some((job: any) => job.validtime === later.validtime)).toBe(false);\n    const body = await response.json();\n    expect(body.requestedRefinementTiles).toBe(1);\n    expect(body.cycleCompleted).toBe(false);\n    expect(saveCycle).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({\n      basetime: forecast.basetime,\n      requiredFrames: 2,\n      usableFrames: 1,\n      completed: false,\n    }));\n  });\n\n  test(\"does not enqueue when any coarse JMA tile fetch fails\", async () => {\n    process.env.NATIONAL_RAIN_WORKER_SECRET = \"proof-secret\";\n    fetchObs.mockResolvedValue([current]);\n    fetchForecast.mockResolvedValue([forecast]);\n    vi.stubGlobal(\"fetch\", vi.fn().mockResolvedValue(new Response(\"unavailable\", { status: 503 })));\n\n    const response = await POST(request(\"Bearer proof-secret\"));\n    expect(response.status).toBe(503);\n    expect(enqueue).not.toHaveBeenCalled();\n  });\n});\n",
+        "sha256": "e434f96f7cb6a2dd0776a975432fdada4a3597fa0575fa41c35e908389617938"
+      }
+    },
+    {
+      "path": "app/api/rain/national-queue/route.ts",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "diff --git a/app/api/rain/national-queue/route.ts b/app/api/rain/national-queue/route.ts\nindex 978e3f79..41bc5c8c 100644\n--- a/app/api/rain/national-queue/route.ts\n+++ b/app/api/rain/national-queue/route.ts\n@@ -32,7 +32,7 @@ async function scanFrame(frame: { basetime: string; validtime: string }) {\n   const parts = await Promise.all(JAPAN_TILES.map(async ([x, y]) => {\n     const response = await fetch(buildJmaRainTileUrl(frame, COARSE_ZOOM, x, y), { cache: \"no-store\" });\n     if (!response.ok) throw new Error(`JMA coarse tile fetch failed: ${response.status}`);\n-    return scanHeavyRainTile(Buffer.from(await response.arrayBuffer()), COARSE_ZOOM, x, y);\n+    return scanHeavyRainTile(Buffer.from(await response.arrayBuffer()), COARSE_ZOOM, x, y, 1);\n   }));\n   return parts.flat();\n }\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-queue/route.ts",
+      "source": {
+        "path": "app/api/rain/national-queue/route.ts",
+        "coverage": "全文",
+        "text": "import { NextRequest, NextResponse } from \"next/server\";\nimport { fetchObservationTargetTimes } from \"@/lib/weather/providers/jma/observationTargetTimes\";\nimport { fetchForecastTargetTimes } from \"@/lib/weather/providers/jma/targetTimes\";\nimport { buildJmaRainTileUrl } from \"@/lib/weather/providers/jma/tileUrl\";\nimport { candidateKey, scanHeavyRainTile, type HeavyRainCandidate } from \"@/lib/weather/rain/nationalHeavyRain\";\nimport {\n  createNationalRainQueueClient,\n  enqueueNationalRainJobs,\n  getLastCompletedNationalRainBasetime,\n  saveNationalRainCycleState,\n  stagedRefinementJobsFromCoarseCandidates,\n  type NationalRainQueueJob,\n} from \"@/lib/weather/rain/nationalRainQueue\";\nimport { decideNationalRainCycle, latestForecastBasetime } from \"../../../../lib/weather/rain/nationalRainCycle\";\n\nexport const dynamic = \"force-dynamic\";\nexport const maxDuration = 60;\n\nconst COARSE_ZOOM = 4;\nconst JAPAN_TILES = [\n  [13, 5], [14, 5],\n  [13, 6], [14, 6],\n  [13, 7], [14, 7],\n] as const;\n\nfunction isAuthorized(request: NextRequest) {\n  const secret = process.env.NATIONAL_RAIN_WORKER_SECRET;\n  return Boolean(secret) && request.headers.get(\"authorization\") === `Bearer ${secret}`;\n}\n\nasync function scanFrame(frame: { basetime: string; validtime: string }) {\n  const parts = await Promise.all(JAPAN_TILES.map(async ([x, y]) => {\n    const response = await fetch(buildJmaRainTileUrl(frame, COARSE_ZOOM, x, y), { cache: \"no-store\" });\n    if (!response.ok) throw new Error(`JMA coarse tile fetch failed: ${response.status}`);\n    return scanHeavyRainTile(Buffer.from(await response.arrayBuffer()), COARSE_ZOOM, x, y, 1);\n  }));\n  return parts.flat();\n}\n\nfunction uniqueJobs(candidates: HeavyRainCandidate[], frame: { basetime: string; validtime: string }) {\n  return stagedRefinementJobsFromCoarseCandidates(candidates, frame, 10);\n}\n\nexport async function POST(request: NextRequest) {\n  if (!isAuthorized(request)) return NextResponse.json({ error: \"UNAUTHORIZED\" }, { status: 401 });\n\n  try {\n    const forecasts = await fetchForecastTargetTimes();\n    const cycleBasetime = latestForecastBasetime(forecasts);\n    const cycleForecasts = forecasts.filter((frame) => frame.basetime === cycleBasetime);\n    const supabase = createNationalRainQueueClient();\n    const lastCompletedBasetime = await getLastCompletedNationalRainBasetime(supabase);\n    const decision = decideNationalRainCycle(cycleForecasts, { lastCompletedBasetime });\n\n    if (decision.action === \"SKIP\") {\n      return NextResponse.json({\n        mode: \"NATIONAL_RAIN_QUEUE_PROOF\",\n        checkedAt: new Date().toISOString(),\n        cycleBasetime,\n        cycleAction: decision.action,\n        cycleReason: decision.reason,\n        requestedRefinementTiles: 0,\n        frames: [],\n        note: \"Proof queue only. This basetime was already completed, so the nationwide scan was skipped.\",\n      });\n    }\n\n    const observations = await fetchObservationTargetTimes();\n    const current = observations[0];\n    if (!current) throw new Error(\"observation unavailable\");\n\n    const currentStrong = new Set((await scanFrame(current)).map(candidateKey));\n    const frames = [];\n    const allJobs: NationalRainQueueJob[] = [];\n    let usableFrames = 0;\n\n    for (const forecast of cycleForecasts) {\n      let scanned: HeavyRainCandidate[];\n      try {\n        scanned = await scanFrame(forecast);\n      } catch (error) {\n        // targetTimes can lead tile publication briefly. A frame is usable only\n        // after every required z4 tile exists; unavailable is never \"no rain\".\n        console.warn(\"[national-rain-queue] forecast frame not ready\", forecast.validtime, error);\n        continue;\n      }\n      usableFrames += 1;\n      const candidates = scanned\n        .filter((candidate) => !currentStrong.has(candidateKey(candidate)));\n      const jobs = uniqueJobs(candidates, forecast);\n      allJobs.push(...jobs);\n      frames.push({ validTime: forecast.validtime, coarseCandidates: candidates.length, refinementZoom: 10, refinementTiles: jobs.length });\n    }\n\n    await enqueueNationalRainJobs(supabase, allJobs);\n    const requiredFrames = cycleForecasts.length;\n    const completed = requiredFrames > 0 && usableFrames === requiredFrames;\n    await saveNationalRainCycleState(supabase, {\n      basetime: cycleBasetime,\n      requiredFrames,\n      usableFrames,\n      completed,\n    });\n    const requestedRefinementTiles = allJobs.length;\n\n    return NextResponse.json({\n      mode: \"NATIONAL_RAIN_QUEUE_PROOF\",\n      checkedAt: new Date().toISOString(),\n      currentValidTime: current.validtime,\n      cycleBasetime,\n      cycleAction: decision.action,\n      cycleReason: decision.reason,\n      cycleCompleted: completed,\n      requiredFrames,\n      usableFrames,\n      requestedRefinementTiles,\n      frames,\n      note: \"Proof queue only. It does not publish alerts or affect watch targets/push notifications.\",\n    });\n  } catch (error) {\n    console.error(\"[national-rain-queue]\", error);\n    return NextResponse.json({ error: \"NATIONAL_RAIN_QUEUE_FAILED\" }, { status: 503 });\n  }\n}\n",
+        "sha256": "24e4e693806cb79fe56c0a45b5f3e81b064135a3bacbfd78d8a4e9e12bed02a6"
+      }
+    },
+    {
+      "path": "docs/NATIONAL_Z4_STRIDE_EVIDENCE_20261109.md",
+      "status": "modified",
+      "additions": 33,
+      "deletions": 0,
+      "patch": "diff --git a/docs/NATIONAL_Z4_STRIDE_EVIDENCE_20261109.md b/docs/NATIONAL_Z4_STRIDE_EVIDENCE_20261109.md\nnew file mode 100644\nindex 00000000..ac7a53e5\n--- /dev/null\n+++ b/docs/NATIONAL_Z4_STRIDE_EVIDENCE_20261109.md\n@@ -0,0 +1,33 @@\n+# 全国大雨：ズーム4全画素走査の根拠と共通化の境界\n+\n+更新日：2026-11-09。既存研究の再確認・開発ブランチでの安全修正。**本番は変更しない。**\n+\n+## 実証済みの先行検証（PR #62）\n+\n+[PR #62](https://github.com/miyazaki1016/emergencyalert/pull/62) の GitHub Actions 実行 [Z4 stride parity #12](https://github.com/miyazaki1016/emergencyalert/actions/runs/38967793373) は 2026-10-16 に成功。Run 内で公開JMA z4画像の観測3時刻・予報3時刻（それぞれ6タイル、完全取得）について、全画素（stride=1）と縦横1つおき（stride=2）を比較した。\n+\n+| 指標 | 全画素 z4 | stride=2 |\n+| --- | ---: | ---: |\n+| 30mm/h以上の画素（6時刻合計） | 177 | 45 |\n+| 全画素から省かれた強雨画素 | - | 132 |\n+| 4近傍連結で独立した強雨域 | 88 | **47域は検出画素がゼロ** |\n+\n+時刻別の見逃し域は観測で10, 7, 6、予報で8, 7, 9。これは**対象時刻・検証画像に限った事実**であり、全国すべての天候での一般化された見逃し率・地上実降雨の予報適中率を示さない。\n+\n+同じランで、全画素 z4 は画像スキャン部分が数十ms程度で、単純な走査間引きが大きな節約になるとは限らない。ただし全画素化は、ズーム10詳細候補、タイル取得、DB処理を増やし得る。**運用コストの合否は未決定**。\n+\n+## 実装判断（本変更）\n+\n+- 既存の `scanHeavyRainTile(..., stride=2)` の**デフォルトは変更しない**。他の呼び出し（詳細ワーカーなど）の処理負荷を評価せずに広範囲へ副作用を出さないため。\n+- 全国版の **z4第一次走査**を行う `national-preview` と `national-queue` では、明示的に `stride=1` を指定。観測・予報とも同一条件で見る。\n+- PR #181で、6枚の必須z4タイルの欠損・破損を「大雨なし」と偽らず 503 にする安全策も追加した。\n+- MYアメふるの z10 地点別予報と共通にするのは**公式PNG色→雨量階級→30/50/80mm/h判定の意味**。全国での探索と個別地点の通知ロジックは分離したままとする。\n+\n+## 次の検証ゲート\n+\n+1. **全画素z4の対象検知率 vs z10**：z4で強雨がないのにz10だけ30mm/h以上の雨域があるか、既存の z4→z8/z10 検証と比較する。PR #62は**z4内のstride比較**であり、ズーム間の保証ではない。\n+2. z4→z10の詳細候補数・対象タイル数・負荷を同一画像群で再測定。ズーム10ワーカーにも stride=2 のデフォルトが残るので、細い雨域の検知精度を検証する。初回検証前に本番へ広げない。\n+3. 既存の 32MiB分割データローダー、所有者集約、キューの期限管理、スケジューラを安全に統合し、端から端までの性能・完全性を証明する。\n+4. 本番MYアメふるの通知と既存データは無変更。スキャンと通知・公開表示は別リリース判定とする。\n+\n+再検証時は既存ソース `scripts/z4-stride-parity-proof.ts`、`scripts/z4-stride-performance-proof.ts` および実行ログを正本として使用し、同じ実験を発見し直さない。\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/NATIONAL_Z4_STRIDE_EVIDENCE_20261109.md",
+      "source": {
+        "path": "docs/NATIONAL_Z4_STRIDE_EVIDENCE_20261109.md",
+        "coverage": "全文",
+        "text": "# 全国大雨：ズーム4全画素走査の根拠と共通化の境界\n\n更新日：2026-11-09。既存研究の再確認・開発ブランチでの安全修正。**本番は変更しない。**\n\n## 実証済みの先行検証（PR #62）\n\n[PR #62](https://github.com/miyazaki1016/emergencyalert/pull/62) の GitHub Actions 実行 [Z4 stride parity #12](https://github.com/miyazaki1016/emergencyalert/actions/runs/38967793373) は 2026-10-16 に成功。Run 内で公開JMA z4画像の観測3時刻・予報3時刻（それぞれ6タイル、完全取得）について、全画素（stride=1）と縦横1つおき（stride=2）を比較した。\n\n| 指標 | 全画素 z4 | stride=2 |\n| --- | ---: | ---: |\n| 30mm/h以上の画素（6時刻合計） | 177 | 45 |\n| 全画素から省かれた強雨画素 | - | 132 |\n| 4近傍連結で独立した強雨域 | 88 | **47域は検出画素がゼロ** |\n\n時刻別の見逃し域は観測で10, 7, 6、予報で8, 7, 9。これは**対象時刻・検証画像に限った事実**であり、全国すべての天候での一般化された見逃し率・地上実降雨の予報適中率を示さない。\n\n同じランで、全画素 z4 は画像スキャン部分が数十ms程度で、単純な走査間引きが大きな節約になるとは限らない。ただし全画素化は、ズーム10詳細候補、タイル取得、DB処理を増やし得る。**運用コストの合否は未決定**。\n\n## 実装判断（本変更）\n\n- 既存の `scanHeavyRainTile(..., stride=2)` の**デフォルトは変更しない**。他の呼び出し（詳細ワーカーなど）の処理負荷を評価せずに広範囲へ副作用を出さないため。\n- 全国版の **z4第一次走査**を行う `national-preview` と `national-queue` では、明示的に `stride=1` を指定。観測・予報とも同一条件で見る。\n- PR #181で、6枚の必須z4タイルの欠損・破損を「大雨なし」と偽らず 503 にする安全策も追加した。\n- MYアメふるの z10 地点別予報と共通にするのは**公式PNG色→雨量階級→30/50/80mm/h判定の意味**。全国での探索と個別地点の通知ロジックは分離したままとする。\n\n## 次の検証ゲート\n\n1. **全画素z4の対象検知率 vs z10**：z4で強雨がないのにz10だけ30mm/h以上の雨域があるか、既存の z4→z8/z10 検証と比較する。PR #62は**z4内のstride比較**であり、ズーム間の保証ではない。\n2. z4→z10の詳細候補数・対象タイル数・負荷を同一画像群で再測定。ズーム10ワーカーにも stride=2 のデフォルトが残るので、細い雨域の検知精度を検証する。初回検証前に本番へ広げない。\n3. 既存の 32MiB分割データローダー、所有者集約、キューの期限管理、スケジューラを安全に統合し、端から端までの性能・完全性を証明する。\n4. 本番MYアメふるの通知と既存データは無変更。スキャンと通知・公開表示は別リリース判定とする。\n\n再検証時は既存ソース `scripts/z4-stride-parity-proof.ts`、`scripts/z4-stride-performance-proof.ts` および実行ログを正本として使用し、同じ実験を発見し直さない。\n",
+        "sha256": "81b48505d58322ae87ef44c5c8fee0503d66362ab423028671722e9416515b4b"
+      }
+    }
+  ],
+  "file_count": 5,
+  "reported_file_count": 5,
+  "commits": [
+    {
+      "sha": "a8239cebfcb88110c6a1015699fa00340d16614a",
+      "message": "fix(national-preview): fail closed when a JMA rain tile is missing\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/a8239cebfcb88110c6a1015699fa00340d16614a"
+    },
+    {
+      "sha": "46457c8e86997281f7560ebe20ac905d032002ff",
+      "message": "test(national-preview): reject missing or corrupt JMA coverage\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/46457c8e86997281f7560ebe20ac905d032002ff"
+    },
+    {
+      "sha": "b9a37da1b261650aefe39fd66c0f71ff3539a697",
+      "message": "fix(national-rain): scan every z4 pixel for coarse heavy rain\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/b9a37da1b261650aefe39fd66c0f71ff3539a697"
+    },
+    {
+      "sha": "c4d4510500b86f034641b7ee624dca7b3e971325",
+      "message": "fix(national-rain): scan every z4 pixel for coarse heavy rain\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/c4d4510500b86f034641b7ee624dca7b3e971325"
+    },
+    {
+      "sha": "00b344989b14f52896685e2576f89be214899c0d",
+      "message": "test(national-preview): require stride-1 z4 coverage\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/00b344989b14f52896685e2576f89be214899c0d"
+    },
+    {
+      "sha": "f3fd0c7b3e7708672605423d334d1773444a8bfb",
+      "message": "test(national-queue): lock exhaustive z4 first-pass scan\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/f3fd0c7b3e7708672605423d334d1773444a8bfb"
+    },
+    {
+      "sha": "011ca047241641a2af4c4bf12412063e19d0e5bd",
+      "message": "docs: capture PR62 real JMA z4 stride parity evidence and safe integration decisions\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/011ca047241641a2af4c4bf12412063e19d0e5bd"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": ".github/workflows/n03-administrative-area-proof.yml",
+      "head_sha": "011ca047241641a2af4c4bf12412063e19d0e5bd",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43210567125",
+      "id": 43210567125,
+      "updated_at": "2026-11-12T11:36:12Z",
+      "event": "push"
+    },
+    {
+      "name": ".github/workflows/national-forecast-lowzoom-proof.yml",
+      "head_sha": "011ca047241641a2af4c4bf12412063e19d0e5bd",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43210565057",
+      "id": 43210565057,
+      "updated_at": "2026-11-12T11:36:11Z",
+      "event": "push"
+    },
+    {
+      "name": "CI",
+      "head_sha": "011ca047241641a2af4c4bf12412063e19d0e5bd",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42583678808",
+      "id": 42583678808,
+      "updated_at": "2026-11-09T08:48:15Z",
+      "event": "pull_request"
+    },
+    {
+      "name": ".github/workflows/national-forecast-lowzoom-proof.yml",
+      "head_sha": "011ca047241641a2af4c4bf12412063e19d0e5bd",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42583672587",
+      "id": 42583672587,
+      "updated_at": "2026-11-09T08:07:21Z",
+      "event": "push"
+    },
+    {
+      "name": ".github/workflows/n03-administrative-area-proof.yml",
+      "head_sha": "011ca047241641a2af4c4bf12412063e19d0e5bd",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42583671100",
+      "id": 42583671100,
+      "updated_at": "2026-11-09T08:07:20Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "COARSE_ZOOM",
+    "GET",
+    "JAPAN_TILES",
+    "POST",
+    "ZOOM",
+    "allJobs",
+    "body",
+    "calls",
+    "candidate",
+    "candidates",
+    "completed",
+    "counts",
+    "current",
+    "currentStrong",
+    "cycleBasetime",
+    "cycleForecasts",
+    "decision",
+    "dynamic",
+    "fetchCalls",
+    "fetchTile",
+    "forecast",
+    "forecasts",
+    "frames",
+    "isAuthorized",
+    "jobs",
+    "key",
+    "lastCompletedBasetime",
+    "later",
+    "maxDuration",
+    "observation",
+    "observations",
+    "parts",
+    "request",
+    "requestedRefinementTiles",
+    "requiredFrames",
+    "response",
+    "scanFrame",
+    "scanned",
+    "secret",
+    "seen",
+    "supabase",
+    "uniqueJobs",
+    "usableFrames"
+  ],
+  "related_sources": [
+    {
+      "path": "scripts/z4-stride-parity-proof.ts",
+      "coverage": "削除済み／取得不能・差分参照"
+    },
+    {
+      "path": "scripts/z4-stride-performance-proof.ts",
+      "coverage": "削除済み／取得不能・差分参照"
+    }
+  ],
+  "curated": {
+    "summary": "PR #62の見逃し実測を受け、全国z4候補抽出を全画素にし欠損を雨なしにしない修正案。",
+    "conclusion": "PR #59をベースとする未統合案。PR #62の研究根拠を再測定からやり直す前に参照する。MY Pushの通知処理へ同じ変更を適用したと推定しない。受入テストとmainへの統合はこの案件の最新状態で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/181",
+      "https://github.com/miyazaki1016/emergencyalert/pull/62"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "aa72b5d8e19862e2c49966ac9ac1fcf3223fcef7218b12d911c2a0cf509c73fa",
+  "ci_digest": "0a2fed6defc6b6ba06545d50caf7fe2bbfffacf3718f155f7d5c4d6d0266afb3",
+  "collected_at": "2026-11-12T11:56:35.206758+00:00",
+  "decisions": [
+    {
+      "kind": "test",
+      "title": "returns unavailable if an observation tile cannot be retrieved",
+      "condition": "returns unavailable if an observation tile cannot be retrieved",
+      "behavior": "if (!current) throw new Error(\"observation unavailable\"); ／ if (candidate.level === \"HEAVY\") counts.heavy++; ／ if (candidate.level === \"VERY_HEAVY\") counts.veryHeavy++; ／ if (candidate.level === \"TORRENTIAL\") counts.torrential++; ／ return NextResponse.json({ ／ return NextResponse.json({ error: \"NATIONAL_RAIN_SCAN_UNAVAILABLE\" }, { status: 503 });",
+      "verification": "テストの期待値: expect(response.status).toBe(503); ／ expect(await response.json()).toEqual({ error: \"NATIONAL_RAIN_SCAN_UNAVAILABLE\" }); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.ts#L34",
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts#L35"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "returns unavailable instead of a partial clear forecast when a forecast tile is missing",
+      "condition": "returns unavailable instead of a partial clear forecast when a forecast tile is missing",
+      "behavior": "if (!current) throw new Error(\"observation unavailable\"); ／ if (candidate.level === \"HEAVY\") counts.heavy++; ／ if (candidate.level === \"VERY_HEAVY\") counts.veryHeavy++; ／ if (candidate.level === \"TORRENTIAL\") counts.torrential++; ／ return NextResponse.json({ ／ return NextResponse.json({ error: \"NATIONAL_RAIN_SCAN_UNAVAILABLE\" }, { status: 503 });",
+      "verification": "テストの期待値: expect(response.status).toBe(503); ／ expect(await response.json()).toEqual({ error: \"NATIONAL_RAIN_SCAN_UNAVAILABLE\" }); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.ts#L34",
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts#L49"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "returns forecast frames when all tiles are available",
+      "condition": "returns forecast frames when all tiles are available",
+      "behavior": "if (!current) throw new Error(\"observation unavailable\"); ／ if (candidate.level === \"HEAVY\") counts.heavy++; ／ if (candidate.level === \"VERY_HEAVY\") counts.veryHeavy++; ／ if (candidate.level === \"TORRENTIAL\") counts.torrential++; ／ return NextResponse.json({ ／ return NextResponse.json({ error: \"NATIONAL_RAIN_SCAN_UNAVAILABLE\" }, { status: 503 });",
+      "verification": "テストの期待値: expect(response.status).toBe(200); ／ expect(scanTile).toHaveBeenCalledTimes(12); ／ expect(scanTile.mock.calls.every((call) => call[4] === 1)).toBe(true); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.ts#L34",
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts#L63"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "fails closed when a tile decoder throws",
+      "condition": "fails closed when a tile decoder throws",
+      "behavior": "if (!current) throw new Error(\"observation unavailable\"); ／ if (candidate.level === \"HEAVY\") counts.heavy++; ／ if (candidate.level === \"VERY_HEAVY\") counts.veryHeavy++; ／ if (candidate.level === \"TORRENTIAL\") counts.torrential++; ／ return NextResponse.json({ ／ return NextResponse.json({ error: \"NATIONAL_RAIN_SCAN_UNAVAILABLE\" }, { status: 503 });",
+      "verification": "テストの期待値: expect(response.status).toBe(503); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.ts#L34",
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts#L81"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "rejects unauthenticated requests before scanning or queueing",
+      "condition": "rejects unauthenticated requests before scanning or queueing",
+      "behavior": "if (!isAuthorized(request)) return NextResponse.json({ error: \"UNAUTHORIZED\" }, { status: 401 }); ／ if (decision.action === \"SKIP\") { ／ return NextResponse.json({ ／ if (!current) throw new Error(\"observation unavailable\"); ／ return NextResponse.json({ ／ return NextResponse.json({ error: \"NATIONAL_RAIN_QUEUE_FAILED\" }, { status: 503 });",
+      "verification": "テストの期待値: expect(response.status).toBe(401); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-queue/route.ts#L44",
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-queue/route.test.ts#L72"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "skips the nationwide scan when the latest basetime is already completed",
+      "condition": "skips the nationwide scan when the latest basetime is already completed",
+      "behavior": "if (!isAuthorized(request)) return NextResponse.json({ error: \"UNAUTHORIZED\" }, { status: 401 }); ／ if (decision.action === \"SKIP\") { ／ return NextResponse.json({ ／ if (!current) throw new Error(\"observation unavailable\"); ／ return NextResponse.json({ ／ return NextResponse.json({ error: \"NATIONAL_RAIN_QUEUE_FAILED\" }, { status: 503 });",
+      "verification": "テストの期待値: expect(response.status).toBe(200); ／ expect(fetchObs).not.toHaveBeenCalled(); expect(scanTile).not.toHaveBeenCalled(); expect(enqueue).not.toHaveBeenCalled(); expect(saveCycle).not.toHaveBeenCalled(); expect(await response.json()).toMatchObject({ cycleAction: \"SKIP\", cycleReason: \"ALREA ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-queue/route.ts#L44",
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-queue/route.test.ts#L80"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "excludes current strong rain and deduplicates refinement tiles",
+      "condition": "excludes current strong rain and deduplicates refinement tiles",
+      "behavior": "if (!isAuthorized(request)) return NextResponse.json({ error: \"UNAUTHORIZED\" }, { status: 401 }); ／ if (decision.action === \"SKIP\") { ／ return NextResponse.json({ ／ if (!current) throw new Error(\"observation unavailable\"); ／ return NextResponse.json({ ／ return NextResponse.json({ error: \"NATIONAL_RAIN_QUEUE_FAILED\" }, { status: 503 });",
+      "verification": "テストの期待値: expect(response.status).toBe(200); ／ expect(scanTile.mock.calls.length).toBeGreaterThan(0); ／ expect(scanTile.mock.calls.every((call) => call[4] === 1)).toBe(true); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-queue/route.ts#L44",
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-queue/route.test.ts#L98"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "enqueues only usable forecast frames when a later frame is not ready",
+      "condition": "enqueues only usable forecast frames when a later frame is not ready",
+      "behavior": "if (!isAuthorized(request)) return NextResponse.json({ error: \"UNAUTHORIZED\" }, { status: 401 }); ／ if (decision.action === \"SKIP\") { ／ return NextResponse.json({ ／ if (!current) throw new Error(\"observation unavailable\"); ／ return NextResponse.json({ ／ return NextResponse.json({ error: \"NATIONAL_RAIN_QUEUE_FAILED\" }, { status: 503 });",
+      "verification": "テストの期待値: expect(response.status).toBe(200); ／ expect(createClient).toHaveBeenCalledTimes(1); ／ expect(enqueue).toHaveBeenCalledTimes(1); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-queue/route.ts#L44",
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-queue/route.test.ts#L136"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "does not enqueue when any coarse JMA tile fetch fails",
+      "condition": "does not enqueue when any coarse JMA tile fetch fails",
+      "behavior": "if (!isAuthorized(request)) return NextResponse.json({ error: \"UNAUTHORIZED\" }, { status: 401 }); ／ if (decision.action === \"SKIP\") { ／ return NextResponse.json({ ／ if (!current) throw new Error(\"observation unavailable\"); ／ return NextResponse.json({ ／ return NextResponse.json({ error: \"NATIONAL_RAIN_QUEUE_FAILED\" }, { status: 503 });",
+      "verification": "テストの期待値: expect(response.status).toBe(503); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-queue/route.ts#L44",
+        "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-queue/route.test.ts#L182"
+      ]
+    }
+  ]
+}

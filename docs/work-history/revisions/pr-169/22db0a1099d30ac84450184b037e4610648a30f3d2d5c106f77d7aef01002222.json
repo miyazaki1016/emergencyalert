@@ -1,0 +1,101 @@
+{
+  "id": "pr-169",
+  "number": 169,
+  "title": "fix(jaspic): handle Google token response without scope field",
+  "topics": [
+    "通知・配信",
+    "認証・安全性"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更／認証・アクセス制御に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Google may omit `scope` from its OAuth token response when granted scopes equal requested scopes. Preserve identity-only userinfo verification and reject Gmail permissions if `scope` is supplied. No mail sending changes. Await CI before production rollout.",
+  "snapshot_head": "6517de34477c8f658271d582b2ba9baf10f8e7ef",
+  "snapshot_consistent": true,
+  "head": "6517de34477c8f658271d582b2ba9baf10f8e7ef",
+  "base": "e055724da90d1dba30ef8f5e7842f1d1433c08ef",
+  "base_ref": "main",
+  "head_ref": "fix/jaspic-google-identity-callback-20261106",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-06T08:18:16Z",
+  "merge_commit_sha": "9296885fcb8444b2d626b9194d7920571584aa7e",
+  "updated_at": "2026-11-06T08:18:16Z",
+  "code_facts": [],
+  "files": [
+    {
+      "path": "lib/jaspic/oauth-identity-token-validation.ts",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 3,
+      "patch": "",
+      "patch_coverage": "差分なし／対象外",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6517de34477c8f658271d582b2ba9baf10f8e7ef/lib/jaspic/oauth-identity-token-validation.ts",
+      "source": {
+        "path": "lib/jaspic/oauth-identity-token-validation.ts",
+        "coverage": "対象外（秘密情報候補／非テキスト）"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "6517de34477c8f658271d582b2ba9baf10f8e7ef",
+      "message": "fix(jaspic): accept omitted Google identity scope in token response\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/6517de34477c8f658271d582b2ba9baf10f8e7ef"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "6517de34477c8f658271d582b2ba9baf10f8e7ef",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42186699682",
+      "id": 42186699682,
+      "updated_at": "2026-11-06T08:18:22Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "6517de34477c8f658271d582b2ba9baf10f8e7ef",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42184087823",
+      "id": 42184087823,
+      "updated_at": "2026-11-06T07:55:51Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "6517de34477c8f658271d582b2ba9baf10f8e7ef",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/42184087853",
+      "id": 42184087853,
+      "updated_at": "2026-11-06T07:56:41Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [],
+  "related_sources": [],
+  "curated": {
+    "summary": "Googleのトークン応答にscopeがなくても処理",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/169"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "a774f02670e77285c74e8a4821c2e46e9b0b7ca08fef37f744b9bff0a62f0371",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00",
+  "decisions": []
+}

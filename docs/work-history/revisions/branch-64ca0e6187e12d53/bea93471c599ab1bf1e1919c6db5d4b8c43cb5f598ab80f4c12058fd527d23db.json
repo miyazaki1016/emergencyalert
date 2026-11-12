@@ -1,0 +1,78 @@
+{
+  "id": "branch-64ca0e6187e12d53",
+  "title": "fix/forecast-bootstrap-20261029",
+  "head": "326f6d92485e0e158afcd62db5b37131e11dfc51",
+  "head_ref": "fix/forecast-bootstrap-20261029",
+  "linked_prs": [
+    105
+  ],
+  "files": [
+    {
+      "path": "PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/326f6d92485e0e158afcd62db5b37131e11dfc51/PROJECT_OVERVIEW.md"
+    },
+    {
+      "path": "docs/DEVELOPMENT_LEDGER.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/326f6d92485e0e158afcd62db5b37131e11dfc51/docs/DEVELOPMENT_LEDGER.md"
+    },
+    {
+      "path": "docs/FORECAST_EPISODE_FIX_20261029.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/326f6d92485e0e158afcd62db5b37131e11dfc51/docs/FORECAST_EPISODE_FIX_20261029.md"
+    },
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/326f6d92485e0e158afcd62db5b37131e11dfc51/docs/PROJECT_OVERVIEW.md"
+    },
+    {
+      "path": "docs/sql/forecast-episode-monitoring.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/326f6d92485e0e158afcd62db5b37131e11dfc51/docs/sql/forecast-episode-monitoring.sql"
+    },
+    {
+      "path": "supabase/functions/watch-rain/forecastEpisode.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/326f6d92485e0e158afcd62db5b37131e11dfc51/supabase/functions/watch-rain/forecastEpisode.ts"
+    },
+    {
+      "path": "supabase/functions/watch-rain/index.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/326f6d92485e0e158afcd62db5b37131e11dfc51/supabase/functions/watch-rain/index.ts"
+    },
+    {
+      "path": "tests/forecastEpisode.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/326f6d92485e0e158afcd62db5b37131e11dfc51/tests/forecastEpisode.test.ts"
+    }
+  ],
+  "commits": "326f6d92485e0e158afcd62db5b37131e11dfc51 Record v34 scheduled production checks and remaining observation limits\nbbe9a526a437e121b3c38da0b6d4253db3bc77d4 Retain confirmed cancellation across intervening weak approach forecasts\n5e0237905210cbf943023f0d9a7392cee6b0534c Bootstrap forecast episodes from prior issuances and record production checks",
+  "topics": [
+    "雨量・全国検知",
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "5c9225d7290394d0738f2152039eda50aeea0862bf040bc1019eb31cd5214828",
+  "collected_at": "2026-11-12T15:33:28.142823+00:00"
+}

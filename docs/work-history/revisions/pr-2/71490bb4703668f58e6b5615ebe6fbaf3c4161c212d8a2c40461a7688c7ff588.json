@@ -1,0 +1,199 @@
+{
+  "id": "pr-2",
+  "number": 2,
+  "title": "feat: add PWA foundation for iPhone and Android",
+  "topics": [
+    "その他の開発"
+  ],
+  "purpose": "変更対象ファイルに関する開発。具体的な目的は原文・差分を確認",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "WebアプリをiPhone/Androidのホーム画面からstandalone起動できるPWA基盤を追加します。\n\n- Web App Manifest\n- minimal Service Worker\n- Service Worker registration\n- iOS appleWebApp metadata\n\nPush通知そのものは次段階で実装します。",
+  "snapshot_head": "3618081f7307ad4690021a345e72411bb41c9cbc",
+  "snapshot_consistent": true,
+  "head": "3618081f7307ad4690021a345e72411bb41c9cbc",
+  "base": "4ac0e077b485a0b5bd0b3ca49e862aa4f98ea5f3",
+  "base_ref": "main",
+  "head_ref": "feat/pwa-foundation",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-09-23T17:05:04Z",
+  "merge_commit_sha": "97af064dfee162b4df1d4a10cc6defe1f1fe0e23",
+  "updated_at": "2026-09-23T17:05:04Z",
+  "code_facts": [
+    {
+      "file": "app/manifest.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export default function manifest(): MetadataRoute.Manifest {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3618081f7307ad4690021a345e72411bb41c9cbc/app/manifest.ts"
+    },
+    {
+      "file": "app/pwa-register.tsx",
+      "kind": "関数・クラス定義",
+      "expression": "export function PwaRegister() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3618081f7307ad4690021a345e72411bb41c9cbc/app/pwa-register.tsx"
+    },
+    {
+      "file": "app/pwa-register.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!(\"serviceWorker\" in navigator)) return;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3618081f7307ad4690021a345e72411bb41c9cbc/app/pwa-register.tsx"
+    },
+    {
+      "file": "app/pwa-register.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (document.readyState === \"complete\") {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3618081f7307ad4690021a345e72411bb41c9cbc/app/pwa-register.tsx"
+    },
+    {
+      "file": "public/sw.js",
+      "kind": "条件分岐・閾値",
+      "expression": "const CACHE_NAME = \"emergencyalert-shell-v1\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3618081f7307ad4690021a345e72411bb41c9cbc/public/sw.js"
+    },
+    {
+      "file": "public/sw.js",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": ".map((key) => caches.delete(key)),",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3618081f7307ad4690021a345e72411bb41c9cbc/public/sw.js"
+    },
+    {
+      "file": "public/sw.js",
+      "kind": "条件分岐・閾値",
+      "expression": "if (event.request.method !== \"GET\") return;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3618081f7307ad4690021a345e72411bb41c9cbc/public/sw.js"
+    },
+    {
+      "file": "public/sw.js",
+      "kind": "HTTP要求",
+      "expression": "fetch(event.request).catch(() => caches.match(event.request)),",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3618081f7307ad4690021a345e72411bb41c9cbc/public/sw.js"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/layout.tsx",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 2,
+      "patch": "diff --git a/app/layout.tsx b/app/layout.tsx\nindex 6645c6a..dd832d3 100644\n--- a/app/layout.tsx\n+++ b/app/layout.tsx\n@@ -1,14 +1,29 @@\n+import type { Metadata, Viewport } from \"next\";\n import type { ReactNode } from \"react\";\n+import { PwaRegister } from \"./pwa-register\";\n \n-export const metadata = {\n+export const metadata: Metadata = {\n   title: \"アメくる？ | EmergencyAlert\",\n   description: \"少し先の変化を、今どう動けばいいか分かる形で。\",\n+  applicationName: \"EmergencyAlert\",\n+  appleWebApp: {\n+    capable: true,\n+    title: \"EmergencyAlert\",\n+    statusBarStyle: \"default\",\n+  },\n+};\n+\n+export const viewport: Viewport = {\n+  themeColor: \"#ffffff\",\n };\n \n export default function RootLayout({ children }: { children: ReactNode }) {\n   return (\n     <html lang=\"ja\">\n-      <body style={{ margin: 0 }}>{children}</body>\n+      <body style={{ margin: 0 }}>\n+        <PwaRegister />\n+        {children}\n+      </body>\n     </html>\n   );\n }\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3618081f7307ad4690021a345e72411bb41c9cbc/app/layout.tsx",
+      "source": {
+        "path": "app/layout.tsx",
+        "coverage": "全文",
+        "text": "import type { Metadata, Viewport } from \"next\";\nimport type { ReactNode } from \"react\";\nimport { PwaRegister } from \"./pwa-register\";\n\nexport const metadata: Metadata = {\n  title: \"アメくる？ | EmergencyAlert\",\n  description: \"少し先の変化を、今どう動けばいいか分かる形で。\",\n  applicationName: \"EmergencyAlert\",\n  appleWebApp: {\n    capable: true,\n    title: \"EmergencyAlert\",\n    statusBarStyle: \"default\",\n  },\n};\n\nexport const viewport: Viewport = {\n  themeColor: \"#ffffff\",\n};\n\nexport default function RootLayout({ children }: { children: ReactNode }) {\n  return (\n    <html lang=\"ja\">\n      <body style={{ margin: 0 }}>\n        <PwaRegister />\n        {children}\n      </body>\n    </html>\n  );\n}\n",
+        "sha256": "6b09edf7b85191772afa5f7b6ece9f5eba0d0a3a11ed0ab564a2ac46fcf6cc35"
+      }
+    },
+    {
+      "path": "app/manifest.ts",
+      "status": "modified",
+      "additions": 16,
+      "deletions": 0,
+      "patch": "diff --git a/app/manifest.ts b/app/manifest.ts\nnew file mode 100644\nindex 0000000..aad389c\n--- /dev/null\n+++ b/app/manifest.ts\n@@ -0,0 +1,16 @@\n+import type { MetadataRoute } from \"next\";\n+\n+export default function manifest(): MetadataRoute.Manifest {\n+  return {\n+    name: \"EmergencyAlert\",\n+    short_name: \"EmergencyAlert\",\n+    description: \"暮らしを、少し先回りする。\",\n+    start_url: \"/\",\n+    scope: \"/\",\n+    display: \"standalone\",\n+    background_color: \"#ffffff\",\n+    theme_color: \"#ffffff\",\n+    lang: \"ja\",\n+    orientation: \"portrait\",\n+  };\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3618081f7307ad4690021a345e72411bb41c9cbc/app/manifest.ts",
+      "source": {
+        "path": "app/manifest.ts",
+        "coverage": "全文",
+        "text": "import type { MetadataRoute } from \"next\";\n\nexport default function manifest(): MetadataRoute.Manifest {\n  return {\n    name: \"EmergencyAlert\",\n    short_name: \"EmergencyAlert\",\n    description: \"暮らしを、少し先回りする。\",\n    start_url: \"/\",\n    scope: \"/\",\n    display: \"standalone\",\n    background_color: \"#ffffff\",\n    theme_color: \"#ffffff\",\n    lang: \"ja\",\n    orientation: \"portrait\",\n  };\n}\n",
+        "sha256": "0a7f08330114ce0ccefa4057a34dfb24073ed07cdb4bb2b2d2bcfd5987b86fd7"
+      }
+    },
+    {
+      "path": "app/pwa-register.tsx",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 0,
+      "patch": "diff --git a/app/pwa-register.tsx b/app/pwa-register.tsx\nnew file mode 100644\nindex 0000000..ff1a473\n--- /dev/null\n+++ b/app/pwa-register.tsx\n@@ -0,0 +1,25 @@\n+\"use client\";\n+\n+import { useEffect } from \"react\";\n+\n+export function PwaRegister() {\n+  useEffect(() => {\n+    if (!(\"serviceWorker\" in navigator)) return;\n+\n+    const register = () => {\n+      navigator.serviceWorker.register(\"/sw.js\").catch((error) => {\n+        console.error(\"Service worker registration failed\", error);\n+      });\n+    };\n+\n+    if (document.readyState === \"complete\") {\n+      register();\n+      return;\n+    }\n+\n+    window.addEventListener(\"load\", register, { once: true });\n+    return () => window.removeEventListener(\"load\", register);\n+  }, []);\n+\n+  return null;\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3618081f7307ad4690021a345e72411bb41c9cbc/app/pwa-register.tsx",
+      "source": {
+        "path": "app/pwa-register.tsx",
+        "coverage": "全文",
+        "text": "\"use client\";\n\nimport { useEffect } from \"react\";\n\nexport function PwaRegister() {\n  useEffect(() => {\n    if (!(\"serviceWorker\" in navigator)) return;\n\n    const register = () => {\n      navigator.serviceWorker.register(\"/sw.js\").catch((error) => {\n        console.error(\"Service worker registration failed\", error);\n      });\n    };\n\n    if (document.readyState === \"complete\") {\n      register();\n      return;\n    }\n\n    window.addEventListener(\"load\", register, { once: true });\n    return () => window.removeEventListener(\"load\", register);\n  }, []);\n\n  return null;\n}\n",
+        "sha256": "666f5528140f2097aab5220a0464b0c0937c3fb7c56172628811b90e5e980b4f"
+      }
+    },
+    {
+      "path": "public/sw.js",
+      "status": "modified",
+      "additions": 28,
+      "deletions": 0,
+      "patch": "diff --git a/public/sw.js b/public/sw.js\nnew file mode 100644\nindex 0000000..3fbd609\n--- /dev/null\n+++ b/public/sw.js\n@@ -0,0 +1,28 @@\n+const CACHE_NAME = \"emergencyalert-shell-v1\";\n+\n+self.addEventListener(\"install\", () => {\n+  self.skipWaiting();\n+});\n+\n+self.addEventListener(\"activate\", (event) => {\n+  event.waitUntil(\n+    caches\n+      .keys()\n+      .then((keys) =>\n+        Promise.all(\n+          keys\n+            .filter((key) => key !== CACHE_NAME)\n+            .map((key) => caches.delete(key)),\n+        ),\n+      )\n+      .then(() => self.clients.claim()),\n+  );\n+});\n+\n+self.addEventListener(\"fetch\", (event) => {\n+  if (event.request.method !== \"GET\") return;\n+\n+  event.respondWith(\n+    fetch(event.request).catch(() => caches.match(event.request)),\n+  );\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3618081f7307ad4690021a345e72411bb41c9cbc/public/sw.js",
+      "source": {
+        "path": "public/sw.js",
+        "coverage": "全文",
+        "text": "const CACHE_NAME = \"emergencyalert-shell-v1\";\n\nself.addEventListener(\"install\", () => {\n  self.skipWaiting();\n});\n\nself.addEventListener(\"activate\", (event) => {\n  event.waitUntil(\n    caches\n      .keys()\n      .then((keys) =>\n        Promise.all(\n          keys\n            .filter((key) => key !== CACHE_NAME)\n            .map((key) => caches.delete(key)),\n        ),\n      )\n      .then(() => self.clients.claim()),\n  );\n});\n\nself.addEventListener(\"fetch\", (event) => {\n  if (event.request.method !== \"GET\") return;\n\n  event.respondWith(\n    fetch(event.request).catch(() => caches.match(event.request)),\n  );\n});\n",
+        "sha256": "24a15444d7434ede0edc3e825526c044743bbf2483722b54a9f0a358aee9aa7f"
+      }
+    }
+  ],
+  "file_count": 4,
+  "reported_file_count": 4,
+  "commits": [
+    {
+      "sha": "a20a8adbca79f13c8b299296adffca91c065218a",
+      "message": "feat: add PWA manifest\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/a20a8adbca79f13c8b299296adffca91c065218a"
+    },
+    {
+      "sha": "f71b1750df7b686a7003e19ad1914ffad1a38a1c",
+      "message": "feat: add minimal PWA service worker\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/f71b1750df7b686a7003e19ad1914ffad1a38a1c"
+    },
+    {
+      "sha": "ef7e9bda665133c28d9ad115a0752e8b1171ca04",
+      "message": "feat: register PWA service worker\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/ef7e9bda665133c28d9ad115a0752e8b1171ca04"
+    },
+    {
+      "sha": "3618081f7307ad4690021a345e72411bb41c9cbc",
+      "message": "feat: wire PWA metadata and service worker\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/3618081f7307ad4690021a345e72411bb41c9cbc"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "3618081f7307ad4690021a345e72411bb41c9cbc",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/35893019027",
+      "id": 35893019027,
+      "updated_at": "2026-09-23T17:04:21Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "CACHE_NAME",
+    "PwaRegister",
+    "RootLayout",
+    "manifest",
+    "metadata",
+    "register",
+    "viewport"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "iPhone・Android向けPWAの基盤を追加",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/2"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "9f76b3bb715617480ece29d13eed8dc0b8733ad1b41bddbc5c8de1620f3c43d4",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00",
+  "decisions": []
+}

@@ -28,6 +28,18 @@ JMAのPNG色7段階を検証し、根拠のない黄色対応を撤回
 
 - [根拠](https://github.com/miyazaki1016/emergencyalert/pull/1)
 
+## 実装判断の検索候補（コード・テスト・検証資料）
+
+テスト名と期待値は同じコミットのソースを読むための手掛かりです。
+
+### contains only explicitly evidence-gated current JMA mappings
+
+- 条件：contains only explicitly evidence-gated current JMA mappings
+- 動作・設定：return VERIFIED_JMA_PNG_PALETTE.find(
+- 検証範囲：テストの期待値: expect(VERIFIED_JMA_PNG_PALETTE).toHaveLength(7); ／ expect(VERIFIED_JMA_PNG_PALETTE.every((entry) =&gt; entry.evidence === &quot;CURRENT_JMA_ASSET&quot;)).toBe(true); ／ expect(findVerifiedIntensity({ r, g, b, a: 255 })).toBe(band); ／ 実行証拠: 個別の実行結果は未確認
+- 残課題：呼び出し元・本番採用・実機を確認
+- 根拠：[原本](https://github.com/miyazaki1016/emergencyalert/blob/891318d7026f1c90209341a48c38ec8df0d879e8/lib/weather/providers/jma/pngPalette.ts#L22) ／ [原本](https://github.com/miyazaki1016/emergencyalert/blob/891318d7026f1c90209341a48c38ec8df0d879e8/lib/weather/providers/jma/pngPalette.test.ts#L19)
+
 ## 実際の変更処理（コードから抽出）
 
 VERIFIED_JMA_PNG_PALETTE、boundaries、colors、explicitly、fetcher、findVerifiedIntensity、frames、i、observed、png、pngPixel、provider、response、result、series、targets、tile、unresolvedYellow、url、verified

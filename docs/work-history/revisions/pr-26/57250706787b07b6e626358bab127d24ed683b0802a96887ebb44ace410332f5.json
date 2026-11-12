@@ -1,0 +1,186 @@
+{
+  "id": "pr-26",
+  "number": 26,
+  "title": "Use targetTimes member in JMA early forecast tile URL",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "## Summary\n- replace the hard-coded `none` path segment with `frame.member`\n- extend the URL builder input type to require `member`\n- cover both `immed` and `none` frames in unit tests\n\n## Scope\nThis is intentionally limited to the JMA Early Rain Forecast tile URL builder and its unit test. No Push, Supabase, or Production configuration changes.",
+  "snapshot_head": "3e21ed4d4dacb2cc4827a9560f407a81fee8e273",
+  "snapshot_consistent": true,
+  "head": "3e21ed4d4dacb2cc4827a9560f407a81fee8e273",
+  "base": "fea4595835d14448c259894afcdb1be0717a2bd9",
+  "base_ref": "main",
+  "head_ref": "fix/jma-early-forecast-member-path",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-09-24T23:09:13Z",
+  "merge_commit_sha": "3512e2a47089729f83c8ccf5e3555d7f3418f6bc",
+  "updated_at": "2026-09-24T23:09:13Z",
+  "code_facts": [
+    {
+      "file": "docs/PROJECT_OVERVIEW.md",
+      "kind": "テストの期待値・条件",
+      "expression": "metadata and use it for the member path segment. Do not hard-code `none` in",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3e21ed4d4dacb2cc4827a9560f407a81fee8e273/docs/PROJECT_OVERVIEW.md"
+    },
+    {
+      "file": "docs/PROJECT_OVERVIEW.md",
+      "kind": "テストの期待値・条件",
+      "expression": "- a tile fetch failure remains `FETCH_ERROR`; it must never become NO_RAIN;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3e21ed4d4dacb2cc4827a9560f407a81fee8e273/docs/PROJECT_OVERVIEW.md"
+    },
+    {
+      "file": "docs/PROJECT_OVERVIEW.md",
+      "kind": "テストの期待値・条件",
+      "expression": "PR #26 is the isolated implementation of this correction. Keep it separate",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3e21ed4d4dacb2cc4827a9560f407a81fee8e273/docs/PROJECT_OVERVIEW.md"
+    },
+    {
+      "file": "lib/weather/providers/jma/earlyForecastTileUrl.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"uses the target frame member in a rasrf tile URL\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3e21ed4d4dacb2cc4827a9560f407a81fee8e273/lib/weather/providers/jma/earlyForecastTileUrl.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/earlyForecastTileUrl.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"keeps none when the target frame member is none\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3e21ed4d4dacb2cc4827a9560f407a81fee8e273/lib/weather/providers/jma/earlyForecastTileUrl.test.ts"
+    },
+    {
+      "file": "lib/weather/providers/jma/earlyForecastTileUrl.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(buildJmaEarlyForecastTileUrl(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3e21ed4d4dacb2cc4827a9560f407a81fee8e273/lib/weather/providers/jma/earlyForecastTileUrl.test.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "status": "modified",
+      "additions": 31,
+      "deletions": 0,
+      "patch": "diff --git a/docs/PROJECT_OVERVIEW.md b/docs/PROJECT_OVERVIEW.md\nindex 37f8915..7f83719 100644\n--- a/docs/PROJECT_OVERVIEW.md\n+++ b/docs/PROJECT_OVERVIEW.md\n@@ -496,3 +496,34 @@ The Supabase Edge Function `watch-rain` is invoked by cron every five minutes us\n 7. Add episode dedupe/cooldown behavior needed to prevent repeated notices for the same rain episode.\n \n > 第3条：ソラの「入れた」は、実物を見るまで信用するな。\n+\n+\n+## JMA rasrf target member checkpoint — 2026-09-25\n+\n+The precipitation short-range forecast path has an additional source-contract\n+requirement that must be preserved before continuing Push work.\n+\n+`rasrf/targetTimes.json` supplies a `member` for each forecast frame. The\n+early-forecast tile URL builder must treat that value as part of the frame\n+metadata and use it for the member path segment. Do not hard-code `none` in\n+the URL builder.\n+\n+Canonical frame-to-tile relationship:\n+\n+> target frame `basetime` + `member` + `validtime` -> rasrf tile URL\n+\n+Implementation rule:\n+\n+- `buildJmaEarlyForecastTileUrl` receives `basetime`, `validtime`, and\n+  `member`;\n+- the URL member segment comes from `frame.member`;\n+- tests must cover at least `immed` and `none`;\n+- a tile fetch failure remains `FETCH_ERROR`; it must never become NO_RAIN;\n+- this correction does not change Push, Supabase, watch-target persistence, or\n+  the meteorological interpretation boundary.\n+\n+PR #26 is the isolated implementation of this correction. Keep it separate\n+from Push work, require CI to pass before merge, and verify the resulting\n+Production deployment afterward.\n+\n+> targetTimes の値を読んでいるだけでは足りない。URLまで同じフレーム情報を運ぶ。\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3e21ed4d4dacb2cc4827a9560f407a81fee8e273/docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "path": "docs/PROJECT_OVERVIEW.md",
+        "coverage": "先頭18000文字・原本リンク参照",
+        "text": "# EmergencyAlert 2026 — Project Overview\n\nThis document exists because neither future Sei-chan nor future Sora should be\ntrusted to remember why the system was built. :)\n\n## Origin\n\nThe original idea was ordinary and personal:\n\n> おかあさん、そろそろ雨降ってくるよ。洗濯物しまったほうがいいよ。\n\nThe heat/WBGT feature came from the same place: give useful information early\nenough that a parent can tell a child before school:\n\n> 今日は昼から暑くなるんだってさ、気をつけなー。\n\nEmergencyAlert is therefore not primarily a weather-information broadcaster.\nIts job is to make a small piece of the near future useful early enough for\nsomeone to act or say something to a person they care about.\n\n## Constitution\n\n暮らしを、少し先回りする。  \n必要な人に、必要な情報を、必要な時に。  \n必要でなければ、静かに見守る。\n\nFunctional tagline:\n\n> あなたの場所の、これからを見張る。\n\n## Meteorological boundary\n\nEmergencyAlert does not independently forecast weather.\n\nOfficial/authorized forecasts, observations and disaster information are the\nsource of truth. EmergencyAlert connects that information to a person's place,\ntime and life, decides whether it is relevant enough to surface, and explains\nit clearly.\n\nAI must not invent, interpolate or improve meteorological phenomena, timing,\nrainfall values or danger levels.\n\n## Missing-data rule\n\nUNKNOWN_PIXEL != NO_RAIN.  \nFETCH_ERROR != NO_RAIN.  \nNO_DATA != SAFE.\n\nNever turn \"we do not know\" into \"you are safe.\"\n\n## 2023 archaeology\n\nThe old application used the JMA high-resolution precipitation nowcast at the\nuser's geographic point. It converted latitude/longitude to a map tile and\npixel, read that pixel and mapped the JMA legend colors to precipitation\nintensity bands.\n\nRecovered historical bands:\n\n- #F2F2FF -> <1 mm/h\n- #A0D2FF -> 1-5\n- #218CFF -> 5-10\n- #0041FF -> 10-20\n- #FAF500 -> 20-30\n- #FF9900 -> 30-50\n- #FF2800 -> 50-80\n- #B40068 -> >=80\n\nThe user's recollection is that the colors were measured from JMA's on-screen\nlegend with a color inspection tool. Current investigation has found direct\nJMA page assets whose RGB values corroborate several historical values. At\nleast one current asset differs from the old table, so 2026 must re-verify the\ncomplete current palette before enabling it.\n\nRule:\n\n> 思想は継承する。実装は検証する。\n\n## 2026 rain product\n\nFirst product: 「アメくる？2026」\n\nInitial chain:\n\ncurrent location\n-> public JMA high-resolution nowcast data\n-> tile/pixel\n-> verified interpretation\n-> useful life-language message\n-> later: watch place / Push\n\nLifestyle notification threshold under consideration:\n\n- <1 mm/h: no Push\n- 1-5 mm/h: generally no Push\n- >=5 mm/h within about 30 minutes: notification candidate\n- stronger rain: stronger wording\n\nThis is a product-action threshold, not a meteorological danger threshold.\n\nFor rain ending, do not infer \"やみそう\" from one dry frame. Current design\nrequires three consecutive valid NO_RAIN frames (15 minutes) with no unknown\ngap before an ending claim.\n\n## Cost constraint\n\nCurrent development assumes zero fixed weather-data subscription cost.\n\nThe paid JMBSC GRIB2 feed is a future provider option only. Do not make it a\nPhase 1 dependency. Reconsider it when the project has sufficient revenue or\nfunding.\n\n## Current implementation / checkpoint (2026-09-20)\n\n「アメくる？2026」の Phase 1 本線は、現在地から気象庁データを取り、\n安全に解釈して簡潔な生活言葉で表示するところまで接続済み。\n\nImplemented:\n\n- Next.js + TypeScript scaffold\n- browser geolocation -> server API -> JMA public-image provider\n- Web Mercator tile/pixel path and tests\n- RainInterpretationEngine states:\n  `INSUFFICIENT_DATA / DRY / RAIN_AHEAD / ACTIONABLE_RAIN / RAINING / EASING / ENDING`\n- claim-specific publication gate: unknown data after a supported near-term claim\n  does not erase that claim, while unknown data required for the claim blocks it\n- semantic event v1 separated from presentation\n- casual 「アメくる？」 message formatter and visible UI\n- checked-at time, location accuracy and JMA source display\n- explicit uncertainty card when a claim is withheld\n- stale UI results are cleared before re-check/location failure\n- provider integration tests and end-to-end interpretation -> publication ->\n  semantic event -> message pipeline tests\n- daily fail-safe palette watcher scaffold; it detects change but never promotes\n  a new RGB mapping automatically\n\n### Rain interpretation safety now locked by tests\n\nThe engine currently fails closed for:\n\n- malformed JMA `baseTime` / `validTime`\n- stale observation (>15 minutes old)\n- implausibly future observation (>5 minutes ahead)\n- a forecast series whose targets are all already in the past\n- empty forecast coverage (zero frames can never become DRY)\n- incomplete/unknown evidence needed for a user-facing claim\n- easing claims that would have to skip an unknown frame\n- impossible forecast metadata where `baseTime > validTime`\n\nThe 15-minute observation tolerance is an operational freshness guard, not a\nmeteorological threshold.\n\nDo not copy the forecast `baseTime <= validTime` rule onto observation frames\nwithout provider-specific evidence. Observation and forecast metadata are\ndifferent products even when field names look similar.\n\n> 同じ名前の項目でも、同じ意味とは決めつけない。\n\n### Current user-facing behavior\n\nThe main UI intentionally stays simple:\n\n- 「この先、雨なし」\n- 「このあと雨くるよ」\n- 「もうすぐ雨くるよ」\n- 「いま雨だよ」\n- 「弱くなりそう」\n- 「もうすぐやみそう」\n\nWhen the evidence is insufficient it instead says, in effect:\n\n> いまは、はっきり言えないよ。雨が降らないって意味じゃないよ。\n\nThe implementation underneath may be strict; the surface should remain\nglanceable and everyday.\n\n### Current blocker\n\n**2026-09-23 correction:** Direct browser DOM/resource inspection now links\nthe hrpns layer to its own precipitation legend. Seven RGB mappings are verified\nagainst original current PNGs (including zoom 10). The remaining 20–30 mm/h\nlegend uses #FFF500, while PNGs contain #FAF500; the former #FAF500 registration\nhas been withdrawn and both yellows remain UNKNOWN_PIXEL. #00AAFF/#FFAA00\ncircle assets belong to AMeDAS ten-minute rainfall, not hrpns intensity.\n#FF9900 is confirmed by current hrpns evidence. See\n[PNG_PALETTE_EVIDENCE.md](PNG_PALETTE_EVIDENCE.md) for the source chain, originals,\nhashes, exact band table and unresolved conflict. The older archaeology and\ncheckpoint notes must not override this correction.\n\nThe largest remaining production blocker is the current JMA PNG precipitation\npalette. The current 2026 page has verified mappings for only part of the\nlegend. Unknown opaque RGB values remain `UNKNOWN_PIXEL`; old 2023 mappings\nmust not be resurrected by guesswork.\n\nThe palette watcher is intentionally fail-safe:\n\n> 変更は自動で見つける。意味は勝手に決めない。\n\nIt is scaffolding only; finishing the main 「アメくる？」 flow takes priority\nover building a clever automatic palette-promotion system.\n\n## Immediate work from this checkpoint\n\n1. Keep the Phase 1 rain path stable and CI-green.\n2. Tighten any remaining user-facing wording that can sound more absolute than\n   the official evidence (for example, prefer “雨の予報なし” over an absolute\n   “雨なし” where appropriate).\n3. Expose source-valid time separately from app check time when useful, so a\n   fresh UI check cannot hide old source data.\n4. Finish evidence-backed verification of the remaining current JMA PNG legend\n   RGB mappings; never guess them.\n5. Re-check the transparent-pixel => NO_RAIN assumption against current evidence\n   before calling the public-image path production-ready.\n6. Once the verified rain path is solid, add watch-place/change detection and\n   only then Push behavior.\n\n## Must not break\n\n- Do not independently forecast weather.\n- Do not silently convert unknown/missing data to dry.\n- Do not resurrect old RGB values without current verification.\n- Do not add paid weather-data subscriptions during the current phase.\n- Do not make the internals complicated for the user just because they are\n  complicated underneath.\n\n## Recovery phrases\n\nIf the project becomes abstract or bloated:\n\n> ソラ、洗濯物どこいった？\n\nAnd the engineering rule:\n\n> 未来のソラを信用するなｗ\n\nThat is why this file exists.\n\n\n## 2023 design intent recovered from operation history\n\nThe animated rain-cloud GIF was not decoration. Its purpose was to make the\ncoming change visually understandable: not merely “heavy rain will arrive\naround XX:XX”, but “this rain area is moving toward you like this, so act now.”\n\nThe 2023 implementation automated a browser, captured successive JMA nowcast\nframes, assembled them into an animated GIF, and posted it to Twitter/X.\nTwitter could transcode the uploaded animated GIF to MP4 for timeline delivery;\nthat does not mean EmergencyAlert itself generated MP4.\n\nThis is an important product principle for 2026:\n\n> 情報を増やすのではなく、行動につながる実感を増やす。\n\nWhen useful, EmergencyAlert should help the user understand the time progression\nof an officially published phenomenon, while never creating or extrapolating\nmeteorological movement on its own.\n\n\n## Output boundary — facts first, expression later\n\nEmergencyAlert's reusable output must stop at structured facts and\ninterpretation. Product-specific wording is a separate presentation layer.\n\nCanonical flow:\n\n> Official source → EmergencyAlert interpretation → structured event → presentation/personality layer\n\nThe structured event should carry the facts needed by downstream consumers,\nfor example state, relevant times, intensity class, source, checked-at time,\nlocation and location accuracy, plus data/interpretation status.\n\nEmergencyAlert may provide its own simple everyday-language presentation, but\nthat wording is not the canonical output and must not be required by downstream\nintegrations.\n\nFor Misaki or any future consumer:\n\n- the consumer may change tone, phrasing and personality;\n- it may use its own relationship/context rules to decide how to say the fact;\n- it must not change the underlying meteorological interpretation;\n- it must not invent rain, timing, intensity or danger that EmergencyAlert did\n  not establish from the official source.\n\nIn short:\n\n> EmergencyAlert = 目。各サービス = 伝え方。\n\nThis boundary is a project-wide overview item because it keeps the weather\ntruth reusable while allowing Misaki, Push, LINE, voice or future products to\nexpress the same event in their own way.\n\n\n### Consumer simplicity is part of the EmergencyAlert contract\n\nSeparation must not mean pushing meteorological complexity into each consumer.\nEmergencyAlert is responsible for turning its interpretation into a\nconsumer-ready semantic event.\n\nA downstream service should not need to understand JMA tile colors, rainfall\nthresholds, consecutive-frame rules, missing-data handling, or the logic that\ndecides whether an event is actionable.\n\nA semantic event may therefore include fields such as:\n\n- event type (for example, rain approaching / raining / easing / ending);\n- urgency class;\n- relevant timing;\n- normalized intensity;\n- suggested action (for example, bring laundry inside);\n- source, checked-at time and data status.\n\nThe exact schema will evolve, but the responsibility boundary is fixed:\n\n> 判断はEmergencyAlertに寄せる。表現は利用側に渡す。\n> ただし、利用側に気象ロジックを再実装させない。\n\nMisaki and other consumers should mainly decide how to express an already\ngrounded event in their own voice and context. They must not be forced to\nreconstruct EmergencyAlert's weather logic in order to use it.\n\nFuture integration APIs/SDKs should optimize for this goal: receiving and using\nan EmergencyAlert event should be simple even when the implementation behind\nthat event is complex.\n\n\n### Keep each consumer's experience distinct\n\nSharing the same EmergencyAlert event must not make every consumer feel like the\nsame notification UI.\n\n**アメくる？** is a glanceable utility. Its job is to answer the immediate\nquestion with the shortest useful wording. Do not turn it into a conversational\ncharacter merely because the event layer can support richer expression.\n\n**Misaki** is a conversational relationship experience. EmergencyAlert events\nshould enter naturally through conversation and context, as something Misaki\nnoticed and cared to mention. Do not turn Misaki into a weather notification\nbot or simply paste アメくる？ copy into chat.\n\nTherefore:\n\n> アメくる？は簡潔に。美咲は会話の中に。\n\nThe shared event carries the grounded fact and actionable meaning; each\nconsumer owns its experience. Reuse the truth, not the presentation.\n\n\n### Current trust metadata checkpoint (2026-09-23)\n\nThe rain API now keeps the time EmergencyAlert checked the data separate from\nthe valid time of the JMA observation used for the claim:\n\n- `checkedAt`: when EmergencyAlert performed the interpretation;\n- `sourceValidAt`: the observation `validTime` supplied by the JMA source.\n\nThe user-facing アメくる？ card may show both values, but must not turn a\nmalformed source timestamp into a plausible-looking time. If the source time\ncannot be validated, omit that detail rather than guessing.\n\nLikewise, a DRY result is presented as **「雨の予報なし」**, not the stronger\n**「雨なし」**. EmergencyAlert reports what the official data supports; it does\nnot convert a forecast into certainty.\n\n> 確認した時刻と、元データの時刻は別物。\n> 予報がないことと、絶対に降らないことも別物。\n\n\n### Transparent hrpns pixels fail closed until coverage semantics are proven\n\nAs of 2026-09-23, a fully transparent public hrpns PNG pixel is **not** treated\nas `NO_RAIN`. It is classified as `UNKNOWN_PIXEL` because transparency proves\nonly that the overlay did not paint precipitation at that pixel; it does not by\nitself prove that the coordinate/time was inside valid meteorological coverage.\n\nThis intentionally reduces useful DRY claims while the evidence gap remains.\nThe restriction may be relaxed only after first-party encoding evidence or a\nreproducible authoritative coverage comparison establishes the public PNG\nalpha/coverage semantics.\n\n> 分からないものを「雨なし」にしない。\n\n\n## First production-device milestone and next product phase (2026-09-23)\n\nThe first iPhone production test completed the real path from browser geolocation\nto JMA retrieval, conservative interpretation and user-facing display. The test\nalso confirmed that withheld interpretation is presented separately from a data\nfetch failure, with checked time, location accuracy and JMA source time visible.\n\nThis closes the initial \"can the real phone ask about this place now?\" milestone.\nDo not keep polishing the one-shot screen as a substitute for the product's\nactual purpose.\n\nThe next product phase is **watching a place over time and noticing a meaningful\nchange**. Design it around the existing semantic event boundary:\n\n- a watch target is a location the user has intentionally chosen;\n- repeated checks must preserve uncertainty rather than treating UNKNOWN as dry;\n- notification eligibility comes from a grounded semantic transition/event, not\n  from raw PNG color changes;\n- deduplicate the same episode so a 5-minute source cadence does not become\n  repeated nagging;\n- lifestyle notifications remain quiet when there is nothing useful to say;\n- Push is a delivery layer after change detection, not the weather decision\n  engine itself.\n\nPhase order: **watch target -> repeated evaluation -> semantic change detection\n-> deduplication/cooldown -> Push delivery**. Persistence and scheduling should\nbe added only as required by that path; do not introduce accounts or a large DB\nbefore the first watch flow needs them.\n\n> 見張るのは天気ではなく、「今ならひと言かける意味がある変化」。\n\n\n## Handoff checkpoint — 2026-09-24\n\nThis section is the current operational handoff. Read it before continuing work.\n\n### Production / verified on real devices\n\n- Production: `emergencyalert-gilt.vercel.app`.\n- PWA foundation is deployed: manifest, service worker registration and EmergencyAlert icon.\n- Android real-device test confirmed EmergencyAlert can be installed to the home screen as a Chrome-origin PWA.\n- iPhone real-device weather flow is working.\n- Watch-place persistence works through Supabase anonymous auth + RLS.\n- A saved watch target remains until the user deletes it.\n- Each target has independent `enabled` state: OFF pauses monitoring without deleting the registration.\n- Delete action is deployed and was verified end-to-end on iPhone: confirmation -> DB deletion -> card disappears.\n- GPS/current-location registration works.\n- Facility/station search through Nominatim works.\n- Japanese street-number address search now uses `@geolonia/normalize-japanese-addresses`; `江東区塩浜2-9-8` was resolved and registered successfully on a real device.\n- Important bug already fixed: the address detector was accidentally `/\\\\\\\\d/` instead of `/\\\\d/`.\n- Public Nominatim is now used as a single explicit request for facility/station search; do not restore rapid retry loops.\n- The 5-minute server watcher is proven to fire automatically. `watch-rain-every-5-minutes` showed repeated successful cron runs and `watch_states.last_checked_at` updates.\n- UNKNOWN remains UNKNOWN; it is not converted to dry/no-rain.\n\n### Push — current starting point\n\nPush delivery is the current main line of work.\n\nA Supabase table `public.push_subscriptions` has already been created with:\n- `owner_id`, `endpoint`, `p256dh`, `auth`, optional `user_agent`;\n- unique `(owner_id, endpoint)`;\n- RLS enabled;\n- authenticated users can select/insert/update/delete only their own subscriptions.\n\nThe PWA does **not** yet have the complete notification-permission/subscription UI and the server watcher does **not** yet send Web Push. Continue from here.\n\nRequired flow:\nsite/PWA -> user explicitly enables notifications -> browser Push subscription -> save subscription -> watcher finds grounded actionable semantic change -> send Push -> only after successful delivery record notification delivery state.\n\nDo not set `last_notified_at` merely because a notification *would* be eligible. The existing watch worker previously had simplified eligibility bookkeeping; before real Push is enabled, make `last_notified_at` mean successful delivery.\n\niPhone Web Push should be tested from the home-screen installed PWA. Android PWA installation has already been verified on a real device.\n\n### Watch-target UI decision waiting for implementation\n\nThe owner requested a clearer ON/OFF control:\n- `見張る：ON` should have a **light yellow-green / lime** active appearance.\n- OFF should be visually subdued/n",
+        "sha256": "954822160edb3e129b767de52fcbda324a14aac82e5cbfea8d7178774e6d278d"
+      }
+    },
+    {
+      "path": "lib/weather/providers/jma/earlyForecastTileUrl.test.ts",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 2,
+      "patch": "diff --git a/lib/weather/providers/jma/earlyForecastTileUrl.test.ts b/lib/weather/providers/jma/earlyForecastTileUrl.test.ts\nindex ba43601..0a3f588 100644\n--- a/lib/weather/providers/jma/earlyForecastTileUrl.test.ts\n+++ b/lib/weather/providers/jma/earlyForecastTileUrl.test.ts\n@@ -2,9 +2,20 @@ import { describe, expect, it } from \"vitest\";\n import { buildJmaEarlyForecastTileUrl } from \"./earlyForecastTileUrl\";\n \n describe(\"buildJmaEarlyForecastTileUrl\", () => {\n-  it(\"builds a rasrf tile URL\", () => {\n+  it(\"uses the target frame member in a rasrf tile URL\", () => {\n     expect(buildJmaEarlyForecastTileUrl(\n-      { basetime: \"20260924130000\", validtime: \"20260924150000\" },\n+      { basetime: \"20260924130000\", validtime: \"20260924150000\", member: \"immed\" },\n+      10,\n+      909,\n+      403,\n+    )).toBe(\n+      \"https://www.jma.go.jp/bosai/jmatile/data/rasrf/20260924130000/immed/20260924150000/surf/rasrf/10/909/403.png\",\n+    );\n+  });\n+\n+  it(\"keeps none when the target frame member is none\", () => {\n+    expect(buildJmaEarlyForecastTileUrl(\n+      { basetime: \"20260924130000\", validtime: \"20260924150000\", member: \"none\" },\n       10,\n       909,\n       403,\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3e21ed4d4dacb2cc4827a9560f407a81fee8e273/lib/weather/providers/jma/earlyForecastTileUrl.test.ts",
+      "source": {
+        "path": "lib/weather/providers/jma/earlyForecastTileUrl.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { buildJmaEarlyForecastTileUrl } from \"./earlyForecastTileUrl\";\n\ndescribe(\"buildJmaEarlyForecastTileUrl\", () => {\n  it(\"uses the target frame member in a rasrf tile URL\", () => {\n    expect(buildJmaEarlyForecastTileUrl(\n      { basetime: \"20260924130000\", validtime: \"20260924150000\", member: \"immed\" },\n      10,\n      909,\n      403,\n    )).toBe(\n      \"https://www.jma.go.jp/bosai/jmatile/data/rasrf/20260924130000/immed/20260924150000/surf/rasrf/10/909/403.png\",\n    );\n  });\n\n  it(\"keeps none when the target frame member is none\", () => {\n    expect(buildJmaEarlyForecastTileUrl(\n      { basetime: \"20260924130000\", validtime: \"20260924150000\", member: \"none\" },\n      10,\n      909,\n      403,\n    )).toBe(\n      \"https://www.jma.go.jp/bosai/jmatile/data/rasrf/20260924130000/none/20260924150000/surf/rasrf/10/909/403.png\",\n    );\n  });\n});\n",
+        "sha256": "a778d9eb89e294d6dd729b21df270e99be2683bf03859bb363376183a1799bfb"
+      }
+    },
+    {
+      "path": "lib/weather/providers/jma/earlyForecastTileUrl.ts",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "patch": "diff --git a/lib/weather/providers/jma/earlyForecastTileUrl.ts b/lib/weather/providers/jma/earlyForecastTileUrl.ts\nindex e36035b..1c09441 100644\n--- a/lib/weather/providers/jma/earlyForecastTileUrl.ts\n+++ b/lib/weather/providers/jma/earlyForecastTileUrl.ts\n@@ -1,7 +1,7 @@\n import type { JmaEarlyForecastTargetTime } from \"./earlyForecastTargetTimes\";\n \n export function buildJmaEarlyForecastTileUrl(\n-  frame: Pick<JmaEarlyForecastTargetTime, \"basetime\" | \"validtime\">,\n+  frame: Pick<JmaEarlyForecastTargetTime, \"basetime\" | \"validtime\" | \"member\">,\n   zoom: number,\n   tileX: number,\n   tileY: number,\n@@ -9,7 +9,7 @@ export function buildJmaEarlyForecastTileUrl(\n   return [\n     \"https://www.jma.go.jp/bosai/jmatile/data/rasrf\",\n     frame.basetime,\n-    \"none\",\n+    frame.member,\n     frame.validtime,\n     \"surf\",\n     \"rasrf\",\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3e21ed4d4dacb2cc4827a9560f407a81fee8e273/lib/weather/providers/jma/earlyForecastTileUrl.ts",
+      "source": {
+        "path": "lib/weather/providers/jma/earlyForecastTileUrl.ts",
+        "coverage": "全文",
+        "text": "import type { JmaEarlyForecastTargetTime } from \"./earlyForecastTargetTimes\";\n\nexport function buildJmaEarlyForecastTileUrl(\n  frame: Pick<JmaEarlyForecastTargetTime, \"basetime\" | \"validtime\" | \"member\">,\n  zoom: number,\n  tileX: number,\n  tileY: number,\n): string {\n  return [\n    \"https://www.jma.go.jp/bosai/jmatile/data/rasrf\",\n    frame.basetime,\n    frame.member,\n    frame.validtime,\n    \"surf\",\n    \"rasrf\",\n    String(zoom),\n    String(tileX),\n    `${tileY}.png`,\n  ].join(\"/\");\n}\n",
+        "sha256": "3b267678bb2465464d5689eecd2e82bbaf55a81f76e31314ded57e856280b383"
+      }
+    }
+  ],
+  "file_count": 3,
+  "reported_file_count": 3,
+  "commits": [
+    {
+      "sha": "5ff86084d7b6be2850d66b0dcc8252f6fc777822",
+      "message": "Use JMA target frame member in early forecast tile URL\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/5ff86084d7b6be2850d66b0dcc8252f6fc777822"
+    },
+    {
+      "sha": "6a733845e227c73e25639c5eb28bb25196355374",
+      "message": "Test JMA early forecast member URL path\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/6a733845e227c73e25639c5eb28bb25196355374"
+    },
+    {
+      "sha": "3e21ed4d4dacb2cc4827a9560f407a81fee8e273",
+      "message": "Document JMA rasrf member path contract\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/3e21ed4d4dacb2cc4827a9560f407a81fee8e273"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "3e21ed4d4dacb2cc4827a9560f407a81fee8e273",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/36071057625",
+      "id": 36071057625,
+      "updated_at": "2026-09-24T23:07:35Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "buildJmaEarlyForecastTileUrl"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "JMA予測タイルURLにtargetTimesの値を使う",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/26"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "ef16ecc2111f7bda4cb6eaafc7355ed51b4d6e250b6aba5c09de1b8a04a94d35",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00",
+  "decisions": [
+    {
+      "kind": "test",
+      "title": "uses the target frame member in a rasrf tile URL",
+      "condition": "uses the target frame member in a rasrf tile URL",
+      "behavior": "return [",
+      "verification": "テストの期待値: expect(buildJmaEarlyForecastTileUrl( { basetime: \"20260924130000\", validtime: \"20260924150000\", member: \"immed\" }, 10, 909, 403, )).toBe( \"https://www.jma.go.jp/bosai/jmatile/data/rasrf/20260924130000/immed/20260924150000/surf/rasrf/10/909/403.png\",  ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/3e21ed4d4dacb2cc4827a9560f407a81fee8e273/lib/weather/providers/jma/earlyForecastTileUrl.ts#L3",
+        "https://github.com/miyazaki1016/emergencyalert/blob/3e21ed4d4dacb2cc4827a9560f407a81fee8e273/lib/weather/providers/jma/earlyForecastTileUrl.test.ts#L5"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "keeps none when the target frame member is none",
+      "condition": "keeps none when the target frame member is none",
+      "behavior": "return [",
+      "verification": "テストの期待値: expect(buildJmaEarlyForecastTileUrl( { basetime: \"20260924130000\", validtime: \"20260924150000\", member: \"none\" }, 10, 909, 403, )).toBe( \"https://www.jma.go.jp/bosai/jmatile/data/rasrf/20260924130000/none/20260924150000/surf/rasrf/10/909/403.png\", ); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/3e21ed4d4dacb2cc4827a9560f407a81fee8e273/lib/weather/providers/jma/earlyForecastTileUrl.ts#L3",
+        "https://github.com/miyazaki1016/emergencyalert/blob/3e21ed4d4dacb2cc4827a9560f407a81fee8e273/lib/weather/providers/jma/earlyForecastTileUrl.test.ts#L16"
+      ]
+    }
+  ]
+}

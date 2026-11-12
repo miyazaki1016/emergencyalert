@@ -1,0 +1,105 @@
+{
+  "id": "pr-118",
+  "number": 118,
+  "title": "Run read-only development inventory daily at 10:17 JST",
+  "topics": [
+    "開発管理"
+  ],
+  "purpose": "開発資産の把握・引継ぎ・レビューを支援する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Change only the GitHub Actions schedule from Mondays 10:17 JST to every day 10:17 JST (`17 1 * * *`). Preserve read-only permissions, offline tests, manual dispatch, artifact retention and no production changes. Weekly deeper triage remains a separate human review process; this workflow does not automatically perform it.",
+  "snapshot_head": "fed609ad6778c8214a7a7bdd43fb84cce4e73298",
+  "snapshot_consistent": true,
+  "head": "fed609ad6778c8214a7a7bdd43fb84cce4e73298",
+  "base": "1b0221aa819a158c73130108314bed41f7ac6f6d",
+  "base_ref": "main",
+  "head_ref": "chore/daily-development-inventory-20261101",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-10-31T23:45:29Z",
+  "merge_commit_sha": "84c64504f2bbe405bcef77787f8f83fec37e4fa7",
+  "updated_at": "2026-10-31T23:45:29Z",
+  "code_facts": [],
+  "files": [
+    {
+      "path": ".github/workflows/development-inventory.yml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "diff --git a/.github/workflows/development-inventory.yml b/.github/workflows/development-inventory.yml\nindex 7578be1..c02ed88 100644\n--- a/.github/workflows/development-inventory.yml\n+++ b/.github/workflows/development-inventory.yml\n@@ -7,7 +7,7 @@ on:\n       - 'tests/test_development_inventory.py'\n       - '.github/workflows/development-inventory.yml'\n   schedule:\n-    - cron: '17 1 * * 1'\n+    - cron: '17 1 * * *'\n permissions:\n   contents: read\n   pull-requests: read\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/fed609ad6778c8214a7a7bdd43fb84cce4e73298/.github/workflows/development-inventory.yml",
+      "source": {
+        "path": ".github/workflows/development-inventory.yml",
+        "coverage": "全文",
+        "text": "name: Development inventory (read-only)\non:\n  workflow_dispatch:\n  pull_request:\n    paths:\n      - 'scripts/development_inventory.py'\n      - 'tests/test_development_inventory.py'\n      - '.github/workflows/development-inventory.yml'\n  schedule:\n    - cron: '17 1 * * *'\npermissions:\n  contents: read\n  pull-requests: read\n  issues: read\njobs:\n  inventory:\n    runs-on: ubuntu-latest\n    timeout-minutes: 10\n    steps:\n      - uses: actions/checkout@v4\n      - name: Offline regression tests\n        run: python3 -m unittest discover -s tests -p 'test_development_inventory.py' -v\n      - name: Read-only inventory\n        if: github.event_name != 'pull_request'\n        env:\n          GITHUB_TOKEN: ${{ github.token }}\n          STALE_DAYS: '14'\n        run: python3 scripts/development_inventory.py\n      - name: Save report artifact\n        if: github.event_name != 'pull_request'\n        uses: actions/upload-artifact@v4\n        with:\n          name: development-inventory\n          path: inventory-output/\n          retention-days: 30\n",
+        "sha256": "70588f20bd6c22e5d3eadb3abf0819eac4dd0842ab4480f0d0fd6335cf22c402"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "fed609ad6778c8214a7a7bdd43fb84cce4e73298",
+      "message": "Run read-only development inventory daily at 10:17 JST\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/fed609ad6778c8214a7a7bdd43fb84cce4e73298"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "fed609ad6778c8214a7a7bdd43fb84cce4e73298",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/41253837695",
+      "id": 41253837695,
+      "updated_at": "2026-10-31T23:45:30Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "fed609ad6778c8214a7a7bdd43fb84cce4e73298",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/41253837546",
+      "id": 41253837546,
+      "updated_at": "2026-10-31T23:46:12Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [],
+  "related_sources": [
+    {
+      "path": "scripts/development_inventory.py",
+      "coverage": "全文",
+      "text": "#!/usr/bin/env python3\n\"\"\"Read-only GitHub development inventory. No branch/PR/Issue mutations.\"\"\"\nimport datetime as dt\nimport json\nimport os\nimport sys\nimport urllib.error\nimport urllib.parse\nimport urllib.request\n\nREPO = os.environ[\"GITHUB_REPOSITORY\"]\nTOKEN = os.environ[\"GITHUB_TOKEN\"]\nNOW = dt.datetime.now(dt.timezone.utc)\nSTALE_DAYS = int(os.environ.get(\"STALE_DAYS\", \"14\"))\nAPI = \"https://api.github.com\"\n\ndef get(path):\n    req = urllib.request.Request(API + path, headers={\n        \"Authorization\": \"Bearer \" + TOKEN,\n        \"Accept\": \"application/vnd.github+json\",\n        \"X-GitHub-Api-Version\": \"2022-11-28\",\n        \"User-Agent\": \"development-inventory-readonly\",\n    })\n    with urllib.request.urlopen(req, timeout=30) as response:\n        return json.load(response)\n\ndef pages(path):\n    result = []\n    page = 1\n    while True:\n        separator = \"&\" if \"?\" in path else \"?\"\n        batch = get(path + separator + \"per_page=100&page=\" + str(page))\n        if not isinstance(batch, list):\n            raise RuntimeError(\"Unexpected API response\")\n        result.extend(batch)\n        if len(batch) < 100:\n            return result\n        page += 1\n\ndef age(timestamp):\n    if not timestamp:\n        return None\n    updated = dt.datetime.fromisoformat(timestamp.replace(\"Z\", \"+00:00\"))\n    return (NOW - updated).days\n\ndef main():\n    repo = urllib.parse.quote(REPO, safe=\"/\")\n    metadata = get(\"/repos/\" + repo)\n    default = metadata[\"default_branch\"]\n    branches = pages(\"/repos/\" + repo + \"/branches\")\n    all_prs = pages(\"/repos/\" + repo + \"/pulls?state=all\")\n    prs = [p for p in all_prs if p[\"state\"] == \"open\"]\n    issues = [item for item in pages(\"/repos/\" + repo + \"/issues?state=open\") if \"pull_request\" not in item]\n    pr_heads = {p[\"head\"][\"ref\"] for p in prs if p[\"head\"][\"repo\"] and p[\"head\"][\"repo\"][\"full_name\"] == REPO}\n    historical_heads = {p[\"head\"][\"ref\"] for p in all_prs if p[\"head\"][\"repo\"] and p[\"head\"][\"repo\"][\"full_name\"] == REPO}\n    findings = []\n    for branch in branches:\n        name = branch[\"name\"]\n        if name == default:\n            continue\n        # No-PR does NOT mean unfinished. Report only as a review candidate.\n        if name not in pr_heads:\n            findings.append({\"type\": \"branch_without_open_pr\", \"name\": name,\n                             \"historical_pr_found\": name in historical_heads,\n                             \"url\": \"https://github.com/\" + REPO + \"/tree/\" + urllib.parse.quote(name, safe=\"\")})\n    stale_prs = [{\"number\": p[\"number\"], \"title\": p[\"title\"], \"days\": age(p[\"updated_at\"]),\n                  \"url\": p[\"html_url\"]} for p in prs if age(p[\"updated_at\"]) is not None and age(p[\"updated_at\"]) >= STALE_DAYS]\n    stale_issues = [{\"number\": i[\"number\"], \"title\": i[\"title\"], \"days\": age(i[\"updated_at\"]),\n                     \"url\": i[\"html_url\"]} for i in issues if age(i[\"updated_at\"]) is not None and age(i[\"updated_at\"]) >= STALE_DAYS]\n    report = {\"repository\": REPO, \"generated_at\": NOW.isoformat(), \"default_branch\": default,\n              \"branch_count\": len(branches), \"open_pr_count\": len(prs),\n              \"open_issue_count\": len(issues), \"historical_pr_count\": len(all_prs), \"review_candidates\": findings,\n              \"stale_prs\": stale_prs, \"stale_issues\": stale_issues,\n              \"caveat\": \"Candidates are NOT proof of unfinished work. Compare main, merged/closed PRs, and canonical ledger before action.\"}\n    os.makedirs(\"inventory-output\", exist_ok=True)\n    with open(\"inventory-output/report.json\", \"w\", encoding=\"utf-8\") as f:\n        json.dump(report, f, ensure_ascii=False, indent=2)\n    summary = [\"# Development inventory (read-only)\", \"\",\n               \"Repository: \" + REPO, \"Generated (UTC): \" + NOW.isoformat(), \"\",\n               \"| Metric | Count |\", \"|---|---:|\",\n               \"| Branches including default | \" + str(len(branches)) + \" |\",\n               \"| Open PRs | \" + str(len(prs)) + \" |\",\n               \"| Open issues | \" + str(len(issues)) + \" |\",\n               \"| Branches without open PR (review only) | \" + str(len(findings)) + \" |\",\n               \"| Stale PRs (>= \" + str(STALE_DAYS) + \" days) | \" + str(len(stale_prs)) + \" |\",\n               \"| Stale issues | \" + str(len(stale_issues)) + \" |\", \"\",\n               \"**Do not mark branches unfinished or delete them based on this report.**\",\n               \"Consult the project's canonical ledger, closed/merged PRs and main code first.\", \"\",\n               \"## Stale PRs\"]\n    summary.extend(\"- [#\" + str(p[\"number\"]) + \"](\" + p[\"url\"] + \") (\" + str(p[\"days\"]) + \"d): \" + p[\"title\"].replace(\"\\n\", \" \") for p in stale_prs)\n    summary.append(\"\\n## Stale issues\")\n    summary.extend(\"- [#\" + str(i[\"number\"]) + \"](\" + i[\"url\"] + \") (\" + str(i[\"days\"]) + \"d): \" + i[\"title\"].replace(\"\\n\", \" \") for i in stale_issues)\n    summary.append(\"\\nBranch candidates are available in report.json artifact.\")\n    text = \"\\n\".join(summary) + \"\\n\"\n    with open(\"inventory-output/summary.md\", \"w\", encoding=\"utf-8\") as f:\n        f.write(text)\n    with open(os.environ.get(\"GITHUB_STEP_SUMMARY\", \"/dev/null\"), \"a\", encoding=\"utf-8\") as f:\n        f.write(text)\n    print(text)\n\nif __name__ == \"__main__\":\n    try:\n        main()\n    except (urllib.error.URLError, KeyError, ValueError, RuntimeError) as error:\n        print(\"Inventory failed: \" + str(error), file=sys.stderr)\n        sys.exit(1)\n",
+      "sha256": "f2eb32fcf467d7d4c0968a41e8d9436a2e3a9f1fc101ec3dc37e01f520de871e"
+    },
+    {
+      "path": "tests/test_development_inventory.py",
+      "coverage": "全文",
+      "text": "\"\"\"Offline tests for the read-only inventory; no GitHub token or network required.\"\"\"\nimport importlib.util\nimport json\nimport os\nimport pathlib\nimport tempfile\nimport unittest\nfrom unittest.mock import patch\n\nSCRIPT = pathlib.Path(__file__).resolve().parents[1] / \"scripts\" / \"development_inventory.py\"\nos.environ.update(GITHUB_REPOSITORY=\"example/demo\")\nos.environ.setdefault(\"GITHUB_TOKEN\", \"offline-test-token\")\nspec = importlib.util.spec_from_file_location(\"development_inventory\", SCRIPT)\ninventory = importlib.util.module_from_spec(spec)\nspec.loader.exec_module(inventory)\n\nclass InventoryTests(unittest.TestCase):\n    def test_age_and_missing(self):\n        self.assertIsNone(inventory.age(None))\n        self.assertEqual(inventory.age(inventory.NOW.isoformat()), 0)\n\n    def test_pagination(self):\n        calls = []\n        def fake_get(path):\n            calls.append(path)\n            return [{\"name\": str(i)} for i in range(100)] if path.rsplit(\"page=\", 1)[-1] == \"1\" else [{\"name\": \"last\"}]\n        with patch.object(inventory, \"get\", side_effect=fake_get):\n            result = inventory.pages(\"/repos/example/demo/branches\")\n        self.assertEqual(len(result), 101)\n        self.assertEqual(len(calls), 2)\n\n    def test_pagination_multiple_full_pages(self):\n        calls = []\n        def fake_get(path):\n            calls.append(path)\n            page = int(path.rsplit(\"page=\", 1)[-1])\n            if page <= 2:\n                return [{\"name\": \"branch-%s-%s\" % (page, i)} for i in range(100)]\n            return [{\"name\": \"branch-last\"}]\n        with patch.object(inventory, \"get\", side_effect=fake_get):\n            result = inventory.pages(\"/repos/example/demo/pulls?state=all\")\n        self.assertEqual(len(result), 201)\n        self.assertEqual(len(calls), 3)\n        self.assertTrue(all(\"state=all\" in path for path in calls))\n        self.assertEqual(result[-1][\"name\"], \"branch-last\")\n\n    def test_empty_page_terminates_pagination(self):\n        with patch.object(inventory, \"get\", return_value=[]) as fake_get:\n            result = inventory.pages(\"/repos/example/demo/issues?state=open\")\n        self.assertEqual(result, [])\n        fake_get.assert_called_once_with(\"/repos/example/demo/issues?state=open&per_page=100&page=1\")\n\n    def test_pr_and_issue_pagination_are_independent(self):\n        calls = []\n        def fake_get(path):\n            calls.append(path)\n            page = int(path.rsplit(\"page=\", 1)[-1])\n            if \"/pulls?\" in path:\n                return [{\"number\": i} for i in range(100)] if page == 1 else [{\"number\": 101}]\n            if \"/issues?\" in path:\n                return [{\"number\": i} for i in range(100)] if page == 1 else [{\"number\": 102}]\n            raise AssertionError(path)\n        with patch.object(inventory, \"get\", side_effect=fake_get):\n            prs = inventory.pages(\"/repos/example/demo/pulls?state=all\")\n            issues = inventory.pages(\"/repos/example/demo/issues?state=open\")\n        self.assertEqual(len(prs), 101)\n        self.assertEqual(len(issues), 101)\n        self.assertEqual(len(calls), 4)\n\n    def test_closed_pr_history_is_retained(self):\n        old = \"2020-01-01T00:00:00Z\"\n        closed = {\"number\": 8, \"state\": \"closed\", \"title\": \"Done\",\n                  \"updated_at\": old, \"html_url\": \"https://github.com/example/demo/pull/8\",\n                  \"head\": {\"ref\": \"feature/done\", \"repo\": {\"full_name\": \"example/demo\"}}}\n        def fake_pages(path):\n            if \"/branches\" in path:\n                return [{\"name\": \"main\"}, {\"name\": \"feature/done\"}]\n            if \"/pulls?\" in path:\n                return [closed]\n            if \"/issues?\" in path:\n                return []\n            raise AssertionError(path)\n        with tempfile.TemporaryDirectory() as tmp:\n            current = os.getcwd()\n            try:\n                os.chdir(tmp)\n                with patch.object(inventory, \"get\", return_value={\"default_branch\": \"main\"}), patch.object(inventory, \"pages\", side_effect=fake_pages):\n                    inventory.main()\n                with open(\"inventory-output/report.json\", encoding=\"utf-8\") as f:\n                    result = json.load(f)\n            finally:\n                os.chdir(current)\n        self.assertEqual(result[\"open_pr_count\"], 0)\n        self.assertEqual(result[\"historical_pr_count\"], 1)\n        self.assertTrue(result[\"review_candidates\"][0][\"historical_pr_found\"])\n\n    def test_report_candidates_are_not_completion_claims(self):\n        old = \"2020-01-01T00:00:00Z\"\n        recent = inventory.NOW.isoformat()\n        pr = {\"number\": 12, \"state\": \"open\", \"title\": \"Open PR\", \"updated_at\": old,\n              \"html_url\": \"https://github.com/example/demo/pull/12\",\n              \"head\": {\"ref\": \"feature/open\", \"repo\": {\"full_name\": \"example/demo\"}}}\n        issue = {\"number\": 13, \"title\": \"Open issue\", \"updated_at\": recent,\n                 \"html_url\": \"https://github.com/example/demo/issues/13\"}\n        def fake_pages(path):\n            if \"/branches\" in path:\n                return [{\"name\": \"main\"}, {\"name\": \"feature/open\"}, {\"name\": \"research/archive\"}]\n            if \"/pulls?\" in path:\n                return [pr]\n            if \"/issues?\" in path:\n                return [issue, {\"pull_request\": {}, **issue}]\n            raise AssertionError(path)\n        with tempfile.TemporaryDirectory() as tmp:\n            current = os.getcwd()\n            try:\n                os.chdir(tmp)\n                with patch.object(inventory, \"get\", return_value={\"default_branch\": \"main\"}), patch.object(inventory, \"pages\", side_effect=fake_pages):\n                    inventory.main()\n                with open(\"inventory-output/report.json\", encoding=\"utf-8\") as f:\n                    result = json.load(f)\n            finally:\n                os.chdir(current)\n        self.assertEqual(result[\"branch_count\"], 3)\n        self.assertEqual(result[\"open_issue_count\"], 1)\n        self.assertEqual([x[\"name\"] for x in result[\"review_candidates\"]], [\"research/archive\"])\n        self.assertEqual(len(result[\"stale_prs\"]), 1)\n        self.assertEqual(len(result[\"stale_issues\"]), 0)\n        self.assertIn(\"NOT proof\", result[\"caveat\"])\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+      "sha256": "65b6a2b67c452727e4820da71ea2cadd07b1a3e8e1088d9234187bbc2f56465f"
+    }
+  ],
+  "curated": {
+    "summary": "読み取り専用の開発棚卸しを毎日10:17に実行",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/118"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "7e69bf15629bacba166c9e349423affaf46b6d61bf79143f1dd2aaa93f2f7ae3",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00",
+  "decisions": []
+}

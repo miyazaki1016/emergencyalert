@@ -1,0 +1,344 @@
+{
+  "id": "pr-66",
+  "number": 66,
+  "title": "fix: iPhone通知履歴を最新2件だけ表示し、古い通知は展開式に",
+  "topics": [
+    "雨量・全国検知",
+    "通知・配信",
+    "開発管理",
+    "画面・表示"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更／通知・メール配信とその運用に関する変更／開発資産の把握・引継ぎ・レビューを支援する変更／画面表示や操作に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "iPhoneで11件の履歴が長く縦に連なる問題を修正。初期表示を最新2件に限定し「以前の通知をもっと見る（残りN件）」で5件ずつ追加表示。見張り地点・未回答・回答済みの絞り込みと、今日のアラートからの指定通知の直接表示は維持。新規テストあり。DB、RLS、Edge worker、Pushロジックには変更なし。CI成功を確認してから反映する。",
+  "snapshot_head": "52e10294c2f10f14368ba31545c0362ad4f85c35",
+  "snapshot_consistent": true,
+  "head": "52e10294c2f10f14368ba31545c0362ad4f85c35",
+  "base": "8078b4ec79f21122020b6a5587f4d1586f0be0ee",
+  "base_ref": "main",
+  "head_ref": "fix/feedback-compact-list-20261021",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-10-21T11:37:41Z",
+  "merge_commit_sha": "d533960f4fa5f594ee72e47ae0caacdfd7916b27",
+  "updated_at": "2026-10-21T11:37:41Z",
+  "code_facts": [
+    {
+      "file": "lib/weather/rain/feedbackPhase1.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function compactFeedbackHistory<T extends { id: number }>(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/lib/weather/rain/feedbackPhase1.ts"
+    },
+    {
+      "file": "tests/feedbackPhase1.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"short feedback history on iPhone\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts"
+    },
+    {
+      "file": "tests/feedbackPhase1.test.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const rows = Array.from({length:11}, (_,i) => ({id:11-i}));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts"
+    },
+    {
+      "file": "tests/feedbackPhase1.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"shows only two newest cards by default instead of a long list\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts"
+    },
+    {
+      "file": "tests/feedbackPhase1.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(selected.items.map(r=>r.id)).toEqual([11,10]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts"
+    },
+    {
+      "file": "tests/feedbackPhase1.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(selected.remaining).toBe(9);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts"
+    },
+    {
+      "file": "tests/feedbackPhase1.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"reveals older cards in batches without reordering anything\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts"
+    },
+    {
+      "file": "tests/feedbackPhase1.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(compactFeedbackHistory(rows,7,null).items.map(r=>r.id)).toEqual([11,10,9,8,7,6,5]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts"
+    },
+    {
+      "file": "tests/feedbackPhase1.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(compactFeedbackHistory(rows,12,null).remaining).toBe(0);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts"
+    },
+    {
+      "file": "tests/feedbackPhase1.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"never hides a linked notification even when it is older\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts"
+    },
+    {
+      "file": "tests/feedbackPhase1.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(selected.items.at(-1)?.id).toBe(2);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts"
+    },
+    {
+      "file": "tests/feedbackPhase1.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(selected.remaining).toBe(1);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts"
+    },
+    {
+      "file": "tests/feedbackPhase1.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"handles no notifications and invalid limits\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/components/NotificationFeedbackHistory.tsx",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 5,
+      "patch": "diff --git a/app/components/NotificationFeedbackHistory.tsx b/app/components/NotificationFeedbackHistory.tsx\nindex d9700ea..6278805 100644\n--- a/app/components/NotificationFeedbackHistory.tsx\n+++ b/app/components/NotificationFeedbackHistory.tsx\n@@ -2,7 +2,7 @@\n \n import { useCallback, useEffect, useState } from \"react\";\n import { getSupabaseBrowserClient } from \"../../lib/supabase/browser\";\n-import { filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, selectFeedbackHistory, watchedPlaceLabel } from \"../../lib/weather/rain/feedbackPhase1\";\n+import { compactFeedbackHistory, filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, selectFeedbackHistory, watchedPlaceLabel } from \"../../lib/weather/rain/feedbackPhase1\";\n import { loadPhase1Feedback, savePhase1Feedback, type WeatherFeedbackAnswer } from \"../../lib/weather/rain/feedbackPhase1Repository\";\n \n type Delivery = {\n@@ -53,6 +53,7 @@ export default function NotificationFeedbackHistory() {\n   const [saved, setSaved] = useState<number | null>(null);\n   const [filter, setFilter] = useState<\"all\" | \"unanswered\" | \"answered\">(\"all\");\n   const [selectedTargetId, setSelectedTargetId] = useState(\"all\");\n+  const [shownCount, setShownCount] = useState(2);\n   const [focusedNotificationId, setFocusedNotificationId] = useState<number | null>(null);\n \n   const refresh = useCallback(async () => {\n@@ -207,13 +208,14 @@ export default function NotificationFeedbackHistory() {\n   const history = selectFeedbackHistory(selectedNotifications, answers,\n     new Set(Object.keys(FEEDBACK_OPTIONS)), filter, focusedNotificationId);\n   const { visible, unanswered } = history;\n+  const compactHistory = compactFeedbackHistory(visible, shownCount, focusedNotificationId);\n   const targetIds = [...new Set(notifications.map(n => n.target_id))];\n \n   return (\n     <section style={{ margin: \"28px 0\", padding: 20, border: \"1px solid rgba(255,255,255,.15)\", borderRadius: 20, background: \"rgba(24,55,88,.8)\" }}>\n       <h2 style={{ marginTop: 0, marginBottom: 6 }}>🌧️ 届いた通知の天気を教えてね</h2>\n       <p style={{ marginTop: 0, fontSize: 14, color: \"#eef5ff\" }}>\n-        最近7日間・最大200件の通知。実際に見た場所の天気だけを回答してね。\n+        直近2件だけ表示しているよ。以前の通知は「もっと見る」から確認できるよ。\n         見ていない場所なら「わからない」で大丈夫だよ。\n       </p>\n       {message && <p role=\"status\" style={{ color: \"#ffe1a0\" }}>{message}</p>}\n@@ -227,7 +229,7 @@ export default function NotificationFeedbackHistory() {\n           {targetIds.length > 1 && (\n             <label style={{ display: \"block\", marginBottom: 12, fontSize: 14, color: \"#eaf2ff\" }}>\n               📍 見張る場所で絞り込む\n-              <select aria-label=\"通知履歴の地点\" value={selectedTargetId} onChange={event => setSelectedTargetId(event.target.value)}\n+              <select aria-label=\"通知履歴の地点\" value={selectedTargetId} onChange={event => { setSelectedTargetId(event.target.value); setShownCount(2); }}\n                 style={{ display: \"block\", width: \"100%\", padding: \"9px 12px\", marginTop: 6, borderRadius: 10,\n                   color: \"#fff\", background: \"#284e75\", border: \"1px solid #7799b8\" }}>\n                 <option value=\"all\">すべての見張り地点</option>\n@@ -241,7 +243,7 @@ export default function NotificationFeedbackHistory() {\n           <div aria-label=\"通知履歴の絞り込み\" role=\"group\" style={{ display: \"flex\", flexWrap: \"wrap\", gap: 8 }}>\n             {([[\"all\", \"すべて\"], [\"unanswered\", \"未回答だけ\"], [\"answered\", \"回答済みだけ\"]] as const).map(([key, label]) => (\n               <button key={key} type=\"button\" aria-pressed={filter === key}\n-                onClick={() => setFilter(key)}\n+                onClick={() => { setFilter(key); setShownCount(2); }}\n                 style={{ padding: \"8px 12px\", borderRadius: 10, color: \"#fff\", cursor: \"pointer\",\n                   border: filter === key ? \"2px solid #7dd3fc\" : \"1px solid #7799b8\",\n                   background: \"#284e75\" }}>{label}</button>\n@@ -251,7 +253,7 @@ export default function NotificationFeedbackHistory() {\n           {filter === \"answered\" && history.answered === 0 && <p>回答済みの通知はまだないよ。</p>}\n         </>\n       )}\n-      {visible.map(notification => {\n+      {compactHistory.items.map(notification => {\n         const options = FEEDBACK_OPTIONS[notification.event_type] ?? [];\n         const selected = options.find(([value]) => value === answers[notification.id]);\n         return (\n@@ -291,6 +293,21 @@ export default function NotificationFeedbackHistory() {\n           </div>\n         );\n       })}\n+      {compactHistory.remaining > 0 && (\n+        <button type=\"button\" onClick={() => setShownCount(count => count + 5)}\n+          style={{ display: \"block\", width: \"100%\", marginTop: 16, padding: \"11px 16px\",\n+            borderRadius: 12, border: \"1px solid #7dd3fc\", background: \"#28567e\",\n+            color: \"#fff\", fontWeight: 700, cursor: \"pointer\" }}>\n+          ＋ 以前の通知をもっと見る（残り{compactHistory.remaining}件）\n+        </button>\n+      )}\n+      {compactHistory.items.length > 2 && (\n+        <button type=\"button\" onClick={() => setShownCount(2)}\n+          style={{ marginTop: 10, padding: \"8px 12px\", borderRadius: 10, border: \"1px solid #7799b8\",\n+            background: \"transparent\", color: \"#d7ebfc\", cursor: \"pointer\" }}>\n+          ↑ 最新の通知だけに戻す\n+        </button>\n+      )}\n     </section>\n   );\n }\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/app/components/NotificationFeedbackHistory.tsx",
+      "source": {
+        "path": "app/components/NotificationFeedbackHistory.tsx",
+        "coverage": "全文",
+        "text": "\"use client\";\n\nimport { useCallback, useEffect, useState } from \"react\";\nimport { getSupabaseBrowserClient } from \"../../lib/supabase/browser\";\nimport { compactFeedbackHistory, filterFeedbackByTarget, negativeFeedbackNeedsWait, parseFeedbackHash, selectFeedbackHistory, watchedPlaceLabel } from \"../../lib/weather/rain/feedbackPhase1\";\nimport { loadPhase1Feedback, savePhase1Feedback, type WeatherFeedbackAnswer } from \"../../lib/weather/rain/feedbackPhase1Repository\";\n\ntype Delivery = {\n  id: number;\n  target_id: string;\n  event_type: string;\n  body: string;\n  delivered_at: string;\n};\ntype Answer = WeatherFeedbackAnswer;\ntype Option = readonly [Answer, string];\n\nexport const FEEDBACK_OPTIONS: Record<string, readonly Option[]> = {\n  ACTIONABLE_RAIN_APPROACHING: [\n    [\"RAINED\", \"☔ 降った\"], [\"DID_NOT_RAIN\", \"☁️ 降らなかった\"],\n    [\"ALREADY_RAINING\", \"🌧️ すでに降っていた\"], [\"UNKNOWN\", \"❓ わからない\"],\n  ],\n  RAIN_APPROACHING: [\n    [\"RAINED\", \"☔ 降った\"], [\"DID_NOT_RAIN\", \"☁️ 降らなかった\"],\n    [\"ALREADY_RAINING\", \"🌧️ すでに降っていた\"], [\"UNKNOWN\", \"❓ わからない\"],\n  ],\n  RAIN_RETURNING: [\n    [\"RAINED\", \"☔ 降った\"], [\"DID_NOT_RAIN\", \"☁️ 降らなかった\"],\n    [\"ALREADY_RAINING\", \"🌧️ すでに降っていた\"], [\"UNKNOWN\", \"❓ わからない\"],\n  ],\n  RAIN_ENDING: [\n    [\"STOPPED\", \"☀️ 止んだ\"], [\"DID_NOT_STOP\", \"🌧️ 止まなかった\"],\n    [\"ALREADY_DRY\", \"☁️ すでに降っていなかった\"], [\"UNKNOWN\", \"❓ わからない\"],\n  ],\n};\n\n// Phase 1 has no persisted forecast target time on legacy Push rows.\n// Avoid presenting a negative outcome as verified immediately after delivery.\nfunction formatTokyo(timestamp: string): string {\n  return new Date(timestamp).toLocaleString(\"ja-JP\", {\n    timeZone: \"Asia/Tokyo\", month: \"numeric\", day: \"numeric\",\n    hour: \"2-digit\", minute: \"2-digit\",\n  });\n}\n\nexport default function NotificationFeedbackHistory() {\n  const [notifications, setNotifications] = useState<Delivery[]>([]);\n  const [targetLabels, setTargetLabels] = useState<Record<string, string>>({});\n  const [answers, setAnswers] = useState<Record<number, Answer>>({});\n  const [feedbackReady, setFeedbackReady] = useState(false);\n  const [message, setMessage] = useState(\"通知履歴を読み込み中…\");\n  const [saving, setSaving] = useState<number | null>(null);\n  const [saved, setSaved] = useState<number | null>(null);\n  const [filter, setFilter] = useState<\"all\" | \"unanswered\" | \"answered\">(\"all\");\n  const [selectedTargetId, setSelectedTargetId] = useState(\"all\");\n  const [shownCount, setShownCount] = useState(2);\n  const [focusedNotificationId, setFocusedNotificationId] = useState<number | null>(null);\n\n  const refresh = useCallback(async () => {\n    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {\n      setMessage(\"この検証画面では通知履歴を利用できないよ。\");\n      setNotifications([]);\n      setTargetLabels({});\n      setFeedbackReady(false);\n      setAnswers({});\n      return;\n    }\n    try {\n      const client = getSupabaseBrowserClient();\n      const { data: { session }, error: authError } = await client.auth.getSession();\n      if (authError) throw authError;\n      if (!session) {\n        setNotifications([]);\n        setTargetLabels({});\n        setAnswers({});\n        setFeedbackReady(false);\n        setMessage(\"この通知を受け取った端末・アカウントで開いてね。\");\n        return;\n      }\n      const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();\n      const { data, error } = await client.from(\"notification_deliveries\")\n        .select(\"id,target_id,event_type,body,delivered_at\")\n        .gte(\"delivered_at\", since)\n        .gt(\"delivered_count\", 0)\n        .order(\"delivered_at\", { ascending: false })\n        .limit(200);\n      if (error) throw error;\n      const rows = (data ?? []) as Delivery[];\n      setNotifications(rows);\n      // Historical answers must always be described using the registered\n      // watched place; device location and target location may be different.\n      const ids = [...new Set(rows.map(row => row.target_id))];\n      if (ids.length) {\n        const { data: targets, error: targetError } = await client\n          .from(\"watch_targets\").select(\"id,label\").in(\"id\", ids);\n        setTargetLabels(!targetError ? Object.fromEntries(\n          (targets ?? []).map(target => [target.id, String(target.label ?? \"\")]),\n        ) : {});\n      } else {\n        setTargetLabels({});\n      }\n      if (rows.length === 0) {\n        setAnswers({});\n        setFeedbackReady(false);\n        setMessage(\"最近7日間の通知はまだないよ。\");\n        return;\n      }\n      try {\n        const recorded = await loadPhase1Feedback(client, rows.map(row => row.id));\n        setAnswers(recorded);\n        setFeedbackReady(true);\n        setMessage(\"\");\n      } catch {\n        setAnswers({});\n        setFeedbackReady(false);\n        setMessage(\"通知履歴は表示できるよ。回答機能はまだ準備中だよ。\");\n      }\n    } catch {\n      setNotifications([]);\n      setTargetLabels({});\n      setAnswers({});\n      setFeedbackReady(false);\n      setMessage(\"通知履歴を読み込めなかったよ。少しあとでもう一度試してね。\");\n    }\n  }, []);\n\n  useEffect(() => {\n    void refresh();\n    const interval = window.setInterval(() => void refresh(), 5 * 60 * 1000);\n    const onVisible = () => { if (document.visibilityState === \"visible\") void refresh(); };\n    document.addEventListener(\"visibilitychange\", onVisible);\n\n    // The user may register a watched place (anonymous Supabase sign-in)\n    // without leaving this page. Refresh feedback immediately after sign-in.\n    // Never call Supabase async APIs inside onAuthStateChange itself.\n    // Same-tab registration may use a separate Supabase client instance.\n    // The registration flow emits this event after a new anonymous session.\n    const onRegistered = () => void refresh();\n    window.addEventListener(\"amefuru:auth-ready\", onRegistered);\n\n    // Subscribe only in configured environments. Supabase callbacks are\n    // synchronous: defer refresh instead of invoking async auth methods inside.\n    let pendingAuthRefresh: number | null = null;\n    const subscription = (process.env.NEXT_PUBLIC_SUPABASE_URL &&\n      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)\n      ? getSupabaseBrowserClient().auth.onAuthStateChange((event) => {\n        if (event !== \"SIGNED_IN\" && event !== \"SIGNED_OUT\") return;\n        if (pendingAuthRefresh !== null) window.clearTimeout(pendingAuthRefresh);\n        pendingAuthRefresh = window.setTimeout(() => {\n          pendingAuthRefresh = null;\n          void refresh();\n        }, 0);\n      }).data.subscription : null;\n    return () => {\n      window.clearInterval(interval);\n      document.removeEventListener(\"visibilitychange\", onVisible);\n      window.removeEventListener(\"amefuru:auth-ready\", onRegistered);\n      if (pendingAuthRefresh !== null) window.clearTimeout(pendingAuthRefresh);\n      subscription?.unsubscribe();\n    };\n  }, [refresh]);\n\n  // Phase 1: links from today's alerts work without changing the Push payload.\n  useEffect(() => {\n    const readHash = () => {\n      const focused = parseFeedbackHash(window.location.hash);\n      setFocusedNotificationId(focused);\n      if (focused !== null) {\n        // A link from today's alert should work even after choosing a\n        // different location in the history filter.\n        setSelectedTargetId(\"all\");\n      }\n    };\n    readHash();\n    window.addEventListener(\"hashchange\", readHash);\n    return () => window.removeEventListener(\"hashchange\", readHash);\n  }, []);\n\n  useEffect(() => {\n    if (focusedNotificationId === null || !notifications.some(n => n.id === focusedNotificationId)) return;\n    document.getElementById(`rain-feedback-${focusedNotificationId}`)\n      ?.scrollIntoView({ block: \"start\", behavior: \"smooth\" });\n  }, [focusedNotificationId, notifications, filter]);\n\n  const save = async (notification: Delivery, answer: Answer) => {\n    const allowed = FEEDBACK_OPTIONS[notification.event_type];\n    if (!feedbackReady || !allowed?.some(([value]) => value === answer)) return;\n    if (negativeFeedbackNeedsWait(answer, notification.delivered_at, Date.now())) {\n      setMessage(\"「降らなかった」「止まなかった」は、通知から1時間以上たってから回答してね。\");\n      return;\n    }\n    setSaving(notification.id);\n    setSaved(null);\n    setMessage(\"\");\n    try {\n      const client = getSupabaseBrowserClient();\n      await savePhase1Feedback(client, notification.id, answer);\n      setAnswers(prev => ({ ...prev, [notification.id]: answer }));\n      setSaved(notification.id);\n    } catch {\n      setMessage(\"回答を保存できなかったよ。少しあとでもう一度試してね。\");\n    } finally {\n      setSaving(null);\n    }\n  };\n\n  const selectedNotifications = filterFeedbackByTarget(notifications, selectedTargetId);\n  const history = selectFeedbackHistory(selectedNotifications, answers,\n    new Set(Object.keys(FEEDBACK_OPTIONS)), filter, focusedNotificationId);\n  const { visible, unanswered } = history;\n  const compactHistory = compactFeedbackHistory(visible, shownCount, focusedNotificationId);\n  const targetIds = [...new Set(notifications.map(n => n.target_id))];\n\n  return (\n    <section style={{ margin: \"28px 0\", padding: 20, border: \"1px solid rgba(255,255,255,.15)\", borderRadius: 20, background: \"rgba(24,55,88,.8)\" }}>\n      <h2 style={{ marginTop: 0, marginBottom: 6 }}>🌧️ 届いた通知の天気を教えてね</h2>\n      <p style={{ marginTop: 0, fontSize: 14, color: \"#eef5ff\" }}>\n        直近2件だけ表示しているよ。以前の通知は「もっと見る」から確認できるよ。\n        見ていない場所なら「わからない」で大丈夫だよ。\n      </p>\n      {message && <p role=\"status\" style={{ color: \"#ffe1a0\" }}>{message}</p>}\n      <button type=\"button\" onClick={() => void refresh()} disabled={saving !== null}\n        style={{ marginBottom: 12, padding: \"7px 12px\", borderRadius: 10, color: \"#eaf2ff\",\n          border: \"1px solid #7799b8\", background: \"#284e75\", cursor: \"pointer\" }}>\n        ↻ 通知履歴を更新\n      </button>\n      {feedbackReady && (\n        <>\n          {targetIds.length > 1 && (\n            <label style={{ display: \"block\", marginBottom: 12, fontSize: 14, color: \"#eaf2ff\" }}>\n              📍 見張る場所で絞り込む\n              <select aria-label=\"通知履歴の地点\" value={selectedTargetId} onChange={event => { setSelectedTargetId(event.target.value); setShownCount(2); }}\n                style={{ display: \"block\", width: \"100%\", padding: \"9px 12px\", marginTop: 6, borderRadius: 10,\n                  color: \"#fff\", background: \"#284e75\", border: \"1px solid #7799b8\" }}>\n                <option value=\"all\">すべての見張り地点</option>\n                {targetIds.map(id => (\n                  <option key={id} value={id}>{watchedPlaceLabel(id, targetLabels)}</option>\n                ))}\n              </select>\n            </label>\n          )}\n          <div style={{ fontSize: 14, marginBottom: 8 }}>回答できる通知：{history.answerable}件／回答済み：{history.answered}件／未回答：{unanswered}件</div>\n          <div aria-label=\"通知履歴の絞り込み\" role=\"group\" style={{ display: \"flex\", flexWrap: \"wrap\", gap: 8 }}>\n            {([[\"all\", \"すべて\"], [\"unanswered\", \"未回答だけ\"], [\"answered\", \"回答済みだけ\"]] as const).map(([key, label]) => (\n              <button key={key} type=\"button\" aria-pressed={filter === key}\n                onClick={() => { setFilter(key); setShownCount(2); }}\n                style={{ padding: \"8px 12px\", borderRadius: 10, color: \"#fff\", cursor: \"pointer\",\n                  border: filter === key ? \"2px solid #7dd3fc\" : \"1px solid #7799b8\",\n                  background: \"#284e75\" }}>{label}</button>\n            ))}\n          </div>\n          {filter === \"unanswered\" && unanswered === 0 && <p>未回答の通知はないよ。ありがとう！</p>}\n          {filter === \"answered\" && history.answered === 0 && <p>回答済みの通知はまだないよ。</p>}\n        </>\n      )}\n      {compactHistory.items.map(notification => {\n        const options = FEEDBACK_OPTIONS[notification.event_type] ?? [];\n        const selected = options.find(([value]) => value === answers[notification.id]);\n        return (\n          <div id={`rain-feedback-${notification.id}`} key={notification.id} style={{ marginTop: 16, paddingTop: 14, borderTop: \"1px solid rgba(255,255,255,.15)\", scrollMarginTop: 24, outline: focusedNotificationId === notification.id ? \"2px solid #7dd3fc\" : \"none\", borderRadius: 8 }}>\n            {focusedNotificationId === notification.id && <p style={{ margin: \"0 0 5px\", fontSize: 13, color: \"#b8efff\", fontWeight: 700 }}>📩 選んだ通知はこちら</p>}\n            <div style={{ fontSize: 13, marginBottom: 4, color: \"#b8efff\", fontWeight: 700 }}>\n              📍 見張っていた場所：{watchedPlaceLabel(notification.target_id, targetLabels)}\n            </div>\n            <div style={{ fontWeight: 700 }}>{notification.body}</div>\n            <div style={{ fontSize: 13, color: \"#eef5ff\" }}>{formatTokyo(notification.delivered_at)} に通知</div>\n            {selected && <div role=\"status\" style={{ marginTop: 6, color: \"#bbf7d0\" }}>\n              回答済み：{selected[1]} {saved === notification.id ? \"✓ 保存したよ\" : \"（変更できるよ）\"}\n            </div>}\n            {options.length ? (\n              <>\n                <div style={{ fontSize: 13, marginTop: 10 }}>この見張り地点の天気を実際に確認できた？ 確認できないときは「わからない」を選んでね。</div>\n                <div style={{ display: \"flex\", flexWrap: \"wrap\", gap: 7, marginTop: 7 }}>\n                  {options.map(([value, label]) => (\n                    <button key={value} type=\"button\" disabled={!feedbackReady || saving === notification.id ||\n                      negativeFeedbackNeedsWait(value, notification.delivered_at, Date.now())}\n                      aria-pressed={answers[notification.id] === value}\n                      onClick={() => void save(notification, value)}\n                      style={{ padding: \"8px 11px\", borderRadius: 10, color: \"#fff\",\n                        border: answers[notification.id] === value ? \"2px solid #fff\" : \"1px solid #7799b8\",\n                        background: answers[notification.id] === value ? \"#24658d\" : \"#284e75\",\n                        opacity: feedbackReady ? 1 : 0.6 }}>\n                      {label}\n                    </button>\n                  ))}\n                </div>\n                <p style={{ fontSize: 12, marginTop: 6, color: \"#d6e6f5\" }}>\n                  「降らなかった」「止まなかった」は、通知から1時間後に回答できるよ。\n                  過去通知には予測の目標時刻がないため、回答を自動で的中判定には使わないよ。\n                </p>\n              </>\n            ) : <div style={{ fontSize: 13, marginTop: 8 }}>この種類の通知への回答は、まだ準備中だよ。</div>}\n          </div>\n        );\n      })}\n      {compactHistory.remaining > 0 && (\n        <button type=\"button\" onClick={() => setShownCount(count => count + 5)}\n          style={{ display: \"block\", width: \"100%\", marginTop: 16, padding: \"11px 16px\",\n            borderRadius: 12, border: \"1px solid #7dd3fc\", background: \"#28567e\",\n            color: \"#fff\", fontWeight: 700, cursor: \"pointer\" }}>\n          ＋ 以前の通知をもっと見る（残り{compactHistory.remaining}件）\n        </button>\n      )}\n      {compactHistory.items.length > 2 && (\n        <button type=\"button\" onClick={() => setShownCount(2)}\n          style={{ marginTop: 10, padding: \"8px 12px\", borderRadius: 10, border: \"1px solid #7799b8\",\n            background: \"transparent\", color: \"#d7ebfc\", cursor: \"pointer\" }}>\n          ↑ 最新の通知だけに戻す\n        </button>\n      )}\n    </section>\n  );\n}\n",
+        "sha256": "b3105e132beba0439189e3298dca384ffc30dccb89d8c5ad8d8251d6bd65dc94"
+      }
+    },
+    {
+      "path": "lib/weather/rain/feedbackPhase1.ts",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/feedbackPhase1.ts b/lib/weather/rain/feedbackPhase1.ts\nindex 28c2ac4..49b66c1 100644\n--- a/lib/weather/rain/feedbackPhase1.ts\n+++ b/lib/weather/rain/feedbackPhase1.ts\n@@ -62,3 +62,18 @@ export function selectFeedbackHistory<T extends { id: number; event_type: string\n     answered: answerable.length - unanswered,\n   };\n }\n+\n+/** Keep the screen short by default, without losing a linked notification. */\n+export function compactFeedbackHistory<T extends { id: number }>(\n+  notifications: readonly T[],\n+  requestedCount: number,\n+  focusedId: number | null,\n+): { items: T[]; remaining: number } {\n+  const limit = Number.isFinite(requestedCount) ? Math.max(1, Math.floor(requestedCount)) : 2;\n+  const focusedIndex = focusedId === null ? -1 : notifications.findIndex(item => item.id === focusedId);\n+  const visibleCount = Math.min(notifications.length, Math.max(limit, focusedIndex + 1));\n+  return {\n+    items: notifications.slice(0, visibleCount),\n+    remaining: notifications.length - visibleCount,\n+  };\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/lib/weather/rain/feedbackPhase1.ts",
+      "source": {
+        "path": "lib/weather/rain/feedbackPhase1.ts",
+        "coverage": "全文",
+        "text": "/** First-release feedback navigation; hash is a lookup key, not authorization. */\nexport function parseFeedbackHash(hash: string): number | null {\n  const match = /^#rain-feedback-([1-9]\\d{0,14})$/.exec(hash);\n  if (!match) return null;\n  const id = Number(match[1]);\n  return Number.isSafeInteger(id) ? id : null;\n}\n\n/** Existing delivered notifications have no persisted forecast target time.\n * Negative outcomes require a conservative wait and remain user reports,\n * not verified accuracy measurements.\n */\nexport function negativeFeedbackNeedsWait(\n  answer: string,\n  deliveredAt: string,\n  now: number,\n): boolean {\n  if (answer !== \"DID_NOT_RAIN\" && answer !== \"DID_NOT_STOP\") return false;\n  const deliveredMs = Date.parse(deliveredAt);\n  return !Number.isFinite(deliveredMs) || now < deliveredMs + 60 * 60 * 1000;\n}\n\n/** Tie the eyewitness answer to the watched place, not the device's current location. */\nexport function watchedPlaceLabel(targetId: string, labels: Readonly<Record<string,string>>): string {\n  const label = labels[targetId]?.trim();\n  return label || \"登録地点（名称を確認できないよ）\";\n}\n\n/** This is a view filter only; it never changes notification ownership or permissions. */\nexport function filterFeedbackByTarget<T extends {target_id:string}>(\n  notifications: readonly T[],\n  selectedTargetId: string,\n): T[] {\n  return selectedTargetId === \"all\"\n    ? [...notifications]\n    : notifications.filter(row => row.target_id === selectedTargetId);\n}\n\n/**\n * A history filter should not hide the notification selected from the\n * \"today's latest alert\" link, even if that answer was already saved.\n */\nexport function selectFeedbackHistory<T extends { id: number; event_type: string }>(\n  notifications: readonly T[],\n  answers: Readonly<Record<number, string>>,\n  supportedEventTypes: ReadonlySet<string>,\n  filter: \"all\" | \"unanswered\" | \"answered\",\n  focusedId: number | null,\n): { visible: T[]; answerable: number; unanswered: number; answered: number } {\n  const answerable = notifications.filter(item => supportedEventTypes.has(item.event_type));\n  const unanswered = answerable.filter(item => !answers[item.id]).length;\n  const visible = notifications.filter(item => {\n    if (item.id === focusedId) return true;\n    if (filter === \"all\") return true;\n    if (!supportedEventTypes.has(item.event_type)) return false;\n    return filter === \"answered\" ? Boolean(answers[item.id]) : !answers[item.id];\n  });\n  return {\n    visible,\n    answerable: answerable.length,\n    unanswered,\n    answered: answerable.length - unanswered,\n  };\n}\n\n/** Keep the screen short by default, without losing a linked notification. */\nexport function compactFeedbackHistory<T extends { id: number }>(\n  notifications: readonly T[],\n  requestedCount: number,\n  focusedId: number | null,\n): { items: T[]; remaining: number } {\n  const limit = Number.isFinite(requestedCount) ? Math.max(1, Math.floor(requestedCount)) : 2;\n  const focusedIndex = focusedId === null ? -1 : notifications.findIndex(item => item.id === focusedId);\n  const visibleCount = Math.min(notifications.length, Math.max(limit, focusedIndex + 1));\n  return {\n    items: notifications.slice(0, visibleCount),\n    remaining: notifications.length - visibleCount,\n  };\n}\n",
+        "sha256": "f39e822d9a31fbca188e8f2c4772f82c422fe067815c9436bfc7d73c7bec4e92"
+      }
+    },
+    {
+      "path": "tests/feedbackPhase1.test.ts",
+      "status": "modified",
+      "additions": 23,
+      "deletions": 1,
+      "patch": "diff --git a/tests/feedbackPhase1.test.ts b/tests/feedbackPhase1.test.ts\nindex 35c6242..55b2cbc 100644\n--- a/tests/feedbackPhase1.test.ts\n+++ b/tests/feedbackPhase1.test.ts\n@@ -1,5 +1,5 @@\n import { describe, expect, it } from \"vitest\";\n-import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel, filterFeedbackByTarget, selectFeedbackHistory } from \"../lib/weather/rain/feedbackPhase1\";\n+import { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel, filterFeedbackByTarget, selectFeedbackHistory, compactFeedbackHistory } from \"../lib/weather/rain/feedbackPhase1\";\n \n describe(\"phase-one in-app history links\", () => {\n   it(\"accepts positive numeric feedback IDs\", () => {\n@@ -95,3 +95,25 @@ describe(\"answered, unanswered and selected history views\", () => {\n     expect(result.visible.map(x=>x.id)).toEqual([5,3,2]);\n   });\n });\n+\n+describe(\"short feedback history on iPhone\", () => {\n+  const rows = Array.from({length:11}, (_,i) => ({id:11-i}));\n+  it(\"shows only two newest cards by default instead of a long list\", () => {\n+    const selected = compactFeedbackHistory(rows,2,null);\n+    expect(selected.items.map(r=>r.id)).toEqual([11,10]);\n+    expect(selected.remaining).toBe(9);\n+  });\n+  it(\"reveals older cards in batches without reordering anything\", () => {\n+    expect(compactFeedbackHistory(rows,7,null).items.map(r=>r.id)).toEqual([11,10,9,8,7,6,5]);\n+    expect(compactFeedbackHistory(rows,12,null).remaining).toBe(0);\n+  });\n+  it(\"never hides a linked notification even when it is older\", () => {\n+    const selected=compactFeedbackHistory(rows,2,2);\n+    expect(selected.items.at(-1)?.id).toBe(2);\n+    expect(selected.remaining).toBe(1);\n+  });\n+  it(\"handles no notifications and invalid limits\", () => {\n+    expect(compactFeedbackHistory([],2,null)).toEqual({items:[],remaining:0});\n+    expect(compactFeedbackHistory(rows,Number.NaN,null).items).toHaveLength(2);\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts",
+      "source": {
+        "path": "tests/feedbackPhase1.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { negativeFeedbackNeedsWait, parseFeedbackHash, watchedPlaceLabel, filterFeedbackByTarget, selectFeedbackHistory, compactFeedbackHistory } from \"../lib/weather/rain/feedbackPhase1\";\n\ndescribe(\"phase-one in-app history links\", () => {\n  it(\"accepts positive numeric feedback IDs\", () => {\n    expect(parseFeedbackHash(\"#rain-feedback-1\")).toBe(1);\n    expect(parseFeedbackHash(\"#rain-feedback-45321\")).toBe(45321);\n  });\n  it(\"rejects malformed and ambiguous IDs\", () => {\n    for (const value of [\"\", \"#rain-feedback-0\", \"#rain-feedback-01\", \"#rain-feedback--1\",\n      \"#rain-feedback-1x\", \"#rain-feedback-1.5\", \"#rain-feedback-9007199254740992\",\n      \"#rain-feedback-1234567890123456\", \"#rain-feedback-1?x=2\", \"#other-1\"]) {\n      expect(parseFeedbackHash(value)).toBeNull();\n    }\n  });\n});\n\ndescribe(\"phase-one legacy notification reply timing\", () => {\n  const deliveredAt = \"2026-10-21T05:00:00.000Z\";\n  const started = Date.parse(deliveredAt);\n  it(\"holds negative answers until an hour after notification\", () => {\n    expect(negativeFeedbackNeedsWait(\"DID_NOT_RAIN\", deliveredAt, started)).toBe(true);\n    expect(negativeFeedbackNeedsWait(\"DID_NOT_STOP\", deliveredAt, started + 59 * 60_000)).toBe(true);\n    expect(negativeFeedbackNeedsWait(\"DID_NOT_RAIN\", deliveredAt, started + 60 * 60_000)).toBe(false);\n  });\n  it(\"does not hold eyewitness and unknown answers\", () => {\n    for (const value of [\"RAINED\", \"ALREADY_RAINING\", \"ALREADY_DRY\", \"STOPPED\", \"UNKNOWN\"]) {\n      expect(negativeFeedbackNeedsWait(value, deliveredAt, started)).toBe(false);\n    }\n  });\n  it(\"never enables a negative answer with invalid delivery time\", () => {\n    expect(negativeFeedbackNeedsWait(\"DID_NOT_RAIN\", \"invalid\", Date.now())).toBe(true);\n  });\n});\n\ndescribe(\"feedback always refers to a watched target\", () => {\n  it(\"shows the registered label of the specific target\", () => {\n    const labels = { \"home-id\": \"自宅\", \"airport-id\": \"羽田空港\" };\n    expect(watchedPlaceLabel(\"airport-id\", labels)).toBe(\"羽田空港\");\n    expect(watchedPlaceLabel(\"home-id\", labels)).toBe(\"自宅\");\n  });\n  it(\"never substitutes the current location or another target\", () => {\n    expect(watchedPlaceLabel(\"missing-id\", { \"home-id\": \"自宅\" }))\n      .toBe(\"登録地点（名称を確認できないよ）\");\n    expect(watchedPlaceLabel(\"empty\", { empty: \"   \" }))\n      .toBe(\"登録地点（名称を確認できないよ）\");\n  });\n});\n\ndescribe(\"per-watched-place feedback filter\", () => {\n  const notifications = [\n    {id:10, target_id:\"home-id\"},\n    {id:11, target_id:\"airport-id\"},\n    {id:12, target_id:\"home-id\"},\n  ];\n  it(\"shows only matching monitored place, not device location\", () => {\n    expect(filterFeedbackByTarget(notifications,\"airport-id\").map(n => n.id)).toEqual([11]);\n    expect(filterFeedbackByTarget(notifications,\"home-id\").map(n => n.id)).toEqual([10,12]);\n  });\n  it(\"shows all places without changing original ordering\", () => {\n    const items = filterFeedbackByTarget(notifications,\"all\");\n    expect(items).toEqual(notifications);\n    expect(items).not.toBe(notifications);\n  });\n  it(\"does not invent a location when the target was removed\", () => {\n    expect(filterFeedbackByTarget(notifications,\"removed-id\")).toEqual([]);\n  });\n});\n\ndescribe(\"answered, unanswered and selected history views\", () => {\n  const items = [\n    {id:5,event_type:\"RAIN_APPROACHING\"},\n    {id:4,event_type:\"SEVERE_RAIN\"},\n    {id:3,event_type:\"RAIN_ENDING\"},\n    {id:2,event_type:\"RAIN_APPROACHING\"},\n  ];\n  const types = new Set([\"RAIN_APPROACHING\",\"RAIN_ENDING\"]);\n  const answers = {3:\"STOPPED\",2:\"RAINED\"};\n  it(\"counts supported answers without counting unanswerable severe rain events\", () => {\n    const result = selectFeedbackHistory(items,answers,types,\"all\",null);\n    expect([result.answerable,result.answered,result.unanswered]).toEqual([3,2,1]);\n    expect(result.visible.map(item=>item.id)).toEqual([5,4,3,2]);\n  });\n  it(\"shows only unanswered and only answered, keeping chronological order\", () => {\n    expect(selectFeedbackHistory(items,answers,types,\"unanswered\",null).visible.map(x=>x.id)).toEqual([5]);\n    expect(selectFeedbackHistory(items,answers,types,\"answered\",null).visible.map(x=>x.id)).toEqual([3,2]);\n  });\n  it(\"never hides the focused notification even when its answer status disagrees\", () => {\n    expect(selectFeedbackHistory(items,answers,types,\"unanswered\",3).visible.map(x=>x.id)).toEqual([5,3]);\n    expect(selectFeedbackHistory(items,answers,types,\"answered\",5).visible.map(x=>x.id)).toEqual([5,3,2]);\n  });\n  it(\"does not count unsupported alert types as unanswered\", () => {\n    const result = selectFeedbackHistory(items,{},types,\"unanswered\",null);\n    expect(result.unanswered).toBe(3);\n    expect(result.visible.map(x=>x.id)).toEqual([5,3,2]);\n  });\n});\n\ndescribe(\"short feedback history on iPhone\", () => {\n  const rows = Array.from({length:11}, (_,i) => ({id:11-i}));\n  it(\"shows only two newest cards by default instead of a long list\", () => {\n    const selected = compactFeedbackHistory(rows,2,null);\n    expect(selected.items.map(r=>r.id)).toEqual([11,10]);\n    expect(selected.remaining).toBe(9);\n  });\n  it(\"reveals older cards in batches without reordering anything\", () => {\n    expect(compactFeedbackHistory(rows,7,null).items.map(r=>r.id)).toEqual([11,10,9,8,7,6,5]);\n    expect(compactFeedbackHistory(rows,12,null).remaining).toBe(0);\n  });\n  it(\"never hides a linked notification even when it is older\", () => {\n    const selected=compactFeedbackHistory(rows,2,2);\n    expect(selected.items.at(-1)?.id).toBe(2);\n    expect(selected.remaining).toBe(1);\n  });\n  it(\"handles no notifications and invalid limits\", () => {\n    expect(compactFeedbackHistory([],2,null)).toEqual({items:[],remaining:0});\n    expect(compactFeedbackHistory(rows,Number.NaN,null).items).toHaveLength(2);\n  });\n});\n",
+        "sha256": "afe0120bcc5c20dc1b59f7c29754bef6f1c141a3bee41bd18345659ecb97b995"
+      }
+    }
+  ],
+  "file_count": 3,
+  "reported_file_count": 3,
+  "commits": [
+    {
+      "sha": "c53077b2186e44b2dde3180d8f1314cfddc99a20",
+      "message": "feat: compact long notification feedback history while preserving focused alerts\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/c53077b2186e44b2dde3180d8f1314cfddc99a20"
+    },
+    {
+      "sha": "27de59b01930980548fd60db4c3766d8faba57e8",
+      "message": "fix: show two feedback cards initially and reveal older alerts on demand\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/27de59b01930980548fd60db4c3766d8faba57e8"
+    },
+    {
+      "sha": "010e7049cd43cf5514fff77784392fb98fe016cd",
+      "message": "copy: keep the compact feedback history introduction short\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/010e7049cd43cf5514fff77784392fb98fe016cd"
+    },
+    {
+      "sha": "52e10294c2f10f14368ba31545c0362ad4f85c35",
+      "message": "test: initial two-card display, gradual reveal and deep link handling\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/52e10294c2f10f14368ba31545c0362ad4f85c35"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "52e10294c2f10f14368ba31545c0362ad4f85c35",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/39593208837",
+      "id": 39593208837,
+      "updated_at": "2026-10-21T11:37:28Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "FEEDBACK_OPTIONS",
+    "NotificationFeedbackHistory",
+    "allowed",
+    "answerable",
+    "answers",
+    "client",
+    "compactFeedbackHistory",
+    "compactHistory",
+    "deliveredAt",
+    "deliveredMs",
+    "filterFeedbackByTarget",
+    "focused",
+    "focusedIndex",
+    "formatTokyo",
+    "history",
+    "id",
+    "ids",
+    "interval",
+    "items",
+    "label",
+    "labels",
+    "limit",
+    "match",
+    "negativeFeedbackNeedsWait",
+    "notifications",
+    "onRegistered",
+    "onVisible",
+    "options",
+    "parseFeedbackHash",
+    "pendingAuthRefresh",
+    "readHash",
+    "recorded",
+    "refresh",
+    "result",
+    "rows",
+    "save",
+    "selectFeedbackHistory",
+    "selected",
+    "selectedNotifications",
+    "since",
+    "started",
+    "subscription",
+    "targetIds",
+    "types",
+    "unanswered",
+    "value",
+    "visible",
+    "visibleCount",
+    "watchedPlaceLabel"
+  ],
+  "related_sources": [],
+  "curated": {
+    "summary": "fix: iPhone通知履歴を最新2件だけ表示し、古い通知は展開式に",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/66"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "88e9ccc34a78d0deb8a72762e427870f0ee632b1469dd89726f7097404af9a0c",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00",
+  "decisions": [
+    {
+      "kind": "test",
+      "title": "accepts positive numeric feedback IDs",
+      "condition": "accepts positive numeric feedback IDs",
+      "behavior": "if (!match) return null; ／ return Number.isSafeInteger(id) ? id : null;",
+      "verification": "テストの期待値: expect(parseFeedbackHash(\"#rain-feedback-1\")).toBe(1); ／ expect(parseFeedbackHash(\"#rain-feedback-45321\")).toBe(45321); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/lib/weather/rain/feedbackPhase1.ts#L2",
+        "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts#L5"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "rejects malformed and ambiguous IDs",
+      "condition": "rejects malformed and ambiguous IDs",
+      "behavior": "if (!match) return null; ／ return Number.isSafeInteger(id) ? id : null;",
+      "verification": "テストの期待値: expect(parseFeedbackHash(value)).toBeNull(); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/lib/weather/rain/feedbackPhase1.ts#L2",
+        "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts#L9"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "holds negative answers until an hour after notification",
+      "condition": "holds negative answers until an hour after notification",
+      "behavior": "if (answer !== \"DID_NOT_RAIN\" && answer !== \"DID_NOT_STOP\") return false; ／ return !Number.isFinite(deliveredMs) || now < deliveredMs + 60 * 60 * 1000;",
+      "verification": "テストの期待値: expect(negativeFeedbackNeedsWait(\"DID_NOT_RAIN\", deliveredAt, started)).toBe(true); ／ expect(negativeFeedbackNeedsWait(\"DID_NOT_STOP\", deliveredAt, started + 59 * 60_000)).toBe(true); ／ expect(negativeFeedbackNeedsWait(\"DID_NOT_RAIN\", deliveredAt, started + 60 * 60_000)).toBe(false); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/lib/weather/rain/feedbackPhase1.ts#L13",
+        "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts#L21"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "does not hold eyewitness and unknown answers",
+      "condition": "does not hold eyewitness and unknown answers",
+      "behavior": "if (answer !== \"DID_NOT_RAIN\" && answer !== \"DID_NOT_STOP\") return false; ／ return !Number.isFinite(deliveredMs) || now < deliveredMs + 60 * 60 * 1000;",
+      "verification": "テストの期待値: expect(negativeFeedbackNeedsWait(value, deliveredAt, started)).toBe(false); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/lib/weather/rain/feedbackPhase1.ts#L13",
+        "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts#L26"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "never enables a negative answer with invalid delivery time",
+      "condition": "never enables a negative answer with invalid delivery time",
+      "behavior": "if (answer !== \"DID_NOT_RAIN\" && answer !== \"DID_NOT_STOP\") return false; ／ return !Number.isFinite(deliveredMs) || now < deliveredMs + 60 * 60 * 1000;",
+      "verification": "テストの期待値: expect(negativeFeedbackNeedsWait(\"DID_NOT_RAIN\", \"invalid\", Date.now())).toBe(true); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/lib/weather/rain/feedbackPhase1.ts#L13",
+        "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts#L31"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "shows the registered label of the specific target",
+      "condition": "shows the registered label of the specific target",
+      "behavior": "return label || \"登録地点（名称を確認できないよ）\";",
+      "verification": "テストの期待値: expect(watchedPlaceLabel(\"airport-id\", labels)).toBe(\"羽田空港\"); ／ expect(watchedPlaceLabel(\"home-id\", labels)).toBe(\"自宅\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/lib/weather/rain/feedbackPhase1.ts#L24",
+        "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts#L37"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "never substitutes the current location or another target",
+      "condition": "never substitutes the current location or another target",
+      "behavior": "return label || \"登録地点（名称を確認できないよ）\";",
+      "verification": "テストの期待値: expect(watchedPlaceLabel(\"missing-id\", { \"home-id\": \"自宅\" })) .toBe(\"登録地点（名称を確認できないよ）\"); ／ expect(watchedPlaceLabel(\"empty\", { empty: \" \" })) .toBe(\"登録地点（名称を確認できないよ）\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/lib/weather/rain/feedbackPhase1.ts#L24",
+        "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts#L42"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "id": "branch-7d28c1fe1dcbf427",
+  "title": "feat/national-rain-1mm-dry-run-216",
+  "head": "938ad27b5200ace47f740cf9f3b4e3372afbf39f",
+  "head_ref": "feat/national-rain-1mm-dry-run-216",
+  "linked_prs": [
+    217
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/jma-light-rain-proof.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/.github/workflows/jma-light-rain-proof.yml"
+    },
+    {
+      "path": ".github/workflows/light-rain-official-n03-proof.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/.github/workflows/light-rain-official-n03-proof.yml"
+    },
+    {
+      "path": "lib/weather/rain/lightRainAdministrativeAreas.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainAdministrativeAreas.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainMunicipalities.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainMunicipalities.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainMunicipalities.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainMunicipalities.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainN03LocalProof.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainN03LocalProof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainN03LocalProof.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainOfficialN03.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainOfficialN03.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainOfficialN03.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainOfficialN03.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainProof.live.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.live.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainProof.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainProof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/lib/weather/rain/lightRainProof.ts"
+    },
+    {
+      "path": "scripts/light-rain-official-n03-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/scripts/light-rain-official-n03-proof.ts"
+    },
+    {
+      "path": "scripts/national-light-rain-jma-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/938ad27b5200ace47f740cf9f3b4e3372afbf39f/scripts/national-light-rain-jma-proof.ts"
+    }
+  ],
+  "commits": "938ad27b5200ace47f740cf9f3b4e3372afbf39f ci: verify isolated 1mm pixel against official Tokyo N03 on PR only\n51a27361727ef4d635b1b85e16a6c4a7df1790a7 test: add offline official Tokyo N03 and synthetic 1mm pixel end-to-end proof\n720ac739d90436ae68f1b6e02392c9960b0d1253 test: verify official N03 properties merge and municipality rain intersection\n180bfaedb6bf1ff25624949fadcb244f41e310fe feat: reuse PR59 official N03 GeoJSON conversion for isolated rain proof\n98b787f9fec74543eacbd69480e616b56cf3f75b fix: correct N03 prefecture and municipality code validation regex\n4d1b89a82c4f13e959574621b46dc88c8353fec0 test: validate local N03 prepared data without production storage\n108ebd472f486497282064213f27c4de2bf92502 feat: add read-only local prepared N03 proof adapter with identity validation\n2e47b6d74769b3b08ad6a164520fe400a9535b97 test: prove N03 matching uses complete rainy pixel footprint\n85a08887432e7af23e66e55130666c7cab78dcd0 feat: match complete 1mm rainy pixel footprints against N03 municipalities\n155fac6feca7e8723a81dad9a7fcb26075682eb1 feat: reuse PR59 N03 polygon intersection in isolated light rain proof\n65209a76345fecc8375587339f5cc9f5cb03c962 test: verify rain pixel geographic locations and unknown-color fail closed\n2029b3b80856b931bb7b4b1645ecf6fa6a2c5637 feat: locate every 1mm rain pixel for later exact N03 footprint mapping\n95dc89cff0c12d84b22c82f08099359e4909e1fc test: restore opt-in live JMA gate after successful real-data proof\nf72583f95fb1fb7eb2327a1cd75f0efe30867270 test: run one-shot read-only live JMA proof in PR CI for evidence\n19b15c21155376e4bef472ebca3c643e31250a9d ci: add manually triggered read-only JMA 1mm six-frame proof\n4c85d3c4674c3a907f5c7c8a886dd41f404e9b13 test: add opt-in live JMA six-frame read-only integration proof\nb4cc390b7e13deb28ee6385beb0a077828dd0b09 feat: add read-only real JMA six-frame 1mm rain proof runner\n22893f4c69aceb8a83d2e296353ed3129b549e6e fix: use relative imports compatible with Vitest in 1mm proof\n1c22e740e10fbad3e2d08e2633f5d167b998b282 test: verify 1mm rain classification and no skipped pixels\nc4066f4e6e4b7e13305e2cb7027f976d06e00bb0 feat: add isolated 1mm JMA full-pixel scan for dry-run proof",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "40b6adc535ac260cc0e4b945815dcf5ab1fe0794cc79b544e56b3c5f05320fca",
+  "collected_at": "2026-11-12T15:33:28.142823+00:00"
+}

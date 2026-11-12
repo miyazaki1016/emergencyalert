@@ -1,0 +1,284 @@
+{
+  "id": "pr-134",
+  "number": 134,
+  "title": "Add fail-closed checks before ledger automation writes",
+  "topics": [
+    "開発管理"
+  ],
+  "purpose": "開発資産の把握・引継ぎ・レビューを支援する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "No AI/API/server cost. Adds deterministic verification of generated ledger proposal, preservation of human notes, idempotency, empty-snapshot rejection, size cap, and title sanitization. This is a prerequisite to considering auto-merge; it does not enable auto-merge. Actual GitHub Actions write-permission and end-to-end execution remain unverified.",
+  "snapshot_head": "ca36d09279b46518c1b4f97868927e4b4b2dad2f",
+  "snapshot_consistent": true,
+  "head": "ca36d09279b46518c1b4f97868927e4b4b2dad2f",
+  "base": "01cc27af3b2374938ddac0b43e9e414c2c29bcda",
+  "base_ref": "main",
+  "head_ref": "test/ledger-automation-safety-gates-20261102",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-01T22:46:24Z",
+  "merge_commit_sha": "ea4d986088afd1d29a4a008333a5b5b1f09f3aa2",
+  "updated_at": "2026-11-01T22:46:24Z",
+  "code_facts": [
+    {
+      "file": ".github/workflows/ledger-facts-proposal.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "run: python3 -m unittest discover -s tests -p 'test_verify_ledger_proposal.py' -v",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/.github/workflows/ledger-facts-proposal.yml"
+    },
+    {
+      "file": "scripts/verify_ledger_proposal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def verify(original, proposed, report):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/scripts/verify_ledger_proposal.py"
+    },
+    {
+      "file": "scripts/verify_ledger_proposal.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not isinstance(report, dict) or not isinstance(report.get(\"snapshot\", {}).get(\"prs\"), dict):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/scripts/verify_ledger_proposal.py"
+    },
+    {
+      "file": "scripts/verify_ledger_proposal.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if not report[\"snapshot\"][\"prs\"]:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/scripts/verify_ledger_proposal.py"
+    },
+    {
+      "file": "scripts/verify_ledger_proposal.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if proposed != expected:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/scripts/verify_ledger_proposal.py"
+    },
+    {
+      "file": "scripts/verify_ledger_proposal.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if update(proposed, report) != proposed:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/scripts/verify_ledger_proposal.py"
+    },
+    {
+      "file": "scripts/verify_ledger_proposal.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if proposed.count(START) != 1 or proposed.count(END) != 1:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/scripts/verify_ledger_proposal.py"
+    },
+    {
+      "file": "scripts/verify_ledger_proposal.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if len(proposed.encode(\"utf-8\")) > 2_000_000:",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/scripts/verify_ledger_proposal.py"
+    },
+    {
+      "file": "scripts/verify_ledger_proposal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def main():",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/scripts/verify_ledger_proposal.py"
+    },
+    {
+      "file": "scripts/verify_ledger_proposal.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if __name__ == \"__main__\":",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/scripts/verify_ledger_proposal.py"
+    },
+    {
+      "file": "tests/test_verify_ledger_proposal.py",
+      "kind": "関数・クラス定義",
+      "expression": "class ProposalSafetyTests(unittest.TestCase):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/tests/test_verify_ledger_proposal.py"
+    },
+    {
+      "file": "tests/test_verify_ledger_proposal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def setUp(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/tests/test_verify_ledger_proposal.py"
+    },
+    {
+      "file": "tests/test_verify_ledger_proposal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_valid_proposal(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/tests/test_verify_ledger_proposal.py"
+    },
+    {
+      "file": "tests/test_verify_ledger_proposal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_human_edit_rejected(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/tests/test_verify_ledger_proposal.py"
+    },
+    {
+      "file": "tests/test_verify_ledger_proposal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_empty_snapshot_rejected(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/tests/test_verify_ledger_proposal.py"
+    },
+    {
+      "file": "tests/test_verify_ledger_proposal.py",
+      "kind": "関数・クラス定義",
+      "expression": "def test_duplicate_marker_rejected(self):",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/tests/test_verify_ledger_proposal.py"
+    },
+    {
+      "file": "tests/test_verify_ledger_proposal.py",
+      "kind": "条件分岐・閾値",
+      "expression": "if __name__ == \"__main__\":",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/tests/test_verify_ledger_proposal.py"
+    }
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/ledger-facts-proposal.yml",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 0,
+      "patch": "diff --git a/.github/workflows/ledger-facts-proposal.yml b/.github/workflows/ledger-facts-proposal.yml\nindex 6684fa0..2dfd75b 100644\n--- a/.github/workflows/ledger-facts-proposal.yml\n+++ b/.github/workflows/ledger-facts-proposal.yml\n@@ -25,12 +25,15 @@ jobs:\n         run: python3 -m unittest discover -s tests -p 'test_development_ledger_proposal.py' -v\n       - name: Verify safe event triggers\n         run: python3 -m unittest discover -s tests -p 'test_ledger_event_triggers.py' -v\n+      - name: Validate proposal safety checks\n+        run: python3 -m unittest discover -s tests -p 'test_verify_ledger_proposal.py' -v\n       - name: Build read-only snapshot and proposal\n         env:\n           GITHUB_TOKEN: ${{ github.token }}\n         run: |\n           python3 scripts/development_inventory.py\n           python3 scripts/development_ledger_proposal.py\n+          python3 scripts/verify_ledger_proposal.py\n       - name: Open review-only PR when needed\n         env:\n           GH_TOKEN: ${{ github.token }}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/.github/workflows/ledger-facts-proposal.yml",
+      "source": {
+        "path": ".github/workflows/ledger-facts-proposal.yml",
+        "coverage": "全文",
+        "text": "name: Ledger facts proposal PR (review required)\non:\n  workflow_dispatch:\n  push:\n    branches: [main]\nconcurrency:\n  group: ledger-facts-proposal\n  cancel-in-progress: false\npermissions:\n  contents: read\njobs:\n  propose:\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n    permissions:\n      contents: write\n      pull-requests: write\n    steps:\n      # Execute only on trusted main; no untrusted PR code.\n      - uses: actions/checkout@v4\n        with:\n          ref: main\n          persist-credentials: true\n      - name: Validate offline generator\n        run: python3 -m unittest discover -s tests -p 'test_development_ledger_proposal.py' -v\n      - name: Verify safe event triggers\n        run: python3 -m unittest discover -s tests -p 'test_ledger_event_triggers.py' -v\n      - name: Validate proposal safety checks\n        run: python3 -m unittest discover -s tests -p 'test_verify_ledger_proposal.py' -v\n      - name: Build read-only snapshot and proposal\n        env:\n          GITHUB_TOKEN: ${{ github.token }}\n        run: |\n          python3 scripts/development_inventory.py\n          python3 scripts/development_ledger_proposal.py\n          python3 scripts/verify_ledger_proposal.py\n      - name: Open review-only PR when needed\n        env:\n          GH_TOKEN: ${{ github.token }}\n        run: |\n          set -euo pipefail\n          cmp -s docs/DEVELOPMENT_LEDGER.md inventory-output/ledger-proposed.md && exit 0\n          if gh pr list --state open --json headRefName --jq '[.[] | select(.headRefName | startswith(\"automation/ledger-facts-\"))] | length' | grep -qv '^0$'; then\n            echo 'An automation review PR is already open; leaving it for review.'\n            exit 0\n          fi\n          branch=\"automation/ledger-facts-${GITHUB_RUN_ID}\"\n          git config user.name 'github-actions[bot]'\n          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'\n          git checkout -b \"$branch\"\n          cp inventory-output/ledger-proposed.md docs/DEVELOPMENT_LEDGER.md\n          git add docs/DEVELOPMENT_LEDGER.md\n          git commit -m 'docs: propose factual GitHub PR ledger snapshot'\n          git push origin \"$branch\"\n          gh pr create --base main --head \"$branch\" \\\n            --title 'docs: review GitHub PR facts in development ledger' \\\n            --body 'Automatically generated factual PR snapshot only. Review required; no automatic merge. Does not assert implementation, production deployment, or verification completion.'\n",
+        "sha256": "17b7284441fbb28df4b7549e79863633a4a12723ee10cf0a066eef4414727449"
+      }
+    },
+    {
+      "path": "scripts/development_ledger_proposal.py",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "diff --git a/scripts/development_ledger_proposal.py b/scripts/development_ledger_proposal.py\nindex f71450d..e8affd9 100644\n--- a/scripts/development_ledger_proposal.py\n+++ b/scripts/development_ledger_proposal.py\n@@ -21,7 +21,7 @@ def render(report):\n         state = str(pr.get(\"state\", \"unknown\")).replace(\"|\", \"/\").replace(\"\\n\", \" \")\n         sha = str(pr.get(\"head\", \"\"))[:40]\n         updated = str(pr.get(\"updated_at\", \"\"))[:35]\n-        title = str(pr.get(\"title\", \"\")).replace(\"|\", \"/\").replace(\"\\\\n\", \" \")[:120]\n+        title = \" \".join(str(pr.get(\"title\", \"\")).split()).replace(\"|\", \"/\")[:120]\n         lines.append(f\"| #{number} | {title} | {state} | `{sha}` | {updated} |\")\n     return \"\\n\".join(lines) + \"\\n\"\n \n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/scripts/development_ledger_proposal.py",
+      "source": {
+        "path": "scripts/development_ledger_proposal.py",
+        "coverage": "全文",
+        "text": "#!/usr/bin/env python3\n\"\"\"Generate a deterministic, review-only GitHub facts section from inventory report.\"\"\"\nimport argparse\nimport json\nfrom pathlib import Path\n\nSTART = \"<!-- INVENTORY_FACTS_START -->\"\nEND = \"<!-- INVENTORY_FACTS_END -->\"\n\ndef render(report):\n    prs = report.get(\"snapshot\", {}).get(\"prs\", {})\n    lines = [\"## GitHub自動取得の事実（確認用）\", \"\",\n             \"> この欄はPRメタデータの記録であり、開発完了・本番反映の認定ではありません。\", \"\",\n             \"| PR | タイトル | 状態 | head SHA | 更新日時 |\",\n             \"| --- | --- | --- | --- | --- |\"]\n    for number, pr in sorted(prs.items(), key=lambda item: int(item[0]) if str(item[0]).isdigit() else -1):\n        if not str(number).isdigit() or not isinstance(pr, dict):\n            continue\n        if str(pr.get(\"head_ref\", \"\")).startswith(\"automation/ledger-facts-\"):\n            continue\n        state = str(pr.get(\"state\", \"unknown\")).replace(\"|\", \"/\").replace(\"\\n\", \" \")\n        sha = str(pr.get(\"head\", \"\"))[:40]\n        updated = str(pr.get(\"updated_at\", \"\"))[:35]\n        title = \" \".join(str(pr.get(\"title\", \"\")).split()).replace(\"|\", \"/\")[:120]\n        lines.append(f\"| #{number} | {title} | {state} | `{sha}` | {updated} |\")\n    return \"\\n\".join(lines) + \"\\n\"\n\ndef update(ledger, report):\n    section = START + \"\\n\" + render(report) + END\n    if START in ledger or END in ledger:\n        if ledger.count(START) != 1 or ledger.count(END) != 1 or ledger.index(START) > ledger.index(END):\n            raise ValueError(\"Invalid managed markers; refuse to change ledger\")\n        return ledger[:ledger.index(START)] + section + ledger[ledger.index(END) + len(END):]\n    return ledger.rstrip() + \"\\n\\n\" + section + \"\\n\"\n\ndef main():\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"--report\", default=\"inventory-output/report.json\")\n    parser.add_argument(\"--ledger\", default=\"docs/DEVELOPMENT_LEDGER.md\")\n    parser.add_argument(\"--output\", default=\"inventory-output/ledger-proposed.md\")\n    args = parser.parse_args()\n    report = json.loads(Path(args.report).read_text(encoding=\"utf-8\"))\n    if not isinstance(report.get(\"snapshot\", {}).get(\"prs\"), dict):\n        raise ValueError(\"PR snapshot missing; refuse to propose ledger update\")\n    proposed = update(Path(args.ledger).read_text(encoding=\"utf-8\"), report)\n    target = Path(args.output)\n    target.parent.mkdir(parents=True, exist_ok=True)\n    target.write_text(proposed, encoding=\"utf-8\")\n\nif __name__ == \"__main__\":\n    main()\n",
+        "sha256": "6a61b38fea23f19df8223d64457209daa044d04125e1bd0dd33c5fc4c98c8376"
+      }
+    },
+    {
+      "path": "scripts/verify_ledger_proposal.py",
+      "status": "modified",
+      "additions": 38,
+      "deletions": 0,
+      "patch": "diff --git a/scripts/verify_ledger_proposal.py b/scripts/verify_ledger_proposal.py\nnew file mode 100644\nindex 0000000..c255590\n--- /dev/null\n+++ b/scripts/verify_ledger_proposal.py\n@@ -0,0 +1,38 @@\n+#!/usr/bin/env python3\n+\"\"\"Fail-closed checks before proposing any development ledger change.\"\"\"\n+import argparse\n+import json\n+from pathlib import Path\n+try:\n+    from scripts.development_ledger_proposal import START, END, update\n+except ModuleNotFoundError:\n+    from development_ledger_proposal import START, END, update\n+\n+def verify(original, proposed, report):\n+    if not isinstance(report, dict) or not isinstance(report.get(\"snapshot\", {}).get(\"prs\"), dict):\n+        raise ValueError(\"Missing PR snapshot\")\n+    if not report[\"snapshot\"][\"prs\"]:\n+        raise ValueError(\"Empty PR snapshot: refuse to replace facts\")\n+    expected = update(original, report)\n+    if proposed != expected:\n+        raise ValueError(\"Proposal differs from deterministic generator\")\n+    if update(proposed, report) != proposed:\n+        raise ValueError(\"Proposal is not idempotent\")\n+    if proposed.count(START) != 1 or proposed.count(END) != 1:\n+        raise ValueError(\"Invalid managed section\")\n+    if len(proposed.encode(\"utf-8\")) > 2_000_000:\n+        raise ValueError(\"Oversized ledger proposal\")\n+    return True\n+\n+def main():\n+    parser = argparse.ArgumentParser()\n+    parser.add_argument(\"--report\", default=\"inventory-output/report.json\")\n+    parser.add_argument(\"--ledger\", default=\"docs/DEVELOPMENT_LEDGER.md\")\n+    parser.add_argument(\"--proposal\", default=\"inventory-output/ledger-proposed.md\")\n+    args = parser.parse_args()\n+    verify(Path(args.ledger).read_text(encoding=\"utf-8\"),\n+           Path(args.proposal).read_text(encoding=\"utf-8\"),\n+           json.loads(Path(args.report).read_text(encoding=\"utf-8\")))\n+\n+if __name__ == \"__main__\":\n+    main()\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/scripts/verify_ledger_proposal.py",
+      "source": {
+        "path": "scripts/verify_ledger_proposal.py",
+        "coverage": "全文",
+        "text": "#!/usr/bin/env python3\n\"\"\"Fail-closed checks before proposing any development ledger change.\"\"\"\nimport argparse\nimport json\nfrom pathlib import Path\ntry:\n    from scripts.development_ledger_proposal import START, END, update\nexcept ModuleNotFoundError:\n    from development_ledger_proposal import START, END, update\n\ndef verify(original, proposed, report):\n    if not isinstance(report, dict) or not isinstance(report.get(\"snapshot\", {}).get(\"prs\"), dict):\n        raise ValueError(\"Missing PR snapshot\")\n    if not report[\"snapshot\"][\"prs\"]:\n        raise ValueError(\"Empty PR snapshot: refuse to replace facts\")\n    expected = update(original, report)\n    if proposed != expected:\n        raise ValueError(\"Proposal differs from deterministic generator\")\n    if update(proposed, report) != proposed:\n        raise ValueError(\"Proposal is not idempotent\")\n    if proposed.count(START) != 1 or proposed.count(END) != 1:\n        raise ValueError(\"Invalid managed section\")\n    if len(proposed.encode(\"utf-8\")) > 2_000_000:\n        raise ValueError(\"Oversized ledger proposal\")\n    return True\n\ndef main():\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"--report\", default=\"inventory-output/report.json\")\n    parser.add_argument(\"--ledger\", default=\"docs/DEVELOPMENT_LEDGER.md\")\n    parser.add_argument(\"--proposal\", default=\"inventory-output/ledger-proposed.md\")\n    args = parser.parse_args()\n    verify(Path(args.ledger).read_text(encoding=\"utf-8\"),\n           Path(args.proposal).read_text(encoding=\"utf-8\"),\n           json.loads(Path(args.report).read_text(encoding=\"utf-8\")))\n\nif __name__ == \"__main__\":\n    main()\n",
+        "sha256": "48bdb0abebe0291a74684aa0f0a9e0830179bc5690cb00bb14f5aa8ea046a968"
+      }
+    },
+    {
+      "path": "tests/test_verify_ledger_proposal.py",
+      "status": "modified",
+      "additions": 30,
+      "deletions": 0,
+      "patch": "diff --git a/tests/test_verify_ledger_proposal.py b/tests/test_verify_ledger_proposal.py\nnew file mode 100644\nindex 0000000..d21d935\n--- /dev/null\n+++ b/tests/test_verify_ledger_proposal.py\n@@ -0,0 +1,30 @@\n+import unittest\n+from scripts.development_ledger_proposal import update\n+from scripts.verify_ledger_proposal import verify\n+\n+class ProposalSafetyTests(unittest.TestCase):\n+    def setUp(self):\n+        self.report = {\"snapshot\": {\"prs\": {\"1\": {\"state\": \"merged\", \"title\": \"Fix\\nunsafe|title\", \"head\": \"a\" * 40, \"updated_at\": \"2026-11-02T00:00:00Z\"}}}}\n+        self.original = \"# 台帳\\n\\n## 手動の判断\\n保護する\\n\"\n+\n+    def test_valid_proposal(self):\n+        proposed = update(self.original, self.report)\n+        self.assertTrue(verify(self.original, proposed, self.report))\n+        self.assertIn(\"Fix unsafe/title\", proposed)\n+\n+    def test_human_edit_rejected(self):\n+        proposed = update(self.original, self.report).replace(\"保護する\", \"削除する\")\n+        with self.assertRaises(ValueError):\n+            verify(self.original, proposed, self.report)\n+\n+    def test_empty_snapshot_rejected(self):\n+        with self.assertRaises(ValueError):\n+            verify(self.original, update(self.original, {\"snapshot\": {\"prs\": {}}}), {\"snapshot\": {\"prs\": {}}})\n+\n+    def test_duplicate_marker_rejected(self):\n+        proposed = update(self.original, self.report)\n+        with self.assertRaises(ValueError):\n+            verify(self.original, proposed + \"\\n<!-- INVENTORY_FACTS_START -->\", self.report)\n+\n+if __name__ == \"__main__\":\n+    unittest.main()\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ca36d09279b46518c1b4f97868927e4b4b2dad2f/tests/test_verify_ledger_proposal.py",
+      "source": {
+        "path": "tests/test_verify_ledger_proposal.py",
+        "coverage": "全文",
+        "text": "import unittest\nfrom scripts.development_ledger_proposal import update\nfrom scripts.verify_ledger_proposal import verify\n\nclass ProposalSafetyTests(unittest.TestCase):\n    def setUp(self):\n        self.report = {\"snapshot\": {\"prs\": {\"1\": {\"state\": \"merged\", \"title\": \"Fix\\nunsafe|title\", \"head\": \"a\" * 40, \"updated_at\": \"2026-11-02T00:00:00Z\"}}}}\n        self.original = \"# 台帳\\n\\n## 手動の判断\\n保護する\\n\"\n\n    def test_valid_proposal(self):\n        proposed = update(self.original, self.report)\n        self.assertTrue(verify(self.original, proposed, self.report))\n        self.assertIn(\"Fix unsafe/title\", proposed)\n\n    def test_human_edit_rejected(self):\n        proposed = update(self.original, self.report).replace(\"保護する\", \"削除する\")\n        with self.assertRaises(ValueError):\n            verify(self.original, proposed, self.report)\n\n    def test_empty_snapshot_rejected(self):\n        with self.assertRaises(ValueError):\n            verify(self.original, update(self.original, {\"snapshot\": {\"prs\": {}}}), {\"snapshot\": {\"prs\": {}}})\n\n    def test_duplicate_marker_rejected(self):\n        proposed = update(self.original, self.report)\n        with self.assertRaises(ValueError):\n            verify(self.original, proposed + \"\\n<!-- INVENTORY_FACTS_START -->\", self.report)\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+        "sha256": "3c06f841e6993a62f7545eae1c6c36db21f3ae3b6ce72b122411e70fdb3596cb"
+      }
+    }
+  ],
+  "file_count": 4,
+  "reported_file_count": 4,
+  "commits": [
+    {
+      "sha": "ca6ea51c1658fb34d5ec9b9ec5e9d93fd5739f57",
+      "message": "Sanitize untrusted PR title whitespace in ledger table\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/ca6ea51c1658fb34d5ec9b9ec5e9d93fd5739f57"
+    },
+    {
+      "sha": "e4d817a7ae18b173ce79e3e20537715e45366729",
+      "message": "Fail closed if ledger proposal modifies human-managed content\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/e4d817a7ae18b173ce79e3e20537715e45366729"
+    },
+    {
+      "sha": "88b47dbee977a90d14c6c29a5ef99df5656a8030",
+      "message": "Support direct script execution and test imports\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/88b47dbee977a90d14c6c29a5ef99df5656a8030"
+    },
+    {
+      "sha": "ed3bbb73b77421ff1dbc00ab225a405734ee0dc8",
+      "message": "Regression tests for non-destructive ledger update gate\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/ed3bbb73b77421ff1dbc00ab225a405734ee0dc8"
+    },
+    {
+      "sha": "ca36d09279b46518c1b4f97868927e4b4b2dad2f",
+      "message": "Run fail-closed verification before proposing ledger PR\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/ca36d09279b46518c1b4f97868927e4b4b2dad2f"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "ca36d09279b46518c1b4f97868927e4b4b2dad2f",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/41320266412",
+      "id": 41320266412,
+      "updated_at": "2026-11-01T15:15:22Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "ca36d09279b46518c1b4f97868927e4b4b2dad2f",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/41320266556",
+      "id": 41320266556,
+      "updated_at": "2026-11-01T15:16:13Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "ProposalSafetyTests",
+    "main",
+    "render",
+    "setUp",
+    "test_duplicate_marker_rejected",
+    "test_empty_snapshot_rejected",
+    "test_human_edit_rejected",
+    "test_valid_proposal",
+    "update",
+    "verify"
+  ],
+  "related_sources": [
+    {
+      "path": "docs/DEVELOPMENT_LEDGER.md",
+      "coverage": "全文",
+      "text": "# アメふる 開発台帳\n\n> **最新の交通整理表**：[開発案件・担当・次の一手の運用索引](DEVELOPMENT_OPERATIONS_INDEX.md)（2026-11-01時点。実装・本番の完了認定ではない）。\n\n[総覧へ戻る](PROJECT_OVERVIEW.md) · [リポジトリ直下の入口](../PROJECT_OVERVIEW.md)\n\nこの独立台帳は2026-10-29に作成。過去の開発史・意思決定は既存の[総覧](PROJECT_OVERVIEW.md)に保持し、この台帳で過去の作業を新たに完了扱いにはしない。\n\n## 2026-10-29 通知予測とレーダー実況の自動答え合わせ\n\n### 目的・承認・所在\n- 登録地点で新規に送信する「降るよ」「止むよ」の予測根拠を残し、対象時刻の後日実況と自動照合する。予測評価・地上雨量・配信品質は分離。\n- ユーザーから本番実装まで明示承認済み。今回の追記は記録とリンクだけで、コード・DB・Push・cronを追加変更しない。\n- 元ブランチ：`feat/notification-replay-production-20261029`。実装：[PR #99](https://github.com/miyazaki1016/emergencyalert/pull/99)、main統合コミット：`b6c216be96ecadcb9f86f2042ee6e786800b30c8`。\n- 詳細正本：[本番実装・確認記録](NOTIFICATION_REPLAY_PRODUCTION_20261029.md)。設計元：[PR #98](https://github.com/miyazaki1016/emergencyalert/pull/98) の研究ブランチ `research/notification-replay-20261029`。PR #98全体・PR #63全体をmainへ取り込んだわけではない。\n\n### 実装・本番反映済み\n- `watch-rain v32`：送信前の位置・入力観測・予測・判断・通知文を独立した不変スナップショットへ保存し、送信結果と既存通知履歴IDを関連付ける。保存失敗で通知を止めず、評価処理からPushを再送しない。\n- `evaluate-rain v1`：独立した5分cron、JMA実況解析の回収、降り始めの遷移／終了の持続を評価。ぴったり／±5分／±10分を分離し、欠測は判定不能。\n- `rain_notification_evaluations`：90日保持。`rain_evaluation_runs`：30日保持。RLS有効、クライアント権限なし。現行の`delivered_count > 0`制約と通知条件は維持。\n- DB移行：`20261029021418_notification_radar_replay.sql` と `20261029022421_notification_radar_replay_schedule.sql`。ソースと移行SQLはmainに保存。\n\n### 確認結果（2026-10-29 11:27 JSTまで）\n- ローカル181テスト、本番ビルド、Edgeソースの型チェック成功。隔離SQLで権限・snapshot不変性・claim排他を確認。\n- PR #99最終head `626c66338dbb81f8ea1b4ccc1bb7487b89a31cf8` のverify / phase1-feedback-rls / phase1-feedback-httpがすべて成功。\n- 11:25の監視定時処理：HTTP200、12地点、CHECK_FAILED=0。11:27の評価定時処理：OK、failures=0。\n- 本番EdgeからJMAの37実況フレームを確認し、11:20の実況PNG中心画素を取得。テスト用Pushや通知条件の緩和は行っていない。\n- トークンなし呼出しは401。anon/authenticatedからの評価テーブル読取り、anonのclaim実行は不可。\n\n### 未検証・未実装\n- 確認時点の新規実通知評価サンプルは0件。自然な実通知から評価確定までの全行程・実機表示・正解率は未検証。テスト成功を予測精度改善の証拠とは扱わない。\n- 保存は中心画素。半径1km画像、地上雨量、無通知ケースの見逃し率、利用者向け結果画面は未実装。\n- Issue #64のPushクラッシュ／並行実行時の重複防止・復旧は継続。評価workerの排他をPushの排他と混同しない。\n\n### 次の一手\n1. 現在の稼働版と[監視用SQL](sql/rain-replay-monitoring.sql)を読み取りで確認し、新規実通知の保存・履歴リンク・実況回収・評価確定を追う。\n2. 受理済みの実通知だけを母集団に、確定結果と判定不能を分けて集計する。0件なら精度を算出しない。\n3. 点／面比較に必要な半径1km画像保存は、取得経路・境界跨ぎ・可逆性・実容量を検証して別途追加。地上雨量は独立した評価として扱う。\n\n## 2026-10-29 続き：半径1kmの予測・実況画像\n\n- 本番点評価の再照合：11:32 JSTの定時実行もOK、新規実通知の評価レコードは0件。watch-rain v32 / evaluate-rain v1が稼働。精度集計は行わない。\n- 次工程の画像保存を専用ブランチ `feat/replay-area-evidence-20261029`・[PR #100](https://github.com/miyazaki1016/emergencyalert/pull/100)で実装し、本番反映・疎通確認まで完了。正本：[半径1km画像保存](RAIN_AREA_EVIDENCE_20261029.md)。\n- 独立archive-rain、可逆PNG＋欠測マスクのDB bytea保存、予測／入力実況／後日実況の分離、中心画素一致、元タイルハッシュ、90日保持、32MiBの物理容量停止ゲートを追加。通知処理や点評価ロジックは変更しない。\n- 通知後に同じ発表時刻のURLから取得する方式なので、当時の元PNGバイト列とは区別する。元入力snapshotを後から画像で上書きしない。\n- ローカル195テスト、隔離SQLの権限・bytea・排他・不変性・cascade検証を実施。本番ビルド・Edge型チェック・初期headのCI全3ジョブも成功。\n- 監視：[画像保存用SQL](sql/rain-area-monitoring.sql)。次は本番PROBEのPNG保存往復と定時回収を確認し、実通知の画像が得られたら欠測・中心一致・取得遅延を検証する。\n\n### 続きの本番結果（11:48 JST）\n- archive-rain v1、privateなPNG/マスクbytea保存先、毎分cronを反映。watch-rain v32／evaluate-rain v1は継続。\n- PROBEで実JMA実況の21×21画素PNGを本番DBへ保存し、読戻しハッシュが一致。雨なし1例はPNG78bytes＋マスク441bytes、メタデータ等は別。\n- 11:48 REGULAR定時実行OK、failures/frameErrorsとも0。トークンなし401、一般クライアントからの画像読取り不可。セキュリティ診断の追加はprivate用policyなしのINFOのみ。\n- 実通知評価0件のため、予測画像の自然データ保存から後日実況との比較までの全行程・精度は未実証。次は実通知の欠測・中心一致・容量を[画像監視SQL](sql/rain-area-monitoring.sql)で確認する。地上雨量・面予測の採用・見逃し評価・結果画面は未実装。\n\n## 2026-10-29 続き：点・面・併用のシャドー比較\n\n- ユーザーの続行依頼に基づき、`feat/rain-area-shadow-20261029`で通知を変えない並行計算を追加。[詳細正本](RAIN_AREA_SHADOW_20261029.md)、[監視・共通サンプルSQL](sql/rain-shadow-monitoring.sql)。\n- 250m／500m／1kmの面積重み付き雨域占有率、強度別比率、欠測・未知色、連結性、中心の穴を保存。正確な画素内位置を使い、穴の画素は変更しない。\n- 500mを主に閾値20/40/60%、解除は半分、5分刻み3コマの共通ルールを比較。現行本番の通知エンジンと共通比較用の点候補は別で、既存本番結果を別列に保持。\n- 入力画素不一致・有効時刻後回収・粗い解像度・欠測を保留にし、同じ発表時刻・未来の有効時刻・同じ実況中心の共通サンプルだけで比較する。\n- 中心実況の一致は地上降雨精度ではない。利用者回答は時刻付きの補助情報としてライブ参照する。無通知サンプルはまだ追加しておらず、見逃し率は算出できない。\n- 独立shadow-rain、privateな結果と実行ログ、90日／30日保持、32MiB容量ゲートを追加。Push・点評価・画像回収を変更しない。[PR #101](https://github.com/miyazaki1016/emergencyalert/pull/101)で追跡し、本番反映まで完了。\n\n### シャドー比較の本番結果（12:23 JST）\n- shadow-rain v1、private結果・ログ、5分cronを反映。既存の通知・点評価・画像回収のコードとスケジュールは継続。\n- 保存済み11:45実実況画像で円の指標を計算しDB保存成功。12:23の自然な定時実行もOK、failures=0。架空の通知／精度サンプルは作っていない。\n- 219テスト、ビルド、Edge型、隔離SQL、PR #101初期headのCI全3ジョブ成功。権限と401を確認。\n- 実通知比較は0件。中心実況一致・保留・実況欠測を共通分母で照会し、利用者回答も時刻付きで補助確認する。地上での精度改善、無通知ケースの見逃し率、最適閾値は未確定。\n\n## 2026-10-29 開発者専用「雨の判定ラボ」\n\n- ユーザー指定：一般公開予定の履歴とは別画面にする。本番実装は承認済み。\n- ブランチ：`feat/rain-comparison-dashboard-20261029`。詳細：[比較画面と権限・検証記録](RAIN_RESEARCH_DASHBOARD_20261029.md)。\n- 3方式共通の分母、画像の並列表示、私用の地点確認、処理稼働状況を実装。一般向け履歴と通知条件は維持。\n- 233テスト・隔離SQLのRLS／自己昇格拒否／所有者境界／観測制約成功。実機表示は未確認。実通知2件が入り始めたが評価待ちで、精度改善はまだ判断しない。\n- PR #102をmain統合（`de9b480293d5db68e3d1497db28f86179dd71c8a`）。本番DB移行・確認済みPWA 1件の権限付与・Production READY・専用URL HTTP200を確認。CI全3ジョブ成功。非許可者は研究データ0件、anonは研究読書き不可。詳細資料へ証拠・未解決・次工程を追記済み。\n\n## 2026-10-29 美深町 実通知538・539の監査\n\n- 詳細：[監査記録](BIFUKA_NOTIFICATION_AUDIT_20261029.md)。ブランチ：`audit/bifuka-notifications-538-539-20261029`。\n- 26保存画像のhash・発表／有効時刻・地点・入力中心14点・面積を再計算。13:10実況は中心弱雨、円内占有率約98/65/29%。透明と未知色・未取得の混同なし。\n- 当時の画像全体は未保存のため同一性は証明できない。画面で限界と中心RGBA、実況側の内訳を明示する。\n- 13:23に両件の実況・画像・比較すべてCOMPLETE。claimは538=5/18/5、539=4/15/4。地上正解は未確認。\n- 再通知は3回目の新しい雨なし実況によるepisodeClosedが、ACTIONABLE継続中にも送信済みを無効化する現行条件。予測通知エピソードを分離する等の修正案を詳細へ記録。既存通知条件は変更しない。\n- 235テスト・本番ビルド成功。例外ルート／容量制限でPENDINGが残る可能性、弱雨開始と生活行動閾値の評価の意味の差は残課題。追加UIの実機確認は未完了。\n\n### 続き：不一致の分類と理由表示\n- 同じ監査PR #103へ、不一致／保留のパターン別ケース数、各ケースの具体的な時刻・雨量区分・占有率・差分・前提を追加。\n- 雨の有無、開始／終了時刻、強さ、範囲、点と面、地点確認との違い、評価基準と欠測を区別。1ケース複数分類・保留別扱い。\n- 539の早い弱雨開始と強度差を回帰試験。隣接時刻の欠測・未来・誤った実況発表・矛盾・取消・近隣参考を正解にしない試験を含め247テスト成功。通知条件は変更しない。\n- 詳細は[監査記録の続き](BIFUKA_NOTIFICATION_AUDIT_20261029.md)。追加UIの目視・実機操作は未確認。\n\n- 反映結果：PR #103をmain統合（`f65f826d7fab4cd507f048614ccdbe007f6514b7`）。本番READY・専用ページHTTP200確認。最終headのCI全3ジョブ成功、538・539の実記録に説明関数を適用する確認も成功。証拠は詳細と[実記録からの説明](evidence/BIFUKA_538_539_EXPLANATIONS_20261029.json)へ保存。通知・DB変更なし。実機の追加表示確認は未完了。\n\n## 2026-10-29 予測通知の重複修正（538〜548の続き）\n- [詳細・検証・再開地点](FORECAST_EPISODE_FIX_20261029.md)。branch `fix/forecast-notification-episodes-20261029`。\n- main・watch-rain v32・PR #103監査・PR #93/63の既存研究を確認。現況雨なしで接近予測の通知済みが解除される9件と、並行実行のリスクを分離。\n- 予測が完全DRYの新しい発表3回でのみ解消し、新しい接近を再通知可能にする。強雨は別段階の通知キー。購読別の永続intentとfenced target leaseを追加。既存履歴やCHECKは維持。\n- 538〜548には共通レーダー45コマ／現地正解0件。ラボの既存比較を維持し、共通コマに入らない理由を可視化。無通知見逃し率は次工程の設計に留める。\n- PR #103の539表示はユーザー実機確認済み。追加除外欄の実機確認、CI、本番結果は詳細へ追記。\n\n- PR #104 main統合、DB追加移行・watch-rain v33反映。17:10の自然cron14地点エラー0、全lease解放、既存履歴維持。269テスト・独立Postgres競合を含むCI全4ジョブ成功。\n- 初期移行の「新しい接近と同時に起動」「直前に2回解消確認済み」の境界を追加補正し、271テスト成功。別ブランチ `fix/forecast-bootstrap-20261029` で追跡。本番結果・未確認は詳細へ追記。\n\n- 最終：PR #105の移行補強を含むwatch-rain v34へ反映。272テスト・CI全4ジョブ成功。17:20自然cron14地点エラー0、lease全解放、ACCEPTED intent2件・未確定0、対象履歴11行維持。必要な自然通知552は購読別に各1回。\n- 観測中に継続ACTIONABLEの抑止対象がないため、実環境での重複減少効果・新たな再接近・強雨悪化の自然事例は継続確認。既存実装を作り直さず、比較元・共通母数を維持。詳細と読み取り専用監視SQLを総覧から辿れる。\n\n## 2026-11-01 作業単位索引（既存証拠を再利用）\n\n> 詳細本文は削除・要約置換しない。以下は美咲と同じID／状態／所在／証拠／main・本番・DB・実機／未確認／次の一手／更新日の入口。詳細照合は `docs/audits/DEVELOPMENT_INVENTORY_DIFF_20261101.md`。\n\n| ID・作業 | 状態 | 所在・確認証拠（2026-11-01） | main / 本番 / DB / 実機 | 未確認・次の一手 |\n| --- | --- | --- | --- | --- |\n| A-REPLAY-01 通知予測と実況の自動照合 | A（main統合確認） | PR #99 merged、`b6c216be96ecadcb9f86f2042ee6e786800b30c8`。上記既存本文に2026-10-29の本番定時処理・DB移行・テスト記録あり | 統合済 / **過去の本番反映・稼働記録あり** / **過去のDB移行記録あり** / 実機未確認 | 現在の稼働状態と自然な通知→評価確定を追加確認。過去の証拠を再監査しない |\n| A-SEVERE-01 大雨予測継続性研究 | C | `research/severe-rain-consistency-20261101`、PR #109 open Draft、研究関数・テスト・設計文書 | 未統合PR / 未確認 / 未確認 / 未確認 | 研究を通知判定に採用したとみなさない。採用前に実測と承認 |\n| A-SEVERE-02 強雨通知エピソード制御 | B/C暫定 | `fix/severe-once-per-episode-20261031`、watch-rain・テストのブランチ差分 | 要照合 / 未確認 / 未確認 / 未確認 | mainと最新本番の実体を確認 |\n| A-EPISODE-01 予測エピソード初期化修正 | B/C暫定 | `fix/forecast-bootstrap-20261029`、watch-rain・テスト・資料のブランチ差分 | 要照合 / 未確認 / 未確認 / 未確認 | A-SEVERE-02と同じファイルの変更があるため重複整理 |\n| A-PUSH-01 Push並行実行・永続claim | D（監査） | `audit/push-concurrency-20261026`、PR #63 open Draft、監査文書 | 未確認 / 未確認 / 未確認 / 未確認 | 旧監査の指摘を現行本番の未修正と断定せず、PR #63のDB制約と現行workerを照合 |\n\n※ 状態B/Cは作業群の暫定分類。未確認は未実施の意味ではない。管理用PR #107は別管理。\n\n\n## 2026-11-01 棚卸し・ブランチ差分調査\n- [調査証拠・判断・未解決事項](audits/INVENTORY_RECONCILIATION_20261101.md)（GitHub/本番DBの読み取り確認。アプリ・DB・Push・本番変更なし）。\n\n\n## 2026-11-01 旧監査ブランチの追加照合\n- [旧監査ブランチの証拠・未確認事項](audits/LEGACY_AUDIT_FOLLOWUP_20261101.md)。過去snapshotと現行状態を区別し、旧ブランチは未削除・未merge。\n\n\n## 2026-11-01 未整理ブランチの一次分類\n- [PR履歴未紐付けブランチの保全・照合・整理候補分類](audits/BRANCH_TRIAGE_20261101.md)。削除やコード取り込みの承認ではない。\n\n\n## 2026-11-01 機能単位の追加照合\n- [mainと旧ブランチの実ファイル照合](audits/FEATURE_RECONCILIATION_20261101.md)（アメふる旧履歴Deep Linkのmain実装を再確認。過去の暫定懸念を訂正）。\n\n\n## 2026-11-01 旧実験コードの照合\n- [旧実験コードとmainの比較記録](audits/LEGACY_CODE_DIFF_20261101.md)。実装採用・DB変更は別途判断。\n\n\n## 2026-11-01 旧通知回帰テストの追加照合\n- [旧通知テストのケース単位照合](audits/TEST_CASE_RECONCILIATION_20261101.md)。10/29重複通知再現は既存、30分境界などは現行テストと継続照合。\n\n\n## 2026-11-01 現行処理経路の追加確認\n- [現行コード経路の静的調査](audits/FORECAST_HORIZON_20261101.md)。コード・DB・本番環境は無変更。\n",
+      "sha256": "deb0613ab67df5053f6c4acd2630359dc1ef46aee26d544e5ec05a680fc0eed0"
+    },
+    {
+      "path": "scripts/development_inventory.py",
+      "coverage": "全文",
+      "text": "#!/usr/bin/env python3\n\"\"\"Read-only GitHub development inventory. No branch/PR/Issue mutations.\"\"\"\nimport datetime as dt\nimport json\nimport os\nimport sys\nimport urllib.error\nimport urllib.parse\nimport urllib.request\n\nREPO = os.environ[\"GITHUB_REPOSITORY\"]\nTOKEN = os.environ[\"GITHUB_TOKEN\"]\nNOW = dt.datetime.now(dt.timezone.utc)\nSTALE_DAYS = int(os.environ.get(\"STALE_DAYS\", \"14\"))\nAPI = \"https://api.github.com\"\n\ndef get(path):\n    req = urllib.request.Request(API + path, headers={\n        \"Authorization\": \"Bearer \" + TOKEN,\n        \"Accept\": \"application/vnd.github+json\",\n        \"X-GitHub-Api-Version\": \"2022-11-28\",\n        \"User-Agent\": \"development-inventory-readonly\",\n    })\n    with urllib.request.urlopen(req, timeout=30) as response:\n        return json.load(response)\n\ndef pages(path):\n    result = []\n    page = 1\n    while True:\n        separator = \"&\" if \"?\" in path else \"?\"\n        batch = get(path + separator + \"per_page=100&page=\" + str(page))\n        if not isinstance(batch, list):\n            raise RuntimeError(\"Unexpected API response\")\n        result.extend(batch)\n        if len(batch) < 100:\n            return result\n        page += 1\n\ndef age(timestamp):\n    if not timestamp:\n        return None\n    updated = dt.datetime.fromisoformat(timestamp.replace(\"Z\", \"+00:00\"))\n    return (NOW - updated).days\n\ndef main():\n    repo = urllib.parse.quote(REPO, safe=\"/\")\n    metadata = get(\"/repos/\" + repo)\n    default = metadata[\"default_branch\"]\n    branches = pages(\"/repos/\" + repo + \"/branches\")\n    all_prs = pages(\"/repos/\" + repo + \"/pulls?state=all\")\n    prs = [p for p in all_prs if p[\"state\"] == \"open\"]\n    issues = [item for item in pages(\"/repos/\" + repo + \"/issues?state=open\") if \"pull_request\" not in item]\n    pr_heads = {p[\"head\"][\"ref\"] for p in prs if p[\"head\"][\"repo\"] and p[\"head\"][\"repo\"][\"full_name\"] == REPO}\n    historical_heads = {p[\"head\"][\"ref\"] for p in all_prs if p[\"head\"][\"repo\"] and p[\"head\"][\"repo\"][\"full_name\"] == REPO}\n    findings = []\n    for branch in branches:\n        name = branch[\"name\"]\n        if name == default:\n            continue\n        # No-PR does NOT mean unfinished. Report only as a review candidate.\n        if name not in pr_heads:\n            findings.append({\"type\": \"branch_without_open_pr\", \"name\": name,\n                             \"historical_pr_found\": name in historical_heads,\n                             \"url\": \"https://github.com/\" + REPO + \"/tree/\" + urllib.parse.quote(name, safe=\"\")})\n    stale_prs = [{\"number\": p[\"number\"], \"title\": p[\"title\"], \"days\": age(p[\"updated_at\"]),\n                  \"url\": p[\"html_url\"]} for p in prs if age(p[\"updated_at\"]) is not None and age(p[\"updated_at\"]) >= STALE_DAYS]\n    stale_issues = [{\"number\": i[\"number\"], \"title\": i[\"title\"], \"days\": age(i[\"updated_at\"]),\n                     \"url\": i[\"html_url\"]} for i in issues if age(i[\"updated_at\"]) is not None and age(i[\"updated_at\"]) >= STALE_DAYS]\n    report = {\"repository\": REPO, \"generated_at\": NOW.isoformat(), \"default_branch\": default,\n              \"branch_count\": len(branches), \"open_pr_count\": len(prs),\n              \"open_issue_count\": len(issues), \"historical_pr_count\": len(all_prs), \"review_candidates\": findings,\n              \"stale_prs\": stale_prs, \"stale_issues\": stale_issues,\n              \"caveat\": \"Candidates are NOT proof of unfinished work. Compare main, merged/closed PRs, and canonical ledger before action.\"}\n    # Stable snapshot for comparison across successful scheduled/manual runs.\n    report[\"snapshot\"] = {\n        \"branches\": {b[\"name\"]: b.get(\"commit\", {}).get(\"sha\") for b in branches},\n        \"prs\": {str(p[\"number\"]): {\"state\": (\"merged\" if p.get(\"merged_at\") else p[\"state\"]),\n                                  \"head\": p[\"head\"].get(\"sha\"), \"updated_at\": p[\"updated_at\"],\n                                  \"title\": p.get(\"title\", \"\"), \"body\": (p.get(\"body\") or \"\")[:2000],\n                                  \"head_ref\": p[\"head\"].get(\"ref\", \"\")}\n                for p in all_prs},\n        \"issues\": {str(i[\"number\"]): {\"state\": \"open\", \"updated_at\": i[\"updated_at\"]} for i in issues},\n    }\n    os.makedirs(\"inventory-output\", exist_ok=True)\n    with open(\"inventory-output/report.json\", \"w\", encoding=\"utf-8\") as f:\n        json.dump(report, f, ensure_ascii=False, indent=2)\n    summary = [\"# Development inventory (read-only)\", \"\",\n               \"Repository: \" + REPO, \"Generated (UTC): \" + NOW.isoformat(), \"\",\n               \"| Metric | Count |\", \"|---|---:|\",\n               \"| Branches including default | \" + str(len(branches)) + \" |\",\n               \"| Open PRs | \" + str(len(prs)) + \" |\",\n               \"| Open issues | \" + str(len(issues)) + \" |\",\n               \"| Branches without open PR (review only) | \" + str(len(findings)) + \" |\",\n               \"| Stale PRs (>= \" + str(STALE_DAYS) + \" days) | \" + str(len(stale_prs)) + \" |\",\n               \"| Stale issues | \" + str(len(stale_issues)) + \" |\", \"\",\n               \"**Do not mark branches unfinished or delete them based on this report.**\",\n               \"Consult the project's canonical ledger, closed/merged PRs and main code first.\", \"\",\n               \"## Stale PRs\"]\n    summary.extend(\"- [#\" + str(p[\"number\"]) + \"](\" + p[\"url\"] + \") (\" + str(p[\"days\"]) + \"d): \" + p[\"title\"].replace(\"\\n\", \" \") for p in stale_prs)\n    summary.append(\"\\n## Stale issues\")\n    summary.extend(\"- [#\" + str(i[\"number\"]) + \"](\" + i[\"url\"] + \") (\" + str(i[\"days\"]) + \"d): \" + i[\"title\"].replace(\"\\n\", \" \") for i in stale_issues)\n    summary.append(\"\\nBranch candidates are available in report.json artifact.\")\n    text = \"\\n\".join(summary) + \"\\n\"\n    with open(\"inventory-output/summary.md\", \"w\", encoding=\"utf-8\") as f:\n        f.write(text)\n    with open(os.environ.get(\"GITHUB_STEP_SUMMARY\", \"/dev/null\"), \"a\", encoding=\"utf-8\") as f:\n        f.write(text)\n    print(text)\n\nif __name__ == \"__main__\":\n    try:\n        main()\n    except (urllib.error.URLError, KeyError, ValueError, RuntimeError) as error:\n        print(\"Inventory failed: \" + str(error), file=sys.stderr)\n        sys.exit(1)\n",
+      "sha256": "f65bd64d6bfd0d9d5e695ecd61f786bbc75bd4ac38f88de2ccb7f620f89e08e3"
+    }
+  ],
+  "curated": {
+    "summary": "台帳自動書込み前に不明時は停止する検査を追加",
+    "conclusion": "日本語見出しは変更目的の案内。受入完了・本番反映の認定ではない。差分・検証・残課題を原本で確認。",
+    "evidence": [
+      "https://github.com/miyazaki1016/emergencyalert/pull/134"
+    ]
+  },
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "6e872fb562cd6ea41805bb3a8b71015bf5d5502a860335b039bf8211ca0cab47",
+  "ci_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "collected_at": "2026-11-09T09:02:35.033623+00:00",
+  "decisions": []
+}

@@ -699,6 +699,46 @@
     "branch-8ac7382a5a280d93",
     "pr-59"
   ],
+  "lib/weather/rain/lightRainAdministrativeAreas.ts": [
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "lib/weather/rain/lightRainMunicipalities.test.ts": [
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "lib/weather/rain/lightRainMunicipalities.ts": [
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "lib/weather/rain/lightRainN03LocalProof.test.ts": [
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "lib/weather/rain/lightRainN03LocalProof.ts": [
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "lib/weather/rain/lightRainOfficialN03.test.ts": [
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "lib/weather/rain/lightRainOfficialN03.ts": [
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "lib/weather/rain/lightRainProof.live.test.ts": [
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "lib/weather/rain/lightRainProof.test.ts": [
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "lib/weather/rain/lightRainProof.ts": [
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
   "lib/weather/rain/n03AdministrativeAreas.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
@@ -803,6 +843,14 @@
     "branch-64503a3847e876c9",
     "branch-8ac7382a5a280d93",
     "pr-59"
+  ],
+  "lib/weather/rain/nationalForecastBluesky.test.ts": [
+    "branch-d7e01c30db10e1cb",
+    "pr-215"
+  ],
+  "lib/weather/rain/nationalForecastBluesky.ts": [
+    "branch-d7e01c30db10e1cb",
+    "pr-215"
   ],
   "lib/weather/rain/nationalForecastSnapshot.test.ts": [
     "branch-8ac7382a5a280d93",
@@ -1052,11 +1100,13 @@
   ],
   "scripts/development_history_evidence.py": [
     "branch-02f9f023f7c9991c",
+    "branch-0c5bdefb1e721367",
     "branch-412ffa2ddbe80074",
     "branch-bbf5a2c293af40b5",
     "pr-183",
     "pr-184",
-    "pr-185"
+    "pr-185",
+    "pr-218"
   ],
   "scripts/development_index_proposal.py": [
     "branch-436bd6babf91e34f",
@@ -1158,6 +1208,10 @@
     "branch-64503a3847e876c9",
     "branch-8ac7382a5a280d93",
     "pr-59"
+  ],
+  "scripts/light-rain-official-n03-proof.ts": [
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
   ],
   "scripts/n03-administrative-area-benchmark.ts": [
     "branch-2d0caa2b5330cf58",
@@ -1382,6 +1436,10 @@
     "branch-64503a3847e876c9",
     "branch-8ac7382a5a280d93",
     "pr-59"
+  ],
+  "scripts/national-light-rain-jma-proof.ts": [
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
   ],
   "scripts/national-lowzoom-max-rank-proof.test.ts": [
     "branch-2d0caa2b5330cf58",
