@@ -1,0 +1,28 @@
+{
+  "id": "branch-45d18acdff63ec07",
+  "title": "docs/management-overview-crosslink-20261105",
+  "head": "66fcb2c47a00825796bc351bd17eee5a22148bdd",
+  "head_ref": "docs/management-overview-crosslink-20261105",
+  "linked_prs": [
+    158
+  ],
+  "files": [
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/66fcb2c47a00825796bc351bd17eee5a22148bdd/docs/PROJECT_OVERVIEW.md"
+    }
+  ],
+  "commits": "66fcb2c47a00825796bc351bd17eee5a22148bdd docs: reference shared development management overview from Amefuru main overview",
+  "topics": [
+    "その他の開発"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "de97d842e02423f6c472e59b153df3e63e7af10dab0ffdef2042d51b1169e2b3",
+  "collected_at": "2026-11-12T07:08:25.648007+00:00"
+}

@@ -1,0 +1,77 @@
+{
+  "id": "branch-d92ca54cbab20357",
+  "title": "chore/development-inventory-automation-20261031",
+  "head": "bd03ccc3b96855cfbba2b74409668ce206964f5c",
+  "head_ref": "chore/development-inventory-automation-20261031",
+  "linked_prs": [
+    107
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/development-inventory.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/bd03ccc3b96855cfbba2b74409668ce206964f5c/.github/workflows/development-inventory.yml"
+    },
+    {
+      "path": "docs/DEVELOPMENT_LEDGER.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/bd03ccc3b96855cfbba2b74409668ce206964f5c/docs/DEVELOPMENT_LEDGER.md"
+    },
+    {
+      "path": "docs/DEVELOPMENT_MANAGEMENT_STANDARD.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/bd03ccc3b96855cfbba2b74409668ce206964f5c/docs/DEVELOPMENT_MANAGEMENT_STANDARD.md"
+    },
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/bd03ccc3b96855cfbba2b74409668ce206964f5c/docs/PROJECT_OVERVIEW.md"
+    },
+    {
+      "path": "docs/audits/DEVELOPMENT_INVENTORY_DIFF_20261101.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/bd03ccc3b96855cfbba2b74409668ce206964f5c/docs/audits/DEVELOPMENT_INVENTORY_DIFF_20261101.md"
+    },
+    {
+      "path": "docs/audits/INVENTORY_LIVE_VALIDATION_RUNBOOK_20261101.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/bd03ccc3b96855cfbba2b74409668ce206964f5c/docs/audits/INVENTORY_LIVE_VALIDATION_RUNBOOK_20261101.md"
+    },
+    {
+      "path": "scripts/development_inventory.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/bd03ccc3b96855cfbba2b74409668ce206964f5c/scripts/development_inventory.py"
+    },
+    {
+      "path": "tests/test_development_inventory.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/bd03ccc3b96855cfbba2b74409668ce206964f5c/tests/test_development_inventory.py"
+    }
+  ],
+  "commits": "bd03ccc3b96855cfbba2b74409668ce206964f5c docs: define safe read-only live inventory validation runbook\n1f742808e91515236af79e11ebc6dce9f04d45dd test: verify independent PR and issue API pagination\nd84b9f6a412eb836e4a4a14622a4aef1e8b72cec test: cover multi-page historical PR inventory pagination\nf9341e25c310b8c69bfff972272bd6c1cdbfd055 docs: record final draft PR scope and CI review\n2079b9d704b46c3d1bc6507f6b3221ec794555df ci: upload inventory report only when actual inventory runs\nd36baaafdfc5f90aaea45554ef805ebaf5c1f2b1 docs: note inventory acceptance checks\na48163b9539f67204e51bea9f4c4979d63275ab9 docs: align Amafuru ledger index with shared evidence schema\n82d0ca40c99f04cc688d74cb5c189de29dce622c docs: preserve existing production evidence in inventory reconciliation\na9a3f1a1b47927de8d03ee98f351d49295d21adf docs: reconcile Amafuru work groups with PR evidence\n96539ccc4f1859cca8ccf4ff7b2d9861af619669 docs: classify Amafuru recent branch evidence without completion claims\n4f79b7cf918b5d9fc031b41f907886529879a404 docs: record preliminary branch-to-ledger comparison\nd98042ba80176f074594fe37030109ea4657079a docs: capture Amafuru branch inventory baseline\n661ae7e02fe1a6d48df62b22e6110a2bb74311ce docs: align evidence-first ledger migration rules\ncdd06561068cbf9aec318ba5b14ed3282ec11bcd Fix pagination test page matching\n1cdc102e82ef0c41d8a1ae9b0c73fb115f7d897d test: isolate fixture repository from CI environment\n8644d8b31c498fbe967a12a9eb0f96bf8ed540ef ci: validate draft PR offline without GitHub API inventory\n1c4a487619fb2d79ae5910180e4cb530d8e8f81c test: cover closed PR historical classification\nd184267501cd23683ba31290666fbaae023f848c ci: run offline regression tests with valid workflow YAML\nf335319038b55fe2dea5d7749b55b08383c48b1b test: adapt fixture to all-state PR inventory\n123be46b195c6b813170c0f8381fb2d479c70b2a fix: distinguish branches with closed or merged PR history\neb10ec0dddca9d592693d0a944e7ad6577bb4a42 docs: link shared inventory and ledger from main overview\n20e547a1c311a3544e01d023f794ebfe20c41a5b ci: run offline inventory regression tests before scan\na45039ee4ba743822633cb4f98c6cbbf1fa02c93 test: add offline inventory pagination and false-positive tests\nd7824f247dfe874b64c1dc5e09f9208ad9628cd2 docs: define shared ledger and inventory governance\nae9280d0c4754160285a8229fd986a629e4b2e69 chore: add read-only development inventory .github/workflows/development-inventory.yml\n355d84f45df7c7af71484143b974cf0d96a7eccb chore: add read-only development inventory scripts/development_inventory.py",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "b474ca79ea013bbcb4d3fff737b6166c91ae806f7874e5e73582ab1da8f06a2c",
+  "collected_at": "2026-11-12T07:08:25.648007+00:00"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "branch-8408fe81c12a3d3e",
+  "title": "fix/dedupe-place-search-results",
+  "head": "c4182df79a20538e5671d4c6f5ee82172657cbec",
+  "head_ref": "fix/dedupe-place-search-results",
+  "linked_prs": [
+    30
+  ],
+  "files": [
+    {
+      "path": "lib/places/searchPlaces.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c4182df79a20538e5671d4c6f5ee82172657cbec/lib/places/searchPlaces.ts"
+    }
+  ],
+  "commits": "c4182df79a20538e5671d4c6f5ee82172657cbec Deduplicate place search results",
+  "topics": [
+    "その他の開発"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "59283471a21a95bd609988efa114a5ca90cb2004f4cb7aa6d6d53e2cf2fe9bc1",
+  "collected_at": "2026-11-12T07:08:25.648007+00:00"
+}

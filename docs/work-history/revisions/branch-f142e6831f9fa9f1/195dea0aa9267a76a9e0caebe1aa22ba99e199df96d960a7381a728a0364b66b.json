@@ -1,0 +1,35 @@
+{
+  "id": "branch-f142e6831f9fa9f1",
+  "title": "docs/preflight-acceptance-20261109",
+  "head": "e0b050d6dd7bd7cf05fc37c17d3b58acdf0afd18",
+  "head_ref": "docs/preflight-acceptance-20261109",
+  "linked_prs": [
+    189
+  ],
+  "files": [
+    {
+      "path": "docs/WORK_HISTORY_PREFLIGHT_ACCEPTANCE.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e0b050d6dd7bd7cf05fc37c17d3b58acdf0afd18/docs/WORK_HISTORY_PREFLIGHT_ACCEPTANCE.md"
+    },
+    {
+      "path": "docs/work-history/curated.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e0b050d6dd7bd7cf05fc37c17d3b58acdf0afd18/docs/work-history/curated.json"
+    }
+  ],
+  "commits": "e0b050d6dd7bd7cf05fc37c17d3b58acdf0afd18 docs(history): record live automatic review-required check\nfcf44a1d6ab4bedb3588db227eaf64ddb3d4a2be docs(history): retain preflight acceptance and reuse findings",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "bdcbebf2753fb0ae10362d138970bafd0086b56e2a827fa8705cd6f72d22a14c",
+  "collected_at": "2026-11-12T07:08:25.648007+00:00"
+}

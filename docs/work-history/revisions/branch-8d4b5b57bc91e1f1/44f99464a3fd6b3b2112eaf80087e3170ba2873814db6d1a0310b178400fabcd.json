@@ -1,0 +1,44 @@
+{
+  "id": "branch-8d4b5b57bc91e1f1",
+  "title": "feat/feedback-observation-summary-20261022",
+  "head": "82afd04f7bfa636f7a1a3d70e37d5567d917d712",
+  "head_ref": "feat/feedback-observation-summary-20261022",
+  "linked_prs": [
+    69
+  ],
+  "files": [
+    {
+      "path": "app/components/NotificationFeedbackHistory.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/82afd04f7bfa636f7a1a3d70e37d5567d917d712/app/components/NotificationFeedbackHistory.tsx"
+    },
+    {
+      "path": "lib/weather/rain/feedbackPhase1.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/82afd04f7bfa636f7a1a3d70e37d5567d917d712/lib/weather/rain/feedbackPhase1.ts"
+    },
+    {
+      "path": "tests/feedbackPhase1.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/82afd04f7bfa636f7a1a3d70e37d5567d917d712/tests/feedbackPhase1.test.ts"
+    }
+  ],
+  "commits": "82afd04f7bfa636f7a1a3d70e37d5567d917d712 fix: distinguish observed-at-an-unknown-time answers from notification-time facts\n77b505e807f7999d19ec0b4e10110d40227c4568 test: separate eyewitness observations from unknown answers\n80cd9f45f5c7883c30814b7db5ea50ba147d2b56 feat: show compact eyewitness feedback breakdown by watched place\n2d9c5ce58fafc95d10989c7b030c950fb25ac69c feat: count reported rain outcomes without claiming forecast accuracy",
+  "topics": [
+    "雨量・全国検知",
+    "通知・配信",
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "870d91599bd8f67e6f8a918387bbe97550aa103413efe18eec52e6031a4b6c14",
+  "collected_at": "2026-11-12T07:08:25.648007+00:00"
+}

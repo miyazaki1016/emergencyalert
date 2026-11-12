@@ -1,0 +1,43 @@
+{
+  "id": "branch-bceed20172c1f87d",
+  "title": "docs/require-confirmed-preflight-20261110",
+  "head": "77ddf8dfcbc3fd94e6683b6243a4bfb302345751",
+  "head_ref": "docs/require-confirmed-preflight-20261110",
+  "linked_prs": [
+    201
+  ],
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/77ddf8dfcbc3fd94e6683b6243a4bfb302345751/AGENTS.md"
+    },
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/77ddf8dfcbc3fd94e6683b6243a4bfb302345751/docs/PROJECT_OVERVIEW.md"
+    },
+    {
+      "path": "docs/WORK_HISTORY_PREFLIGHT.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/77ddf8dfcbc3fd94e6683b6243a4bfb302345751/docs/WORK_HISTORY_PREFLIGHT.md"
+    }
+  ],
+  "commits": "77ddf8dfcbc3fd94e6683b6243a4bfb302345751 docs: require confirmed preflight before any case work",
+  "topics": [
+    "開発管理",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "a22ecb117823dac09cfc13aedbc8b4a82e2b1ff4ee430d9ba7f88796a21bf9ee",
+  "collected_at": "2026-11-12T07:08:25.648007+00:00"
+}

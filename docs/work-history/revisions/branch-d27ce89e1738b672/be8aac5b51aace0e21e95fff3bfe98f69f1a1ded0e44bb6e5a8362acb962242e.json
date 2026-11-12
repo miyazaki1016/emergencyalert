@@ -1,0 +1,42 @@
+{
+  "id": "branch-d27ce89e1738b672",
+  "title": "research/rain-lab-five-frame-differences-20261105",
+  "head": "0ae9da31f65a2afe184a6efd36628a0ac1c2bda3",
+  "head_ref": "research/rain-lab-five-frame-differences-20261105",
+  "linked_prs": [
+    165
+  ],
+  "files": [
+    {
+      "path": "docs/research/RAIN_LAB_FIVE_FRAME_DIFF_AUDIT_20261105.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0ae9da31f65a2afe184a6efd36628a0ac1c2bda3/docs/research/RAIN_LAB_FIVE_FRAME_DIFF_AUDIT_20261105.md"
+    },
+    {
+      "path": "docs/sql/rain-lab-hysteresis-audit.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0ae9da31f65a2afe184a6efd36628a0ac1c2bda3/docs/sql/rain-lab-hysteresis-audit.sql"
+    },
+    {
+      "path": "docs/sql/rain-lab-paired-threshold-audit.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0ae9da31f65a2afe184a6efd36628a0ac1c2bda3/docs/sql/rain-lab-paired-threshold-audit.sql"
+    }
+  ],
+  "commits": "0ae9da31f65a2afe184a6efd36628a0ac1c2bda3 docs: capture six overnight rain notifications and investigation criteria\n8aebb1498609fd6f9076292eb775a1503f06a19d docs: add owner-scoped paired 20 vs 40 percent rain threshold audit\n33f5d0348e6db11dc21e0d04233f17395eb1aa56 docs: enforce matching stored radar labels between point and area scores\n52cfa698ab4083522dfb276620dfa51f8e5b28d3 docs: expose point and area false/missed rain in hysteresis audit output\n9aeb900dc4f8f3635a5a3025f7d2b867b15387cd fix(docs): distinguish dry threshold from actual rain-release transition\n2b7274a18088d58e7fb2d6e9af2efff1a2ed10db docs: record executed 30,940-case monotonicity check and scope limits\n70d719ed8c0d11247b1a5392f000d96985b40d9b docs: prove nested rain states across area thresholds and qualify false-rain equality\na2b5d591895010c778ae7b9fe74cf17fc5b570be fix(docs): repair malformed rain lab audit SQL and remove duplicated tail\n06c817b220cca208e4fe8a5d156fcb0775d09e30 docs: record audit execution and reproducibility safeguards\nc4e51f81f94fc6209140e8cdbad93513a70ffa26 docs: consolidate guarded SQL and full-series predecessor semantics\n36dc2cd13f096a921a0b294d66ceff18e2f43115 docs: attribute carried rain using full area series predecessor\n459c8d06b749f121232d6957bb6b62deccd52582 docs: add guarded read-only rain lab hysteresis audit query\n602e5154f0a4d7b555fdd2ad23e35610bc24e71f docs: audit shadow image limit and unordered feature selection\n3afe7a5b03d940af4a8e4ecbd46b96110cdbb53d docs: verify shadow series uniqueness by generator construction\n4527bf86288b3b14f6da13d8d119bf94ce065eb3 docs: add preflight duplicate-key checks for all three shadow series\n205dd370164d933fb3975f6c47aa74926bf3a699 docs: fix SQL feature join multiplicity before lag attribution\nd16b043057eae7dc566937b8bb13ea799edae484 docs: prepare scoped common-frame SQL with fixed time and privacy guard\nf1433d388759fe6552e1e61f7d564f10f1279ef5 docs: audit SQL population, UTC handling and shared-frame parity\nf9339221ca679ff48d9a3b90fe3a0c274269ee12 docs: prepare unexecuted read-only SQL for hysteresis attribution\n76cf1b84601c05d8a83deb3eb2bb0acfa82f6435 docs: specify read-only attribution audit for hysteresis false positives\n334bbf69d7f065203f3ab62b18375f935440f77b docs: audit hysteresis tests and limits of false-positive comparison\n844b4af2ebcb6c3a9585f42fb130ac04ca55eb19 docs: verify area hysteresis source and explain two carried-forward rain frames\n1b3c578123e7845b29decb0b55932f8ea4468c0c docs: distinguish radar transition explanations from area forecast hysteresis\nc11bf978647603042359e361ad640e2d730f7e53 docs: clarify rain area start and release threshold semantics\n5d5ef53e69198133528342607f52a18fa6570c62 docs: clarify paired-frame metric semantics and daily analysis blocker\nabae981131daa05b879561ddb086c11b8ebe6ddd docs: record five-frame metrics and threshold-wide accuracy audit\nd67188dcc1167821d580b27173183e81ccee909e docs: define reproducible five-frame rain-area investigation protocol\n5afc1b48c8b9c9dc6b659e112807941bdafc0b34 docs: verify three expired rain-lab frames and their verdicts\nde49ddaf10168ac08c16cc9f2034ae777a192f86 docs: record read-only production DB comparison and 170 vs 173 reconciliation gap\n1a40d8a2052f9b7d3c11ce3be5c42620287bc6da docs: add read-only production aggregate confirming five point-area differences\n48f86b2626a69bf154abe3fba4ed5a1b76897243 docs: verify exact common-frame scoring and missing-truth semantics\n1171d5b21b1e33ad5b0e66aada9150ebd23c361e docs: document rain lab frame comparison and unresolved per-frame differences",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "a769a9309788acc48cff4e34cdb9d4675daaee15f2c8faa8b6b795145f1f6224",
+  "collected_at": "2026-11-12T07:08:25.648007+00:00"
+}

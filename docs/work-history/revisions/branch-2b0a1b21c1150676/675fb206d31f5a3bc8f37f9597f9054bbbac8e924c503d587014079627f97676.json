@@ -1,0 +1,98 @@
+{
+  "id": "branch-2b0a1b21c1150676",
+  "title": "feat/vercel-quota-monitor-20261105",
+  "head": "2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8",
+  "head_ref": "feat/vercel-quota-monitor-20261105",
+  "linked_prs": [
+    164
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/vercel-quota-monitor-tests.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/.github/workflows/vercel-quota-monitor-tests.yml"
+    },
+    {
+      "path": "docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/docs/operations/VERCEL_SHARED_DEPLOYMENT_POLICY_20261106.md"
+    },
+    {
+      "path": "scripts/vercel_quota_monitor.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_quota_monitor.py"
+    },
+    {
+      "path": "scripts/vercel_release_request_journal.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_journal.py"
+    },
+    {
+      "path": "scripts/vercel_release_request_policy.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_policy.py"
+    },
+    {
+      "path": "scripts/vercel_release_request_simulation.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/scripts/vercel_release_request_simulation.py"
+    },
+    {
+      "path": "tests/rainLabGrade.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/rainLabGrade.test.ts"
+    },
+    {
+      "path": "tests/test_vercel_quota_monitor.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_quota_monitor.py"
+    },
+    {
+      "path": "tests/test_vercel_release_request_journal.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_journal.py"
+    },
+    {
+      "path": "tests/test_vercel_release_request_policy.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_policy.py"
+    },
+    {
+      "path": "tests/test_vercel_release_request_simulation.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8/tests/test_vercel_release_request_simulation.py"
+    }
+  ],
+  "commits": "2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8 docs: identify missing main workflow_dispatch prerequisite and correct CI recovery path\n79580cf1028448ba77318c8cf44fdab80e046035 fix: close SQLite journal connections after offline transaction simulations\nc68aec5efc5d6eae692f1957dca4c339fd4d9722 docs: separate offline SQLite transaction prototype from production distributed locking\na5a24675a384501b11c8ba4e261871766b29464e ci: include offline transactional journal tests in quota monitor workflow\n7c1644b3222f7d1492f660be5b71ba420495dcd5 fix: fail closed on malformed unhashable project in offline journal\n3ae7026ef234157b316ae0063cdb18d0b10b463e test: offline transaction and shared ledger concurrency with no Vercel access\n5f31f34af3a77fad8fab08331b5fd32993b38460 prototype: transactional offline SQLite release request journal without deploy path\nd535dd263b5fc8b0dac1585d1f9751431dc24045 docs: record offline concurrency-only verification scope and CI limitations\n46a005a29f0aaca1ad95c0dcb7d5ac611b7de9e0 ci: include concurrent release-request simulator tests\nc2a2a6335e84e088d574341d074d5951482dd069 test: offline concurrent dedup, voluntary reserves, stale SHA and fail closed\nac23f17ec4812b8573e0cebf6d1f8bf941d5fdfe test-design: model atomic concurrent request admission without production access\nbd4a681a605c15be897508ecbc45f1d02daccf7d docs: assess official quota API and design non-enforcing GitHub approval gate\nae20481ea4edf0ac59153e455f67ab84195f8fb5 ci: include dry-run release policy tests and allow PR metadata retrigger\n9fe395086c9103eaaa4de5177e532347bbf05eec fix: fail closed on malformed project identifier\n714779c8e68cdddf3fe82d6d925a59fb9eedfab2 test: verify offline approval, reserve, dedup, stale SHA and failure holds\nb59aa26f401ccf0d3566a9e449ae7d50f9ad3689 feat: add offline-only manual release request policy (never deploys)\n56fe1fc85725c7f88931e5e77ed353a540a2e5eb docs: record authoritative-quota gap and safe gate prerequisites\n9ff1861cf889df7b086fd15d38116b0fe7f40b4d test: cover strict two-project scope and fail-closed pagination\n0dbc76f260f5da39543f7ceb1b937f2e76ce160e fix: fail closed on unknown project scope and incomplete Vercel pagination\n7e61e6c7fc653735dcc327fa2e1ade34beb4dab1 test: malformed Vercel response must not appear as zero activity\nf36105513c1015f21952623427f6bbd52c3bcc44 fix: fail closed when Vercel deployments API returns malformed data\n61f58b4efc5debbc101eec59c99821eb4ff81992 test: run rain lab grade checks under Vitest in PR CI\n96d1b7244f8e75b73fdb2485e8c30a964ebd273a docs: verify Vercel Hobby limits and record unrelated CI blocker\n7d40a5997e100f3bb6495870993a811d80b7d484 test: ensure monitor never authorizes automatic production gating\nc8cfb4fd5ab49d0c6e78c3a6c66f3c4178947d57 fix: restore Python newlines in explicit quota safety flags\n358ab030929dc3a2d42e08d30dd807c2cf222a3c fix: explicitly prohibit quota gating from deployment record counts\nb098bf90f1cf73d606d8e4be476b1ee22a88f2ca docs: mark production permission issue resolved and keep quota gate disabled\n900497857cfb4f960057459f0489c31ea1961787 docs: define safe shared Vercel deployment policy and release gates\na05ecc3146c59c55f6b77f7d152c434e7231302d fix: permit verified default scope when team ID omitted\n5ed0ef9c67f5f498c51bde10b2a6851cca949953 fix: replace escaped newline literals in quota monitor\n08876bf1fa60b7badf6fcb11c35ddb0d8b449e70 fix: repair malformed test source after CI syntax error\n0070c34941498704e7c0a183e4ddfcd8025a9cd2 test: fail closed if either project is missing from default Vercel scope\n9f2bcc7eb1fd3a5907db02fee2ac33e1bd24386d fix: verify both projects when Vercel default scope is used\n2b77505b751674f8c6dd204adf4c574bfb2fba50 ci: test read-only Vercel quota monitor without credentials\ne1306f89bd5773f2c3403052c2d94c07b34eb5c8 test: cover Vercel monitor windows and failure handling\n24c8e1e73623db259702a99c50c001bb8789e8c6 feat: add read-only Vercel deployment activity monitor",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "f2f14af78b8a0b4e5752d5159c1fd5fabc03cb2295feaf905d875d167cb921e1",
+  "collected_at": "2026-11-12T07:08:25.648007+00:00"
+}
