@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildForecastPostCandidates, significantForecastChanges, planForecastPublication } from "./nationalForecastBluesky";
+import { buildForecastPostCandidates, significantForecastChanges, planForecastPublication, prepareClaimedForecastPublication, type ForecastPublicationStore } from "./nationalForecastBluesky";
 import type { NationalForecastSnapshot } from "./nationalForecastSnapshot";
 const snapshot = (areas: Array<{code:string;minimumMmPerHour:30|50|80}>): NationalForecastSnapshot => ({
  source:"JMA",n03Version:"20260101",basetime:"20261112120000",
@@ -63,6 +63,36 @@ describe("national forecast Bluesky candidate",()=>{
   const plan=planForecastPublication(current,previous);
   expect(plan?.candidates).toEqual([]);
   expect(plan?.nextSnapshot).toBe(current);
+ });
+
+ it("requires an atomic claim before preparing a publication",async()=>{
+  let claimed=false;
+  const current=snapshot([{code:"13108",minimumMmPerHour:50}]);
+  const store:ForecastPublicationStore={
+   claim:async()=>{if(claimed)return false;claimed=true;return true;},
+   getPrevious:async()=>null,
+   complete:async()=>{},
+   release:async()=>{claimed=false;},
+  };
+  const [first,second]=await Promise.all([
+   prepareClaimedForecastPublication(current,store),
+   prepareClaimedForecastPublication(current,store),
+  ]);
+  expect([first,second].filter(Boolean)).toHaveLength(1);
+  expect(first?.plan.candidates).toEqual([]);
+  await first?.release();
+ });
+ it("releases a claim if loading the previous baseline fails",async()=>{
+  const current=snapshot([]);
+  let released=false;
+  const store:ForecastPublicationStore={
+   claim:async()=>true,
+   getPrevious:async()=>{throw new Error("storage unavailable");},
+   complete:async()=>{},
+   release:async()=>{released=true;},
+  };
+  await expect(prepareClaimedForecastPublication(current,store)).rejects.toThrow("storage unavailable");
+  expect(released).toBe(true);
  });
 
 });
