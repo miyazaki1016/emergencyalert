@@ -2,6 +2,7 @@
  * Fail closed when the requested candidate set exceeds the tile budget.
  * Usage: npx tsx scripts/light-rain-z10-refine.ts <47-N03-root>
  */
+import { setTimeout as delay } from "node:timers/promises";
 import { requireCompleteNationwideN03 } from "../lib/weather/rain/lightRainNationwideN03";
 import { fetchForecastTargetTimes, type JmaTargetTime } from "../lib/weather/providers/jma/targetTimes";
 import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
@@ -121,25 +122,47 @@ async function main() {
   const indexed = coverage.areas.map(area => ({ area, b: bbox(area) }));
   const areaByCode = new Map(coverage.areas.map(area => [area.code, area]));
   const n03LoadAndIndex = Math.round(performance.now() - started);
-  const targets = await fetchForecastTargetTimes((input, init) =>
-    fetch(input, { ...init, signal: AbortSignal.timeout(25_000) }));
-  const frames = selectFrames(targets, Date.now());
-  const results = [];
-  for (const frame of frames) results.push(await refineFrame(frame, indexed, areaByCode));
+  let previousBase: string | undefined;
+  const update = async () => {
+    const scanStarted = performance.now();
+    const targets = await fetchForecastTargetTimes((input, init) =>
+      fetch(input, { ...init, signal: AbortSignal.timeout(25_000) }));
+    const frames = selectFrames(targets, Date.now());
+    if (frames[0].basetime === previousBase) return;
+    const results = [];
+    for (const frame of frames) results.push(await refineFrame(frame, indexed, areaByCode));
 
-  console.log(JSON.stringify({
-    mode: "READ_ONLY_Z10_REAL_JMA_N03",
-    basetime: frames[0].basetime,
-    checkedAt: new Date().toISOString(),
-    prefectures: coverage.prefectures,
-    municipalityDatasetSize: coverage.municipalities,
-    thresholdMmPerHour: 1,
-    timingMs: { n03LoadAndIndex, total: Math.round(performance.now() - started) },
-    frames: results,
-    publication: false,
-    productionWrites: false,
-    blueskyPosts: false,
-  }));
+    if (Date.now() - forecastTime(frames[0].basetime) >= 2 * FIVE_MINUTES) {
+      throw new Error("JMA forecast expired before the scan finished");
+    }
+    console.log(JSON.stringify({
+      mode: "READ_ONLY_Z10_REAL_JMA_N03",
+      basetime: frames[0].basetime,
+      checkedAt: new Date().toISOString(),
+      prefectures: coverage.prefectures,
+      municipalityDatasetSize: coverage.municipalities,
+      thresholdMmPerHour: 1,
+      timingMs: { n03LoadAndIndex, total: Math.round(n03LoadAndIndex + performance.now() - scanStarted) },
+      frames: results,
+      publication: false,
+      productionWrites: false,
+      blueskyPosts: false,
+    }));
+    previousBase = frames[0].basetime;
+  };
+
+  if (!process.argv.includes("--watch")) return update();
+  while (true) {
+    try {
+      await update();
+    } catch (error) {
+      console.error(error);
+    }
+    // Let JMA publish the new cycle before polling the next five-minute slot.
+    const now = Date.now();
+    const offset = 120_000;
+    await delay(FIVE_MINUTES - (now - offset) % FIVE_MINUTES);
+  }
 }
 
 main().catch(error => { console.error(error); process.exitCode = 1; });
