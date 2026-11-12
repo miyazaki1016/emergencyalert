@@ -116,8 +116,16 @@ jobs:
           JMA_WATCH_SUCCESS_COUNT: "2"
         run: |
           set -euo pipefail
-          npx tsx scripts/light-rain-z10-refine.ts /tmp/n03-local --watch | tee nationwide-rain-watch.jsonl
+          npx tsx scripts/light-rain-z10-refine.ts /tmp/n03-local --watch 2>&1 | tee nationwide-rain-watch.jsonl
           tail -n 1 nationwide-rain-watch.jsonl > nationwide-rain-z10.json
+      - name: Preserve nationwide five-minute watch diagnostics even on failure
+        if: always() && steps.z10.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nationwide-rain-watch-diagnostics
+          path: nationwide-rain-watch.jsonl
+          retention-days: 7
+          if-no-files-found: warn
       - uses: actions/upload-artifact@v4
         if: steps.z10.outcome == 'success'
         with:
