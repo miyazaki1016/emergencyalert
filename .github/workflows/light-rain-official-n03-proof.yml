@@ -9,6 +9,8 @@ on:
       - "lib/weather/rain/lightRainOfficialN03.ts"
       - "lib/weather/rain/lightRainMunicipalities.ts"
       - "lib/weather/rain/lightRainAdministrativeAreas.ts"
+      - "lib/weather/rain/lightRainNationwideN03.ts"
+      - "lib/weather/rain/lightRainNationwideN03.test.ts"
   workflow_dispatch:
 
 permissions:
