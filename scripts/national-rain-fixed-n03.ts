@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { access, rename, rm, writeFile } from "node:fs/promises";
+import { access, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 import { fetchForecastTargetTimes, type JmaTargetTime } from "../lib/weather/providers/jma/targetTimes";
 import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
 import { heavyRainAreaPolygons, scanHeavyRainTile } from "../lib/weather/rain/nationalHeavyRain";
@@ -9,6 +10,7 @@ import { N03_PREFECTURE_INDEX_2026 } from "../lib/weather/rain/n03PrefectureInde
 import { resolveNationalRainMunicipalities } from "../lib/weather/rain/nationalRainMunicipalityResolver";
 import { stagedRefinementJobsFromCoarseCandidates } from "../lib/weather/rain/nationalRainQueue";
 import { readNationalForecastSnapshot } from "../lib/weather/rain/nationalForecastSnapshot";
+import { decideNationalRainCycle, latestForecastBasetime, shouldRetainUnresolvedRetry } from "../lib/weather/rain/nationalRainCycle";
 import { localPreparedLoader } from "./national-rain-proof-n03";
 
 const japanTiles = [[13, 5], [14, 5], [13, 6], [14, 6], [13, 7], [14, 7]] as const;
@@ -22,12 +24,35 @@ function jmaTimestamp(time: number) {
   return new Date(time).toISOString().slice(0, 19).replace(/\D/g, "");
 }
 
+function fetchForecasts(signal?: AbortSignal) {
+  const timeout = AbortSignal.timeout(15_000);
+  return fetchForecastTargetTimes((input, init) =>
+    fetch(input, { ...init, signal: signal ? AbortSignal.any([signal, timeout]) : timeout }),
+  );
+}
+
+async function ensureCurrent(basetime: string, signal?: AbortSignal) {
+  const latest = latestForecastBasetime(await fetchForecasts(signal));
+  if (!shouldRetainUnresolvedRetry({ retryBasetime: basetime, latestCandidateBasetime: latest })) {
+    throw new Error(`Forecast ${basetime} superseded by ${latest}`);
+  }
+}
+
 async function scanForecast(frame: JmaTargetTime, load: ReturnType<typeof localPreparedLoader>["load"]) {
   const signal = AbortSignal.timeout(60_000);
   async function fetchTile(zoom: number, x: number, y: number) {
-    const response = await fetch(buildJmaRainTileUrl(frame, zoom, x, y), { signal });
-    if (!response.ok) throw new Error(`JMA tile unavailable: ${frame.validtime} z${zoom}/${x}/${y} (${response.status})`);
-    return Buffer.from(await response.arrayBuffer());
+    const url = buildJmaRainTileUrl(frame, zoom, x, y);
+    for (let attempt = 0; ; attempt++) {
+      const response = await fetch(url, { signal });
+      if (response.ok) return Buffer.from(await response.arrayBuffer());
+      await response.body?.cancel();
+      if (attempt >= 2 || ![404, 408, 429, 500, 502, 503, 504].includes(response.status)) {
+        throw new Error(`JMA tile unavailable: ${frame.validtime} z${zoom}/${x}/${y} (${response.status})`);
+      }
+      // Keep this retry inside the frame budget; stop if JMA has moved on.
+      await delay(2_000 * (attempt + 1), undefined, { signal });
+      await ensureCurrent(frame.basetime, signal);
+    }
   }
 
   const coarse = (await Promise.all(japanTiles.map(async ([x, y]) =>
@@ -67,13 +92,26 @@ async function main() {
   await Promise.all(N03_PREFECTURE_INDEX_2026.map(({ code }) => access(join(directory, `${code}.areas.json`))));
   const { load } = localPreparedLoader(directory);
 
-  const forecasts = await fetchForecastTargetTimes((input, init) =>
-    fetch(input, { ...init, signal: AbortSignal.timeout(15_000) }),
-  );
+  const output = process.env.NATIONAL_RAIN_SNAPSHOT_PATH;
+  const forecasts = await fetchForecasts();
   const now = Date.now();
   const start = jmaTimestamp(now);
   const end = jmaTimestamp(now + 30 * 60_000);
-  const basetime = forecasts.map(frame => frame.basetime).sort().at(-1);
+  let lastCompletedBasetime: string | undefined;
+  if (output) {
+    try {
+      const previous = readNationalForecastSnapshot(JSON.parse(await readFile(output, "utf8")), now);
+      if (previous.n03Version === N03_DATASET_DATE) lastCompletedBasetime = previous.basetime;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code && (error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
+  }
+  const cycle = decideNationalRainCycle(forecasts, { lastCompletedBasetime });
+  if (cycle.action === "SKIP") return;
+  const { basetime } = cycle;
+  if (lastCompletedBasetime && basetime < lastCompletedBasetime) {
+    throw new Error("JMA returned a forecast older than the published snapshot");
+  }
   const frames = forecasts.filter(frame =>
     frame.basetime === basetime && frame.validtime > start && frame.validtime <= end,
   );
@@ -88,11 +126,10 @@ async function main() {
   for (const frame of frames) {
     results.push({ validTime: frame.validtime, municipalities: await scanForecast(frame, load) });
   }
-  if (results[0].validTime <= jmaTimestamp(Date.now())) throw new Error("Forecast expired during the scan");
+  await ensureCurrent(basetime);
   const snapshot = { source: "JMA", n03Version: N03_DATASET_DATE, basetime, frames: results };
   readNationalForecastSnapshot(snapshot);
   const json = JSON.stringify(snapshot, null, 2);
-  const output = process.env.NATIONAL_RAIN_SNAPSHOT_PATH;
   if (!output) {
     console.log(json);
     return;
