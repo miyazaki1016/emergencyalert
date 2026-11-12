@@ -4,9 +4,7 @@ import { buildJmaRainTileUrl } from "../providers/jma/tileUrl";
 import { scanJmaTileAtLeast1mm } from "./lightRainProof";
 
 /** Opt-in network proof only. CI and production never contact JMA through this test. */
-// Temporary one-shot PR proof: revert this CI gate after evidence is collected.
-const live = process.env.RUN_JMA_LIGHT_RAIN_LIVE === "1" ||
-  (process.env.GITHUB_ACTIONS === "true" && process.env.GITHUB_HEAD_REF === "feat/national-rain-1mm-dry-run-216");
+const live = process.env.RUN_JMA_LIGHT_RAIN_LIVE === "1";
 const tiles = [[13, 5], [14, 5], [13, 6], [14, 6], [13, 7], [14, 7]] as const;
 const toMillis = (value: string) => Date.UTC(
   +value.slice(0, 4), +value.slice(4, 6) - 1, +value.slice(6, 8),
