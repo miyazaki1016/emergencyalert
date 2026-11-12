@@ -44,13 +44,15 @@ class HistoryTests(unittest.TestCase):
         for query in ['503 リトライ','503を取り直してる間に次の7分が来たら？']:
             self.assertEqual(history.search({'pr-42':case},query), [case])
         case['runs'][0]['head_sha'] = head
-        proof = history.decision_candidates(case,'test/repo')[0]
+        case['decisions'] = history.decision_candidates(case,'test/repo')
+        proof = case['decisions'][0]
         self.assertIn('1件復帰', proof['verification'])
         self.assertIn(f'{root}/actions/runs/7', proof['links'])
         with tempfile.TemporaryDirectory() as temp:
             history.render_output({'generated_at':'now','cases':{'pr-42':case},'coverage':{'errors':[]}},temp,'test/repo')
             index = json.loads(Path(temp,'search-index.json').read_text())['cases'][0]
             self.assertIn('503を取り直してる間に次の7分が来たら？',index['search_text'])
+            self.assertIn('1件復帰', index['search_text'])
 
     def test_phone_search_retains_code_conditions_and_main_status(self):
         with tempfile.TemporaryDirectory() as temp:

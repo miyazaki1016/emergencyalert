@@ -255,6 +255,8 @@ def decision_search_text(case):
     parts = []
     for row in rows:
         text = ' '.join(row[key] for key in ('title', 'condition', 'behavior'))
+        if row['kind'] == 'proof':
+            text += ' ' + row['verification']
         if re.search(r'retry|re-fetch|再取得', text, re.I):
             text += ' リトライ 再取得 取り直し'
         if re.search(r'older.*newer|newer.*older', text, re.I):
