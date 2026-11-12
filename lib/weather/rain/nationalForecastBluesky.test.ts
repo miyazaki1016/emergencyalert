@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildForecastPostCandidates, significantForecastChanges } from "./nationalForecastBluesky";
+import { buildForecastPostCandidates, significantForecastChanges, planForecastPublication } from "./nationalForecastBluesky";
 import type { NationalForecastSnapshot } from "./nationalForecastSnapshot";
 const snapshot = (areas: Array<{code:string;minimumMmPerHour:30|50|80}>): NationalForecastSnapshot => ({
  source:"JMA",n03Version:"20260101",basetime:"20261112120000",
@@ -46,6 +46,23 @@ describe("national forecast Bluesky candidate",()=>{
   const clear=snapshot([]);
   const returned=snapshot([{code:"13108",minimumMmPerHour:50}]);
   expect(significantForecastChanges(returned,clear)).toHaveLength(1);
+ });
+
+ it("does not process a repeated or out-of-order baseline",()=>{
+  const previous=snapshot([{code:"13108",minimumMmPerHour:30}]);
+  const repeated=snapshot([{code:"13108",minimumMmPerHour:80}]);
+  expect(planForecastPublication(repeated,previous)).toBeNull();
+  repeated.basetime="20261112115500";
+  expect(planForecastPublication(repeated,previous)).toBeNull();
+ });
+ it("advances a newer baseline even when there is no meaningful change",()=>{
+  const previous=snapshot([{code:"13108",minimumMmPerHour:50}]);
+  const current=snapshot([{code:"13108",minimumMmPerHour:50}]);
+  current.basetime="20261112120500";
+  current.frames[0].validTime="20261112121000";
+  const plan=planForecastPublication(current,previous);
+  expect(plan?.candidates).toEqual([]);
+  expect(plan?.nextSnapshot).toBe(current);
  });
 
 });
