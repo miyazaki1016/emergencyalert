@@ -13,14 +13,22 @@
     "pr-21",
     "pr-23"
   ],
+  "app/api/rain/national-forecast/route.ts": [
+    "branch-8ac7382a5a280d93",
+    "branch-d47e9b0dcd4ebc9b",
+    "pr-210",
+    "pr-211"
+  ],
   "app/api/rain/national-preview/route.test.ts": [
     "branch-2d0caa2b5330cf58",
+    "branch-8ac7382a5a280d93",
     "pr-181"
   ],
   "app/api/rain/national-preview/route.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-181",
     "pr-59"
   ],
@@ -28,6 +36,7 @@
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-181",
     "pr-59"
   ],
@@ -35,6 +44,7 @@
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-181",
     "pr-59"
   ],
@@ -42,12 +52,15 @@
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
+    "pr-210",
     "pr-59"
   ],
   "app/api/rain/national-worker/route.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "app/api/rain/route.ts": [
@@ -63,6 +76,12 @@
   "app/components/DeveloperLabLink.tsx": [
     "branch-dbcfae267568d52d",
     "pr-102"
+  ],
+  "app/components/NationalHeavyRainForecast.tsx": [
+    "branch-8ac7382a5a280d93",
+    "branch-d47e9b0dcd4ebc9b",
+    "pr-210",
+    "pr-211"
   ],
   "app/components/NotificationFeedbackHistory.tsx": [
     "branch-091c543ebb50d507",
@@ -246,7 +265,9 @@
   "app/layout.tsx": [
     "branch-50e63eed8ecf47eb",
     "branch-8850eea2b9e8ed04",
+    "branch-d47e9b0dcd4ebc9b",
     "pr-2",
+    "pr-211",
     "pr-42",
     "pr-43",
     "pr-44",
@@ -289,11 +310,13 @@
     "branch-5ae89a497357326f",
     "branch-827c5e290502cb7e",
     "branch-87d4561c05ed70fb",
+    "branch-8ac7382a5a280d93",
     "branch-91ead96821aaeff5",
     "branch-a5f2511bf36597a1",
     "branch-aeef70603b294028",
     "branch-b5bac1644f15f8e7",
     "branch-b71ab24ac30a1cb5",
+    "branch-d47e9b0dcd4ebc9b",
     "branch-db53b568abce0bbd",
     "branch-dbcfae267568d52d",
     "branch-ed8571ecfbfa4b90",
@@ -304,6 +327,8 @@
     "pr-11",
     "pr-14",
     "pr-15",
+    "pr-210",
+    "pr-211",
     "pr-22",
     "pr-27",
     "pr-29",
@@ -606,12 +631,14 @@
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/administrativeAreas.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/auditEndingRadarProxy.ts": [
@@ -622,12 +649,14 @@
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/boundedChunkCache.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/canPublishRainInterpretation.test.ts": [
@@ -667,168 +696,208 @@
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/n03AdministrativeAreas.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/n03AdministrativeAreas.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/n03BoundedPartitionResolver.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/n03BoundedPartitionResolver.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/n03Dataset.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/n03Dataset.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/n03PartitionStorage.integration.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/n03PartitionStorage.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/n03PartitionStorage.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/n03PrefectureIndex2026.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/n03Prefectures.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/n03Prefectures.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/n03PreparedStorageContract.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/n03PreparedStorageLoader.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/n03PreparedStorageLoader.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
+  ],
+  "lib/weather/rain/nationalForecastSnapshot.test.ts": [
+    "branch-8ac7382a5a280d93",
+    "branch-d47e9b0dcd4ebc9b",
+    "pr-210",
+    "pr-211"
+  ],
+  "lib/weather/rain/nationalForecastSnapshot.ts": [
+    "branch-8ac7382a5a280d93",
+    "branch-d47e9b0dcd4ebc9b",
+    "pr-210",
+    "pr-211"
   ],
   "lib/weather/rain/nationalHeavyRain.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/nationalHeavyRain.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/nationalRainCycle.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/nationalRainCycle.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/nationalRainMunicipalities.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/nationalRainMunicipalities.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/nationalRainMunicipalityResolver.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/nationalRainMunicipalityResolver.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/nationalRainQueue.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/nationalRainQueue.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/nationalRainWorker.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/nationalRainWorker.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/notificationHistory.ts": [
@@ -859,36 +928,42 @@
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/townBoundaryDatasetValidation.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/townBoundaryGeometry.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/townBoundaryGeometry.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/townBoundaryManifest.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/townBoundaryManifest.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "lib/weather/rain/watchNotificationDecision.test.ts": [
@@ -930,18 +1005,21 @@
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/census-town-boundary-benchmark.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/census-town-boundary-topojson-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/check-jma-early-rain.ts": [
@@ -1064,306 +1142,361 @@
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/jma-404-reproduction-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/jma-sparse-tile-existence-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-administrative-area-benchmark.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-all47-polygon-inventory.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-bounded-partition-loader.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-bounded-partition-loader.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-clipped-js-equivalence.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-clipped-resolver-equivalence.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-hokkaido-partition-design-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-hokkaido-target-comparison.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-hokkaido-z8-feasibility.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-http-worker-readiness-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-national-index-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-oversized-clip-proof.py": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-package-all-local.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-package-all-local.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-parallel-invocation-readiness-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-partition-design-core.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-partition-design-core.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-partition-package.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-partition-package.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-prefecture-index.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-readiness-common.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-representative-readiness-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-selected-prefectures-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-sustained-worker-readiness-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-tokyo-live-rain-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/n03-tokyo-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-all47-ownership-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-deadline-worker.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-deadline-worker.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-forecast-lowzoom-validation.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-forecast-refinement-zoom-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-forecast-z4-screening-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-lowzoom-max-rank-proof.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-lowzoom-max-rank-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-ownership-summary.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-queue-aware-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-rain-budget-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
+  ],
+  "scripts/national-rain-fixed-n03.ts": [
+    "branch-8ac7382a5a280d93",
+    "pr-210"
   ],
   "scripts/national-rain-live-throughput-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-rain-proof-n03.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-rain-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-rain-readiness-scheduler-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-rain-scheduler-replay.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-rain-scheduler-replay.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-rain-stress-throughput-proof.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-rain-throughput-harness.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-rain-throughput-harness.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-region-ownership.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/national-region-ownership.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/pr_approval_routing.py": [
@@ -1386,12 +1519,14 @@
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/upload-n03-storage-data.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/vercel-build-guard.mjs": [
@@ -1428,6 +1563,7 @@
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "scripts/verify_ledger_proposal.py": [
@@ -1676,18 +1812,21 @@
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "supabase/migrations/20260930_create_national_rain_proof_cron.sql": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "supabase/migrations/20261006_create_national_rain_scan_cycles.sql": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
     "branch-64503a3847e876c9",
+    "branch-8ac7382a5a280d93",
     "pr-59"
   ],
   "supabase/migrations/20261029021418_notification_radar_replay.sql": [

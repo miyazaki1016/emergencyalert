@@ -1,0 +1,319 @@
+{
+  "id": "branch-f481c53a0ffb9f36",
+  "title": "feat/my-rain-notification-history-20261019",
+  "head": "784173985f676dc7f06d7a81275750e0ad07464e",
+  "head_ref": "feat/my-rain-notification-history-20261019",
+  "linked_prs": [
+    63
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/.github/workflows/ci.yml"
+    },
+    {
+      "path": "PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/PROJECT_OVERVIEW.md"
+    },
+    {
+      "path": "app/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/app/page.tsx"
+    },
+    {
+      "path": "docs/MY_RAIN_ASYMMETRIC_NOTIFICATION_VALIDATION_20261019.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/docs/MY_RAIN_ASYMMETRIC_NOTIFICATION_VALIDATION_20261019.md"
+    },
+    {
+      "path": "docs/MY_RAIN_DELIVERY_FINALIZATION_CHECKPOINT_20261021.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/docs/MY_RAIN_DELIVERY_FINALIZATION_CHECKPOINT_20261021.md"
+    },
+    {
+      "path": "docs/MY_RAIN_ENDING_RADAR_OFFLINE_AUDIT.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/docs/MY_RAIN_ENDING_RADAR_OFFLINE_AUDIT.md"
+    },
+    {
+      "path": "docs/MY_RAIN_FIELD_OBSERVATION_20261021.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/docs/MY_RAIN_FIELD_OBSERVATION_20261021.md"
+    },
+    {
+      "path": "docs/MY_RAIN_IPHONE_PREVIEW_CHECK_20261020.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/docs/MY_RAIN_IPHONE_PREVIEW_CHECK_20261020.md"
+    },
+    {
+      "path": "docs/MY_RAIN_PUSH_CRASH_CONCURRENCY_DESIGN_20261021.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/docs/MY_RAIN_PUSH_CRASH_CONCURRENCY_DESIGN_20261021.md"
+    },
+    {
+      "path": "docs/MY_RAIN_STAGED_ROLLOUT_GATE_20261020.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/docs/MY_RAIN_STAGED_ROLLOUT_GATE_20261020.md"
+    },
+    {
+      "path": "docs/sql/my-rain-notification-evidence.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/docs/sql/my-rain-notification-evidence.sql"
+    },
+    {
+      "path": "docs/sql/my-rain-notification-feedback.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/docs/sql/my-rain-notification-feedback.sql"
+    },
+    {
+      "path": "docs/sql/my-rain-notification-pending.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/docs/sql/my-rain-notification-pending.sql"
+    },
+    {
+      "path": "docs/sql/my-rain-push-outbox-prototype.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/docs/sql/my-rain-push-outbox-prototype.sql"
+    },
+    {
+      "path": "lib/weather/rain/auditEndingRadarProxy.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/lib/weather/rain/auditEndingRadarProxy.ts"
+    },
+    {
+      "path": "lib/weather/rain/feedbackTiming.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/lib/weather/rain/feedbackTiming.ts"
+    },
+    {
+      "path": "lib/weather/rain/notificationHistory.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/lib/weather/rain/notificationHistory.ts"
+    },
+    {
+      "path": "lib/weather/rain/persistNotificationFeedback.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/lib/weather/rain/persistNotificationFeedback.ts"
+    },
+    {
+      "path": "lib/weather/rain/previewCapabilities.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/lib/weather/rain/previewCapabilities.ts"
+    },
+    {
+      "path": "scripts/audit-ending-radar.mjs",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/scripts/audit-ending-radar.mjs"
+    },
+    {
+      "path": "supabase/functions/watch-rain/decisionEvidence.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/supabase/functions/watch-rain/decisionEvidence.ts"
+    },
+    {
+      "path": "supabase/functions/watch-rain/deliveryAttemptSafety.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/supabase/functions/watch-rain/deliveryAttemptSafety.ts"
+    },
+    {
+      "path": "supabase/functions/watch-rain/deliveryFinalization.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/supabase/functions/watch-rain/deliveryFinalization.ts"
+    },
+    {
+      "path": "supabase/functions/watch-rain/deliverySchemaCompat.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/supabase/functions/watch-rain/deliverySchemaCompat.ts"
+    },
+    {
+      "path": "supabase/functions/watch-rain/endingNoticeCandidate.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/supabase/functions/watch-rain/endingNoticeCandidate.ts"
+    },
+    {
+      "path": "supabase/functions/watch-rain/endingShadow.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/supabase/functions/watch-rain/endingShadow.ts"
+    },
+    {
+      "path": "supabase/functions/watch-rain/index.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/supabase/functions/watch-rain/index.ts"
+    },
+    {
+      "path": "tests/auditEndingRadarCli.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/tests/auditEndingRadarCli.test.ts"
+    },
+    {
+      "path": "tests/auditEndingRadarProxy.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/tests/auditEndingRadarProxy.test.ts"
+    },
+    {
+      "path": "tests/decisionEvidence.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/tests/decisionEvidence.test.ts"
+    },
+    {
+      "path": "tests/deliveryAttemptSafety.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/tests/deliveryAttemptSafety.test.ts"
+    },
+    {
+      "path": "tests/deliveryFinalization.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/tests/deliveryFinalization.test.ts"
+    },
+    {
+      "path": "tests/deliverySchemaCompat.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/tests/deliverySchemaCompat.test.ts"
+    },
+    {
+      "path": "tests/endingNoticeCandidate.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/tests/endingNoticeCandidate.test.ts"
+    },
+    {
+      "path": "tests/endingShadow.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/tests/endingShadow.test.ts"
+    },
+    {
+      "path": "tests/feedbackTiming.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/tests/feedbackTiming.test.ts"
+    },
+    {
+      "path": "tests/fixtures/ending-radar-sample.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/tests/fixtures/ending-radar-sample.json"
+    },
+    {
+      "path": "tests/notificationHistory.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/tests/notificationHistory.test.ts"
+    },
+    {
+      "path": "tests/persistNotificationFeedback.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/tests/persistNotificationFeedback.test.ts"
+    },
+    {
+      "path": "tests/previewCapabilities.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/tests/previewCapabilities.test.ts"
+    },
+    {
+      "path": "tests/sql/feedback-rls-integration.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/tests/sql/feedback-rls-integration.sql"
+    },
+    {
+      "path": "tests/sql/push-claim-integration.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/784173985f676dc7f06d7a81275750e0ad07464e/tests/sql/push-claim-integration.sql"
+    }
+  ],
+  "commits": "784173985f676dc7f06d7a81275750e0ad07464e test: lock deep-link ID parsing and reject invalid notification URLs\n5ee2807f2be93f3f5a909773020825030c1f52e3 refactor: share tested Push link parsing between fetch and focus\n5d12fa4e028838a3e45d36c36fa1b91d7696ec7e feat: centralize safe Push notification ID parsing\nc9f456d76c0395d18ea0cba4640d927affb55c5d fix: parse numeric Push notification ID correctly in both history lookup and focus\n53478e4ea8f7cd84d1aca7035f27e9cbb788144f test: unanswered counts and focused-Push behavior for feedback history\nb44ad746731c98eb3f4bf85bc4852e38dadb7ff2 feat: add unanswered-only notification history and feedback progress summary\nb54839dfbb432af687fade71e93ffaa1a6192bc0 feat: filter unanswered rainfall feedback while keeping deep-linked Push visible\ne75be5298f50d5c609ec3524956c94339a010035 docs: pin deferred must-do Push safety backlog issue #64 at top of project overview\nfcf7cf29b9e0a93d12729caf6bdc1ef47a68f88d docs: prioritize user-facing feedback implementation over operational failure hardening\ndc27ea2abb25c429245e2f87a411ae4c0d308e1d test: tapped notification prioritization and persisted answer labels\nd1116ae09b27d95ef42d5f775e30acdc58a7f661 feat: put tapped Push first and make saved weather feedback clearly visible\n4a3a3552d32dc824151f1ff734f0fabbf8240956 feat: helpers for focused notification and saved feedback indication\n4cd8be153606a564c7b26dd93fc1be3006b3b669 docs: preserve exact successful isolated outbox CI run and its test limits\n251f11b53bc5e4557d0a747770ad1fa217cdf479 docs: distinguish prototype DB uniqueness from true concurrent claims and worker integration\n4ac1db68d0064f9812b8deeb6ffbe29abd3d86ed ci: verify staged outbox claim schema on disposable PostgreSQL\nc35d169256b57fe6874171be0bf1c418211975b1 test: cover unique event and subscription send claims in isolated PostgreSQL\n6e619c4120ad6eb4c0c271960ea22dead259c55a docs/sql: stage private unique event and per-subscription outbox claim prototype\nf4ccb012d7b4ceed10e4f9fdb8d536ace068a015 docs: flag crash/concurrency outbox design as unintegrated and block rollout\nf9e29b306379f0a7591e6d36d966ef2b93ab44bf docs: define crash and concurrent Push deduplication contract and test limits\n729d1bdaf1c1f345c1f3ffe826907efe4914219f test: simulate concurrent claims, crashes, timeout, and late Push outcomes\n1343f0c9a4e48d1c1b2c1009d6a4aa89d76a099b testable design: model unknown Push outcomes without automatic resends\n61a17aa4ad757d55b3a40812192cb36fdac6913c docs: record successful finalization unit-test CI with exact workflow run\nd07675f66db9a4d61e20780c5c9ff68d7283a743 docs: checkpoint delivery finalization reliability and remaining release gates\nfbc409ad0fe722f07b40b4cbf3438dc78672685d docs: specify bounded delivery finalization, incident reconciliation, and no exactly-once claim\n7da92198683d0a746e7f93bfe30ddc55f2ac7dca test: cover delivery finalize success, timeout, retry, unknown and no zero-row feedback\naea51b2b9bcd9eb5e6e50f10a8260e5853f56228 feat: verify Push delivery history writes and flag unconfirmed records\ne5157319b9400c99a8d5c90947045c0172f82bbe feat: add idempotent delivery finalization with bounded read-back verification\nf7cea304d7c62fa51dbbf0c266f8eac971717121 docs: highlight production constraint blocker in development entry point\n9f97005c40038a850bf0e8f6126e1d79d7605a52 docs: block rollout on pending-count constraint and delivery finalize reliability\n823ab860b4c4aa796c3d17f300ebee255e7e068a fix: let migration caller control transaction boundary in isolated SQL tests\nd875505a796325df652ad496aee98a7afcd448ca test: enforce production-like >0 constraint before pending migration\n5387d6db24afe2d6a41e0f7a28386a217cf25bb6 docs/sql: stage prerequisite constraint for zero-count pending push history rows\na0dfa8d2d7b6f8617573b1b817bd605ce50f7743 fix: reject feedback for pending or unsuccessful push deliveries\n7dfdeb4567144b5ec1d0bd915981b2a733bd00ac fix: reject feedback for pending or unsuccessful push deliveries\n6622c8cb05abae83d4298a8dea58d744485671fa fix: explain account requirements and unavailable Push history links\ne2dc6a2c085376fda43d27b394bc26336548c19f docs: preserve Oct 21 Shiohama no-rain field observation with evidence limits\n88eb6cae8d12a9e478117daa875bc0992cbd5566 fix: resolve deep-linked notification outside recent history window\n25f78d40858a51d800df014139545ca92813f4ed fix: hide pending and failed push rows from notification history\n762139a4d5e7e1f1130dfc0fa68575456055aebb feat: link push notifications to precreated history records\nbcb4c115dcd59ebaed5b7fc81e606e364beb4d05 feat: focus matching rain notification history from push deep link\n90fb1bf99356aba7e2e8186938a01fdafa8ec731 docs: record approved notification-to-history deep link design\n4375f6599724289a640950d05adab78db173d057 docs: put mandatory SAKIKURU handoff protocol at top of overview\nec027d4b81a3ffb2f7ae8e2cb672709e6a2d2fe7 style: slightly strengthen rain radar overlay after iPhone visual feedback\n1df71d9a678cbe5a9fc08e069de10e4c159ba376 fix: show honest offline history state and soften rain radar overlay on iPhone\na743796063212524311b4f76bd0cf193209cb06c fix: fail closed on unconfigured preview before watch mutations or feedback writes\nbd9964f7babeaf80187af665ee519e1298b6b4b6 test: prevent unconfigured previews from claiming watch, feedback or push readiness\n1df356d3c89b3243c8a21469b920b778fadb61fd refactor: reuse preview database capability guard in rain app and push permission handling\nd9c752bd76261824d8a22ac56ed564edfe748773 feat: centralize no-write preview readiness checks for database and push setup\n760bbcb0d705fed15a0b2b5c1ad6f89f4ffafd9a fix: prevent push permission prompts and misleading enabled state on unconfigured preview\n9c7e409c2f6346d2b24ad5ccdf6c313978ba0c0b docs: verify preview readiness and separate no-write iPhone checks from isolated Supabase integration\nce8e0883a80825574a564099da5097997aa03845 ux: explain unavailable database features when preview lacks Supabase browser settings\n5fcc79851f84dc85f2b9f091d40734146435b373 fix: use named PL/pgSQL dollar tags for anonymous and evidence authorization guards\n8b282c0b49b7243396eda19531594d2240f3ed69 fix: use correct dollar-quoted DO blocks in access-denial integration checks\nc385c4319e84462d66b478add21a7128c295edfa test: verify anonymous feedback denial and client-side evidence write denial in PostgreSQL\n2dd02b0956f1e73c1fe940cb9a5f33d8e128f459 fix: clear cached rain notification history and feedback on session loss or read failure\ne1b1a76e95480ad624a5dfce90897fcded387fa3 docs: establish gated staged rollout and real-session verification without production changes\nc9cfaae433f3807b0affbb3b7d0e862a97b05b4e fix: correct SQL anonymous block delimiter for evidence migration integration\n5d46e3ff4c1e6f560e3d52f2ef0cf863b07926ae fix: retain PostgreSQL dollar-quoted assertions in evidence migration CI test\n103ea75f7ed0c19b4874d5dfe28b90676e63a31a test: validate additive evidence migration and legacy delivery preservation in disposable database\na34ca162e3d80a6d61f34130ade901aaeb024051 docs: define first-eligible episode attribution for disjoint warning lead groups\n2a70ed05b245c820c2be3838c0fdbe8ab1e8019e test: first eligible warning owns episode across five-to-ten-minute cohorts\nce953124da89e3887c8eecc6a3320219b7f5d6ca fix: ensure one rain-ending episode cannot inflate both lead-time cohorts\nef67879a297088cd07202be9a4c1b4898511222e test: refuse ending notification candidates when current rain observation is unknown\nff43b872d825ff24af298301c2087b04a6c97c37 test: classify unavailable radar as unknown rather than clear conditions\n65796c86f469f2cc1f199a38692f1fdf7e372d88 fix: do not classify missing current radar as already dry in shadow ending\nf51b451350926ae437cb87fd40b935e3eb6f0f91 test: avoid inflating radar accuracy with repeated five-minute polling\n7fe31d742c12ba38e3f1eb0addb52d7c3b6738fb fix: count each forecast ending episode only once in retrospective radar accuracy\nb068fdc79f353f8392ba17b22aeed14310193969 docs: explain safe offline ending audit and limits of historical diagnostics\n2de2bc84650c4cf7913fe67bf75f64028398f4e8 test: exercise offline rain-ending report from synthetic diagnostic export\nc074d047c1267c39fff88587efacbed4be77747b test: provide synthetic JMA timestamp and notification lead example for offline report\n6de684808a56680e0314579109353462b9130112 feat: offline radar audit CLI for exported diagnostics with missing-data accounting\n03da586131e3e42ef5b1e4b88ceb9dc427bc5069 test: compare distinct ending lead-time groups using shared later radar observations\n104a527f6d901c7e9b74d3472907a94cda1f104e fix: retain later radar observations when filtering shadow decisions by lead time\n805e14a89edffe0aca1fce08e37d350544d93aee feat: split 5- and 10-minute rain-ending shadow candidates into auditable lead cohorts\n5cfd8cf9258ed729d9529feb0a9784ce0fb81d6e test: prevent stale or missing JMA measurement times being counted as accurate rain ending\neef3e494871ee1633e404b80d1b57f31e12a26ff fix: audit observations by JMA source-valid timestamp rather than polling time\n0617f473bebe9a844d5b7f290337f36c6439c84a test: compare ending candidates against later radar data with missing and re-rain cases\n6c19cd907625e41134bffc6418d51e0bf79c85fd feat: audit ending shadow predictions against later radar observations without inventing truth\n1ff235fe88430e61edffc4ca7c23e1201a920217 fix: accommodate Deno edge import extension in Next type checking\nbf8fff95904c02b0af863dbe37f3a165a698bd4b test: shadow candidates respect 5-to-10 minute lead and short-lull uncertainty\nd955885a5a37636f08248180749f067b6875368a feat: store early ending versus re-rain candidate alongside passive diagnostics\n9a3a48acca7e7ed51fdd224c69837cb766ff28a9 feat: shadow-score five-to-ten-minute ending alerts with 10/15 minute recurrence\n5427a2f43580837b2cafab4d37547c1226ae2fd5 test: validate independent 10/15/30 minute ending shadow against short lulls and missing data\n2ecd44c863fff36f916a13a121470dfce702fb41 feat: compare 10, 15 and 30-minute rain-ending outlook independently in shadow diagnostics\ne7e6b5d5b68f463dc2b2fcd405872d7e83ee74cf test: distinguish brief dry interruptions from 30-minute no-rain forecast\nc3543c40e110ec33df8cfbf5c7f393e79e212661 fix: require 30 minutes of continuous dry forecast before optimistic ending shadow status\nad171f92295620aba4d84b5e324890dfddc87589 ci: test notification feedback RLS in disposable Postgres service\n0884705005e68c3113980d3b5ad0e45b4c60a44c test: verify feedback RLS and upserts against isolated Postgres fixture\n9f4bd5ae19903d7ab7df74de812aef3469479ca9 test: verify authenticated feedback save revision, session guard and database errors\n086aa6f23512c0b8bbec5f94303296c5c4497266 refactor: use testable authenticated weather feedback save in MY history\nfce2a3713e86ebc6b6c0bb231700e74092698069 refactor: isolate authenticated feedback save for unit and integration tests\n0eed6d334de8f3982a2e8437fcd7ce7e6b507d0a test: only fallback on missing evidence column while preserving delivered history\n8ce5efc0babbb7e5610b44dc32eb689766e0668d fix: preserve push delivery history before evidence column migration\ndb410045fef1138228e34ddd85d6c8da8fc9573e feat: classify legacy notification delivery schema failures safely\n4bcf37eb8ec7ce74c15e0d76a24157af5cc8908a fix: disable weather feedback until the feedback data API is available\nea277754bffe622012b0cacf47a27fce4ecbe929 fix: surface diagnostic history insert failures without interrupting rain push\n3fdbd16fa015e2909e0c13793f29b3a103577436 feat: prevent early negative feedback in notification history before target forecast time\ne2f78acce7a611741fb8b0c666aea6f8fbad1636 test: distinguish premature negative feedback from immediate ground truth reports\na893b545c2ba9a0e6246d7dcb46bf0ae33502a87 feat: prevent premature negative weather verification based on prediction target time\ndd651be783d1307ee456e9224382dd0ee75b110a feat: show forecast target time and clarify when weather feedback can be evaluated\n578098205bc25c6d4878e1e24ec78138c608244d test: verify notification decision evidence records target forecast time\n766a4a46876bc766be4fd404dba95bf98c134e9b feat: persist timing of rain onset and ending predictions for feedback verification\nde8c92d45a548ab6954b35fbe68210c0b24138d4 feat: record forecast target time alongside delivered notification evidence\nfb44570eed7999d37f04dea37b27b5db90167634 fix: keep history visible during additive evidence schema rollout and report read errors\n942cca31e8d9537d297cc9618b35849beb801543 fix: bound notification history queries and clarify 200-record display limit\ne52642d548a5cc5e4f3d8b7e94dc0d244227ab7b security: restrict weather feedback to owned notification and matching event answer\n0eeb62647d42d38a4d9088bb11563f48902420eb test: verify delivered decision evidence preserves forecast classes and unknown motion\ncb63610cdb5d03146a7bab24bde90dffa098d1ea fix: parse JMA timestamp strings correctly in decision evidence detail\n6e97778c99aa4cada907dcd772daa8333eec9c5a feat: display saved notification decisions and forecast pixel evidence in history\n74a5fcab3727d51bce4b2bbdf7e3bb4b9fb4d6ab feat: attach exact rain decision evidence to each successful push history entry\nd32e60d0fe6844b261a777f83d1a1839a6ccf050 feat: build immutable prediction evidence snapshots for delivered notifications\nbc9793082bcbe52c3541f6a780c318ad8cf0f3f8 feat: stage additive notification decision evidence column\nf94b1be18eedd80cacf808656035b327b27e3f6b docs: clarify historical coverage limits before measuring ending errors\n6f35e3cc0a217db9304c2974e7f7bd74b3ec46c2 test: require continuous five-minute coverage from exact ending time\nabd977ea9041ea1dac94e5687b72652ac34bf4a6 fix: require ending forecast to begin at predicted ending timestamp\n63b3a49a4ae217701c98ec077511991e22bffade fix: avoid treating gaps in forecast frames as continuous clear weather\ndc34b6cd9f9cf8dcee44eac6c0a2ce5d1214552f test: characterize conservative ending shadow detection without changing alerts\n19c9017038b0332b26fe0a24d40dbee2aba4fac7 feat: persist forecast evidence and shadow ending assessment for every watch check\n50108f02fdabb890df568669a593c001fccb20cd feat: add non-delivering rain ending re-rain forecast assessment\n7719e0327a4ae3f67cdb54e1226ac3c194246bba docs: define early rain alerts and conservative ending validation metrics\na1e942895884e3fee7cd9760577ae05d4d22db50 fix: match feedback questions to real rain event types\n79697f73d9723a0655d3b1bd39d3e739dee6f4c5 feat: align feedback schema with rain start and rain ending outcomes\n4eaf681e9b682595e32661f118e63829fdbc1741 feat: use distinct weather feedback options for rain start and ending alerts\n1a0352d49d4a92d2edaae6f417d654d63a3e22e6 feat: add weather feedback controls and per-notification persistence to MY history\nd0c3fbd288c0ebf0dc0195e6864a79df03d73f75 feat: stage RLS-protected notification weather feedback schema for review\nd6641d5604421e5b97f6c406e6bcd6cd8c648a36 feat: show seven-day MY rain notification history without per-target deduplication",
+  "topics": [
+    "雨量・全国検知",
+    "通知・配信",
+    "開発管理",
+    "認証・安全性",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "bc9112f4030f2bbac9105b2ac83fed990c05b3cbdca6118faa7352aedcee06a5",
+  "collected_at": "2026-11-12T11:56:35.206758+00:00"
+}

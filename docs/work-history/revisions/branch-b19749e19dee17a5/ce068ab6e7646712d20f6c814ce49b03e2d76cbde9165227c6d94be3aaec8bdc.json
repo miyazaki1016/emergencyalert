@@ -1,0 +1,57 @@
+{
+  "id": "branch-b19749e19dee17a5",
+  "title": "research/rain-episode-evaluation-api-20261110",
+  "head": "cd57655109506e45c14c2d719190df1a6c4df418",
+  "head_ref": "research/rain-episode-evaluation-api-20261110",
+  "linked_prs": [
+    195
+  ],
+  "files": [
+    {
+      "path": "docs/research/RAIN_EPISODE_HANDOFF_20261109.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/cd57655109506e45c14c2d719190df1a6c4df418/docs/research/RAIN_EPISODE_HANDOFF_20261109.md"
+    },
+    {
+      "path": "docs/work-history/curated.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/cd57655109506e45c14c2d719190df1a6c4df418/docs/work-history/curated.json"
+    },
+    {
+      "path": "lib/research/rainEpisodeEvaluation.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/cd57655109506e45c14c2d719190df1a6c4df418/lib/research/rainEpisodeEvaluation.ts"
+    },
+    {
+      "path": "tests/rainEpisodeEvaluation.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/cd57655109506e45c14c2d719190df1a6c4df418/tests/rainEpisodeEvaluation.test.ts"
+    },
+    {
+      "path": "tests/rainEpisodeStateBaseline.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/cd57655109506e45c14c2d719190df1a6c4df418/tests/rainEpisodeStateBaseline.test.ts"
+    }
+  ],
+  "commits": "cd57655109506e45c14c2d719190df1a6c4df418 research: evaluate unnotified rain cases by reviewed episode",
+  "topics": [
+    "雨量・全国検知",
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "39492c3244744a0f68d46bf80ddf54e225a5c9caf931991c6f43ad720e2e34ce",
+  "collected_at": "2026-11-12T11:56:35.206758+00:00"
+}

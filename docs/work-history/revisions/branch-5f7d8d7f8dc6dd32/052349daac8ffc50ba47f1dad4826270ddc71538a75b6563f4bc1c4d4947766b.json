@@ -1,0 +1,50 @@
+{
+  "id": "branch-5f7d8d7f8dc6dd32",
+  "title": "fix/jaspic-bicycle-not-quarantined-20261110",
+  "head": "9f59c19e9e23c730e2906c55720d12277194d6d6",
+  "head_ref": "fix/jaspic-bicycle-not-quarantined-20261110",
+  "linked_prs": [
+    192
+  ],
+  "files": [
+    {
+      "path": "docs/research/JASPIC_HISTORICAL_ID_QUARANTINE_20261110.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9f59c19e9e23c730e2906c55720d12277194d6d6/docs/research/JASPIC_HISTORICAL_ID_QUARANTINE_20261110.md"
+    },
+    {
+      "path": "docs/work-history/curated.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9f59c19e9e23c730e2906c55720d12277194d6d6/docs/work-history/curated.json"
+    },
+    {
+      "path": "lib/jaspic/production-plan.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9f59c19e9e23c730e2906c55720d12277194d6d6/lib/jaspic/production-plan.ts"
+    },
+    {
+      "path": "tests/jaspic-production-plan-quarantine.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9f59c19e9e23c730e2906c55720d12277194d6d6/tests/jaspic-production-plan-quarantine.test.ts"
+    }
+  ],
+  "commits": "9f59c19e9e23c730e2906c55720d12277194d6d6 docs(jaspic): record PR 183 as distinct in history preflight\nde5205b8d4974165bb9c814fecdfe790cac092ba docs(history): record bicycle theft exclusion from JASPIC quarantine\n65cb0f0153f73c576caad08945292b35f4829977 docs(jaspic): record policy to ignore bicycle theft quarantine while retaining normal baseline\nec38269ede4fc69b04eefd3fcc15eba49a6a7414 test(jaspic): bicycle theft never quarantined or emailed on first and repeat runs\nb0f5b4e1936653ef36b00ff3e65e7519563074ba fix(jaspic): exclude bicycle theft from quarantine while keeping notifications disabled",
+  "topics": [
+    "通知・配信",
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "787f3317822938f56df548931aa560d45089019d6f98f14b6c33a7b7e50c02d1",
+  "collected_at": "2026-11-12T11:56:35.206758+00:00"
+}

@@ -1,0 +1,42 @@
+{
+  "id": "branch-1601ee37d65ba186",
+  "title": "feat/inventory-triage-ledger-proposals-20261101",
+  "head": "ae828fb24b911bfa22e84fc057b0cb6b17902020",
+  "head_ref": "feat/inventory-triage-ledger-proposals-20261101",
+  "linked_prs": [
+    126
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/development-inventory.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ae828fb24b911bfa22e84fc057b0cb6b17902020/.github/workflows/development-inventory.yml"
+    },
+    {
+      "path": "scripts/development_inventory_delta.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ae828fb24b911bfa22e84fc057b0cb6b17902020/scripts/development_inventory_delta.py"
+    },
+    {
+      "path": "tests/test_development_inventory_delta.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ae828fb24b911bfa22e84fc057b0cb6b17902020/tests/test_development_inventory_delta.py"
+    }
+  ],
+  "commits": "ae828fb24b911bfa22e84fc057b0cb6b17902020 Test triage never infers completion or changes ledger\n6e4ccda972da4d474e7ac0df0f0d07a89de9bc95 Trigger inventory on branch creation and main updates\n0563d4f7584dfcd0aee03d04f0772d608b1e8c96 Generate conservative case hints and review-only ledger proposals",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "ecb3a79275de353aed08eee8a001d5c81e0cb03aa9b7237a996e21503c3ae58c",
+  "collected_at": "2026-11-12T11:56:35.206758+00:00"
+}
