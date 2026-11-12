@@ -10,7 +10,9 @@ const collection = JSON.parse(readFileSync(path, "utf8")) as N03FeatureCollectio
 const areas = parseOfficialN03ForLightRain(collection);
 const ota = areas.find(a => a.code === "13111" && a.prefecture === "東京都" && a.municipality === "大田区");
 if (!ota) throw new Error("Official N03 Tokyo does not include Ota City / 13111");
-const rings: number[][][][] = ota.geometry.type === "Polygon"\n  ? [ota.geometry.coordinates as number[][][]]\n  : ota.geometry.coordinates as number[][][][];
+const rings: number[][][][] = ota.geometry.type === "Polygon" 
+  ? [ota.geometry.coordinates as number[][][]] 
+  : ota.geometry.coordinates as number[][][][];
 const vertices = rings.flatMap(p => p[0] ?? []);
 if (!vertices.length) throw new Error("Ota City has no outer ring");
 const lon = vertices.reduce((sum, p) => sum + p[0], 0) / vertices.length;
