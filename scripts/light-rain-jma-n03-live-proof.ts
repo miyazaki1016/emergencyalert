@@ -24,8 +24,8 @@ async function fetchTileWithRetry(url: string, label: string): Promise<Buffer> {
     try {
       const response = await fetch(url, {cache:"no-store",signal:AbortSignal.timeout(15000)});
       if (response.ok) return Buffer.from(await response.arrayBuffer());
-      if (response.status !== 429 && response.status < 500) throw new Error("Non-retryable JMA tile HTTP "+response.status+" "+label);
-      if (attempt === attempts) throw new Error("JMA tile HTTP "+response.status+" after "+attempts+" attempts "+label);
+      if (response.status !== 404 && response.status !== 429 && response.status < 500) throw new Error("Non-retryable JMA tile HTTP "+response.status+" "+label);
+      if (attempt === attempts) throw new Error((response.status === 404 ? "INCOMPLETE_PROOF: missing JMA forecast tile HTTP 404 " : "JMA tile HTTP "+response.status+" ")+"after "+attempts+" attempts "+label);
     } catch (error) {
       if (attempt === attempts || String(error).includes("Non-retryable")) throw error;
     }
@@ -62,7 +62,7 @@ async function main() {
   if (results.every(r => r.rainyPixels === 0)) throw new Error("No real JMA >=1mm rain pixels in sample");
   if (results.every(r => r.municipalities.length === 0)) {
     console.log(JSON.stringify({status:"INCONCLUSIVE",reason:results.every(r=>r.rainyPixelsInTokyoMainlandBox===0) ? "No rain in Tokyo mainland bounding box at sampled frames (diagnostic only)" : "Rain in Tokyo bounding box but no official N03 intersection (diagnostic only)",frames:results}));
-    throw new Error("INCOMPLETE_PROOF: no real rainy pixel intersected an official Tokyo municipality; do not claim municipality resolution");
+    throw new Error("INCOMPLETE_PROOF: no real rainy pixel intersected an official " + targetPrefecture + " municipality; do not claim municipality resolution");
   }
   console.log(JSON.stringify({mode:"REAL_JMA_OFFICIAL_N03_READ_ONLY",checkedAt:new Date().toISOString(),
     prefecture:targetPrefecture,threshold:">=1mm/h",zoom:4,tiles:tiles.length,frames:results,coverage:"six coarse tiles only",
