@@ -39,3 +39,21 @@ export function significantForecastChanges(current: NationalForecastSnapshot, pr
   return buildForecastPostCandidates(current).filter(row =>
     previous !== null && row.intensity > (oldMax.get(row.municipalityCode) ?? 0));
 }
+
+/** A dry-run decision only: callers must persist a successful publish atomically before any live delivery. */
+export type ForecastPublishPlan = {
+  candidates: ForecastPostCandidate[];
+  nextSnapshot: NationalForecastSnapshot;
+};
+
+/** Never interpret a repeated or older baseline as a new forecast. */
+export function planForecastPublication(
+  current: NationalForecastSnapshot,
+  previous: NationalForecastSnapshot | null,
+): ForecastPublishPlan | null {
+  if (previous && forecastTime(current.basetime) <= forecastTime(previous.basetime)) return null;
+  return {
+    candidates: significantForecastChanges(current, previous),
+    nextSnapshot: current,
+  };
+}
