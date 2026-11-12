@@ -9,8 +9,8 @@ describe("official N03 GeoJSON conversion to 1mm rain intersection", () => {
       [135, 0], [136, 0], [136, 1], [135, 1], [135, 0],
     ]] };
     const areas = parseOfficialN03ForLightRain({ type: "FeatureCollection", features: [
-      { type: "Feature", properties: { N03_001: "検証県", N03_004: "検証市", N03_007: "99101" }, geometry },
-      { type: "Feature", properties: { N03_001: "検証県", N03_004: "検証市", N03_007: "99101" }, geometry },
+      { type: "Feature", properties: { N03_001: "北海道", N03_004: "札幌市", N03_005: "南区", N03_007: "01106" }, geometry },
+      { type: "Feature", properties: { N03_001: "北海道", N03_004: "札幌市", N03_005: "南区", N03_007: "01106" }, geometry },
     ] });
     expect(areas).toHaveLength(1);
     expect(areas[0].geometry.type).toBe("MultiPolygon");
@@ -20,6 +20,6 @@ describe("official N03 GeoJSON conversion to 1mm rain intersection", () => {
     // so use pixel y=255 near the equator, with matching polygon 0..1 degrees.
     tile.data.set([160, 210, 255, 255], (255 * 256) * 4);
     expect(municipalitiesForLightRainTile(PNG.sync.write(tile), 4, 14, 7, areas))
-      .toEqual([{ code: "99101", prefecture: "検証県", municipality: "検証市" }]);
+      .toEqual([{ code: "01106", prefecture: "北海道", municipality: "札幌市南区" }]);
   });
 });

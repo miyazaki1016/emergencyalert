@@ -6,7 +6,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import { requireCompleteNationwideN03 } from "../lib/weather/rain/lightRainNationwideN03";
 import { fetchForecastTargetTimes, type JmaTargetTime } from "../lib/weather/providers/jma/targetTimes";
 import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
-import { scanJmaTileAtLeast1mm } from "../lib/weather/rain/lightRainProof";
+import { locateJmaRainPixelsAtLeast1mm, scanJmaTileAtLeast1mm } from "../lib/weather/rain/lightRainProof";
 import { municipalitiesForLightRainTile } from "../lib/weather/rain/lightRainMunicipalities";
 import { forecastTime } from "../lib/weather/rain/nationalForecastSnapshot";
 import type { AdministrativeArea } from "../lib/weather/rain/lightRainAdministrativeAreas";
@@ -31,15 +31,19 @@ const xy=(longitude:number,latitude:number,z:number):[number,number]=>{
 };
 async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:number,y:number){
   const url=buildJmaRainTileUrl(frame,z,x,y);
-  for(let attempt=0;attempt<3;attempt++){
-    try{
-      const res=await fetch(url,{cache:"no-store",signal:AbortSignal.timeout(25000)});
-      if(res.ok)return Buffer.from(await res.arrayBuffer());
-      if(![404,429,500,502,503,504].includes(res.status))throw new Error("JMA HTTP "+res.status+" "+z+"/"+x+"/"+y);
-    }catch(e){if(attempt===2)throw e;}
-    if(attempt<2)await new Promise(r=>setTimeout(r,1500*(attempt+1)));
+  const attempts: string[] = [];
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(10_000) });
+      if (response.ok) return Buffer.from(await response.arrayBuffer());
+      attempts.push("HTTP " + response.status);
+      if (![404, 408, 429, 500, 502, 503, 504].includes(response.status)) break;
+    } catch (error) {
+      attempts.push(error instanceof Error ? error.name : "TransportError");
+    }
+    if (attempt < 3) await delay(1000 * 2 ** attempt);
   }
-  throw new Error("INCOMPLETE_JMA_TILE "+z+"/"+x+"/"+y);
+  throw new Error(`INCOMPLETE_JMA_TILE ${url} attempts: ${attempts.join(", ")}`);
 }
 function selectFrames(targets: JmaTargetTime[], now: number): JmaTargetTime[] {
   const basetime = targets
@@ -62,26 +66,39 @@ async function refineFrame(
   areaByCode: Map<string, AdministrativeArea>,
 ) {
   const started = performance.now();
-  const candidates=new Map<string,AdministrativeArea>();
-  for(const [x,y]of tiles4){
-    const b:[number,number,number,number]=[lon(x,4),lat(y+1,4),lon(x+1,4),lat(y,4)];
-    const relevant=indexed.filter(v=>v.b[0]<=b[2]&&v.b[2]>=b[0]&&v.b[1]<=b[3]&&v.b[3]>=b[1]).map(v=>v.area);
-    const buffer=await fetchTile(frame,4,x,y);
-    const scan=scanJmaTileAtLeast1mm(buffer);
-    if(scan.unknownPixels)throw new Error("UNKNOWN_JMA_PIXEL_Z4");
-    if(scan.rainPixels)for(const area of municipalitiesForLightRainTile(buffer,4,x,y,relevant))candidates.set(area.code,areaByCode.get(area.code)!);
-  }
-  const z4Done=performance.now();
-  const tileMap=new Map<string,{x:number;y:number;areas:AdministrativeArea[]}>();
-  for(const area of candidates.values()){
-    const [w,s,e,n]=bbox(area);
-    const [minX,minY]=xy(w,n,10),[maxX,maxY]=xy(e,s,10);
-    for(let x=minX;x<=maxX;x++)for(let y=minY;y<=maxY;y++){
-      const key=x+"/"+y;
-      if(!tileMap.has(key))tileMap.set(key,{x,y,areas:[]});
-      tileMap.get(key)!.areas.push(area);
-      if(tileMap.size>MAX_TILES)throw new Error("Z10_TILE_BUDGET_EXCEEDED: "+tileMap.size+" > "+MAX_TILES+"; no partial result accepted");
+  const candidates = new Map<string, AdministrativeArea>();
+  const rainyZ10Tiles = new Map<string, { x: number; y: number }>();
+  for (const [x, y] of tiles4) {
+    const bounds = [lon(x, 4), lat(y + 1, 4), lon(x + 1, 4), lat(y, 4)];
+    const relevant = indexed.filter(({ b }) => b[0] <= bounds[2] && b[2] >= bounds[0]
+      && b[1] <= bounds[3] && b[3] >= bounds[1]).map(({ area }) => area);
+    const buffer = await fetchTile(frame, 4, x, y);
+    const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 4, x, y);
+    if (!pixels.length) continue;
+    for (const area of municipalitiesForLightRainTile(buffer, 4, x, y, relevant)) {
+      candidates.set(area.code, areaByCode.get(area.code)!);
     }
+    // Each z4 PNG pixel spans 1/4 of a z10 tile and the grids share an origin.
+    for (const { pixelX, pixelY } of pixels) {
+      const tileX = x * 64 + Math.floor(pixelX / 4);
+      const tileY = y * 64 + Math.floor(pixelY / 4);
+      rainyZ10Tiles.set(tileX + "/" + tileY, { x: tileX, y: tileY });
+    }
+  }
+  const z4Done = performance.now();
+  const tileMap = new Map<string, { x: number; y: number; areas: AdministrativeArea[] }>();
+  for (const area of candidates.values()) {
+    const [w, s, e, n] = bbox(area);
+    const [minX, minY] = xy(w, n, 10), [maxX, maxY] = xy(e, s, 10);
+    for (const [key, { x, y }] of rainyZ10Tiles) {
+      if (x < minX || x > maxX || y < minY || y > maxY) continue;
+      const entry = tileMap.get(key) ?? { x, y, areas: [] };
+      entry.areas.push(area);
+      tileMap.set(key, entry);
+    }
+  }
+  if (tileMap.size > MAX_TILES) {
+    throw new Error(`Z10_TILE_BUDGET_EXCEEDED: ${tileMap.size} > ${MAX_TILES}; no partial result accepted`);
   }
   const tilePlanDone=performance.now();
   const matched=new Map<string,{code:string;prefecture:string;municipality:string}>();
@@ -123,6 +140,7 @@ async function main() {
   const areaByCode = new Map(coverage.areas.map(area => [area.code, area]));
   const n03LoadAndIndex = Math.round(performance.now() - started);
   let previousBase: string | undefined;
+  let successfulUpdates = 0;
   const update = async () => {
     const scanStarted = performance.now();
     const targets = await fetchForecastTargetTimes((input, init) =>
@@ -139,6 +157,7 @@ async function main() {
       mode: "READ_ONLY_Z10_REAL_JMA_N03",
       basetime: frames[0].basetime,
       checkedAt: new Date().toISOString(),
+      baseAgeMs: Date.now() - forecastTime(frames[0].basetime),
       prefectures: coverage.prefectures,
       municipalityDatasetSize: coverage.municipalities,
       thresholdMmPerHour: 1,
@@ -149,15 +168,19 @@ async function main() {
       blueskyPosts: false,
     }));
     previousBase = frames[0].basetime;
+    successfulUpdates++;
   };
 
   if (!process.argv.includes("--watch")) return update();
-  while (true) {
+  const watchCount = Number(process.env.JMA_WATCH_SUCCESS_COUNT || "0");
+  if (!Number.isSafeInteger(watchCount) || watchCount < 0) throw new Error("Invalid watch success count");
+  while (watchCount === 0 || successfulUpdates < watchCount) {
     try {
       await update();
     } catch (error) {
       console.error(error);
     }
+    if (watchCount > 0 && successfulUpdates >= watchCount) return;
     // Let JMA publish the new cycle before polling the next five-minute slot.
     const now = Date.now();
     const offset = 120_000;

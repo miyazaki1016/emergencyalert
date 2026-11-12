@@ -12,9 +12,11 @@ export function parseOfficialN03ForLightRain(collection: N03FeatureCollection): 
     if (!feature.geometry || !["Polygon", "MultiPolygon"].includes(feature.geometry.type)) continue;
     const p = feature.properties ?? {};
     const prefecture = typeof p.N03_001 === "string" ? p.N03_001.trim() : "";
-    const municipality = typeof p.N03_004 === "string" ? p.N03_004.trim() : "";
+    const city = typeof p.N03_004 === "string" ? p.N03_004.trim() : "";
+    const ward = typeof p.N03_005 === "string" ? p.N03_005.trim() : "";
     const code = typeof p.N03_007 === "string" ? p.N03_007.trim() : "";
-    if (!prefecture || !municipality || !/^\d{5}$/.test(code)) continue;
+    if (!prefecture || !city || !/^\d{5}$/.test(code)) continue;
+    const municipality = city + ward;
     const next: AdministrativeArea = { code, prefecture, municipality, geometry: feature.geometry };
     const previous = merged.get(code);
     if (!previous) { merged.set(code, next); continue; }
