@@ -6,13 +6,13 @@ import { municipalitiesForLightRainTile } from "./lightRainMunicipalities";
  * Never downloads production Storage data or writes to it.
  */
 export function loadPreparedN03ForProof(path: string, expectedPrefectureCode: string): AdministrativeArea[] {
-  if (!/^\\d{2}$/.test(expectedPrefectureCode)) throw new Error("Invalid prefecture code");
+  if (!/^\d{2}$/.test(expectedPrefectureCode)) throw new Error("Invalid prefecture code");
   const parsed: unknown = JSON.parse(readFileSync(path, "utf8"));
   if (!Array.isArray(parsed) || parsed.length === 0) throw new Error("Missing N03 municipality data");
   const areas: AdministrativeArea[] = parsed.map((item: unknown) => {
     if (!item || typeof item !== "object") throw new Error("Invalid N03 entry");
     const a = item as Partial<AdministrativeArea>;
-    if (typeof a.code !== "string" || !/^\\d{5}$/.test(a.code) ||
+    if (typeof a.code !== "string" || !/^\d{5}$/.test(a.code) ||
       !a.code.startsWith(expectedPrefectureCode) ||
       typeof a.prefecture !== "string" || !a.prefecture ||
       typeof a.municipality !== "string" || !a.municipality ||
