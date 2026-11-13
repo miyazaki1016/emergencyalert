@@ -3,7 +3,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { useMemo, useState } from "react";
 
-type ProvinceResult = { province: "hiroshima" | "shiga"; count: number; quarantined: number };
+type CandidateDetail = { key: string; classification: "NEW_ID" | "UPDATED"; occurrenceDate: string | null; publicationDate: string | null };
+type ProvinceResult = { province: "hiroshima" | "shiga"; count: number; quarantined: number; details?: CandidateDetail[] };
 type PreviewResult = {
   mode?: string; safeToSend?: boolean; total?: number; limit?: number;
   unresolvedDeliveries?: number; runningRuns?: number; provinces?: ProvinceResult[]; error?: string;
@@ -50,6 +51,16 @@ export default function JaspicPreviewButton() {
       {(result.provinces ?? []).map(p=><p key={p.province}>
         {p.province === "hiroshima" ? "広島" : "滋賀"}：候補 {p.count} 件／隔離 {p.quarantined} 件
       </p>)}
+      {(result.provinces ?? []).map(p => <details key={p.province} style={{margin:"12px 0"}}>
+        <summary style={{cursor:"pointer",fontWeight:600}}>{p.province === "hiroshima" ? "広島" : "滋賀"}の候補IDと内訳（{p.details?.length ?? 0}件）</summary>
+        <p style={{fontSize:13}}>「新規ID」は前回保存データにないID、「更新」は既存IDの内容変更です。発生日は掲載日ではありません。掲載日時は取得できないため、昨日以降の掲載かは未確定です。</p>
+        <ol style={{paddingLeft:24,fontSize:14}}>
+          {(p.details ?? []).map(d => <li key={d.key} style={{marginBottom:8,overflowWrap:"anywhere"}}>
+            <code>{d.key}</code> ／ {d.classification === "NEW_ID" ? "新規ID" : "既存ID更新"}
+            ／ 発生日：{d.occurrenceDate ?? "不明"} ／ 掲載日：{d.publicationDate ?? "不明"}
+          </li>)}
+        </ol>
+      </details>)}
       <p>未解決配信：{result.unresolvedDeliveries ?? "不明"} 件／実行中：{result.runningRuns ?? "不明"} 件</p>
       <p><strong>{result.safeToSend ? "候補件数と台帳の基本チェックは範囲内" : "送信条件を満たしていません"}</strong></p>
       <small>※チェック結果は送信許可ではありません。実送信前に認証・取得結果・全安全条件の別確認が必要です。</small>

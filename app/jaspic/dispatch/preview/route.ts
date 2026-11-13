@@ -38,7 +38,14 @@ export async function POST(request: Request) {
       const plan = await productionPlan(province, snapshot.data, items,
         new Set<string>(province === "hiroshima" ? legacyResult.data : []));
       return { province, count: plan.candidates.length, quarantined: plan.quarantined.length,
-        keys: plan.candidates.map(c => c.key), expectedRevision: plan.expectedRevision };
+        keys: plan.candidates.map(c => c.key),
+        details: plan.candidates.map(c => {
+          const item = items.find(i => `${i.kind}:${i.data.id}` === c.key);
+          const previous = snapshot.data.records[c.key];
+          return { key: c.key, classification: previous ? "UPDATED" : "NEW_ID",
+            occurrenceDate: item?.data.occurrence_date_from ?? item?.data.occurrence_dt ?? null,
+            publicationDate: null };
+        }), expectedRevision: plan.expectedRevision };
     }));
     const total = results.reduce((sum, p) => sum + p.count, 0);
     const safe = total <= 20 && unresolved.data.length === 0 && running.data.length === 0;
