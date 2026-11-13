@@ -1,0 +1,28 @@
+{
+  "id": "branch-bda2266ea4ea3de8",
+  "title": "fix/ledger-automation-observability-20261102",
+  "head": "55403d4a586f4da5af06eab9732551d171f1550b",
+  "head_ref": "fix/ledger-automation-observability-20261102",
+  "linked_prs": [
+    135
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/ledger-facts-proposal.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/55403d4a586f4da5af06eab9732551d171f1550b/.github/workflows/ledger-facts-proposal.yml"
+    }
+  ],
+  "commits": "55403d4a586f4da5af06eab9732551d171f1550b Retain short-lived ledger proposal diagnostics and clarify PR permission failures",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "e3e533f39a344aaec8709f1553a888527f9260175dea5c9c4550bbf35908bf7a",
+  "collected_at": "2026-11-13T23:51:57.929738+00:00"
+}

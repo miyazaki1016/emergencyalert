@@ -1,0 +1,49 @@
+{
+  "id": "branch-43a84b5ab5fae095",
+  "title": "fix/jaspic-231-batch-completion",
+  "head": "debfab93d75644d42d019ba8cda125663f0621f7",
+  "head_ref": "fix/jaspic-231-batch-completion",
+  "linked_prs": [
+    241
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/dispatch/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/app/jaspic/dispatch/route.ts"
+    },
+    {
+      "path": "docs/sql/jaspic-batch-completion.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/docs/sql/jaspic-batch-completion.sql"
+    },
+    {
+      "path": "tests/sql/jaspic-monitor-batch-completion.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/tests/sql/jaspic-monitor-batch-completion.sql"
+    },
+    {
+      "path": "tests/sql/jaspic-monitor-integration.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/tests/sql/jaspic-monitor-integration.sql"
+    }
+  ],
+  "commits": "debfab93d75644d42d019ba8cda125663f0621f7 fix(jaspic): complete scheduled delivery after the full queue drains",
+  "topics": [
+    "通知・配信"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "a688034d82bf5ee342bb2bec1536668659becfb3ca7eacbace365a45626ad6b3",
+  "collected_at": "2026-11-13T23:51:57.929738+00:00"
+}

@@ -1,0 +1,933 @@
+{
+  "id": "branch-2d0caa2b5330cf58",
+  "title": "fix/national-preview-fail-closed-20261109",
+  "head": "011ca047241641a2af4c4bf12412063e19d0e5bd",
+  "head_ref": "fix/national-preview-fail-closed-20261109",
+  "linked_prs": [
+    181
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/.github/workflows/ci.yml"
+    },
+    {
+      "path": ".github/workflows/n03-administrative-area-proof.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/.github/workflows/n03-administrative-area-proof.yml"
+    },
+    {
+      "path": ".github/workflows/n03-all47-real-conversion-proof.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/.github/workflows/n03-all47-real-conversion-proof.yml"
+    },
+    {
+      "path": ".github/workflows/n03-national-index-proof.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/.github/workflows/n03-national-index-proof.yml"
+    },
+    {
+      "path": ".github/workflows/national-all47-ownership-proof.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/.github/workflows/national-all47-ownership-proof.yml"
+    },
+    {
+      "path": ".github/workflows/national-forecast-lowzoom-proof.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/.github/workflows/national-forecast-lowzoom-proof.yml"
+    },
+    {
+      "path": ".github/workflows/national-lowzoom-max-rank-proof.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/.github/workflows/national-lowzoom-max-rank-proof.yml"
+    },
+    {
+      "path": ".github/workflows/national-rain-proof.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/.github/workflows/national-rain-proof.yml"
+    },
+    {
+      "path": ".github/workflows/upload-n03-prepared-data.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/.github/workflows/upload-n03-prepared-data.yml"
+    },
+    {
+      "path": "app/api/rain/national-preview/route.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.test.ts"
+    },
+    {
+      "path": "app/api/rain/national-preview/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-preview/route.ts"
+    },
+    {
+      "path": "app/api/rain/national-queue/route.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-queue/route.test.ts"
+    },
+    {
+      "path": "app/api/rain/national-queue/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-queue/route.ts"
+    },
+    {
+      "path": "app/api/rain/national-worker/route.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-worker/route.test.ts"
+    },
+    {
+      "path": "app/api/rain/national-worker/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/app/api/rain/national-worker/route.ts"
+    },
+    {
+      "path": "docs/AMAFURU_HANDOFF_2026-10-13.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/AMAFURU_HANDOFF_2026-10-13.md"
+    },
+    {
+      "path": "docs/N03_PARTITION_DESIGN.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/N03_PARTITION_DESIGN.md"
+    },
+    {
+      "path": "docs/NATIONAL_FINAL_GATE_PROOF.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/NATIONAL_FINAL_GATE_PROOF.md"
+    },
+    {
+      "path": "docs/NATIONAL_RAIN_LEASE_FENCING_CONTRACT_PROPOSAL.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/NATIONAL_RAIN_LEASE_FENCING_CONTRACT_PROPOSAL.md"
+    },
+    {
+      "path": "docs/NATIONAL_RAIN_READINESS_PROOF.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/NATIONAL_RAIN_READINESS_PROOF.md"
+    },
+    {
+      "path": "docs/NATIONAL_Z4_STRIDE_EVIDENCE_20261109.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/NATIONAL_Z4_STRIDE_EVIDENCE_20261109.md"
+    },
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/PROJECT_OVERVIEW.md"
+    },
+    {
+      "path": "docs/proofs/n03-hokkaido-partition-design.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/proofs/n03-hokkaido-partition-design.json"
+    },
+    {
+      "path": "docs/proofs/n03-prepared-size-snapshot.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/proofs/n03-prepared-size-snapshot.json"
+    },
+    {
+      "path": "docs/proofs/national-all47-ownership.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/proofs/national-all47-ownership.json"
+    },
+    {
+      "path": "docs/proofs/national-readiness-ci501.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/proofs/national-readiness-ci501.json"
+    },
+    {
+      "path": "docs/proofs/national-readiness-ci502.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/proofs/national-readiness-ci502.json"
+    },
+    {
+      "path": "docs/proofs/national-readiness-local.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/proofs/national-readiness-local.json"
+    },
+    {
+      "path": "docs/proofs/national-readiness-supplement.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/proofs/national-readiness-supplement.json"
+    },
+    {
+      "path": "docs/proofs/national-throughput-ci495.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/proofs/national-throughput-ci495.json"
+    },
+    {
+      "path": "docs/proofs/national-throughput-ci496.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/proofs/national-throughput-ci496.json"
+    },
+    {
+      "path": "docs/proofs/national-throughput-ci499.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/proofs/national-throughput-ci499.json"
+    },
+    {
+      "path": "lib/weather/rain/administrativeAreas.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/administrativeAreas.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/administrativeAreas.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/administrativeAreas.ts"
+    },
+    {
+      "path": "lib/weather/rain/boundedChunkCache.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/boundedChunkCache.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/boundedChunkCache.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/boundedChunkCache.ts"
+    },
+    {
+      "path": "lib/weather/rain/japanPrefectures.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/japanPrefectures.ts"
+    },
+    {
+      "path": "lib/weather/rain/n03AdministrativeAreas.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/n03AdministrativeAreas.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/n03AdministrativeAreas.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/n03AdministrativeAreas.ts"
+    },
+    {
+      "path": "lib/weather/rain/n03BoundedPartitionResolver.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/n03BoundedPartitionResolver.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/n03BoundedPartitionResolver.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/n03BoundedPartitionResolver.ts"
+    },
+    {
+      "path": "lib/weather/rain/n03Dataset.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/n03Dataset.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/n03Dataset.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/n03Dataset.ts"
+    },
+    {
+      "path": "lib/weather/rain/n03PartitionStorage.integration.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/n03PartitionStorage.integration.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/n03PartitionStorage.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/n03PartitionStorage.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/n03PartitionStorage.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/n03PartitionStorage.ts"
+    },
+    {
+      "path": "lib/weather/rain/n03PrefectureIndex2026.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/n03PrefectureIndex2026.ts"
+    },
+    {
+      "path": "lib/weather/rain/n03Prefectures.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/n03Prefectures.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/n03Prefectures.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/n03Prefectures.ts"
+    },
+    {
+      "path": "lib/weather/rain/n03PreparedStorageContract.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/n03PreparedStorageContract.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/n03PreparedStorageLoader.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/n03PreparedStorageLoader.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/n03PreparedStorageLoader.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/n03PreparedStorageLoader.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalHeavyRain.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/nationalHeavyRain.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalHeavyRain.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/nationalHeavyRain.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalRainCycle.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/nationalRainCycle.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalRainCycle.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/nationalRainCycle.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalRainMunicipalities.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/nationalRainMunicipalities.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalRainMunicipalities.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/nationalRainMunicipalities.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalRainMunicipalityResolver.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/nationalRainMunicipalityResolver.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalRainMunicipalityResolver.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/nationalRainMunicipalityResolver.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalRainQueue.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/nationalRainQueue.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalRainQueue.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/nationalRainQueue.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalRainWorker.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/nationalRainWorker.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalRainWorker.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/nationalRainWorker.ts"
+    },
+    {
+      "path": "lib/weather/rain/townBoundaryDatasetValidation.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/townBoundaryDatasetValidation.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/townBoundaryDatasetValidation.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/townBoundaryDatasetValidation.ts"
+    },
+    {
+      "path": "lib/weather/rain/townBoundaryGeometry.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/townBoundaryGeometry.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/townBoundaryGeometry.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/townBoundaryGeometry.ts"
+    },
+    {
+      "path": "lib/weather/rain/townBoundaryManifest.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/townBoundaryManifest.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/townBoundaryManifest.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/lib/weather/rain/townBoundaryManifest.ts"
+    },
+    {
+      "path": "scripts/census-town-boundary-benchmark.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/census-town-boundary-benchmark.test.ts"
+    },
+    {
+      "path": "scripts/census-town-boundary-benchmark.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/census-town-boundary-benchmark.ts"
+    },
+    {
+      "path": "scripts/census-town-boundary-topojson-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/census-town-boundary-topojson-proof.ts"
+    },
+    {
+      "path": "scripts/jma-404-delayed-retry-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/jma-404-delayed-retry-proof.ts"
+    },
+    {
+      "path": "scripts/jma-404-reproduction-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/jma-404-reproduction-proof.ts"
+    },
+    {
+      "path": "scripts/jma-sparse-tile-existence-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/jma-sparse-tile-existence-proof.ts"
+    },
+    {
+      "path": "scripts/n03-administrative-area-benchmark.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-administrative-area-benchmark.ts"
+    },
+    {
+      "path": "scripts/n03-all47-polygon-inventory.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-all47-polygon-inventory.ts"
+    },
+    {
+      "path": "scripts/n03-bounded-partition-loader.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-bounded-partition-loader.test.ts"
+    },
+    {
+      "path": "scripts/n03-bounded-partition-loader.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-bounded-partition-loader.ts"
+    },
+    {
+      "path": "scripts/n03-clipped-js-equivalence.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-clipped-js-equivalence.ts"
+    },
+    {
+      "path": "scripts/n03-clipped-resolver-equivalence.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-clipped-resolver-equivalence.ts"
+    },
+    {
+      "path": "scripts/n03-hokkaido-partition-design-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-hokkaido-partition-design-proof.ts"
+    },
+    {
+      "path": "scripts/n03-hokkaido-target-comparison.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-hokkaido-target-comparison.ts"
+    },
+    {
+      "path": "scripts/n03-hokkaido-z8-feasibility.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-hokkaido-z8-feasibility.ts"
+    },
+    {
+      "path": "scripts/n03-http-worker-readiness-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-http-worker-readiness-proof.ts"
+    },
+    {
+      "path": "scripts/n03-national-index-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-national-index-proof.ts"
+    },
+    {
+      "path": "scripts/n03-oversized-clip-proof.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-oversized-clip-proof.py"
+    },
+    {
+      "path": "scripts/n03-package-all-local.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-package-all-local.test.ts"
+    },
+    {
+      "path": "scripts/n03-package-all-local.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-package-all-local.ts"
+    },
+    {
+      "path": "scripts/n03-parallel-invocation-readiness-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-parallel-invocation-readiness-proof.ts"
+    },
+    {
+      "path": "scripts/n03-partition-design-core.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-partition-design-core.test.ts"
+    },
+    {
+      "path": "scripts/n03-partition-design-core.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-partition-design-core.ts"
+    },
+    {
+      "path": "scripts/n03-partition-package.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-partition-package.test.ts"
+    },
+    {
+      "path": "scripts/n03-partition-package.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-partition-package.ts"
+    },
+    {
+      "path": "scripts/n03-prefecture-index.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-prefecture-index.ts"
+    },
+    {
+      "path": "scripts/n03-readiness-common.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-readiness-common.ts"
+    },
+    {
+      "path": "scripts/n03-representative-readiness-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-representative-readiness-proof.ts"
+    },
+    {
+      "path": "scripts/n03-selected-prefectures-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-selected-prefectures-proof.ts"
+    },
+    {
+      "path": "scripts/n03-sustained-worker-readiness-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-sustained-worker-readiness-proof.ts"
+    },
+    {
+      "path": "scripts/n03-tokyo-live-rain-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-tokyo-live-rain-proof.ts"
+    },
+    {
+      "path": "scripts/n03-tokyo-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/n03-tokyo-proof.ts"
+    },
+    {
+      "path": "scripts/national-all47-ownership-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-all47-ownership-proof.ts"
+    },
+    {
+      "path": "scripts/national-deadline-worker.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-deadline-worker.test.ts"
+    },
+    {
+      "path": "scripts/national-deadline-worker.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-deadline-worker.ts"
+    },
+    {
+      "path": "scripts/national-forecast-lowzoom-validation.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-forecast-lowzoom-validation.ts"
+    },
+    {
+      "path": "scripts/national-forecast-refinement-zoom-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-forecast-refinement-zoom-proof.ts"
+    },
+    {
+      "path": "scripts/national-forecast-z4-screening-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-forecast-z4-screening-proof.ts"
+    },
+    {
+      "path": "scripts/national-lowzoom-max-rank-proof.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-lowzoom-max-rank-proof.test.ts"
+    },
+    {
+      "path": "scripts/national-lowzoom-max-rank-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-lowzoom-max-rank-proof.ts"
+    },
+    {
+      "path": "scripts/national-ownership-summary.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-ownership-summary.ts"
+    },
+    {
+      "path": "scripts/national-queue-aware-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-queue-aware-proof.ts"
+    },
+    {
+      "path": "scripts/national-rain-budget-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-rain-budget-proof.ts"
+    },
+    {
+      "path": "scripts/national-rain-live-throughput-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-rain-live-throughput-proof.ts"
+    },
+    {
+      "path": "scripts/national-rain-proof-n03.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-rain-proof-n03.ts"
+    },
+    {
+      "path": "scripts/national-rain-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-rain-proof.ts"
+    },
+    {
+      "path": "scripts/national-rain-readiness-scheduler-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-rain-readiness-scheduler-proof.ts"
+    },
+    {
+      "path": "scripts/national-rain-scheduler-replay.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-rain-scheduler-replay.test.ts"
+    },
+    {
+      "path": "scripts/national-rain-scheduler-replay.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-rain-scheduler-replay.ts"
+    },
+    {
+      "path": "scripts/national-rain-stress-throughput-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-rain-stress-throughput-proof.ts"
+    },
+    {
+      "path": "scripts/national-rain-throughput-harness.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-rain-throughput-harness.test.ts"
+    },
+    {
+      "path": "scripts/national-rain-throughput-harness.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-rain-throughput-harness.ts"
+    },
+    {
+      "path": "scripts/national-region-ownership.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-region-ownership.test.ts"
+    },
+    {
+      "path": "scripts/national-region-ownership.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/national-region-ownership.ts"
+    },
+    {
+      "path": "scripts/prepare-n03-storage-data.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/prepare-n03-storage-data.ts"
+    },
+    {
+      "path": "scripts/upload-n03-storage-data.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/upload-n03-storage-data.ts"
+    },
+    {
+      "path": "scripts/verify-n03-storage-data.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/scripts/verify-n03-storage-data.ts"
+    },
+    {
+      "path": "supabase/migrations/20260929_create_national_rain_refinement_jobs.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/supabase/migrations/20260929_create_national_rain_refinement_jobs.sql"
+    },
+    {
+      "path": "supabase/migrations/20260930_create_national_rain_proof_cron.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/supabase/migrations/20260930_create_national_rain_proof_cron.sql"
+    },
+    {
+      "path": "supabase/migrations/20261006_create_national_rain_scan_cycles.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/supabase/migrations/20261006_create_national_rain_scan_cycles.sql"
+    }
+  ],
+  "commits": "011ca047241641a2af4c4bf12412063e19d0e5bd docs: capture PR62 real JMA z4 stride parity evidence and safe integration decisions\nf3fd0c7b3e7708672605423d334d1773444a8bfb test(national-queue): lock exhaustive z4 first-pass scan\n00b344989b14f52896685e2576f89be214899c0d test(national-preview): require stride-1 z4 coverage\nc4d4510500b86f034641b7ee624dca7b3e971325 fix(national-rain): scan every z4 pixel for coarse heavy rain\nb9a37da1b261650aefe39fd66c0f71ff3539a697 fix(national-rain): scan every z4 pixel for coarse heavy rain\n46457c8e86997281f7560ebe20ac905d032002ff test(national-preview): reject missing or corrupt JMA coverage\na8239cebfcb88110c6a1015699fa00340d16614a fix(national-preview): fail closed when a JMA rain tile is missing\n0f5ec30e20bf53f470cdff621f31436a6d52a992 docs: elevate Amahuru north star and LIVE JAPAN product vision\n93c506ef8505fe2ce6d664fc0945bee846ec47c0 proof: run offline town dataset integrity and geometry gate on live Shiohama sample\n158c15639d3058584062e4158685ffd525ea9f4b test: verify fail-closed town dataset manifest-to-geometry promotion gate\n3ac265a1500395d3d91dd4dc7362a93a438743b4 feat: gate prepared town dataset on manifest, municipality ownership and geometry\n40c77aa35badfb917695673f7e31b92ac0075ce7 test: cover town polygon closure, holes, crossings and multipolygons\n2738b9eef4291f52b7356c3fb754dfdab42d9462 feat: add conservative offline town polygon and hole geometry preflight\n6287f1b66cb410c6bb37ca6e80032fb63986df55 fix: correct town boundary manifest regex escaping caught by CI\n56d2fdd16cb5759140d631573e4b42e7f9921ee4 test: cover independent town boundary coverage and SHA-256 integrity gate\n1dcd80489a1c012de3fc4b720ecd0abd35ce0f7f feat: add fail-closed offline town boundary manifest integrity gate\nbaefdc6cf0316186f93b484a87f9dc89b717748c ci: surface live JMA safety evidence state in workflow summary\n875711ed3de8992acfc58c600e115874f9b414e0 ci: isolate live JMA z4-z8 proof outages without masking open safety evidence\n21048a57ac1eb6750cf2d652011b1d6cce76d045 docs: distinguish passing N03 tests from live JMA 503 CI blocker\ndec128ae47be9749d1057f540160e767d815edac test: prove bounded N03 cache retains complete multi-prefecture results\n8e02d54f9dab52a670f163b10268172abf5077c0 fix: bound legacy N03 prefecture cache with LRU without dropping request results\ndf6c644160df51935158ed3e16da9b6cb090c62a test: cover missing, cross-prefecture, duplicate and repaired N03 storage data\ne5ffd0b9c6b39e416d4e36a3a5dd4cabd9eab1a3 fix: retain N03 prefecture mismatch contract while validating municipality IDs\n86b62f735cd4fd8abb5c48b2756d13e91d40923d fix: reject N03 prefecture cross-contamination and duplicate municipality identities\n68056b7af3fe3f4de81197c4bfc5c8cd48acf4c4 fix: fail closed on empty N03 prepared prefecture data\n786401f6f595f8ee7a606e5f70d7adde4affbc74 docs: audit N03 runtime loading paths and pre-deployment gates\nbf1a148aa69e33abad877d0e6be0b94120655ebb docs: record fully green CI and remaining production data gates\nd42f58263723262aa1149518013d130bb11b81fd docs: approve pre-provisioned immutable town boundaries and fail-closed launch gates\n88facd1fb9d5dd715d02f831bc05836ee4a0ab99 docs: record external boundary CI failure and nonblocking proof policy\na219c8fbc8ee2d97d7fd31e018afc37669772388 ci: isolate flaky external census proof without skipping core gates\n3ba16528faf6d0cbb97d0cd669f39657f1765ac6 docs: record inspected CI lockfile and five audit findings\n0746e44de0d68be1c39a7de49c48107f702bcc3c docs: record green CI and lockfile evidence gate\n852f066da7106c2565c1f7e592eca8962b7e17b4 ci: retain resolved npm lockfile for reproducibility review\n9947e580448f2000ea490f706f41add33a753b4f docs: fix npm audit link syntax for GitHub Markdown\na87a4e34b0e03e0809d0dfc542813d3838885fa8 docs: fix npm audit link syntax for GitHub Markdown\nf2b8ebc5ac41e42df4d37d3fb8dced3cad0f8784 docs: record CI 785 failure and transport-only retry\nafd0332c7d765889f142084744d5a96fac6a44c1 docs: record CI 785 external TopoJSON reset and bounded retry\nea84f8d48a3c3d101f4759aa3cf4aed104745d4a fix(ci): retry transient Koto TopoJSON network failures\n3027d4107d2a971bd2e090eddb1754fbb89003b8 docs: update project overview with current dependency audit\n49f7a8f754bca86fd4985c811f06c7ed7e122caa docs: record latest dependency audit artifact findings\nc0ba2f55485e8551c9982824b9caf75b8fb5ad06 docs: record Oct 13 CI and dependency audit results\ncce53216a2ec330ac3da0e30eba68f2d7e24d181 docs: record Oct 13 Amefuru source and CI checkpoint\nb8598105b1a5d03828355844efa838db15b35c89 docs: update canonical project overview for national rain readiness\nf64d775e590ca5da046deb0d0d6f7a321589be1d Clarify current lease fencing and remaining runtime gates\n66be567b6bcd9a2ce7e17b3ff38126d5134abae9 Retain full npm audit report in CI\n21583991a3fa442d1fd6d64a87bdc79d2eb4ff1b Fix sustained proof zoom-10 tile constant\n0fc8023e62eb182bc81cdc31a44e90db7d139a7f Use valid zoom-10 tiles and assert sustained cache activity\n62749d0666bfae6d9363873f3c388dbe79d613d1 Exercise final-stage municipality resolution in sustained worker proof\ncf791a894c6dbf0685e5d2cf4a78b5fef28ea3ed fix: include lease identity in sustained worker proof\nb4667ecefa77642782e93ba80462785859d595b2 fix: include lease identity in HTTP readiness proof jobs\ned3a0b8a348e42d9cfdb5c350df1c1d8c19fa11f fix: include lease identity in Hokkaido worker proof\nd49dea883f999193b382b650d1f1aebc0dc8006d fix: include lease identity in stress proof jobs\n2e0289e5f24044515dfe132a9a456791a48d5f30 fix: include lease identity in throughput proof jobs\naea8864f848be7fad23509b3756d89a692bc23b7 fix: benchmark worker using atomic completion RPC stubs\nc31990b70c41ef49f781b02355752852ebc3b6fc test: include lease identities in throughput fixture jobs\ndfee1edde3dc9fe179ae7dc451612fcf786bebdb test: supply lease identity to deadline worker proof\n004c5a4ed60cc01ad0b1a95925eb20cf6e869996 test: expect claimed lease identity in RPC result\n2f00511093ffdf645b18afc42c37131765dc2cd4 fix: keep deadline proof worker compatible with fenced leases\n047e325dff1797d2b95f0e5574c64bb695e6302b docs: record lease fencing implementation and proof gates\n97f4b43c8f091062c50c19fdb324585a5ca345d2 fix: remove unfenced RPC overloads from proof migration\nfeac548d2da7ba657e61320ae68a0b01f709db8c test: restore completion mock and clarify stale-response case\nc4769d14aa62978c12559dda89e1214dec7480b0 test: clean up lease completion assertions\nc99b1e6cca1b4b84d2d7db2c794e37a276ed4e03 fix: correct lease proof variable references\ne5fea2fba6924d7b788291e15fc60262c64a8035 test: make lease fencing proof identifiers unambiguous\nbbf66277613ab66bb173f6383d5bdc7e463035eb test: mock atomic completion RPC in worker cases\n9e6e4989be951256844ada10a9dbb8c3bba00148 test: prove stale queue leases cannot write or fan out\n089744f39122221920fb662999d9b7eb8e9c1e3c test: assert atomic lease-fenced completion behavior\n96f86c763c38fd0aa6d914bcc74c855e5e2fc158 test: pass lease identities through worker queue calls\n7d757ff4b58deac2334dc97ba19052ef5ab95e51 test: assert lease-fenced queue completion contract\n799847338d74ec3ab3e2182573d31e89e5254611 fix: atomically complete rain jobs under current lease\nf2dd8f15a6e2fb6b3a9209fbeae0d17f88d6eb98 fix: require lease identity for queue state changes\nda947dc97cde97320456fedb27ab3b41079240ef fix: fence queue lease mutations in proof migration\n00e5186a0127689af91ea0819b2dbd4cb92b850a docs: map lease fencing requirements to worker call sites\n9c712b3378b9ccfbcb859fc2799f2472d0e6d1a1 docs: propose national rain queue lease fencing contract\n90063e242ca9e308869219959293c90173f769df docs: record national rain queue lease fencing blocker\n5c91c02ea08718fd5458ba9578daf6e91cd8aba7 test: make missing partition manifest fail-closed assertion deterministic\ne995668c5c9978a537c4c5fb70bc607b2b9ba1b3 test: verify partition worker fails closed on missing manifest\n94132ed3528e3af3722f4502d27ab78196f03547 Mock prefecture index in partition worker route test\n4d3c23765eaedfc6c730127443138f3658bac411 Correct dynamic partition identity mismatch test\n0781b3e28a4d0db64d8b789fc1dd0c743f8462ee Fix partition worker test mock syntax\nbf09c5bfa495f4e29c7ab6f3dc9b1369f3d967ae Test opt-in partition worker route\n1fbeda02994869bfd34b9d27f51b34b9b77bcee2 Add opt-in partition resolver path to proof worker\ne09c1f2a901726b43a457146735c498a059cd623 Test dynamic partition registration and shared cache\nd7f776c02c6271ca503bc0e3ccf35637c1daeb58 Fix regex escaping in dynamic partition registration\nabec7f495e71051fe28da4f665ec94d0db1757e6 Support invocation-scoped dynamic N03 partition registration\nabd54ab0f1a1eb3c683ef9243be174e9acd6312e Add offline partition Storage-to-resolver integration proof\n3171be59bfd83dd730dea9cea70c3b7bb21d34bf Test fail-closed partition manifest digest validation\na691395d8dc92f22617f19c811824b2fd570b083 Validate partition manifest index digest before accepting\n4206591a05fe02b64de16fba08a615afb23697df Document successful resolver boundary probe CI\na246ebee7400e3c383dc57f81664e0acf1eb54b6 Clarify resolver equivalence probe coverage in CI output\n1f81b52d58a4ec426d07ccfe6678239c82461d8a Document hidden resolver test syntax error and harden CI failure propagation\n30417d5de5dacd03ed8312ede7560456715f9157 Propagate resolver test failures through tee in CI\nb5ad44399db1d6ad761f01913ff0c7025f69bc13 Fix escaped newline in resolver boundary probe test\n07fd685ccbb5311e78834e13a47abb4cef889e85 Record successful 57-case chunk resolver comparison and boundary probes pending\nd3a67493146a150ea36fbfdcb0def8355070ac39 Add boundary and hole probes to clipped chunk resolver equivalence\n83637c61067a04f01c8d27ef5c863ebeaa97c3da Track clipped partition resolver municipality equivalence experiment pending CI\n984727b7d594bb81f0540de4318ca246ab7b83e2 CI exercise chunk SHA read and municipality equivalence for clipped partition resolver\nb93a5eef0062d5a222e4a99ebc3f675acb4b4c02 Verify clipped chunk resolver returns canonical municipality codes on oversized polygon probes\n7bbd5b51192406908d3d3c6f1005c3ee6dea059f Record successful 446-case boundary and hole municipality equivalence CI\ne6de38046dc8474c284b754e110290b4ec976ff8 Track additional boundary and hole regression probes and pending CI\nd85201a10d8906f139c6ab2e9add832472f714ff Probe source and clipped boundary vertices and hole rings in JS equivalence CI\n25accb13454a00f9dc9ab1a73b69a56064b11ef5 Record successful 228-case original versus clipped JS municipality comparison\n2f3c2b658d56761b35e97510f576a8a3393619fd Track canonical JS rain-hit equivalence test before clipped packaging\n12d060e79ea6053c3111a4898cc9aba1e22de981 Run original-vs-clipped canonical JS municipality equivalence in CI\n06e9da75dbdede98f4369e907be63d4836d4f99d Compare original versus clipped municipality hits with canonical JS predicate\n53976a573c617758b2827f50d5139212da04fd25 Record successful all47 clipped partition packaging and integrity proof\na8ce6949bd69569b65593e21b40982403d437e35 Track experimental clipped all47 packaging integration and unverified correctness\n4e2aa295b63cdb2e4f1bfea5395c827803ca3cd3 Test all47 local packaging with actual clipped geometry, no Storage writes\n21c63aca44ca9ebbeff1886c8488c96c060a86a7 Emit optional offline clipped N03 datasets for all47 packaging integration proof\na6562af2aa71bab3c333b145ed6fc4485d7ae46e Record verified 19/19 clipping geometry success and remaining packaging failure\n82535b0ff222dc7d67f19d03d93ceffa0f7920b8 Document real geometric clipping experiment and outstanding boundary correctness\nfbc19521a24897041e01be4630871211fe3a90a2 Execute offline oversized N03 Shapely clipping proof in CI\nc7ffa126b946921f60236e133b2770bbe2962af1 Add offline Shapely clipping and area-equivalence proof for oversized N03 polygons\nff2441ade6c6b155d0690761c43609d489c5db93 Record verified nationwide polygon inventory: 19 exceed 1.5 MiB\nd349f20a2c8d3973d35e915ef9560e9ae8829f15 Track all47 polygon inventory experiment before clipping design\nd9ce43cfc7162e21b7093b2109bb8443f10cec33 Run all47 polygon size inventory ahead of known packaging blocker\n0b7d69885b624e9e35f9c459f99412f72d8d4e60 Inventory oversized indivisible N03 polygons across all 47 offline\n02790a4f9e043798b36a23ad89d6f6ba3bec2499 Record actual 1.5 MiB all47 failure at Iwate oversized polygons\n150cc42827cdb1250e43e0cafd20b40f81233c7d Record actual CI argument omission and corrected all47 proof\ndc3dbd90549a1ee661a6692d0dc513a70ffc2c8b Fix missing 1.5 MiB CLI argument in all47 CI conversion step\n4b2bbcce74dfdcbcdc4f205d2baff76ee24c1d86 Document pending all47 offline 1.5 MiB packaging proof\n261a364a1be5dad13286edd831ab59c4085b1253 Run all47 local-only 1.5 MiB N03 packaging proof\na760e5a89a2207527164560acd50fad7f8a2989a Allow explicit offline-only target size for all47 conversion proof\n786e3480993ab7d14710def9a9c9875ce92f11f7 Record verified Hokkaido 1 to 4 MiB packing results and no-adoption decision\n258cfcd77f60648ca22e51cffac2cda42b4d015b Track alternative polygon packing proof and clipping still pending\n3bc563dcc0cdb8e60dc96e42a64c548764048867 Run Hokkaido alternative polygon packing proof before known 1MiB failure\nd4d5f22807b8b5d9b94bf79a4f17f3caf5b293b4 Add offline Hokkaido 1-4 MiB packing and municipality equivalence experiment\n9a2133b6c3bc5a0e152ba9854402b76765202b73 Record measured z8 z9 z10 Hokkaido baselines and rule out naive zoom-only splitting\n46f0f2fa93133bb3f0168e57430e9dc182d03805 Document z8 z9 z10 baseline experiment and correctness limits\n918ac8f60da3473a2762796b631150e878ec64fd Compare Hokkaido z8 z9 z10 bbox baselines without changing runtime\na83339f4a03328dc7df4d91ce0d2af5b7df6d6b5 Record measured Hokkaido z8 bbox storage overhead and reject naive duplication\nc144f0257cf7d1f927e083bdfe3b9f6671087175 Document z8 feasibility baseline scope and unresolved correctness/performance proof\n7ed4823796d2ed3fd37ada3b22b0178dc255f046 Run z8 Hokkaido feasibility baseline before conversion and retain numeric proof\ne7338e363c3edf12080a2c55a8dd91af7769ebcd Add offline z8 spatial packing and duplication feasibility measurement for Hokkaido\nc228d5a3678e9bd2bd79c8452bb885379a6ee46e Document measured Hokkaido single-polygon oversized chunk and next proof\n21903afc68ab2d4f4356667097a471ba808c20f7 Expose prefecture and oversized polygon diagnostics without relaxing partition limit\nb865ac63d7c7f0f6bda7227273b56fba7e664201 Record real N03 conversion failure on oversized partition and hold adoption\n92bfcd32dfdb429132f1e7be39fabceef20e8267 Record real conversion CI bootstrap failure and runtime acceptance criteria\nc5910e71e25d02c11a790de0cc2171120601d29d Fix real N03 conversion proof bootstrap: repository has no npm lockfile\ncee0d0c9b9abeaa1ca244298b4a69f4517b65e5c Prioritize real 47-prefecture conversion proof and record CI workflow scope\n6925a2f98fc31cc7cb9d5d009ba9816acdeaf93a Run real 47-prefecture N03 conversion proof from official archives in isolated CI\nbbf844cb1501875fe8550de23f57c7844cd0816e Document input digest pinning and pending real-data N03 proof\n92f76f22e0adf20021643f0b50b9aa328483841b Pin N03 prepared input digests across preflight and conversion\n18f3f0adf87fd257017c2c91361e065786140bdb Document bounded-memory N03 packaging and partial-output safety constraints\n0dcbd6ae625b8bb2daa2c6cc1d05121e4ede72b8 Fix N03 preflight municipality code digit validation\n0bf9a24846865974d591ad21baad3a5b88e6377d Preflight N03 inputs without retaining all prefectures in memory\n7f12623b2fff9a4a51eaa59b912d716f43e222c4 Bound N03 offline converter memory to one prefecture at a time\n919c8095fa407652b8a2056cb2142b8a5de360ab Record N03 manifest and chunk hash regression coverage\n43011657702b126dadbd7619b5e2bcac41bb00c2 Assert local N03 manifest and chunk SHA-256 integrity in 47-prefecture fixture test\n03df7c460cd9a05aa1b4265c3e5be3ff01089dbc Document SHA-256 readback verification for offline N03 packaging\ne8a7896b22c7bc3198bb8c6af1b6c0872e1284b1 Verify local N03 partition chunks by SHA-256 readback before publishing manifests\n3746e6a955b4a194ca6c35919c99f6b3c165452e Document 47-prefecture N03 local packaging regression test and remaining proof gap\nac5cfe61b7b75e64b3c95e05930fb82b0df627fe Test 47-prefecture local N03 packaging and fail-closed input validation\ne759c1ccbabf982a1ae36d0143bf8d744b38de81 Record local N03 47-prefecture packaging CLI and verified CI checkpoint\nb70c4da759dd2f653bd1919885068dd395da9b6c Add local-only 47-prefecture N03 partition conversion CLI\nacbeb6e2f3cbac7d81c8977e324fa92e46fedafd Record flood validation research and evacuation data safety contracts in overview\na03416c440c04b3f9c9cd26207a40af0067a5bd9 Update Ame-furu overview with N03 partition rollout checkpoint and live Storage evidence\need2a808eaa216348cc4b15cce95976033bc48d8 Test offline N03 partition package integrity and fail-closed limits\n42a2b3b11cac76c902d78e6e0527fb6decc95bea Correct prefecture code regex in offline N03 packager\nb81038eee27904e1cc56f78cb23bd477bad8324d Add offline-only validated N03 partition packaging contract\nd996cdabe1b2fad06a2e7692826bebdd4ce03bef Export N03 partition dataset contract\n4c4fa61cfaf3ed8e012ffdf79e1e4b3b720562fc Correct N03 partition regex literals\n9a0b407bb73993cf4d26a526fc07cd8acf440d44 Fix N03 partition Storage path validation\n0ede2388aaf756af06674de1386fba89ec32a6ab Test versioned N03 partition Storage contract\nef4494e483212dfbe4ba228c4c1771e4b61f11ba Add versioned N03 partition Storage contract\nc8595fff6958fce70ef5934a2b6a96a343776113 Test promoted bounded N03 partition resolver\nec22a0d87c621e262224ad0ad6e7326c3746a992 Promote bounded N03 partition resolver into rain library\nf4f0ec128a8b38d30cdd4bfab27b171095548abe Record CI 656 and 10 minute JMA 404 evidence\n50ca35ca74ee2f750b86ba275fc32ee956c9a08f Document LT_1 notification threshold field finding\n274defe12b342ac312a8ad1af8a5e58af944e16b Fix national rain queue abort signal syntax\nb314fb305a0ba1420d7a0eee669e85c7645439e6 Fix national rain cycle query abort typing\n181117e9d47173a5f62baaddefaae31a9fd261bc Refresh Ame-kuru overview for October 7 checkpoint\nf43a64d471feaad1af206c383d1db794b95835b3 Allow full 10 minute JMA 404 retry proof\n17b2e2d817c544430bc6b2a89316823f91ef2857 Test superseding older rain retries\nf477f90e8656b1cad504403bcfe610881fdf3754 Supersede older unresolved rain retries\na20950ff4b6eabc722cabd70ab7f5a6dc79b0b0a Track JMA 404 recovery through 10 minutes\n1f2cee963a15bc7dfb395b3ec6b5f6b21903e982 Track JMA 404 recovery across multiple retries\n33a8fe6d97c9761da3a9b46bd6cd7e4d9117d1f8 Measure JMA 404 recovery after 2.5 minutes\n749db6d295b0f4ae3fa93a10b727fa0b3b4abc26 Add delayed retry proof for JMA 404 tiles\n6a75f0e0c6c61e1ebf36d7c68eacceeb81068e93 Use relative import for national rain cycle module\na9ba0136d5a998a177a91955455fae2d93f1f6cd Fix national rain cycle route syntax\n1b62a86c986a4999ba09b785b901e985a3632c80 Test completed basetime scan gating\nf1d1f901c40fbe67025e9a9b110b481270a6367b Gate national rain scan by completed basetime\n7a92489efbe86119ee905532c0a1d1a5fd369fec Add national rain cycle state persistence\nbb1ca8a6fa5b6d1d0a09e205935521719748fde0 Add proof state for national rain scan cycles\na1db8dcb4bda681146134010ec84124f93b73d24 Test national rain basetime cycle contract\nd31de7b2c45a76499ce0c045ce3fac485107abbd Add national rain basetime cycle contract\nb104f42b1d92771054c1bc92ecfdcb603f435642 Run town boundary proof despite upstream live JMA failure\n5fce9d2236675e332d2d86d65ab3c898e433ba22 Prove Shiohama town boundary ambiguity\na94f506e70356cde30c763738f43b7cdcbf30f24 Decode unquantized town TopoJSON arcs correctly\n6561df3c9fbd6b108dc4b82212e741ce2ce358d1 Trigger town boundary diagnostic CI\n1fac7bee3bf8dce6a53aab14074e2c85a7b72a66 Emit town boundary diagnostics before assertion\n2bf443bb7e8fb277a97912328eed7fb60afc9774 Diagnose town boundary decoded coordinates\na3f72dd69f562e21bb9c834f23fa9b40216a61f0 Prove town boundary intersection for Shiohama\n7f6c7efa0152805f7d375a1b93f37522bac67425 Fail CI when town boundary proof fails\nc4c55c67e2fe4b3512d1a3502e2e86d7ba529ffe Fix live town boundary proof execution\nf316963681a806091befc58e2f284f27b127f870 Repair census town boundary test syntax\nffd6c87e03c82f351e6df32eb6ead70a7818e955 Fix census town boundary test regex\nd3c3fd65f6860cd84f5e89258406cad16a98c8a2 Run live town boundary proof in CI\n9cc61f9fef5e7845f243184cffc1622b28ccbddd Add live town boundary TopoJSON proof\n69515856783fb0d46b7a4afd086b468cb81f57be Test census town boundary proof contract\ndad8e767e00d1ec9194233bfcaf6e6edd1b0f470 Add census town boundary measurement proof\n7f66086d6cbdf8ab9422b6eb6eb35287eb6c26f6 Refresh Ame-kuru project overview checkpoint\n5efddef430b177f04faf70a5567e6a15649f5e51 Document worker deadline safety checkpoint\n5806adcfcdcbc71bf414964c2bdbe6d077f7990e Update worker route abort signal test\n8647f984a4780368847bf38b6577cc652ddd8990 Test municipality resolution abort deferral\n85df542860d0763a890a51addb5d9425998707c6 Test N03 storage abort signal\n2bee0a21f30c8ce72cdc9927edde81a88d3687b9 Pass worker abort signal into N03 resolution\n8257de5961e24157145e958f28e2267b166027a5 Bound municipality resolution to worker signal\n9d1ccc1d4fcdc8327e47ff2cef9c1856f74b8ba1 Bound N03 storage loading with abort signal\n5de66bf5fb59a89fbe81e4dd65eaafab4d4df176 Thread abort signal through N03 resolver\naca867159f5662dff9f8605e98a0761f0d68fa72 Fix enqueue abort test placement\n5d1469e67b8b04bdefa81bb81422943595a26118 Test queue enqueue abort signal\n1410db8489c00eb642f23395fe23e4faacad1b49 Bound legacy refinement enqueue\n07060a618dafc9f1aca58c02b207f0bcf9c90261 Bound national rain queue enqueue\n6e7761f4037e409abd57745d3ea360012921637c Test ambiguous worker cleanup finalization\n1b6c3037421a69efb2b05edcba34ad75ec2f332b Preserve jobs when worker finalization is ambiguous\n9bfdb504a0118c93cbaee6147b3aad264f4a6a75 Test queue claim abort signal\n1fb7db46707b8aa8a40d2e45bae8e0c7bba57faa Keep queue test doubles compatible with abort signals\n13fbb928b81ad0b13479851254fcd744126dc1b5 Bound failed worker finalization\n05c59bbfefaac29cc39eaa9e372668c9970afe2e Bound worker deferrals\n13ead4e347ef4cf094c8ebd2dd84e4dea896ca40 Bound successful worker finalization\ne102285cbd45b45d065950cd8faa2b463579e559 Bound worker result persistence\n1a8f792675172ec6f359f3716fcbb4cfa6c3c9ae Bound worker queue claims\n5fb0e8d5d497e6d92e691a0f65423aa155ebd5b1 Add worker finalization deadline signal\n3b80065fa0a0b5726884e29ee644e4f70f929c6d Allow queue DB operations to abort\n9fd7406e94fd78bc33f6dd1a54f9a612fd58219b Test ambiguous worker success finalization\n3b8ff406e2b3777931c8bd6f4ab93bd1b4a12ac8 Preserve ambiguous success finalization\n96b2265b40aa248b14fd5a057c600ddcb5fa791e Expect deadline batch to defer unfinished jobs\nd0e120fb7663d726791c1681b0dee3251e923ea0 Cover worker abort before and during fetch\n60a099234081530942e832d163766f5a31583404 Separate worker admission from in-flight deadline\n0fe973beed55a50c4bd0d39ca48bf8fa1f94bdfa Fix worker deadline test mocks\n709b278a491ded12945b67105eab89b334ce3e64 Avoid claims after worker abort\n4db8681283f872b7e2807251d3bc50055a91f3a5 Test national rain worker deadline deferral\n159df50c44e9587352caa38ad8295c807d4966b7 Bound national rain worker in-flight deadline\n40419b70ce7f588066008f02811cad0ae3ad7aeb Record final direct z10 handoff checkpoint\nb24ac52c33e2529f3abbc8176075d1c53135bbaa Test bounded z10 worker scan window\nc436bf67fb28c4118f9ab677e993954ea197f2f0 Reconcile overview with direct z4 to z10 pipeline\nb6d5497b45cb1ec776eb4e6d3928c62309cc67b0 Sample bounded z4 to z10 screening evidence\n351f7cf8b6e8e00c18b485a9236be3fcb7faa99b Bound direct z4 to z10 screening proof\nf031819499aa5847ede91978fcaf03ae7928ca3d Point low-zoom proof at direct z4 to z10 screening\n34fc06f1586c9f1f3c2e2a6457a89810322b4935 Expect direct z10 national rain queue jobs\n688f93d1a71e89c77bb602f2eb89393cf24a9228 Refine national rain candidates directly at z10\n3ee6f09bb2e1bf08e9f5ed22a5e9c2388134d741 Test direct bounded z4 to z10 mapping\nf147a80cd9863a1321e2617c3fa5fa151e2bb011 Bound direct z4 to z10 refinement jobs\n4c4a6ffb9c4dfe132a4dcbbe5f7c8edf01ebcf11 Fix bounded low-zoom proof build\nfb6e23255e6b7e36a9cb7c847f6555b0a3e2b3b5 Bound low-zoom proof parent memory\nfb5870eb2d9e1628395b7dc4afe3cb84e62f2519 Retry transient low-zoom proof tile fetches\n94f16fa5f805100682539d12961ce6e6db311172 Probe every staged rain pruning boundary\nd59ad825acbf14014691ef1d1021087613f6ad71 Generalize low-zoom proof across refinement stages\naad7859462039535f6342e29d2f82f6166d5f97f Record unavailable coarse forecast frames in validation\n480be02f41c51f71beb7a353f405aef394acc233 Probe low-zoom screening across three observation frames\n8b7e6fd2ccc9c1bd3a1b2677bd1f0acf48e43e80 Allow low-zoom proof to sample observation frames\ne24fa5d2e302b4ed1a8968d5de9e4194d74a49d1 Pin low-zoom descendant parent geometry\n5c32aec73107d5688c35b7d372aff589d320f5bf Expect bounded lineage queue identity\nd458d95c5fb1910b99bd5f4748a50d91ee086654 Test separate bounded lineage jobs\ne9c4409abc72eb1d9b728fba6c908ed469677af0 Store candidate scan windows in proof queue schema\n2ef7215764a1f20e883fde83837ea048a5964f0d Restrict worker scans to queued lineage windows\n6280aed45fab88491e04a5e73fa13c5cc15f24cd Bound heavy rain scans to candidate windows\n3e3a66ab15f77fa498e7f894d73831d98ea516cd Preserve refinement lineage as bounded window jobs\ncced930a077831e4b0f4c8b521cec73b3852dc5a Add failing candidate footprint regression test\n04080502c1f4007298298429af60837d600308e2 Fix low-zoom proof build typing\nab5bc0e2f38e70fb86b598f8c72f5f0483a21c0a Allow empty owned-chunk partial proof results\n60279501c61706ed8d8ce4b653083b5fe6085485 Allow deadline proof to stop before municipality results\n63924de59fa37baf270d88a31390d2275bb07647 Skip unavailable coarse frames in low-zoom validation\n49fedb15132d1c3da35b8bf4a4532d2b168b7318 Test forecast frame readiness queue contract\nc77888f598017d4f50bf239c6e21c0cd9914ba23 Reconcile project overview with current national rain source\nafda5748d8bab95a0cd683321f6432fd76d7e271 Make z4 screening proof tolerate unpublished forecast frames\nb2517b9080966b5cf800dfe06f9d3efc832f57c5 Skip forecast frames until all coarse tiles are ready\n41fb1671b552fc6f4de84db8f47992da87658ffe Count saved results only for final refinement stage\n51c304d50982daf342b2d8c2b063f456b6e1756b Allow deadline proof to leave unclaimed final jobs pending\nb9b80c07953eee63be6af32f92ccb3745a7db7d6 Use Okinawa land-intersecting z10 readiness tile\n6816c6e54117f94995df492f0ca7d8592835dad5 Use geometry-valid z10 HTTP readiness representatives\nee28c928e9af36f37c5febf34fbc5a1f88c69415 Define explicit z10 readiness representative tiles\n0c374c48f1970c859d80ccd78c2d9fc65e30d652 Align HTTP readiness proof with final z10 stage\n93a8c350f7d192b24985788cfdd7f34531e83938 Align Hokkaido worker proof with final z10 stage\n3516180acc602b7d9646664290463859c2300afd Preserve stress proof location at z10\ne23f314db972bacc15b2c6ccdebdfcfc5c08932a Run N03 stress proof at final z10 stage\n811fa3f707b13cfe13aa8638fe81bf148d39c434 Validate throughput saves only for final z10 jobs\nc85177b7c22d2f1474c6b0c36104cd3bfb93e085 Align live throughput proof with staged refinement\nebe6256fe4a1cf7884be1e02c4eafa0b2685bc17 Fix staged queue test syntax\n61321b450daa1c785fcf265411a9cced06a94509 Measure final z10 stage in throughput harness test\n6cf3177edb189f5d20994de249e416b1a10b4ffe Support staged queue writes in throughput harness\na2d69e37065f0beec75399c160d0a5182edca248 Update national queue route test for staged refinement\n40ed3e85efc47a10b01fb3c349096a0da6c67aa5 Record watched-place and evacuation product vision\nad18e288bccc753f17a731b026690c5b34df26ae Make life-safety non-assertion rule explicit\n7035147eb8366a4d7b8e58d1ecee136e89dd7286 Test staged refinement worker progression\n08e3b963b60a4a434b6755108153bfb4e2a1a02f Test staged national rain refinement\n4a8beedd030c141c20b55990a050ba109702b59a Refine national heavy rain through z6 z8 z10\n120b3d0283500674bc1fc47f398f1a3006d91a49 Generalize staged refinement between zoom levels\n994fcdcbd796d7840a461626ab4bdb12a8eb025c Start national rain refinement at z6\n31891ee7b0d3fe6d4994deca3be184a404a55d4b Add staged national rain refinement mapping\nd0cc17b932837eb5311f69f9f1d96096096f08f6 Test z10 national rain refinement mapping\nc659e20809c9c8b6dd4455d9b0c30033be135656 Use proven z10 candidate refinement for national rain\nd3271c0fc20ba850894f1bd6812dafb30cdfcb61 Upload complete JMA 404 URL evidence\nf10298be8a15e7927037332d4d3f4b7fa3a95f8b Retain all reproduced JMA 404 URLs\nba2956ada49b771fd44dc04634e615d8b9745ac6 Add authoritative new-chat handoff checkpoint\n3d04f5a3dc24635d005a9538e3e1b7925d3986b2 Capture live JMA forecast 404 coordinates\nd268db29b82209368e76413c62ca6ac19fdf0ac3 Add live JMA 404 reproduction proof\n8b21137330c229a068941753b888a197d18c47ba Record JMA transparent-tile existence result\n0cd832537981c44e8f6e7e614627a900348e02d1 Run sparse JMA tile existence proof in CI\ndf72cea34333ef762214295508ede32e0ee19e6a Probe JMA sparse high-zoom tile generation\n5e316283ca4f4adf85843b4b234b7630eabe6335 Record candidate-only zoom10 forecast evidence\n81e0dde9e4bfd794bf35f176d2d57f2743e69b80 Report unavailable coarse forecast frames in zoom probe\n6995206cf995d63f0aaca83bfd9acd84865c32ca Measure practical forecast refinement zoom by horizon\n5b8ddd0bf82742c23271323bdf1987b96eda635e Probe forecast refinement zoom availability on heavy candidates\n01f7bb8f08ee1c71047695bde288fc80afdde748 Record forecast low-zoom screening evidence\n53879d595cffa3156477bfb329b4f7a8887394fd Skip transient unavailable JMA tile in live throughput evidence\n34959baa6f874c213053d000a223db208246195d Run forecast low-zoom proof in main CI\nebc2309809961fd3d56f60500b060954ead9b76e Retrigger forecast low-zoom proof\n69451b4d6bc4fd653ae3264b9137cfa8010e8f48 Trigger corrected forecast low-zoom proof\nd1075e061d2a2bc9e42d1b5438216857185ea377 Fix forecast proof workflow YAML\nb014b519f15bddea6347d6e24eaaff16a3afc0f9 Fail forecast proof correctly and report missing tiles\n9d7fdc98ba72450795dd1b94c11c0105a58f7cef Record unavailable forecast detail tiles without treating them as dry\n6b6744d44aa5016fbecbbb33aa6311fdc72f5d0f Run forecast low-zoom screening proof\n57210aeea4dfa49a0e7ccc922f348592a5faded2 Validate forecast low-zoom max-rank behavior\n533a0a8e5b907b6d7c2be247292983408090208a Add all-frame forecast z4 screening discovery\n2121e8df55be2e9f103285716239e20bfcbdd477 Record low-zoom max-rank screening evidence\n0e1ae14b2d354118a33da34b1696e64146b5d0c5 Run low-zoom max-rank proof in CI\n11f822767cb8229f36ff5611b79e862bbf7493b7 Test low-zoom parent mapping\na6295d1ed91aea61aeeb928496e310ac8c840436 Add live JMA low-zoom screening proof\n8f4bf244f4f4c0cd801c67c97b5adb1c3a1347c7 Record authoritative PR59 integration checkpoint\n3a6827ceb3458a45f2330c216492bbdf19de03e2 Exercise actual HTTP deadline cancellation and queue return\n8a747b10d59287184b0b21438560e7fd0bfc980b Reject incomplete owner placement before HTTP work admission\n23e8993b9a0e03125dbbe12a113ca992ae1a399c Measure all47 ownership bins with isolated bounded HTTP workers\n46ac9f7d8427dfa9f55bdf389236d106bfe98338 Recalibrate queue refill from grouped deadline service and count partial HTTP transfers\nc924da0f1c75958889e0f167f1389ba1b662c64d Prove weighted all47 ownership, queue-aware refill and isolated deadline workers\n039544a5f489946eb8108f448e26aa16de7629d3 Record CI 502 repeat measurements and Production readiness hold [skip ci]\n48a4a397a33f705e6d93d83de9aa00471e001b84 Record constrained cold-batch deadline risk and readiness hold [skip ci]\nc8da0d9c702fd9093aebebef6a6f8222b06561a9 Record sequential CI 501 readiness gates and correct phase HTTP metrics\na80652ddeb5503e1d5e5f5931fda3863c265090c Add bounded N03 cache and representative HTTP drain readiness proofs\n2a7471c423ca336a1742ee18af4afae5bc13123d Record CI 499 partition memory evidence and remaining gates\n57c22e9bbf68226b6b432371f6e9307c3106ff06 Measure partitioned Hokkaido with actual bounded worker\n122c06a84328e67dc79156ecfe19c9f1ac1a70b2 Prove exact Hokkaido N03 polygon partition design offline\n981de532300521579c3c2caeeaf583e5b216b95d Record verified throughput improvement and explicit Production scheduler hold\nba9a0b0360ab9cf30a1431f4ce8fb3a2b0a2576e Reduce exact raster boundary vertices after measured dense-worker bottleneck\n20174bd1452dabecc3b0fb6f57e0dcc44e5bfe46 Measure actual bounded worker with live and N03 stress proofs\n78cdb884cfbceed15b355801faf2b6413ba53ff1 Select live heavy-rain tiles for throughput proof\n5d40ff6634066710beda5738f08b1310d4c4c793 Fix live throughput proof target-time fetch\nd2c8c17851b797b9778af5c5c2f8e60492e218e3 Run live national rain throughput proof in CI\n61bf42907f3b3c7800730326cb4fdfc240472c13 Add read-only live national rain throughput proof\n0390bcb394c8824d5e2e0eb7abb7805bc0684581 Align deadline proof with small-batch claiming\ndc0319389c2d8301efade43f50bbe3a89ed38327 Make worker deadline tests deterministic\na1b78ffabcf2f3b755f507d9757394aa69e848e8 Correct nationwide scheduler gate in project overview\n60988fceeb47044a017a6b7bc987b81ba798a45f Test bounded parallel national rain worker batches\nb926577dec26c857f00253defbf9b5d963ae526d Process national rain jobs in bounded parallel batches\ne7de7ec9f5e4abfa84ba2d69b450d872f7af17e2 Test concurrent N03 single-flight loading\n0231eb544f5eca2eb06ab7c062d83f9f62d66443 Deduplicate concurrent N03 Storage loads\nda21f33f3d7df5e5bca56f1e508a381750bf397d Prove non-consuming queue deferral in CI\n9e4cc96494f2598e8eb9f80b7e3f1da083e0c91e Test worker time-budget deferral\n9390762ebf8b86b155b3a604fbe77d42aaacc02f Defer unstarted rain jobs without retry penalty\na9e486a2b4602e10c349ea72bf0ce0af27e979d9 Expose non-consuming national rain defer\n3434a1908706b7cf337b315a690e5a0466ea6879 Add non-consuming queue defer operation\n088bc6f76e3e3f190fb38848bf2bbbaf07af9497 Bound national rain worker by execution budget\n9114661adcc4d091ee9cb4a8c15f4f30ef7f2acf Add isolated nationwide rain proof scheduler\naa1e3ccec7d35d1ad3d5bf3fd77cb515869d08df Test later-frame nationwide scan atomicity\n48a687f7e32b3b532e212f388cb5bf7be5c80c72 Make nationwide queue scan request fail closed\n0da8bf5aaf61580bd86cce3b0e974bdcb1f14015 Record completed nationwide scan queue proof gate\n8fe751b3d9a37b01bd7fe3b408469773af13f9fe Return fresh JMA response per queue route test fetch\na137aeb7b64d39e91b92d5a9346bb325b73132e0 Align queue proof test with requested tile metric\n92319bccfdea15d801a31ef5847620a37e5dcaf2 Clarify national queue proof requested tile count\nca985f07b3b724b343858921174c92591f2f6cb8 Keep queue route mock implementation across tests\n4ce97587a9ea049d9b4d51bca9f96d3363d7cf1a Test protected nationwide rain queue proof route\n870ddeadab9990544df63c2638897b1bc5adcd22 Add protected nationwide rain queue proof endpoint\nca29f45b2d24464e8abd9895e41944482b6d745c Test coarse-to-refinement tile mapping\n8d57f3a6c9526b6f2297e92662c001354154ec06 Map coarse rain candidates to refinement queue tiles\n2a0cd31dd6ea7c0f1e7e414c22c9e1223844f21d Record reviewed N03 proof worker milestone\n51e2a4aaee982267b1ff86951ef9242aadc4fe15 Test proof worker fails closed on N03 resolution errors\n7183154ccce36e85088ba00b063702c001421408 Record verified 47-prefecture N03 Storage integrity\n314d68caa7eae5bf5fa727c90cd916d7723f72ba Update overview for nationwide N03 Storage upload\na19ddc10efe982f0c4ef4620836ded87f49b91b2 Make N03 Storage upload safely resumable\nb6efddfe22f03746ae0ae310c5577d0b4e9d31ef Fix N03 Storage verification path import\nf2690bab04d147a23d913e8d7c524456d1e17414 Retry transient N03 archive download failures\n12ca68c2f7c19f8300a8b1fa2c05681148aba784 Use repository install strategy for N03 upload\nbce6f23b4831e6ded99447440b5bf9aa8b925f8b Verify N03 Storage after guarded upload\n9f1c6654a7ec8ad78ccbf6fb41667895099e6ffd Add immutable N03 Storage verification script\n964b729128d7fadd631ae652d3f66f4b306987d4 Test proof worker prepared N03 wiring\n71ea8bae58a59fe4c0d084169f1f002a7de62ab1 Wire prepared N03 Storage into proof worker\n8a379fbbc9ae78718da9771abd1687efcb1ac3cf Update overview for prepared N03 Storage milestone\n75006bb5ef8056d3d5f491e4d231d0710473b0a7 Verify prepared N03 artifact hash in CI\nf24475cc5ee0bda243a4b44223c5b27a3e5d7c0b Align N03 upload workflow with dataset date\n9ca741169bec3687bdbfb04fc4e6c7f80f802f4e Lock exact N03 dataset Storage prefix\n4e7e175e41c8c793b5192232affda01272d6f95f Test versioned validated N03 Storage loading\n4ac331db307c3624dad08d8508903f83a5264c86 Verify N03 artifact hashes before upload\n53a5f6a093e8f9dfaa844dfe49b6b01691e6e280 Hash prepared N03 dataset artifacts\n5a35c038dba307a5a858c06f602381128b5faade Version and validate prepared N03 Storage data\ne0304ba30083aae521e8a01a8f0217a0305be4ac Add guarded manual N03 Storage upload workflow\n76ecc8f02028d3d0ecbe7a899fe90e9a2212c16e Lock N03 Storage path contract\n49493286550eccba3be83731ce3047d44a7af3ac Add guarded N03 Storage upload script\n4960949c0f62533bb4a5c3caabe4a28e428aff36 Verify N03 prepared-data generation in CI\n93caf0e99c14ea000679fd77c54881d081c32643 Add reproducible N03 prepared-data generator\n275ce18bf7b10b14a5d0c3333879b0c283f995d6 Test cached Supabase N03 prepared-data loader\n7446cb4994b2378fd252fb06d0775aa642b1f256 Add cached Supabase N03 prepared-data loader\ne66814586783e1a40a84c84c77505e826853ee7d Measure prepared N03 data size in CI\n82915cab012becc324576feb2fd3af636daaa7c7 Update overview for national rain refinement milestone\n6265d3c11c37439ed24e5d7966261833ba3a4d46 Verify worker persists resolved municipalities\n47993f697ba2cd1ca8038a35e07c990080d9dc77 Save resolved municipalities from rain worker\nc992e0ea4ff1d087cabbaee13f1e6beedc5662f9 Persist municipalities in rain proof result\n48eab90e04be376b9a96c8db391d8f803ae4a883 Add municipalities to rain proof results\n06edaa18eb1b1aa9fae326c2cb644f54e905062b Test worker municipality resolver hook\n99bc597d272296f56e933bfaef4caff82bc2650e Connect municipality resolver hook to rain worker\n159c8d8bd46cf85c1ec1fbc1455df351d46aca4c Test national rain municipality resolver\n830cd13be0b5f7b6f105571988100808a472018b Add reusable national rain municipality resolver\ne3bcb5c5910d978897107b449418d3405b07070d Use NextRequest in worker route test\n285680814689e28342801943af49a11089ad4b32 Fix hoisted worker route mocks\n2cb0e26e33d2ba0ca0d6ce64112df43f04dd1e29 Test protected national rain worker endpoint\nc513e2fb4d89e65a4aa054f4964e3c0f55c7bceb Add protected national rain worker endpoint\nea9be8ec7265fa02676de016179293a0661a4fcf Test national rain municipality mapping\nd6b5eb78e713524f73d35874377d706ded2a079d Add national rain municipality mapping\nd0246f1a24c59518034f9c5557bd76e62fdc2b2c Report prepared N03 cache hits\nf6c28bfe4f404855d04f162a420bb73d6c202324 Declare prepared N03 cache hit counter\n52f50cf38711acc3e0ae7016d4ef7477445e32be Verify prepared N03 cache in CI\n91d01a7abf9cc0a16b8e52f42efd02c259b5f1d2 Cache prepared N03 administrative areas\nfec7d300737ed3d166e5ceeb58c032a68839e431 Allow cached N03 archives to be re-extracted\n2793f5bea3abc2a32de991c4a8be70e2e5046df4 Remove literal newline escapes from N03 cache proof\n98db6edafbfba528d0ed0c22e1841477d25b0099 Fix N03 cache script newlines\nfd3e0794d6bf6a14d526935dcb106230652362cb Verify warm N03 cache in CI\ndefa2928758d5ff1adea29322498752b4d555b12 Reuse cached N03 prefecture archives\n4b871299563dae68928caac9e0d3e9480f909b34 Run parallel N03 downloads inside async main\ncd839d68c8a5ed9dc27686ba6b0c22bbbfc08606 Download selected N03 prefectures in parallel\nc41ac4037f166581b74288b34e069038183da36f Provide Tokyo N03 data to live CI proof\n5505364952d207c260b55eeadc32089e079db79a Measure live N03 detail phases in CI\n2b8d14bd659fbd452ae52a98dd74fd8247a92d7f Repair N03 proof benchmark step YAML\n6547f0d52085bb92058e339d2a867a3465b0c566 Measure N03 detail proof phases\n671b04bf8527df250e830f1bc90f5b65a41831f3 Test N03 administrative area result order\ne45531abf15eff5b779dbe8e2313b2573ba4ddae Preserve N03 administrative area result order\n3f669e316c3f1006f84d066428608d6b42f439c5 Run fixed N03 benchmark in CI\nfe1581ad3c3be59118f08925c97e16df61547501 Repair N03 workflow path list\n5216229286fe0ae8cc3f51fa7554ca7ecf87d4b5 Fix N03 benchmark workflow YAML\nce36867343caeb80eb89adf7382dcecaa1605e17 Run fixed N03 benchmark in proof workflow\n757bea826c01044a7869790ebaf38af219e68860 Add fixed N03 intersection benchmark\ne529a3747661a728ce10815a80234ea2c4dae6f6 Prune N03 areas by latitude before polygon intersection\nf130125cb2b2c759fea9a2195390332de8a6aa8c Prune N03 areas by longitude before polygon intersection\nb4d582d2968f2df5077a6fdc741cf8dc6257508f Reuse prepared N03 geometry during batch intersection\n21ecd7b73f296723c2b48e046ad7e067e17e80ea Parallelize live JMA tile fetches in N03 proof\ne8191148248855c04c425ceb9ec6b8b7e263947e Optimize N03 administrative area bbox filtering\n3fe209ffdb91ee09e4caf780c3fe7b5fb2b63ae8 Test rain boundary edge cases\ne090b80a6634b22b9bdba3ad30783a6d3bdf902e Harden exact rain boundary tracing\nd92f3e8c20e0f3da2a5badffae750dad1c718104 Prefilter administrative rain intersections by bounds\n1bc1c653440067dc54593abc6e4c513749923b63 Fix current rain cache typing\nfd715b29106d90e1113dc9cfe8a610c89c8b0823 Cache current high-resolution rain baseline\ndb326cf7067b0abe03c8eb2c39a45ca18b9f5de9 Normalize N03 live proof newlines\n4dca056db407a83974816cb47a989f5084528ad3 Fix N03 live proof import newline\n26416ef13a63389be62ed5b7884225c92b8ad88e Use high-resolution current baseline in N03 live proof\n969d58e765facd8cca7c404edc69c0b215ff3659 Exclude current heavy rain in live refinement proof\nc5900ead7b07c450e1b7c666b0f200afd96b853d Test high-resolution current-rain exclusion\n0bb0a423bbe19eaa231fa7a24c6631d06b9d3b28 Add high-resolution current-rain exclusion\n3297f9aeb7559a2052e81ef6923116fb0f2cd018 Test exact merged rain boundaries and holes\ndcea1ddec45b700d0e7f4bdedc8fb8a0eca54a62 Trace exact heavy-rain raster boundaries\n9a4bc9ecc12b61945953e5b0784cea8a854a4d47 Test exact heavy-rain raster footprints\nd4476221c18127aa4e20845739a0de541e168630 Preserve exact heavy-rain raster cells\n1288045cb0bdd3e4b95b6b56dd9fdc709b64968b Run selected-prefecture N03 detail proof\n4a4e9c02ae4f959cd579ca05867660965721778c Expose selected N03 detail proof input\n2121e63c4bc50389ee073b6e3ad2dfa19c23e091 Add selected-prefecture N03 detail proof\nb59f41bebea143d55300f7e9d072438ccf1c7642 Use generated national N03 prefecture index\n737a8e32a2a98c74888fd0753cbc0dc1fbe1f7a5 Add generated 2026 N03 prefecture index\ne28be6fe747f61927b79197a390724e06d8aacd0 Run official N03 national index proof\nd98359693662a6a444c107b8d5da4d6b3ffb9f7d Add official N03 national index proof\ncbc958381abac77b093692c1315351dbd24f82f6 Add canonical Japan prefecture codes\n91320504a26cc74af50220095544474295a77443 Select N03 prefectures from live rain polygons\n151cef92efdb7cbbd6b72e4f5a439d4669f9bf1c Prove prefecture index from official N03 geometry\nc36c4d70f4a47bcaec6e983d38f6380c534277da Generate prefecture index from official N03 geometry\n266aab84cebeca807a9f60120d38319747274155 Test N03 prefecture dataset locator\neb465a99e206a629c884351b50e6f54af78c7a2d Add N03 prefecture dataset locator\n1a45c6d70176471f2ba18a850c38f01bc6e7b1cf Test rain-driven N03 prefecture selection\na9b13e6175d013b32177270113c7e1b6379bfeb0 Add rain-driven N03 prefecture selection\n26ec1de72b25241cb8d07eb1f72347118376e221 Use coarse candidates for N03 live rain proof\neba3c9dd4de81d945f4e2a4b6c98f4e37eb899f7 Avoid spread overflow in Tokyo N03 live proof\n6b007e554475790b941e65d0df3df852ed0bd469 Run live JMA municipality intersection proof\n814e9c793878074b22d7cfbe2f929682bfecca22 Add live JMA to N03 Tokyo intersection proof\n664fe627f20964b20e1fa271dc9cf5f547c7281a Retain live JMA refinement polygons in proof\n606e81e635e6e86b4f8dda5cbd19ee854cc53fc6 Fix N03 proof geometry types\n468df981d2503db62684344a46e05262f86d4292 Run real Ota geometry intersection proof\n3c25596503be8d21ab925b3e3d9f67cf737c4e24 Prove N03 adapter against official Tokyo geometry\nc05b1868fbe68d2c774593309fbbcacbecffa62b Use official N03 municipality field only\n98402628ba9a3711e42d05cd232720010e9457fc Test collinear administrative boundaries\n9796b2ba66001fe0d06535aaaf59585f245e4834 Harden administrative boundary intersections\n1da2abb3d9b4e4b84786e7cda309834272b41fe1 Run N03 proof for administrative area changes\n8b0c80bfa069534bc71e608889e163e9be074c69 Add manual official N03 data proof\nbbaff5983a2b43cfb588d83dbb46c31d98a07de5 Test N03 administrative area adapter\n5c739b4cc93bcf213c6b10472ca35b86af90140a Adapt N03 GeoJSON to administrative areas\n57e04889004aa7dbc5a1c2fbd2fc3e471f479a9b Test rain overlap with administrative areas\n4cb9a98bbe8cd683f23888269d24a3b12b692d67 Add rain and administrative area intersection\n0548143bf340c0cce12405e673a2d3e2c77aff0c Test rain polygons with explicit zoom\nc4f8e81807f22370691a7b6a5a975598b76d6169 Use job zoom for refined rain polygons\n44ebf342a4cf9824e4e5d20753c026b74961a7d2 Pass refinement zoom explicitly to rain polygons\n58ad4ba674165deaf8ba1bb5c04464ff1473e30d Expand rain areas to refined pixel bounds\na3d81d3706ea17bf76ce47682901daea94a20492 Persist grouped refined rain areas\ne4ebd6e29efd8c23bb53c9029e0326e653e2b12f Test refined rain area grouping\n53ac5f0d8e2ca23da7f21cebcb8db301768fa284 Group refined rain pixels into bounded areas\n94b93da92b8aff857e8ac580b0fb7610cfd910ea Test refined heavy rain footprint coordinates\nc8d0caef7b1e5de1c3cb6e0fde9bb170a9c34dd9 Persist refined heavy rain footprint coordinates\n16f4fff52228fcfdf9d8f496b71c05600d3f48f6 Represent refined heavy rain footprint coordinates\nddfea91b822a6c39194510f251f6e9545b53bf35 Test rain result persistence before job completion\n629a928bc308141ebd88461dd2d857992aad3b29 Persist rain refinement before completing jobs\n1460277e603682247d46df6535f8b691b151b29a Add national rain refinement result persistence\n93596d62f208d3aa565045318fee9620522022ee Add national rain refinement result storage\nd664f10b58d2c2d5b5b92364e842df0fd10dbaab Fix national rain queue finish test declaration\n18ebf3159f059b226f22bb5d35d245a20b67d0d1 Test national rain refinement worker paths\nacfd555d1ce676e9752e3b3e6213cbadee5696bb Test national rain queue finish helper\nf02d2a6d4c06e067c2bf6637d0945d1d7d13076c Add national rain refinement worker\nd60bf2223c8e1f398bf9677d8da1b48837ccc16b Add national rain queue finish helper\nefb1834636e85976219654e17d1143d78853e05e Fix second queue CI block delimiter\nc4939f4517a1e44cfe1d617ec6acc0c6ff216e6b Use named SQL delimiters in queue resilience CI\n5e018f8fd115f82825d9a37f20660d019168ce97 Fix queue resilience CI SQL delimiter\n1fe99d8365bec3a51f42f737c1319de4b79e6619 Test stale rain job recovery and retry limit\ndc853afed3b51e0dea73e6326893e5ec71fdee45 Recover stale rain jobs and cap retries\ndede6031d6668482452397f2afd14a4fad7f19a8 Mirror Supabase roles in queue CI database\ne73813eb6387a383dc3e4508d6110c861cd78a2d Prove national rain queue lifecycle in CI\nf4c16823af89f652545f816c9e022e6f1b07d448 Test national rain queue persistence helper\n4e6957cd9db0bddbfd9fa2be6d986959577adeed Add national rain queue persistence helper\n72a7f64ed762d319252594b6053020caee0aa9b9 Verify deferred rain jobs exclude processed tiles\n05dd2487ab0d76a73f0cb0fa39ddd025f0dc804c Expose deferred rain tiles as queue jobs\n0b1f1db28d5174197a2ea5760f6e0d07d9e7d551 Add atomic national rain queue claims\na106362065c459ae1c27bcbfb980465337066716 Add national rain refinement queue schema\ne1eeec1f7e289f31c09b94e7ba41a11d3e25a290 Run synthetic rain budget proof in CI\n3ccd134d2bb5a694a7b25c6174aadf5f9eaa6348 Add synthetic rain refinement budget proof\n668d74af2175a1de9e021ba7b9496f2f1bc408f4 Stop rain refinement at per-tile deadline\n55c3081b8d558e1d5285d202635f97f7fe793df7 Cap national rain refinement tiles per run\n86dbe0bfa10c2052a141a6e24ed582c89c2d427a Normalize proof script line breaks\nf82c62fb0ddb21f431aad87f05a53b8f8501d9ab Fix proof budget line breaks\n388b23a8818f9ba28701caf2dfd196b436541bfb Bound national rain refinement work per run\nf7388102f63fcab28e98d7ba403f80b21d2fa2de Refine rain only across nearby tile edges\n0506c1b0c354c457323d9647ef2b6dcaf5f1b551 Replace refinement probe with valid neighboring tile scan\na721d318fefc8fd4dce6435806ba5d6b64d91d8f Fix neighboring tile proof syntax\n74ba4a243e431b127692f4f9661695e757c5acb7 Probe neighboring tiles for rain refinement\nc3bb67c95f59512a884d235da062823503e21ee7 Limit rain tracks to continuous forecast frames\n77f4019175890d0c06b15d45d945b193b0d4b84b Prepare rain events for affected municipalities\n4356da559fafac980313f41c2115548e1c3d8b20 Shape rain tracks into timeline event candidates\n0b28bd977afecec3e0004e72d45926815f747b27 Measure rain tracks in live national proof\nb75782b1da93bbff55f3be934eaa330ad7933a98 Add proof rain-cluster tracking across forecast frames\ne654003df90b855c59f25298f14e350c487fb496 Track refinement regions across forecast frames\ne2efac383d3190d580f1dccfbc3bb9e2c3b935bc Measure repeated refinement regions across forecast timeline\nacc37f95c396f45c38d34486878b0445616f8d44 Probe high-resolution rain refinement\na82b7ab206a0af206dde1e39959dc74c61dcbdbb Measure rain clusters in live proof\n0289a78a2d531724962444bf1652c2b1266f1d90 Test heavy rain candidate clustering\nac7d350e2986a406b798adb6a9479ba46534155f Add heavy rain candidate clustering\n7eb86b01f25092cae3286fc067039d68143fbc1c Fix live rain proof runner\n14d9ed89a0f8c02eed6f470f9491b2e0fac99a0e Measure live nationwide rain scan in CI\n779560a11d0175a89cd86bff4fb7fd0bfffeea02 Add nationwide heavy-rain scan proof",
+  "topics": [
+    "雨量・全国検知",
+    "開発管理",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "63e91e7606fbdbf526f8625addd8b807f812a615ec1b8dec170018edec0cf2fc",
+  "collected_at": "2026-11-13T23:51:57.929738+00:00"
+}

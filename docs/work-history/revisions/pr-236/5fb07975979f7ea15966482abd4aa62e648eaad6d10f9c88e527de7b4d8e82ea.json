@@ -1,0 +1,638 @@
+{
+  "id": "pr-236",
+  "number": 236,
+  "title": "fix(jaspic): 滋賀の一括登録を20件制限で停止させない (#235)",
+  "topics": [
+    "通知・配信"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Closes #235（Draft維持。マージ・本番変更は禁止）\n\n## 変更\n- productionPlan、実送信、プレビューの固定20件制限を分離・撤去\n- 滋賀25件一括追加、次回同一内容0件、取得件数異常のテストを追加\n- 既存のスナップショット・送信台帳・不確定送信停止を維持\n\n## history-preflight review\n最新PR HEAD 3ac3af2b577b45aa51f7720c2e27e5b0ca4a9b27 の自動照合 https://github.com/miyazaki1016/emergencyalert/actions/runs/43389921129 は REVIEW_REQUIRED（候補 pr-193 / pr-190 / pr-191）。以下は原本の履歴記録・既存コード・検証資料と照合した判断。\n\n```json\n[\n  {\"id\":\"pr-193\",\"decision\":\"reuse\",\"reason\":\"既存の認証期限・エラー・完了メール通知経路を再利用し、今回の送信差分件数の変更では通知管理機構を変更しない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/193\"},\n  {\"id\":\"pr-190\",\"decision\":\"extend\",\"reason\":\"旧ID不一致・隔離・未解決送信台帳に関する安全策を維持し、件数だけを理由とする正常な一括差分の停止を改善する。歴史的IDの再送問題を無視しない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/190\"},\n  {\"id\":\"pr-191\",\"decision\":\"extend\",\"reason\":\"旧最終JSONと比較して安全に通知した9件の移行後追い・既存の一度だけ送信する判断を再利用し、滋賀の一括新規・更新について同じ再送防止を検証する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/191\"}\n]\n```\n\n## 検証\n- CI success（最新HEAD）: https://github.com/miyazaki1016/emergencyalert/actions/runs/43389921425\n- SQL監視CI success: https://github.com/miyazaki1016/emergencyalert/actions/runs/43389921234\n- PRのpreflightはREVIEW_REQUIRED。レビュー判断の記録後、再照合でREVIEW_RECORDED成功を確認するまでは追加実装・マージ禁止。\n\n## 未解決\n- 300秒制限内での大量送信、途中停止時のPREPARED滞留と再開、DB側の件数制限・原子性\n- 実際の本番送信・DB更新・デプロイは行わない\n\n\n## 既存成果の原本照合（PR自動照合への判断記録）\n#193/#190/#191のPR原本・既存実装を確認。20件上限の解除以外の配信安全策は継承する。途中停止・300秒制限・DB側の原子性は未確認のため本番反映しない。\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-193\",\"decision\":\"reuse\",\"reason\":\"認証期限・18時完了通知と既存dispatchの異常監視を原本で確認。管理者通知・重複防止・監視ジョブは変更せず、候補数上限の撤廃だけを扱う。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/193\"},{\"id\":\"pr-190\",\"decision\":\"extend\",\"reason\":\"発生日が古い新規IDの隔離と完全ソース事前検査の既存結論を再利用。後続#224で日付のみの隔離は解除済みのため再導入せず、正常な一括公開による20件超の停止だけを改善する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/190\"},{\"id\":\"pr-191\",\"decision\":\"reuse\",\"reason\":\"旧Windows最終JSON照合で9件のみ送信した移行時の限定配信と配送履歴の原本を確認。過去の9件を再送せず、現在のスナップショット差分・配信台帳・不確定状態の停止を維持する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/191\"}]}\n-->\n",
+  "snapshot_head": "e3ca534aee6c15b06c6e74567a218d3378ce5a0d",
+  "snapshot_consistent": true,
+  "head": "e3ca534aee6c15b06c6e74567a218d3378ce5a0d",
+  "base": "6c28cb0483246d0d53b8c55252a305f63c668f1d",
+  "base_ref": "main",
+  "head_ref": "fix/jaspic-235-batched-shiga",
+  "state": "open",
+  "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+  "draft": true,
+  "merged_at": null,
+  "merge_commit_sha": null,
+  "updated_at": "2026-11-13T23:28:37Z",
+  "code_facts": [
+    {
+      "file": "app/jaspic/dispatch/preview/route.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "const provinceErrors = settled.flatMap((r, i) => r.status === \"rejected\" ? [{province: provinces[i], error: r.reason instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(r.reason.message) ? r.reason.message : \"PREVIEW_FAILED\"}] : []);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/app/jaspic/dispatch/preview/route.ts"
+    },
+    {
+      "file": "app/jaspic/dispatch/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if(!hasBulkSendTimeBudget(candidateCount,Date.now()-dispatchStartedAt))throw new Error(\"BULK_SEND_TIME_BUDGET\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/app/jaspic/dispatch/route.ts"
+    },
+    {
+      "file": "lib/jaspic/bulk-send-budget.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "export const DISPATCH_MAX_MS = 300_000;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/lib/jaspic/bulk-send-budget.ts"
+    },
+    {
+      "file": "lib/jaspic/bulk-send-budget.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "export const GMAIL_REQUEST_TIMEOUT_MS = 10_000;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/lib/jaspic/bulk-send-budget.ts"
+    },
+    {
+      "file": "lib/jaspic/bulk-send-budget.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "export const DB_AND_CLEANUP_RESERVE_MS = 60_000;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/lib/jaspic/bulk-send-budget.ts"
+    },
+    {
+      "file": "lib/jaspic/bulk-send-budget.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function hasBulkSendTimeBudget(candidateCount:number, elapsedMs:number):boolean {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/lib/jaspic/bulk-send-budget.ts"
+    },
+    {
+      "file": "lib/jaspic/bulk-send-budget.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!Number.isSafeInteger(candidateCount) || candidateCount < 0) return false;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/lib/jaspic/bulk-send-budget.ts"
+    },
+    {
+      "file": "lib/jaspic/bulk-send-budget.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!Number.isFinite(elapsedMs) || elapsedMs < 0) return false;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/lib/jaspic/bulk-send-budget.ts"
+    },
+    {
+      "file": "lib/jaspic/production-plan.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!oldCount || currentCount < oldCount * .8) throw new Error(\"SOURCE_COUNT_GUARD\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/lib/jaspic/production-plan.ts"
+    },
+    {
+      "file": "tests/jaspic-bulk-send-budget.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"JASPIC bulk-send time budget\",()=>{",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-bulk-send-budget.test.ts"
+    },
+    {
+      "file": "tests/jaspic-bulk-send-budget.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"permits 23 candidates when preflight is fast\",()=>{",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-bulk-send-budget.test.ts"
+    },
+    {
+      "file": "tests/jaspic-bulk-send-budget.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(hasBulkSendTimeBudget(23,0)).toBe(true);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-bulk-send-budget.test.ts"
+    },
+    {
+      "file": "tests/jaspic-bulk-send-budget.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(hasBulkSendTimeBudget(23,10_000)).toBe(true);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-bulk-send-budget.test.ts"
+    },
+    {
+      "file": "tests/jaspic-bulk-send-budget.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"rejects before preparing deliveries if the timeout budget is insufficient\",()=>{",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-bulk-send-budget.test.ts"
+    },
+    {
+      "file": "tests/jaspic-bulk-send-budget.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(hasBulkSendTimeBudget(25,0)).toBe(false);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-bulk-send-budget.test.ts"
+    },
+    {
+      "file": "tests/jaspic-bulk-send-budget.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(hasBulkSendTimeBudget(23,11_000)).toBe(false);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-bulk-send-budget.test.ts"
+    },
+    {
+      "file": "tests/jaspic-bulk-send-budget.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(hasBulkSendTimeBudget(1,231_000)).toBe(false);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-bulk-send-budget.test.ts"
+    },
+    {
+      "file": "tests/jaspic-bulk-send-budget.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"rejects invalid counts and elapsed times\",()=>{",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-bulk-send-budget.test.ts"
+    },
+    {
+      "file": "tests/jaspic-bulk-send-budget.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(hasBulkSendTimeBudget(-1,0)).toBe(false);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-bulk-send-budget.test.ts"
+    },
+    {
+      "file": "tests/jaspic-bulk-send-budget.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(hasBulkSendTimeBudget(1.5,0)).toBe(false);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-bulk-send-budget.test.ts"
+    },
+    {
+      "file": "tests/jaspic-bulk-send-budget.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(hasBulkSendTimeBudget(1,Number.NaN)).toBe(false);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-bulk-send-budget.test.ts"
+    },
+    {
+      "file": "tests/jaspic-shiga-bulk.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { describe, expect, it } from \"vitest\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-shiga-bulk.test.ts"
+    },
+    {
+      "file": "tests/jaspic-shiga-bulk.test.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function shiga(id: string, address = \"大津市\"): Item {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-shiga-bulk.test.ts"
+    },
+    {
+      "file": "tests/jaspic-shiga-bulk.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"JASPIC Shiga bulk publication\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-shiga-bulk.test.ts"
+    },
+    {
+      "file": "tests/jaspic-shiga-bulk.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"accepts 25 genuine changes, then never proposes the unchanged records again\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-shiga-bulk.test.ts"
+    },
+    {
+      "file": "tests/jaspic-shiga-bulk.test.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const existing = Array.from({ length: 150 }, (_, n) => shiga(String(n + 1)));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-shiga-bulk.test.ts"
+    },
+    {
+      "file": "tests/jaspic-shiga-bulk.test.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const incoming = Array.from({ length: 25 }, (_, n) => shiga(String(151 + n)));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-shiga-bulk.test.ts"
+    },
+    {
+      "file": "tests/jaspic-shiga-bulk.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(first.candidates).toHaveLength(25);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-shiga-bulk.test.ts"
+    },
+    {
+      "file": "tests/jaspic-shiga-bulk.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(first.candidates.every(c => c.key.startsWith(\"shiga-person:\"))).toBe(true);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-shiga-bulk.test.ts"
+    },
+    {
+      "file": "tests/jaspic-shiga-bulk.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(second.candidates).toHaveLength(0);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-shiga-bulk.test.ts"
+    },
+    {
+      "file": "tests/jaspic-shiga-bulk.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"keeps the complete-source count safety guard for a suspiciously incomplete feed\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-shiga-bulk.test.ts"
+    },
+    {
+      "file": "tests/jaspic-shiga-bulk.test.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const existing = Array.from({ length: 150 }, (_, n) => shiga(String(n + 1)));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-shiga-bulk.test.ts"
+    },
+    {
+      "file": "tests/jaspic-shiga-bulk.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "await expect(productionPlan(\"shiga\", { revision: 4, baseline: true, records }, existing.slice(0, 100), new Set()))",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-shiga-bulk.test.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/dispatch/preview/route.ts",
+      "status": "modified",
+      "additions": 20,
+      "deletions": 3,
+      "patch": "diff --git a/app/jaspic/dispatch/preview/route.ts b/app/jaspic/dispatch/preview/route.ts\nindex d3bfd858..3e7a2172 100644\n--- a/app/jaspic/dispatch/preview/route.ts\n+++ b/app/jaspic/dispatch/preview/route.ts\n@@ -2,6 +2,7 @@ import { createClient } from \"@supabase/supabase-js\";\n import { timingSafeEqual } from \"node:crypto\";\n import { collect, type Province } from \"../../../../supabase/functions/_shared/jaspic/collect\";\n import { productionPlan } from \"../../../../lib/jaspic/production-plan\";\n+import { hasBulkSendTimeBudget } from \"../../../../lib/jaspic/bulk-send-budget\";\n \n export const runtime = \"nodejs\";\n export const dynamic = \"force-dynamic\";\n@@ -21,6 +22,7 @@ export async function POST(request: Request) {\n   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;\n   if (!url || !key) return json({ error: \"NOT_CONFIGURED\" }, 503);\n   const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });\n+  const startedAt = Date.now();\n   try {\n     const [legacyResult, unresolved, running] = await Promise.all([\n       db.rpc(\"jaspic_legacy_hiroshima_person_ids\"),\n@@ -31,7 +33,7 @@ export async function POST(request: Request) {\n         legacyResult.data.some((x: unknown) => typeof x !== \"string\") ||\n         unresolved.error || running.error) throw new Error(\"DATABASE_GUARD\");\n     const provinces: Province[] = [\"hiroshima\", \"shiga\"];\n-    const results = await Promise.all(provinces.map(async province => {\n+    const settled = await Promise.allSettled(provinces.map(async province => {\n       const snapshot = await db.rpc(\"jaspic_snapshot\", { p_province: province });\n       if (snapshot.error) throw new Error(\"DATABASE_GUARD\");\n       const items = await collect(province);\n@@ -47,9 +49,24 @@ export async function POST(request: Request) {\n             publicationDate: null };\n         }), expectedRevision: plan.expectedRevision };\n     }));\n+    const results = settled.flatMap(r => r.status === \"fulfilled\" ? [r.value] : []);\n+    const provinceErrors = settled.flatMap((r, i) => r.status === \"rejected\" ? [{province: provinces[i], error: r.reason instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(r.reason.message) ? r.reason.message : \"PREVIEW_FAILED\"}] : []);\n+    // Preserve every successfully computed count, even if another province fails.\n+    // A count above the DB limit is a send blocker, not a preview error.\n     const total = results.reduce((sum, p) => sum + p.count, 0);\n-    const safe = total <= 20 && unresolved.data.length === 0 && running.data.length === 0;\n-    return json({ mode: \"READ_ONLY\", safeToSend: safe, total, limit: 20,\n+    const countsComplete = provinceErrors.length === 0;\n+    const perProvinceDbLimit = 20; // Current production jaspic_prepare_production limit.\n+    const dbLimitExceeded = results.some(p => p.count > perProvinceDbLimit);\n+    const timeBudgetExceeded = !hasBulkSendTimeBudget(total, Date.now() - startedAt);\n+    const blockers = [\n+      ...(!countsComplete ? [\"PROVINCE_PREFLIGHT_FAILED\"] : []),\n+      ...(dbLimitExceeded ? [\"DATABASE_PROVINCE_LIMIT\"] : []),\n+      ...(timeBudgetExceeded ? [\"BULK_SEND_TIME_BUDGET\"] : []),\n+      ...(unresolved.data.length ? [\"UNRESOLVED_DELIVERY\"] : []),\n+      ...(running.data.length ? [\"RUN_LOCKED\"] : []),\n+    ];\n+    const safe = blockers.length === 0;\n+    return json({ mode: \"READ_ONLY\", safeToSend: safe, total, perProvinceDbLimit, dbLimitExceeded, timeBudgetExceeded, blockers, provinceErrors, countsComplete,\n       unresolvedDeliveries: unresolved.data.length, runningRuns: running.data.length, provinces: results });\n   } catch (error) {\n     const code = error instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(error.message)\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/app/jaspic/dispatch/preview/route.ts",
+      "source": {
+        "path": "app/jaspic/dispatch/preview/route.ts",
+        "coverage": "全文",
+        "text": "import { createClient } from \"@supabase/supabase-js\";\nimport { timingSafeEqual } from \"node:crypto\";\nimport { collect, type Province } from \"../../../../supabase/functions/_shared/jaspic/collect\";\nimport { productionPlan } from \"../../../../lib/jaspic/production-plan\";\nimport { hasBulkSendTimeBudget } from \"../../../../lib/jaspic/bulk-send-budget\";\n\nexport const runtime = \"nodejs\";\nexport const dynamic = \"force-dynamic\";\nexport const maxDuration = 300;\nconst json = (value: unknown, status = 200) =>\n  Response.json(value, { status, headers: { \"Cache-Control\": \"no-store, private\" } });\n\n/** Read-only production preflight. Never claim a delivery, mutate the DB, or send mail. */\nexport async function POST(request: Request) {\n  const secret = process.env.JASPIC_DISPATCH_TOKEN;\n  const supplied = request.headers.get(\"authorization\")?.replace(/^Bearer /, \"\") ?? \"\";\n  if (!secret || supplied.length !== secret.length ||\n      !timingSafeEqual(Buffer.from(supplied), Buffer.from(secret))) {\n    return json({ error: \"UNAUTHORIZED\" }, 401);\n  }\n  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;\n  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;\n  if (!url || !key) return json({ error: \"NOT_CONFIGURED\" }, 503);\n  const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });\n  const startedAt = Date.now();\n  try {\n    const [legacyResult, unresolved, running] = await Promise.all([\n      db.rpc(\"jaspic_legacy_hiroshima_person_ids\"),\n      db.from(\"jaspic_deliveries\").select(\"status\").in(\"status\", [\"PREPARED\", \"SENDING\", \"UNKNOWN\", \"FAILED\"]).limit(1),\n      db.from(\"jaspic_runs\").select(\"id\").eq(\"status\", \"RUNNING\").limit(1),\n    ]);\n    if (legacyResult.error || !Array.isArray(legacyResult.data) ||\n        legacyResult.data.some((x: unknown) => typeof x !== \"string\") ||\n        unresolved.error || running.error) throw new Error(\"DATABASE_GUARD\");\n    const provinces: Province[] = [\"hiroshima\", \"shiga\"];\n    const settled = await Promise.allSettled(provinces.map(async province => {\n      const snapshot = await db.rpc(\"jaspic_snapshot\", { p_province: province });\n      if (snapshot.error) throw new Error(\"DATABASE_GUARD\");\n      const items = await collect(province);\n      const plan = await productionPlan(province, snapshot.data, items,\n        new Set<string>(province === \"hiroshima\" ? legacyResult.data : []));\n      return { province, count: plan.candidates.length, quarantined: plan.quarantined.length,\n        keys: plan.candidates.map(c => c.key),\n        details: plan.candidates.map(c => {\n          const item = items.find(i => `${i.kind}:${i.data.id}` === c.key);\n          const previous = snapshot.data.records[c.key];\n          return { key: c.key, classification: previous ? \"UPDATED\" : \"NEW_ID\",\n            occurrenceDate: item?.data.occurrence_date_from ?? item?.data.occurrence_dt ?? null,\n            publicationDate: null };\n        }), expectedRevision: plan.expectedRevision };\n    }));\n    const results = settled.flatMap(r => r.status === \"fulfilled\" ? [r.value] : []);\n    const provinceErrors = settled.flatMap((r, i) => r.status === \"rejected\" ? [{province: provinces[i], error: r.reason instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(r.reason.message) ? r.reason.message : \"PREVIEW_FAILED\"}] : []);\n    // Preserve every successfully computed count, even if another province fails.\n    // A count above the DB limit is a send blocker, not a preview error.\n    const total = results.reduce((sum, p) => sum + p.count, 0);\n    const countsComplete = provinceErrors.length === 0;\n    const perProvinceDbLimit = 20; // Current production jaspic_prepare_production limit.\n    const dbLimitExceeded = results.some(p => p.count > perProvinceDbLimit);\n    const timeBudgetExceeded = !hasBulkSendTimeBudget(total, Date.now() - startedAt);\n    const blockers = [\n      ...(!countsComplete ? [\"PROVINCE_PREFLIGHT_FAILED\"] : []),\n      ...(dbLimitExceeded ? [\"DATABASE_PROVINCE_LIMIT\"] : []),\n      ...(timeBudgetExceeded ? [\"BULK_SEND_TIME_BUDGET\"] : []),\n      ...(unresolved.data.length ? [\"UNRESOLVED_DELIVERY\"] : []),\n      ...(running.data.length ? [\"RUN_LOCKED\"] : []),\n    ];\n    const safe = blockers.length === 0;\n    return json({ mode: \"READ_ONLY\", safeToSend: safe, total, perProvinceDbLimit, dbLimitExceeded, timeBudgetExceeded, blockers, provinceErrors, countsComplete,\n      unresolvedDeliveries: unresolved.data.length, runningRuns: running.data.length, provinces: results });\n  } catch (error) {\n    const code = error instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(error.message)\n      ? error.message : \"PREVIEW_FAILED\";\n    return json({ mode: \"READ_ONLY\", safeToSend: false, error: code }, 503);\n  }\n}\n",
+        "sha256": "03c62a9edae065677361964474286e49a5c501b77e5169bc0c64a4849d9527e7"
+      }
+    },
+    {
+      "path": "app/jaspic/dispatch/route.ts",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 1,
+      "patch": "diff --git a/app/jaspic/dispatch/route.ts b/app/jaspic/dispatch/route.ts\nindex 51385b8c..356333c0 100644\n--- a/app/jaspic/dispatch/route.ts\n+++ b/app/jaspic/dispatch/route.ts\n@@ -4,6 +4,7 @@ import {readEncryptedGmailRefreshToken} from \"../../../lib/jaspic/oauth-gmail-to\n import {collect, type Province} from \"../../../supabase/functions/_shared/jaspic/collect\";\n import {productionPlan} from \"../../../lib/jaspic/production-plan\";\n import {sendProductionMail} from \"../../../lib/jaspic/production-gmail\";\n+import {hasBulkSendTimeBudget} from \"../../../lib/jaspic/bulk-send-budget\";\n \n export const runtime=\"nodejs\";\n export const dynamic=\"force-dynamic\";\n@@ -24,6 +25,7 @@ export async function POST(request:Request) {\n   if (!url||!key||!ownerId||!encryptionKey||!clientId||!clientSecret) return response({error:\"NOT_CONFIGURED\"},503);\n   const db=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});\n   async function rpc(name:string,args:Record<string,unknown>={}) {const r=await db.rpc(name,args);if(r.error)throw new Error(\"DATABASE_GUARD\");return r.data;}\n+  const dispatchStartedAt=Date.now();\n   const id=randomUUID(); let started=false;\n   const sent={hiroshima:0,shiga:0};\n   let stage=\"begin-run\";\n@@ -50,7 +52,6 @@ export async function POST(request:Request) {\n     if(failure?.status===\"rejected\")throw failure.reason;\n     const plans=settled.flatMap(r=>r.status===\"fulfilled\"?[r.value]:[]);\n     stage=\"plan-guard\";\n-    if(plans.reduce((n,p)=>n+p.result.candidates.length,0)>20)throw new Error(\"DIFFERENCE_LIMIT\");\n     const unresolved=await db.from(\"jaspic_deliveries\").select(\"status\").in(\"status\",[\"PREPARED\",\"SENDING\",\"UNKNOWN\",\"FAILED\"]).limit(1);\n     if(unresolved.error||unresolved.data.length)throw new Error(\"UNRESOLVED_DELIVERY\");\n     // Refresh validates the existing encrypted OAuth credential even for a zero-item run.\n@@ -61,6 +62,11 @@ export async function POST(request:Request) {\n     if(!tokenResponse.ok)throw new Error(\"GMAIL_REFRESH_FAILED\");\n     const token=await tokenResponse.json();\n     if(typeof token.access_token!==\"string\"||token.access_token.length<8)throw new Error(\"GMAIL_TOKEN_INVALID\");\n+    stage=\"time-budget-guard\";\n+    const candidateCount=plans.reduce((sum,p)=>sum+p.result.candidates.length,0);\n+    // Reject before persisting any PREPARED deliveries when the remaining time\n+    // cannot cover the Gmail request timeout per message plus a DB safety reserve.\n+    if(!hasBulkSendTimeBudget(candidateCount,Date.now()-dispatchStartedAt))throw new Error(\"BULK_SEND_TIME_BUDGET\");\n     stage=\"prepare-delivery\";\n     for(const {province,result} of plans){\n       const candidates=result.candidates.map(c=>({...c,mail:{...c.mail,from:\"miyazaki1016@gmail.com\",to:\"getter01@jaspic-nes.net\",cc:null}}));\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/app/jaspic/dispatch/route.ts",
+      "source": {
+        "path": "app/jaspic/dispatch/route.ts",
+        "coverage": "全文",
+        "text": "import {createClient} from \"@supabase/supabase-js\";\nimport {timingSafeEqual,randomUUID} from \"node:crypto\";\nimport {readEncryptedGmailRefreshToken} from \"../../../lib/jaspic/oauth-gmail-token-store-server\";\nimport {collect, type Province} from \"../../../supabase/functions/_shared/jaspic/collect\";\nimport {productionPlan} from \"../../../lib/jaspic/production-plan\";\nimport {sendProductionMail} from \"../../../lib/jaspic/production-gmail\";\nimport {hasBulkSendTimeBudget} from \"../../../lib/jaspic/bulk-send-budget\";\n\nexport const runtime=\"nodejs\";\nexport const dynamic=\"force-dynamic\";\nexport const maxDuration=300;\nconst response=(data:unknown,status=200)=>Response.json(data,{status,headers:{\"Cache-Control\":\"no-store, private\"}});\n\nexport async function POST(request:Request) {\n  const secret=process.env.JASPIC_DISPATCH_TOKEN;\n  const supplied=request.headers.get(\"authorization\")?.replace(/^Bearer /,\"\")??\"\";\n  if (!secret||supplied.length!==secret.length||!timingSafeEqual(Buffer.from(supplied),Buffer.from(secret))) return response({error:\"UNAUTHORIZED\"},401);\n  if (process.env.JASPIC_PRODUCTION_SEND_ENABLED!==\"true\") return response({error:\"DISABLED\"},503);\n  const url=process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/,\"\");\n  const key=process.env.SUPABASE_SERVICE_ROLE_KEY;\n  const ownerId=process.env.JASPIC_ADMIN_USER_ID;\n  const encryptionKey=process.env.JASPIC_GMAIL_TOKEN_VAULT_KEY;\n  const clientId=process.env.JASPIC_GOOGLE_WEB_CLIENT_ID;\n  const clientSecret=process.env.JASPIC_GOOGLE_WEB_CLIENT_SECRET;\n  if (!url||!key||!ownerId||!encryptionKey||!clientId||!clientSecret) return response({error:\"NOT_CONFIGURED\"},503);\n  const db=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});\n  async function rpc(name:string,args:Record<string,unknown>={}) {const r=await db.rpc(name,args);if(r.error)throw new Error(\"DATABASE_GUARD\");return r.data;}\n  const dispatchStartedAt=Date.now();\n  const id=randomUUID(); let started=false;\n  const sent={hiroshima:0,shiga:0};\n  let stage=\"begin-run\";\n  let province:Province|null=null;\n  const sourceErrors:{province:Province;code:string}[]=[];\n  try {\n    if (!await rpc(\"jaspic_begin_run\",{p_id:id})) return response({error:\"RUN_LOCKED\"},409);\n    started=true;\n    // Preflight both complete sources before persisting or sending either province.\n    const provinces:Province[]=[\"hiroshima\",\"shiga\"];\n    const legacy=await rpc(\"jaspic_legacy_hiroshima_person_ids\");\n    if(!Array.isArray(legacy)||legacy.some(x=>typeof x!==\"string\"))throw new Error(\"LEGACY_HISTORY_INVALID\");\n    stage=\"source-preflight\";\n    const settled=await Promise.allSettled(provinces.map(async province=>{\n      const snapshot=await rpc(\"jaspic_snapshot\",{p_province:province});\n      let items;\n      try { items=await collect(province); } catch {\n        sourceErrors.push({province,code:\"SOURCE_FETCH_FAILED\"});\n        throw new Error(\"SOURCE_FETCH_FAILED\");\n      }\n      return {province,result:await productionPlan(province,snapshot,items,new Set(province===\"hiroshima\"?legacy:[]))};\n    }));\n    const failure=settled.find(r=>r.status===\"rejected\");\n    if(failure?.status===\"rejected\")throw failure.reason;\n    const plans=settled.flatMap(r=>r.status===\"fulfilled\"?[r.value]:[]);\n    stage=\"plan-guard\";\n    const unresolved=await db.from(\"jaspic_deliveries\").select(\"status\").in(\"status\",[\"PREPARED\",\"SENDING\",\"UNKNOWN\",\"FAILED\"]).limit(1);\n    if(unresolved.error||unresolved.data.length)throw new Error(\"UNRESOLVED_DELIVERY\");\n    // Refresh validates the existing encrypted OAuth credential even for a zero-item run.\n    stage=\"gmail-auth\";\n    const refresh=await readEncryptedGmailRefreshToken({db,ownerId,expectedAdminId:ownerId,encryptionKey});\n    if(!refresh)throw new Error(\"GMAIL_NOT_CONNECTED\");\n    const tokenResponse=await fetch(\"https://oauth2.googleapis.com/token\",{method:\"POST\",headers:{\"Content-Type\":\"application/x-www-form-urlencoded\"},body:new URLSearchParams({client_id:clientId,client_secret:clientSecret,refresh_token:refresh,grant_type:\"refresh_token\"}),redirect:\"error\",cache:\"no-store\",signal:AbortSignal.timeout(10_000)});\n    if(!tokenResponse.ok)throw new Error(\"GMAIL_REFRESH_FAILED\");\n    const token=await tokenResponse.json();\n    if(typeof token.access_token!==\"string\"||token.access_token.length<8)throw new Error(\"GMAIL_TOKEN_INVALID\");\n    stage=\"time-budget-guard\";\n    const candidateCount=plans.reduce((sum,p)=>sum+p.result.candidates.length,0);\n    // Reject before persisting any PREPARED deliveries when the remaining time\n    // cannot cover the Gmail request timeout per message plus a DB safety reserve.\n    if(!hasBulkSendTimeBudget(candidateCount,Date.now()-dispatchStartedAt))throw new Error(\"BULK_SEND_TIME_BUDGET\");\n    stage=\"prepare-delivery\";\n    for(const {province,result} of plans){\n      const candidates=result.candidates.map(c=>({...c,mail:{...c.mail,from:\"miyazaki1016@gmail.com\",to:\"getter01@jaspic-nes.net\",cc:null}}));\n      await rpc(\"jaspic_prepare_production\",{p_id:id,p_province:province,p_revision:result.expectedRevision,p_records:result.records,p_candidates:candidates});\n    }\n    // Read immutable queued payloads, never regenerate mail after observation was committed.\n    const queue=await db.from(\"jaspic_deliveries\").select(\"province,record_key,version,mail\").eq(\"run_id\",id).eq(\"status\",\"PREPARED\");\n    if(queue.error)throw new Error(\"QUEUE_READ_FAILED\");\n    stage=\"gmail-send\";\n    for(const delivery of queue.data){\n      province=delivery.province as Province;\n      const lease=randomUUID();\n      if(!await rpc(\"jaspic_claim\",{p_province:delivery.province,p_key:delivery.record_key,p_version:delivery.version,p_token:lease}))throw new Error(\"CLAIM_REJECTED\");\n      const outcome=await sendProductionMail(token.access_token,delivery.mail);\n      if(!await rpc(\"jaspic_finish_production\",{p_id:id,p_province:delivery.province,p_key:delivery.record_key,p_version:delivery.version,p_token:lease,p_status:outcome.status,p_message:outcome.message,p_error:outcome.error}))throw new Error(\"OUTCOME_NOT_SAVED\");\n      if(outcome.status!==\"SENT\")throw new Error(outcome.error??\"SEND_FAILED\");\n      sent[delivery.province as Province]++;\n    }\n    stage=\"save-result\";\n    province=null;\n    const result={runId:id,status:\"SUCCEEDED\",sent,candidates:plans.map(p=>({province:p.province,count:p.result.candidates.length})),quarantined:plans.map(p=>({province:p.province,count:p.result.quarantined.length}))};\n    const saved=await db.from(\"jaspic_runs\").update({status:\"SUCCEEDED\",finished_at:new Date().toISOString(),result}).eq(\"id\",id).eq(\"status\",\"RUNNING\").select(\"id\");\n    if(saved.error||saved.data.length!==1)throw new Error(\"RUN_RESULT_NOT_SAVED\");\n    return response(result);\n  } catch(error) {\n    const code=error instanceof Error&&/^[A-Z][A-Z0-9_]{0,79}$/.test(error.message)?error.message:\"JASPIC_RUN_FAILED\";\n    if(started){\n      // A process crash remains RUNNING. Network uncertainty remains non-retryable SENDING/UNKNOWN.\n      await db.from(\"jaspic_deliveries\").update({status:\"UNKNOWN\",error_code:\"RUN_INTERRUPTED\",finished_at:new Date().toISOString()}).eq(\"run_id\",id).eq(\"status\",\"SENDING\");\n      await db.from(\"jaspic_runs\").update({status:\"FAILED\",finished_at:new Date().toISOString(),error_code:code,result:{sent,stage,province,sourceErrors}}).eq(\"id\",id).eq(\"status\",\"RUNNING\");\n    }\n    return response({runId:id,status:\"FAILED\",error:code,sent},503);\n  }\n}\n",
+        "sha256": "5a6d1a3940f93e6e2243782c9c7c12a1c1b3e65b77b88108ab2f2d35d22ec9e2"
+      }
+    },
+    {
+      "path": "docs/JASPIC_BULK_SEND_PREFLIGHT.md",
+      "status": "modified",
+      "additions": 34,
+      "deletions": 0,
+      "patch": "diff --git a/docs/JASPIC_BULK_SEND_PREFLIGHT.md b/docs/JASPIC_BULK_SEND_PREFLIGHT.md\nnew file mode 100644\nindex 00000000..78c8f82b\n--- /dev/null\n+++ b/docs/JASPIC_BULK_SEND_PREFLIGHT.md\n@@ -0,0 +1,34 @@\n+# JASPIC 20件超の送信: 本番反映前チェック（Issue #235 / PR #236）\n+\n+> **未適用の設計・検証資料**。このファイルは本番DBの変更や実メール送信を行わない。\n+\n+## 本番DBで確認した制限\n+\n+2026-11-13 の読み取り専用調査で、`public.jaspic_prepare_production` 内に\n+`jsonb_array_length(p_candidates)>20` が残っていることを確認した。\n+アプリ側の20件制限を外すだけでは、滋賀23件の準備処理は `Invalid plan` で失敗する。\n+\n+既存のDB関数は、候補の検証、配送台帳への `PREPARED` 登録、\n+スナップショット更新、revision更新を1トランザクションで実行する。\n+この原子性、送信元・宛先検証、未解決配送停止、revision照合は変更しない。\n+\n+## 安全な変更範囲\n+\n+1. 本番DBの実関数定義をベースに、**候補数 >20 の拒否条件だけ**を除く変更をレビューする。\n+2. アプリ側とDB側の候補数判定を整合させる。県別の `SOURCE_COUNT_GUARD`（±20%）は維持する。\n+3. 一度に送信する件数が増えても `maxDuration=300` に達しないことを、Gmail送信時間の上限と安全余裕を含めて検証する。検証できない場合は本番反映を保留する。\n+4. 処理中断時は `PREPARED` / `SENDING` / `UNKNOWN` を**自動再送しない**。既存配送台帳とGmail側の結果を照合するまで再開禁止とする。\n+5. 無送信previewで当日の未送信候補・カテゴリ・異常・未解決配送を確認し、最新HEADのCI合格とDB変更検証の証拠を残す。\n+6. 以上の検証後にのみ本番変更と実送信を判断する。Draft PRのままマージしない。\n+\n+## 2026-11-13 の読み取り専用観測\n+\n+- `jaspic_records`: 滋賀716件、広島不審者471件、広島犯罪5742件。\n+- `jaspic_deliveries`: `SENT` 32件、未解決ステータス0件。\n+- `jaspic_sources`: 両県 baseline_complete=true、revision=11。\n+- PR #236 HEAD `12ef4b9012c8b0ebe335eefa9d4a7c456acce464` の通常CI成功:\n+  https://github.com/miyazaki1016/emergencyalert/actions/runs/43393403736\n+- 同HEADの着手前照合 REVIEW_RECORDED:\n+  https://github.com/miyazaki1016/emergencyalert/actions/runs/43393403688\n+\n+**未確認:** 当日の実候補件数、実Gmail25件超の所要時間、DB関数変更後の動作、途中停止後の手動照合・再開。これらを確認するまでは「送信可能」と表示しない。\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/docs/JASPIC_BULK_SEND_PREFLIGHT.md",
+      "source": {
+        "path": "docs/JASPIC_BULK_SEND_PREFLIGHT.md",
+        "coverage": "全文",
+        "text": "# JASPIC 20件超の送信: 本番反映前チェック（Issue #235 / PR #236）\n\n> **未適用の設計・検証資料**。このファイルは本番DBの変更や実メール送信を行わない。\n\n## 本番DBで確認した制限\n\n2026-11-13 の読み取り専用調査で、`public.jaspic_prepare_production` 内に\n`jsonb_array_length(p_candidates)>20` が残っていることを確認した。\nアプリ側の20件制限を外すだけでは、滋賀23件の準備処理は `Invalid plan` で失敗する。\n\n既存のDB関数は、候補の検証、配送台帳への `PREPARED` 登録、\nスナップショット更新、revision更新を1トランザクションで実行する。\nこの原子性、送信元・宛先検証、未解決配送停止、revision照合は変更しない。\n\n## 安全な変更範囲\n\n1. 本番DBの実関数定義をベースに、**候補数 >20 の拒否条件だけ**を除く変更をレビューする。\n2. アプリ側とDB側の候補数判定を整合させる。県別の `SOURCE_COUNT_GUARD`（±20%）は維持する。\n3. 一度に送信する件数が増えても `maxDuration=300` に達しないことを、Gmail送信時間の上限と安全余裕を含めて検証する。検証できない場合は本番反映を保留する。\n4. 処理中断時は `PREPARED` / `SENDING` / `UNKNOWN` を**自動再送しない**。既存配送台帳とGmail側の結果を照合するまで再開禁止とする。\n5. 無送信previewで当日の未送信候補・カテゴリ・異常・未解決配送を確認し、最新HEADのCI合格とDB変更検証の証拠を残す。\n6. 以上の検証後にのみ本番変更と実送信を判断する。Draft PRのままマージしない。\n\n## 2026-11-13 の読み取り専用観測\n\n- `jaspic_records`: 滋賀716件、広島不審者471件、広島犯罪5742件。\n- `jaspic_deliveries`: `SENT` 32件、未解決ステータス0件。\n- `jaspic_sources`: 両県 baseline_complete=true、revision=11。\n- PR #236 HEAD `12ef4b9012c8b0ebe335eefa9d4a7c456acce464` の通常CI成功:\n  https://github.com/miyazaki1016/emergencyalert/actions/runs/43393403736\n- 同HEADの着手前照合 REVIEW_RECORDED:\n  https://github.com/miyazaki1016/emergencyalert/actions/runs/43393403688\n\n**未確認:** 当日の実候補件数、実Gmail25件超の所要時間、DB関数変更後の動作、途中停止後の手動照合・再開。これらを確認するまでは「送信可能」と表示しない。\n",
+        "sha256": "153867d9617a499afc2634d177c2aaef1cf5b34f9f259dc1256a45527a52dd0d"
+      }
+    },
+    {
+      "path": "lib/jaspic/bulk-send-budget.ts",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "patch": "diff --git a/lib/jaspic/bulk-send-budget.ts b/lib/jaspic/bulk-send-budget.ts\nnew file mode 100644\nindex 00000000..3afab336\n--- /dev/null\n+++ b/lib/jaspic/bulk-send-budget.ts\n@@ -0,0 +1,13 @@\n+// This is a preflight rejection guard, not a guarantee of completion.\n+// The route must not persist PREPARED deliveries when even the Gmail request\n+// timeouts would exhaust the invocation budget.\n+export const DISPATCH_MAX_MS = 300_000;\n+export const GMAIL_REQUEST_TIMEOUT_MS = 10_000;\n+export const DB_AND_CLEANUP_RESERVE_MS = 60_000;\n+\n+export function hasBulkSendTimeBudget(candidateCount:number, elapsedMs:number):boolean {\n+  if (!Number.isSafeInteger(candidateCount) || candidateCount < 0) return false;\n+  if (!Number.isFinite(elapsedMs) || elapsedMs < 0) return false;\n+  const remaining = DISPATCH_MAX_MS - elapsedMs - DB_AND_CLEANUP_RESERVE_MS;\n+  return candidateCount * GMAIL_REQUEST_TIMEOUT_MS <= remaining;\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/lib/jaspic/bulk-send-budget.ts",
+      "source": {
+        "path": "lib/jaspic/bulk-send-budget.ts",
+        "coverage": "全文",
+        "text": "// This is a preflight rejection guard, not a guarantee of completion.\n// The route must not persist PREPARED deliveries when even the Gmail request\n// timeouts would exhaust the invocation budget.\nexport const DISPATCH_MAX_MS = 300_000;\nexport const GMAIL_REQUEST_TIMEOUT_MS = 10_000;\nexport const DB_AND_CLEANUP_RESERVE_MS = 60_000;\n\nexport function hasBulkSendTimeBudget(candidateCount:number, elapsedMs:number):boolean {\n  if (!Number.isSafeInteger(candidateCount) || candidateCount < 0) return false;\n  if (!Number.isFinite(elapsedMs) || elapsedMs < 0) return false;\n  const remaining = DISPATCH_MAX_MS - elapsedMs - DB_AND_CLEANUP_RESERVE_MS;\n  return candidateCount * GMAIL_REQUEST_TIMEOUT_MS <= remaining;\n}\n",
+        "sha256": "8188561e45e7f487cf72e339e79a705dfb651d211621b3a944d94fbf70345b86"
+      }
+    },
+    {
+      "path": "lib/jaspic/production-plan.ts",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 2,
+      "patch": "diff --git a/lib/jaspic/production-plan.ts b/lib/jaspic/production-plan.ts\nindex 1411bcc8..f0dc90cf 100644\n--- a/lib/jaspic/production-plan.ts\n+++ b/lib/jaspic/production-plan.ts\n@@ -8,7 +8,9 @@ export async function productionPlan(province: Province, snapshot: Snapshot, ite\n   for (const kind of kinds) {\n     const oldCount = Object.keys(snapshot.records).filter(k => k.startsWith(kind+\":\")).length;\n     const currentCount = items.filter(i => i.kind === kind).length;\n-    if (!oldCount || currentCount < oldCount * .8 || currentCount > oldCount * 1.2) throw new Error(\"SOURCE_COUNT_GUARD\");\n+    // Holiday catch-up can legitimately add many new IDs. Guard source loss,\n+    // but do not reject a complete source merely because its count grew.\n+    if (!oldCount || currentCount < oldCount * .8) throw new Error(\"SOURCE_COUNT_GUARD\");\n   }\n   // A partially migrated baseline must never be treated as a real update.\n   // Check only existing records: newly published IDs have no prior fields.\n@@ -27,6 +29,5 @@ export async function productionPlan(province: Province, snapshot: Snapshot, ite\n   // The source-count guard above always uses the COMPLETE source, not this\n   // reduced planning set. Quarantined records are reconsidered on each run.\n   const result = await plan(province, snapshot, eligibleItems, {legacyHiroshimaPersonIds:legacy});\n-  if (result.candidates.length > 20) throw new Error(\"DIFFERENCE_LIMIT\");\n   return {...result, quarantined};\n }\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/lib/jaspic/production-plan.ts",
+      "source": {
+        "path": "lib/jaspic/production-plan.ts",
+        "coverage": "全文",
+        "text": "import { fields } from \"../../supabase/functions/_shared/jaspic/mail\";\nimport { plan, type Snapshot } from \"../../supabase/functions/_shared/jaspic/state\";\nimport type { Item, Province } from \"../../supabase/functions/_shared/jaspic/collect\";\n\nexport async function productionPlan(province: Province, snapshot: Snapshot, items: Item[], legacy: ReadonlySet<string>) {\n  if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\");\n  const kinds = province === \"hiroshima\" ? [\"hiroshima-person\", \"hiroshima-crime\"] as const : [\"shiga-person\"] as const;\n  for (const kind of kinds) {\n    const oldCount = Object.keys(snapshot.records).filter(k => k.startsWith(kind+\":\")).length;\n    const currentCount = items.filter(i => i.kind === kind).length;\n    // Holiday catch-up can legitimately add many new IDs. Guard source loss,\n    // but do not reject a complete source merely because its count grew.\n    if (!oldCount || currentCount < oldCount * .8) throw new Error(\"SOURCE_COUNT_GUARD\");\n  }\n  // A partially migrated baseline must never be treated as a real update.\n  // Check only existing records: newly published IDs have no prior fields.\n  for (const item of items) {\n    const previous = snapshot.records[`${item.kind}:${item.data.id}`];\n    if (previous && fields[item.kind].some(field => !Object.prototype.hasOwnProperty.call(previous, field))) {\n      throw new Error(\"BASELINE_FIELDS_MISSING\");\n    }\n  }\n  // Occurrence date is not publication date. Do not quarantine new records\n  // solely because the event happened on or before the migration cutoff.\n  // The existing plan() category filtering, legacy suppression, baseline,\n  // delivery ledger and difference guards remain unchanged.\n  const quarantined: string[] = [];\n  const eligibleItems: Item[] = items;\n  // The source-count guard above always uses the COMPLETE source, not this\n  // reduced planning set. Quarantined records are reconsidered on each run.\n  const result = await plan(province, snapshot, eligibleItems, {legacyHiroshimaPersonIds:legacy});\n  return {...result, quarantined};\n}\n",
+        "sha256": "868ca6131458f7a9ff771f44db4f08650bde94f34799c761764ea7e3d0d99c06"
+      }
+    },
+    {
+      "path": "tests/jaspic-bulk-send-budget.test.ts",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 0,
+      "patch": "diff --git a/tests/jaspic-bulk-send-budget.test.ts b/tests/jaspic-bulk-send-budget.test.ts\nnew file mode 100644\nindex 00000000..57aa5e82\n--- /dev/null\n+++ b/tests/jaspic-bulk-send-budget.test.ts\n@@ -0,0 +1,19 @@\n+import {describe,expect,it} from \"vitest\";\n+import {hasBulkSendTimeBudget} from \"../lib/jaspic/bulk-send-budget\";\n+\n+describe(\"JASPIC bulk-send time budget\",()=>{\n+  it(\"permits 23 candidates when preflight is fast\",()=>{\n+    expect(hasBulkSendTimeBudget(23,0)).toBe(true);\n+    expect(hasBulkSendTimeBudget(23,10_000)).toBe(true);\n+  });\n+  it(\"rejects before preparing deliveries if the timeout budget is insufficient\",()=>{\n+    expect(hasBulkSendTimeBudget(25,0)).toBe(false);\n+    expect(hasBulkSendTimeBudget(23,11_000)).toBe(false);\n+    expect(hasBulkSendTimeBudget(1,231_000)).toBe(false);\n+  });\n+  it(\"rejects invalid counts and elapsed times\",()=>{\n+    expect(hasBulkSendTimeBudget(-1,0)).toBe(false);\n+    expect(hasBulkSendTimeBudget(1.5,0)).toBe(false);\n+    expect(hasBulkSendTimeBudget(1,Number.NaN)).toBe(false);\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-bulk-send-budget.test.ts",
+      "source": {
+        "path": "tests/jaspic-bulk-send-budget.test.ts",
+        "coverage": "全文",
+        "text": "import {describe,expect,it} from \"vitest\";\nimport {hasBulkSendTimeBudget} from \"../lib/jaspic/bulk-send-budget\";\n\ndescribe(\"JASPIC bulk-send time budget\",()=>{\n  it(\"permits 23 candidates when preflight is fast\",()=>{\n    expect(hasBulkSendTimeBudget(23,0)).toBe(true);\n    expect(hasBulkSendTimeBudget(23,10_000)).toBe(true);\n  });\n  it(\"rejects before preparing deliveries if the timeout budget is insufficient\",()=>{\n    expect(hasBulkSendTimeBudget(25,0)).toBe(false);\n    expect(hasBulkSendTimeBudget(23,11_000)).toBe(false);\n    expect(hasBulkSendTimeBudget(1,231_000)).toBe(false);\n  });\n  it(\"rejects invalid counts and elapsed times\",()=>{\n    expect(hasBulkSendTimeBudget(-1,0)).toBe(false);\n    expect(hasBulkSendTimeBudget(1.5,0)).toBe(false);\n    expect(hasBulkSendTimeBudget(1,Number.NaN)).toBe(false);\n  });\n});\n",
+        "sha256": "2c20772980581e9c6efb0056b56f8b1e61547eae44459aa7877b855dab1586cc"
+      }
+    },
+    {
+      "path": "tests/jaspic-shiga-bulk.test.ts",
+      "status": "modified",
+      "additions": 47,
+      "deletions": 0,
+      "patch": "diff --git a/tests/jaspic-shiga-bulk.test.ts b/tests/jaspic-shiga-bulk.test.ts\nnew file mode 100644\nindex 00000000..455e060b\n--- /dev/null\n+++ b/tests/jaspic-shiga-bulk.test.ts\n@@ -0,0 +1,47 @@\n+import { describe, expect, it } from \"vitest\";\n+import { productionPlan } from \"../lib/jaspic/production-plan\";\n+import { fields } from \"../supabase/functions/_shared/jaspic/mail\";\n+import type { Item } from \"../supabase/functions/_shared/jaspic/collect\";\n+\n+function shiga(id: string, address = \"大津市\"): Item {\n+  const data = Object.fromEntries(fields[\"shiga-person\"].map(f => [f, \"\"]));\n+  return { kind: \"shiga-person\", data: { ...data, id, occurrence_dt: \"2025-10-01 12:00:00\", case_type: \"1\", address }, context: { cityName: \"大津市\", stationName: \"\" } };\n+}\n+\n+describe(\"JASPIC Shiga bulk publication\", () => {\n+  it(\"accepts 25 genuine changes, then never proposes the unchanged records again\", async () => {\n+    const existing = Array.from({ length: 150 }, (_, n) => shiga(String(n + 1)));\n+    const records = Object.fromEntries(existing.map(i => [`shiga-person:${i.data.id}`, i.data]));\n+    const incoming = Array.from({ length: 25 }, (_, n) => shiga(String(151 + n)));\n+    const snapshot = { revision: 4, baseline: true, records };\n+    const first = await productionPlan(\"shiga\", snapshot, [...existing, ...incoming], new Set());\n+    expect(first.candidates).toHaveLength(25);\n+    expect(first.candidates.every(c => c.key.startsWith(\"shiga-person:\"))).toBe(true);\n+    const second = await productionPlan(\"shiga\", { ...snapshot, revision: 5, records: first.records }, [...existing, ...incoming], new Set());\n+    expect(second.candidates).toHaveLength(0);\n+  });\n+\n+  it(\"keeps the complete-source count safety guard for a suspiciously incomplete feed\", async () => {\n+    const existing = Array.from({ length: 150 }, (_, n) => shiga(String(n + 1)));\n+    const records = Object.fromEntries(existing.map(i => [`shiga-person:${i.data.id}`, i.data]));\n+    await expect(productionPlan(\"shiga\", { revision: 4, baseline: true, records }, existing.slice(0, 100), new Set()))\n+      .rejects.toThrow(\"SOURCE_COUNT_GUARD\");\n+  });\n+\n+  it(\"accepts 30 old-occurrence-date new IDs at the source-count boundary\", async () => {\n+    const existing = Array.from({ length: 150 }, (_, n) => shiga(String(n + 1)));\n+    const records = Object.fromEntries(existing.map(i => [`shiga-person:${i.data.id}`, i.data]));\n+    const incoming = Array.from({ length: 30 }, (_, n) => shiga(String(151 + n)));\n+    const result = await productionPlan(\"shiga\", { revision: 4, baseline: true, records }, [...existing, ...incoming], new Set());\n+    expect(result.candidates).toHaveLength(30);\n+    expect(result.candidates.every(c => c.key.startsWith(\"shiga-person:\"))).toBe(true);\n+  });\n+\n+  it(\"accepts a holiday catch-up increase beyond 20 percent\", async () => {\n+    const existing = Array.from({ length: 150 }, (_, n) => shiga(String(n + 1)));\n+    const records = Object.fromEntries(existing.map(i => [`shiga-person:${i.data.id}`, i.data]));\n+    const incoming = Array.from({ length: 31 }, (_, n) => shiga(String(151 + n)));\n+    const result = await productionPlan(\"shiga\", { revision: 4, baseline: true, records }, [...existing, ...incoming], new Set());\n+    expect(result.candidates).toHaveLength(31);\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-shiga-bulk.test.ts",
+      "source": {
+        "path": "tests/jaspic-shiga-bulk.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { productionPlan } from \"../lib/jaspic/production-plan\";\nimport { fields } from \"../supabase/functions/_shared/jaspic/mail\";\nimport type { Item } from \"../supabase/functions/_shared/jaspic/collect\";\n\nfunction shiga(id: string, address = \"大津市\"): Item {\n  const data = Object.fromEntries(fields[\"shiga-person\"].map(f => [f, \"\"]));\n  return { kind: \"shiga-person\", data: { ...data, id, occurrence_dt: \"2025-10-01 12:00:00\", case_type: \"1\", address }, context: { cityName: \"大津市\", stationName: \"\" } };\n}\n\ndescribe(\"JASPIC Shiga bulk publication\", () => {\n  it(\"accepts 25 genuine changes, then never proposes the unchanged records again\", async () => {\n    const existing = Array.from({ length: 150 }, (_, n) => shiga(String(n + 1)));\n    const records = Object.fromEntries(existing.map(i => [`shiga-person:${i.data.id}`, i.data]));\n    const incoming = Array.from({ length: 25 }, (_, n) => shiga(String(151 + n)));\n    const snapshot = { revision: 4, baseline: true, records };\n    const first = await productionPlan(\"shiga\", snapshot, [...existing, ...incoming], new Set());\n    expect(first.candidates).toHaveLength(25);\n    expect(first.candidates.every(c => c.key.startsWith(\"shiga-person:\"))).toBe(true);\n    const second = await productionPlan(\"shiga\", { ...snapshot, revision: 5, records: first.records }, [...existing, ...incoming], new Set());\n    expect(second.candidates).toHaveLength(0);\n  });\n\n  it(\"keeps the complete-source count safety guard for a suspiciously incomplete feed\", async () => {\n    const existing = Array.from({ length: 150 }, (_, n) => shiga(String(n + 1)));\n    const records = Object.fromEntries(existing.map(i => [`shiga-person:${i.data.id}`, i.data]));\n    await expect(productionPlan(\"shiga\", { revision: 4, baseline: true, records }, existing.slice(0, 100), new Set()))\n      .rejects.toThrow(\"SOURCE_COUNT_GUARD\");\n  });\n\n  it(\"accepts 30 old-occurrence-date new IDs at the source-count boundary\", async () => {\n    const existing = Array.from({ length: 150 }, (_, n) => shiga(String(n + 1)));\n    const records = Object.fromEntries(existing.map(i => [`shiga-person:${i.data.id}`, i.data]));\n    const incoming = Array.from({ length: 30 }, (_, n) => shiga(String(151 + n)));\n    const result = await productionPlan(\"shiga\", { revision: 4, baseline: true, records }, [...existing, ...incoming], new Set());\n    expect(result.candidates).toHaveLength(30);\n    expect(result.candidates.every(c => c.key.startsWith(\"shiga-person:\"))).toBe(true);\n  });\n\n  it(\"accepts a holiday catch-up increase beyond 20 percent\", async () => {\n    const existing = Array.from({ length: 150 }, (_, n) => shiga(String(n + 1)));\n    const records = Object.fromEntries(existing.map(i => [`shiga-person:${i.data.id}`, i.data]));\n    const incoming = Array.from({ length: 31 }, (_, n) => shiga(String(151 + n)));\n    const result = await productionPlan(\"shiga\", { revision: 4, baseline: true, records }, [...existing, ...incoming], new Set());\n    expect(result.candidates).toHaveLength(31);\n  });\n});\n",
+        "sha256": "bab8894f0be9d75f58d01ebe51d919d8c35dfb5c9bc71d5d8839f2eaf29806b6"
+      }
+    }
+  ],
+  "file_count": 7,
+  "reported_file_count": 7,
+  "commits": [
+    {
+      "sha": "9b3fe87e4ba4444a6fcbfe9a9797bd831aece1fd",
+      "message": "fix(jaspic): separate bulk additions from source and delivery guards (#235)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/9b3fe87e4ba4444a6fcbfe9a9797bd831aece1fd"
+    },
+    {
+      "sha": "8132f39813fe4590902e0140fa39d1e3ee3f829a",
+      "message": "fix(jaspic): separate bulk additions from source and delivery guards (#235)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/8132f39813fe4590902e0140fa39d1e3ee3f829a"
+    },
+    {
+      "sha": "2267b85ad47b7d714b5fb70281027dc0842754c2",
+      "message": "fix(jaspic): separate bulk additions from source and delivery guards (#235)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/2267b85ad47b7d714b5fb70281027dc0842754c2"
+    },
+    {
+      "sha": "3ac3af2b577b45aa51f7720c2e27e5b0ca4a9b27",
+      "message": "test(jaspic): cover 25 Shiga additions and rerun deduplication (#235)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/3ac3af2b577b45aa51f7720c2e27e5b0ca4a9b27"
+    },
+    {
+      "sha": "12ef4b9012c8b0ebe335eefa9d4a7c456acce464",
+      "message": "test(jaspic): cover 30-item bulk boundary and source-count guard\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/12ef4b9012c8b0ebe335eefa9d4a7c456acce464"
+    },
+    {
+      "sha": "f0559821bad4ff94a45c73981c983011ed80b2fc",
+      "message": "docs(jaspic): record DB 20-item blocker and bulk-send safety gates\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/f0559821bad4ff94a45c73981c983011ed80b2fc"
+    },
+    {
+      "sha": "923523152546c3a28d6e7ba74a2504a9e253aa4b",
+      "message": "fix(jaspic): block unsafe bulk runs before delivery preparation\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/923523152546c3a28d6e7ba74a2504a9e253aa4b"
+    },
+    {
+      "sha": "a71e622e9cead51d87ad9e23c6c7190210e224b6",
+      "message": "feat(jaspic): define conservative dispatch time budget\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/a71e622e9cead51d87ad9e23c6c7190210e224b6"
+    },
+    {
+      "sha": "d5e5c258ac27e4644a947e539c5098e8607e77bb",
+      "message": "test(jaspic): enforce bulk-send budget before queue writes\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/d5e5c258ac27e4644a947e539c5098e8607e77bb"
+    },
+    {
+      "sha": "640f64cea40c1927a6ebd7bf334472888b971368",
+      "message": "fix(jaspic): allow holiday catch-up source growth while guarding data loss\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/640f64cea40c1927a6ebd7bf334472888b971368"
+    },
+    {
+      "sha": "9e69403d26fab316088be9ace9ccefac33038e14",
+      "message": "test(jaspic): cover holiday bulk additions without relaxing source-loss guard\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/9e69403d26fab316088be9ace9ccefac33038e14"
+    },
+    {
+      "sha": "7ad91fb807398afa24bba974611c25718a8fba3a",
+      "message": "fix(jaspic): make preview expose production DB per-province limit without sending\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/7ad91fb807398afa24bba974611c25718a8fba3a"
+    },
+    {
+      "sha": "bbd72e50a3a9c9b9fd02a858bcc4c20377c24a8a",
+      "message": "feat(jaspic): expose distinct read-only preflight blockers for DB, time, and delivery safety\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/bbd72e50a3a9c9b9fd02a858bcc4c20377c24a8a"
+    },
+    {
+      "sha": "42384336d0b1df997ebe47b3b433c40706621e07",
+      "message": "feat(jaspic): retain successful province diagnostics when other province preflight fails\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/42384336d0b1df997ebe47b3b433c40706621e07"
+    },
+    {
+      "sha": "e3ca534aee6c15b06c6e74567a218d3378ce5a0d",
+      "message": "fix(jaspic): explicitly report partial versus complete preview counts\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/e3ca534aee6c15b06c6e74567a218d3378ce5a0d"
+    }
+  ],
+  "comments": [
+    {
+      "body": "## 2026-11-13 受入判断（ユーザー確認）\n\n本番の読み取り専用プレビューで広島31件・滋賀3件（合計34件、表示上は全てNEW_ID、隔離0、未解決配送0）を確認。発生日が古いことだけを理由に除外しない。**今朝の旧システムの最終ID集合に存在しないIDは新規候補**とする。ただし送信前に (1) 今朝の旧システム最終データの実体・取得時刻を確認してID照合、(2) 新システムのSENT台帳との重複照合、(3) 異なるIDでの同一事案がないか既存の重複防止規則で確認する。旧システムの最終データは現時点で未取得なので、照合済みとは扱わない。\n\n本番送信は依然禁止：県別20件のDB関数制限、300秒内の送信完了・途中停止時のPREPARED/UNKNOWN回復の安全性が未解決。PR #237の読み取り専用診断だけ本番反映済み。PR #236はDraft維持。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/236#issuecomment-6853083541"
+    },
+    {
+      "body": "## 旧システムID実照合（ユーザー提供ZIP、2026-11-13）\n\nユーザー提供 `suspicious_person(1).zip` 内 `suspicious_person.txt`（5,267個のID）と `criminal.txt`（32,510個のID）を読み取り、管理者プレビューのスクリーンショットにある広島31件（person 4、crime 27）を対応する集合に突合。**一致0件／旧集合にないID31件**。ID文字列の完全一致による確認。旧ZIPには取得日時・掲載日時が記録されていないため『今朝時点』の出所は未検証。新システムのSENT台帳・別ID同一事案・滋賀3件（本ZIPには滋賀ID一覧なし）は別途確認が必要。旧ID不存在だけで送信許可にはしない。送信・DB変更なし。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/236#issuecomment-6853279442"
+    },
+    {
+      "body": "## 滋賀3件の受入判断更新（2026-11-13、ユーザー提供スクリーンショット）\n\n11月6日付の旧システム実送信メールに `id:3009`（滋賀県警アラート新規）が記載されている。現在の本番読み取り専用プレビューは `shiga-person:3010`、`3011`、`3012` を新規IDとして列挙。ユーザーは『滋賀の旧システムとの追加照合は不要、3010〜3012は新規として送信してよい』と明示承認。したがって旧滋賀データ待ちの保留を解除し、3件を送信候補とする。ただし3009のメール1通のみで旧全ID履歴が網羅されるわけではないため、既存の新システムSENT台帳・同一事案重複防止・送信安全ゲートは維持。PR #236はDraft、現時点でメール送信なし。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/236#issuecomment-6853481236"
+    },
+    {
+      "body": "## 送信停止リスク確認（2026-11-13 21時台 JST）\n\n本番DBを読み取り専用で再確認：`jaspic_deliveries` は `SENT=32`、`PREPARED/SENDING/UNKNOWN/FAILED=0`。直近11/13 18:00 JST のrunは `FAILED / DIFFERENCE_LIMIT`、11/12は `SUCCEEDED`。現行mainの `app/jaspic/dispatch/route.ts` は両県合計候補数 >20 を拒否し、prepare時に候補とスナップショットを永続化した後、Gmailを1件ずつ送信する。処理中断で `PREPARED` が残れば既存ガードで次回停止する。PR #236の予算見積もりだけでは34件の実送信時間は保証できない。\n\n受入条件： (1) 20件超を含む本番DB関数・アプリ上限の整合、(2) 各送信の確定結果保存、(3) タイムアウト時の未送信PREPAREDと送信結果不明UNKNOWNの区別、(4) Gmailでの照合を経ずにUNKNOWNを自動再送しない、(5) 34件の最悪ケース所要時間を300秒内に検証、(6) PR #237のpreviewを維持した最新HEADのCI成功。**現時点では実送信不可**。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/236#issuecomment-6853509678"
+    },
+    {
+      "body": "## 34件の実Gmailテスト送信先（ユーザー指定）\n\nユーザーがテスト専用宛先 `kishibojim@gmail.com` を指定。対象は本番read-onlyプレビューにある広島31件＋滋賀3件＝34件。**本番宛先 `getter01@jaspic-nes.net` は変更しない**。テスト時は本番の `jaspic_deliveries` / `jaspic_sources` / revision / SENT履歴を一切変更しない隔離実行が必須。34件のGmail API結果・所要時間・message ID・途中停止と失敗を記録する。Gmailの送信済みへの記録は受信到達の保証ではない。テスト専用経路の安全性、最新CI、OAuth送信権限を確認するまで実送信しない。ユーザーはこの宛先へのテスト送信を了承済み。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/236#issuecomment-6853604726"
+    },
+    {
+      "body": "## 隔離DB＋34件実Gmail送信テスト 着手前のDB実査（2026-11-13）\n\n本番Supabase `yqyevipvkdwmhcaxywes` の関数定義を**読み取り専用**で確認した。\n- `jaspic_prepare_production`: 県別候補数 `>20` を明示拒否。さらに送信先 `getter01@jaspic-nes.net`・送信元を厳密に固定し、`jaspic_records` / `jaspic_sources` revision と `jaspic_deliveries` を同一トランザクションで更新する。\n- `jaspic_begin_run`: RUNNINGのrun作成、`jaspic_claim`: PREPARED→SENDING、`jaspic_finish_production`: SENT/UNKNOWN/FAILEDを記録。\n- したがって **既存の本番関数をテスト宛先で直接呼ぶのは不可**。本番関数の宛先検証を緩めない。\n\n次の実装要件：本番データに触れない隔離スキーマ／別テストプロジェクトで同等のDB制約・配送遷移を再現し、テスト用宛先 `kishibojim@gmail.com` だけを許可。34件の候補予約・Gmail API送信・message ID/処理時間記録・中断/再実行時の重複防止を検証。300秒制限は既存budgetガードで34件一括不可（34×10秒＋60秒=400秒）なので安全な分割・再開を先に設計。送信済みの不確定状態を自動再送しない。**本番DB変更なし、テストメール未送信。**\n\nこの調査と実装は既存の日本語開発履歴／development_preflightの照合合格後に進める。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/236#issuecomment-6853699942"
+    },
+    {
+      "body": "## JASPIC本番復旧の実績（2026-11-14 JST）\n\n11/13 18:00 JST の DIFFERENCE_LIMIT で未送信だった差分を、既存本番宛先のまま20件＋14件に分けて送信。配信前後とも本番ドメイン上で読み取り専用プレビューを実行。\n\n| 県 | 実送信 | Gmail受付成功 | 失敗 | 結果不明 | 未送信 |\n| --- | ---: | ---: | ---: | ---: | ---: |\n| 広島 | 31 | 31 | 0 | 0 | 0 |\n| 滋賀 | 3 | 3 | 0 | 0 | 0 |\n\n- 実行1 `20ceb6bb-0b2d-4e89-b447-baceee4c0463`、HTTP 46777 → 200。広島20件を送信し、広島11件・滋賀3件をPREPAREDに保持。\n- 実行2 `88ef319f-c34f-4e2c-a538-a82d7a0f6a78`、HTTP 46780 → 200。残14件を再開し、残0。34件すべて本番台帳SENT、県別のGmail message ID数31/3。SENDING/UNKNOWN/FAILED/PREPAREDは0。\n- デプロイ後・配信前プレビュー46776は広島31・滋賀3、ブロッカー0、前回と候補ID一致。配信後プレビュー46783は広島0・滋賀0、ブロッカー0、両県revision 12。\n- [HEAD 3a907420](https://github.com/miyazaki1016/emergencyalert/commit/3a907420294655326e4da1191699cb8298ceb7d5)／[PR CI](https://github.com/miyazaki1016/emergencyalert/actions/runs/43526789131)／[production SHA bc93f542](https://github.com/miyazaki1016/emergencyalert/commit/bc93f542e5b7a08546faa88fa4b4b91ca432ee06)／[main CI・型検査・ビルド成功](https://github.com/miyazaki1016/emergencyalert/actions/runs/43526964104)／[Vercel production READY](https://vercel.com/kishibojim/emergencyalert/DWBomQgNw739SQGzGuQyuJ1ZRhHN)。\n- [DB移行・バックアップ・復旧手順](https://github.com/miyazaki1016/emergencyalert/pull/240#issuecomment-6867495194)／[Supabase実行証拠の照合先](https://supabase.com/dashboard/project/yqyevipvkdwmhcaxywes/editor)。Git管理上の移行ファイル名と本番の移行履歴バージョン `20261113232527` は異なるため、今後CLIで移行を一括実行する場合は履歴を照合すること。メール復旧に残件なし。受信側での取り込みは未確認。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/236#issuecomment-6867535004"
+    }
+  ],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "e3ca534aee6c15b06c6e74567a218d3378ce5a0d",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43523095532",
+      "id": 43523095532,
+      "updated_at": "2026-11-13T22:58:14Z",
+      "event": "create"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "e3ca534aee6c15b06c6e74567a218d3378ce5a0d",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43414969668",
+      "id": 43414969668,
+      "updated_at": "2026-11-13T11:11:01Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "e3ca534aee6c15b06c6e74567a218d3378ce5a0d",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43414969739",
+      "id": 43414969739,
+      "updated_at": "2026-11-13T11:11:04Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "JASPIC admin monitor SQL",
+      "head_sha": "e3ca534aee6c15b06c6e74567a218d3378ce5a0d",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43414969677",
+      "id": 43414969677,
+      "updated_at": "2026-11-13T11:11:15Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "e3ca534aee6c15b06c6e74567a218d3378ce5a0d",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43414969583",
+      "id": 43414969583,
+      "updated_at": "2026-11-13T11:11:42Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "DB_AND_CLEANUP_RESERVE_MS",
+    "DISPATCH_MAX_MS",
+    "GMAIL_REQUEST_TIMEOUT_MS",
+    "POST",
+    "blockers",
+    "candidateCount",
+    "candidates",
+    "clientId",
+    "clientSecret",
+    "code",
+    "countsComplete",
+    "currentCount",
+    "data",
+    "db",
+    "dbLimitExceeded",
+    "delivery",
+    "dispatchStartedAt",
+    "dynamic",
+    "eligibleItems",
+    "encryptionKey",
+    "existing",
+    "failure",
+    "first",
+    "hasBulkSendTimeBudget",
+    "id",
+    "incoming",
+    "item",
+    "items",
+    "json",
+    "key",
+    "kind",
+    "kinds",
+    "lease",
+    "legacy",
+    "maxDuration",
+    "oldCount",
+    "outcome",
+    "ownerId",
+    "perProvinceDbLimit",
+    "plan",
+    "plans",
+    "previous",
+    "productionPlan",
+    "province",
+    "provinceErrors",
+    "provinces",
+    "quarantined",
+    "queue",
+    "r",
+    "records",
+    "refresh",
+    "remaining",
+    "response",
+    "result",
+    "results",
+    "rpc",
+    "runtime",
+    "safe",
+    "saved",
+    "second"
+  ],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "2bf424ca0813d4ffb619d37cff4890683d908f38644f919bfa550b4b1a176a8f",
+  "ci_digest": "47f7fd13fd620033a84106b1e0c31d522d056a38b52a1be960f2942797300da1",
+  "collected_at": "2026-11-13T23:51:57.929738+00:00",
+  "decisions": [
+    {
+      "kind": "test",
+      "title": "permits 23 candidates when preflight is fast",
+      "condition": "permits 23 candidates when preflight is fast",
+      "behavior": "if (!Number.isSafeInteger(candidateCount) || candidateCount < 0) return false; ／ if (!Number.isFinite(elapsedMs) || elapsedMs < 0) return false; ／ return candidateCount * GMAIL_REQUEST_TIMEOUT_MS <= remaining;",
+      "verification": "テストの期待値: expect(hasBulkSendTimeBudget(23,0)).toBe(true); ／ expect(hasBulkSendTimeBudget(23,10_000)).toBe(true); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/lib/jaspic/bulk-send-budget.ts#L8",
+        "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-bulk-send-budget.test.ts#L5"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "rejects before preparing deliveries if the timeout budget is insufficient",
+      "condition": "rejects before preparing deliveries if the timeout budget is insufficient",
+      "behavior": "if (!Number.isSafeInteger(candidateCount) || candidateCount < 0) return false; ／ if (!Number.isFinite(elapsedMs) || elapsedMs < 0) return false; ／ return candidateCount * GMAIL_REQUEST_TIMEOUT_MS <= remaining;",
+      "verification": "テストの期待値: expect(hasBulkSendTimeBudget(25,0)).toBe(false); ／ expect(hasBulkSendTimeBudget(23,11_000)).toBe(false); ／ expect(hasBulkSendTimeBudget(1,231_000)).toBe(false); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/lib/jaspic/bulk-send-budget.ts#L8",
+        "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-bulk-send-budget.test.ts#L9"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "rejects invalid counts and elapsed times",
+      "condition": "rejects invalid counts and elapsed times",
+      "behavior": "if (!Number.isSafeInteger(candidateCount) || candidateCount < 0) return false; ／ if (!Number.isFinite(elapsedMs) || elapsedMs < 0) return false; ／ return candidateCount * GMAIL_REQUEST_TIMEOUT_MS <= remaining;",
+      "verification": "テストの期待値: expect(hasBulkSendTimeBudget(-1,0)).toBe(false); ／ expect(hasBulkSendTimeBudget(1.5,0)).toBe(false); ／ expect(hasBulkSendTimeBudget(1,Number.NaN)).toBe(false); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/lib/jaspic/bulk-send-budget.ts#L8",
+        "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-bulk-send-budget.test.ts#L14"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "accepts 25 genuine changes, then never proposes the unchanged records again",
+      "condition": "accepts 25 genuine changes, then never proposes the unchanged records again",
+      "behavior": "if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\"); ／ if (!oldCount || currentCount < oldCount * .8) throw new Error(\"SOURCE_COUNT_GUARD\"); ／ if (previous && fields[item.kind].some(field => !Object.prototype.hasOwnProperty.call(previous, field))) { ／ return {...result, quarantined};",
+      "verification": "テストの期待値: expect(first.candidates).toHaveLength(25); ／ expect(first.candidates.every(c => c.key.startsWith(\"shiga-person:\"))).toBe(true); ／ expect(second.candidates).toHaveLength(0); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/lib/jaspic/production-plan.ts#L5",
+        "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-shiga-bulk.test.ts#L12"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "accepts 30 old-occurrence-date new IDs at the source-count boundary",
+      "condition": "accepts 30 old-occurrence-date new IDs at the source-count boundary",
+      "behavior": "if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\"); ／ if (!oldCount || currentCount < oldCount * .8) throw new Error(\"SOURCE_COUNT_GUARD\"); ／ if (previous && fields[item.kind].some(field => !Object.prototype.hasOwnProperty.call(previous, field))) { ／ return {...result, quarantined};",
+      "verification": "テストの期待値: expect(result.candidates).toHaveLength(30); ／ expect(result.candidates.every(c => c.key.startsWith(\"shiga-person:\"))).toBe(true); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/lib/jaspic/production-plan.ts#L5",
+        "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-shiga-bulk.test.ts#L31"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "accepts a holiday catch-up increase beyond 20 percent",
+      "condition": "accepts a holiday catch-up increase beyond 20 percent",
+      "behavior": "if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\"); ／ if (!oldCount || currentCount < oldCount * .8) throw new Error(\"SOURCE_COUNT_GUARD\"); ／ if (previous && fields[item.kind].some(field => !Object.prototype.hasOwnProperty.call(previous, field))) { ／ return {...result, quarantined};",
+      "verification": "テストの期待値: expect(result.candidates).toHaveLength(31); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/lib/jaspic/production-plan.ts#L5",
+        "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-shiga-bulk.test.ts#L40"
+      ]
+    }
+  ]
+}

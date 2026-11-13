@@ -1,0 +1,42 @@
+{
+  "id": "branch-7ae456f5639d43f4",
+  "title": "feat/pr-handoff-risk-routing-20261102",
+  "head": "35f95175deacbbbe5fe0fa28d9ab56f8bc10f004",
+  "head_ref": "feat/pr-handoff-risk-routing-20261102",
+  "linked_prs": [
+    140
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/development-inventory.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/35f95175deacbbbe5fe0fa28d9ab56f8bc10f004/.github/workflows/development-inventory.yml"
+    },
+    {
+      "path": "scripts/pr_approval_routing.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/35f95175deacbbbe5fe0fa28d9ab56f8bc10f004/scripts/pr_approval_routing.py"
+    },
+    {
+      "path": "tests/test_pr_approval_routing.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/35f95175deacbbbe5fe0fa28d9ab56f8bc10f004/tests/test_pr_approval_routing.py"
+    }
+  ],
+  "commits": "35f95175deacbbbe5fe0fa28d9ab56f8bc10f004 Connect risk-based PR handoff routing to existing inventory\n71bbc2d8f6c7a9a45c5201e0fa1cb13674913b1d Add fail-closed PR approval routing to maintainer handoff\na4efd27a2b308efab44444fc3d7af2299c1fc09e Add fail-closed PR approval routing to maintainer handoff",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "8b5f5c76324f2795ec088446457ec869c2d6c5edac9cb099eec18977bed1a3e0",
+  "collected_at": "2026-11-13T23:51:57.929738+00:00"
+}

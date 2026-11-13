@@ -1,0 +1,70 @@
+{
+  "id": "branch-1d61765cd085a548",
+  "title": "fix/jaspic-235-batched-shiga",
+  "head": "e3ca534aee6c15b06c6e74567a218d3378ce5a0d",
+  "head_ref": "fix/jaspic-235-batched-shiga",
+  "linked_prs": [
+    236
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/dispatch/preview/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/app/jaspic/dispatch/preview/route.ts"
+    },
+    {
+      "path": "app/jaspic/dispatch/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/app/jaspic/dispatch/route.ts"
+    },
+    {
+      "path": "docs/JASPIC_BULK_SEND_PREFLIGHT.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/docs/JASPIC_BULK_SEND_PREFLIGHT.md"
+    },
+    {
+      "path": "lib/jaspic/bulk-send-budget.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/lib/jaspic/bulk-send-budget.ts"
+    },
+    {
+      "path": "lib/jaspic/production-plan.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/lib/jaspic/production-plan.ts"
+    },
+    {
+      "path": "tests/jaspic-bulk-send-budget.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-bulk-send-budget.test.ts"
+    },
+    {
+      "path": "tests/jaspic-shiga-bulk.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e3ca534aee6c15b06c6e74567a218d3378ce5a0d/tests/jaspic-shiga-bulk.test.ts"
+    }
+  ],
+  "commits": "e3ca534aee6c15b06c6e74567a218d3378ce5a0d fix(jaspic): explicitly report partial versus complete preview counts\n42384336d0b1df997ebe47b3b433c40706621e07 feat(jaspic): retain successful province diagnostics when other province preflight fails\nbbd72e50a3a9c9b9fd02a858bcc4c20377c24a8a feat(jaspic): expose distinct read-only preflight blockers for DB, time, and delivery safety\n7ad91fb807398afa24bba974611c25718a8fba3a fix(jaspic): make preview expose production DB per-province limit without sending\n9e69403d26fab316088be9ace9ccefac33038e14 test(jaspic): cover holiday bulk additions without relaxing source-loss guard\n640f64cea40c1927a6ebd7bf334472888b971368 fix(jaspic): allow holiday catch-up source growth while guarding data loss\nd5e5c258ac27e4644a947e539c5098e8607e77bb test(jaspic): enforce bulk-send budget before queue writes\na71e622e9cead51d87ad9e23c6c7190210e224b6 feat(jaspic): define conservative dispatch time budget\n923523152546c3a28d6e7ba74a2504a9e253aa4b fix(jaspic): block unsafe bulk runs before delivery preparation\nf0559821bad4ff94a45c73981c983011ed80b2fc docs(jaspic): record DB 20-item blocker and bulk-send safety gates\n12ef4b9012c8b0ebe335eefa9d4a7c456acce464 test(jaspic): cover 30-item bulk boundary and source-count guard\n3ac3af2b577b45aa51f7720c2e27e5b0ca4a9b27 test(jaspic): cover 25 Shiga additions and rerun deduplication (#235)\n2267b85ad47b7d714b5fb70281027dc0842754c2 fix(jaspic): separate bulk additions from source and delivery guards (#235)\n8132f39813fe4590902e0140fa39d1e3ee3f829a fix(jaspic): separate bulk additions from source and delivery guards (#235)\n9b3fe87e4ba4444a6fcbfe9a9797bd831aece1fd fix(jaspic): separate bulk additions from source and delivery guards (#235)",
+  "topics": [
+    "通知・配信"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "e97f95f1285e72a8341099ece5070ecaf360184a290477ff173cf6b5f15e8ce1",
+  "collected_at": "2026-11-13T23:51:57.929738+00:00"
+}

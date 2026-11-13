@@ -1,0 +1,112 @@
+{
+  "id": "branch-1a34f59f12c294d3",
+  "title": "test/jaspic-238-isolated-send",
+  "head": "3a907420294655326e4da1191699cb8298ceb7d5",
+  "head_ref": "test/jaspic-238-isolated-send",
+  "linked_prs": [
+    240
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/dispatch/preview/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3a907420294655326e4da1191699cb8298ceb7d5/app/jaspic/dispatch/preview/route.ts"
+    },
+    {
+      "path": "app/jaspic/dispatch/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3a907420294655326e4da1191699cb8298ceb7d5/app/jaspic/dispatch/route.ts"
+    },
+    {
+      "path": "docs/JASPIC_BATCH_RECOVERY_DESIGN.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3a907420294655326e4da1191699cb8298ceb7d5/docs/JASPIC_BATCH_RECOVERY_DESIGN.md"
+    },
+    {
+      "path": "docs/JASPIC_BULK_SEND_PREFLIGHT.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3a907420294655326e4da1191699cb8298ceb7d5/docs/JASPIC_BULK_SEND_PREFLIGHT.md"
+    },
+    {
+      "path": "lib/jaspic/bulk-send-budget.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3a907420294655326e4da1191699cb8298ceb7d5/lib/jaspic/bulk-send-budget.ts"
+    },
+    {
+      "path": "lib/jaspic/dispatch-batch.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3a907420294655326e4da1191699cb8298ceb7d5/lib/jaspic/dispatch-batch.ts"
+    },
+    {
+      "path": "lib/jaspic/isolated-send-guard.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3a907420294655326e4da1191699cb8298ceb7d5/lib/jaspic/isolated-send-guard.ts"
+    },
+    {
+      "path": "lib/jaspic/production-plan.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3a907420294655326e4da1191699cb8298ceb7d5/lib/jaspic/production-plan.ts"
+    },
+    {
+      "path": "supabase/migrations/20261114000000_jaspic_lossless_queue_draft.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3a907420294655326e4da1191699cb8298ceb7d5/supabase/migrations/20261114000000_jaspic_lossless_queue_draft.sql"
+    },
+    {
+      "path": "tests/jaspic-bulk-send-budget.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3a907420294655326e4da1191699cb8298ceb7d5/tests/jaspic-bulk-send-budget.test.ts"
+    },
+    {
+      "path": "tests/jaspic-dispatch-batch.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3a907420294655326e4da1191699cb8298ceb7d5/tests/jaspic-dispatch-batch.test.ts"
+    },
+    {
+      "path": "tests/jaspic-shiga-bulk.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3a907420294655326e4da1191699cb8298ceb7d5/tests/jaspic-shiga-bulk.test.ts"
+    },
+    {
+      "path": "tests/jaspic/dispatch-monitor.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3a907420294655326e4da1191699cb8298ceb7d5/tests/jaspic/dispatch-monitor.test.ts"
+    }
+  ],
+  "commits": "3a907420294655326e4da1191699cb8298ceb7d5 Merge main into JASPIC queue recovery and retain preview documentation\n5796fd408f612d6b154da52a5dfd2919f7a88da0 fix(jaspic): show queued candidate totals without applying the send batch limit\n8fb3bd1fd6b1796208771dda8352a4965408212f fix(jaspic): serialize queue claims with expired-run recovery\nd22e15cc78d86aa22e456064ca9301a6df0c120d fix(jaspic): resume expired runs only when all attempts are resolved\n3092b625e34e27f41224d54699829f6df0d3cffe fix(jaspic): normalize the isolated origin without a regex\n02e932ad3bffb3fd2ec5cfdfaa19c2f2b97645f5 test(jaspic): update dispatch monitoring DB mocks for resumable queue queries\nbe42b1dc3aa49b14af467fa52f1b1f72a071557a fix(jaspic): permit existing PREPARED during same atomic province plan\na0e5707566668690c34b93591ab89485a3af8449 fix(jaspic): atomically persist both province plans before sending\n5b8bda71043931217a7807bda4bab0dde88bba60 feat(jaspic): prepare both provinces atomically with all-or-nothing revision updates\n356abb5ba370a8cb43c8193b3ec89afdbc79875a fix(jaspic): use preflight plans and check all unsafe delivery states before resume\n8daa98f412511daa9ba3eac37edbc67fb705b78a feat(jaspic): resume immutable PREPARED queue in bounded dispatch batches\n7f2a639cba6868c13646ea56fd5128d6269f7d7d feat(jaspic): draft atomic full-candidate queue and guarded PREPARED resumption migration\nab66c77db4e22a5f64c1e5306b50cc6755f89afe test(jaspic): verify lossless 34/50/100 item batch selection and time guards\n7255a20e8952764fcbe1976a9ac158a12ce2651f docs(jaspic): record lossless queue and recovery gates for #235 #238\nb3dd3a8fb9a343f93d96ebf44de2370bda6629f3 feat(jaspic): add bounded batch selection helper without side effects\naf56fe8a794f4dc2b9234a86f03e166ef3211d42 test(jaspic): add fail-closed isolated send configuration gate for #238\ne3ca534aee6c15b06c6e74567a218d3378ce5a0d fix(jaspic): explicitly report partial versus complete preview counts\n42384336d0b1df997ebe47b3b433c40706621e07 feat(jaspic): retain successful province diagnostics when other province preflight fails\nbbd72e50a3a9c9b9fd02a858bcc4c20377c24a8a feat(jaspic): expose distinct read-only preflight blockers for DB, time, and delivery safety\n7ad91fb807398afa24bba974611c25718a8fba3a fix(jaspic): make preview expose production DB per-province limit without sending\n9e69403d26fab316088be9ace9ccefac33038e14 test(jaspic): cover holiday bulk additions without relaxing source-loss guard\n640f64cea40c1927a6ebd7bf334472888b971368 fix(jaspic): allow holiday catch-up source growth while guarding data loss\nd5e5c258ac27e4644a947e539c5098e8607e77bb test(jaspic): enforce bulk-send budget before queue writes\na71e622e9cead51d87ad9e23c6c7190210e224b6 feat(jaspic): define conservative dispatch time budget\n923523152546c3a28d6e7ba74a2504a9e253aa4b fix(jaspic): block unsafe bulk runs before delivery preparation\nf0559821bad4ff94a45c73981c983011ed80b2fc docs(jaspic): record DB 20-item blocker and bulk-send safety gates\n12ef4b9012c8b0ebe335eefa9d4a7c456acce464 test(jaspic): cover 30-item bulk boundary and source-count guard\n3ac3af2b577b45aa51f7720c2e27e5b0ca4a9b27 test(jaspic): cover 25 Shiga additions and rerun deduplication (#235)\n2267b85ad47b7d714b5fb70281027dc0842754c2 fix(jaspic): separate bulk additions from source and delivery guards (#235)\n8132f39813fe4590902e0140fa39d1e3ee3f829a fix(jaspic): separate bulk additions from source and delivery guards (#235)\n9b3fe87e4ba4444a6fcbfe9a9797bd831aece1fd fix(jaspic): separate bulk additions from source and delivery guards (#235)",
+  "topics": [
+    "通知・配信"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "12bbb7356497438862852d9e2c8348e400c3d55e90b949238db49c0cc2651f71",
+  "collected_at": "2026-11-13T23:51:57.929738+00:00"
+}

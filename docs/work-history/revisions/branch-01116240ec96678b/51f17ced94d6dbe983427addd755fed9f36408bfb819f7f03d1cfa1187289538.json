@@ -1,0 +1,99 @@
+{
+  "id": "branch-01116240ec96678b",
+  "title": "feat/automatic-history-preflight-20261109",
+  "head": "d6b226c0bb2aeac2a41839c5b5963f40c918c3d1",
+  "head_ref": "feat/automatic-history-preflight-20261109",
+  "linked_prs": [
+    188
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/development-inventory.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d6b226c0bb2aeac2a41839c5b5963f40c918c3d1/.github/workflows/development-inventory.yml"
+    },
+    {
+      "path": ".github/workflows/development-preflight.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d6b226c0bb2aeac2a41839c5b5963f40c918c3d1/.github/workflows/development-preflight.yml"
+    },
+    {
+      "path": "AGENTS.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d6b226c0bb2aeac2a41839c5b5963f40c918c3d1/AGENTS.md"
+    },
+    {
+      "path": "PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d6b226c0bb2aeac2a41839c5b5963f40c918c3d1/PROJECT_OVERVIEW.md"
+    },
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d6b226c0bb2aeac2a41839c5b5963f40c918c3d1/docs/PROJECT_OVERVIEW.md"
+    },
+    {
+      "path": "docs/WORK_HISTORY_INDEX.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d6b226c0bb2aeac2a41839c5b5963f40c918c3d1/docs/WORK_HISTORY_INDEX.md"
+    },
+    {
+      "path": "docs/WORK_HISTORY_OPERATIONS.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d6b226c0bb2aeac2a41839c5b5963f40c918c3d1/docs/WORK_HISTORY_OPERATIONS.md"
+    },
+    {
+      "path": "docs/WORK_HISTORY_PREFLIGHT.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d6b226c0bb2aeac2a41839c5b5963f40c918c3d1/docs/WORK_HISTORY_PREFLIGHT.md"
+    },
+    {
+      "path": "scripts/development_preflight.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d6b226c0bb2aeac2a41839c5b5963f40c918c3d1/scripts/development_preflight.py"
+    },
+    {
+      "path": "scripts/vercel-build-guard.mjs",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d6b226c0bb2aeac2a41839c5b5963f40c918c3d1/scripts/vercel-build-guard.mjs"
+    },
+    {
+      "path": "tests/test_development_preflight.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d6b226c0bb2aeac2a41839c5b5963f40c918c3d1/tests/test_development_preflight.py"
+    }
+  ],
+  "commits": "d6b226c0bb2aeac2a41839c5b5963f40c918c3d1 feat(history): automatically check existing work before implementation",
+  "topics": [
+    "開発管理",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "9f6a10df4f1a004869e4041b8f97f14daddcc9c96e82dfc355d15baef24af21a",
+  "collected_at": "2026-11-13T23:51:57.929738+00:00"
+}

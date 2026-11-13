@@ -1,0 +1,357 @@
+{
+  "id": "pr-241",
+  "number": 241,
+  "title": "fix(jaspic): 全分割の送信確定後に定時配信の完了を通知",
+  "topics": [
+    "通知・配信"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Related #231. [着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/43529701207)\n\n既存の永続キュー・最大20件・管理者通知を再利用。初回runに紐付けた台帳から県別合計を算出し、未送信0件で完了通知。既存の認証済み配送経路で残件を継続し、結果不明時は停止通知。SQL適用はアプリ反映後。\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-193\",\"decision\":\"reuse\",\"reason\":\"既存の異常通知、再認証、Resendの送信と再試行を再利用する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/193\"},{\"id\":\"pr-240\",\"decision\":\"extend\",\"reason\":\"既存の永続PREPAREDキューと最大20件の実行を再利用し、定時配信の継続を追加する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/240\"},{\"id\":\"pr-228\",\"decision\":\"reuse\",\"reason\":\"管理者の読み取り専用プレビューを維持し、送信起動経路には使わない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/228\"},{\"id\":\"pr-230\",\"decision\":\"reuse\",\"reason\":\"差分前の必須項目ガードを維持する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/230\"},{\"id\":\"pr-155\",\"decision\":\"reuse\",\"reason\":\"既存のGmail認証・MIMEを維持する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/155\"},{\"id\":\"pr-194\",\"decision\":\"extend\",\"reason\":\"既存の18時完了通知、0件時通知と日次重複防止を、全バッチの結果確定後に適用する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/194\"},{\"id\":\"pr-192\",\"decision\":\"reuse\",\"reason\":\"自転車盗は対象外とし保留件数に含めない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/192\"},{\"id\":\"pr-190\",\"decision\":\"reuse\",\"reason\":\"安全判定の隔離・送信抑止を維持する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/190\"}]}\n-->",
+  "snapshot_head": "debfab93d75644d42d019ba8cda125663f0621f7",
+  "snapshot_consistent": true,
+  "head": "debfab93d75644d42d019ba8cda125663f0621f7",
+  "base": "bc93f542e5b7a08546faa88fa4b4b91ca432ee06",
+  "base_ref": "main",
+  "head_ref": "fix/jaspic-231-batch-completion",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-13T23:51:45Z",
+  "merge_commit_sha": "b4ed8c614d616c8fbd032e8961904307287c43a3",
+  "updated_at": "2026-11-13T23:51:45Z",
+  "code_facts": [
+    {
+      "file": "app/jaspic/dispatch/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (priorRun !== null) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/app/jaspic/dispatch/route.ts"
+    },
+    {
+      "file": "app/jaspic/dispatch/route.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "if (!/^[0-9a-f-]{36}$/.test(priorRun)) throw new Error(\"INVALID_RESUME_RUN\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/app/jaspic/dispatch/route.ts"
+    },
+    {
+      "file": "app/jaspic/dispatch/route.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const queued=await db.from(\"jaspic_deliveries\").select(\"run_id\")",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/app/jaspic/dispatch/route.ts"
+    },
+    {
+      "file": "app/jaspic/dispatch/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (queued.error || !queued.data.length) throw new Error(\"RESUME_QUEUE_CHANGED\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/app/jaspic/dispatch/route.ts"
+    },
+    {
+      "file": "docs/sql/jaspic-batch-completion.sql",
+      "kind": "SQL定義・権限",
+      "expression": "alter table public.jaspic_deliveries add column if not exists initial_run_id uuid;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/docs/sql/jaspic-batch-completion.sql"
+    },
+    {
+      "file": "docs/sql/jaspic-batch-completion.sql",
+      "kind": "関数・クラス定義",
+      "expression": "create or replace function jaspic_monitor.set_initial_run() returns trigger",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/docs/sql/jaspic-batch-completion.sql"
+    },
+    {
+      "file": "docs/sql/jaspic-batch-completion.sql",
+      "kind": "関数・クラス定義",
+      "expression": "revoke all on function jaspic_monitor.set_initial_run() from public,anon,authenticated;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/docs/sql/jaspic-batch-completion.sql"
+    },
+    {
+      "file": "docs/sql/jaspic-batch-completion.sql",
+      "kind": "関数・クラス定義",
+      "expression": "on public.jaspic_deliveries for each row execute function jaspic_monitor.set_initial_run();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/docs/sql/jaspic-batch-completion.sql"
+    },
+    {
+      "file": "docs/sql/jaspic-batch-completion.sql",
+      "kind": "SQL定義・権限",
+      "expression": "create index jaspic_deliveries_initial_run on public.jaspic_deliveries(initial_run_id);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/docs/sql/jaspic-batch-completion.sql"
+    },
+    {
+      "file": "docs/sql/jaspic-batch-completion.sql",
+      "kind": "SQL定義・権限",
+      "expression": "create table jaspic_monitor.batch_requests(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/docs/sql/jaspic-batch-completion.sql"
+    },
+    {
+      "file": "docs/sql/jaspic-batch-completion.sql",
+      "kind": "関数・クラス定義",
+      "expression": "create or replace function jaspic_monitor.scan_completions(p_now timestamptz default now()) returns void",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/docs/sql/jaspic-batch-completion.sql"
+    },
+    {
+      "file": "docs/sql/jaspic-batch-completion.sql",
+      "kind": "条件分岐・閾値",
+      "expression": "if exists(select 1 from jaspic_monitor.alerts where event_key='completion:'||day_key) then continue; end if;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/docs/sql/jaspic-batch-completion.sql"
+    },
+    {
+      "file": "tests/sql/jaspic-monitor-batch-completion.sql",
+      "kind": "SQL定義・権限",
+      "expression": "create table public.jaspic_deliveries(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/tests/sql/jaspic-monitor-batch-completion.sql"
+    },
+    {
+      "file": "tests/sql/jaspic-monitor-batch-completion.sql",
+      "kind": "条件分岐・閾値",
+      "expression": "if (select count(*) from net.requests where url like '%/dispatch')<>1 then raise exception 'continuation must enqueue once'; end if;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/tests/sql/jaspic-monitor-batch-completion.sql"
+    },
+    {
+      "file": "tests/sql/jaspic-monitor-batch-completion.sql",
+      "kind": "条件分岐・閾値",
+      "expression": "if not exists(select 1 from jaspic_monitor.alerts where code='DISPATCH_BATCH_STOPPED' and message like '%結果不明: 3 件%') then raise exception 'uncertain count missing'; end if;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/tests/sql/jaspic-monitor-batch-completion.sql"
+    },
+    {
+      "file": "tests/sql/jaspic-monitor-batch-completion.sql",
+      "kind": "条件分岐・閾値",
+      "expression": "if (select count(*) from jaspic_monitor.alerts where code='DISPATCH_SUCCEEDED' and message like '%広島県: 31 件%' and message like '%滋賀県: 3 件%' and message like '%合計: 34 件%' and message like '%未送信: 0 件%')<>1 then raise exception 'whole queue completion missing'; end if;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/tests/sql/jaspic-monitor-batch-completion.sql"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/dispatch/route.ts",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "patch": "diff --git a/app/jaspic/dispatch/route.ts b/app/jaspic/dispatch/route.ts\nindex c4aef94d..98a03620 100644\n--- a/app/jaspic/dispatch/route.ts\n+++ b/app/jaspic/dispatch/route.ts\n@@ -45,6 +45,13 @@ export async function POST(request:Request) {\n     const pending=await db.from(\"jaspic_deliveries\").select(\"record_key\").eq(\"status\",\"PREPARED\").limit(1);\n     if(pending.error)throw new Error(\"QUEUE_READ_FAILED\");\n     const resuming=pending.data.length>0;\n+    const priorRun=request.headers.get(\"x-jaspic-resume-run\");\n+    if (priorRun !== null) {\n+      if (!/^[0-9a-f-]{36}$/.test(priorRun)) throw new Error(\"INVALID_RESUME_RUN\");\n+      const queued=await db.from(\"jaspic_deliveries\").select(\"run_id\")\n+        .eq(\"status\",\"PREPARED\").eq(\"run_id\",priorRun).limit(1);\n+      if (queued.error || !queued.data.length) throw new Error(\"RESUME_QUEUE_CHANGED\");\n+    }\n     let plans: {province:Province;result:Awaited<ReturnType<typeof productionPlan>>}[]=[];\n     if(!resuming){\n       const provinces:Province[]=[\"hiroshima\",\"shiga\"];\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/app/jaspic/dispatch/route.ts",
+      "source": {
+        "path": "app/jaspic/dispatch/route.ts",
+        "coverage": "全文",
+        "text": "import {createClient} from \"@supabase/supabase-js\";\nimport {timingSafeEqual,randomUUID} from \"node:crypto\";\nimport {readEncryptedGmailRefreshToken} from \"../../../lib/jaspic/oauth-gmail-token-store-server\";\nimport {collect, type Province} from \"../../../supabase/functions/_shared/jaspic/collect\";\nimport {productionPlan} from \"../../../lib/jaspic/production-plan\";\nimport {sendProductionMail} from \"../../../lib/jaspic/production-gmail\";\nimport {selectDispatchBatch} from \"../../../lib/jaspic/dispatch-batch\";\n\nexport const runtime=\"nodejs\";\nexport const dynamic=\"force-dynamic\";\nexport const maxDuration=300;\nconst response=(data:unknown,status=200)=>Response.json(data,{status,headers:{\"Cache-Control\":\"no-store, private\"}});\n\nexport async function POST(request:Request) {\n  const secret=process.env.JASPIC_DISPATCH_TOKEN;\n  const supplied=request.headers.get(\"authorization\")?.replace(/^Bearer /,\"\")??\"\";\n  if (!secret||supplied.length!==secret.length||!timingSafeEqual(Buffer.from(supplied),Buffer.from(secret))) return response({error:\"UNAUTHORIZED\"},401);\n  if (process.env.JASPIC_PRODUCTION_SEND_ENABLED!==\"true\") return response({error:\"DISABLED\"},503);\n  const url=process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/,\"\");\n  const key=process.env.SUPABASE_SERVICE_ROLE_KEY;\n  const ownerId=process.env.JASPIC_ADMIN_USER_ID;\n  const encryptionKey=process.env.JASPIC_GMAIL_TOKEN_VAULT_KEY;\n  const clientId=process.env.JASPIC_GOOGLE_WEB_CLIENT_ID;\n  const clientSecret=process.env.JASPIC_GOOGLE_WEB_CLIENT_SECRET;\n  if (!url||!key||!ownerId||!encryptionKey||!clientId||!clientSecret) return response({error:\"NOT_CONFIGURED\"},503);\n  const db=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});\n  async function rpc(name:string,args:Record<string,unknown>={}) {const r=await db.rpc(name,args);if(r.error)throw new Error(\"DATABASE_GUARD\");return r.data;}\n  const dispatchStartedAt=Date.now();\n  const id=randomUUID(); let started=false;\n  const sent={hiroshima:0,shiga:0};\n  let stage=\"begin-run\";\n  let province:Province|null=null;\n  const sourceErrors:{province:Province;code:string}[]=[];\n  try {\n    if (!await rpc(\"jaspic_begin_run\",{p_id:id})) return response({error:\"RUN_LOCKED\"},409);\n    started=true;\n    // Never observe a new source snapshot while any older delivery is pending.\n    // A previous interrupted RUNNING run remains locked for manual review.\n    stage=\"queue-guard\";\n    const unresolved=await db.from(\"jaspic_deliveries\").select(\"status\").in(\"status\",[\"SENDING\",\"UNKNOWN\",\"FAILED\"]).limit(1);\n    if(unresolved.error)throw new Error(\"QUEUE_READ_FAILED\");\n    if(unresolved.data.length){\n      throw new Error(\"UNRESOLVED_DELIVERY\");\n    }\n    const pending=await db.from(\"jaspic_deliveries\").select(\"record_key\").eq(\"status\",\"PREPARED\").limit(1);\n    if(pending.error)throw new Error(\"QUEUE_READ_FAILED\");\n    const resuming=pending.data.length>0;\n    const priorRun=request.headers.get(\"x-jaspic-resume-run\");\n    if (priorRun !== null) {\n      if (!/^[0-9a-f-]{36}$/.test(priorRun)) throw new Error(\"INVALID_RESUME_RUN\");\n      const queued=await db.from(\"jaspic_deliveries\").select(\"run_id\")\n        .eq(\"status\",\"PREPARED\").eq(\"run_id\",priorRun).limit(1);\n      if (queued.error || !queued.data.length) throw new Error(\"RESUME_QUEUE_CHANGED\");\n    }\n    let plans: {province:Province;result:Awaited<ReturnType<typeof productionPlan>>}[]=[];\n    if(!resuming){\n      const provinces:Province[]=[\"hiroshima\",\"shiga\"];\n      const legacy=await rpc(\"jaspic_legacy_hiroshima_person_ids\");\n      if(!Array.isArray(legacy)||legacy.some(x=>typeof x!==\"string\"))throw new Error(\"LEGACY_HISTORY_INVALID\");\n      stage=\"source-preflight\";\n      const settled=await Promise.allSettled(provinces.map(async province=>{\n        const snapshot=await rpc(\"jaspic_snapshot\",{p_province:province});\n        let items;\n        try { items=await collect(province); } catch {\n          sourceErrors.push({province,code:\"SOURCE_FETCH_FAILED\"});\n          throw new Error(\"SOURCE_FETCH_FAILED\");\n        }\n        return {province,result:await productionPlan(province,snapshot,items,new Set(province===\"hiroshima\"?legacy:[]))};\n      }));\n      const failure=settled.find(r=>r.status===\"rejected\");\n      if(failure?.status===\"rejected\")throw failure.reason;\n      plans=settled.flatMap(r=>r.status===\"fulfilled\"?[r.value]:[]);\n      }\n    // Refresh validates the existing encrypted OAuth credential even for a zero-item run.\n    stage=\"gmail-auth\";\n    const refresh=await readEncryptedGmailRefreshToken({db,ownerId,expectedAdminId:ownerId,encryptionKey});\n    if(!refresh)throw new Error(\"GMAIL_NOT_CONNECTED\");\n    const tokenResponse=await fetch(\"https://oauth2.googleapis.com/token\",{method:\"POST\",headers:{\"Content-Type\":\"application/x-www-form-urlencoded\"},body:new URLSearchParams({client_id:clientId,client_secret:clientSecret,refresh_token:refresh,grant_type:\"refresh_token\"}),redirect:\"error\",cache:\"no-store\",signal:AbortSignal.timeout(10_000)});\n    if(!tokenResponse.ok)throw new Error(\"GMAIL_REFRESH_FAILED\");\n    const token=await tokenResponse.json();\n    if(typeof token.access_token!==\"string\"||token.access_token.length<8)throw new Error(\"GMAIL_TOKEN_INVALID\");\n    if(resuming){\n      stage=\"resume-delivery\";\n      await rpc(\"jaspic_resume_prepared\",{p_id:id});\n    }else{\n      stage=\"prepare-delivery\";\n      const preparedPlans=plans.map(({province,result})=>({\n        province,revision:result.expectedRevision,records:result.records,\n        candidates:result.candidates.map(c=>({...c,mail:{...c.mail,from:\"miyazaki1016@gmail.com\",to:\"getter01@jaspic-nes.net\",cc:null}})),\n      }));\n      // One RPC/transaction: never commit Hiroshima's snapshot without Shiga's.\n      await rpc(\"jaspic_prepare_all_production\",{p_id:id,p_plans:preparedPlans});\n    }\n    // Immutable mail is always read from the ledger. Limit only the sending,\n    // never the candidate persistence or source snapshot.\n    const queue=await db.from(\"jaspic_deliveries\").select(\"province,record_key,version,mail\")\n      .eq(\"run_id\",id).eq(\"status\",\"PREPARED\")\n      .order(\"province\",{ascending:true}).order(\"record_key\",{ascending:true})\n      .order(\"version\",{ascending:true}).limit(1000);\n    if(queue.error)throw new Error(\"QUEUE_READ_FAILED\");\n    const {selected}=selectDispatchBatch(queue.data,300_000-(Date.now()-dispatchStartedAt));\n    stage=\"gmail-send\";\n    for(const delivery of selected){\n      province=delivery.province as Province;\n      const lease=randomUUID();\n      if(!await rpc(\"jaspic_claim\",{p_province:delivery.province,p_key:delivery.record_key,p_version:delivery.version,p_token:lease}))throw new Error(\"CLAIM_REJECTED\");\n      const outcome=await sendProductionMail(token.access_token,delivery.mail);\n      if(!await rpc(\"jaspic_finish_production\",{p_id:id,p_province:delivery.province,p_key:delivery.record_key,p_version:delivery.version,p_token:lease,p_status:outcome.status,p_message:outcome.message,p_error:outcome.error}))throw new Error(\"OUTCOME_NOT_SAVED\");\n      if(outcome.status!==\"SENT\")throw new Error(outcome.error??\"SEND_FAILED\");\n      sent[delivery.province as Province]++;\n    }\n    stage=\"save-result\";\n    const remaining=await db.from(\"jaspic_deliveries\").select(\"record_key\",{count:\"exact\",head:true}).eq(\"status\",\"PREPARED\");\n    if(remaining.error||remaining.count===null)throw new Error(\"QUEUE_READ_FAILED\");\n    province=null;\n    const result={runId:id,status:\"SUCCEEDED\",remainingPrepared:remaining.count,resuming,sent,candidates:plans.map(p=>({province:p.province,count:p.result.candidates.length})),quarantined:plans.map(p=>({province:p.province,count:p.result.quarantined.length}))};\n    const saved=await db.from(\"jaspic_runs\").update({status:\"SUCCEEDED\",finished_at:new Date().toISOString(),result}).eq(\"id\",id).eq(\"status\",\"RUNNING\").select(\"id\");\n    if(saved.error||saved.data.length!==1)throw new Error(\"RUN_RESULT_NOT_SAVED\");\n    return response(result);\n  } catch(error) {\n    const code=error instanceof Error&&/^[A-Z][A-Z0-9_]{0,79}$/.test(error.message)?error.message:\"JASPIC_RUN_FAILED\";\n    if(started){\n      // A process crash remains RUNNING. Network uncertainty remains non-retryable SENDING/UNKNOWN.\n      await db.from(\"jaspic_deliveries\").update({status:\"UNKNOWN\",error_code:\"RUN_INTERRUPTED\",finished_at:new Date().toISOString()}).eq(\"run_id\",id).eq(\"status\",\"SENDING\");\n      await db.from(\"jaspic_runs\").update({status:\"FAILED\",finished_at:new Date().toISOString(),error_code:code,result:{sent,stage,province,sourceErrors}}).eq(\"id\",id).eq(\"status\",\"RUNNING\");\n    }\n    return response({runId:id,status:\"FAILED\",error:code,sent},503);\n  }\n}\n",
+        "sha256": "fc72b66244eb4744551d7e8fa7f112937b3b1c5505780dbfd6003f5d1fe96a68"
+      }
+    },
+    {
+      "path": "docs/sql/jaspic-batch-completion.sql",
+      "status": "modified",
+      "additions": 109,
+      "deletions": 0,
+      "patch": "diff --git a/docs/sql/jaspic-batch-completion.sql b/docs/sql/jaspic-batch-completion.sql\nnew file mode 100644\nindex 00000000..b85fb9b4\n--- /dev/null\n+++ b/docs/sql/jaspic-batch-completion.sql\n@@ -0,0 +1,109 @@\n+-- Preserve initial run identity while existing queue resume reassigns run_id.\n+alter table public.jaspic_deliveries add column if not exists initial_run_id uuid;\n+create or replace function jaspic_monitor.set_initial_run() returns trigger\n+language plpgsql set search_path='' as $$\n+begin\n+ if tg_op='INSERT' then new.initial_run_id=new.run_id;\n+ else new.initial_run_id=coalesce(old.initial_run_id,old.run_id); end if;\n+ return new;\n+end $$;\n+revoke all on function jaspic_monitor.set_initial_run() from public,anon,authenticated;\n+create trigger jaspic_delivery_initial_run before insert or update of run_id\n+ on public.jaspic_deliveries for each row execute function jaspic_monitor.set_initial_run();\n+create index jaspic_deliveries_initial_run on public.jaspic_deliveries(initial_run_id);\n+create table jaspic_monitor.batch_requests(\n+ prior_run_id uuid primary key, request_id bigint not null, requested_at timestamptz not null\n+);\n+revoke all on jaspic_monitor.batch_requests from public,anon,authenticated,service_role;\n+\n+create or replace function jaspic_monitor.scan_completions(p_now timestamptz default now()) returns void\n+language plpgsql set search_path='' as $$\n+declare c jaspic_monitor.config; r record; day_key text; h integer; s integer;\n+ total integer; pending integer; uncertain integer; failed integer; other_count integer;\n+ last_run record; req record; dispatch_token text; request_id bigint;\n+begin\n+ select * into strict c from jaspic_monitor.config where id;\n+ if not c.enabled or not pg_catalog.pg_try_advisory_xact_lock(144166021,231) then return; end if;\n+ for r in\n+  select distinct on ((started_at at time zone 'Asia/Tokyo')::date) *\n+  from public.jaspic_runs runs\n+  where status='SUCCEEDED' and not coalesce(result->>'resuming'='true',false) and finished_at is not null and finished_at<=p_now\n+   and started_at>=c.activated_at and started_at>=p_now-interval '48 hours'\n+   and finished_at>=started_at\n+   -- Same scheduled-start window used by the existing missing-run watchdog.\n+   and (started_at at time zone 'Asia/Tokyo')::time>=time '18:00'\n+   and (started_at at time zone 'Asia/Tokyo')::time<time '18:10'\n+   and exists(select 1 from cron.job_run_details d join cron.job j using(jobid)\n+    where j.jobname='jaspic-production-1800-jst' and d.status='succeeded'\n+     and d.start_time>=(((runs.started_at at time zone 'Asia/Tokyo')::date+time '18:00') at time zone 'Asia/Tokyo')\n+     and d.start_time<=runs.started_at)\n+  order by (started_at at time zone 'Asia/Tokyo')::date,started_at,id\n+ loop\n+  day_key=to_char(r.started_at at time zone 'Asia/Tokyo','YYYY-MM-DD');\n+  if exists(select 1 from jaspic_monitor.alerts where event_key='completion:'||day_key) then continue; end if;\n+  if r.result ? 'remainingPrepared' then\n+   select count(*), count(*) filter(where status='SENT' and province='hiroshima' and gmail_message_id is not null),\n+    count(*) filter(where status='SENT' and province='shiga' and gmail_message_id is not null),\n+    count(*) filter(where status='PREPARED'), count(*) filter(where status in ('SENDING','UNKNOWN')),\n+    count(*) filter(where status='FAILED')\n+   into total,h,s,pending,uncertain,failed\n+   from public.jaspic_deliveries where initial_run_id=r.id;\n+   other_count=total-h-s-pending-uncertain-failed;\n+   select rr.* into last_run from public.jaspic_runs rr where rr.id=r.id\n+    or exists(select 1 from public.jaspic_deliveries d where d.initial_run_id=r.id and d.run_id=rr.id)\n+    order by rr.started_at desc, rr.id desc limit 1;\n+   if exists(select 1 from public.jaspic_runs where status='RUNNING') then continue; end if;\n+   if pending>0 and uncertain=0 and failed=0 and other_count=0 and last_run.status='SUCCEEDED' then\n+    select * into req from jaspic_monitor.batch_requests where prior_run_id=last_run.id;\n+    if found then\n+     if req.requested_at>p_now-interval '10 minutes' then continue; end if;\n+    elsif not exists(select 1 from public.jaspic_deliveries\n+       where status in ('PREPARED','SENDING','UNKNOWN','FAILED') and initial_run_id is distinct from r.id) then\n+     select decrypted_secret into dispatch_token from vault.decrypted_secrets where name='jaspic_production_dispatch_token';\n+     if nullif(dispatch_token,'') is not null then\n+      request_id=net.http_post(url:='https://emergencyalert.news/jaspic/dispatch',\n+       headers:=jsonb_build_object('Content-Type','application/json','Authorization','Bearer '||dispatch_token,'X-JASPIC-Resume-Run',last_run.id::text),\n+       body:='{}'::jsonb,timeout_milliseconds:=300000);\n+      insert into jaspic_monitor.batch_requests values(last_run.id,request_id,p_now);\n+      continue;\n+     end if;\n+    end if;\n+   end if;\n+   if pending+uncertain+failed+other_count>0 or last_run.status<>'SUCCEEDED'\n+      or total<>coalesce((r.result->'sent'->>'hiroshima')::integer,0)\n+                +coalesce((r.result->'sent'->>'shiga')::integer,0)+(r.result->>'remainingPrepared')::integer then\n+    perform jaspic_monitor.enqueue('batch-stopped:'||day_key,'分割配信停止','jaspic/dispatch',\n+     'DISPATCH_BATCH_STOPPED',p_now,'実行ID: '||r.id||\n+     E'\\n送信済み（広島/滋賀）: '||h||'/'||s||\n+     E'\\n未送信: '||(pending+failed)||' 件'||E'\\n結果不明: '||(uncertain+other_count)||' 件');\n+    continue;\n+   end if;\n+   r.finished_at=last_run.finished_at;\n+  else\n+  -- A missing/malformed count is not evidence that zero messages were sent.\n+  if r.result->'sent'->>'hiroshima' is null or r.result->'sent'->>'shiga' is null\n+   or r.result->'sent'->>'hiroshima' !~ '^(0|[1-9][0-9]?)$'\n+   or r.result->'sent'->>'shiga' !~ '^(0|[1-9][0-9]?)$' then\n+   perform jaspic_monitor.enqueue('completion-invalid:'||day_key,'完了結果確認','jaspic/dispatch',\n+    'COMPLETION_RESULT_INVALID',r.finished_at,'成功記録の県別送信件数を読み取れません。実行ID: '||r.id);\n+   continue;\n+  end if;\n+  h=(r.result->'sent'->>'hiroshima')::integer;\n+  s=(r.result->'sent'->>'shiga')::integer;\n+  if h+s>20 then\n+   perform jaspic_monitor.enqueue('completion-invalid:'||day_key,'完了結果確認','jaspic/dispatch',\n+    'COMPLETION_RESULT_INVALID',r.finished_at,'成功記録の送信件数が配信上限を超えています。実行ID: '||r.id);\n+   continue;\n+  end if;\n+  end if;\n+  perform jaspic_monitor.enqueue('completion:'||day_key,'配信完了','jaspic/dispatch','DISPATCH_SUCCEEDED',r.finished_at,\n+   '18時の配信処理が正常終了しました。'||\n+   E'\\n広島県: '||h||E' 件\\n滋賀県: '||s||E' 件\\n合計: '||(h+s)||' 件'||\n+   E'\\n未送信: 0 件'||\n+   case when h+s=0 then E'\\n今回は送信対象の新規・更新情報が0件でした。両県の確認処理は正常に完了しています。' else '' end||\n+   E'\\n処理開始（日本時間）: '||to_char(r.started_at at time zone 'Asia/Tokyo','YYYY-MM-DD HH24:MI:SS')||\n+   E'\\n処理完了（日本時間）: '||to_char(r.finished_at at time zone 'Asia/Tokyo','YYYY-MM-DD HH24:MI:SS')||\n+   E'\\n実行ID: '||r.id);\n+ end loop;\n+end $$;\n+\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/docs/sql/jaspic-batch-completion.sql",
+      "source": {
+        "path": "docs/sql/jaspic-batch-completion.sql",
+        "coverage": "全文",
+        "text": "-- Preserve initial run identity while existing queue resume reassigns run_id.\nalter table public.jaspic_deliveries add column if not exists initial_run_id uuid;\ncreate or replace function jaspic_monitor.set_initial_run() returns trigger\nlanguage plpgsql set search_path='' as $$\nbegin\n if tg_op='INSERT' then new.initial_run_id=new.run_id;\n else new.initial_run_id=coalesce(old.initial_run_id,old.run_id); end if;\n return new;\nend $$;\nrevoke all on function jaspic_monitor.set_initial_run() from public,anon,authenticated;\ncreate trigger jaspic_delivery_initial_run before insert or update of run_id\n on public.jaspic_deliveries for each row execute function jaspic_monitor.set_initial_run();\ncreate index jaspic_deliveries_initial_run on public.jaspic_deliveries(initial_run_id);\ncreate table jaspic_monitor.batch_requests(\n prior_run_id uuid primary key, request_id bigint not null, requested_at timestamptz not null\n);\nrevoke all on jaspic_monitor.batch_requests from public,anon,authenticated,service_role;\n\ncreate or replace function jaspic_monitor.scan_completions(p_now timestamptz default now()) returns void\nlanguage plpgsql set search_path='' as $$\ndeclare c jaspic_monitor.config; r record; day_key text; h integer; s integer;\n total integer; pending integer; uncertain integer; failed integer; other_count integer;\n last_run record; req record; dispatch_token text; request_id bigint;\nbegin\n select * into strict c from jaspic_monitor.config where id;\n if not c.enabled or not pg_catalog.pg_try_advisory_xact_lock(144166021,231) then return; end if;\n for r in\n  select distinct on ((started_at at time zone 'Asia/Tokyo')::date) *\n  from public.jaspic_runs runs\n  where status='SUCCEEDED' and not coalesce(result->>'resuming'='true',false) and finished_at is not null and finished_at<=p_now\n   and started_at>=c.activated_at and started_at>=p_now-interval '48 hours'\n   and finished_at>=started_at\n   -- Same scheduled-start window used by the existing missing-run watchdog.\n   and (started_at at time zone 'Asia/Tokyo')::time>=time '18:00'\n   and (started_at at time zone 'Asia/Tokyo')::time<time '18:10'\n   and exists(select 1 from cron.job_run_details d join cron.job j using(jobid)\n    where j.jobname='jaspic-production-1800-jst' and d.status='succeeded'\n     and d.start_time>=(((runs.started_at at time zone 'Asia/Tokyo')::date+time '18:00') at time zone 'Asia/Tokyo')\n     and d.start_time<=runs.started_at)\n  order by (started_at at time zone 'Asia/Tokyo')::date,started_at,id\n loop\n  day_key=to_char(r.started_at at time zone 'Asia/Tokyo','YYYY-MM-DD');\n  if exists(select 1 from jaspic_monitor.alerts where event_key='completion:'||day_key) then continue; end if;\n  if r.result ? 'remainingPrepared' then\n   select count(*), count(*) filter(where status='SENT' and province='hiroshima' and gmail_message_id is not null),\n    count(*) filter(where status='SENT' and province='shiga' and gmail_message_id is not null),\n    count(*) filter(where status='PREPARED'), count(*) filter(where status in ('SENDING','UNKNOWN')),\n    count(*) filter(where status='FAILED')\n   into total,h,s,pending,uncertain,failed\n   from public.jaspic_deliveries where initial_run_id=r.id;\n   other_count=total-h-s-pending-uncertain-failed;\n   select rr.* into last_run from public.jaspic_runs rr where rr.id=r.id\n    or exists(select 1 from public.jaspic_deliveries d where d.initial_run_id=r.id and d.run_id=rr.id)\n    order by rr.started_at desc, rr.id desc limit 1;\n   if exists(select 1 from public.jaspic_runs where status='RUNNING') then continue; end if;\n   if pending>0 and uncertain=0 and failed=0 and other_count=0 and last_run.status='SUCCEEDED' then\n    select * into req from jaspic_monitor.batch_requests where prior_run_id=last_run.id;\n    if found then\n     if req.requested_at>p_now-interval '10 minutes' then continue; end if;\n    elsif not exists(select 1 from public.jaspic_deliveries\n       where status in ('PREPARED','SENDING','UNKNOWN','FAILED') and initial_run_id is distinct from r.id) then\n     select decrypted_secret into dispatch_token from vault.decrypted_secrets where name='jaspic_production_dispatch_token';\n     if nullif(dispatch_token,'') is not null then\n      request_id=net.http_post(url:='https://emergencyalert.news/jaspic/dispatch',\n       headers:=jsonb_build_object('Content-Type','application/json','Authorization','Bearer '||dispatch_token,'X-JASPIC-Resume-Run',last_run.id::text),\n       body:='{}'::jsonb,timeout_milliseconds:=300000);\n      insert into jaspic_monitor.batch_requests values(last_run.id,request_id,p_now);\n      continue;\n     end if;\n    end if;\n   end if;\n   if pending+uncertain+failed+other_count>0 or last_run.status<>'SUCCEEDED'\n      or total<>coalesce((r.result->'sent'->>'hiroshima')::integer,0)\n                +coalesce((r.result->'sent'->>'shiga')::integer,0)+(r.result->>'remainingPrepared')::integer then\n    perform jaspic_monitor.enqueue('batch-stopped:'||day_key,'分割配信停止','jaspic/dispatch',\n     'DISPATCH_BATCH_STOPPED',p_now,'実行ID: '||r.id||\n     E'\\n送信済み（広島/滋賀）: '||h||'/'||s||\n     E'\\n未送信: '||(pending+failed)||' 件'||E'\\n結果不明: '||(uncertain+other_count)||' 件');\n    continue;\n   end if;\n   r.finished_at=last_run.finished_at;\n  else\n  -- A missing/malformed count is not evidence that zero messages were sent.\n  if r.result->'sent'->>'hiroshima' is null or r.result->'sent'->>'shiga' is null\n   or r.result->'sent'->>'hiroshima' !~ '^(0|[1-9][0-9]?)$'\n   or r.result->'sent'->>'shiga' !~ '^(0|[1-9][0-9]?)$' then\n   perform jaspic_monitor.enqueue('completion-invalid:'||day_key,'完了結果確認','jaspic/dispatch',\n    'COMPLETION_RESULT_INVALID',r.finished_at,'成功記録の県別送信件数を読み取れません。実行ID: '||r.id);\n   continue;\n  end if;\n  h=(r.result->'sent'->>'hiroshima')::integer;\n  s=(r.result->'sent'->>'shiga')::integer;\n  if h+s>20 then\n   perform jaspic_monitor.enqueue('completion-invalid:'||day_key,'完了結果確認','jaspic/dispatch',\n    'COMPLETION_RESULT_INVALID',r.finished_at,'成功記録の送信件数が配信上限を超えています。実行ID: '||r.id);\n   continue;\n  end if;\n  end if;\n  perform jaspic_monitor.enqueue('completion:'||day_key,'配信完了','jaspic/dispatch','DISPATCH_SUCCEEDED',r.finished_at,\n   '18時の配信処理が正常終了しました。'||\n   E'\\n広島県: '||h||E' 件\\n滋賀県: '||s||E' 件\\n合計: '||(h+s)||' 件'||\n   E'\\n未送信: 0 件'||\n   case when h+s=0 then E'\\n今回は送信対象の新規・更新情報が0件でした。両県の確認処理は正常に完了しています。' else '' end||\n   E'\\n処理開始（日本時間）: '||to_char(r.started_at at time zone 'Asia/Tokyo','YYYY-MM-DD HH24:MI:SS')||\n   E'\\n処理完了（日本時間）: '||to_char(r.finished_at at time zone 'Asia/Tokyo','YYYY-MM-DD HH24:MI:SS')||\n   E'\\n実行ID: '||r.id);\n end loop;\nend $$;\n\n",
+        "sha256": "0bf537f49106d03aa2cecb581fc0c48b12d91f058ca2ecd902a158152a53be02"
+      }
+    },
+    {
+      "path": "tests/sql/jaspic-monitor-batch-completion.sql",
+      "status": "modified",
+      "additions": 35,
+      "deletions": 0,
+      "patch": "diff --git a/tests/sql/jaspic-monitor-batch-completion.sql b/tests/sql/jaspic-monitor-batch-completion.sql\nnew file mode 100644\nindex 00000000..74090364\n--- /dev/null\n+++ b/tests/sql/jaspic-monitor-batch-completion.sql\n@@ -0,0 +1,35 @@\n+create table public.jaspic_deliveries(\n+ province text, status text, gmail_message_id text, run_id uuid\n+);\n+\\ir ../../docs/sql/jaspic-batch-completion.sql\n+truncate jaspic_monitor.alerts,net.requests,public.jaspic_runs,cron.job_run_details;\n+insert into vault.decrypted_secrets values('jaspic_production_dispatch_token','test-only') on conflict do nothing;\n+insert into cron.job_run_details values(5,'succeeded','2026-11-14T09:00Z');\n+insert into public.jaspic_runs values\n+ ('00000000-0000-0000-0000-000000000030','2026-11-14T09:00:01Z','2026-11-14T09:01Z','SUCCEEDED','{\"sent\":{\"hiroshima\":20,\"shiga\":0},\"remainingPrepared\":14}',null);\n+insert into public.jaspic_deliveries(province,status,gmail_message_id,run_id)\n+select case when n<=31 then 'hiroshima' else 'shiga' end,\n+ case when n<=20 then 'SENT' else 'PREPARED' end,\n+ case when n<=20 then n::text end,'00000000-0000-0000-0000-000000000030'\n+ from generate_series(1,34)n;\n+select jaspic_monitor.scan_completions('2026-11-14T09:05Z');\n+select jaspic_monitor.scan_completions('2026-11-14T09:06Z');\n+do $$begin\n+ if exists(select 1 from jaspic_monitor.alerts) then raise exception 'premature completion'; end if;\n+ if (select count(*) from net.requests where url like '%/dispatch')<>1 then raise exception 'continuation must enqueue once'; end if;\n+end $$;\n+update public.jaspic_deliveries set status='UNKNOWN' where province='shiga';\n+select jaspic_monitor.scan_completions('2026-11-14T09:07Z');\n+do $$begin\n+ if not exists(select 1 from jaspic_monitor.alerts where code='DISPATCH_BATCH_STOPPED' and message like '%結果不明: 3 件%') then raise exception 'uncertain count missing'; end if;\n+ if exists(select 1 from jaspic_monitor.alerts where code='DISPATCH_SUCCEEDED') then raise exception 'uncertain batch marked complete'; end if;\n+end $$;\n+insert into public.jaspic_runs values\n+ ('00000000-0000-0000-0000-000000000031','2026-11-14T09:08Z','2026-11-14T09:09Z','SUCCEEDED','{\"sent\":{\"hiroshima\":11,\"shiga\":3},\"remainingPrepared\":0,\"resuming\":true}',null);\n+update public.jaspic_deliveries set status='SENT',gmail_message_id='confirmed',\n+ run_id='00000000-0000-0000-0000-000000000031' where status<>'SENT';\n+select jaspic_monitor.scan_completions('2026-11-14T09:10Z');\n+select jaspic_monitor.scan_completions('2026-11-14T09:15Z');\n+do $$begin\n+ if (select count(*) from jaspic_monitor.alerts where code='DISPATCH_SUCCEEDED' and message like '%広島県: 31 件%' and message like '%滋賀県: 3 件%' and message like '%合計: 34 件%' and message like '%未送信: 0 件%')<>1 then raise exception 'whole queue completion missing'; end if;\n+end $$;\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/tests/sql/jaspic-monitor-batch-completion.sql",
+      "source": {
+        "path": "tests/sql/jaspic-monitor-batch-completion.sql",
+        "coverage": "全文",
+        "text": "create table public.jaspic_deliveries(\n province text, status text, gmail_message_id text, run_id uuid\n);\n\\ir ../../docs/sql/jaspic-batch-completion.sql\ntruncate jaspic_monitor.alerts,net.requests,public.jaspic_runs,cron.job_run_details;\ninsert into vault.decrypted_secrets values('jaspic_production_dispatch_token','test-only') on conflict do nothing;\ninsert into cron.job_run_details values(5,'succeeded','2026-11-14T09:00Z');\ninsert into public.jaspic_runs values\n ('00000000-0000-0000-0000-000000000030','2026-11-14T09:00:01Z','2026-11-14T09:01Z','SUCCEEDED','{\"sent\":{\"hiroshima\":20,\"shiga\":0},\"remainingPrepared\":14}',null);\ninsert into public.jaspic_deliveries(province,status,gmail_message_id,run_id)\nselect case when n<=31 then 'hiroshima' else 'shiga' end,\n case when n<=20 then 'SENT' else 'PREPARED' end,\n case when n<=20 then n::text end,'00000000-0000-0000-0000-000000000030'\n from generate_series(1,34)n;\nselect jaspic_monitor.scan_completions('2026-11-14T09:05Z');\nselect jaspic_monitor.scan_completions('2026-11-14T09:06Z');\ndo $$begin\n if exists(select 1 from jaspic_monitor.alerts) then raise exception 'premature completion'; end if;\n if (select count(*) from net.requests where url like '%/dispatch')<>1 then raise exception 'continuation must enqueue once'; end if;\nend $$;\nupdate public.jaspic_deliveries set status='UNKNOWN' where province='shiga';\nselect jaspic_monitor.scan_completions('2026-11-14T09:07Z');\ndo $$begin\n if not exists(select 1 from jaspic_monitor.alerts where code='DISPATCH_BATCH_STOPPED' and message like '%結果不明: 3 件%') then raise exception 'uncertain count missing'; end if;\n if exists(select 1 from jaspic_monitor.alerts where code='DISPATCH_SUCCEEDED') then raise exception 'uncertain batch marked complete'; end if;\nend $$;\ninsert into public.jaspic_runs values\n ('00000000-0000-0000-0000-000000000031','2026-11-14T09:08Z','2026-11-14T09:09Z','SUCCEEDED','{\"sent\":{\"hiroshima\":11,\"shiga\":3},\"remainingPrepared\":0,\"resuming\":true}',null);\nupdate public.jaspic_deliveries set status='SENT',gmail_message_id='confirmed',\n run_id='00000000-0000-0000-0000-000000000031' where status<>'SENT';\nselect jaspic_monitor.scan_completions('2026-11-14T09:10Z');\nselect jaspic_monitor.scan_completions('2026-11-14T09:15Z');\ndo $$begin\n if (select count(*) from jaspic_monitor.alerts where code='DISPATCH_SUCCEEDED' and message like '%広島県: 31 件%' and message like '%滋賀県: 3 件%' and message like '%合計: 34 件%' and message like '%未送信: 0 件%')<>1 then raise exception 'whole queue completion missing'; end if;\nend $$;\n",
+        "sha256": "ed9fc97666764d1675d3c21141bc76c28f1ac4dd3317f5082b4459b1c47ee7be"
+      }
+    },
+    {
+      "path": "tests/sql/jaspic-monitor-integration.sql",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "patch": "diff --git a/tests/sql/jaspic-monitor-integration.sql b/tests/sql/jaspic-monitor-integration.sql\nindex 938f8117..71e36570 100644\n--- a/tests/sql/jaspic-monitor-integration.sql\n+++ b/tests/sql/jaspic-monitor-integration.sql\n@@ -103,3 +103,5 @@ do $$begin if not exists(select 1 from jaspic_monitor.alerts where event_key='ca\n select 'JASPIC monitor integration assertions passed' as result;\n \n \\ir jaspic-monitor-completion.sql\n+\n+\\ir jaspic-monitor-batch-completion.sql\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/debfab93d75644d42d019ba8cda125663f0621f7/tests/sql/jaspic-monitor-integration.sql",
+      "source": {
+        "path": "tests/sql/jaspic-monitor-integration.sql",
+        "coverage": "全文",
+        "text": "-- Run in a NEW disposable database: psql -v ON_ERROR_STOP=1 -f tests/sql/jaspic-monitor-integration.sql\n\\ir jaspic-monitor-setup.sql\n\\ir ../../docs/sql/jaspic-admin-monitor.sql\n\ndo $$\ndeclare original_expiry timestamptz; x timestamptz;\nbegin\n if (select refresh_expires_at from public.jaspic_gmail_token_vault)<>'2026-11-15T07:35:49.513Z'::timestamptz then raise exception 'legacy estimate'; end if;\n select refresh_expires_at into original_expiry from public.jaspic_gmail_token_vault;\n update public.jaspic_gmail_token_vault set updated_at=now();\n if (select refresh_expires_at from public.jaspic_gmail_token_vault)<>original_expiry then raise exception 'metadata update extended expiry'; end if;\n update public.jaspic_gmail_token_vault set encrypted_refresh_token='{\"synthetic\":\"two\"}';\n select refresh_expires_at into x from public.jaspic_gmail_token_vault;\n if abs(extract(epoch from (x-now()-interval '7 days')))>5 then raise exception 'reauth expiry not renewed'; end if;\nend $$;\n\ngrant select,update on public.jaspic_gmail_token_vault to service_role;\nset role service_role;\nupdate public.jaspic_gmail_token_vault set encrypted_refresh_token='{\"synthetic\":\"service-role-save\"}';\nreset role;\n-- Fixed-time scan tests (no sending).\nalter table public.jaspic_gmail_token_vault disable trigger jaspic_record_authorization;\nupdate public.jaspic_gmail_token_vault set authorized_at='2026-11-03T10:00Z',refresh_expires_at='2026-11-10T10:00Z';\nalter table public.jaspic_gmail_token_vault enable trigger jaspic_record_authorization;\nupdate jaspic_monitor.config set activated_at='2026-11-10T00:00Z';\nselect jaspic_monitor.scan('2026-11-09T09:59Z');\ndo $$begin if exists(select 1 from jaspic_monitor.alerts) then raise exception 'early warning'; end if; end $$;\nselect jaspic_monitor.scan('2026-11-09T10:00Z');\nselect jaspic_monitor.scan('2026-11-10T10:01Z');\ndo $$begin\n if (select count(*) from jaspic_monitor.alerts where category='Google再認証')<>1 then raise exception 'duplicate expiry warning'; end if;\n if not exists(select 1 from jaspic_monitor.alerts where category='18時自動実行未起動') then raise exception 'missing run not detected'; end if;\n if not exists(select 1 from jaspic_monitor.alerts where message like '%https://emergencyalert.news/jaspic/oauth%') then raise exception 'missing reauth URL'; end if;\nend $$;\nupdate public.jaspic_gmail_token_vault set encrypted_refresh_token='{\"synthetic\":\"three\"}';\nselect jaspic_monitor.scan('2026-11-10T10:01Z');\ndo $$begin if not exists(select 1 from jaspic_monitor.alerts where category='Google再認証' and status='CANCELLED') then raise exception 'stale warning'; end if; end $$;\n\ninsert into public.jaspic_runs values\n ('00000000-0000-0000-0000-000000000001','2026-11-10T09:00:01Z',null,'FAILED','{\"sent\":{\"hiroshima\":0,\"shiga\":0},\"stage\":\"source-preflight\",\"sourceErrors\":[{\"province\":\"hiroshima\",\"code\":\"SOURCE_FETCH_FAILED\"},{\"province\":\"shiga\",\"code\":\"SOURCE_FETCH_FAILED\"}]}','SOURCE_FETCH_FAILED'),\n ('00000000-0000-0000-0000-000000000002','2026-11-10T09:01:01Z',null,'FAILED','{\"sent\":{\"hiroshima\":0,\"shiga\":0},\"stage\":\"gmail-auth\"}','GMAIL_REFRESH_FAILED'),\n ('00000000-0000-0000-0000-000000000003','2026-11-10T09:02:01Z',null,'FAILED','{\"sent\":{\"hiroshima\":2,\"shiga\":0},\"stage\":\"gmail-send\",\"province\":\"hiroshima\"}','GMAIL_HTTP_403'),\n ('00000000-0000-0000-0000-000000000004','2026-11-10T09:03:01Z',null,'FAILED','{\"sent\":{\"hiroshima\":0,\"shiga\":0},\"stage\":\"gmail-send\",\"province\":\"shiga\"}','GMAIL_RESULT_UNCERTAIN'),\n ('00000000-0000-0000-0000-000000000005','2026-11-10T09:04:01Z',null,'RUNNING',null,null);\ninsert into cron.job values(5,'jaspic-production-1800-jst','0 9 * * *',true);\ninsert into cron.job_run_details values(5,'succeeded','2026-11-10T09:00Z');\ndelete from jaspic_monitor.alerts where category='18時自動実行未起動';\nselect jaspic_monitor.scan('2026-11-10T10:01Z');\nselect jaspic_monitor.scan('2026-11-10T10:02Z');\ndo $$begin\n if (select count(*) from jaspic_monitor.alerts where category='県データ取得失敗')<>2 then raise exception 'source errors'; end if;\n if (select count(*) from jaspic_monitor.alerts where category in ('Gmail認証失敗','Gmail送信失敗','一部メール送信失敗','処理未完了'))<>4 then raise exception 'failure classification'; end if;\n if exists(select 1 from jaspic_monitor.alerts where category='18時自動実行未起動') then raise exception 'false missing-run'; end if;\n if has_schema_privilege('anon','jaspic_monitor','USAGE') or has_function_privilege('authenticated','jaspic_monitor.tick()','EXECUTE') then raise exception 'public monitor access'; end if;\n if has_schema_privilege('service_role','jaspic_monitor','USAGE') then raise exception 'service monitor access'; end if;\n if has_table_privilege('anon','jaspic_monitor.alerts','SELECT') then raise exception 'public alert access'; end if;\nend $$;\n\n-- pg_net is a local fake. Disabled/missing provider never sends.\nselect jaspic_monitor.tick();\ndo $$begin if exists(select 1 from net.requests) then raise exception 'disabled send'; end if; end $$;\nupdate jaspic_monitor.config set enabled=true,recipient='admin@example.com',sender='monitor@example.com',activated_at=now()+interval '1 day';\nselect jaspic_monitor.tick();\ndo $$begin if exists(select 1 from net.requests) then raise exception 'unconfigured provider send'; end if; end $$;\ninsert into vault.decrypted_secrets values('jaspic_monitor_resend_api_key','synthetic-not-a-key');\nselect jaspic_monitor.tick();\ndo $$begin if (select count(*) from net.requests)<>5 then raise exception 'batch cap'; end if; end $$;\nselect jaspic_monitor.tick();\ndo $$begin\n if exists(select 1 from net.requests group by headers->>'Idempotency-Key' having count(*)>1) then raise exception 'overlapping resend'; end if;\n if exists(select 1 from net.requests where url<>'https://api.resend.com/emails' or not(headers ? 'Idempotency-Key')) then raise exception 'provider endpoint/idempotency'; end if;\nend $$;\n-- Success must contain an acceptance id; a 2xx empty body is uncertain.\ninsert into net._http_response select min(id),200,'{\"id\":\"synthetic_accepted\"}' from net.requests;\ninsert into net._http_response select max(id),200,'{}' from net.requests;\nselect jaspic_monitor.tick();\ndo $$begin\n if (select count(*) from jaspic_monitor.alerts where status='SENT')<>1 then raise exception 'provider acceptance'; end if;\n if not exists(select 1 from jaspic_monitor.alerts where error_code='MAIL_API_NOT_CONFIRMED' and status='PENDING') then raise exception 'uncertain 2xx accepted'; end if;\nend $$;\n-- Force retry and check the body and key remain identical even if settings change.\nupdate jaspic_monitor.config set recipient='newadmin@example.com';\nupdate jaspic_monitor.alerts set next_attempt_at=now()-interval '1 minute' where error_code='MAIL_API_NOT_CONFIRMED';\nselect jaspic_monitor.tick();\ndo $$begin\n if not exists(select 1 from net.requests group by headers->>'Idempotency-Key',body having count(*)=2) then raise exception 'retry changed body/key'; end if;\nend $$;\n-- A third ambiguous result is terminal, with no fourth attempt.\nupdate jaspic_monitor.alerts set attempts=3 where status='SENDING' and request_id=(select max(id) from net.requests);\ninsert into net._http_response select max(id),503,'{}' from net.requests;\nselect jaspic_monitor.tick();\ndo $$begin if not exists(select 1 from jaspic_monitor.alerts where attempts=3 and status='FAILED') then raise exception 'unbounded retries'; end if; end $$;\n-- Lost replies never get a new send after the idempotency window.\nupdate jaspic_monitor.alerts set status='PENDING',first_attempt_at=now()-interval '24 hours',next_attempt_at=now() where status<>'SENT';\nselect jaspic_monitor.tick();\ndo $$begin if exists(select 1 from jaspic_monitor.alerts where status in ('PENDING','SENDING')) then raise exception 'expired replay'; end if; end $$;\n-- Hard daily cap survives multiple ticks.\ninsert into jaspic_monitor.alerts(event_key,category,target,code,occurred_at,subject,message,status,first_attempt_at)\nselect 'cap-used-'||n,'test','monitor','TEST',now(),'test','test','SENT',now() from generate_series(1,12)n;\nselect jaspic_monitor.enqueue('cap-pending','test','monitor','TEST',now(),'test');\nselect jaspic_monitor.tick();\ndo $$begin if not exists(select 1 from jaspic_monitor.alerts where event_key='cap-pending' and attempts=0) then raise exception 'daily cap exceeded'; end if; end $$;\nselect 'JASPIC monitor integration assertions passed' as result;\n\n\\ir jaspic-monitor-completion.sql\n\n\\ir jaspic-monitor-batch-completion.sql\n",
+        "sha256": "04a3281ddcad68a11c56ca74bdf6c6133d8520acddda805ad4a6c7344ce66cf5"
+      }
+    }
+  ],
+  "file_count": 4,
+  "reported_file_count": 4,
+  "commits": [
+    {
+      "sha": "debfab93d75644d42d019ba8cda125663f0621f7",
+      "message": "fix(jaspic): complete scheduled delivery after the full queue drains\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/debfab93d75644d42d019ba8cda125663f0621f7"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "debfab93d75644d42d019ba8cda125663f0621f7",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43530208855",
+      "id": 43530208855,
+      "updated_at": "2026-11-13T23:51:57Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "debfab93d75644d42d019ba8cda125663f0621f7",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43530209063",
+      "id": 43530209063,
+      "updated_at": "2026-11-13T23:51:57Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "debfab93d75644d42d019ba8cda125663f0621f7",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43530057257",
+      "id": 43530057257,
+      "updated_at": "2026-11-13T23:50:36Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "debfab93d75644d42d019ba8cda125663f0621f7",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43530057238",
+      "id": 43530057238,
+      "updated_at": "2026-11-13T23:50:46Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "debfab93d75644d42d019ba8cda125663f0621f7",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43530057316",
+      "id": 43530057316,
+      "updated_at": "2026-11-13T23:51:19Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "JASPIC admin monitor SQL",
+      "head_sha": "debfab93d75644d42d019ba8cda125663f0621f7",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43530057270",
+      "id": 43530057270,
+      "updated_at": "2026-11-13T23:50:46Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "JASPIC admin monitor SQL",
+      "head_sha": "b4ed8c614d616c8fbd032e8961904307287c43a3",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43530214418",
+      "id": 43530214418,
+      "updated_at": "2026-11-13T23:51:51Z",
+      "event": "push"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "b4ed8c614d616c8fbd032e8961904307287c43a3",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43530214457",
+      "id": 43530214457,
+      "updated_at": "2026-11-13T23:51:51Z",
+      "event": "push"
+    },
+    {
+      "name": "CI",
+      "head_sha": "b4ed8c614d616c8fbd032e8961904307287c43a3",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43530214376",
+      "id": 43530214376,
+      "updated_at": "2026-11-13T23:52:01Z",
+      "event": "push"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "b4ed8c614d616c8fbd032e8961904307287c43a3",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43530214811",
+      "id": 43530214811,
+      "updated_at": "2026-11-13T23:52:03Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "POST",
+    "clientId",
+    "clientSecret",
+    "code",
+    "db",
+    "delivery",
+    "dispatchStartedAt",
+    "dynamic",
+    "encryptionKey",
+    "failure",
+    "id",
+    "items",
+    "jaspic_monitor",
+    "key",
+    "lease",
+    "legacy",
+    "maxDuration",
+    "outcome",
+    "ownerId",
+    "pending",
+    "plans",
+    "preparedPlans",
+    "priorRun",
+    "province",
+    "provinces",
+    "queue",
+    "queued",
+    "r",
+    "refresh",
+    "remaining",
+    "response",
+    "result",
+    "resuming",
+    "rpc",
+    "runtime",
+    "saved",
+    "secret",
+    "sent",
+    "settled",
+    "snapshot",
+    "sourceErrors",
+    "stage",
+    "started",
+    "supplied",
+    "token",
+    "tokenResponse",
+    "unresolved",
+    "url"
+  ],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "77ac81c856c09ed93d17f29f8724c479aef86e664193ada029b43fb3fb1ba671",
+  "ci_digest": "f607671b5dd6875fb2bebc893f069d3cb7d4cc23265afea67526165520d63bed",
+  "collected_at": "2026-11-13T23:51:57.929738+00:00",
+  "decisions": []
+}

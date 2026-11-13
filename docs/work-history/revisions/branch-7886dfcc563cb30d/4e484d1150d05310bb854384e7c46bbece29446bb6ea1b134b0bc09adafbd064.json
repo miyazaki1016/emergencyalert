@@ -1,0 +1,211 @@
+{
+  "id": "branch-7886dfcc563cb30d",
+  "title": "test/jaspic-238-isolated-bulk",
+  "head": "18ddee678b6bf1579960bf4fdb17b078bce29387",
+  "head_ref": "test/jaspic-238-isolated-bulk",
+  "linked_prs": [
+    239
+  ],
+  "files": [
+    {
+      "path": "app/api/jaspic-isolated-238/health/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/app/api/jaspic-isolated-238/health/route.ts"
+    },
+    {
+      "path": "app/api/jaspic-isolated-238/readiness/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/app/api/jaspic-isolated-238/readiness/route.ts"
+    },
+    {
+      "path": "app/api/jaspic-isolated-238/send/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/app/api/jaspic-isolated-238/send/route.ts"
+    },
+    {
+      "path": "docs/JASPIC_ISOLATED_BULK_TEST_238.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/docs/JASPIC_ISOLATED_BULK_TEST_238.md"
+    },
+    {
+      "path": "docs/JASPIC_ISOLATED_SEND_CONNECTION_238.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/docs/JASPIC_ISOLATED_SEND_CONNECTION_238.md"
+    },
+    {
+      "path": "lib/jaspic/isolated-batch-238.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/lib/jaspic/isolated-batch-238.test.ts"
+    },
+    {
+      "path": "lib/jaspic/isolated-batch-238.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/lib/jaspic/isolated-batch-238.ts"
+    },
+    {
+      "path": "lib/jaspic/isolated-content-238.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/lib/jaspic/isolated-content-238.test.ts"
+    },
+    {
+      "path": "lib/jaspic/isolated-content-238.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/lib/jaspic/isolated-content-238.ts"
+    },
+    {
+      "path": "lib/jaspic/isolated-db-adapter-238.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/lib/jaspic/isolated-db-adapter-238.ts"
+    },
+    {
+      "path": "lib/jaspic/isolated-first-mail-238.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/lib/jaspic/isolated-first-mail-238.test.ts"
+    },
+    {
+      "path": "lib/jaspic/isolated-first-mail-238.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/lib/jaspic/isolated-first-mail-238.ts"
+    },
+    {
+      "path": "lib/jaspic/isolated-gmail-238.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/lib/jaspic/isolated-gmail-238.test.ts"
+    },
+    {
+      "path": "lib/jaspic/isolated-gmail-238.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/lib/jaspic/isolated-gmail-238.ts"
+    },
+    {
+      "path": "lib/jaspic/isolated-mail-resolver-238.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/lib/jaspic/isolated-mail-resolver-238.ts"
+    },
+    {
+      "path": "lib/jaspic/isolated-oauth-refresh-238.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/lib/jaspic/isolated-oauth-refresh-238.test.ts"
+    },
+    {
+      "path": "lib/jaspic/isolated-oauth-refresh-238.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/lib/jaspic/isolated-oauth-refresh-238.ts"
+    },
+    {
+      "path": "lib/jaspic/isolated-preview-238.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/lib/jaspic/isolated-preview-238.test.ts"
+    },
+    {
+      "path": "lib/jaspic/isolated-preview-238.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/lib/jaspic/isolated-preview-238.ts"
+    },
+    {
+      "path": "lib/jaspic/isolated-send-gate-238.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/lib/jaspic/isolated-send-gate-238.test.ts"
+    },
+    {
+      "path": "lib/jaspic/isolated-send-gate-238.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/lib/jaspic/isolated-send-gate-238.ts"
+    },
+    {
+      "path": "lib/jaspic/isolated-vault-access-238.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/lib/jaspic/isolated-vault-access-238.ts"
+    },
+    {
+      "path": "package.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/package.json"
+    },
+    {
+      "path": "tests/sql/jaspic_isolated_test_238.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/tests/sql/jaspic_isolated_test_238.sql"
+    },
+    {
+      "path": "tests/sql/jaspic_isolated_test_238_finish.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/tests/sql/jaspic_isolated_test_238_finish.sql"
+    },
+    {
+      "path": "tests/sql/jaspic_isolated_test_238_import.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/tests/sql/jaspic_isolated_test_238_import.sql"
+    },
+    {
+      "path": "tests/sql/jaspic_isolated_test_238_sent.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/18ddee678b6bf1579960bf4fdb17b078bce29387/tests/sql/jaspic_isolated_test_238_sent.sql"
+    }
+  ],
+  "commits": "18ddee678b6bf1579960bf4fdb17b078bce29387 refactor(jaspic): guard isolated send behind explicit production-only test flag\nd98f71fcb3915d18d44355f8846d5e63fca7a767 refactor(jaspic): guard isolated send behind explicit production-only test flag\n776d9c4b065a2b2beee2d357ed4db4e41797c592 refactor(jaspic): guard isolated send behind explicit production-only test flag\n52a476df541f43fbb59cf906f18255c3e9f3e6a3 feat(jaspic): wire admin-gated first isolated Gmail send to verified preview and private DB\nd4df2805eddacbbf84963cc62f083d5313dae492 build(jaspic): register PostgreSQL client for isolated sender\nd28e3c5bda350d10e24be4f2e856fce918c8d767 feat(jaspic): add restricted isolated PostgreSQL delivery adapter\n2be5a36694e64c1315120e3763c251e590af39b6 feat(jaspic): resolve isolated delivery mail from fresh source snapshot\n128518046d86e3d7390dcc84cf51a06cc89b840f feat(jaspic): reuse admin Gmail vault for isolated preview access token\nbbd826b8a47207660614370ae3733fffdf8a93c8 test(jaspic): cover isolated OAuth refresh and fail-closed errors\nff77ab997d977f5dda3d4b68e12eb3510e48fee6 feat(jaspic): extract fail-closed OAuth refresh transport for isolated test\nb916dbc6991dd073013b8b933f6b5d1241a43177 feat(jaspic): add preview-only non-sending readiness gate for isolated Gmail test\n91d6f3144b4ca0c9dc95298508bb544b28fb8b8f feat(jaspic): add fail-closed preview-only isolated DB configuration probe\nec0eea841844b65f951e5f087cae7ddc850bda6b docs(jaspic): record isolated DB connection and first live send prerequisites\nf95195c1b0b8cb228da4bc6600137395fd5586cd test(jaspic): ensure claimed recipient cannot change after verification\n8d5d361793748135fe20aef17f2bb4a7ee0c7549 fix(jaspic): bind claimed recipient to verified isolated snapshot\ne0cd7c7e253de7ff1e652bd268b59a567dd2364b test(jaspic): block substituted DB claim before Gmail transport\naf712a8ff29c403fe8a1798a11456cfa8b8fc488 fix(jaspic): reject claimed row outside verified 34-item snapshot\n641d1b492ecb9201112217c311efdbba763c36df docs(jaspic): record verified CI and precise private DB connectivity blocker\neb2b9b34b18e128fcf69e913d2f1bb7641ab80f6 test(jaspic): prove snapshot verification precedes first claim and Gmail request\nd9dad83a97b35485e84972eda53dbb9e4f6519b3 test(jaspic): wire exact snapshot gate before first isolated Gmail claim\n49475b2927fbdb1cfbca4d8fcd3754c68de4ce3e test(jaspic): cover candidate drift, classification, recipient and state rejection\n241989680b7e0b5e2a064f7046fe1e0cf564396a test(jaspic): require exact 34-row live preview and NEW_ID match before isolated send\n3511545320388b620aab3fde08e3cc2f23d8623c test(jaspic): validate original content rendering and strict source lookup\nfa741a84f6d5d61d76c4bbc08e125580147a91a7 test(jaspic): resolve isolated source IDs with existing original mail formatter\n974c029332ff21ca01392a362fae351c9dec150b fix(jaspic): use cumulative claimed count after per-item batch refactor\n12554620515e13a19017e10f374db7849e6afa0a test(jaspic): verify single-claim batching and fail-closed Gmail mock outcomes\n40cf677f1f256b9b2e3ced78215a424b44cd92a0 fix(jaspic): claim one at a time to avoid stranded unsent SENDING rows\n7ae9f9ddbab3082b708ceace748a021421bc0d8f test(jaspic): add fail-closed isolated Gmail batch orchestration contract\n9ff7c2dd827c295004ece7d6844d02b8c88d9e4a test(jaspic): assert MIME-encoded isolated subject correctly\n419d482eafc0c1d8556dfc47cd3a73c68f3ff38f test(jaspic): assert fixed test recipient and no retry on uncertain Gmail responses\n9bd33a61533024e785f066f76958c3d7c41a52cb test(jaspic): add isolated fixed-recipient Gmail transport with injected fetch\n8af6270d54859b29c75ec97b1dbc0235850207b9 docs(jaspic): record rollback-only 10+10+10+4 test against real staged candidates\nb50f5edcc47ecf91ba7642c6c6ba20c2e2e5635d docs(jaspic): record 34 real screenshot candidate keys staged in private schema\n6991b2caec983393d9f2eb4bb1f95d9d39457e16 docs(jaspic): identify existing admin-authenticated read-only preview route\n2231573b90178c0b67cb35f3fbc026816cf95b55 docs(jaspic): document secure preview access blocker and passing CI evidence\n35f36279fdb73855c749ab7b8de462c74b0bf7ae test(jaspic): cover incomplete, duplicate, wrong-province preview snapshots\n031ab2d8d55d29073b90e529b979a89ccdc528b2 test(jaspic): add strict read-only preview candidate extractor for isolated 34-item staging\n365a0dfe34b801be62729cbb77e8bf6fe1052bfa test(jaspic): verify snapshot import rejects missing, duplicate and repeat keys\n5c9e6cec1f98c57f04be91cacd41a5997973a445 docs(jaspic): record guarded 31+3 private snapshot import smoke test\n312d02172760240c2f1176ad8d5ccacb2840f5bc docs(jaspic): record two concurrent SQL claims and cleanup\n55987c4a8d8942c97aed046721f81aca4d4ba3c4 test(jaspic): assert SENT completion is one-shot in isolated schema\n23a603c0bacd0131ab326315ef5add9e14adfcb1 test(jaspic): assert UNKNOWN cannot be overwritten in isolated DB\n24c9765995ef0f470db5aa9370770be8a7507e27 docs(jaspic): record terminal-state safety migration and dry-run test\n1d60d83ee7de039e34dd219576f63a08aeb6ca8d docs(jaspic): log reusable SQL test and remaining acceptance blockers\n978ea03557865a4fe5e778806b809e8517a40687 test(jaspic): add rollback-only isolated 34-row batch SQL assertions\nd87614407853f805c9421ac8ee9b513700a44399 docs(jaspic): record private atomic claim function and 10-of-34 SQL test\n722aeeb3b2d4fb8feb043eda6f6f3219f5c34f18 docs(jaspic): record rollback-only 34-row isolated SQL smoke test\n6949ca44dff26aaa6ab616b2715ca9aff47d5d54 docs(jaspic): record verified private Supabase test schema\n3377f334c4741c5d0f63e6751511d23436c469bc docs(jaspic): record isolated 34-item Gmail test acceptance gates",
+  "topics": [
+    "通知・配信",
+    "認証・安全性"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "d5d108fe9c9311087c563ef0728fd3df99694c72aa5d7ad61a4dc431cd72c9ff",
+  "collected_at": "2026-11-13T23:51:57.929738+00:00"
+}
