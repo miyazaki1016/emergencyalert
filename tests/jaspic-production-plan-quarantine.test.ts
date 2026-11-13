@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { productionPlan, assertVerifiedBackfillScope } from "../lib/jaspic/production-plan";
+import { productionPlan } from "../lib/jaspic/production-plan";
 import { fields, type RecordData } from "../supabase/functions/_shared/jaspic/mail";
 import type { Item } from "../supabase/functions/_shared/jaspic/collect";
 import type { Snapshot } from "../supabase/functions/_shared/jaspic/state";
@@ -33,30 +33,30 @@ function baseline() {
   return { existing, snapshot: { revision: 5, baseline: true, records } satisfies Snapshot };
 }
 
-describe("JASPIC historical ID quarantine", () => {
-  it("does not send or baseline unseen historical IDs, while planning a safe recent event", async () => {
+describe("JASPIC occurrence-date independent planning", () => {
+  it("plans unseen old and recent eligible IDs once", async () => {
     const { existing, snapshot } = baseline();
     const historical = crime("1126001011", "2026-10-15 09:00:00");
     const recent = crime("1126001012", "2026-11-08 16:20:00");
     const result = await productionPlan("hiroshima", snapshot, [...existing, historical, recent], new Set());
-    expect(result.quarantined).toEqual(["hiroshima-crime:1126001011"]);
-    expect(result.candidates.map(c => c.key)).toEqual(["hiroshima-crime:1126001012"]);
-    expect(result.records).not.toHaveProperty("hiroshima-crime:1126001011");
+    expect(result.quarantined).toEqual([]);
+    expect(result.candidates.map(c => c.key)).toEqual(["hiroshima-crime:1126001011", "hiroshima-crime:1126001012"]);
+    expect(result.records).toHaveProperty("hiroshima-crime:1126001011");
     expect(result.records).toHaveProperty("hiroshima-crime:1126001012");
 
     const second = await productionPlan("hiroshima", { ...snapshot, revision: 6, records: result.records },
       [...existing, historical, recent], new Set());
     expect(second.candidates).toHaveLength(0);
-    expect(second.quarantined).toEqual(["hiroshima-crime:1126001011"]);
+    expect(second.quarantined).toEqual([]);
   });
 
-  it("allows an update to a known ID without releasing an unreconciled historical ID", async () => {
+  it("allows a known update and a new old-date ID", async () => {
     const { existing, snapshot } = baseline();
     const changed = crime(String(1126001001), "2026-11-01 10:00:00", "更新された場所");
     const historical = crime("1126001011", "2026-10-15 09:00:00");
     const result = await productionPlan("hiroshima", snapshot, [...existing.slice(1), changed, historical], new Set());
-    expect(result.candidates.map(c => c.key)).toEqual(["hiroshima-crime:1126001001"]);
-    expect(result.quarantined).toEqual(["hiroshima-crime:1126001011"]);
+    expect(result.candidates.map(c => c.key)).toEqual(["hiroshima-crime:1126001001", "hiroshima-crime:1126001011"]);
+    expect(result.quarantined).toEqual([]);
   });
 
   it("preserves the complete-source count guard", async () => {
@@ -87,7 +87,7 @@ describe("bicycle theft exclusion without quarantine", () => {
 describe("verified legacy JSON catch-up", () => {
   const personIds = ["45811", "45815", "45823"];
   const crimeIds = ["1126015070", "1126055048", "1126155046", "1126175061", "1126185011", "1126195022"];
-  it("plans exactly the nine operator-verified missing records, retaining other historical IDs in quarantine", async () => {
+  it("plans all eligible new records irrespective of occurrence date", async () => {
     const {existing,snapshot}=baseline();
     // Maintain the source-count guard with a representative large baseline.
     const extra=[...Array.from({length:40},(_,n)=>crime(String(1126002001+n))),...Array.from({length:40},(_,n)=>person(String(45601+n)))];
@@ -96,15 +96,12 @@ describe("verified legacy JSON catch-up", () => {
     const catchup=[...personIds.map(id=>person(id)),...crimeIds.map(id=>crime(id))];
     const unrelated=crime("1126001999");
     const result=await productionPlan("hiroshima",snapshot,[...existing,...catchup,unrelated],new Set());
-    expect(result.verifiedPending).toHaveLength(9);
-    expect(new Set(result.candidates.map(c=>c.key))).toEqual(new Set(result.verifiedPending));
-    expect(result.quarantined).toContain("hiroshima-crime:1126001999");
-    expect(result.records).not.toHaveProperty("hiroshima-crime:1126001999");
-    expect(()=>assertVerifiedBackfillScope([{province:"hiroshima",result}])).not.toThrow();
-    expect(()=>assertVerifiedBackfillScope([{province:"hiroshima",result:{...result,candidates:[...result.candidates,{...result.candidates[0],key:"unexpected"}]}}])).toThrow("VERIFIED_BACKFILL_SCOPE_MISMATCH");
+    expect(result.candidates).toHaveLength(10);
+    expect(result.candidates.map(c=>c.key)).toContain("hiroshima-crime:1126001999");
+    expect(result.quarantined).toEqual([]);
+    expect(result.records).toHaveProperty("hiroshima-crime:1126001999");
     const after={...snapshot,records:result.records};
     const repeated=await productionPlan("hiroshima",after,[...existing,...catchup,unrelated],new Set());
-    expect(repeated.verifiedPending).toHaveLength(0);
     expect(repeated.candidates).toHaveLength(0);
   });
 });
