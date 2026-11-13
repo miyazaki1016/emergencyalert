@@ -50,7 +50,6 @@ export async function POST(request:Request) {
     if(failure?.status==="rejected")throw failure.reason;
     const plans=settled.flatMap(r=>r.status==="fulfilled"?[r.value]:[]);
     stage="plan-guard";
-    if(plans.reduce((n,p)=>n+p.result.candidates.length,0)>20)throw new Error("DIFFERENCE_LIMIT");
     const unresolved=await db.from("jaspic_deliveries").select("status").in("status",["PREPARED","SENDING","UNKNOWN","FAILED"]).limit(1);
     if(unresolved.error||unresolved.data.length)throw new Error("UNRESOLVED_DELIVERY");
     // Refresh validates the existing encrypted OAuth credential even for a zero-item run.
