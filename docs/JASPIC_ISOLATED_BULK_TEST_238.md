@@ -41,3 +41,10 @@
 - `tests/sql/jaspic_isolated_test_238.sql` を追加（HEAD `978ea03557865a4fe5e778806b809e8517a40687`）。
 - 34件synthetic、重複登録、最初のclaim10件、UNKNOWN10件を自動再claimせず次の10件へ進む検証をトランザクション内で実施。SQL実行はエラーなし、終了後0件を別照会で確認。
 - **注意**: これは単一トランザクションでの検証であり、並行した2セッションの競合検証ではない。実候補の取り込み・メール送信・最新CIは未完了。
+
+## 終了状態の隔離テスト（2026-11-13）
+
+- 非公開スキーマに `finish_claim(id,outcome,gmail_message_id)` をmigration `jaspic_isolated_test_238_finish_claim` で追加。`SECURITY INVOKER`、一般/API権限への実行許可なし。
+- `SENDING` から `SENT`/`UNKNOWN`/`FAILED` のみ遷移可能。`SENT` のみGmail message IDを必須とし、それ以外はmessage ID禁止。
+- 仮レコードをclaim後 `UNKNOWN` にし、続けて `SENT` へ書き換える試行を実施。最終状態は `UNKNOWN` / message ID nullであり、上書きされないことを確認。トランザクションはROLLBACK。
+- **未実施**: 別DB接続による並列競合、Gmailの実送信、34件の実候補取得とCI確認。上記関数はまだアプリから呼び出せない非公開DB管理用の試験関数。
