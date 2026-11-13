@@ -119,10 +119,12 @@ async function refineFrame(
   const matched=new Map<string,{code:string;prefecture:string;municipality:string}>();
   let z10NetworkMs=0,z10MatchingMs=0;
   const entries=[...tileMap.values()];
+  const z10Concurrency = Number(process.env.JMA_Z10_CONCURRENCY ?? "8");
+  if (![4, 8].includes(z10Concurrency)) throw new Error("JMA_Z10_CONCURRENCY must be 4 or 8");
   let rainyTiles=0;
-  for(let i=0;i<entries.length;i+=8){
+  for(let i=0;i<entries.length;i+=z10Concurrency){
     signal.throwIfAborted();
-    const batch=entries.slice(i,i+8);
+    const batch=entries.slice(i,i+z10Concurrency);
     const outcomes=await Promise.allSettled(batch.map(async t=>{
       const fetchStart=performance.now();
       const buffer=await fetchTile(frame,10,t.x,t.y,signal);
