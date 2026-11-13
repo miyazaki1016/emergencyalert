@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { timingSafeEqual } from "node:crypto";
 import { collect, type Province } from "../../../../supabase/functions/_shared/jaspic/collect";
 import { productionPlan } from "../../../../lib/jaspic/production-plan";
+import { hasBulkSendTimeBudget } from "../../../../lib/jaspic/bulk-send-budget";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ export async function POST(request: Request) {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return json({ error: "NOT_CONFIGURED" }, 503);
   const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+  const startedAt = Date.now();
   try {
     const [legacyResult, unresolved, running] = await Promise.all([
       db.rpc("jaspic_legacy_hiroshima_person_ids"),
@@ -50,8 +52,15 @@ export async function POST(request: Request) {
     const total = results.reduce((sum, p) => sum + p.count, 0);
     const perProvinceDbLimit = 20; // Current production jaspic_prepare_production limit.
     const dbLimitExceeded = results.some(p => p.count > perProvinceDbLimit);
-    const safe = !dbLimitExceeded && unresolved.data.length === 0 && running.data.length === 0;
-    return json({ mode: "READ_ONLY", safeToSend: safe, total, perProvinceDbLimit, dbLimitExceeded,
+    const timeBudgetExceeded = !hasBulkSendTimeBudget(total, Date.now() - startedAt);
+    const blockers = [
+      ...(dbLimitExceeded ? ["DATABASE_PROVINCE_LIMIT"] : []),
+      ...(timeBudgetExceeded ? ["BULK_SEND_TIME_BUDGET"] : []),
+      ...(unresolved.data.length ? ["UNRESOLVED_DELIVERY"] : []),
+      ...(running.data.length ? ["RUN_LOCKED"] : []),
+    ];
+    const safe = blockers.length === 0;
+    return json({ mode: "READ_ONLY", safeToSend: safe, total, perProvinceDbLimit, dbLimitExceeded, timeBudgetExceeded, blockers,
       unresolvedDeliveries: unresolved.data.length, runningRuns: running.data.length, provinces: results });
   } catch (error) {
     const code = error instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(error.message)
