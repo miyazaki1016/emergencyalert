@@ -23,12 +23,13 @@ describe("JASPIC production baseline field guard", () => {
   it("accepts complete existing records and newly published old-occurrence Shiga IDs", async () => {
     vi.mocked(plan).mockClear();
     const existing = make("shiga-person", "100");
-    const newlyPublished = make("shiga-person", "101");
+    const newlyPublished = make("shiga-person", "105");
     newlyPublished.data.occurrence_dt = "2026-11-01";
-    const snapshot = { baseline: true, revision: 4, records: { "shiga-person:100": existing.data } };
-    await expect(productionPlan("shiga", snapshot as never, [existing, newlyPublished] as never, new Set()))
+    const baselineRecords = Object.fromEntries(Array.from({ length: 5 }, (_, i) => { const record = make("shiga-person", String(100 + i)); return [`shiga-person:${100 + i}`, record.data]; }));
+    const snapshot = { baseline: true, revision: 4, records: baselineRecords };
+    await expect(productionPlan("shiga", snapshot as never, [existing, ...Array.from({ length: 4 }, (_, i) => make("shiga-person", String(101 + i))), newlyPublished] as never, new Set()))
       .resolves.toHaveProperty("candidates");
     expect(plan).toHaveBeenCalledOnce();
-    expect(vi.mocked(plan).mock.calls[0][2]).toHaveLength(2);
+    expect(vi.mocked(plan).mock.calls[0][2]).toHaveLength(6);
   });
 });
