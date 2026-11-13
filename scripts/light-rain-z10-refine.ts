@@ -41,6 +41,7 @@ async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:num
       outcome = "HTTP_" + response.status;
       if (response.ok) {
         const bytes = Buffer.from(await response.arrayBuffer());
+        outcome = "ok";
         console.log(JSON.stringify({event:"JMA_TILE_FETCH",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome:"ok",httpStatus:response.status,elapsedMs:Math.round(performance.now()-started),bytes:bytes.length}));
         return bytes;
       }
@@ -50,7 +51,7 @@ async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:num
       outcome = error instanceof Error ? error.name : "TransportError";
       attempts.push(outcome);
     } finally {
-      if (outcome !== "HTTP_200" && outcome !== "ok") {
+      if (outcome !== "ok") {
         console.log(JSON.stringify({event:"JMA_TILE_FETCH",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome,elapsedMs:Math.round(performance.now()-started)}));
       }
     }
