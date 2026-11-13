@@ -306,4 +306,5 @@
 | #228 | feat(jaspic): add admin-only send preview button | merged | `d019d596eeafc7147a2d83c1ac92dd5f237009bd` | 2026-11-13T03:12:03Z |
 | #230 | fix(jaspic): restore baseline fields safety guard | merged | `9bdb80fd6ace88b69914a8141ca6551a4422173a` | 2026-11-13T03:11:50Z |
 | #232 | feat(jaspic): show held counts in completion email | open | `dba96dd6d265eabc3465d302cb60265d391f2843` | 2026-11-13T03:07:25Z |
+| #234 | JASPIC送信前チェックに候補ID・新規/更新・発生日の内訳を追加 | merged | `f2e03e23db5ead350077f9602873e96113b9ee6c` | 2026-11-13T03:37:43Z |
 <!-- INVENTORY_FACTS_END -->
