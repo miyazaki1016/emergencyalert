@@ -27,4 +27,21 @@ describe("JASPIC Shiga bulk publication", () => {
     await expect(productionPlan("shiga", { revision: 4, baseline: true, records }, existing.slice(0, 100), new Set()))
       .rejects.toThrow("SOURCE_COUNT_GUARD");
   });
+
+  it("accepts 30 old-occurrence-date new IDs at the source-count boundary", async () => {
+    const existing = Array.from({ length: 150 }, (_, n) => shiga(String(n + 1)));
+    const records = Object.fromEntries(existing.map(i => [`shiga-person:${i.data.id}`, i.data]));
+    const incoming = Array.from({ length: 30 }, (_, n) => shiga(String(151 + n)));
+    const result = await productionPlan("shiga", { revision: 4, baseline: true, records }, [...existing, ...incoming], new Set());
+    expect(result.candidates).toHaveLength(30);
+    expect(result.candidates.every(c => c.key.startsWith("shiga-person:"))).toBe(true);
+  });
+
+  it("rejects a source-count jump beyond 20 percent even when candidate cap is removed", async () => {
+    const existing = Array.from({ length: 150 }, (_, n) => shiga(String(n + 1)));
+    const records = Object.fromEntries(existing.map(i => [`shiga-person:${i.data.id}`, i.data]));
+    const incoming = Array.from({ length: 31 }, (_, n) => shiga(String(151 + n)));
+    await expect(productionPlan("shiga", { revision: 4, baseline: true, records }, [...existing, ...incoming], new Set()))
+      .rejects.toThrow("SOURCE_COUNT_GUARD");
+  });
 });
