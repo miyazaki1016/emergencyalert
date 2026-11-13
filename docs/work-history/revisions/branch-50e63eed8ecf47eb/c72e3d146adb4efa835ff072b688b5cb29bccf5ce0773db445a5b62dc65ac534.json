@@ -1,0 +1,42 @@
+{
+  "id": "branch-50e63eed8ecf47eb",
+  "title": "feat/visual-map-picker",
+  "head": "49982078e21a9b630b4a7c60fffe4370f3df48de",
+  "head_ref": "feat/visual-map-picker",
+  "linked_prs": [
+    55
+  ],
+  "files": [
+    {
+      "path": "app/layout.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/49982078e21a9b630b4a7c60fffe4370f3df48de/app/layout.tsx"
+    },
+    {
+      "path": "app/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/49982078e21a9b630b4a7c60fffe4370f3df48de/app/page.tsx"
+    },
+    {
+      "path": "package.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/49982078e21a9b630b4a7c60fffe4370f3df48de/package.json"
+    }
+  ],
+  "commits": "49982078e21a9b630b4a7c60fffe4370f3df48de Center map picker on Tokyo Station\n9edbbb07c65368e1b3cf3e0af27da13e03df03cf Start map picker at neighborhood zoom\n1bf2e1f12d517fe77642516786cc0c7437d9daff Load Leaflet styles for map picker\ne17d748b7b31580c944e7d803c756eb00d1d7e75 Add Leaflet for interactive map picker\ne523252da765f1a79d47a1342e616fe913cb28b0 Use draggable map for coordinate picker\n04eefe78adaf2869557a62f4a3d65330d31faf8e Fix literal newline escapes in map preview\nbfea6835291eb654f7123613481529a4534ec2ca Fix map preview source newlines\nec7fc83b486c485e7a459c8b9c3b8418f77ee964 feat: show map preview for coordinate picker",
+  "topics": [
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "ab71c38ee48eda8faefadc1fcf334547489aaee56e1369f0a489aa422040d422",
+  "collected_at": "2026-11-13T03:12:14.705435+00:00"
+}

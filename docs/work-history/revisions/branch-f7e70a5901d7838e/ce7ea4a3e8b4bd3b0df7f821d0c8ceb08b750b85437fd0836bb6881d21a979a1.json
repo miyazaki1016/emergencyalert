@@ -1,0 +1,49 @@
+{
+  "id": "branch-f7e70a5901d7838e",
+  "title": "fix/jaspic-occurrence-date-hold-20261113",
+  "head": "e36e28bbbf9cce64d942ade6a454991f775eb118",
+  "head_ref": "fix/jaspic-occurrence-date-hold-20261113",
+  "linked_prs": [
+    224
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/dispatch/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/app/jaspic/dispatch/route.ts"
+    },
+    {
+      "path": "lib/jaspic/production-plan.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/lib/jaspic/production-plan.ts"
+    },
+    {
+      "path": "tests/jaspic-production-plan-quarantine.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "path": "tests/jaspic/production-delivery.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic/production-delivery.test.ts"
+    }
+  ],
+  "commits": "e36e28bbbf9cce64d942ade6a454991f775eb118 test(jaspic): align old-date candidate tests and remove obsolete nine-only gate\n6f021273de419bc8215fd4b96d4999b627aed2b1 test(jaspic): align old-date candidate tests and remove obsolete nine-only gate\n45223864d84f9b4e4979ad36122f29d2592edd8d test(jaspic): align old-date candidate tests and remove obsolete nine-only gate\n255d515a27281b996782c2fd442713e79e7c8d48 test(jaspic): align old-date candidate tests and remove obsolete nine-only gate\nb7e7c867ec70e9a4121c653915055b0e427afae4 fix(jaspic): stop holding new records solely by occurrence date",
+  "topics": [
+    "通知・配信"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "fea3778158bd82a192b917003e01fd809bb0c1f6741d9f3522895ea03361b6fa",
+  "collected_at": "2026-11-13T03:12:14.705435+00:00"
+}

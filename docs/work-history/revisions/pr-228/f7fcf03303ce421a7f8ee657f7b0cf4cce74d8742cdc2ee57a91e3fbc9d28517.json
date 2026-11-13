@@ -1,0 +1,306 @@
+{
+  "id": "pr-228",
+  "number": 228,
+  "title": "feat(jaspic): add admin-only send preview button",
+  "topics": [
+    "通知・配信",
+    "認証・安全性",
+    "画面・表示"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更／認証・アクセス制御に関する変更／画面表示や操作に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Closes #227\n\n既存の /jaspic/oauth 管理者ログイン画面に「送信前チェック」を追加。Supabase Authの管理者JWTをサーバーで検証してから、既存の読み取り専用 /jaspic/dispatch/preview をサーバー内で呼び出す。ブラウザへ JASPIC_DISPATCH_TOKEN は送らず、DB更新・Gmail送信なし。広島・滋賀の候補/隔離件数、上限、未解決配信・実行中の有無を表示。\n\n着手前照合 Issue #227: https://github.com/miyazaki1016/emergencyalert/actions/runs/43342010152\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-155\",\"decision\":\"extend\",\"reason\":\"既存管理者OAuthと運用監視研究を再利用し未統合の送信通知研究は変更しない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/155\"},{\"id\":\"pr-226\",\"decision\":\"extend\",\"reason\":\"本番read-only previewを再利用し管理者JWT検証と画面表示だけを追加する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/226\"},{\"id\":\"pr-157\",\"decision\":\"extend\",\"reason\":\"既存iPhoneログイン画面とSupabase Authを再利用する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/157\"},{\"id\":\"pr-171\",\"decision\":\"extend\",\"reason\":\"既存の暗号化Gmail認証保管庫や本人確認機構を保持し、送信認証情報には触れず読み取り専用画面のみ追加する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/171\"}]}\n-->\n\nCI success: https://github.com/miyazaki1016/emergencyalert/actions/runs/43349206423\nDraft維持。再照合がREVIEW_RECORDEDになるまでマージ禁止。本番送信なし。",
+  "snapshot_head": "d019d596eeafc7147a2d83c1ac92dd5f237009bd",
+  "snapshot_consistent": true,
+  "head": "d019d596eeafc7147a2d83c1ac92dd5f237009bd",
+  "base": "3cc155084dfe0d7979f82d636ac8a49ae67ea98d",
+  "base_ref": "main",
+  "head_ref": "feat/jaspic-admin-preview-button-20261113",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-13T03:12:03Z",
+  "merge_commit_sha": "ce7da37dd862e40e8283b03a9c5a9729105453a3",
+  "updated_at": "2026-11-13T03:12:03Z",
+  "code_facts": [
+    {
+      "file": "app/jaspic/oauth/preview-button.tsx",
+      "kind": "関数・クラス定義",
+      "expression": "export default function JaspicPreviewButton() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d019d596eeafc7147a2d83c1ac92dd5f237009bd/app/jaspic/oauth/preview-button.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/preview-button.tsx",
+      "kind": "関数・クラス定義",
+      "expression": "async function check() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d019d596eeafc7147a2d83c1ac92dd5f237009bd/app/jaspic/oauth/preview-button.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/preview-button.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!client || busy) return;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d019d596eeafc7147a2d83c1ac92dd5f237009bd/app/jaspic/oauth/preview-button.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/preview-button.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!session) { setError(\"管理者としてログインしてから実行してください。\"); return; }",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d019d596eeafc7147a2d83c1ac92dd5f237009bd/app/jaspic/oauth/preview-button.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/preview-button.tsx",
+      "kind": "HTTP要求",
+      "expression": "const response = await fetch(\"/jaspic/oauth/preview\", {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d019d596eeafc7147a2d83c1ac92dd5f237009bd/app/jaspic/oauth/preview-button.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/preview-button.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!response.ok || body.mode !== \"READ_ONLY\") {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d019d596eeafc7147a2d83c1ac92dd5f237009bd/app/jaspic/oauth/preview-button.tsx"
+    },
+    {
+      "file": "app/jaspic/oauth/preview/route.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export async function POST(request: NextRequest) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d019d596eeafc7147a2d83c1ac92dd5f237009bd/app/jaspic/oauth/preview/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/preview/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (request.headers.get(\"origin\") !== \"https://emergencyalert.news\") {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d019d596eeafc7147a2d83c1ac92dd5f237009bd/app/jaspic/oauth/preview/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/preview/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!token) return respond({ error: \"UNAUTHORIZED\" }, 401);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d019d596eeafc7147a2d83c1ac92dd5f237009bd/app/jaspic/oauth/preview/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/preview/route.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "if (!url || !key || !adminId || !secret || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url)) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d019d596eeafc7147a2d83c1ac92dd5f237009bd/app/jaspic/oauth/preview/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/preview/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (error || !data.user) return respond({ error: \"UNAUTHORIZED\" }, 401);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d019d596eeafc7147a2d83c1ac92dd5f237009bd/app/jaspic/oauth/preview/route.ts"
+    },
+    {
+      "file": "app/jaspic/oauth/preview/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!isJaspicAdmin(data.user, adminId)) return respond({ error: \"FORBIDDEN\" }, 403);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d019d596eeafc7147a2d83c1ac92dd5f237009bd/app/jaspic/oauth/preview/route.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/oauth/page.tsx",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "patch": "diff --git a/app/jaspic/oauth/page.tsx b/app/jaspic/oauth/page.tsx\nindex 88797587..28f03d79 100644\n--- a/app/jaspic/oauth/page.tsx\n+++ b/app/jaspic/oauth/page.tsx\n@@ -1,6 +1,7 @@\n import type { Metadata } from \"next\";\n import Link from \"next/link\";\n import JaspicOauthLoginClient from \"./login-client\";\n+import JaspicPreviewButton from \"./preview-button\";\n \n export const metadata: Metadata = {\n   title: \"JASPIC | Gmail認証\",\n@@ -18,6 +19,7 @@ export default function JaspicOAuthPage() {\n         メールの実送信・18時の自動配信も開始されません。\n       </p>\n       <JaspicOauthLoginClient />\n+      <JaspicPreviewButton />\n       <p style={{fontSize:13}}>クライアントシークレットやリフレッシュトークンはこの画面に入力しないでください。</p>\n       <p style={{ fontSize: 15 }}><Link href=\"/jaspic\">JASPICの説明ページに戻る</Link></p>\n     </main>\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d019d596eeafc7147a2d83c1ac92dd5f237009bd/app/jaspic/oauth/page.tsx",
+      "source": {
+        "path": "app/jaspic/oauth/page.tsx",
+        "coverage": "全文",
+        "text": "import type { Metadata } from \"next\";\nimport Link from \"next/link\";\nimport JaspicOauthLoginClient from \"./login-client\";\nimport JaspicPreviewButton from \"./preview-button\";\n\nexport const metadata: Metadata = {\n  title: \"JASPIC | Gmail認証\",\n  robots: { index: false, follow: false },\n};\n\nexport default function JaspicOAuthPage() {\n  return (\n    <main style={{ maxWidth: 700, margin: \"24px auto\", padding: \"clamp(18px, 5vw, 32px)\", borderRadius: 16, background: \"#fff\", color: \"#162436\", lineHeight: 1.65, fontSize: 16, overflowWrap: \"anywhere\" }}>\n      <p style={{ fontSize: 13, color: \"#476280\" }}>JASPIC / 運営者本人専用</p>\n      <h1 style={{ fontSize: \"clamp(24px, 6vw, 32px)\", lineHeight: 1.3 }}>Gmail認証</h1>\n      <p>Gmail APIの認証は管理者本人だけが行えます。ログインにはSupabase Authを使用します。</p>\n      <p style={{ border: \"1px solid #c6d4e2\", borderRadius: 12, padding: 16, background: \"#f3f7fc\", fontSize: 15 }}>\n        GoogleのGmail送信権限を再認証し、認証情報を暗号化して保存できます。\n        メールの実送信・18時の自動配信も開始されません。\n      </p>\n      <JaspicOauthLoginClient />\n      <JaspicPreviewButton />\n      <p style={{fontSize:13}}>クライアントシークレットやリフレッシュトークンはこの画面に入力しないでください。</p>\n      <p style={{ fontSize: 15 }}><Link href=\"/jaspic\">JASPICの説明ページに戻る</Link></p>\n    </main>\n  );\n}\n",
+        "sha256": "37edfede722b0b5b08d71903b186c7d652e3072676f8b406405dc1a67cac2b9d"
+      }
+    },
+    {
+      "path": "app/jaspic/oauth/preview-button.tsx",
+      "status": "modified",
+      "additions": 58,
+      "deletions": 0,
+      "patch": "diff --git a/app/jaspic/oauth/preview-button.tsx b/app/jaspic/oauth/preview-button.tsx\nnew file mode 100644\nindex 00000000..00070f54\n--- /dev/null\n+++ b/app/jaspic/oauth/preview-button.tsx\n@@ -0,0 +1,58 @@\n+\"use client\";\n+\n+import { createClient } from \"@supabase/supabase-js\";\n+import { useMemo, useState } from \"react\";\n+\n+type ProvinceResult = { province: \"hiroshima\" | \"shiga\"; count: number; quarantined: number };\n+type PreviewResult = {\n+  mode?: string; safeToSend?: boolean; total?: number; limit?: number;\n+  unresolvedDeliveries?: number; runningRuns?: number; provinces?: ProvinceResult[]; error?: string;\n+};\n+\n+export default function JaspicPreviewButton() {\n+  const client = useMemo(() => {\n+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;\n+    const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;\n+    return url && key ? createClient(url, key) : null;\n+  }, []);\n+  const [busy, setBusy] = useState(false);\n+  const [result, setResult] = useState<PreviewResult | null>(null);\n+  const [error, setError] = useState(\"\");\n+  async function check() {\n+    if (!client || busy) return;\n+    setBusy(true); setResult(null); setError(\"\");\n+    try {\n+      const { data: { session } } = await client.auth.getSession();\n+      if (!session) { setError(\"管理者としてログインしてから実行してください。\"); return; }\n+      const response = await fetch(\"/jaspic/oauth/preview\", {\n+        method: \"POST\", credentials: \"same-origin\", cache: \"no-store\",\n+        headers: { authorization: \"Bearer \" + session.access_token },\n+      });\n+      const body: PreviewResult = await response.json();\n+      if (!response.ok || body.mode !== \"READ_ONLY\") {\n+        setError(\"確認できませんでした（\" + (body.error ?? response.status) + \"）。メールは送信していません。\");\n+        return;\n+      }\n+      setResult(body);\n+    } catch { setError(\"通信エラーで確認できませんでした。メールは送信していません。\"); }\n+    finally { setBusy(false); }\n+  }\n+  return <section style={{border:\"1px solid #c6d4e2\",borderRadius:12,padding:16,margin:\"22px 0\",background:\"#f3f7fc\"}}>\n+    <h2 style={{fontSize:20,marginTop:0}}>広島・滋賀 送信前チェック</h2>\n+    <p>現在の公開情報から候補件数を確認します。メール送信・配信台帳の変更は行いません。</p>\n+    <button type=\"button\" onClick={()=>void check()} disabled={!client || busy}\n+      style={{fontSize:17,padding:\"12px 20px\",borderRadius:9,minHeight:48}}>\n+      {busy ? \"確認中…\" : \"送信前チェック\"}\n+    </button>\n+    {error && <p role=\"alert\">{error}</p>}\n+    {result && <div role=\"status\" aria-live=\"polite\">\n+      <p><strong>送信候補：合計 {result.total ?? \"不明\"} 件</strong>（上限 {result.limit ?? \"不明\"} 件）</p>\n+      {(result.provinces ?? []).map(p=><p key={p.province}>\n+        {p.province === \"hiroshima\" ? \"広島\" : \"滋賀\"}：候補 {p.count} 件／隔離 {p.quarantined} 件\n+      </p>)}\n+      <p>未解決配信：{result.unresolvedDeliveries ?? \"不明\"} 件／実行中：{result.runningRuns ?? \"不明\"} 件</p>\n+      <p><strong>{result.safeToSend ? \"候補件数と台帳の基本チェックは範囲内\" : \"送信条件を満たしていません\"}</strong></p>\n+      <small>※チェック結果は送信許可ではありません。実送信前に認証・取得結果・全安全条件の別確認が必要です。</small>\n+    </div>}\n+  </section>;\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d019d596eeafc7147a2d83c1ac92dd5f237009bd/app/jaspic/oauth/preview-button.tsx",
+      "source": {
+        "path": "app/jaspic/oauth/preview-button.tsx",
+        "coverage": "全文",
+        "text": "\"use client\";\n\nimport { createClient } from \"@supabase/supabase-js\";\nimport { useMemo, useState } from \"react\";\n\ntype ProvinceResult = { province: \"hiroshima\" | \"shiga\"; count: number; quarantined: number };\ntype PreviewResult = {\n  mode?: string; safeToSend?: boolean; total?: number; limit?: number;\n  unresolvedDeliveries?: number; runningRuns?: number; provinces?: ProvinceResult[]; error?: string;\n};\n\nexport default function JaspicPreviewButton() {\n  const client = useMemo(() => {\n    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;\n    const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;\n    return url && key ? createClient(url, key) : null;\n  }, []);\n  const [busy, setBusy] = useState(false);\n  const [result, setResult] = useState<PreviewResult | null>(null);\n  const [error, setError] = useState(\"\");\n  async function check() {\n    if (!client || busy) return;\n    setBusy(true); setResult(null); setError(\"\");\n    try {\n      const { data: { session } } = await client.auth.getSession();\n      if (!session) { setError(\"管理者としてログインしてから実行してください。\"); return; }\n      const response = await fetch(\"/jaspic/oauth/preview\", {\n        method: \"POST\", credentials: \"same-origin\", cache: \"no-store\",\n        headers: { authorization: \"Bearer \" + session.access_token },\n      });\n      const body: PreviewResult = await response.json();\n      if (!response.ok || body.mode !== \"READ_ONLY\") {\n        setError(\"確認できませんでした（\" + (body.error ?? response.status) + \"）。メールは送信していません。\");\n        return;\n      }\n      setResult(body);\n    } catch { setError(\"通信エラーで確認できませんでした。メールは送信していません。\"); }\n    finally { setBusy(false); }\n  }\n  return <section style={{border:\"1px solid #c6d4e2\",borderRadius:12,padding:16,margin:\"22px 0\",background:\"#f3f7fc\"}}>\n    <h2 style={{fontSize:20,marginTop:0}}>広島・滋賀 送信前チェック</h2>\n    <p>現在の公開情報から候補件数を確認します。メール送信・配信台帳の変更は行いません。</p>\n    <button type=\"button\" onClick={()=>void check()} disabled={!client || busy}\n      style={{fontSize:17,padding:\"12px 20px\",borderRadius:9,minHeight:48}}>\n      {busy ? \"確認中…\" : \"送信前チェック\"}\n    </button>\n    {error && <p role=\"alert\">{error}</p>}\n    {result && <div role=\"status\" aria-live=\"polite\">\n      <p><strong>送信候補：合計 {result.total ?? \"不明\"} 件</strong>（上限 {result.limit ?? \"不明\"} 件）</p>\n      {(result.provinces ?? []).map(p=><p key={p.province}>\n        {p.province === \"hiroshima\" ? \"広島\" : \"滋賀\"}：候補 {p.count} 件／隔離 {p.quarantined} 件\n      </p>)}\n      <p>未解決配信：{result.unresolvedDeliveries ?? \"不明\"} 件／実行中：{result.runningRuns ?? \"不明\"} 件</p>\n      <p><strong>{result.safeToSend ? \"候補件数と台帳の基本チェックは範囲内\" : \"送信条件を満たしていません\"}</strong></p>\n      <small>※チェック結果は送信許可ではありません。実送信前に認証・取得結果・全安全条件の別確認が必要です。</small>\n    </div>}\n  </section>;\n}\n",
+        "sha256": "d98bc2a290129031e84af4552e6e461d6672c9de337bcb28ddf37fc5dbe6ea2c"
+      }
+    },
+    {
+      "path": "app/jaspic/oauth/preview/route.ts",
+      "status": "modified",
+      "additions": 38,
+      "deletions": 0,
+      "patch": "diff --git a/app/jaspic/oauth/preview/route.ts b/app/jaspic/oauth/preview/route.ts\nnew file mode 100644\nindex 00000000..4b055dc0\n--- /dev/null\n+++ b/app/jaspic/oauth/preview/route.ts\n@@ -0,0 +1,38 @@\n+import { createClient } from \"@supabase/supabase-js\";\n+import { NextRequest } from \"next/server\";\n+import { isJaspicAdmin } from \"../../../../lib/jaspic/admin-authorization\";\n+import { POST as preview } from \"../../dispatch/preview/route\";\n+\n+export const runtime = \"nodejs\";\n+export const dynamic = \"force-dynamic\";\n+export const maxDuration = 300;\n+const respond = (body: unknown, status = 200) =>\n+  Response.json(body, { status, headers: { \"Cache-Control\": \"no-store, private\", \"X-Robots-Tag\": \"noindex\" } });\n+\n+/** Admin-only read-only proxy. The dispatch secret never reaches the browser. */\n+export async function POST(request: NextRequest) {\n+  if (request.headers.get(\"origin\") !== \"https://emergencyalert.news\") {\n+    return respond({ error: \"FORBIDDEN_ORIGIN\" }, 403);\n+  }\n+  const token = /^Bearer ([A-Za-z0-9_.-]{16,8192})$/.exec(request.headers.get(\"authorization\") ?? \"\")?.[1];\n+  if (!token) return respond({ error: \"UNAUTHORIZED\" }, 401);\n+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/, \"\");\n+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;\n+  const adminId = process.env.JASPIC_ADMIN_USER_ID;\n+  const secret = process.env.JASPIC_DISPATCH_TOKEN;\n+  if (!url || !key || !adminId || !secret || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url)) {\n+    return respond({ error: \"NOT_CONFIGURED\" }, 503);\n+  }\n+  try {\n+    const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });\n+    const { data, error } = await db.auth.getUser(token);\n+    if (error || !data.user) return respond({ error: \"UNAUTHORIZED\" }, 401);\n+    if (!isJaspicAdmin(data.user, adminId)) return respond({ error: \"FORBIDDEN\" }, 403);\n+    const result = await preview(new Request(\"https://emergencyalert.news/jaspic/dispatch/preview\", {\n+      method: \"POST\", headers: { authorization: \"Bearer \" + secret },\n+    }));\n+    return respond(await result.json(), result.status);\n+  } catch {\n+    return respond({ error: \"PREVIEW_FAILED\" }, 503);\n+  }\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d019d596eeafc7147a2d83c1ac92dd5f237009bd/app/jaspic/oauth/preview/route.ts",
+      "source": {
+        "path": "app/jaspic/oauth/preview/route.ts",
+        "coverage": "全文",
+        "text": "import { createClient } from \"@supabase/supabase-js\";\nimport { NextRequest } from \"next/server\";\nimport { isJaspicAdmin } from \"../../../../lib/jaspic/admin-authorization\";\nimport { POST as preview } from \"../../dispatch/preview/route\";\n\nexport const runtime = \"nodejs\";\nexport const dynamic = \"force-dynamic\";\nexport const maxDuration = 300;\nconst respond = (body: unknown, status = 200) =>\n  Response.json(body, { status, headers: { \"Cache-Control\": \"no-store, private\", \"X-Robots-Tag\": \"noindex\" } });\n\n/** Admin-only read-only proxy. The dispatch secret never reaches the browser. */\nexport async function POST(request: NextRequest) {\n  if (request.headers.get(\"origin\") !== \"https://emergencyalert.news\") {\n    return respond({ error: \"FORBIDDEN_ORIGIN\" }, 403);\n  }\n  const token = /^Bearer ([A-Za-z0-9_.-]{16,8192})$/.exec(request.headers.get(\"authorization\") ?? \"\")?.[1];\n  if (!token) return respond({ error: \"UNAUTHORIZED\" }, 401);\n  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/, \"\");\n  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;\n  const adminId = process.env.JASPIC_ADMIN_USER_ID;\n  const secret = process.env.JASPIC_DISPATCH_TOKEN;\n  if (!url || !key || !adminId || !secret || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url)) {\n    return respond({ error: \"NOT_CONFIGURED\" }, 503);\n  }\n  try {\n    const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });\n    const { data, error } = await db.auth.getUser(token);\n    if (error || !data.user) return respond({ error: \"UNAUTHORIZED\" }, 401);\n    if (!isJaspicAdmin(data.user, adminId)) return respond({ error: \"FORBIDDEN\" }, 403);\n    const result = await preview(new Request(\"https://emergencyalert.news/jaspic/dispatch/preview\", {\n      method: \"POST\", headers: { authorization: \"Bearer \" + secret },\n    }));\n    return respond(await result.json(), result.status);\n  } catch {\n    return respond({ error: \"PREVIEW_FAILED\" }, 503);\n  }\n}\n",
+        "sha256": "39c2712e726e0d3d1885576163a005b97cbdb87da8649d58ebbd459e0898e480"
+      }
+    }
+  ],
+  "file_count": 3,
+  "reported_file_count": 3,
+  "commits": [
+    {
+      "sha": "74d5a0e19095ebc80da48717d7213a445ed68817",
+      "message": "feat(jaspic): add admin-authenticated read-only preview proxy\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/74d5a0e19095ebc80da48717d7213a445ed68817"
+    },
+    {
+      "sha": "8632f00e7be4816a5d41482ed950b3bba98f160d",
+      "message": "fix(jaspic): correct admin proxy URL validation\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/8632f00e7be4816a5d41482ed950b3bba98f160d"
+    },
+    {
+      "sha": "229192b66cf989854ee69ac0b378a5ab90299d8c",
+      "message": "feat(jaspic): add iPhone-friendly read-only preview button\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/229192b66cf989854ee69ac0b378a5ab90299d8c"
+    },
+    {
+      "sha": "d019d596eeafc7147a2d83c1ac92dd5f237009bd",
+      "message": "feat(jaspic): show preview control on existing admin OAuth page\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/d019d596eeafc7147a2d83c1ac92dd5f237009bd"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "d019d596eeafc7147a2d83c1ac92dd5f237009bd",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43353744787",
+      "id": 43353744787,
+      "updated_at": "2026-11-13T02:40:13Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "d019d596eeafc7147a2d83c1ac92dd5f237009bd",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43353744723",
+      "id": 43353744723,
+      "updated_at": "2026-11-13T02:40:13Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "d019d596eeafc7147a2d83c1ac92dd5f237009bd",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43353673397",
+      "id": 43353673397,
+      "updated_at": "2026-11-13T02:39:38Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "d019d596eeafc7147a2d83c1ac92dd5f237009bd",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43353597516",
+      "id": 43353597516,
+      "updated_at": "2026-11-13T02:38:53Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "d019d596eeafc7147a2d83c1ac92dd5f237009bd",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43349206423",
+      "id": 43349206423,
+      "updated_at": "2026-11-13T02:02:53Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "d019d596eeafc7147a2d83c1ac92dd5f237009bd",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43349206486",
+      "id": 43349206486,
+      "updated_at": "2026-11-13T02:02:12Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "d019d596eeafc7147a2d83c1ac92dd5f237009bd",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43349206457",
+      "id": 43349206457,
+      "updated_at": "2026-11-13T02:02:13Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "ce7da37dd862e40e8283b03a9c5a9729105453a3",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43357344994",
+      "id": 43357344994,
+      "updated_at": "2026-11-13T03:12:09Z",
+      "event": "push"
+    },
+    {
+      "name": "CI",
+      "head_sha": "ce7da37dd862e40e8283b03a9c5a9729105453a3",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43357345009",
+      "id": 43357345009,
+      "updated_at": "2026-11-13T03:12:10Z",
+      "event": "push"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "ce7da37dd862e40e8283b03a9c5a9729105453a3",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43357344949",
+      "id": 43357344949,
+      "updated_at": "2026-11-13T03:12:13Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "JaspicOAuthPage",
+    "JaspicPreviewButton",
+    "POST",
+    "adminId",
+    "body",
+    "check",
+    "client",
+    "db",
+    "dynamic",
+    "key",
+    "maxDuration",
+    "metadata",
+    "respond",
+    "response",
+    "result",
+    "runtime",
+    "secret",
+    "token",
+    "url"
+  ],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "76f59af0c590f0d8de13ba2e2b2ea9e40a57e1836fc295810953f18c4ad4fc42",
+  "ci_digest": "a1ddb6c3c0faf8015bcf4533c3406e595146a40ba87de34599e141a4cfdb1e64",
+  "collected_at": "2026-11-13T03:12:14.705435+00:00",
+  "decisions": []
+}

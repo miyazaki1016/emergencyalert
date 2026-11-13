@@ -1,0 +1,35 @@
+{
+  "id": "branch-ca1310f5dea43c82",
+  "title": "feat/event-driven-ledger-proposals-20261101",
+  "head": "6d1d873258c7d8a964b6f6aada2aac2c5fbfe26e",
+  "head_ref": "feat/event-driven-ledger-proposals-20261101",
+  "linked_prs": [
+    133
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/ledger-facts-proposal.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6d1d873258c7d8a964b6f6aada2aac2c5fbfe26e/.github/workflows/ledger-facts-proposal.yml"
+    },
+    {
+      "path": "tests/test_ledger_event_triggers.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6d1d873258c7d8a964b6f6aada2aac2c5fbfe26e/tests/test_ledger_event_triggers.py"
+    }
+  ],
+  "commits": "6d1d873258c7d8a964b6f6aada2aac2c5fbfe26e Assert single event trigger to minimize Actions usage\nae8fce09f9b7f5dd5fe0a1ecca7adefaf73a5e0e Use one main-push event per merge and avoid duplicate scheduled/PR runs\n30921aad179b8097533ab1d1d96061012d1af67c Test low-frequency PR close event configuration\n9c97ae38a7f4e3e7bd4751bde87c4031ca6cdff7 Reduce event executions to merged/closed PRs and main pushes\n8625c74ed8e56849be09c8177feb8cdad10525c2 Run event safety tests in ledger proposal workflow\nd4d7f1ccc8fc6442f6739384d8ed605da5c51e4d Check event triggers use trusted main and review-only PRs\n2495812e30f3a4708cd3a4b73ca30e18accb51ab Trigger ledger proposals on PR changes and main pushes with trusted checkout",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "132418de9cf625d1cfa77fd09544cc9a7c1cc423f77c6388c2ac5d743600235d",
+  "collected_at": "2026-11-13T03:12:14.705435+00:00"
+}

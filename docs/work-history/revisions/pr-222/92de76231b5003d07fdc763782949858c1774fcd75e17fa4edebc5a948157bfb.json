@@ -1,0 +1,591 @@
+{
+  "id": "pr-222",
+  "number": 222,
+  "title": "[Draft] 全国雨予報6コマGIF生成の独立プロトタイプ (#221)",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Closes #221（受入完了まではcloseしない）\n\nGIF89a 6コマエンコーダと入力検証テストを追加。雨雲の地図描画・実JMA接続・画像のデコード検証・5分枠からの独立ジョブ・長時間CIは未実装/未確認。投稿なし、本番変更なし。親ブランチ #217 に依存するDraft PR。\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-217\",\"decision\":\"extend\",\"reason\":\"全国N03・JMA6枠の既存検証を入力に使い、独立したGIF描画/エンコードだけ追加\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/217\"},{\"id\":\"pr-215\",\"decision\":\"reuse\",\"reason\":\"既存Bluesky候補と重複防止を再利用。今回投稿実行はしない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/215\"},{\"id\":\"pr-59\",\"decision\":\"reuse\",\"reason\":\"全国z4→z10/N03既存解析を再利用し、再スキャンは実装しない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/59\"}]}\n-->",
+  "snapshot_head": "5d9de2ff9fe5cd52a701bf718f7081c908a74924",
+  "snapshot_consistent": true,
+  "head": "5d9de2ff9fe5cd52a701bf718f7081c908a74924",
+  "base": "7b93625b3fe2211c50786fd01dceaadf57009676",
+  "base_ref": "feat/national-rain-1mm-dry-run-216",
+  "head_ref": "feat/national-rain-gif-221",
+  "state": "open",
+  "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+  "draft": true,
+  "merged_at": null,
+  "merge_commit_sha": null,
+  "updated_at": "2026-11-13T02:03:09Z",
+  "code_facts": [
+    {
+      "file": "components/weather/NationalRainPlayer.tsx",
+      "kind": "関数・クラス定義",
+      "expression": "export function NationalRainPlayer({ timeline, frameDurationMs = 700 }: Props) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/components/weather/NationalRainPlayer.tsx"
+    },
+    {
+      "file": "components/weather/NationalRainPlayer.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!playing || !valid || !validDuration) return;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/components/weather/NationalRainPlayer.tsx"
+    },
+    {
+      "file": "components/weather/NationalRainPlayer.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!valid || !validDuration) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/components/weather/NationalRainPlayer.tsx"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { describe, expect, it } from \"vitest\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.test.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const times = Array.from({ length: 6 }, (_, i) => new Date(Date.UTC(2026, 10, 13, 0, (i + 1) * 5)).toISOString());",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.test.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "pixels: Uint8Array.from({ length: 16 }, (_, j) => Number(j === i)),",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"isolated national rain GIF encoder\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"creates six-frame GIF89a without posting or fetching\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.test.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "expect(Buffer.from(bytes.subarray(0, 6)).toString(\"ascii\")).toBe(\"GIF89a\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(bytes.at(-1)).toBe(0x3b);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect([...bytes].filter((b, i) => b === 0x21 && bytes[i + 1] === 0xf9)).toHaveLength(6);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(encodeNationalRainGif(options)).toEqual(bytes);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"rejects missing, out-of-order and oversized frames\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(() => encodeNationalRainGif({ ...options, frames: options.frames.slice(1) })).toThrow(\"six\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(() => encodeNationalRainGif({ ...options, frames: [...options.frames].reverse() })).toThrow(\"five-minute\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function word(value: number) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function lzw(pixels: Uint8Array, minCodeSize: number): number[] {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (dictionary.has(combined)) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (next < 4096) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (next > (1 << bits) && bits < 12) bits++;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (held) codes.push(accumulator & 255);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function encodeNationalRainGif(options: RainGifOptions): Uint8Array {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (frames.length !== 6) throw new Error(\"GIF requires six forecast frames\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!Number.isInteger(delay) || delay < 1 || delay > 65535) throw new Error(\"Invalid GIF delay\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (palette.length < 2 || palette.length > 256 || !palette.every(rgb =>",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainGif.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (times.some(t => !Number.isFinite(t)) || times.some((t, i) => i > 0 && t - times[i - 1] !== 300_000)) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { describe, expect, it } from \"vitest\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.test.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const frames = Array.from({ length: 6 }, (_, i) => ({",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"national rain playback timeline\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"accepts six consecutive forecast frames before expiration\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(validateRainPlaybackTimeline(timeline, Date.parse(issuedAt))).toBe(timeline);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(nextRainPlaybackIndex(5)).toBe(0);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(nextRainPlaybackIndex(2)).toBe(3);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"rejects expired forecasts instead of showing stale animation\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(() => validateRainPlaybackTimeline(timeline, Date.parse(timeline.expiresAt))).toThrow(\"expired\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"rejects missing or misordered frames\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(() => validateRainPlaybackTimeline({ ...timeline, frames: frames.slice(1) }, Date.parse(issuedAt))).toThrow(\"Six frames\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(() => validateRainPlaybackTimeline({ ...timeline, frames: [frames[1], frames[0], ...frames.slice(2)] }, Date.parse(issuedAt))).toThrow(\"sequence\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "* The player receives already-rendered frames; it never fetches JMA tiles or",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function validateRainPlaybackTimeline(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!Number.isFinite(now)) throw new Error(\"Invalid clock\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!Number.isFinite(issued) || !Number.isFinite(expires)",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (now >= expires || now < issued - 5 * 60_000) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (timeline.frames.length !== 6) throw new Error(\"Six frames required\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (times.some(t => !Number.isFinite(t))",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!frame.imageUrl.startsWith(\"/\") || frame.imageUrl.startsWith(\"//\")",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "|| /[\\\\\\r\\n]/.test(frame.imageUrl)) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function nextRainPlaybackIndex(current: number, frameCount = 6): number {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainPlayback.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!Number.isInteger(current) || current < 0 || current >= frameCount",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "components/weather/NationalRainPlayer.tsx",
+      "status": "modified",
+      "additions": 84,
+      "deletions": 0,
+      "patch": "diff --git a/components/weather/NationalRainPlayer.tsx b/components/weather/NationalRainPlayer.tsx\nnew file mode 100644\nindex 00000000..e3e02ed7\n--- /dev/null\n+++ b/components/weather/NationalRainPlayer.tsx\n@@ -0,0 +1,84 @@\n+\"use client\";\n+\n+import { useEffect, useState } from \"react\";\n+import {\n+  nextRainPlaybackIndex,\n+  validateRainPlaybackTimeline,\n+  type RainPlaybackTimeline,\n+} from \"@/lib/weather/rain/nationalRainPlayback\";\n+\n+type Props = {\n+  timeline: RainPlaybackTimeline;\n+  frameDurationMs?: number;\n+};\n+\n+/**\n+ * Playback only: no JMA requests, no scan retries, no posting.\n+ * Parent supplies already-rendered same-origin frame URLs.\n+ */\n+export function NationalRainPlayer({ timeline, frameDurationMs = 700 }: Props) {\n+  const [index, setIndex] = useState(0);\n+  const [playing, setPlaying] = useState(false);\n+  const [now, setNow] = useState(() => Date.now());\n+  const validDuration = Number.isInteger(frameDurationMs)\n+    && frameDurationMs >= 100 && frameDurationMs <= 10_000;\n+\n+  let valid = false;\n+  try {\n+    validateRainPlaybackTimeline(timeline, now);\n+    valid = true;\n+  } catch {\n+    valid = false;\n+  }\n+\n+  useEffect(() => {\n+    const interval = setInterval(() => setNow(Date.now()), 10_000);\n+    return () => clearInterval(interval);\n+  }, []);\n+\n+  useEffect(() => {\n+    setIndex(0);\n+    setPlaying(false);\n+  }, [timeline.issuedAt]);\n+\n+  useEffect(() => {\n+    if (!playing || !valid || !validDuration) return;\n+    const interval = setInterval(() => setIndex(i => nextRainPlaybackIndex(i)), frameDurationMs);\n+    return () => clearInterval(interval);\n+  }, [playing, valid, validDuration, frameDurationMs]);\n+\n+  if (!valid || !validDuration) {\n+    return (\n+      <section aria-label=\"雨雲予報アニメーション\">\n+        <p>この雨雲予報は現在表示できません。最新の予報をご確認ください。</p>\n+      </section>\n+    );\n+  }\n+\n+  const frame = timeline.frames[index];\n+  return (\n+    <section aria-label=\"雨雲予報アニメーション\">\n+      <img\n+        src={frame.imageUrl}\n+        alt={`全国の雨雲予報 ${index + 1}/6 ${frame.validTime}`}\n+        width={800}\n+        height={600}\n+      />\n+      <p aria-live=\"off\">\n+        予報 {index + 1}/6：{new Date(frame.validTime).toLocaleString(\"ja-JP\", { timeZone: \"Asia/Tokyo\" })}\n+      </p>\n+      <div role=\"group\" aria-label=\"雨雲アニメーション操作\">\n+        <button type=\"button\" onClick={() => setPlaying(p => !p)}>\n+          {playing ? \"一時停止\" : \"再生\"}\n+        </button>\n+        <button type=\"button\" onClick={() => { setPlaying(false); setIndex(i => (i + 5) % 6); }}>\n+          前のコマ\n+        </button>\n+        <button type=\"button\" onClick={() => { setPlaying(false); setIndex(i => nextRainPlaybackIndex(i)); }}>\n+          次のコマ\n+        </button>\n+      </div>\n+      <p>出典：気象庁</p>\n+    </section>\n+  );\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/components/weather/NationalRainPlayer.tsx",
+      "source": {
+        "path": "components/weather/NationalRainPlayer.tsx",
+        "coverage": "全文",
+        "text": "\"use client\";\n\nimport { useEffect, useState } from \"react\";\nimport {\n  nextRainPlaybackIndex,\n  validateRainPlaybackTimeline,\n  type RainPlaybackTimeline,\n} from \"@/lib/weather/rain/nationalRainPlayback\";\n\ntype Props = {\n  timeline: RainPlaybackTimeline;\n  frameDurationMs?: number;\n};\n\n/**\n * Playback only: no JMA requests, no scan retries, no posting.\n * Parent supplies already-rendered same-origin frame URLs.\n */\nexport function NationalRainPlayer({ timeline, frameDurationMs = 700 }: Props) {\n  const [index, setIndex] = useState(0);\n  const [playing, setPlaying] = useState(false);\n  const [now, setNow] = useState(() => Date.now());\n  const validDuration = Number.isInteger(frameDurationMs)\n    && frameDurationMs >= 100 && frameDurationMs <= 10_000;\n\n  let valid = false;\n  try {\n    validateRainPlaybackTimeline(timeline, now);\n    valid = true;\n  } catch {\n    valid = false;\n  }\n\n  useEffect(() => {\n    const interval = setInterval(() => setNow(Date.now()), 10_000);\n    return () => clearInterval(interval);\n  }, []);\n\n  useEffect(() => {\n    setIndex(0);\n    setPlaying(false);\n  }, [timeline.issuedAt]);\n\n  useEffect(() => {\n    if (!playing || !valid || !validDuration) return;\n    const interval = setInterval(() => setIndex(i => nextRainPlaybackIndex(i)), frameDurationMs);\n    return () => clearInterval(interval);\n  }, [playing, valid, validDuration, frameDurationMs]);\n\n  if (!valid || !validDuration) {\n    return (\n      <section aria-label=\"雨雲予報アニメーション\">\n        <p>この雨雲予報は現在表示できません。最新の予報をご確認ください。</p>\n      </section>\n    );\n  }\n\n  const frame = timeline.frames[index];\n  return (\n    <section aria-label=\"雨雲予報アニメーション\">\n      <img\n        src={frame.imageUrl}\n        alt={`全国の雨雲予報 ${index + 1}/6 ${frame.validTime}`}\n        width={800}\n        height={600}\n      />\n      <p aria-live=\"off\">\n        予報 {index + 1}/6：{new Date(frame.validTime).toLocaleString(\"ja-JP\", { timeZone: \"Asia/Tokyo\" })}\n      </p>\n      <div role=\"group\" aria-label=\"雨雲アニメーション操作\">\n        <button type=\"button\" onClick={() => setPlaying(p => !p)}>\n          {playing ? \"一時停止\" : \"再生\"}\n        </button>\n        <button type=\"button\" onClick={() => { setPlaying(false); setIndex(i => (i + 5) % 6); }}>\n          前のコマ\n        </button>\n        <button type=\"button\" onClick={() => { setPlaying(false); setIndex(i => nextRainPlaybackIndex(i)); }}>\n          次のコマ\n        </button>\n      </div>\n      <p>出典：気象庁</p>\n    </section>\n  );\n}\n",
+        "sha256": "8f5987c6e6f4fd629fea93b7bec5633613befaae4984d7657a7e008aa965a1ed"
+      }
+    },
+    {
+      "path": "lib/weather/rain/nationalRainGif.test.ts",
+      "status": "modified",
+      "additions": 30,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/nationalRainGif.test.ts b/lib/weather/rain/nationalRainGif.test.ts\nnew file mode 100644\nindex 00000000..1bfb6bdb\n--- /dev/null\n+++ b/lib/weather/rain/nationalRainGif.test.ts\n@@ -0,0 +1,30 @@\n+import { describe, expect, it } from \"vitest\";\n+import { encodeNationalRainGif } from \"./nationalRainGif\";\n+\n+const times = Array.from({ length: 6 }, (_, i) => new Date(Date.UTC(2026, 10, 13, 0, (i + 1) * 5)).toISOString());\n+const options = {\n+  width: 4,\n+  height: 4,\n+  palette: [[255, 255, 255], [0, 120, 255]] as const,\n+  frames: times.map((validTime, i) => ({\n+    validTime,\n+    pixels: Uint8Array.from({ length: 16 }, (_, j) => Number(j === i)),\n+  })),\n+};\n+\n+describe(\"isolated national rain GIF encoder\", () => {\n+  it(\"creates six-frame GIF89a without posting or fetching\", () => {\n+    const bytes = encodeNationalRainGif(options);\n+    expect(Buffer.from(bytes.subarray(0, 6)).toString(\"ascii\")).toBe(\"GIF89a\");\n+    expect(bytes.at(-1)).toBe(0x3b);\n+    expect([...bytes].filter((b, i) => b === 0x21 && bytes[i + 1] === 0xf9)).toHaveLength(6);\n+    expect(encodeNationalRainGif(options)).toEqual(bytes);\n+  });\n+\n+  it(\"rejects missing, out-of-order and oversized frames\", () => {\n+    expect(() => encodeNationalRainGif({ ...options, frames: options.frames.slice(1) })).toThrow(\"six\");\n+    expect(() => encodeNationalRainGif({ ...options, frames: [...options.frames].reverse() })).toThrow(\"five-minute\");\n+    expect(() => encodeNationalRainGif({ ...options, maxBytes: 20 })).toThrow(\"size limit\");\n+    expect(() => encodeNationalRainGif({ ...options, frames: options.frames.map(f => ({ ...f, pixels: new Uint8Array(3) })) })).toThrow(\"pixels\");\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.test.ts",
+      "source": {
+        "path": "lib/weather/rain/nationalRainGif.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { encodeNationalRainGif } from \"./nationalRainGif\";\n\nconst times = Array.from({ length: 6 }, (_, i) => new Date(Date.UTC(2026, 10, 13, 0, (i + 1) * 5)).toISOString());\nconst options = {\n  width: 4,\n  height: 4,\n  palette: [[255, 255, 255], [0, 120, 255]] as const,\n  frames: times.map((validTime, i) => ({\n    validTime,\n    pixels: Uint8Array.from({ length: 16 }, (_, j) => Number(j === i)),\n  })),\n};\n\ndescribe(\"isolated national rain GIF encoder\", () => {\n  it(\"creates six-frame GIF89a without posting or fetching\", () => {\n    const bytes = encodeNationalRainGif(options);\n    expect(Buffer.from(bytes.subarray(0, 6)).toString(\"ascii\")).toBe(\"GIF89a\");\n    expect(bytes.at(-1)).toBe(0x3b);\n    expect([...bytes].filter((b, i) => b === 0x21 && bytes[i + 1] === 0xf9)).toHaveLength(6);\n    expect(encodeNationalRainGif(options)).toEqual(bytes);\n  });\n\n  it(\"rejects missing, out-of-order and oversized frames\", () => {\n    expect(() => encodeNationalRainGif({ ...options, frames: options.frames.slice(1) })).toThrow(\"six\");\n    expect(() => encodeNationalRainGif({ ...options, frames: [...options.frames].reverse() })).toThrow(\"five-minute\");\n    expect(() => encodeNationalRainGif({ ...options, maxBytes: 20 })).toThrow(\"size limit\");\n    expect(() => encodeNationalRainGif({ ...options, frames: options.frames.map(f => ({ ...f, pixels: new Uint8Array(3) })) })).toThrow(\"pixels\");\n  });\n});\n",
+        "sha256": "97f612225fc9e259d1224e5c7f6b989c92cf716a09003bfc8d924ae64012f05d"
+      }
+    },
+    {
+      "path": "lib/weather/rain/nationalRainGif.ts",
+      "status": "modified",
+      "additions": 119,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/nationalRainGif.ts b/lib/weather/rain/nationalRainGif.ts\nnew file mode 100644\nindex 00000000..cdfac938\n--- /dev/null\n+++ b/lib/weather/rain/nationalRainGif.ts\n@@ -0,0 +1,119 @@\n+/**\n+ * Read-only, deterministic GIF89a encoder for a pre-rendered nationwide rain map.\n+ * No JMA requests, database writes, posting, or retry loops happen here.\n+ * Call from a separate bounded job, never from the five-minute scan loop.\n+ */\n+export type IndexedRainFrame = {\n+  pixels: Uint8Array;\n+  validTime: string;\n+};\n+\n+export type RainGifOptions = {\n+  width: number;\n+  height: number;\n+  palette: readonly (readonly [number, number, number])[];\n+  frames: readonly IndexedRainFrame[];\n+  delayCentiseconds?: number;\n+  maxBytes?: number;\n+};\n+\n+function word(value: number) {\n+  return [value & 255, (value >> 8) & 255];\n+}\n+\n+function lzw(pixels: Uint8Array, minCodeSize: number): number[] {\n+  const clear = 1 << minCodeSize;\n+  const end = clear + 1;\n+  let next = end + 1;\n+  let bits = minCodeSize + 1;\n+  const codes: number[] = [];\n+  let accumulator = 0;\n+  let held = 0;\n+  const emit = (code: number) => {\n+    accumulator |= code << held;\n+    held += bits;\n+    while (held >= 8) {\n+      codes.push(accumulator & 255);\n+      accumulator >>>= 8;\n+      held -= 8;\n+    }\n+  };\n+  let dictionary = new Map<string, number>();\n+  const reset = () => {\n+    dictionary = new Map();\n+    for (let i = 0; i < clear; i++) dictionary.set(String(i), i);\n+    next = end + 1;\n+    bits = minCodeSize + 1;\n+  };\n+  reset();\n+  emit(clear);\n+  let prefix = String(pixels[0]);\n+  for (let i = 1; i < pixels.length; i++) {\n+    const symbol = String(pixels[i]);\n+    const combined = prefix + \",\" + symbol;\n+    if (dictionary.has(combined)) {\n+      prefix = combined;\n+      continue;\n+    }\n+    emit(dictionary.get(prefix)!);\n+    if (next < 4096) {\n+      dictionary.set(combined, next++);\n+      // GIF decoder grows its dictionary one emitted code later.\n+      if (next > (1 << bits) && bits < 12) bits++;\n+    } else {\n+      emit(clear);\n+      reset();\n+    }\n+    prefix = symbol;\n+  }\n+  emit(dictionary.get(prefix)!);\n+  emit(end);\n+  if (held) codes.push(accumulator & 255);\n+  return codes;\n+}\n+\n+export function encodeNationalRainGif(options: RainGifOptions): Uint8Array {\n+  const { width, height, palette, frames } = options;\n+  const delay = options.delayCentiseconds ?? 70;\n+  const maxBytes = options.maxBytes ?? 4_000_000;\n+  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1\n+    || width > 1024 || height > 1024 || width * height > 400_000) throw new Error(\"Invalid GIF dimensions\");\n+  if (frames.length !== 6) throw new Error(\"GIF requires six forecast frames\");\n+  if (!Number.isInteger(delay) || delay < 1 || delay > 65535) throw new Error(\"Invalid GIF delay\");\n+  if (palette.length < 2 || palette.length > 256 || !palette.every(rgb =>\n+    rgb.length === 3 && rgb.every(v => Number.isInteger(v) && v >= 0 && v <= 255))) {\n+    throw new Error(\"Invalid GIF palette\");\n+  }\n+  const times = frames.map(f => Date.parse(f.validTime));\n+  if (times.some(t => !Number.isFinite(t)) || times.some((t, i) => i > 0 && t - times[i - 1] !== 300_000)) {\n+    throw new Error(\"GIF frames must be consecutive five-minute forecasts\");\n+  }\n+  const depth = Math.max(2, Math.ceil(Math.log2(palette.length)));\n+  const tableSize = 1 << depth;\n+  const output: number[] = [];\n+  const add = (...values: number[]) => {\n+    output.push(...values);\n+    if (output.length > maxBytes) throw new Error(\"GIF exceeds output size limit\");\n+  };\n+  add(...Array.from(Buffer.from(\"GIF89a\", \"ascii\")), ...word(width), ...word(height),\n+    0x80 | ((depth - 1) << 4) | (depth - 1), 0, 0);\n+  for (let i = 0; i < tableSize; i++) add(...(palette[i] ?? [0, 0, 0]));\n+  // Infinite looping extension; the file is generated without network access.\n+  add(0x21, 0xff, 11, ...Array.from(Buffer.from(\"NETSCAPE2.0\", \"ascii\")), 3, 1, 0, 0, 0);\n+  for (const frame of frames) {\n+    if (frame.pixels.length !== width * height || frame.pixels.some(p => p >= palette.length)) {\n+      throw new Error(\"Invalid GIF frame pixels\");\n+    }\n+    add(0x21, 0xf9, 4, 0, ...word(delay), 0, 0);\n+    add(0x2c, 0, 0, 0, 0, ...word(width), ...word(height), 0);\n+    add(depth);\n+    const bytes = lzw(frame.pixels, depth);\n+    for (let offset = 0; offset < bytes.length; offset += 255) {\n+      const chunk = bytes.slice(offset, offset + 255);\n+      add(chunk.length, ...chunk);\n+    }\n+    add(0);\n+  }\n+  add(0x3b);\n+  return Uint8Array.from(output);\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.ts",
+      "source": {
+        "path": "lib/weather/rain/nationalRainGif.ts",
+        "coverage": "全文",
+        "text": "/**\n * Read-only, deterministic GIF89a encoder for a pre-rendered nationwide rain map.\n * No JMA requests, database writes, posting, or retry loops happen here.\n * Call from a separate bounded job, never from the five-minute scan loop.\n */\nexport type IndexedRainFrame = {\n  pixels: Uint8Array;\n  validTime: string;\n};\n\nexport type RainGifOptions = {\n  width: number;\n  height: number;\n  palette: readonly (readonly [number, number, number])[];\n  frames: readonly IndexedRainFrame[];\n  delayCentiseconds?: number;\n  maxBytes?: number;\n};\n\nfunction word(value: number) {\n  return [value & 255, (value >> 8) & 255];\n}\n\nfunction lzw(pixels: Uint8Array, minCodeSize: number): number[] {\n  const clear = 1 << minCodeSize;\n  const end = clear + 1;\n  let next = end + 1;\n  let bits = minCodeSize + 1;\n  const codes: number[] = [];\n  let accumulator = 0;\n  let held = 0;\n  const emit = (code: number) => {\n    accumulator |= code << held;\n    held += bits;\n    while (held >= 8) {\n      codes.push(accumulator & 255);\n      accumulator >>>= 8;\n      held -= 8;\n    }\n  };\n  let dictionary = new Map<string, number>();\n  const reset = () => {\n    dictionary = new Map();\n    for (let i = 0; i < clear; i++) dictionary.set(String(i), i);\n    next = end + 1;\n    bits = minCodeSize + 1;\n  };\n  reset();\n  emit(clear);\n  let prefix = String(pixels[0]);\n  for (let i = 1; i < pixels.length; i++) {\n    const symbol = String(pixels[i]);\n    const combined = prefix + \",\" + symbol;\n    if (dictionary.has(combined)) {\n      prefix = combined;\n      continue;\n    }\n    emit(dictionary.get(prefix)!);\n    if (next < 4096) {\n      dictionary.set(combined, next++);\n      // GIF decoder grows its dictionary one emitted code later.\n      if (next > (1 << bits) && bits < 12) bits++;\n    } else {\n      emit(clear);\n      reset();\n    }\n    prefix = symbol;\n  }\n  emit(dictionary.get(prefix)!);\n  emit(end);\n  if (held) codes.push(accumulator & 255);\n  return codes;\n}\n\nexport function encodeNationalRainGif(options: RainGifOptions): Uint8Array {\n  const { width, height, palette, frames } = options;\n  const delay = options.delayCentiseconds ?? 70;\n  const maxBytes = options.maxBytes ?? 4_000_000;\n  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1\n    || width > 1024 || height > 1024 || width * height > 400_000) throw new Error(\"Invalid GIF dimensions\");\n  if (frames.length !== 6) throw new Error(\"GIF requires six forecast frames\");\n  if (!Number.isInteger(delay) || delay < 1 || delay > 65535) throw new Error(\"Invalid GIF delay\");\n  if (palette.length < 2 || palette.length > 256 || !palette.every(rgb =>\n    rgb.length === 3 && rgb.every(v => Number.isInteger(v) && v >= 0 && v <= 255))) {\n    throw new Error(\"Invalid GIF palette\");\n  }\n  const times = frames.map(f => Date.parse(f.validTime));\n  if (times.some(t => !Number.isFinite(t)) || times.some((t, i) => i > 0 && t - times[i - 1] !== 300_000)) {\n    throw new Error(\"GIF frames must be consecutive five-minute forecasts\");\n  }\n  const depth = Math.max(2, Math.ceil(Math.log2(palette.length)));\n  const tableSize = 1 << depth;\n  const output: number[] = [];\n  const add = (...values: number[]) => {\n    output.push(...values);\n    if (output.length > maxBytes) throw new Error(\"GIF exceeds output size limit\");\n  };\n  add(...Array.from(Buffer.from(\"GIF89a\", \"ascii\")), ...word(width), ...word(height),\n    0x80 | ((depth - 1) << 4) | (depth - 1), 0, 0);\n  for (let i = 0; i < tableSize; i++) add(...(palette[i] ?? [0, 0, 0]));\n  // Infinite looping extension; the file is generated without network access.\n  add(0x21, 0xff, 11, ...Array.from(Buffer.from(\"NETSCAPE2.0\", \"ascii\")), 3, 1, 0, 0, 0);\n  for (const frame of frames) {\n    if (frame.pixels.length !== width * height || frame.pixels.some(p => p >= palette.length)) {\n      throw new Error(\"Invalid GIF frame pixels\");\n    }\n    add(0x21, 0xf9, 4, 0, ...word(delay), 0, 0);\n    add(0x2c, 0, 0, 0, 0, ...word(width), ...word(height), 0);\n    add(depth);\n    const bytes = lzw(frame.pixels, depth);\n    for (let offset = 0; offset < bytes.length; offset += 255) {\n      const chunk = bytes.slice(offset, offset + 255);\n      add(chunk.length, ...chunk);\n    }\n    add(0);\n  }\n  add(0x3b);\n  return Uint8Array.from(output);\n}\n",
+        "sha256": "db6cdb998b172f72b9a048d9c1c4c16316c4cd909f63b145bf56b1fae753425f"
+      }
+    },
+    {
+      "path": "lib/weather/rain/nationalRainPlayback.test.ts",
+      "status": "modified",
+      "additions": 34,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/nationalRainPlayback.test.ts b/lib/weather/rain/nationalRainPlayback.test.ts\nnew file mode 100644\nindex 00000000..ab5f389f\n--- /dev/null\n+++ b/lib/weather/rain/nationalRainPlayback.test.ts\n@@ -0,0 +1,34 @@\n+import { describe, expect, it } from \"vitest\";\n+import { nextRainPlaybackIndex, validateRainPlaybackTimeline } from \"./nationalRainPlayback\";\n+\n+const issuedAt = \"2026-11-13T00:00:00.000Z\";\n+const frames = Array.from({ length: 6 }, (_, i) => ({\n+  validTime: new Date(Date.parse(issuedAt) + (i + 1) * 300_000).toISOString(),\n+  imageUrl: `/api/rain/frame/${i}`,\n+}));\n+const timeline = {\n+  issuedAt,\n+  expiresAt: \"2026-11-13T00:30:00.000Z\",\n+  frames,\n+};\n+\n+describe(\"national rain playback timeline\", () => {\n+  it(\"accepts six consecutive forecast frames before expiration\", () => {\n+    expect(validateRainPlaybackTimeline(timeline, Date.parse(issuedAt))).toBe(timeline);\n+    expect(nextRainPlaybackIndex(5)).toBe(0);\n+    expect(nextRainPlaybackIndex(2)).toBe(3);\n+  });\n+  it(\"rejects expired forecasts instead of showing stale animation\", () => {\n+    expect(() => validateRainPlaybackTimeline(timeline, Date.parse(timeline.expiresAt))).toThrow(\"expired\");\n+  });\n+  it(\"rejects missing or misordered frames\", () => {\n+    expect(() => validateRainPlaybackTimeline({ ...timeline, frames: frames.slice(1) }, Date.parse(issuedAt))).toThrow(\"Six frames\");\n+    expect(() => validateRainPlaybackTimeline({ ...timeline, frames: [frames[1], frames[0], ...frames.slice(2)] }, Date.parse(issuedAt))).toThrow(\"sequence\");\n+  });\n+  it(\"rejects external image URLs\", () => {\n+    expect(() => validateRainPlaybackTimeline({\n+      ...timeline,\n+      frames: [{ ...frames[0], imageUrl: \"https://example.com/remote.png\" }, ...frames.slice(1)],\n+    }, Date.parse(issuedAt))).toThrow(\"same-origin\");\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts",
+      "source": {
+        "path": "lib/weather/rain/nationalRainPlayback.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { nextRainPlaybackIndex, validateRainPlaybackTimeline } from \"./nationalRainPlayback\";\n\nconst issuedAt = \"2026-11-13T00:00:00.000Z\";\nconst frames = Array.from({ length: 6 }, (_, i) => ({\n  validTime: new Date(Date.parse(issuedAt) + (i + 1) * 300_000).toISOString(),\n  imageUrl: `/api/rain/frame/${i}`,\n}));\nconst timeline = {\n  issuedAt,\n  expiresAt: \"2026-11-13T00:30:00.000Z\",\n  frames,\n};\n\ndescribe(\"national rain playback timeline\", () => {\n  it(\"accepts six consecutive forecast frames before expiration\", () => {\n    expect(validateRainPlaybackTimeline(timeline, Date.parse(issuedAt))).toBe(timeline);\n    expect(nextRainPlaybackIndex(5)).toBe(0);\n    expect(nextRainPlaybackIndex(2)).toBe(3);\n  });\n  it(\"rejects expired forecasts instead of showing stale animation\", () => {\n    expect(() => validateRainPlaybackTimeline(timeline, Date.parse(timeline.expiresAt))).toThrow(\"expired\");\n  });\n  it(\"rejects missing or misordered frames\", () => {\n    expect(() => validateRainPlaybackTimeline({ ...timeline, frames: frames.slice(1) }, Date.parse(issuedAt))).toThrow(\"Six frames\");\n    expect(() => validateRainPlaybackTimeline({ ...timeline, frames: [frames[1], frames[0], ...frames.slice(2)] }, Date.parse(issuedAt))).toThrow(\"sequence\");\n  });\n  it(\"rejects external image URLs\", () => {\n    expect(() => validateRainPlaybackTimeline({\n      ...timeline,\n      frames: [{ ...frames[0], imageUrl: \"https://example.com/remote.png\" }, ...frames.slice(1)],\n    }, Date.parse(issuedAt))).toThrow(\"same-origin\");\n  });\n});\n",
+        "sha256": "2331f7f342431d1cff38a302825038ea603a46394db23a89cdf9034479a96adb"
+      }
+    },
+    {
+      "path": "lib/weather/rain/nationalRainPlayback.ts",
+      "status": "modified",
+      "additions": 47,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/nationalRainPlayback.ts b/lib/weather/rain/nationalRainPlayback.ts\nnew file mode 100644\nindex 00000000..fce8db38\n--- /dev/null\n+++ b/lib/weather/rain/nationalRainPlayback.ts\n@@ -0,0 +1,47 @@\n+/**\n+ * Shared six-frame timeline for the read-only Web rain player and export pipeline.\n+ * The player receives already-rendered frames; it never fetches JMA tiles or\n+ * performs the five-minute scan. Expired forecasts cannot be played as current.\n+ */\n+export type RainPlaybackFrame = { validTime: string; imageUrl: string };\n+export type RainPlaybackTimeline = {\n+  frames: readonly RainPlaybackFrame[];\n+  issuedAt: string;\n+  expiresAt: string;\n+};\n+\n+export function validateRainPlaybackTimeline(\n+  timeline: RainPlaybackTimeline,\n+  now: number = Date.now(),\n+): RainPlaybackTimeline {\n+  if (!Number.isFinite(now)) throw new Error(\"Invalid clock\");\n+  const issued = Date.parse(timeline.issuedAt);\n+  const expires = Date.parse(timeline.expiresAt);\n+  if (!Number.isFinite(issued) || !Number.isFinite(expires)\n+    || expires <= issued || expires - issued > 30 * 60_000) {\n+    throw new Error(\"Invalid forecast validity window\");\n+  }\n+  if (now >= expires || now < issued - 5 * 60_000) {\n+    throw new Error(\"Rain forecast is expired or not yet valid\");\n+  }\n+  if (timeline.frames.length !== 6) throw new Error(\"Six frames required\");\n+  const times = timeline.frames.map(frame => Date.parse(frame.validTime));\n+  if (times.some(t => !Number.isFinite(t))\n+    || times.some((t, i) => i > 0 && t - times[i - 1] !== 300_000)\n+    || times[0] < issued || times[5] > expires) {\n+    throw new Error(\"Invalid five-minute frame sequence\");\n+  }\n+  for (const frame of timeline.frames) {\n+    if (!frame.imageUrl.startsWith(\"/\") || frame.imageUrl.startsWith(\"//\")\n+      || /[\\\\\\r\\n]/.test(frame.imageUrl)) {\n+      throw new Error(\"Frame must use a same-origin image URL\");\n+    }\n+  }\n+  return timeline;\n+}\n+\n+export function nextRainPlaybackIndex(current: number, frameCount = 6): number {\n+  if (!Number.isInteger(current) || current < 0 || current >= frameCount\n+    || frameCount !== 6) throw new Error(\"Invalid playback index\");\n+  return (current + 1) % frameCount;\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts",
+      "source": {
+        "path": "lib/weather/rain/nationalRainPlayback.ts",
+        "coverage": "全文",
+        "text": "/**\n * Shared six-frame timeline for the read-only Web rain player and export pipeline.\n * The player receives already-rendered frames; it never fetches JMA tiles or\n * performs the five-minute scan. Expired forecasts cannot be played as current.\n */\nexport type RainPlaybackFrame = { validTime: string; imageUrl: string };\nexport type RainPlaybackTimeline = {\n  frames: readonly RainPlaybackFrame[];\n  issuedAt: string;\n  expiresAt: string;\n};\n\nexport function validateRainPlaybackTimeline(\n  timeline: RainPlaybackTimeline,\n  now: number = Date.now(),\n): RainPlaybackTimeline {\n  if (!Number.isFinite(now)) throw new Error(\"Invalid clock\");\n  const issued = Date.parse(timeline.issuedAt);\n  const expires = Date.parse(timeline.expiresAt);\n  if (!Number.isFinite(issued) || !Number.isFinite(expires)\n    || expires <= issued || expires - issued > 30 * 60_000) {\n    throw new Error(\"Invalid forecast validity window\");\n  }\n  if (now >= expires || now < issued - 5 * 60_000) {\n    throw new Error(\"Rain forecast is expired or not yet valid\");\n  }\n  if (timeline.frames.length !== 6) throw new Error(\"Six frames required\");\n  const times = timeline.frames.map(frame => Date.parse(frame.validTime));\n  if (times.some(t => !Number.isFinite(t))\n    || times.some((t, i) => i > 0 && t - times[i - 1] !== 300_000)\n    || times[0] < issued || times[5] > expires) {\n    throw new Error(\"Invalid five-minute frame sequence\");\n  }\n  for (const frame of timeline.frames) {\n    if (!frame.imageUrl.startsWith(\"/\") || frame.imageUrl.startsWith(\"//\")\n      || /[\\\\\\r\\n]/.test(frame.imageUrl)) {\n      throw new Error(\"Frame must use a same-origin image URL\");\n    }\n  }\n  return timeline;\n}\n\nexport function nextRainPlaybackIndex(current: number, frameCount = 6): number {\n  if (!Number.isInteger(current) || current < 0 || current >= frameCount\n    || frameCount !== 6) throw new Error(\"Invalid playback index\");\n  return (current + 1) % frameCount;\n}\n",
+        "sha256": "a707a4c458953de8258364895b0045948c891031caa7129e9a4828ad5bdc1e93"
+      }
+    }
+  ],
+  "file_count": 5,
+  "reported_file_count": 5,
+  "commits": [
+    {
+      "sha": "b0484c5d2ca370d3158e7bf250006578fcbc1609",
+      "message": "feat: add isolated six-frame rain GIF encoder prototype (#221)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/b0484c5d2ca370d3158e7bf250006578fcbc1609"
+    },
+    {
+      "sha": "2350897a813315efa8555ff6f25f2722ba6ac068",
+      "message": "test: verify six-frame GIF encoding and fail-closed inputs (#221)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/2350897a813315efa8555ff6f25f2722ba6ac068"
+    },
+    {
+      "sha": "e3e654770bc0691eca817e642cbfbd0cf8aaeca1",
+      "message": "feat(rain): add shared six-frame playback timeline validation (#221)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/e3e654770bc0691eca817e642cbfbd0cf8aaeca1"
+    },
+    {
+      "sha": "836b5f0691406fdf8ac70058fddcbd0b593f4e22",
+      "message": "test(rain): verify playback freshness and six-frame order (#221)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/836b5f0691406fdf8ac70058fddcbd0b593f4e22"
+    },
+    {
+      "sha": "5d9de2ff9fe5cd52a701bf718f7081c908a74924",
+      "message": "feat(rain): add isolated six-frame web animation player (#221)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/5d9de2ff9fe5cd52a701bf718f7081c908a74924"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "5d9de2ff9fe5cd52a701bf718f7081c908a74924",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43349353090",
+      "id": 43349353090,
+      "updated_at": "2026-11-13T02:03:27Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "5d9de2ff9fe5cd52a701bf718f7081c908a74924",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43349352860",
+      "id": 43349352860,
+      "updated_at": "2026-11-13T02:03:23Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "5d9de2ff9fe5cd52a701bf718f7081c908a74924",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43349352807",
+      "id": 43349352807,
+      "updated_at": "2026-11-13T02:04:21Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "NationalRainPlayer",
+    "accumulator",
+    "add",
+    "bits",
+    "bytes",
+    "chunk",
+    "clear",
+    "codes",
+    "combined",
+    "delay",
+    "depth",
+    "dictionary",
+    "emit",
+    "encodeNationalRainGif",
+    "end",
+    "expires",
+    "frame",
+    "frames",
+    "held",
+    "i",
+    "interval",
+    "issued",
+    "issuedAt",
+    "lzw",
+    "maxBytes",
+    "next",
+    "nextRainPlaybackIndex",
+    "offset",
+    "options",
+    "output",
+    "prefix",
+    "reset",
+    "symbol",
+    "tableSize",
+    "timeline",
+    "times",
+    "valid",
+    "validDuration",
+    "validateRainPlaybackTimeline",
+    "word"
+  ],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "b5d2bbe6b989e678f4ecd38748c02c8f2a2efee5b7ed6445255258d289506296",
+  "ci_digest": "669937d730f93d433425258679bfc22de2fa3da650eb130d0d842ab7417d2c63",
+  "collected_at": "2026-11-13T03:12:14.705435+00:00",
+  "decisions": [
+    {
+      "kind": "test",
+      "title": "creates six-frame GIF89a without posting or fetching",
+      "condition": "creates six-frame GIF89a without posting or fetching",
+      "behavior": "if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 ／ if (frames.length !== 6) throw new Error(\"GIF requires six forecast frames\"); ／ if (!Number.isInteger(delay) || delay < 1 || delay > 65535) throw new Error(\"Invalid GIF delay\"); ／ if (palette.length < 2 || palette.length > 256 || !palette.every(rgb => ／ if (times.some(t => !Number.isFinite(t)) || times.some((t, i) => i > 0 && t - times[i - 1] !== 300_000)) { ／ if (output.length > maxBytes) throw new Error(\"GIF exceeds output size limit\"); ／ if (frame.pixels.length !== ",
+      "verification": "テストの期待値: expect(Buffer.from(bytes.subarray(0, 6)).toString(\"ascii\")).toBe(\"GIF89a\"); ／ expect(bytes.at(-1)).toBe(0x3b); ／ expect([...bytes].filter((b, i) => b === 0x21 && bytes[i + 1] === 0xf9)).toHaveLength(6); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.ts#L75",
+        "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.test.ts#L16"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "rejects missing, out-of-order and oversized frames",
+      "condition": "rejects missing, out-of-order and oversized frames",
+      "behavior": "if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 ／ if (frames.length !== 6) throw new Error(\"GIF requires six forecast frames\"); ／ if (!Number.isInteger(delay) || delay < 1 || delay > 65535) throw new Error(\"Invalid GIF delay\"); ／ if (palette.length < 2 || palette.length > 256 || !palette.every(rgb => ／ if (times.some(t => !Number.isFinite(t)) || times.some((t, i) => i > 0 && t - times[i - 1] !== 300_000)) { ／ if (output.length > maxBytes) throw new Error(\"GIF exceeds output size limit\"); ／ if (frame.pixels.length !== ",
+      "verification": "テストの期待値: expect(() => encodeNationalRainGif({ ...options, frames: options.frames.slice(1) })).toThrow(\"six\"); ／ expect(() => encodeNationalRainGif({ ...options, frames: [...options.frames].reverse() })).toThrow(\"five-minute\"); ／ expect(() => encodeNationalRainGif({ ...options, maxBytes: 20 })).toThrow(\"size limit\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.ts#L75",
+        "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.test.ts#L24"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "accepts six consecutive forecast frames before expiration",
+      "condition": "accepts six consecutive forecast frames before expiration",
+      "behavior": "if (!Number.isFinite(now)) throw new Error(\"Invalid clock\"); ／ if (!Number.isFinite(issued) || !Number.isFinite(expires) ／ if (now >= expires || now < issued - 5 * 60_000) { ／ if (timeline.frames.length !== 6) throw new Error(\"Six frames required\"); ／ if (times.some(t => !Number.isFinite(t)) ／ if (!frame.imageUrl.startsWith(\"/\") || frame.imageUrl.startsWith(\"//\") ／ return timeline;",
+      "verification": "テストの期待値: expect(validateRainPlaybackTimeline(timeline, Date.parse(issuedAt))).toBe(timeline); ／ expect(nextRainPlaybackIndex(5)).toBe(0); ／ expect(nextRainPlaybackIndex(2)).toBe(3); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts#L13",
+        "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts#L16"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "rejects expired forecasts instead of showing stale animation",
+      "condition": "rejects expired forecasts instead of showing stale animation",
+      "behavior": "if (!Number.isFinite(now)) throw new Error(\"Invalid clock\"); ／ if (!Number.isFinite(issued) || !Number.isFinite(expires) ／ if (now >= expires || now < issued - 5 * 60_000) { ／ if (timeline.frames.length !== 6) throw new Error(\"Six frames required\"); ／ if (times.some(t => !Number.isFinite(t)) ／ if (!frame.imageUrl.startsWith(\"/\") || frame.imageUrl.startsWith(\"//\") ／ return timeline;",
+      "verification": "テストの期待値: expect(() => validateRainPlaybackTimeline(timeline, Date.parse(timeline.expiresAt))).toThrow(\"expired\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts#L13",
+        "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts#L21"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "rejects missing or misordered frames",
+      "condition": "rejects missing or misordered frames",
+      "behavior": "if (!Number.isFinite(now)) throw new Error(\"Invalid clock\"); ／ if (!Number.isFinite(issued) || !Number.isFinite(expires) ／ if (now >= expires || now < issued - 5 * 60_000) { ／ if (timeline.frames.length !== 6) throw new Error(\"Six frames required\"); ／ if (times.some(t => !Number.isFinite(t)) ／ if (!frame.imageUrl.startsWith(\"/\") || frame.imageUrl.startsWith(\"//\") ／ return timeline;",
+      "verification": "テストの期待値: expect(() => validateRainPlaybackTimeline({ ...timeline, frames: frames.slice(1) }, Date.parse(issuedAt))).toThrow(\"Six frames\"); ／ expect(() => validateRainPlaybackTimeline({ ...timeline, frames: [frames[1], frames[0], ...frames.slice(2)] }, Date.parse(issuedAt))).toThrow(\"sequence\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts#L13",
+        "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts#L24"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "rejects external image URLs",
+      "condition": "rejects external image URLs",
+      "behavior": "if (!Number.isFinite(now)) throw new Error(\"Invalid clock\"); ／ if (!Number.isFinite(issued) || !Number.isFinite(expires) ／ if (now >= expires || now < issued - 5 * 60_000) { ／ if (timeline.frames.length !== 6) throw new Error(\"Six frames required\"); ／ if (times.some(t => !Number.isFinite(t)) ／ if (!frame.imageUrl.startsWith(\"/\") || frame.imageUrl.startsWith(\"//\") ／ return timeline;",
+      "verification": "テストの期待値: expect(() => validateRainPlaybackTimeline({ ...timeline, frames: [{ ...frames[0], imageUrl: \"https://example.com/remote.png\" }, ...frames.slice(1)], }, Date.parse(issuedAt))).toThrow(\"same-origin\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts#L13",
+        "https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts#L28"
+      ]
+    }
+  ]
+}

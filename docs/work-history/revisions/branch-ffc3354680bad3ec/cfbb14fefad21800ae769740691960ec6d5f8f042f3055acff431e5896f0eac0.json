@@ -1,0 +1,84 @@
+{
+  "id": "branch-ffc3354680bad3ec",
+  "title": "docs/handoff-validation-stages-20261110",
+  "head": "575b0dc055505b7eeecae6f06a45e44447d83141",
+  "head_ref": "docs/handoff-validation-stages-20261110",
+  "linked_prs": [
+    197
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/development-preflight.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/575b0dc055505b7eeecae6f06a45e44447d83141/.github/workflows/development-preflight.yml"
+    },
+    {
+      "path": "AGENTS.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/575b0dc055505b7eeecae6f06a45e44447d83141/AGENTS.md"
+    },
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/575b0dc055505b7eeecae6f06a45e44447d83141/docs/PROJECT_OVERVIEW.md"
+    },
+    {
+      "path": "docs/WORK_HISTORY_HANDOFF_VALIDATION.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/575b0dc055505b7eeecae6f06a45e44447d83141/docs/WORK_HISTORY_HANDOFF_VALIDATION.md"
+    },
+    {
+      "path": "docs/WORK_HISTORY_OPERATIONS.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/575b0dc055505b7eeecae6f06a45e44447d83141/docs/WORK_HISTORY_OPERATIONS.md"
+    },
+    {
+      "path": "docs/WORK_HISTORY_PREFLIGHT.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/575b0dc055505b7eeecae6f06a45e44447d83141/docs/WORK_HISTORY_PREFLIGHT.md"
+    },
+    {
+      "path": "docs/work-history/curated.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/575b0dc055505b7eeecae6f06a45e44447d83141/docs/work-history/curated.json"
+    },
+    {
+      "path": "scripts/development-preflight-publish.mjs",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/575b0dc055505b7eeecae6f06a45e44447d83141/scripts/development-preflight-publish.mjs"
+    },
+    {
+      "path": "tests/development-preflight-publish.nodecheck.mjs",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/575b0dc055505b7eeecae6f06a45e44447d83141/tests/development-preflight-publish.nodecheck.mjs"
+    }
+  ],
+  "commits": "575b0dc055505b7eeecae6f06a45e44447d83141 docs(history): describe activation independently of historical Draft state\n3ed516001834bfe743545c5b513445a976d30d27 docs(history): reuse existing latest-head CI recovery evidence\n5e54376ce89fbf6103eafd619c8928de47fed4ff feat(history): return Issue preflight results and distinguish handoff completion stages",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "50bde33706960b4cb8d7b40bcf49f703ca570349b381349bf447f39a692c33fb",
+  "collected_at": "2026-11-13T03:12:14.705435+00:00"
+}

@@ -1,0 +1,228 @@
+{
+  "id": "pr-232",
+  "number": 232,
+  "title": "feat(jaspic): show held counts in completion email",
+  "topics": [
+    "通知・配信"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Refs #231\n\nExisting completion email uses `jaspic_monitor.scan_completions` and the Resend monitor. This draft extends the existing SQL, reading sent and held values from **the same `jaspic_runs.result` record for that execution only**, never accumulated backlog. Permanently excluded bicycle theft is not a held item.\n\n**Release blocker:** `productionPlan` currently returns `quarantined: []` and does not persist first-time hold transitions. Therefore the system cannot yet distinguish \"newly held in this run\" from \"still held from previous runs\". The SQL must NOT be deployed until first-time hold tracking and regression tests are implemented. The current draft does not meet the user's requirement on its own. No production deployment or mail sent.\n\nIssue preflight: https://github.com/miyazaki1016/emergencyalert/actions/runs/43354475738\nInitial CI: https://github.com/miyazaki1016/emergencyalert/actions/runs/43354710984\n",
+  "snapshot_head": "dba96dd6d265eabc3465d302cb60265d391f2843",
+  "snapshot_consistent": true,
+  "head": "dba96dd6d265eabc3465d302cb60265d391f2843",
+  "base": "3cc155084dfe0d7979f82d636ac8a49ae67ea98d",
+  "base_ref": "main",
+  "head_ref": "feat/jaspic-completion-held-count-20261113",
+  "state": "open",
+  "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+  "draft": true,
+  "merged_at": null,
+  "merge_commit_sha": null,
+  "updated_at": "2026-11-13T03:07:25Z",
+  "code_facts": [
+    {
+      "file": "docs/sql/jaspic-completion-notification-held-count.sql",
+      "kind": "関数・クラス定義",
+      "expression": "create or replace function jaspic_monitor.scan_completions(p_now timestamptz default now()) returns void",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/docs/sql/jaspic-completion-notification-held-count.sql"
+    },
+    {
+      "file": "docs/sql/jaspic-completion-notification-held-count.sql",
+      "kind": "関数・クラス定義",
+      "expression": "revoke all on function jaspic_monitor.scan_completions(timestamptz) from public,anon,authenticated,service_role;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/docs/sql/jaspic-completion-notification-held-count.sql"
+    },
+    {
+      "file": "tests/jaspic-completion-held-count.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { describe, expect, it } from \"vitest\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/tests/jaspic-completion-held-count.test.ts"
+    },
+    {
+      "file": "tests/jaspic-completion-held-count.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"JASPIC per-run completion hold notice\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/tests/jaspic-completion-held-count.test.ts"
+    },
+    {
+      "file": "tests/jaspic-completion-held-count.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"uses the current run result, not accumulated pending or old holds\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/tests/jaspic-completion-held-count.test.ts"
+    },
+    {
+      "file": "tests/jaspic-completion-held-count.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(sql).toContain(\"r.result->'quarantined'\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/tests/jaspic-completion-held-count.test.ts"
+    },
+    {
+      "file": "tests/jaspic-completion-held-count.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(sql).toContain(\"jsonb_array_length(r.result->'quarantined')\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/tests/jaspic-completion-held-count.test.ts"
+    },
+    {
+      "file": "tests/jaspic-completion-held-count.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(sql).toContain(\"count(distinct q->>'province')\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/tests/jaspic-completion-held-count.test.ts"
+    },
+    {
+      "file": "tests/jaspic-completion-held-count.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(sql).not.toMatch(/from\\s+public\\.jaspic_deliveries/i);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/tests/jaspic-completion-held-count.test.ts"
+    },
+    {
+      "file": "tests/jaspic-completion-held-count.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"marks any nonzero hold as requiring review, without masking malformed counts\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/tests/jaspic-completion-held-count.test.ts"
+    },
+    {
+      "file": "tests/jaspic-completion-held-count.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(sql).toContain(\"case when hh+sh>0 then '配信完了・保留要確認'\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/tests/jaspic-completion-held-count.test.ts"
+    },
+    {
+      "file": "tests/jaspic-completion-held-count.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(sql).toContain(\"COMPLETION_RESULT_INVALID\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/tests/jaspic-completion-held-count.test.ts"
+    },
+    {
+      "file": "tests/jaspic-completion-held-count.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(sql).toContain(\"DISPATCH_HOLD_REVIEW\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/tests/jaspic-completion-held-count.test.ts"
+    },
+    {
+      "file": "tests/jaspic-completion-held-count.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"does not mistake repeated historical exclusions for new holds\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/tests/jaspic-completion-held-count.test.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/sql/jaspic-completion-notification-held-count.sql",
+      "status": "modified",
+      "additions": 67,
+      "deletions": 0,
+      "patch": "diff --git a/docs/sql/jaspic-completion-notification-held-count.sql b/docs/sql/jaspic-completion-notification-held-count.sql\nnew file mode 100644\nindex 00000000..f08a8429\n--- /dev/null\n+++ b/docs/sql/jaspic-completion-notification-held-count.sql\n@@ -0,0 +1,67 @@\n+-- Extend the existing daily completion notification without changing dispatch or mail transport.\n+-- Run only after the existing completion notification migration is installed.\n+create or replace function jaspic_monitor.scan_completions(p_now timestamptz default now()) returns void\n+language plpgsql set search_path='' as $$\n+declare c jaspic_monitor.config; r record; day_key text; h integer; s integer; hh integer; sh integer;\n+begin\n+ select * into strict c from jaspic_monitor.config where id;\n+ if not c.enabled then return; end if;\n+ for r in\n+  select distinct on ((started_at at time zone 'Asia/Tokyo')::date) *\n+  from public.jaspic_runs runs\n+  where status='SUCCEEDED' and finished_at is not null and finished_at<=p_now\n+   and started_at>=c.activated_at and started_at>=p_now-interval '48 hours'\n+   and finished_at>=started_at\n+   and (started_at at time zone 'Asia/Tokyo')::time>=time '18:00'\n+   and (started_at at time zone 'Asia/Tokyo')::time<time '18:10'\n+   and exists(select 1 from cron.job_run_details d join cron.job j using(jobid)\n+    where j.jobname='jaspic-production-1800-jst' and d.status='succeeded'\n+     and d.start_time>=(((runs.started_at at time zone 'Asia/Tokyo')::date+time '18:00') at time zone 'Asia/Tokyo')\n+     and d.start_time<=runs.started_at)\n+  order by (started_at at time zone 'Asia/Tokyo')::date,started_at,id\n+ loop\n+  day_key=to_char(r.started_at at time zone 'Asia/Tokyo','YYYY-MM-DD');\n+  if r.result->'sent'->>'hiroshima' is null or r.result->'sent'->>'shiga' is null\n+   or r.result->'sent'->>'hiroshima' !~ '^(0|[1-9][0-9]?)$'\n+   or r.result->'sent'->>'shiga' !~ '^(0|[1-9][0-9]?)$' then\n+   perform jaspic_monitor.enqueue('completion-invalid:'||day_key,'完了結果確認','jaspic/dispatch',\n+    'COMPLETION_RESULT_INVALID',r.finished_at,'成功記録の県別送信件数を読み取れません。実行ID: '||r.id);\n+   continue;\n+  end if;\n+  h=(r.result->'sent'->>'hiroshima')::integer;\n+  s=(r.result->'sent'->>'shiga')::integer;\n+  if h+s>20 then\n+   perform jaspic_monitor.enqueue('completion-invalid:'||day_key,'完了結果確認','jaspic/dispatch',\n+    'COMPLETION_RESULT_INVALID',r.finished_at,'成功記録の送信件数が配信上限を超えています。実行ID: '||r.id);\n+   continue;\n+  end if;\n+  -- Counts are scoped to THIS run's result, not historical outstanding holds.\\n  -- Held counts are from the production plan's quarantine, not excluded\n+  -- categories such as bicycle theft. Never interpret missing data as zero.\n+  if jsonb_typeof(r.result->'quarantined') <> 'array'\n+   or jsonb_array_length(r.result->'quarantined') <> 2\n+   or (select count(*) from jsonb_array_elements(r.result->'quarantined') q\n+       where q->>'province' in ('hiroshima','shiga')\n+         and q->>'count' ~ '^(0|[1-9][0-9]{0,6})$') <> 2\n+   or (select count(distinct q->>'province') from jsonb_array_elements(r.result->'quarantined') q) <> 2 then\n+   perform jaspic_monitor.enqueue('completion-invalid:'||day_key,'完了結果確認','jaspic/dispatch',\n+    'COMPLETION_RESULT_INVALID',r.finished_at,'成功記録の県別保留件数を読み取れません。実行ID: '||r.id);\n+   continue;\n+  end if;\n+  select (q->>'count')::integer into hh from jsonb_array_elements(r.result->'quarantined') q where q->>'province'='hiroshima';\n+  select (q->>'count')::integer into sh from jsonb_array_elements(r.result->'quarantined') q where q->>'province'='shiga';\n+  -- A held item is counted only if first quarantined in this run.\n+  -- The current production plan emits no quarantine IDs, so never imply\n+  -- a historical backlog was counted.\n+  perform jaspic_monitor.enqueue('completion:'||day_key,\\n   case when hh+sh>0 then '配信完了・保留要確認' else '配信完了' end,\\n   'jaspic/dispatch',case when hh+sh>0 then 'DISPATCH_HOLD_REVIEW' else 'DISPATCH_SUCCEEDED' end,r.finished_at,\n+   '18時の配信処理が正常終了しました。'||\n+   E'\\n広島県: 送信 '||h||' 件 / 保留 '||hh||' 件'||\n+   E'\\n滋賀県: 送信 '||s||' 件 / 保留 '||sh||' 件'||\n+   E'\\n送信合計: '||(h+s)||' 件 / 保留合計: '||(hh+sh)||' 件'||\n+   E'\\n※自転車盗など恒久的な配信対象外は保留に含みません。'||\\n   case when hh+sh>0 then E'\\n【要確認】今回の処理で保留が発生しました。原因は配信実行ログと保留IDで確認してください。' else '' end||\n+   case when h+s=0 then E'\\n今回は送信対象の新規・更新情報が0件でした。両県の確認処理は正常に完了しています。' else '' end||\n+   E'\\n処理開始（日本時間）: '||to_char(r.started_at at time zone 'Asia/Tokyo','YYYY-MM-DD HH24:MI:SS')||\n+   E'\\n処理完了（日本時間）: '||to_char(r.finished_at at time zone 'Asia/Tokyo','YYYY-MM-DD HH24:MI:SS')||\n+   E'\\n実行ID: '||r.id);\n+ end loop;\n+end $$;\n+revoke all on function jaspic_monitor.scan_completions(timestamptz) from public,anon,authenticated,service_role;\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/docs/sql/jaspic-completion-notification-held-count.sql",
+      "source": {
+        "path": "docs/sql/jaspic-completion-notification-held-count.sql",
+        "coverage": "全文",
+        "text": "-- Extend the existing daily completion notification without changing dispatch or mail transport.\n-- Run only after the existing completion notification migration is installed.\ncreate or replace function jaspic_monitor.scan_completions(p_now timestamptz default now()) returns void\nlanguage plpgsql set search_path='' as $$\ndeclare c jaspic_monitor.config; r record; day_key text; h integer; s integer; hh integer; sh integer;\nbegin\n select * into strict c from jaspic_monitor.config where id;\n if not c.enabled then return; end if;\n for r in\n  select distinct on ((started_at at time zone 'Asia/Tokyo')::date) *\n  from public.jaspic_runs runs\n  where status='SUCCEEDED' and finished_at is not null and finished_at<=p_now\n   and started_at>=c.activated_at and started_at>=p_now-interval '48 hours'\n   and finished_at>=started_at\n   and (started_at at time zone 'Asia/Tokyo')::time>=time '18:00'\n   and (started_at at time zone 'Asia/Tokyo')::time<time '18:10'\n   and exists(select 1 from cron.job_run_details d join cron.job j using(jobid)\n    where j.jobname='jaspic-production-1800-jst' and d.status='succeeded'\n     and d.start_time>=(((runs.started_at at time zone 'Asia/Tokyo')::date+time '18:00') at time zone 'Asia/Tokyo')\n     and d.start_time<=runs.started_at)\n  order by (started_at at time zone 'Asia/Tokyo')::date,started_at,id\n loop\n  day_key=to_char(r.started_at at time zone 'Asia/Tokyo','YYYY-MM-DD');\n  if r.result->'sent'->>'hiroshima' is null or r.result->'sent'->>'shiga' is null\n   or r.result->'sent'->>'hiroshima' !~ '^(0|[1-9][0-9]?)$'\n   or r.result->'sent'->>'shiga' !~ '^(0|[1-9][0-9]?)$' then\n   perform jaspic_monitor.enqueue('completion-invalid:'||day_key,'完了結果確認','jaspic/dispatch',\n    'COMPLETION_RESULT_INVALID',r.finished_at,'成功記録の県別送信件数を読み取れません。実行ID: '||r.id);\n   continue;\n  end if;\n  h=(r.result->'sent'->>'hiroshima')::integer;\n  s=(r.result->'sent'->>'shiga')::integer;\n  if h+s>20 then\n   perform jaspic_monitor.enqueue('completion-invalid:'||day_key,'完了結果確認','jaspic/dispatch',\n    'COMPLETION_RESULT_INVALID',r.finished_at,'成功記録の送信件数が配信上限を超えています。実行ID: '||r.id);\n   continue;\n  end if;\n  -- Counts are scoped to THIS run's result, not historical outstanding holds.\\n  -- Held counts are from the production plan's quarantine, not excluded\n  -- categories such as bicycle theft. Never interpret missing data as zero.\n  if jsonb_typeof(r.result->'quarantined') <> 'array'\n   or jsonb_array_length(r.result->'quarantined') <> 2\n   or (select count(*) from jsonb_array_elements(r.result->'quarantined') q\n       where q->>'province' in ('hiroshima','shiga')\n         and q->>'count' ~ '^(0|[1-9][0-9]{0,6})$') <> 2\n   or (select count(distinct q->>'province') from jsonb_array_elements(r.result->'quarantined') q) <> 2 then\n   perform jaspic_monitor.enqueue('completion-invalid:'||day_key,'完了結果確認','jaspic/dispatch',\n    'COMPLETION_RESULT_INVALID',r.finished_at,'成功記録の県別保留件数を読み取れません。実行ID: '||r.id);\n   continue;\n  end if;\n  select (q->>'count')::integer into hh from jsonb_array_elements(r.result->'quarantined') q where q->>'province'='hiroshima';\n  select (q->>'count')::integer into sh from jsonb_array_elements(r.result->'quarantined') q where q->>'province'='shiga';\n  -- A held item is counted only if first quarantined in this run.\n  -- The current production plan emits no quarantine IDs, so never imply\n  -- a historical backlog was counted.\n  perform jaspic_monitor.enqueue('completion:'||day_key,\\n   case when hh+sh>0 then '配信完了・保留要確認' else '配信完了' end,\\n   'jaspic/dispatch',case when hh+sh>0 then 'DISPATCH_HOLD_REVIEW' else 'DISPATCH_SUCCEEDED' end,r.finished_at,\n   '18時の配信処理が正常終了しました。'||\n   E'\\n広島県: 送信 '||h||' 件 / 保留 '||hh||' 件'||\n   E'\\n滋賀県: 送信 '||s||' 件 / 保留 '||sh||' 件'||\n   E'\\n送信合計: '||(h+s)||' 件 / 保留合計: '||(hh+sh)||' 件'||\n   E'\\n※自転車盗など恒久的な配信対象外は保留に含みません。'||\\n   case when hh+sh>0 then E'\\n【要確認】今回の処理で保留が発生しました。原因は配信実行ログと保留IDで確認してください。' else '' end||\n   case when h+s=0 then E'\\n今回は送信対象の新規・更新情報が0件でした。両県の確認処理は正常に完了しています。' else '' end||\n   E'\\n処理開始（日本時間）: '||to_char(r.started_at at time zone 'Asia/Tokyo','YYYY-MM-DD HH24:MI:SS')||\n   E'\\n処理完了（日本時間）: '||to_char(r.finished_at at time zone 'Asia/Tokyo','YYYY-MM-DD HH24:MI:SS')||\n   E'\\n実行ID: '||r.id);\n end loop;\nend $$;\nrevoke all on function jaspic_monitor.scan_completions(timestamptz) from public,anon,authenticated,service_role;\n",
+        "sha256": "9d1f60bfdc7e56170b12c59cbf5b6e2bc944a0ee6355c12df59fc13a65bf282a"
+      }
+    },
+    {
+      "path": "tests/jaspic-completion-held-count.test.ts",
+      "status": "modified",
+      "additions": 52,
+      "deletions": 0,
+      "patch": "diff --git a/tests/jaspic-completion-held-count.test.ts b/tests/jaspic-completion-held-count.test.ts\nnew file mode 100644\nindex 00000000..0a3f8852\n--- /dev/null\n+++ b/tests/jaspic-completion-held-count.test.ts\n@@ -0,0 +1,52 @@\n+import { describe, expect, it } from \"vitest\";\n+import { readFileSync } from \"node:fs\";\n+import { productionPlan } from \"../lib/jaspic/production-plan\";\n+import { fields, type RecordData } from \"../supabase/functions/_shared/jaspic/mail\";\n+import type { Item } from \"../supabase/functions/_shared/jaspic/collect\";\n+\n+const sql = readFileSync(\"docs/sql/jaspic-completion-notification-held-count.sql\", \"utf8\");\n+describe(\"JASPIC per-run completion hold notice\", () => {\n+  it(\"uses the current run result, not accumulated pending or old holds\", () => {\n+    expect(sql).toContain(\"r.result->'quarantined'\");\n+    expect(sql).toContain(\"jsonb_array_length(r.result->'quarantined')\");\n+    expect(sql).toContain(\"count(distinct q->>'province')\");\n+    expect(sql).not.toMatch(/from\\s+public\\.jaspic_deliveries/i);\n+  });\n+  it(\"marks any nonzero hold as requiring review, without masking malformed counts\", () => {\n+    expect(sql).toContain(\"case when hh+sh>0 then '配信完了・保留要確認'\");\n+    expect(sql).toContain(\"COMPLETION_RESULT_INVALID\");\n+    expect(sql).toContain(\"DISPATCH_HOLD_REVIEW\");\n+  });\n+  it(\"does not mistake repeated historical exclusions for new holds\", async () => {\n+    const make = (id: string): Item => {\n+      const data = Object.fromEntries(fields[\"hiroshima-crime\"].map(f => [f, \"\"])) as RecordData;\n+      Object.assign(data, { id, occurrence_date_from: \"2026-11-01\", occurrence_date_to: \"2026-11-01\", case_type: \"自転車盗\" });\n+      return { kind:\"hiroshima-crime\", data, context:{cityName:\"テスト市\",stationName:\"テスト署\"} };\n+    };\n+    const person = (id:string):Item => {\n+      const data = Object.fromEntries(fields[\"hiroshima-person\"].map(f => [f,\"\"])) as RecordData;\n+      Object.assign(data,{id,occurrence_dt:\"2026-11-01\",case_type:\"声掛け\"});\n+      return {kind:\"hiroshima-person\",data,context:{cityName:\"テスト市\",stationName:\"テスト署\"}};\n+    };\n+    const all=[...Array.from({length:10},(_,i)=>make(String(i+1))),...Array.from({length:10},(_,i)=>person(String(i+101)))];\n+    const snapshot={baseline:true,revision:5,records:Object.fromEntries(all.map(x=>[x.kind+\":\"+x.data.id,x.data]))};\n+    const first=await productionPlan(\"hiroshima\",snapshot,all,new Set());\n+    const second=await productionPlan(\"hiroshima\",{...snapshot,revision:6,records:first.records},all,new Set());\n+    expect(first.quarantined).toEqual([]);\n+    expect(second.quarantined).toEqual([]);\n+    expect(second.candidates).toHaveLength(0);\n+  });\n+  it(\"never counts excluded bicycle theft as held\", async () => {\n+    const make = (id: string, kind: \"hiroshima-crime\" | \"hiroshima-person\", bicycle = false): Item => {\n+      const data = Object.fromEntries(fields[kind].map(f => [f, \"\"])) as RecordData;\n+      Object.assign(data, { id, occurrence_date_from: \"2026-11-01\", occurrence_date_to: \"2026-11-01\", occurrence_dt: \"2026-11-01\", case_type: bicycle ? \"自転車盗\" : \"声掛け\" });\n+      return { kind, data, context: {cityName:\"テスト市\",stationName:\"テスト署\"} };\n+    };\n+    const old = [...Array.from({length:10}, (_,i)=>make(String(i+1),\"hiroshima-crime\")),\n+      ...Array.from({length:10}, (_,i)=>make(String(i+101),\"hiroshima-person\"))];\n+    const snapshot = { baseline:true, revision:5, records:Object.fromEntries(old.map(x=>[x.kind+\":\"+x.data.id,x.data])) };\n+    const result = await productionPlan(\"hiroshima\", snapshot, [...old, make(\"99\",\"hiroshima-crime\",true)], new Set());\n+    expect(result.quarantined).toEqual([]);\n+    expect(result.candidates).toHaveLength(0);\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/tests/jaspic-completion-held-count.test.ts",
+      "source": {
+        "path": "tests/jaspic-completion-held-count.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { readFileSync } from \"node:fs\";\nimport { productionPlan } from \"../lib/jaspic/production-plan\";\nimport { fields, type RecordData } from \"../supabase/functions/_shared/jaspic/mail\";\nimport type { Item } from \"../supabase/functions/_shared/jaspic/collect\";\n\nconst sql = readFileSync(\"docs/sql/jaspic-completion-notification-held-count.sql\", \"utf8\");\ndescribe(\"JASPIC per-run completion hold notice\", () => {\n  it(\"uses the current run result, not accumulated pending or old holds\", () => {\n    expect(sql).toContain(\"r.result->'quarantined'\");\n    expect(sql).toContain(\"jsonb_array_length(r.result->'quarantined')\");\n    expect(sql).toContain(\"count(distinct q->>'province')\");\n    expect(sql).not.toMatch(/from\\s+public\\.jaspic_deliveries/i);\n  });\n  it(\"marks any nonzero hold as requiring review, without masking malformed counts\", () => {\n    expect(sql).toContain(\"case when hh+sh>0 then '配信完了・保留要確認'\");\n    expect(sql).toContain(\"COMPLETION_RESULT_INVALID\");\n    expect(sql).toContain(\"DISPATCH_HOLD_REVIEW\");\n  });\n  it(\"does not mistake repeated historical exclusions for new holds\", async () => {\n    const make = (id: string): Item => {\n      const data = Object.fromEntries(fields[\"hiroshima-crime\"].map(f => [f, \"\"])) as RecordData;\n      Object.assign(data, { id, occurrence_date_from: \"2026-11-01\", occurrence_date_to: \"2026-11-01\", case_type: \"自転車盗\" });\n      return { kind:\"hiroshima-crime\", data, context:{cityName:\"テスト市\",stationName:\"テスト署\"} };\n    };\n    const person = (id:string):Item => {\n      const data = Object.fromEntries(fields[\"hiroshima-person\"].map(f => [f,\"\"])) as RecordData;\n      Object.assign(data,{id,occurrence_dt:\"2026-11-01\",case_type:\"声掛け\"});\n      return {kind:\"hiroshima-person\",data,context:{cityName:\"テスト市\",stationName:\"テスト署\"}};\n    };\n    const all=[...Array.from({length:10},(_,i)=>make(String(i+1))),...Array.from({length:10},(_,i)=>person(String(i+101)))];\n    const snapshot={baseline:true,revision:5,records:Object.fromEntries(all.map(x=>[x.kind+\":\"+x.data.id,x.data]))};\n    const first=await productionPlan(\"hiroshima\",snapshot,all,new Set());\n    const second=await productionPlan(\"hiroshima\",{...snapshot,revision:6,records:first.records},all,new Set());\n    expect(first.quarantined).toEqual([]);\n    expect(second.quarantined).toEqual([]);\n    expect(second.candidates).toHaveLength(0);\n  });\n  it(\"never counts excluded bicycle theft as held\", async () => {\n    const make = (id: string, kind: \"hiroshima-crime\" | \"hiroshima-person\", bicycle = false): Item => {\n      const data = Object.fromEntries(fields[kind].map(f => [f, \"\"])) as RecordData;\n      Object.assign(data, { id, occurrence_date_from: \"2026-11-01\", occurrence_date_to: \"2026-11-01\", occurrence_dt: \"2026-11-01\", case_type: bicycle ? \"自転車盗\" : \"声掛け\" });\n      return { kind, data, context: {cityName:\"テスト市\",stationName:\"テスト署\"} };\n    };\n    const old = [...Array.from({length:10}, (_,i)=>make(String(i+1),\"hiroshima-crime\")),\n      ...Array.from({length:10}, (_,i)=>make(String(i+101),\"hiroshima-person\"))];\n    const snapshot = { baseline:true, revision:5, records:Object.fromEntries(old.map(x=>[x.kind+\":\"+x.data.id,x.data])) };\n    const result = await productionPlan(\"hiroshima\", snapshot, [...old, make(\"99\",\"hiroshima-crime\",true)], new Set());\n    expect(result.quarantined).toEqual([]);\n    expect(result.candidates).toHaveLength(0);\n  });\n});\n",
+        "sha256": "a2d2a6a172010a4b75f3a06469620fe940df0f5f151b50ed90dc5291088c63c7"
+      }
+    }
+  ],
+  "file_count": 2,
+  "reported_file_count": 2,
+  "commits": [
+    {
+      "sha": "458fd42ac0181bbed8a35c4ba285cc696f781582",
+      "message": "feat(jaspic): include validated held counts in existing completion summary\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/458fd42ac0181bbed8a35c4ba285cc696f781582"
+    },
+    {
+      "sha": "6f125b78dfcc15cd873943717fccd76ef0a9daf1",
+      "message": "docs(jaspic): clarify held counts are scoped to current run only\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/6f125b78dfcc15cd873943717fccd76ef0a9daf1"
+    },
+    {
+      "sha": "f64666a422ec04583ef6dfde98b27990551b2c3e",
+      "message": "feat(jaspic): mark nonzero held counts as review-required in completion notice\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/f64666a422ec04583ef6dfde98b27990551b2c3e"
+    },
+    {
+      "sha": "e5a244b2363cda9ea9c13169113a57850dec1ebf",
+      "message": "test(jaspic): enforce per-run hold notification and exclusion invariants\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/e5a244b2363cda9ea9c13169113a57850dec1ebf"
+    },
+    {
+      "sha": "dba96dd6d265eabc3465d302cb60265d391f2843",
+      "message": "test(jaspic): repeated bicycle exclusions never become new holds\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/dba96dd6d265eabc3465d302cb60265d391f2843"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "CI",
+      "head_sha": "dba96dd6d265eabc3465d302cb60265d391f2843",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43356822685",
+      "id": 43356822685,
+      "updated_at": "2026-11-13T03:08:37Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "dba96dd6d265eabc3465d302cb60265d391f2843",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43356822457",
+      "id": 43356822457,
+      "updated_at": "2026-11-13T03:07:43Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "dba96dd6d265eabc3465d302cb60265d391f2843",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43356822371",
+      "id": 43356822371,
+      "updated_at": "2026-11-13T03:07:41Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "all",
+    "data",
+    "first",
+    "jaspic_monitor",
+    "make",
+    "old",
+    "person",
+    "result",
+    "second",
+    "snapshot",
+    "sql"
+  ],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "6c8085f5e6c75e51df24159196ce82500a17338921d1c8aaeb9a606ba2cc4891",
+  "ci_digest": "b02d881728f562714c9f70f03bf7154992c198bba5ab8322768643a8332f653e",
+  "collected_at": "2026-11-13T03:12:14.705435+00:00",
+  "decisions": []
+}

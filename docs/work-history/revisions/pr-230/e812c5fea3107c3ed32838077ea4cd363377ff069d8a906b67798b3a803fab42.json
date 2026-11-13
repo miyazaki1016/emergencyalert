@@ -1,0 +1,272 @@
+{
+  "id": "pr-230",
+  "number": 230,
+  "title": "fix(jaspic): restore baseline fields safety guard",
+  "topics": [
+    "通知・配信"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Closes #229\n\nRestore `BASELINE_FIELDS_MISSING` in `productionPlan` for existing records with incomplete snapshot fields. Newly published IDs are not rejected merely for older occurrence dates. Add focused regression tests.\n\nIssue preflight REVIEW_RECORDED: https://github.com/miyazaki1016/emergencyalert/actions/runs/43353877347\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-224\",\"decision\":\"extend\",\"reason\":\"発生日と公開日の区別を保持し、既存baselineの比較項目欠損のみ拒否する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/224\"},{\"id\":\"pr-191\",\"decision\":\"extend\",\"reason\":\"旧システム最終JSONとの照合で特定された過去の隔離22件（自転車盗13件・通知候補9件）を確認。今回の変更は過去の9件限定例外配信を再実施せず、baseline必須項目の欠損ガードのみ復旧する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/191\"},{\"id\":\"pr-190\",\"decision\":\"reuse\",\"reason\":\"過去のJASPIC移行時の差分安全対策を維持し、対象日付を新規公開判定の代用にしない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/190\"},{\"id\":\"pr-192\",\"decision\":\"reuse\",\"reason\":\"既存の配信安全確認と履歴を参照し、今回の修正範囲はbaselineの比較項目に限定する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/192\"}]}\n-->\n\nCI latest HEAD: https://github.com/miyazaki1016/emergencyalert/actions/runs/43354588942 (success). No merge or dispatch.",
+  "snapshot_head": "9bdb80fd6ace88b69914a8141ca6551a4422173a",
+  "snapshot_consistent": true,
+  "head": "9bdb80fd6ace88b69914a8141ca6551a4422173a",
+  "base": "3cc155084dfe0d7979f82d636ac8a49ae67ea98d",
+  "base_ref": "main",
+  "head_ref": "fix/jaspic-baseline-fields-guard-20261113",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-13T03:11:50Z",
+  "merge_commit_sha": "e22a999a764d2079ca2e040a104576cc60a45994",
+  "updated_at": "2026-11-13T03:11:50Z",
+  "code_facts": [
+    {
+      "file": "lib/jaspic/production-plan.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (previous && fields[item.kind].some(field => !Object.prototype.hasOwnProperty.call(previous, field))) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9bdb80fd6ace88b69914a8141ca6551a4422173a/lib/jaspic/production-plan.ts"
+    },
+    {
+      "file": "tests/jaspic-baseline-fields-guard.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"JASPIC production baseline field guard\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9bdb80fd6ace88b69914a8141ca6551a4422173a/tests/jaspic-baseline-fields-guard.test.ts"
+    },
+    {
+      "file": "tests/jaspic-baseline-fields-guard.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"rejects missing fields in an existing Shiga baseline\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9bdb80fd6ace88b69914a8141ca6551a4422173a/tests/jaspic-baseline-fields-guard.test.ts"
+    },
+    {
+      "file": "tests/jaspic-baseline-fields-guard.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "await expect(productionPlan(\"shiga\", snapshot as never, [existing] as never, new Set()))",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9bdb80fd6ace88b69914a8141ca6551a4422173a/tests/jaspic-baseline-fields-guard.test.ts"
+    },
+    {
+      "file": "tests/jaspic-baseline-fields-guard.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(plan).not.toHaveBeenCalled();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9bdb80fd6ace88b69914a8141ca6551a4422173a/tests/jaspic-baseline-fields-guard.test.ts"
+    },
+    {
+      "file": "tests/jaspic-baseline-fields-guard.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"accepts complete existing records and newly published old-occurrence Shiga IDs\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9bdb80fd6ace88b69914a8141ca6551a4422173a/tests/jaspic-baseline-fields-guard.test.ts"
+    },
+    {
+      "file": "tests/jaspic-baseline-fields-guard.test.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const baselineRecords = Object.fromEntries(Array.from({ length: 5 }, (_, i) => { const record = make(\"shiga-person\", String(100 + i)); return [`shiga-person:${100 + i}`, record.data]; }));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9bdb80fd6ace88b69914a8141ca6551a4422173a/tests/jaspic-baseline-fields-guard.test.ts"
+    },
+    {
+      "file": "tests/jaspic-baseline-fields-guard.test.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "await expect(productionPlan(\"shiga\", snapshot as never, [existing, ...Array.from({ length: 4 }, (_, i) => make(\"shiga-person\", String(101 + i))), newlyPublished] as never, new Set()))",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9bdb80fd6ace88b69914a8141ca6551a4422173a/tests/jaspic-baseline-fields-guard.test.ts"
+    },
+    {
+      "file": "tests/jaspic-baseline-fields-guard.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(plan).toHaveBeenCalledOnce();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9bdb80fd6ace88b69914a8141ca6551a4422173a/tests/jaspic-baseline-fields-guard.test.ts"
+    },
+    {
+      "file": "tests/jaspic-baseline-fields-guard.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(vi.mocked(plan).mock.calls[0][2]).toHaveLength(6);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9bdb80fd6ace88b69914a8141ca6551a4422173a/tests/jaspic-baseline-fields-guard.test.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "lib/jaspic/production-plan.ts",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "patch": "diff --git a/lib/jaspic/production-plan.ts b/lib/jaspic/production-plan.ts\nindex 70db6b89..1411bcc8 100644\n--- a/lib/jaspic/production-plan.ts\n+++ b/lib/jaspic/production-plan.ts\n@@ -10,6 +10,14 @@ export async function productionPlan(province: Province, snapshot: Snapshot, ite\n     const currentCount = items.filter(i => i.kind === kind).length;\n     if (!oldCount || currentCount < oldCount * .8 || currentCount > oldCount * 1.2) throw new Error(\"SOURCE_COUNT_GUARD\");\n   }\n+  // A partially migrated baseline must never be treated as a real update.\n+  // Check only existing records: newly published IDs have no prior fields.\n+  for (const item of items) {\n+    const previous = snapshot.records[`${item.kind}:${item.data.id}`];\n+    if (previous && fields[item.kind].some(field => !Object.prototype.hasOwnProperty.call(previous, field))) {\n+      throw new Error(\"BASELINE_FIELDS_MISSING\");\n+    }\n+  }\n   // Occurrence date is not publication date. Do not quarantine new records\n   // solely because the event happened on or before the migration cutoff.\n   // The existing plan() category filtering, legacy suppression, baseline,\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9bdb80fd6ace88b69914a8141ca6551a4422173a/lib/jaspic/production-plan.ts",
+      "source": {
+        "path": "lib/jaspic/production-plan.ts",
+        "coverage": "全文",
+        "text": "import { fields } from \"../../supabase/functions/_shared/jaspic/mail\";\nimport { plan, type Snapshot } from \"../../supabase/functions/_shared/jaspic/state\";\nimport type { Item, Province } from \"../../supabase/functions/_shared/jaspic/collect\";\n\nexport async function productionPlan(province: Province, snapshot: Snapshot, items: Item[], legacy: ReadonlySet<string>) {\n  if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\");\n  const kinds = province === \"hiroshima\" ? [\"hiroshima-person\", \"hiroshima-crime\"] as const : [\"shiga-person\"] as const;\n  for (const kind of kinds) {\n    const oldCount = Object.keys(snapshot.records).filter(k => k.startsWith(kind+\":\")).length;\n    const currentCount = items.filter(i => i.kind === kind).length;\n    if (!oldCount || currentCount < oldCount * .8 || currentCount > oldCount * 1.2) throw new Error(\"SOURCE_COUNT_GUARD\");\n  }\n  // A partially migrated baseline must never be treated as a real update.\n  // Check only existing records: newly published IDs have no prior fields.\n  for (const item of items) {\n    const previous = snapshot.records[`${item.kind}:${item.data.id}`];\n    if (previous && fields[item.kind].some(field => !Object.prototype.hasOwnProperty.call(previous, field))) {\n      throw new Error(\"BASELINE_FIELDS_MISSING\");\n    }\n  }\n  // Occurrence date is not publication date. Do not quarantine new records\n  // solely because the event happened on or before the migration cutoff.\n  // The existing plan() category filtering, legacy suppression, baseline,\n  // delivery ledger and difference guards remain unchanged.\n  const quarantined: string[] = [];\n  const eligibleItems: Item[] = items;\n  // The source-count guard above always uses the COMPLETE source, not this\n  // reduced planning set. Quarantined records are reconsidered on each run.\n  const result = await plan(province, snapshot, eligibleItems, {legacyHiroshimaPersonIds:legacy});\n  if (result.candidates.length > 20) throw new Error(\"DIFFERENCE_LIMIT\");\n  return {...result, quarantined};\n}\n",
+        "sha256": "5e4a563b53a7093ef9380a8281974a798c6a0b09101b6c544e261f4ac2da819b"
+      }
+    },
+    {
+      "path": "tests/jaspic-baseline-fields-guard.test.ts",
+      "status": "modified",
+      "additions": 35,
+      "deletions": 0,
+      "patch": "diff --git a/tests/jaspic-baseline-fields-guard.test.ts b/tests/jaspic-baseline-fields-guard.test.ts\nnew file mode 100644\nindex 00000000..f8502ba7\n--- /dev/null\n+++ b/tests/jaspic-baseline-fields-guard.test.ts\n@@ -0,0 +1,35 @@\n+import { describe, expect, it, vi } from \"vitest\";\n+\n+vi.mock(\"../supabase/functions/_shared/jaspic/state\", () => ({\n+  plan: vi.fn(async () => ({ candidates: [], quarantined: [], expectedRevision: 4 })),\n+}));\n+import { productionPlan } from \"../lib/jaspic/production-plan\";\n+import { fields } from \"../supabase/functions/_shared/jaspic/mail\";\n+import { plan } from \"../supabase/functions/_shared/jaspic/state\";\n+\n+const make = (kind: \"shiga-person\" | \"hiroshima-person\" | \"hiroshima-crime\", id: string) => ({\n+  kind, data: Object.fromEntries(fields[kind].map(field => [field, field === \"id\" ? id : null])),\n+});\n+describe(\"JASPIC production baseline field guard\", () => {\n+  it(\"rejects missing fields in an existing Shiga baseline\", async () => {\n+    const existing = make(\"shiga-person\", \"100\");\n+    const previous = { ...existing.data };\n+    delete previous.criminal_feature;\n+    const snapshot = { baseline: true, revision: 4, records: { \"shiga-person:100\": previous } };\n+    await expect(productionPlan(\"shiga\", snapshot as never, [existing] as never, new Set()))\n+      .rejects.toThrow(\"BASELINE_FIELDS_MISSING\");\n+    expect(plan).not.toHaveBeenCalled();\n+  });\n+  it(\"accepts complete existing records and newly published old-occurrence Shiga IDs\", async () => {\n+    vi.mocked(plan).mockClear();\n+    const existing = make(\"shiga-person\", \"100\");\n+    const newlyPublished = make(\"shiga-person\", \"105\");\n+    newlyPublished.data.occurrence_dt = \"2026-11-01\";\n+    const baselineRecords = Object.fromEntries(Array.from({ length: 5 }, (_, i) => { const record = make(\"shiga-person\", String(100 + i)); return [`shiga-person:${100 + i}`, record.data]; }));\n+    const snapshot = { baseline: true, revision: 4, records: baselineRecords };\n+    await expect(productionPlan(\"shiga\", snapshot as never, [existing, ...Array.from({ length: 4 }, (_, i) => make(\"shiga-person\", String(101 + i))), newlyPublished] as never, new Set()))\n+      .resolves.toHaveProperty(\"candidates\");\n+    expect(plan).toHaveBeenCalledOnce();\n+    expect(vi.mocked(plan).mock.calls[0][2]).toHaveLength(6);\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9bdb80fd6ace88b69914a8141ca6551a4422173a/tests/jaspic-baseline-fields-guard.test.ts",
+      "source": {
+        "path": "tests/jaspic-baseline-fields-guard.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it, vi } from \"vitest\";\n\nvi.mock(\"../supabase/functions/_shared/jaspic/state\", () => ({\n  plan: vi.fn(async () => ({ candidates: [], quarantined: [], expectedRevision: 4 })),\n}));\nimport { productionPlan } from \"../lib/jaspic/production-plan\";\nimport { fields } from \"../supabase/functions/_shared/jaspic/mail\";\nimport { plan } from \"../supabase/functions/_shared/jaspic/state\";\n\nconst make = (kind: \"shiga-person\" | \"hiroshima-person\" | \"hiroshima-crime\", id: string) => ({\n  kind, data: Object.fromEntries(fields[kind].map(field => [field, field === \"id\" ? id : null])),\n});\ndescribe(\"JASPIC production baseline field guard\", () => {\n  it(\"rejects missing fields in an existing Shiga baseline\", async () => {\n    const existing = make(\"shiga-person\", \"100\");\n    const previous = { ...existing.data };\n    delete previous.criminal_feature;\n    const snapshot = { baseline: true, revision: 4, records: { \"shiga-person:100\": previous } };\n    await expect(productionPlan(\"shiga\", snapshot as never, [existing] as never, new Set()))\n      .rejects.toThrow(\"BASELINE_FIELDS_MISSING\");\n    expect(plan).not.toHaveBeenCalled();\n  });\n  it(\"accepts complete existing records and newly published old-occurrence Shiga IDs\", async () => {\n    vi.mocked(plan).mockClear();\n    const existing = make(\"shiga-person\", \"100\");\n    const newlyPublished = make(\"shiga-person\", \"105\");\n    newlyPublished.data.occurrence_dt = \"2026-11-01\";\n    const baselineRecords = Object.fromEntries(Array.from({ length: 5 }, (_, i) => { const record = make(\"shiga-person\", String(100 + i)); return [`shiga-person:${100 + i}`, record.data]; }));\n    const snapshot = { baseline: true, revision: 4, records: baselineRecords };\n    await expect(productionPlan(\"shiga\", snapshot as never, [existing, ...Array.from({ length: 4 }, (_, i) => make(\"shiga-person\", String(101 + i))), newlyPublished] as never, new Set()))\n      .resolves.toHaveProperty(\"candidates\");\n    expect(plan).toHaveBeenCalledOnce();\n    expect(vi.mocked(plan).mock.calls[0][2]).toHaveLength(6);\n  });\n});\n",
+        "sha256": "f98fe62d18205ead56c4af5e6260bfdcaef2a0572266925b2a0a32742b257319"
+      }
+    }
+  ],
+  "file_count": 2,
+  "reported_file_count": 2,
+  "commits": [
+    {
+      "sha": "ce1e202605ad4007ae595ff2324bf3a4fedafbbd",
+      "message": "fix(jaspic): restore incomplete baseline field guard\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/ce1e202605ad4007ae595ff2324bf3a4fedafbbd"
+    },
+    {
+      "sha": "50e0f1d0136083475a9e8fd77cdee42d8b730874",
+      "message": "test(jaspic): cover missing baseline fields and old-occurrence new Shiga ID\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/50e0f1d0136083475a9e8fd77cdee42d8b730874"
+    },
+    {
+      "sha": "9bdb80fd6ace88b69914a8141ca6551a4422173a",
+      "message": "test(jaspic): keep new-ID scenario within existing source-count guard\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/9bdb80fd6ace88b69914a8141ca6551a4422173a"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "9bdb80fd6ace88b69914a8141ca6551a4422173a",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43357307266",
+      "id": 43357307266,
+      "updated_at": "2026-11-13T03:11:57Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "9bdb80fd6ace88b69914a8141ca6551a4422173a",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43357307008",
+      "id": 43357307008,
+      "updated_at": "2026-11-13T03:12:07Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "9bdb80fd6ace88b69914a8141ca6551a4422173a",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43354793684",
+      "id": 43354793684,
+      "updated_at": "2026-11-13T02:49:36Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "9bdb80fd6ace88b69914a8141ca6551a4422173a",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43354589155",
+      "id": 43354589155,
+      "updated_at": "2026-11-13T02:47:45Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "9bdb80fd6ace88b69914a8141ca6551a4422173a",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43354589106",
+      "id": 43354589106,
+      "updated_at": "2026-11-13T02:47:47Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "9bdb80fd6ace88b69914a8141ca6551a4422173a",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43354588942",
+      "id": 43354588942,
+      "updated_at": "2026-11-13T02:48:29Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "e22a999a764d2079ca2e040a104576cc60a45994",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43357318057",
+      "id": 43357318057,
+      "updated_at": "2026-11-13T03:11:55Z",
+      "event": "push"
+    },
+    {
+      "name": "CI",
+      "head_sha": "e22a999a764d2079ca2e040a104576cc60a45994",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43357318038",
+      "id": 43357318038,
+      "updated_at": "2026-11-13T03:11:56Z",
+      "event": "push"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "e22a999a764d2079ca2e040a104576cc60a45994",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43357318009",
+      "id": 43357318009,
+      "updated_at": "2026-11-13T03:12:11Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "baselineRecords",
+    "currentCount",
+    "eligibleItems",
+    "existing",
+    "item",
+    "kind",
+    "kinds",
+    "make",
+    "newlyPublished",
+    "oldCount",
+    "previous",
+    "productionPlan",
+    "quarantined",
+    "record",
+    "result",
+    "snapshot"
+  ],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "f59d53a9abede356d38e1be537164d516962b6dd3b52db6d7116cdb71eebefc6",
+  "ci_digest": "c0d5f56948df8de08be8e58feeb53c86ec8aad0d870e2797fda19dac498d0cd6",
+  "collected_at": "2026-11-13T03:12:14.705435+00:00",
+  "decisions": [
+    {
+      "kind": "test",
+      "title": "accepts complete existing records and newly published old-occurrence Shiga IDs",
+      "condition": "accepts complete existing records and newly published old-occurrence Shiga IDs",
+      "behavior": "if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\"); ／ if (!oldCount || currentCount < oldCount * .8 || currentCount > oldCount * 1.2) throw new Error(\"SOURCE_COUNT_GUARD\"); ／ if (previous && fields[item.kind].some(field => !Object.prototype.hasOwnProperty.call(previous, field))) { ／ if (result.candidates.length > 20) throw new Error(\"DIFFERENCE_LIMIT\"); ／ return {...result, quarantined};",
+      "verification": "テストの期待値: expect(productionPlan(\"shiga\", snapshot as never, [existing, ...Array.from({ length: 4 }, (_, i) => make(\"shiga-person\", String(101 + i))), newlyPublished] as never, new Set())) .resolves.toHaveProperty(\"candidates\"); expect(plan).toHaveBeenCalledOnc ／ expect(vi.mocked(plan).mock.calls[0][2]).toHaveLength(6); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/9bdb80fd6ace88b69914a8141ca6551a4422173a/lib/jaspic/production-plan.ts#L5",
+        "https://github.com/miyazaki1016/emergencyalert/blob/9bdb80fd6ace88b69914a8141ca6551a4422173a/tests/jaspic-baseline-fields-guard.test.ts#L23"
+      ]
+    }
+  ]
+}

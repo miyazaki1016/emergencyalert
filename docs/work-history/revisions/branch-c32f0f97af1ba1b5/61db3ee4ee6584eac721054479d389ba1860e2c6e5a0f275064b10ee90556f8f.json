@@ -1,0 +1,836 @@
+{
+  "id": "branch-c32f0f97af1ba1b5",
+  "title": "research/jaspic-mail-compat-20261104",
+  "head": "a83e3f018e60daba771bf832fdfb05d480c58549",
+  "head_ref": "research/jaspic-mail-compat-20261104",
+  "linked_prs": [
+    155
+  ],
+  "files": [
+    {
+      "path": ".gitattributes",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/.gitattributes"
+    },
+    {
+      "path": ".github/workflows/jaspic-compat.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/.github/workflows/jaspic-compat.yml"
+    },
+    {
+      "path": "app/jaspic/oauth/callback/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/app/jaspic/oauth/callback/route.ts"
+    },
+    {
+      "path": "app/jaspic/oauth/login-client.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/app/jaspic/oauth/login-client.tsx"
+    },
+    {
+      "path": "app/jaspic/oauth/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/app/jaspic/oauth/page.tsx"
+    },
+    {
+      "path": "app/jaspic/oauth/result/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/app/jaspic/oauth/result/page.tsx"
+    },
+    {
+      "path": "app/jaspic/oauth/start/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/app/jaspic/oauth/start/route.ts"
+    },
+    {
+      "path": "docs/DEVELOPMENT_LEDGER.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/docs/DEVELOPMENT_LEDGER.md"
+    },
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/docs/PROJECT_OVERVIEW.md"
+    },
+    {
+      "path": "docs/research/JASPIC_CUTOVER_RUNBOOK_20261104.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/docs/research/JASPIC_CUTOVER_RUNBOOK_20261104.md"
+    },
+    {
+      "path": "docs/research/JASPIC_GMAIL_DELIVERY_DESIGN_20261104.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/docs/research/JASPIC_GMAIL_DELIVERY_DESIGN_20261104.md"
+    },
+    {
+      "path": "docs/research/JASPIC_GMAIL_IPHONE_SETUP_20261105.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/docs/research/JASPIC_GMAIL_IPHONE_SETUP_20261105.md"
+    },
+    {
+      "path": "docs/research/JASPIC_MAIL_COMPATIBILITY_AUDIT_20261104.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/docs/research/JASPIC_MAIL_COMPATIBILITY_AUDIT_20261104.md"
+    },
+    {
+      "path": "docs/research/JASPIC_MIME_VERIFICATION_20261104.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/docs/research/JASPIC_MIME_VERIFICATION_20261104.md"
+    },
+    {
+      "path": "docs/research/JASPIC_OAUTH_DB_APPLIED_20261106.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/docs/research/JASPIC_OAUTH_DB_APPLIED_20261106.md"
+    },
+    {
+      "path": "docs/research/JASPIC_OAUTH_NO_BUILD_STATUS_20261106.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/docs/research/JASPIC_OAUTH_NO_BUILD_STATUS_20261106.md"
+    },
+    {
+      "path": "docs/research/JASPIC_OAUTH_PREDEPLOY_REVIEW_20261105.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/docs/research/JASPIC_OAUTH_PREDEPLOY_REVIEW_20261105.md"
+    },
+    {
+      "path": "docs/research/JASPIC_REAL_DATA_VERIFICATION_20261104.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/docs/research/JASPIC_REAL_DATA_VERIFICATION_20261104.md"
+    },
+    {
+      "path": "docs/research/JASPIC_UPDATE_MAIL_VERIFICATION_20261104.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/docs/research/JASPIC_UPDATE_MAIL_VERIFICATION_20261104.md"
+    },
+    {
+      "path": "docs/sql/jaspic-isolated-draft.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/docs/sql/jaspic-isolated-draft.sql"
+    },
+    {
+      "path": "docs/sql/jaspic-schedule-draft.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/docs/sql/jaspic-schedule-draft.sql"
+    },
+    {
+      "path": "lib/jaspic/shigaMail.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/lib/jaspic/shigaMail.ts"
+    },
+    {
+      "path": "package-lock.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/package-lock.json"
+    },
+    {
+      "path": "scripts/compare-jaspic-eml.mjs",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/scripts/compare-jaspic-eml.mjs"
+    },
+    {
+      "path": "scripts/jaspic-dry-run.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/scripts/jaspic-dry-run.ts"
+    },
+    {
+      "path": "scripts/jaspic-generate-eml.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/scripts/jaspic-generate-eml.ts"
+    },
+    {
+      "path": "scripts/jaspic-source-probe.mjs",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/scripts/jaspic-source-probe.mjs"
+    },
+    {
+      "path": "scripts/jaspic-source-probe.nodecheck.mjs",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/scripts/jaspic-source-probe.nodecheck.mjs"
+    },
+    {
+      "path": "scripts/jaspic-update-observation.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/scripts/jaspic-update-observation.ts"
+    },
+    {
+      "path": "scripts/jaspic-verify-real-mail.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/scripts/jaspic-verify-real-mail.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/collect.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/collect.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/gmail-api-request-offline.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/gmail-api-request-offline.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/gmail-auth-offline.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/gmail-auth-offline.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/gmail-dry-run.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/gmail-dry-run.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/gmail-google-sender-identity-offline.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/gmail-google-sender-identity-offline.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/gmail-oauth-admin-offline.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/gmail-oauth-admin-offline.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/gmail-oauth-once-offline.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/gmail-oauth-once-offline.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/gmail-oauth-supabase-auth.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/gmail-oauth-supabase-auth.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/gmail-oauth-supabase-store.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/gmail-oauth-supabase-store.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/gmail-oauth-token-vault-offline.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/gmail-oauth-token-vault-offline.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/gmail-oauth-vault-store.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/gmail-oauth-vault-store.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/gmail-transport-simulator.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/gmail-transport-simulator.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/gmail-web-callback-offline.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/gmail-web-callback-offline.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/gmail-web-exchange-offline.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/gmail-web-exchange-offline.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/gmail-web-oauth-offline.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/gmail-web-oauth-offline.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/gmail-web-session-offline.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/gmail-web-session-offline.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/gmail-web-start-offline.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/gmail-web-start-offline.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/handler.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/handler.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/mail.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/mail.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/mime.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/mime.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/jaspic/state.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/_shared/jaspic/state.ts"
+    },
+    {
+      "path": "supabase/functions/jaspic-hiroshima/index.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/jaspic-hiroshima/index.ts"
+    },
+    {
+      "path": "supabase/functions/jaspic-shiga/index.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/functions/jaspic-shiga/index.ts"
+    },
+    {
+      "path": "supabase/migrations/20261105074100_jaspic_oauth_once.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/migrations/20261105074100_jaspic_oauth_once.sql"
+    },
+    {
+      "path": "supabase/migrations/20261105074500_jaspic_gmail_token_vault.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/supabase/migrations/20261105074500_jaspic_gmail_token_vault.sql"
+    },
+    {
+      "path": "tests/jaspic/.gitignore",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/.gitignore"
+    },
+    {
+      "path": "tests/jaspic/concurrency.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/concurrency.py"
+    },
+    {
+      "path": "tests/jaspic/database.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/database.sql"
+    },
+    {
+      "path": "tests/jaspic/eml.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/eml.test.ts"
+    },
+    {
+      "path": "tests/jaspic/expected.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/expected.json"
+    },
+    {
+      "path": "tests/jaspic/fixtures.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/fixtures.json"
+    },
+    {
+      "path": "tests/jaspic/gmail-api-request-offline.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-api-request-offline.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-auth-offline.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-auth-offline.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-dry-run.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-dry-run.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-google-sender-identity-offline.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-google-sender-identity-offline.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-oauth-admin-offline.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-oauth-admin-offline.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-oauth-migration.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-oauth-migration.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-oauth-once-offline.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-oauth-once-offline.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-oauth-supabase-auth.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-oauth-supabase-auth.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-oauth-supabase-store.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-oauth-supabase-store.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-oauth-token-vault-offline.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-oauth-token-vault-offline.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-oauth-vault-store.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-oauth-vault-store.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-offline-pipeline.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-offline-pipeline.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-transport-simulator.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-transport-simulator.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-web-callback-offline.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-web-callback-offline.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-web-exchange-offline.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-web-exchange-offline.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-web-http-locked.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-web-http-locked.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-web-oauth-offline.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-web-oauth-offline.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-web-session-offline.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-web-session-offline.test.ts"
+    },
+    {
+      "path": "tests/jaspic/gmail-web-start-offline.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/gmail-web-start-offline.test.ts"
+    },
+    {
+      "path": "tests/jaspic/handler.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/handler.test.ts"
+    },
+    {
+      "path": "tests/jaspic/legacy-framework/LegacyFramework.csproj",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/legacy-framework/LegacyFramework.csproj"
+    },
+    {
+      "path": "tests/jaspic/legacy-framework/packages.lock.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/legacy-framework/packages.lock.json"
+    },
+    {
+      "path": "tests/jaspic/legacy/criminal_mail.cs.txt",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/legacy/criminal_mail.cs.txt"
+    },
+    {
+      "path": "tests/jaspic/legacy/suspicious_person_mail.cs.txt",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/legacy/suspicious_person_mail.cs.txt"
+    },
+    {
+      "path": "tests/jaspic/legacy/suspicious_person_shiga_mail.cs.txt",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/legacy/suspicious_person_shiga_mail.cs.txt"
+    },
+    {
+      "path": "tests/jaspic/mail.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mail.test.ts"
+    },
+    {
+      "path": "tests/jaspic/mime-fixtures.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-fixtures.json"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/hiroshima-crime-new-eight-bit.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/hiroshima-crime-new-eight-bit.eml"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/hiroshima-crime-new-seven-bit.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/hiroshima-crime-new-seven-bit.eml"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/hiroshima-crime-new-unprepared.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/hiroshima-crime-new-unprepared.eml"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/hiroshima-crime-update-eight-bit.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/hiroshima-crime-update-eight-bit.eml"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/hiroshima-crime-update-seven-bit.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/hiroshima-crime-update-seven-bit.eml"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/hiroshima-crime-update-unprepared.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/hiroshima-crime-update-unprepared.eml"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/hiroshima-person-new-eight-bit.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/hiroshima-person-new-eight-bit.eml"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/hiroshima-person-new-seven-bit.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/hiroshima-person-new-seven-bit.eml"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/hiroshima-person-new-unprepared.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/hiroshima-person-new-unprepared.eml"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/hiroshima-person-update-eight-bit.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/hiroshima-person-update-eight-bit.eml"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/hiroshima-person-update-seven-bit.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/hiroshima-person-update-seven-bit.eml"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/hiroshima-person-update-unprepared.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/hiroshima-person-update-unprepared.eml"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/shiga-person-new-eight-bit.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/shiga-person-new-eight-bit.eml"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/shiga-person-new-seven-bit.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/shiga-person-new-seven-bit.eml"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/shiga-person-new-unprepared.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/shiga-person-new-unprepared.eml"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/shiga-person-update-eight-bit.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/shiga-person-update-eight-bit.eml"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/shiga-person-update-seven-bit.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/shiga-person-update-seven-bit.eml"
+    },
+    {
+      "path": "tests/jaspic/mime-golden/shiga-person-update-unprepared.eml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime-golden/shiga-person-update-unprepared.eml"
+    },
+    {
+      "path": "tests/jaspic/mime.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/mime.test.ts"
+    },
+    {
+      "path": "tests/jaspic/oracle/FrameworkJson.cs",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/oracle/FrameworkJson.cs"
+    },
+    {
+      "path": "tests/jaspic/oracle/LegacyMime.cs",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/oracle/LegacyMime.cs"
+    },
+    {
+      "path": "tests/jaspic/oracle/Oracle.csproj",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/oracle/Oracle.csproj"
+    },
+    {
+      "path": "tests/jaspic/oracle/Program.cs",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/oracle/Program.cs"
+    },
+    {
+      "path": "tests/jaspic/oracle/packages.lock.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/oracle/packages.lock.json"
+    },
+    {
+      "path": "tests/jaspic/real-mail.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/real-mail.test.ts"
+    },
+    {
+      "path": "tests/jaspic/state.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/state.test.ts"
+    },
+    {
+      "path": "tests/jaspic/update-observation.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspic/update-observation.test.ts"
+    },
+    {
+      "path": "tests/jaspicShigaMail.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a83e3f018e60daba771bf832fdfb05d480c58549/tests/jaspicShigaMail.test.ts"
+    }
+  ],
+  "commits": "a83e3f018e60daba771bf832fdfb05d480c58549 docs(jaspic): log verified Google sender guard and applied DB schema without enabling OAuth\ne7a61f16bd3d707f1005a61134a87e67d8232795 test(jaspic): require both identity and Gmail send scopes on exchange\n80cdf6104a09f3ada9237eb26d98c0f5ca05828a test(jaspic): reject altered Google email values strictly\n104809496cc01c6e5b1b99ce6014a9f65476d5fb test(jaspic): reject altered Google email values strictly\n4082fc25e4fc378cbfde05a13d985fea8d3b6ce7 test(jaspic): reject mismatched or unverified Google sender before vault write\n0a27bf86a5eefc242e3a3cd1c459188349e2b8c7 test(jaspic): assert minimal OIDC identity scopes alongside Gmail send\n9da0d3af1625a1e478d9374a1dda2970bab8bd82 fix(jaspic): enforce verified Gmail owner identity in disabled OAuth flow\ndc64dc10fc89495f43808cc02ef545d2b5607d2a fix(jaspic): enforce verified Gmail owner identity in disabled OAuth flow\n1516358dd5164201b59e012a3f1425bb622cf17c fix(jaspic): enforce verified Gmail owner identity in disabled OAuth flow\n9d00096a1fa0cb7022a610451b8a4136f864aa00 feat(jaspic): validate verified Google sender identity before storing Gmail OAuth token\nff5dcab522ccbc2469d0c220a6fb4dcc72be5748 docs(jaspic): record owner-approved production OAuth database schema and grants verification\n1070fc0fe5604f7fb1a7b99c59d1807bd9a4c721 docs(jaspic): record no-build deployment gate and production OAuth read-only audit\nd7b3e44fe885d775057301f27a11e7c9e10b7f55 docs(jaspic): record OAuth-only deployment security gates and independent PR requirement\nfba4f1fc3b9327385b2538fb6b2079c513d3b8ac docs(jaspic): note existing publishable env key and OAuth secret setup gate\n39ecf3364eedf357ec041b85f2a80d7928599a00 fix(jaspic): use existing EmergencyAlert Supabase publishable key for iPhone login\n9cd06de3a665ae4922f2f6a7da266ec7d35fd166 fix(jaspic): use existing EmergencyAlert Supabase publishable key for iPhone login\n5086d27d49d6c592216394b4ea3a26c9f2cf02da docs(jaspic): specify owner-only iPhone OAuth setup and production approval gates\nd9256c00e13f65cc59e814fdc3757cfa5940678c test(jaspic): check disabled OAuth callback removes secrets from redirect URL\n0b40ca36ac63a6505ea437ec517757a343031f9c feat(jaspic): connect iPhone admin login UI to gated OAuth start workflow\n8399c266b5966071165bd290aef31da5d5465d54 feat(jaspic): build iPhone email OTP admin login client with server-verified OAuth start\n5cbb0359a403fd2ed6edc112ec28e3149d07f65c feat(jaspic): add secret-free browser OAuth result page\nbd1345d16a2eee4460a0247152916eb998c78693 fix(jaspic): scrub OAuth code from browser address via no-store 303 redirect\n7fea0b53aecef1a930bfe647554cfa2ec0c34c58 feat(jaspic): feature-gated OAuth callback with owner-bound one-use state and encrypted vault\n30c20eabdffe711ee4bab7921c7f09d98b628584 feat(jaspic): retain authenticated owner in encrypted OAuth transaction cookie\ne52fe0ce79ca4514c036a1e013a262282a64d13f feat(jaspic): bind encrypted OAuth callback cookie to verified admin owner\n28a47fd68584d22e303eaafbff8455c1642d5e9b docs(jaspic): document strictly disabled admin-authenticated OAuth HTTP start route\n82450ae4df3b8ff19c3b04a921a2bb4c4c450b22 test(jaspic): verify POST OAuth start defaults to disabled without external calls\n6825b8f9241532e725cff16bf7325fc4e7ebf7ea feat(jaspic): wire feature-gated server-side Supabase admin OAuth start route\nffc54d7f546681350082aa36997952184e739f04 docs(jaspic): record owner-gated OAuth start orchestration and remaining HTTP integration\n5d96a1897cb55146ab48dbe47200a28b3368cf87 test(jaspic): verify admin-only OAuth start registers state before consent\n1a93b6e5793d522ca8fc672a06849ed580d6c93f feat(jaspic): compose admin-gated Gmail OAuth start and DB-backed state registration offline\n6413a403046a14bcb6a97b838cdc503f580c0b45 docs(jaspic): note iPhone OAuth HTTP endpoints are deliberately disabled pending integration\n77f63c57465da460bb6a62a8dcb1a21d9146cc36 test(jaspic): assert iPhone OAuth start and callback stay closed to real credentials\ndc44772fbb88c95d48e3b6db7b8158473ba62b46 feat(jaspic): add disabled OAuth callback route that never exposes authorization codes\nd9b9b8fd69d200ef7be68a4f832b3969e88ccbcb feat(jaspic): keep OAuth start endpoint closed pending admin verification\na4c4a655433252ea591d1ece24ee2073c0ab8005 feat(jaspic): add safe iPhone-facing OAuth status page with consent disabled\n6297cd0f45ca5b7ddba3ad383c0dfe6f87221548 docs(jaspic): record staged encrypted vault DB and adapter, no production deployment\nb1df2c9cce973fa4a88c51b45d18736dc7d31fea test(jaspic): cover encrypted-only token vault storage and fail-closed errors\n86b5663166d211e67d6201956835a4587fc39eed feat(jaspic): implement encrypted-token-only Supabase vault adapter (not wired)\ncee5d3581f6342d147f09f7913729235f3d2021f feat(jaspic): stage encrypted Gmail OAuth token vault migration with strict RLS\n4ac6a364c0cac97107d3633704b4af0ef1b6a297 fix(jaspic): enforce type narrowing after confirmed email guard\n88bcfb61515beeb045864e108665155449b735fe docs(jaspic): record encrypted refresh token envelope and missing vault integration\nd5dbad5fe53f4cebe08cd35d0d067472ce871edb test(jaspic): validate encrypted refresh-token envelope owner isolation and tamper rejection\na1d9f0365a46d551d464a2619398ac4883b4b035 feat(jaspic): stage owner-bound AES-GCM refresh token encryption envelope offline\n24c1abcdc84e721fd53cd490a4d35181b632431e fix(jaspic): narrow verified Supabase Auth user to non-null for strict TypeScript\n151b87900d653e7b88282e11885c457a8acd5be1 fix(jaspic): ensure Supabase Auth result assigned before checking in TypeScript build\n5153666f1793e9811099e8f39c707d94eff93f18 docs(jaspic): record Supabase Auth verification adapter and deployment gates\na2989cedcfa629defbe92f62c9c256930aed6fef test(jaspic): verify Supabase Auth remote user and owner allowlist offline\nf2a51ca243fa59992f5e6cc7ec5247fa3980e565 feat(jaspic): add server-side Supabase getUser identity verification adapter\n9e1e70d4eeb079c367c14141047e2e2a8b10e2b6 fix(jaspic): align AES-GCM IV buffer types with Next.js TypeScript build\nb7e48a621e3e7efc6539f26b01ec77d764599219 docs(jaspic): record non-deployed Supabase OAuth state adapter\n34ba1bde86fc8028e46fac060083a87b0c77416a test(jaspic): cover mock Supabase OAuth state RPC and fail-closed storage\n0b423ec1b084defbe4c87a70344240074715e4db feat(jaspic): stage Supabase atomic OAuth state adapter without deployment\nb2e30647e21c077713736812aa39503eedeff3fe docs(jaspic): record offline owner-gated callback and remaining production controls\ndae8b5126fc533daa69d416f15b2b7882620072b test(jaspic): validate offline owner-bound callback once and reject forged identity\n72a887fc40e790f6983ce28b9a7eca8d9f633166 feat(jaspic): compose offline owner-gated single-use OAuth callback validation\n9c56418fc315abf7e3fb60fecbe72000faafaab8 test(jaspic): require verified owner and deny forged or absent admin identity\n98bc3a85818bb6cfc53cc9cad90b4dc1ec8f13d7 feat(jaspic): add fail-closed offline admin subject and verified email gate\n6012749917365ccf62a0013c528aa43a9f9936f3 docs(jaspic): record staged atomic OAuth database migration and verification limits\n3b6bb45c55db1a9a9330cb44a2ffe1234155f4ad test(jaspic): review OAuth SQL atomic consume and RLS permission invariants\nfb0eb95c9ff8959d0fccc90493555703591f74f4 feat(jaspic): stage RLS-protected atomic OAuth one-use state SQL migration\n20872ad0fc734cffd130954839497368ae9fc70d docs(jaspic): record atomic OAuth state protocol and security gaps\n3ba449e2daf259d6044f00a4ab90672d538269d6 test(jaspic): enforce one-time OAuth state contract and simulated concurrent callback\n4e30b0fad9f6fb07bae90718f10cf82dfde3c817 refactor(jaspic): distinguish OAuth consumption timestamp from expiry\ncc0eb83d436f394466cc185ac0b6244dc97aa00b feat(jaspic): define durable one-time OAuth state consumption contract\n15d067fd590d3bdaeb529578e5fdaa1c65a35014 docs(jaspic): document offline encrypted OAuth session safeguards and remaining gates\n47e291d42cef9d86dba966c8c3954973bf3c47af test(jaspic): make ciphertext tamper detection assertion deterministic\naeae54cec692161ed666061cc4a682cbdde85612 test(jaspic): cover encrypted OAuth state cookie tampering and expiry\n8f2b1b3c7910789bc472e63637513e81c01007a4 feat(jaspic): add offline AES-GCM sealed short-lived OAuth session cookie\n5014003371fae54abd04d33aa6bd28702777a934 docs(jaspic): record offline OAuth exchange and remaining secure callback gates\n97bf9c927a8af26201d56e83654f78f611016942 test(jaspic): add offline web OAuth exchange unit tests\n249ab9249adf61765df55a2534ccde61fc1ac3bb feat(jaspic): add offline web OAuth exchange descriptor and strict token validation\nc4c8d3413b4ce9ad6eee0078a2e2e6ce0e7bd7c1 docs(jaspic): outline iPhone OAuth PKCE with secure callback gates\n7f86162dc5c13f56cad548e7b0f292908f1fc044 test(jaspic): cover web OAuth PKCE, exact callback and CSRF rejection\nf9cd4139cfc8a5619f88b1f5f06759fea53ff6f1 feat(jaspic): prepare web OAuth PKCE consent and CSRF checks offline\na08ac3dc04b7d780f51a2797921a1562871b9b73 docs(jaspic): distinguish personal-use OAuth verification exemption from 7-day testing expiry\nd92b62627c3648ca7a1b4d74e3e2ebf0abc40949 docs(jaspic): note Gmail OAuth testing 7-day refresh-token expiry and least-privilege scope\na2709ccd0da4935c05c01aaf0a1d0e874c3258a4 test(jaspic): add end-to-end offline Gmail MIME-to-API pipeline checks\n2b7dccd486d86da571db560537eaa88ec6351617 test(jaspic): cover offline Gmail API request and injection guards\n927c2331b61396d0e9f8880f49f5d4cd6e1ec3ba feat(jaspic): add inert Gmail API send request descriptor (no transport)\n769b3ef84c2399d076adb88c375af1efdc0ad539 test(jaspic): ensure simulated delivery cannot retry unknown outcomes\n6fef2942234edbb4f122eaf5d1078976e4123705 feat(jaspic): add network-free Gmail delivery state simulator\nec912fa51529bd59b43bc2dde94f2f5c7505f08c test(jaspic): cover offline OAuth response validation and no-auto-retry delivery states\n3b3cf769ad5d4106818af4ef8f77f75ca431dd93 feat(jaspic): add offline Gmail OAuth request validator and delivery-state guard\nc42694a50358006230391a64736b80fd4ff8404c docs(jaspic): record successful offline Gmail CI and remaining auth gates\nefcfd480c24782af84345a657817b09c55181d87 test(jaspic): verify offline Gmail payload preserves MIME body and fails closed\n25f1af17b44bd12f5a46968f634a7f927a8f5f8e feat(jaspic): add strictly offline Gmail raw payload preparation\nc7552beb07a9758feb1949af60b10cba012ac5cd docs(jaspic): design Gmail delivery with strict no-send gates\n4b4592f71b0df4d72a2b04fa20dda2b92bc29278 docs(jaspic): record Gmail delivery and sender preference without enabling mail\na16be00c309a69819d8bfa1290c47bd340e0473d docs(jaspic): document read-only legacy SMTP route and delivery parity gate\nee84fe0442407bf6c26822b017a7e43879e885c8 Record byte-exact verification of two Shiga legacy update emails\n6368cadc3e283f15055a4ca188c15f477ed658ba Verify Hiroshima update rendering against 591 legacy raw emails\na89958c29a2f127e3d089a1ebf8c2fe6d06174e3 Verify 97 legacy JASPIC emails against live source records without sending\ne2000cba6ee9b00079c8c5a8b922920b0dc378e7 Document read-only structural comparison of two Shiga legacy email bodies\nd00f9e279ab7665e60a8052efeef9d7bb2ed8109 Record read-only Shiga Cc raw MIME observations and remaining delivery gaps\nd38d14bcf1a96d25c66542c7e57005133a4e5537 Summarize remaining MIME compatibility gates without enabling delivery\n095dc74a6cbbe02e6be735d40490b45cb5a612cc Document Gmail send-as screenshot evidence without changing sender\nc4afe6129ce46f210a2a49837974cfa531a85c35 Record read-only legacy Gmail MIME header findings\n309238c0304271adf756ecdcab0a1b308bc51043 Record read-only Gmail sent-mail evidence and no-send MIME verification gate\n3ceed783bdedf7eef6d05e091cf2381dc1dcc1bf Document verified Hiroshima and Shiga persisted dry-run and cutover blockers\nf55aa216d999b7648b52e901509a87cff4c41bda Expose privacy-safe JASPIC dry-run candidate breakdown without persisting\n16f16bb0755d06e775209df2f20bfb65f1f30877 Add secret-free JASPIC auth failure diagnostics to Edge logs\n4aaf8a37e603a6a3d7e6fc599800833a77996e7b Document deployed JASPIC dry-run status, secure manual invocation and token rotation\n88749186b028343f0bb435a2a5bd9cd9fcd40949 Test JASPIC fail-closed handling of legacy history lookup failure\n676b95e228001c1461361d5811c8c6247bf875cd Update JASPIC handler test stores for legacy ID lookup\naceedcff5742f3420cc4d7fe0d11ec2457579974 Use imported Hiroshima legacy IDs when planning dry-run notifications\nb44211185f910e1829e34c17c5c964fc006dc513 docs(jaspic): record live GitHub Actions HTTP 200 and JSON counts for Shiga\n8431888ee1253f976339fc18b8cb096c464defcf ci(jaspic): probe Shiga public JSON from GitHub Actions without sending or persistence\n98fd9dd17e3a2656890d89ec8979c9f1b59ec831 docs(jaspic): confirm all CI workflows green after Node test fix\nf5940703fdcd2603cc4be6a6a3f38352f71f02a5 docs(jaspic): document Node test naming CI failure and fix\ndbfdd5b4a42060e22867abbe4b632ab0ddcdd001 ci(jaspic): remove Node test filename inadvertently discovered by Vitest\nc57c121feac29d515a6e02df1a757a19d2d7475e ci(jaspic): run Node-native source probe checks without Vitest conflict\n881ec31a9f0514fa5a91d01f31c8b5999ac92ca6 test(jaspic): isolate node:test probe checks from Vitest discovery\n4b7506a266bdc3749bfe62af82378f2bd3316327 docs(jaspic): record developer's reason for distinct Hiroshima/Shiga collection methods\na4c8615f111fd050e8a10eb85acffbc1af8f9945 docs(jaspic): document reuse of existing source probe, remove duplicate claims\n197cc9c9f99cd2c052bd5556d0deee7eb0bde6b5 test(jaspic): use actual Unicode replacement character in source probe fixture\n179c98445cd1ac1ca02c2b9a2636db9530155282 test(jaspic): distinguish invalid UTF-8 from replacement characters in existing probe\nbca063a4f90946aa172d5013c9f74e4dd70f97fc refactor(jaspic): remove duplicate diagnostic and reuse existing source probe\n027d39dc6837e07eab3ea5f2ddcf8925183df27e refactor(jaspic): remove duplicate diagnostic and reuse existing source probe\nd75f22edaab398a5297f68d5be6daac717b6e88f docs(jaspic): document offline-tested Shiga read-only diagnostics\nc382aedb7b1049c4a6ef0535be120454c7c13d5c docs(jaspic): record no-send Shiga diagnostic script and synthetic tests\n997557a226b0d102a333fc15a565abbf6631507c ci(jaspic): test offline Shiga source probe on pull requests\n8ef60c57956dd334fc0a76473d3bee2e20c1d257 test(jaspic): add offline source probe classification tests\nc51e9fbe8915a0e9edc035c6adc4ce98c5facff1 test(jaspic): type diagnostic mock request options\nc1c8bd1921d75256dc24cd114c4713447f2a1d5a test(jaspic): add read-only Shiga source metadata probe\nd89f48897222a8b7fbd91098affc78d39b8a05ce test(jaspic): cover Shiga source diagnostics without exposing incident data\n39b1f4e1dfc9bc7410db9df47644ab356ed5e433 test(jaspic): add read-only Shiga JSON network and charset diagnostic\n711c6d7d1d1135b3ecf5c3ad7324f179ae0a76b8 docs(jaspic): record Shiga JSON accessibility on Wi-Fi and 4G\n494d639fa19aecdfabdd71ae1cf2153c582f1c66 docs(jaspic): confirm exact Shiga JSON URL and distinguish fetch errors\n96f5df8b71770d1fbc284d5463dd287596a4af97 docs(jaspic): note user-visible Shiga JSON and investigate environment-specific 404\n13989254d9c2ddcf0fcae79fdf8e236fba6a7860 docs(jaspic): trace Gmail SMTP authenticated sender in legacy C# without sending\nf2dbdb8a93af927f74a911c1221fae6bd97c57f1 docs(jaspic): record read-only Gmail MIME evidence and delivered From mismatch\nc101a3e51b2c9f8e465a140aa3e155d2a5f6330e docs(jaspic): record Windows framework MIME parity and successful CI evidence\nec6cfeb1b5c080f4c8c323147eb9eddde6289908 fix(jaspic): align Windows framework runtime and reference-package restore locks\nda2eee72e27b645e1ac620d743ecbb3d5a77c2f9 feat(jaspic): verify offline MIME parity with legacy MimeKit and Windows framework oracle\nf4ef901a69a3d1af9fc8eb058c730d8031f25a44 docs(jaspic): record successful legacy parity and isolated Postgres CI evidence\ndc39ac480bd6ba78888b03143c9e2b487e6d19a5 fix(jaspic): reject numeric source fields and reconcile current main indexes\ne6284fac03fb6af3e681e779ebe9bd6a097965a7 feat(jaspic): prepare isolated no-send collectors and legacy body parity checks\na0388fbb4b52cc5b195c7e738d122249e6390295 test(jaspic): add Shiga format regression safeguards without SMTP\n37f0c6a6cda9a7fae33e0c8742f6b60b4d448c61 feat(jaspic): add isolated legacy Shiga plain-text renderer (no send)\n75683c215c18ef24b264360e87bde8b188e0debb docs: audit legacy Hiroshima/Shiga JASPIC mail compatibility and safe migration gates",
+  "topics": [
+    "通知・配信",
+    "開発管理",
+    "認証・安全性",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "80095fb725688d86957708af1e4b4fc5a2da6ceccc76c7d67f68b788236e40c8",
+  "collected_at": "2026-11-13T03:12:14.705435+00:00"
+}

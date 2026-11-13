@@ -1,0 +1,35 @@
+{
+  "id": "branch-ed5a77acb086e38f",
+  "title": "feat/jaspic-completion-held-count-20261113",
+  "head": "dba96dd6d265eabc3465d302cb60265d391f2843",
+  "head_ref": "feat/jaspic-completion-held-count-20261113",
+  "linked_prs": [
+    232
+  ],
+  "files": [
+    {
+      "path": "docs/sql/jaspic-completion-notification-held-count.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/docs/sql/jaspic-completion-notification-held-count.sql"
+    },
+    {
+      "path": "tests/jaspic-completion-held-count.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/dba96dd6d265eabc3465d302cb60265d391f2843/tests/jaspic-completion-held-count.test.ts"
+    }
+  ],
+  "commits": "dba96dd6d265eabc3465d302cb60265d391f2843 test(jaspic): repeated bicycle exclusions never become new holds\ne5a244b2363cda9ea9c13169113a57850dec1ebf test(jaspic): enforce per-run hold notification and exclusion invariants\nf64666a422ec04583ef6dfde98b27990551b2c3e feat(jaspic): mark nonzero held counts as review-required in completion notice\n6f125b78dfcc15cd873943717fccd76ef0a9daf1 docs(jaspic): clarify held counts are scoped to current run only\n458fd42ac0181bbed8a35c4ba285cc696f781582 feat(jaspic): include validated held counts in existing completion summary",
+  "topics": [
+    "通知・配信"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "2594460dafe3396574c85a900766f28171706b6e5b13095b511f3699a6e27695",
+  "collected_at": "2026-11-13T03:12:14.705435+00:00"
+}

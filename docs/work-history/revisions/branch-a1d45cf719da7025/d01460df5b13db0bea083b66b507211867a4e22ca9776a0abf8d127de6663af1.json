@@ -1,0 +1,28 @@
+{
+  "id": "branch-a1d45cf719da7025",
+  "title": "docs-living-emergency-concept",
+  "head": "80d09c1bcd31ff5c5c3fb82daead0bd92220cde5",
+  "head_ref": "docs-living-emergency-concept",
+  "linked_prs": [
+    19
+  ],
+  "files": [
+    {
+      "path": "PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/80d09c1bcd31ff5c5c3fb82daead0bd92220cde5/PROJECT_OVERVIEW.md"
+    }
+  ],
+  "commits": "80d09c1bcd31ff5c5c3fb82daead0bd92220cde5 docs: define living emergency and laundry alert direction",
+  "topics": [
+    "その他の開発"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "b39b75b82a5afe59f75f38ce95b12e0bc3841349f26a41460aac6a3beb5c6e23",
+  "collected_at": "2026-11-13T03:12:14.705435+00:00"
+}
