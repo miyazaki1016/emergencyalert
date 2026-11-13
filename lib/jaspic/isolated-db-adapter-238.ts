@@ -18,16 +18,16 @@ function isolatedConnectionString(): string {
   return raw;
 }
 
-function previewOnly(): void {
-  if (process.env.VERCEL_ENV !== "preview" ||
-      process.env.VERCEL_GIT_COMMIT_REF !== "test/jaspic-238-isolated-bulk")
-    throw new Error("ISOLATED_PREVIEW_ONLY");
+function isolatedRuntimeOnly(): void {
+  if (process.env.VERCEL_ENV !== "production" ||
+      process.env.JASPIC_ISOLATED_PRODUCTION_TEST_238 !== "enabled")
+    throw new Error("ISOLATED_PRODUCTION_TEST_DISABLED");
 }
 
 async function isolatedQuery<T extends Record<string, unknown>>(
   sql: string, values: unknown[] = [],
 ): Promise<T[]> {
-  previewOnly();
+  isolatedRuntimeOnly();
   const client = new Client({
     connectionString: isolatedConnectionString(),
     connectionTimeoutMillis: 5000,
