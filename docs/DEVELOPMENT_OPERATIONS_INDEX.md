@@ -50,6 +50,7 @@
 | #217 | [Draft] 1mm/h全国雨域検証の独立スキャナ（Issue #216） | feat/national-rain-1mm-dry-run-216 |
 | #222 | [Draft] 全国雨予報6コマGIF生成の独立プロトタイプ (#221) | feat/national-rain-gif-221 |
 | #232 | feat(jaspic): show held counts in completion email | feat/jaspic-completion-held-count-20261113 |
+| #236 | fix(jaspic): 滋賀の一括登録を20件制限で停止させない (#235) | fix/jaspic-235-batched-shiga |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。

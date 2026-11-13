@@ -298,7 +298,7 @@
 | #210 | 固定版N03の全国大雨予報をさきどりトップに接続 | open | `1bd934d87180f2d6125d0edff5af7caa0917261a` | 2026-11-12T12:47:03Z |
 | #211 | さきどりのトップにアメふるの全国大雨予報を表示 | merged | `2257cf75011bdef9f1f4e2cd511ec4a63031a256` | 2026-11-12T11:56:23Z |
 | #215 | Draft: 全国大雨予報からBluesky投稿候補を生成（Issue #213） | open | `2e79ef53556d49decb0a868a9716f62ff1e5780d` | 2026-11-12T14:17:47Z |
-| #217 | [Draft] 1mm/h全国雨域検証の独立スキャナ（Issue #216） | open | `d86ff1dc3cd15c1730e9ea474fcb900066674034` | 2026-11-13T03:06:51Z |
+| #217 | [Draft] 1mm/h全国雨域検証の独立スキャナ（Issue #216） | open | `d86ff1dc3cd15c1730e9ea474fcb900066674034` | 2026-11-13T11:07:27Z |
 | #218 | 開発棚卸しで実装判断と検証根拠を検索できるようにする | merged | `308e82f99b9f6e0d72bc48c65382e2b6cdef97b7` | 2026-11-12T15:33:12Z |
 | #222 | [Draft] 全国雨予報6コマGIF生成の独立プロトタイプ (#221) | open | `5d9de2ff9fe5cd52a701bf718f7081c908a74924` | 2026-11-13T02:03:09Z |
 | #224 | fix(jaspic): 広島・滋賀の発生日だけによる保留を解除 | merged | `e36e28bbbf9cce64d942ade6a454991f775eb118` | 2026-11-13T00:47:56Z |
@@ -307,4 +307,6 @@
 | #230 | fix(jaspic): restore baseline fields safety guard | merged | `9bdb80fd6ace88b69914a8141ca6551a4422173a` | 2026-11-13T03:11:50Z |
 | #232 | feat(jaspic): show held counts in completion email | open | `dba96dd6d265eabc3465d302cb60265d391f2843` | 2026-11-13T03:07:25Z |
 | #234 | JASPIC送信前チェックに候補ID・新規/更新・発生日の内訳を追加 | merged | `f2e03e23db5ead350077f9602873e96113b9ee6c` | 2026-11-13T03:37:43Z |
+| #236 | fix(jaspic): 滋賀の一括登録を20件制限で停止させない (#235) | open | `e3ca534aee6c15b06c6e74567a218d3378ce5a0d` | 2026-11-13T11:10:48Z |
+| #237 | fix(jaspic): 送信前チェックだけ候補件数を表示（実送信変更なし） | merged | `0abceb601fed9b5743cbc497453fdb6040eef118` | 2026-11-13T11:18:42Z |
 <!-- INVENTORY_FACTS_END -->
