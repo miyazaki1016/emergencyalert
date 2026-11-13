@@ -1,0 +1,646 @@
+{
+  "id": "pr-206",
+  "number": 206,
+  "title": "[Draft] 雨通知文C案：弱雨予報の本文だけを状況別に改善",
+  "topics": [
+    "雨量・全国検知",
+    "通知・配信"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更／通知・メール配信とその運用に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "## 目的\nIssue #205 の承認範囲で、Issue #202/#204のC案を**本文だけ**実装。Draft PR、main未統合・本番未反映。\n\n## 変更\n- `watch-rain/notificationDecision.ts` に副作用のない `formatLaundryNotificationBody` を追加。\n- `watch-rain/index.ts` の既存 `laundryBody` の生成だけを置換。既存の `BRING_LAUNDRY_INSIDE` 分岐、優先順位、`returningRain=false`、`notificationEventType`、`notificationUrgency`、送信判定・guard・episode/latch・DB更新を維持。\n- `tests/notificationCopyC.test.ts` でDRY/RAINING、ラベル、RAIN/UNKNOWN、確定状態不明、5_TO_10、イベント種別のfallbackをテスト。\n- `tests/notificationCopyCIntegration.test.ts` に解釈エンジン→意味イベント→本文関数のオフライン連携6件と、watch-rainの既存送信分岐のソース配線検査を追加。\n- `.github/workflows/ci.yml` にSupabase Edge Function `watch-rain/index.ts` のDeno型チェックを追加（外部DB/Pushアクセス・デプロイなし）。\n- 既存24件シャドー24/24・境界プロトタイプ18/18はIssue #204の**先行研究**。今回の製品コードに対するCI成功とは別。\n\n## 追加検証（2026-11-11）\n- 追加コミット：`dc0f6124b5bee171b9a0daf20ef09e4820560adf`（連携テスト）、`78e5f443120e0ccaafe1064ef4be0db305fb2d02`（Denoチェック）、`c47298d6b895a6445e99e742969f4221ab2e389e`（Deno npm依存解決）。\n- CI https://github.com/miyazaki1016/emergencyalert/actions/runs/43005847163 — verify/edge-deno-check/隔離DBテストすべてsuccess、**365/365**。Deno初回失敗はnpm解決設定不足で、最新HEADでは修正済み。\n- PR preflight https://github.com/miyazaki1016/emergencyalert/actions/runs/43005847137 — success。\n- 連携テストは外部DB/Pushを使わず、実際のPush到達・送信時刻/件数の実測同等性を証明しない。**Draft継続、本番受入は別途**。\n\n## 受入・禁止\n- 変更は通知文のみ。観測の時刻チェックは既存RainInterpretationEngineの -5〜15分を再利用。\n- **最新HEAD `c47298d6b895a6445e99e742969f4221ab2e389e` のCIはsuccess**：run 43005847163。54テストファイル・365テスト（C案20件＋連携6件）成功、Edge Deno `deno check` 成功。PR自動照合run 43005847137もsuccess。\n- mainマージ・本番デプロイ・DB書込み・Push送信・Vercelビルドは禁止。手動でCI以外のワークフローは起動しない。\n\n関連: #205, #202, #204\n自動照合: https://github.com/miyazaki1016/emergencyalert/actions/runs/43003991627 （`REVIEW_RECORDED/confirmed/success`）\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-179\",\"decision\":\"reuse\",\"reason\":\"既存の1_TO_5連続3フレーム等の本番閾値と28件（観測可能8件、±10分5/外3、打切り20）を再利用。予測・送信の判定を変えず本文限定とする。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/blob/e61aad6fd16f22111cf618dc5a6e0a4e20d9fed2/docs/research/PRODUCTION_PARITY_28_CASE_RESULTS_20261109.md\"},{\"id\":\"pr-175\",\"decision\":\"reuse\",\"reason\":\"終了通知26件・±10分50%は当時のレーダー一致であり真値でない。終了・強雨の分岐は一切変更しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/blob/4c8383f6154fc5136092ae75f49061ace74c35a6/docs/research/RAIN_ACCURACY_BASELINE_20261109.md\"},{\"id\":\"pr-195\",\"decision\":\"extend\",\"reason\":\"研究用エピソード評価と既存の送信ガード・UNKNOWNの制約を再利用。今回の差分は本文専用関数とそのテストのみ。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/blob/cd57655109506e45c14c2d719190df1a6c4df418/docs/research/RAIN_EPISODE_HANDOFF_20261109.md\"},{\"id\":\"pr-99\",\"decision\":\"reuse\",\"reason\":\"本番予測のsnapshot・レーダー実況照合とwatch-rain送信記録の既存実装を再利用。Cでは記録/送信/DBスキーマを変更せず、保存済み24件の本文シャドー検証を根拠にする。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/blob/development-history/docs/work-history/cases/pr-99.md\"},{\"id\":\"pr-39\",\"decision\":\"extend\",\"reason\":\"過去の文脈対応通知PRはconfirmedAndEndingやeventType変更を含むが、Cではその分岐を一切変更せず、既存の本文生成だけを状況別に限定して改善する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/blob/development-history/docs/work-history/cases/pr-39.md\"},{\"id\":\"pr-38\",\"decision\":\"reuse\",\"reason\":\"強雨通知の別レイヤー、severityとurgency、通知本文の優先順位を再利用し、CではSEVERE分岐・強雨送信条件を変更しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/blob/development-history/docs/work-history/cases/pr-38.md\"}]}\n-->",
+  "snapshot_head": "c47298d6b895a6445e99e742969f4221ab2e389e",
+  "snapshot_consistent": true,
+  "head": "c47298d6b895a6445e99e742969f4221ab2e389e",
+  "base": "dc68641d8e3d740d6a5504d9bbfaa9bf05460984",
+  "base_ref": "main",
+  "head_ref": "fix/rain-notification-copy-c-20261111",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-12T07:08:13Z",
+  "merge_commit_sha": "d8e19e2e57b5816e5636a2a1a556aa528ffda554",
+  "updated_at": "2026-11-12T07:08:14Z",
+  "code_facts": [
+    {
+      "file": ".github/workflows/ci.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "run: deno check --node-modules-dir=auto supabase/functions/watch-rain/index.ts",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/.github/workflows/ci.yml"
+    },
+    {
+      "file": "supabase/functions/watch-rain/notificationDecision.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function formatLaundryNotificationBody(args: {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/supabase/functions/watch-rain/notificationDecision.ts"
+    },
+    {
+      "file": "supabase/functions/watch-rain/notificationDecision.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/supabase/functions/watch-rain/notificationDecision.ts"
+    },
+    {
+      "file": "supabase/functions/watch-rain/notificationDecision.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (args.previousConfirmedWeather === \"DRY\") {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/supabase/functions/watch-rain/notificationDecision.ts"
+    },
+    {
+      "file": "supabase/functions/watch-rain/notificationDecision.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (args.previousConfirmedWeather === \"RAINING\") {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/supabase/functions/watch-rain/notificationDecision.ts"
+    },
+    {
+      "file": "tests/notificationCopyC.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { describe, expect, it } from \"vitest\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyC.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyC.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"C案: actionable light-rain notification copy only\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyC.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyC.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"describes upcoming rain rather than continuing rain when previously DRY\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyC.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyC.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(formatLaundryNotificationBody(base)).toBe(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyC.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyC.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"describes a possible return without claiming it is raining now when previously RAINING\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyC.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyC.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(formatLaundryNotificationBody({ ...base, previousConfirmedWeather: \"RAINING\" })).toBe(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyC.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyC.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"preserves the existing prefix-free wording for targets without labels\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyC.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyC.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(formatLaundryNotificationBody({ ...base, notificationLabel: null })).toBe(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyC.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyC.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(formatLaundryNotificationBody({ ...base, notificationLabel: \"\" })).toBe(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyC.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyC.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it.each([\"RAIN\", \"UNKNOWN\", \"NO_DATA\", \"FETCH_ERROR\", null])(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyC.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyC.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(formatLaundryNotificationBody({ ...base, currentStatus })).toBe(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyC.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyC.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it.each([\"UNKNOWN\", null, \"\"])(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyC.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyCIntegration.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { describe, expect, it } from \"vitest\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyCIntegration.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyCIntegration.test.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "const NOW = new Date(\"2026-11-11T10:00:00.000Z\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyCIntegration.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyCIntegration.test.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "const SOURCE = \"JMA_HIGH_RESOLUTION_PRECIPITATION_NOWCAST\" as const;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyCIntegration.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyCIntegration.test.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function interpretToBody(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyCIntegration.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyCIntegration.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"C案: forecast interpretation -> semantic event -> watch-rain copy (offline)\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyCIntegration.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyCIntegration.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it.each([",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyCIntegration.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyCIntegration.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(interpretation.state).toBe(\"ACTIONABLE_RAIN\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyCIntegration.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyCIntegration.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(interpretation.shouldNotify).toBe(true);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyCIntegration.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyCIntegration.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(event).toMatchObject({",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyCIntegration.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyCIntegration.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(body).toBe(expectedBody);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyCIntegration.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyCIntegration.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"retains the previous wording for 5_TO_10 forecasts\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyCIntegration.test.ts"
+    },
+    {
+      "file": "tests/notificationCopyCIntegration.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(event?.eventType).toBe(\"ACTIONABLE_RAIN_APPROACHING\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyCIntegration.test.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "patch": "diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml\nindex f87c6fa8..7e7e2ce5 100644\n--- a/.github/workflows/ci.yml\n+++ b/.github/workflows/ci.yml\n@@ -129,3 +129,13 @@ jobs:\n       - uses: actions/checkout@v4\n       - run: psql -v ON_ERROR_STOP=1 -f tests/sql/rain-delivery-setup.sql\n       - run: python tests/rain-delivery-concurrency.py\n+\n+  edge-deno-check:\n+    runs-on: ubuntu-latest\n+    steps:\n+      - uses: actions/checkout@v4\n+      - uses: denoland/setup-deno@v2\n+        with:\n+          deno-version: v2.x\n+      - name: Type-check the actual watch-rain Edge Function (no DB or Push)\n+        run: deno check --node-modules-dir=auto supabase/functions/watch-rain/index.ts\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/.github/workflows/ci.yml",
+      "source": {
+        "path": ".github/workflows/ci.yml",
+        "coverage": "全文",
+        "text": "name: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n\njobs:\n  verify:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 22\n      - run: npm install\n      - run: npm test\n      - run: npm run build\n\n  phase1-feedback-rls:\n    runs-on: ubuntu-latest\n    services:\n      postgres:\n        image: postgres:16\n        env:\n          POSTGRES_USER: postgres\n          POSTGRES_PASSWORD: local-test-only\n          POSTGRES_DB: phase1_test\n        ports:\n          - 5432:5432\n        options: >-\n          --health-cmd \"pg_isready -U postgres\"\n          --health-interval 10s\n          --health-timeout 5s\n          --health-retries 5\n    steps:\n      - uses: actions/checkout@v4\n      - name: Test developer dashboard permissions and ground reports\n        env:\n          PGPASSWORD: local-test-only\n        run: psql -h localhost -U postgres -d phase1_test -v ON_ERROR_STOP=1 -f tests/sql/rain-dashboard-integration.sql\n      - name: Test isolated area shadow schema and permissions\n        env:\n          PGPASSWORD: local-test-only\n        run: psql -h localhost -U postgres -d phase1_test -v ON_ERROR_STOP=1 -f tests/sql/rain-shadow-integration.sql\n      - name: Test isolated area evidence schema, bytea and permissions\n        env:\n          PGPASSWORD: local-test-only\n        run: psql -h localhost -U postgres -d phase1_test -v ON_ERROR_STOP=1 -f tests/sql/rain-area-integration.sql\n      - name: Test isolated notification replay schema and private permissions\n        env:\n          PGPASSWORD: local-test-only\n        run: psql -h localhost -U postgres -d phase1_test -v ON_ERROR_STOP=1 -f tests/sql/rain-replay-integration.sql\n      - name: Test feedback RLS on an isolated Postgres, without changing Push delivery schema\n        env:\n          PGPASSWORD: local-test-only\n        run: psql -h localhost -U postgres -d phase1_test -v ON_ERROR_STOP=1 -f tests/sql/feedback-phase1-integration.sql\n\n  phase1-feedback-http:\n    runs-on: ubuntu-latest\n    services:\n      postgres:\n        image: postgres:16\n        env:\n          POSTGRES_USER: postgres\n          POSTGRES_PASSWORD: local-test-only\n          POSTGRES_DB: phase1_http\n        ports:\n          - 5432:5432\n        options: >-\n          --health-cmd \"pg_isready -U postgres\"\n          --health-interval 10s\n          --health-timeout 5s\n          --health-retries 5\n    steps:\n      - uses: actions/checkout@v4\n      - name: Initialize disposable feedback RLS fixture\n        env:\n          PGPASSWORD: local-test-only\n        run: psql -h localhost -U postgres -d phase1_http -v ON_ERROR_STOP=1 -f tests/sql/feedback-phase1-http-setup.sql\n      - name: Start disposable local PostgREST (no Supabase production traffic)\n        env:\n          PHASE1_JWT_SECRET: only-for-disposable-ci-not-a-production-jwt-secret\n        run: |\n          docker run -d --rm --name phase1-postgrest --network host \\\n            -e PGRST_DB_URI=postgres://postgres:local-test-only@127.0.0.1:5432/phase1_http \\\n            -e PGRST_DB_SCHEMAS=public \\\n            -e PGRST_DB_ANON_ROLE=anon \\\n            -e PGRST_JWT_SECRET=\"$PHASE1_JWT_SECRET\" \\\n            postgrest/postgrest:v12.2.3\n          for i in $(seq 1 30); do\n            if curl -sS --max-time 2 'http://127.0.0.1:3000/' >/dev/null 2>&1; then exit 0; fi\n            sleep 1\n          done\n          docker logs phase1-postgrest\n          exit 1\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 22\n      - name: Validate create-edit-reload and owner RLS through HTTP\n        env:\n          PHASE1_JWT_SECRET: only-for-disposable-ci-not-a-production-jwt-secret\n        run: node tests/feedback-phase1-http.mjs\n      - name: Remove disposable PostgREST\n        if: always()\n        run: docker rm -f phase1-postgrest || true\n\n  rain-delivery-concurrency:\n    runs-on: ubuntu-latest\n    services:\n      postgres:\n        image: postgres:16\n        env:\n          POSTGRES_USER: postgres\n          POSTGRES_PASSWORD: local-test-only\n          POSTGRES_DB: rain_delivery_test\n        ports: [5432:5432]\n        options: >-\n          --health-cmd \"pg_isready -U postgres\"\n          --health-interval 10s\n          --health-timeout 5s\n          --health-retries 5\n    env:\n      PGHOST: localhost\n      PGUSER: postgres\n      PGPASSWORD: local-test-only\n      PGDATABASE: rain_delivery_test\n    steps:\n      - uses: actions/checkout@v4\n      - run: psql -v ON_ERROR_STOP=1 -f tests/sql/rain-delivery-setup.sql\n      - run: python tests/rain-delivery-concurrency.py\n\n  edge-deno-check:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: denoland/setup-deno@v2\n        with:\n          deno-version: v2.x\n      - name: Type-check the actual watch-rain Edge Function (no DB or Push)\n        run: deno check --node-modules-dir=auto supabase/functions/watch-rain/index.ts\n",
+        "sha256": "9114e5964fd07f365dd0a3858706029721409cf21320d4191baa164b56460739"
+      }
+    },
+    {
+      "path": "supabase/functions/watch-rain/index.ts",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "patch": "diff --git a/supabase/functions/watch-rain/index.ts b/supabase/functions/watch-rain/index.ts\nindex 8d852c5b..42b2dddf 100644\n--- a/supabase/functions/watch-rain/index.ts\n+++ b/supabase/functions/watch-rain/index.ts\n@@ -1,6 +1,6 @@\n import { createClient } from \"jsr:@supabase/supabase-js@2\";\n import webpush from \"npm:web-push@3.6.7\";\n-import { advanceObservationStreak, nextLastNotifiedAt, nextRainEndingNotified } from \"./notificationDecision.ts\";\n+import { advanceObservationStreak, formatLaundryNotificationBody, nextLastNotifiedAt, nextRainEndingNotified } from \"./notificationDecision.ts\";\n \n import { makeSnapshot, timestamp, type Frame } from \"../_shared/rainReplay.ts\";\n import { bestEffort } from \"../_shared/replayRecording.ts\";\n@@ -70,7 +70,7 @@ Deno.serve(async(req:Request)=>{\n   const upcomingClasses=(rain.forecast??[]).filter(f=>f.status===\"RAIN\"&&f.validTime&&(f.intensityClass===\"1_TO_5\"||f.intensityClass===\"5_TO_10\"));\n   const actionableAt=rain.event.actionableAt;\n   const selectedClass=upcomingClasses.find(f=>f.validTime===actionableAt)?.intensityClass;\n-  const laundryBody=notificationLabel?selectedClass===\"1_TO_5\"?notificationLabel+\"：このあと雨が続きそう。洗濯物を確認してね\":notificationLabel+\"：30分以内に雨が降りそう。洗濯物を確認してね\":selectedClass===\"1_TO_5\"?\"このあと雨が続きそう。洗濯物を確認してね\":\"30分以内に雨が降りそう。洗濯物を確認してね\";\n+  const laundryBody=formatLaundryNotificationBody({notificationLabel,selectedClass,eventType:rain.event.eventType,currentStatus,previousConfirmedWeather:previous?.confirmed_weather});\n   const body=severeEscalation?severeBody:confirmedAndEnding?(notificationLabel?`${notificationLabel}の雨、もうすぐ止みそうだよ🌥️`:\"雨、もうすぐ止みそうだよ🌥️\"):initialRaining?(notificationLabel?`${notificationLabel}はいま雨が降ってるよ☔️`:\"いま雨が降ってるよ☔️\"):rainEnding?(notificationLabel?`${notificationLabel}の雨、もうすぐ止みそうだよ🌥️`:\"雨、もうすぐ止みそうだよ🌥️\"):returningRain?(notificationLabel?`${notificationLabel}：いったん弱まってるけど、また降りそうだよ☔️`:\"いったん弱まってるけど、また降りそうだよ☔️\"):(rain.event.suggestedAction===\"BRING_LAUNDRY_INSIDE\"?laundryBody:(notificationLabel?`${notificationLabel}：${rain.event.suggestedAction}`:rain.event.suggestedAction));\n   const notificationEventType=severeEscalation?\"SEVERE_RAIN\":confirmedAndEnding?\"RAIN_ENDING\":rainEnding?\"RAIN_ENDING\":returningRain?\"RAIN_RETURNING\":rain.event.eventType;\n   const notificationUrgency=severeEscalation?\"DISASTER\":rain.event.urgency;\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/supabase/functions/watch-rain/index.ts",
+      "source": {
+        "path": "supabase/functions/watch-rain/index.ts",
+        "coverage": "全文",
+        "text": "import { createClient } from \"jsr:@supabase/supabase-js@2\";\nimport webpush from \"npm:web-push@3.6.7\";\nimport { advanceObservationStreak, formatLaundryNotificationBody, nextLastNotifiedAt, nextRainEndingNotified } from \"./notificationDecision.ts\";\n\nimport { makeSnapshot, timestamp, type Frame } from \"../_shared/rainReplay.ts\";\nimport { bestEffort } from \"../_shared/replayRecording.ts\";\n\ntype RainEvent = { schemaVersion:1; eventType:string; urgency:\"INFO\"|\"LIFESTYLE_ACTION\"; suggestedAction:string; startsAt:string|null; actionableAt:string|null; endingAt:string|null; source:string; checkedAt:string; sourceValidAt:string|null; };\nimport {advanceForecastEpisode,forecastEpisodeDecision,forecastSignal,bootstrapForecastEpisode,severeForecast,type ForecastEpisode} from './forecastEpisode.ts';\nimport {guardedPush} from './deliveryGuard.ts';\ntype Rgba = { r:number; g:number; b:number; a:number };\ntype RainResponse = { checkedAt?:string; sourceValidAt?:string|null; event?:RainEvent|null; interpretationEnabled?:boolean; interpretation?:unknown; diagnostic?:unknown; observation?:Frame[]; forecast?:Array<{baseTime?:string;validTime?:string;status?:string;intensityClass?:string|null;rgba?:Rgba|null}>; };\nconst VAPID_PUBLIC_KEY=\"BBOurfjBkBMea0Hx90WiF83hmif8qv8LI1hFOx6AthWJQhkIWnhnUUZ0LYm7tyYg_3q1Aq3YP6mbJOtKjWA-Nec\";\n\nDeno.serve(async(req:Request)=>{\n const expected=Deno.env.get(\"WATCH_CRON_TOKEN\"); if(!expected||req.headers.get(\"x-watch-token\")!==expected)return Response.json({error:\"unauthorized\"},{status:401});\n const url=Deno.env.get(\"SUPABASE_URL\"), serviceKey=Deno.env.get(\"SUPABASE_SERVICE_ROLE_KEY\"), vapidPrivateKey=Deno.env.get(\"VAPID_PRIVATE_KEY\");\n if(!url||!serviceKey||!vapidPrivateKey)return Response.json({error:\"server_config\"},{status:500});\n webpush.setVapidDetails(\"mailto:emergencyalert@example.com\",VAPID_PUBLIC_KEY,vapidPrivateKey);\n const db=createClient(url,serviceKey,{auth:{persistSession:false}});\n const {data:targets,error}=await db.from(\"watch_targets\").select(\"id,owner_id,label,display_name,latitude,longitude,notifications_enabled\").eq(\"enabled\",true).limit(100);\n if(error)return Response.json({error:\"target_query_failed\"},{status:500});\n const labelCounts=new Map<string,number>();\n for(const target of targets??[]){if(target.label)labelCounts.set(target.label,(labelCounts.get(target.label)??0)+1);}\n const results=[];\n for(const target of targets??[]){let lease:string|null=null;try{\n  const claimed=await db.rpc('claim_rain_watch_target',{p_target:target.id});if(claimed.error)throw Error('WATCH_CLAIM_FAILED');lease=claimed.data;\n  if(!lease){results.push({id:target.id,status:'BUSY'});continue;}\n  const runtime=await db.from('rain_watch_runtime').select('episode').eq('target_id',target.id).single();if(runtime.error)throw Error('RUNTIME_READ_FAILED');\n  const persist=async(episode:ForecastEpisode,watch:Record<string,unknown>|null=null)=>{const r=await db.rpc('save_rain_watch_runtime',{p_target:target.id,p_lease:lease,p_episode:episode,p_watch_state:watch});if(r.error||r.data!==true)throw Error('WATCH_FENCE_OR_WRITE_FAILED');};\n  const notificationLabel=target.label&&(labelCounts.get(target.label)??0)>1&&target.display_name?`${target.label}（${target.display_name}）`:target.label;\n  const rainUrl=new URL(\"https://emergencyalert-gilt.vercel.app/api/rain\"); rainUrl.searchParams.set(\"lat\",String(target.latitude)); rainUrl.searchParams.set(\"lon\",String(target.longitude));\n  const response=await fetch(rainUrl,{headers:{accept:\"application/json\"}}); if(!response.ok)throw new Error(\"rain_unavailable\");\n  const rain=await response.json() as RainResponse; const checkedAt=rain.checkedAt??new Date().toISOString(); const diagnostic=rain.diagnostic&&typeof rain.diagnostic===\"object\"?{...(rain.diagnostic as Record<string,unknown>),forecastDetails:rain.forecast?.map(frame=>({baseTime:frame.baseTime??null,validTime:frame.validTime??null,status:frame.status??null,intensityClass:frame.intensityClass??null,rgba:frame.rgba??null}))??[]}:rain.diagnostic??null;\n  await db.from(\"rain_diagnostic_history\").insert({target_id:target.id,checked_at:checkedAt,source_valid_at:rain.sourceValidAt??rain.event?.sourceValidAt??null,interpretation_enabled:Boolean(rain.interpretationEnabled),event_type:rain.event?.eventType??null,urgency:rain.event?.urgency??null,current_status:rain.observation?.[0]?.status??null,current_rgba:rain.observation?.[0]?.rgba??null,diagnostic});\n\n  const {data:previous,error:previousError}=await db.from(\"watch_states\").select(\"last_event,last_notified_at,rain_ending_notified,clear_streak,rain_streak,rain_confirmed_notified,confirmed_weather,severe_rain_level\").eq(\"target_id\",target.id).maybeSingle();\n  if(previousError)throw Error('WATCH_STATE_READ_FAILED');\n  const signal=forecastSignal(rain,Date.now());\n  let episode=runtime.data.episode as ForecastEpisode;\n  if(!episode.id){\n   const recent=await db.from('rain_diagnostic_history').select('source_valid_at,event_type,checked_at').eq('target_id',target.id).order('checked_at',{ascending:false}).limit(20);\n   if(recent.error)throw Error('EPISODE_BOOTSTRAP_FAILED');\n   episode=bootstrapForecastEpisode(crypto.randomUUID(),previous,recent.data??[],signal.validAt??rain.sourceValidAt??null);\n  }\n  episode=advanceForecastEpisode(episode,signal.signal,signal.validAt,crypto.randomUUID());\n  await persist(episode);\n  if(!rain.interpretationEnabled||!rain.event){results.push({id:target.id,status:'UNKNOWN'});continue;}\n  const previousEvent=previous?.last_event as RainEvent|null|undefined; const actionable=rain.event.urgency===\"LIFESTYLE_ACTION\";\n  const currentStatus=rain.observation?.[0]?.status??null;\n  const observation=advanceObservationStreak({status:currentStatus,validAt:rain.sourceValidAt??null,previousValidAt:(previousEvent as RainEvent & {observationValidAt?:string|null}|null)?.observationValidAt??previousEvent?.sourceValidAt??null,previousRainStreak:Number(previous?.rain_streak??0),previousClearStreak:Number(previous?.clear_streak??0)});\n  const {rainStreak,clearStreak}=observation;\n  const episodeClosed=clearStreak>=3;\n  const rainConfirmed=rainStreak>=3&&!previous?.rain_confirmed_notified;\n  const severeRank=(v?:string|null)=>v===\"GTE_80\"?3:v===\"50_TO_80\"?2:v===\"30_TO_50\"?1:0;\n  const severeFrame=severeForecast(rain.forecast??[],Date.now());\n  const severeLevel=severeRank(severeFrame?.intensityClass);const previousSevere=episode.peakSevere;\n  const severeEscalation=Boolean(target.notifications_enabled)&&severeLevel>0&&previousSevere===0;\n  const initialRaining=false;\n  const rainEnding=!episodeClosed&&rain.event.eventType===\"RAIN_ENDING\"&&previousEvent?.eventType!==\"RAIN_ENDING\"&&!previous?.rain_ending_notified&&previous?.confirmed_weather===\"RAINING\";\n  const confirmedAndEnding=!episodeClosed&&rainConfirmed&&rain.event.eventType===\"RAIN_ENDING\"&&!previous?.rain_ending_notified;\n  const decision=forecastEpisodeDecision(episode,Boolean(target.notifications_enabled),actionable,severeLevel,rainEnding||confirmedAndEnding);\n  const shouldNotify=decision.notify;let intentRecorded=false;\n\n  let delivered=0,failed=0;\n  const severeMinutes=severeFrame?.validTime?Math.max(0,Math.round((timestamp(severeFrame.validTime)!-Date.now())/60000)):null;\n  const severeName=severeLevel===3?\"猛烈な雨\":severeLevel===2?\"非常に激しい雨\":\"激しい雨\";\n  const severeBody=notificationLabel?`${notificationLabel}：${severeMinutes===0?\"まもなく\":`約${severeMinutes}分後`}に${severeName}（${severeLevel===3?\"80mm/h以上\":severeLevel===2?\"50〜80mm/h\":\"30〜50mm/h\"}）の予測です。周囲の状況に注意してね`:`${severeMinutes===0?\"まもなく\":`約${severeMinutes}分後`}に${severeName}の予測です。周囲の状況に注意してね`;\n  const returningRain=false;\n  const upcomingClasses=(rain.forecast??[]).filter(f=>f.status===\"RAIN\"&&f.validTime&&(f.intensityClass===\"1_TO_5\"||f.intensityClass===\"5_TO_10\"));\n  const actionableAt=rain.event.actionableAt;\n  const selectedClass=upcomingClasses.find(f=>f.validTime===actionableAt)?.intensityClass;\n  const laundryBody=formatLaundryNotificationBody({notificationLabel,selectedClass,eventType:rain.event.eventType,currentStatus,previousConfirmedWeather:previous?.confirmed_weather});\n  const body=severeEscalation?severeBody:confirmedAndEnding?(notificationLabel?`${notificationLabel}の雨、もうすぐ止みそうだよ🌥️`:\"雨、もうすぐ止みそうだよ🌥️\"):initialRaining?(notificationLabel?`${notificationLabel}はいま雨が降ってるよ☔️`:\"いま雨が降ってるよ☔️\"):rainEnding?(notificationLabel?`${notificationLabel}の雨、もうすぐ止みそうだよ🌥️`:\"雨、もうすぐ止みそうだよ🌥️\"):returningRain?(notificationLabel?`${notificationLabel}：いったん弱まってるけど、また降りそうだよ☔️`:\"いったん弱まってるけど、また降りそうだよ☔️\"):(rain.event.suggestedAction===\"BRING_LAUNDRY_INSIDE\"?laundryBody:(notificationLabel?`${notificationLabel}：${rain.event.suggestedAction}`:rain.event.suggestedAction));\n  const notificationEventType=severeEscalation?\"SEVERE_RAIN\":confirmedAndEnding?\"RAIN_ENDING\":rainEnding?\"RAIN_ENDING\":returningRain?\"RAIN_RETURNING\":rain.event.eventType;\n  const notificationUrgency=severeEscalation?\"DISASTER\":rain.event.urgency;\n  const replayId=crypto.randomUUID();\n  const replaySnapshot=shouldNotify?makeSnapshot({eventType:notificationEventType,decidedAt:new Date().toISOString(),latitude:target.latitude,longitude:target.longitude,title:notificationEventType===\"RAIN_ENDING\"?\"🌤️ 雨がやみそう\":\"🌧️ 雨が降りそう\",body,rain,previousState:previous??null,severeTargetTime:notificationEventType==='SEVERE_RAIN'?severeFrame?.validTime:null}):null;\n  const replayFailure=()=>console.warn(\"[rain-replay] recording_failed\");\n  let replayRecorded=false, subscriptionCount=0, subscriptionQueryFailed=false, replayFailed=0, replayUnknown=0;\n  const sendStartedAt=new Date().toISOString();\n  if(replaySnapshot){\n   const targetMs=timestamp(replaySnapshot.targetTime);\n   const inserted=await bestEffort(()=>db.from(\"rain_notification_evaluations\").insert({id:replayId,owner_id:target.owner_id,target_id:target.id,event_type:notificationEventType,target_time:targetMs===null?null:new Date(targetMs).toISOString(),snapshot:replaySnapshot,send_started_at:sendStartedAt,deadline_at:new Date((targetMs??Date.now())+50*60000).toISOString()}).select(\"id\").abortSignal(AbortSignal.timeout(1000)).single(),replayFailure);\n   replayRecorded=Boolean(inserted);\n  }\n  if(shouldNotify){const {data:subscriptions,error:subscriptionError}=await db.from(\"push_subscriptions\").select(\"id,endpoint,p256dh,auth\").eq(\"owner_id\",target.owner_id);\n   subscriptionCount=subscriptions?.length??0;subscriptionQueryFailed=Boolean(subscriptionError);\n   const payload=JSON.stringify({title:severeEscalation?\"🚨 大雨警戒\":(notificationEventType===\"RAIN_ENDING\"?\"🌤️ 雨がやみそう\":\"🌧️ 雨が降りそう\"),body,url:\"/\",data:{targetId:target.id,eventType:notificationEventType}});\n   if(subscriptionError)throw Error('SUBSCRIPTION_QUERY_FAILED');\n   for(const sub of subscriptions??[]){\n    const outcome=await guardedPush({\n     claim:async()=>{const r=await db.rpc('claim_rain_push_attempt',{p_target:target.id,p_lease:lease,p_event:decision.key,p_subscription:sub.id});if(r.error)throw Error('PUSH_CLAIM_FAILED');return r.data;},\n     send:async()=>{await webpush.sendNotification({endpoint:sub.endpoint,keys:{p256dh:sub.p256dh,auth:sub.auth}},payload,{timeout:5000});},\n     finish:async(id,state)=>{const r=await db.rpc('finish_rain_push_attempt',{p_attempt:id,p_status:state});if(r.error)throw Error('PUSH_OUTCOME_WRITE_FAILED');},\n    });\n    if(outcome==='SKIPPED')continue;\n    if(outcome.state==='ACCEPTED')delivered++;else{const code=Number((outcome.error as {statusCode?:number})?.statusCode??0);if(outcome.state==='FAILED_TERMINAL')replayFailed++;else replayUnknown++;if(code===404||code===410)await db.from('push_subscriptions').delete().eq('id',sub.id);else failed++;}\n   }\n   if(subscriptions?.length){\n    // All subscriptions have durable intents/results. A crash before this point\n    // resumes remaining subscriptions; unique attempts skip those already sent.\n    episode={...episode,approachNotified:episode.approachNotified||actionable||severeEscalation,peakSevere:Math.max(episode.peakSevere,severeLevel)};await persist(episode);intentRecorded=true;\n   }\n  }\n  const now=new Date().toISOString();\n  let replayNotificationId:number|null=null,replayHistoryFailed=false;\n  if(delivered>0){const deliveryResult=await db.from(\"notification_deliveries\").insert({owner_id:target.owner_id,target_id:target.id,event_type:notificationEventType,urgency:notificationUrgency,title:severeEscalation?\"🚨 大雨警戒\":(notificationEventType===\"RAIN_ENDING\"?\"🌤️ 雨がやみそう\":\"🌧️ 雨が降りそう\"),body,delivered_at:now,delivered_count:delivered}).select(\"id\").single();replayNotificationId=deliveryResult.data?.id??null;replayHistoryFailed=Boolean(deliveryResult.error);}\n  const notifiedAt=nextLastNotifiedAt({delivered,actionable,previousLastNotifiedAt:previous?.last_notified_at,now});\n  const endingNotified=episodeClosed?false:nextRainEndingNotified({previousRainEndingNotified:Boolean(previous?.rain_ending_notified),rainStreak,endingDelivered:!severeEscalation&&(rainEnding||confirmedAndEnding)&&delivered>0});\n  const rainConfirmedNotified=clearStreak>=3?false:(Boolean(previous?.rain_confirmed_notified)||rainConfirmed);\n  const confirmedWeather=rainStreak>=3?\"RAINING\":clearStreak>=3?\"DRY\":(previous?.confirmed_weather??\"UNKNOWN\");\n  const persistedSevere=episode.peakSevere;\n  await persist(episode,{last_event:{...rain.event,observationValidAt:observation.observationValidAt},last_checked_at:checkedAt,last_notified_at:notifiedAt,rain_ending_notified:endingNotified,clear_streak:clearStreak,rain_streak:rainStreak,rain_confirmed_notified:rainConfirmedNotified,confirmed_weather:confirmedWeather,severe_rain_level:persistedSevere,updated_at:now});\n  if(replayRecorded){\n   await bestEffort(()=>db.from(\"rain_notification_evaluations\").update({notification_id:replayNotificationId,accepted_count:delivered,failed_count:replayFailed,unknown_count:replayUnknown,delivery_status:delivered>0?\"ACCEPTED\":subscriptionQueryFailed||replayUnknown>0?\"UNKNOWN\":subscriptionCount===0?\"NO_SUBSCRIPTIONS\":\"FAILED\",delivery_record_status:replayHistoryFailed?\"WRITE_FAILED\":replayNotificationId!==null?\"LINKED\":\"NOT_APPLICABLE\",send_settled_at:now}).eq(\"id\",replayId).abortSignal(AbortSignal.timeout(1000)),replayFailure);\n  }\n  results.push({id:target.id,status:rain.event.eventType,initialRaining,rainEnding,shouldNotify,delivered,failed,forecastEpisode:episode.id,forecastClearStreak:episode.clearForecasts,intentRecorded,forecastSignal:signal.signal,forecastApproachLatched:episode.approachNotified,suppressionReason:actionable&&!shouldNotify?'FORECAST_EPISODE_ALREADY_NOTIFIED':null});\n }catch(err){results.push({id:target.id,status:\"CHECK_FAILED\",error:String((err as Error)?.message??err)});}finally{if(lease){const released=await db.rpc('release_rain_watch_target',{p_target:target.id,p_lease:lease});if(released.error)console.warn('[rain-watch] lease_release_failed');}}}\n return Response.json({ok:true,checked:results.length,results});\n});",
+        "sha256": "c87fe0ae73d2b4a15c9ca3381c05e4fb0866b1df114ea1641f62622169ea8ded"
+      }
+    },
+    {
+      "path": "supabase/functions/watch-rain/notificationDecision.ts",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 0,
+      "patch": "diff --git a/supabase/functions/watch-rain/notificationDecision.ts b/supabase/functions/watch-rain/notificationDecision.ts\nindex 4509289b..696eade9 100644\n--- a/supabase/functions/watch-rain/notificationDecision.ts\n+++ b/supabase/functions/watch-rain/notificationDecision.ts\n@@ -51,3 +51,35 @@ export function advanceObservationStreak(args: {\n     observationValidAt: validAt,\n   };\n }\n+\n+/**\n+ * C案: change only the copy for an actionable light-rain approach.\n+ * Dispatch, event type, urgency, latches and delivery guards are owned by the caller.\n+ * The upstream rain interpretation already rejects stale observations.\n+ */\n+export function formatLaundryNotificationBody(args: {\n+  notificationLabel?: string | null;\n+  selectedClass?: string | null;\n+  eventType?: string | null;\n+  currentStatus?: string | null;\n+  previousConfirmedWeather?: string | null;\n+}): string {\n+  const prefix = args.notificationLabel ? `${args.notificationLabel}：` : \"\";\n+  const legacy = args.selectedClass === \"1_TO_5\"\n+    ? \"このあと雨が続きそう。洗濯物を確認してね\"\n+    : \"30分以内に雨が降りそう。洗濯物を確認してね\";\n+\n+  if (\n+    args.eventType !== \"ACTIONABLE_RAIN_APPROACHING\" ||\n+    args.selectedClass !== \"1_TO_5\" ||\n+    args.currentStatus !== \"NO_RAIN\"\n+  ) return prefix + legacy;\n+\n+  if (args.previousConfirmedWeather === \"DRY\") {\n+    return prefix + \"このあと雨が降る予報だよ。洗濯物を確認してね\";\n+  }\n+  if (args.previousConfirmedWeather === \"RAINING\") {\n+    return prefix + \"いまは雨が検出されていないけど、また降る予報だよ。洗濯物を確認してね\";\n+  }\n+  return prefix + legacy;\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/supabase/functions/watch-rain/notificationDecision.ts",
+      "source": {
+        "path": "supabase/functions/watch-rain/notificationDecision.ts",
+        "coverage": "全文",
+        "text": "export type WatchRainUrgency = \"INFO\" | \"LIFESTYLE_ACTION\";\n\nexport function shouldNotifyForRain(args: {\n  notificationsEnabled: boolean;\n  currentUrgency: WatchRainUrgency;\n  previousUrgency?: WatchRainUrgency | null;\n  lastNotifiedAt?: string | null;\n  rainEnding?: boolean;\n}) {\n  const actionable = args.currentUrgency === \"LIFESTYLE_ACTION\";\n  return args.notificationsEnabled && (Boolean(args.rainEnding) || (actionable && !args.lastNotifiedAt));\n}\n\n\nexport function nextLastNotifiedAt(args: {\n  delivered: number;\n  actionable: boolean;\n  previousLastNotifiedAt?: string | null;\n  now: string;\n}) {\n  if (args.delivered > 0) return args.now;\n  return args.previousLastNotifiedAt ?? null;\n}\n\nexport function nextRainEndingNotified(args: {\n  previousRainEndingNotified: boolean;\n  rainStreak: number;\n  endingDelivered: boolean;\n}) {\n  if (args.endingDelivered) return true;\n  return args.previousRainEndingNotified;\n}\n\n/** A repeated fetch of the same observation must not advance a weather streak. */\nexport function advanceObservationStreak(args: {\n  status: string | null;\n  validAt: string | null;\n  previousValidAt: string | null;\n  previousRainStreak: number;\n  previousClearStreak: number;\n}) {\n  const { status, validAt, previousValidAt } = args;\n  const fresh = Boolean(validAt && /^\\d{14}$/.test(validAt) && (!previousValidAt || (validAt > previousValidAt)));\n  if (!fresh || (status !== \"RAIN\" && status !== \"NO_RAIN\")) return {\n    rainStreak: args.previousRainStreak, clearStreak: args.previousClearStreak,\n    observationValidAt: previousValidAt,\n  };\n  return {\n    rainStreak: status === \"RAIN\" ? Math.min(args.previousRainStreak + 1, 3) : 0,\n    clearStreak: status === \"NO_RAIN\" ? Math.min(args.previousClearStreak + 1, 3) : 0,\n    observationValidAt: validAt,\n  };\n}\n\n/**\n * C案: change only the copy for an actionable light-rain approach.\n * Dispatch, event type, urgency, latches and delivery guards are owned by the caller.\n * The upstream rain interpretation already rejects stale observations.\n */\nexport function formatLaundryNotificationBody(args: {\n  notificationLabel?: string | null;\n  selectedClass?: string | null;\n  eventType?: string | null;\n  currentStatus?: string | null;\n  previousConfirmedWeather?: string | null;\n}): string {\n  const prefix = args.notificationLabel ? `${args.notificationLabel}：` : \"\";\n  const legacy = args.selectedClass === \"1_TO_5\"\n    ? \"このあと雨が続きそう。洗濯物を確認してね\"\n    : \"30分以内に雨が降りそう。洗濯物を確認してね\";\n\n  if (\n    args.eventType !== \"ACTIONABLE_RAIN_APPROACHING\" ||\n    args.selectedClass !== \"1_TO_5\" ||\n    args.currentStatus !== \"NO_RAIN\"\n  ) return prefix + legacy;\n\n  if (args.previousConfirmedWeather === \"DRY\") {\n    return prefix + \"このあと雨が降る予報だよ。洗濯物を確認してね\";\n  }\n  if (args.previousConfirmedWeather === \"RAINING\") {\n    return prefix + \"いまは雨が検出されていないけど、また降る予報だよ。洗濯物を確認してね\";\n  }\n  return prefix + legacy;\n}\n",
+        "sha256": "22a7a0aa9b723cddcc830fe52ccbe67b136051231ffd47734bb1d3aca50b9758"
+      }
+    },
+    {
+      "path": "tests/notificationCopyC.test.ts",
+      "status": "modified",
+      "additions": 77,
+      "deletions": 0,
+      "patch": "diff --git a/tests/notificationCopyC.test.ts b/tests/notificationCopyC.test.ts\nnew file mode 100644\nindex 00000000..43da39ca\n--- /dev/null\n+++ b/tests/notificationCopyC.test.ts\n@@ -0,0 +1,77 @@\n+import { describe, expect, it } from \"vitest\";\n+import { formatLaundryNotificationBody } from \"../supabase/functions/watch-rain/notificationDecision\";\n+\n+const base = {\n+  notificationLabel: \"羽田空港\",\n+  selectedClass: \"1_TO_5\",\n+  eventType: \"ACTIONABLE_RAIN_APPROACHING\",\n+  currentStatus: \"NO_RAIN\",\n+  previousConfirmedWeather: \"DRY\",\n+} as const;\n+\n+describe(\"C案: actionable light-rain notification copy only\", () => {\n+  it(\"describes upcoming rain rather than continuing rain when previously DRY\", () => {\n+    expect(formatLaundryNotificationBody(base)).toBe(\n+      \"羽田空港：このあと雨が降る予報だよ。洗濯物を確認してね\",\n+    );\n+  });\n+\n+  it(\"describes a possible return without claiming it is raining now when previously RAINING\", () => {\n+    expect(formatLaundryNotificationBody({ ...base, previousConfirmedWeather: \"RAINING\" })).toBe(\n+      \"羽田空港：いまは雨が検出されていないけど、また降る予報だよ。洗濯物を確認してね\",\n+    );\n+  });\n+\n+  it(\"preserves the existing prefix-free wording for targets without labels\", () => {\n+    expect(formatLaundryNotificationBody({ ...base, notificationLabel: null })).toBe(\n+      \"このあと雨が降る予報だよ。洗濯物を確認してね\",\n+    );\n+    expect(formatLaundryNotificationBody({ ...base, notificationLabel: \"\" })).toBe(\n+      \"このあと雨が降る予報だよ。洗濯物を確認してね\",\n+    );\n+  });\n+\n+  it.each([\"RAIN\", \"UNKNOWN\", \"NO_DATA\", \"FETCH_ERROR\", null])(\n+    \"preserves the original copy when the current observation is %s\",\n+    (currentStatus) => {\n+      expect(formatLaundryNotificationBody({ ...base, currentStatus })).toBe(\n+        \"羽田空港：このあと雨が続きそう。洗濯物を確認してね\",\n+      );\n+    },\n+  );\n+\n+  it.each([\"UNKNOWN\", null, \"\"])(\n+    \"preserves the original copy when confirmed weather is %s\",\n+    (previousConfirmedWeather) => {\n+      expect(formatLaundryNotificationBody({ ...base, previousConfirmedWeather })).toBe(\n+        \"羽田空港：このあと雨が続きそう。洗濯物を確認してね\",\n+      );\n+    },\n+  );\n+\n+  it.each([\"5_TO_10\", \"10_TO_20\", null])(\n+    \"preserves the 30-minute copy for class %s\",\n+    (selectedClass) => {\n+      expect(formatLaundryNotificationBody({ ...base, selectedClass })).toBe(\n+        \"羽田空港：30分以内に雨が降りそう。洗濯物を確認してね\",\n+      );\n+    },\n+  );\n+\n+  it.each([\"RAIN_APPROACHING\", \"RAIN_ENDING\", \"SEVERE_RAIN\", \"RAIN_RETURNING\", null])(\n+    \"does not change copy for event type %s\",\n+    (eventType) => {\n+      expect(formatLaundryNotificationBody({ ...base, eventType })).toBe(\n+        \"羽田空港：このあと雨が続きそう。洗濯物を確認してね\",\n+      );\n+    },\n+  );\n+\n+  it(\"keeps label punctuation and leaves the input unchanged\", () => {\n+    const args = Object.freeze({ ...base, notificationLabel: \"羽田空港（東京国際空港）\" });\n+    expect(formatLaundryNotificationBody(args)).toBe(\n+      \"羽田空港（東京国際空港）：このあと雨が降る予報だよ。洗濯物を確認してね\",\n+    );\n+    expect(args.previousConfirmedWeather).toBe(\"DRY\");\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyC.test.ts",
+      "source": {
+        "path": "tests/notificationCopyC.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { formatLaundryNotificationBody } from \"../supabase/functions/watch-rain/notificationDecision\";\n\nconst base = {\n  notificationLabel: \"羽田空港\",\n  selectedClass: \"1_TO_5\",\n  eventType: \"ACTIONABLE_RAIN_APPROACHING\",\n  currentStatus: \"NO_RAIN\",\n  previousConfirmedWeather: \"DRY\",\n} as const;\n\ndescribe(\"C案: actionable light-rain notification copy only\", () => {\n  it(\"describes upcoming rain rather than continuing rain when previously DRY\", () => {\n    expect(formatLaundryNotificationBody(base)).toBe(\n      \"羽田空港：このあと雨が降る予報だよ。洗濯物を確認してね\",\n    );\n  });\n\n  it(\"describes a possible return without claiming it is raining now when previously RAINING\", () => {\n    expect(formatLaundryNotificationBody({ ...base, previousConfirmedWeather: \"RAINING\" })).toBe(\n      \"羽田空港：いまは雨が検出されていないけど、また降る予報だよ。洗濯物を確認してね\",\n    );\n  });\n\n  it(\"preserves the existing prefix-free wording for targets without labels\", () => {\n    expect(formatLaundryNotificationBody({ ...base, notificationLabel: null })).toBe(\n      \"このあと雨が降る予報だよ。洗濯物を確認してね\",\n    );\n    expect(formatLaundryNotificationBody({ ...base, notificationLabel: \"\" })).toBe(\n      \"このあと雨が降る予報だよ。洗濯物を確認してね\",\n    );\n  });\n\n  it.each([\"RAIN\", \"UNKNOWN\", \"NO_DATA\", \"FETCH_ERROR\", null])(\n    \"preserves the original copy when the current observation is %s\",\n    (currentStatus) => {\n      expect(formatLaundryNotificationBody({ ...base, currentStatus })).toBe(\n        \"羽田空港：このあと雨が続きそう。洗濯物を確認してね\",\n      );\n    },\n  );\n\n  it.each([\"UNKNOWN\", null, \"\"])(\n    \"preserves the original copy when confirmed weather is %s\",\n    (previousConfirmedWeather) => {\n      expect(formatLaundryNotificationBody({ ...base, previousConfirmedWeather })).toBe(\n        \"羽田空港：このあと雨が続きそう。洗濯物を確認してね\",\n      );\n    },\n  );\n\n  it.each([\"5_TO_10\", \"10_TO_20\", null])(\n    \"preserves the 30-minute copy for class %s\",\n    (selectedClass) => {\n      expect(formatLaundryNotificationBody({ ...base, selectedClass })).toBe(\n        \"羽田空港：30分以内に雨が降りそう。洗濯物を確認してね\",\n      );\n    },\n  );\n\n  it.each([\"RAIN_APPROACHING\", \"RAIN_ENDING\", \"SEVERE_RAIN\", \"RAIN_RETURNING\", null])(\n    \"does not change copy for event type %s\",\n    (eventType) => {\n      expect(formatLaundryNotificationBody({ ...base, eventType })).toBe(\n        \"羽田空港：このあと雨が続きそう。洗濯物を確認してね\",\n      );\n    },\n  );\n\n  it(\"keeps label punctuation and leaves the input unchanged\", () => {\n    const args = Object.freeze({ ...base, notificationLabel: \"羽田空港（東京国際空港）\" });\n    expect(formatLaundryNotificationBody(args)).toBe(\n      \"羽田空港（東京国際空港）：このあと雨が降る予報だよ。洗濯物を確認してね\",\n    );\n    expect(args.previousConfirmedWeather).toBe(\"DRY\");\n  });\n});\n",
+        "sha256": "d1cb4bb22850b3df3d97742cfa7e846ebe335731bb5f159929d6856342a7b432"
+      }
+    },
+    {
+      "path": "tests/notificationCopyCIntegration.test.ts",
+      "status": "modified",
+      "additions": 108,
+      "deletions": 0,
+      "patch": "diff --git a/tests/notificationCopyCIntegration.test.ts b/tests/notificationCopyCIntegration.test.ts\nnew file mode 100644\nindex 00000000..a05536e7\n--- /dev/null\n+++ b/tests/notificationCopyCIntegration.test.ts\n@@ -0,0 +1,108 @@\n+import { readFileSync } from \"node:fs\";\n+import { fileURLToPath } from \"node:url\";\n+import { describe, expect, it } from \"vitest\";\n+import type { OfficialRainFrame, RainFrameStatus, RainIntensityClass } from \"../lib/weather/types\";\n+import { interpretRainSeries } from \"../lib/weather/rain/RainInterpretationEngine\";\n+import { toRainSemanticEvent } from \"../lib/weather/rain/toRainSemanticEvent\";\n+import { formatLaundryNotificationBody } from \"../supabase/functions/watch-rain/notificationDecision\";\n+\n+const NOW = new Date(\"2026-11-11T10:00:00.000Z\");\n+const SOURCE = \"JMA_HIGH_RESOLUTION_PRECIPITATION_NOWCAST\" as const;\n+const frame = (\n+  status: RainFrameStatus,\n+  validTime: string,\n+  intensityClass: RainIntensityClass | null = null,\n+): OfficialRainFrame => ({\n+  baseTime: \"20261111100000\",\n+  validTime,\n+  status,\n+  intensityClass,\n+  rgba: null,\n+  source: SOURCE,\n+});\n+const current = frame(\"NO_RAIN\", \"20261111100000\");\n+const lightForecast = [\n+  frame(\"RAIN\", \"20261111100500\", \"1_TO_5\"),\n+  frame(\"RAIN\", \"20261111101000\", \"1_TO_5\"),\n+  frame(\"RAIN\", \"20261111101500\", \"1_TO_5\"),\n+];\n+\n+function interpretToBody(\n+  observation: OfficialRainFrame,\n+  forecast: OfficialRainFrame[],\n+  previousConfirmedWeather: string,\n+) {\n+  const interpretation = interpretRainSeries({\n+    now: NOW, current: observation, forecast, expectedForecastFrames: forecast.length,\n+  });\n+  const event = toRainSemanticEvent(interpretation, NOW, observation.validTime);\n+  const selectedClass = forecast.find((f) => f.validTime === event?.actionableAt)?.intensityClass;\n+  const body = event?.suggestedAction === \"BRING_LAUNDRY_INSIDE\"\n+    ? formatLaundryNotificationBody({\n+      notificationLabel: \"羽田空港\",\n+      selectedClass,\n+      eventType: event.eventType,\n+      currentStatus: observation.status,\n+      previousConfirmedWeather,\n+    })\n+    : null;\n+  return { interpretation, event, body };\n+}\n+\n+describe(\"C案: forecast interpretation -> semantic event -> watch-rain copy (offline)\", () => {\n+  it.each([\n+    [\"DRY\", \"羽田空港：このあと雨が降る予報だよ。洗濯物を確認してね\"],\n+    [\"RAINING\", \"羽田空港：いまは雨が検出されていないけど、また降る予報だよ。洗濯物を確認してね\"],\n+  ])(\"preserves actionable event metadata while formatting %s\", (previous, expectedBody) => {\n+    const { interpretation, event, body } = interpretToBody(current, lightForecast, previous);\n+    expect(interpretation.state).toBe(\"ACTIONABLE_RAIN\");\n+    expect(interpretation.shouldNotify).toBe(true);\n+    expect(event).toMatchObject({\n+      eventType: \"ACTIONABLE_RAIN_APPROACHING\",\n+      urgency: \"LIFESTYLE_ACTION\",\n+      suggestedAction: \"BRING_LAUNDRY_INSIDE\",\n+      actionableAt: \"20261111100500\",\n+    });\n+    expect(body).toBe(expectedBody);\n+  });\n+\n+  it(\"retains the previous wording for 5_TO_10 forecasts\", () => {\n+    const forecast = [\n+      frame(\"RAIN\", \"20261111100500\", \"5_TO_10\"),\n+      frame(\"RAIN\", \"20261111101000\", \"5_TO_10\"),\n+    ];\n+    const { event, body } = interpretToBody(current, forecast, \"DRY\");\n+    expect(event?.eventType).toBe(\"ACTIONABLE_RAIN_APPROACHING\");\n+    expect(body).toBe(\"羽田空港：30分以内に雨が降りそう。洗濯物を確認してね\");\n+  });\n+\n+  it(\"does not produce an actionable copy for a raining observation\", () => {\n+    const { interpretation, event, body } = interpretToBody(\n+      frame(\"RAIN\", \"20261111100000\", \"1_TO_5\"), lightForecast, \"RAINING\",\n+    );\n+    expect(interpretation.shouldNotify).toBe(false);\n+    expect(event?.eventType).toBe(\"RAINING\");\n+    expect(body).toBeNull();\n+  });\n+\n+  it(\"does not produce a semantic event for a stale observation\", () => {\n+    const { interpretation, event, body } = interpretToBody(\n+      frame(\"NO_RAIN\", \"20261111094000\"), lightForecast, \"DRY\",\n+    );\n+    expect(interpretation.state).toBe(\"INSUFFICIENT_DATA\");\n+    expect(event).toBeNull();\n+    expect(body).toBeNull();\n+  });\n+\n+  it(\"checks that the production watch-rain path uses the tested formatter without changing delivery routing\", () => {\n+    const file = fileURLToPath(new URL(\"../supabase/functions/watch-rain/index.ts\", import.meta.url));\n+    const source = readFileSync(file, \"utf8\");\n+    expect(source).toContain(\"const laundryBody=formatLaundryNotificationBody({notificationLabel,selectedClass,eventType:rain.event.eventType,currentStatus,previousConfirmedWeather:previous?.confirmed_weather});\");\n+    expect(source).toContain('rain.event.suggestedAction===\"BRING_LAUNDRY_INSIDE\"?laundryBody');\n+    expect(source).toContain('const returningRain=false;');\n+    expect(source).toContain('const notificationEventType=severeEscalation?\"SEVERE_RAIN\"');\n+    expect(source).toContain('const notificationUrgency=severeEscalation?\"DISASTER\":rain.event.urgency;');\n+    expect(source).toContain(\"const decision=forecastEpisodeDecision(\");\n+    expect(source).toContain(\"const outcome=await guardedPush({\");\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyCIntegration.test.ts",
+      "source": {
+        "path": "tests/notificationCopyCIntegration.test.ts",
+        "coverage": "全文",
+        "text": "import { readFileSync } from \"node:fs\";\nimport { fileURLToPath } from \"node:url\";\nimport { describe, expect, it } from \"vitest\";\nimport type { OfficialRainFrame, RainFrameStatus, RainIntensityClass } from \"../lib/weather/types\";\nimport { interpretRainSeries } from \"../lib/weather/rain/RainInterpretationEngine\";\nimport { toRainSemanticEvent } from \"../lib/weather/rain/toRainSemanticEvent\";\nimport { formatLaundryNotificationBody } from \"../supabase/functions/watch-rain/notificationDecision\";\n\nconst NOW = new Date(\"2026-11-11T10:00:00.000Z\");\nconst SOURCE = \"JMA_HIGH_RESOLUTION_PRECIPITATION_NOWCAST\" as const;\nconst frame = (\n  status: RainFrameStatus,\n  validTime: string,\n  intensityClass: RainIntensityClass | null = null,\n): OfficialRainFrame => ({\n  baseTime: \"20261111100000\",\n  validTime,\n  status,\n  intensityClass,\n  rgba: null,\n  source: SOURCE,\n});\nconst current = frame(\"NO_RAIN\", \"20261111100000\");\nconst lightForecast = [\n  frame(\"RAIN\", \"20261111100500\", \"1_TO_5\"),\n  frame(\"RAIN\", \"20261111101000\", \"1_TO_5\"),\n  frame(\"RAIN\", \"20261111101500\", \"1_TO_5\"),\n];\n\nfunction interpretToBody(\n  observation: OfficialRainFrame,\n  forecast: OfficialRainFrame[],\n  previousConfirmedWeather: string,\n) {\n  const interpretation = interpretRainSeries({\n    now: NOW, current: observation, forecast, expectedForecastFrames: forecast.length,\n  });\n  const event = toRainSemanticEvent(interpretation, NOW, observation.validTime);\n  const selectedClass = forecast.find((f) => f.validTime === event?.actionableAt)?.intensityClass;\n  const body = event?.suggestedAction === \"BRING_LAUNDRY_INSIDE\"\n    ? formatLaundryNotificationBody({\n      notificationLabel: \"羽田空港\",\n      selectedClass,\n      eventType: event.eventType,\n      currentStatus: observation.status,\n      previousConfirmedWeather,\n    })\n    : null;\n  return { interpretation, event, body };\n}\n\ndescribe(\"C案: forecast interpretation -> semantic event -> watch-rain copy (offline)\", () => {\n  it.each([\n    [\"DRY\", \"羽田空港：このあと雨が降る予報だよ。洗濯物を確認してね\"],\n    [\"RAINING\", \"羽田空港：いまは雨が検出されていないけど、また降る予報だよ。洗濯物を確認してね\"],\n  ])(\"preserves actionable event metadata while formatting %s\", (previous, expectedBody) => {\n    const { interpretation, event, body } = interpretToBody(current, lightForecast, previous);\n    expect(interpretation.state).toBe(\"ACTIONABLE_RAIN\");\n    expect(interpretation.shouldNotify).toBe(true);\n    expect(event).toMatchObject({\n      eventType: \"ACTIONABLE_RAIN_APPROACHING\",\n      urgency: \"LIFESTYLE_ACTION\",\n      suggestedAction: \"BRING_LAUNDRY_INSIDE\",\n      actionableAt: \"20261111100500\",\n    });\n    expect(body).toBe(expectedBody);\n  });\n\n  it(\"retains the previous wording for 5_TO_10 forecasts\", () => {\n    const forecast = [\n      frame(\"RAIN\", \"20261111100500\", \"5_TO_10\"),\n      frame(\"RAIN\", \"20261111101000\", \"5_TO_10\"),\n    ];\n    const { event, body } = interpretToBody(current, forecast, \"DRY\");\n    expect(event?.eventType).toBe(\"ACTIONABLE_RAIN_APPROACHING\");\n    expect(body).toBe(\"羽田空港：30分以内に雨が降りそう。洗濯物を確認してね\");\n  });\n\n  it(\"does not produce an actionable copy for a raining observation\", () => {\n    const { interpretation, event, body } = interpretToBody(\n      frame(\"RAIN\", \"20261111100000\", \"1_TO_5\"), lightForecast, \"RAINING\",\n    );\n    expect(interpretation.shouldNotify).toBe(false);\n    expect(event?.eventType).toBe(\"RAINING\");\n    expect(body).toBeNull();\n  });\n\n  it(\"does not produce a semantic event for a stale observation\", () => {\n    const { interpretation, event, body } = interpretToBody(\n      frame(\"NO_RAIN\", \"20261111094000\"), lightForecast, \"DRY\",\n    );\n    expect(interpretation.state).toBe(\"INSUFFICIENT_DATA\");\n    expect(event).toBeNull();\n    expect(body).toBeNull();\n  });\n\n  it(\"checks that the production watch-rain path uses the tested formatter without changing delivery routing\", () => {\n    const file = fileURLToPath(new URL(\"../supabase/functions/watch-rain/index.ts\", import.meta.url));\n    const source = readFileSync(file, \"utf8\");\n    expect(source).toContain(\"const laundryBody=formatLaundryNotificationBody({notificationLabel,selectedClass,eventType:rain.event.eventType,currentStatus,previousConfirmedWeather:previous?.confirmed_weather});\");\n    expect(source).toContain('rain.event.suggestedAction===\"BRING_LAUNDRY_INSIDE\"?laundryBody');\n    expect(source).toContain('const returningRain=false;');\n    expect(source).toContain('const notificationEventType=severeEscalation?\"SEVERE_RAIN\"');\n    expect(source).toContain('const notificationUrgency=severeEscalation?\"DISASTER\":rain.event.urgency;');\n    expect(source).toContain(\"const decision=forecastEpisodeDecision(\");\n    expect(source).toContain(\"const outcome=await guardedPush({\");\n  });\n});\n",
+        "sha256": "cb5b5b6da8a2f3576b5ac2291b374e3636e39793d136a1efdeb8354a482e9765"
+      }
+    }
+  ],
+  "file_count": 5,
+  "reported_file_count": 5,
+  "commits": [
+    {
+      "sha": "c2f7c54f1a28fe742fb7e4776afe4b1fdad6a38b",
+      "message": "feat(rain): isolate C copy-only light-rain notification formatter\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/c2f7c54f1a28fe742fb7e4776afe4b1fdad6a38b"
+    },
+    {
+      "sha": "a2e8496df10f57250fa4aa2ffd7e65516a92237d",
+      "message": "refactor(rain): use C formatter only for existing laundry body branch\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/a2e8496df10f57250fa4aa2ffd7e65516a92237d"
+    },
+    {
+      "sha": "b2de3ab68c6f5d18756fbff78bc578f59bc2cee3",
+      "message": "test(rain): cover C copy and unchanged fallback edge cases\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/b2de3ab68c6f5d18756fbff78bc578f59bc2cee3"
+    },
+    {
+      "sha": "dc0f6124b5bee171b9a0daf20ef09e4820560adf",
+      "message": "test: cover rain interpretation to notification C copy offline\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/dc0f6124b5bee171b9a0daf20ef09e4820560adf"
+    },
+    {
+      "sha": "78e5f443120e0ccaafe1064ef4be0db305fb2d02",
+      "message": "ci: type-check watch-rain Deno Edge entrypoint without deployment\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/78e5f443120e0ccaafe1064ef4be0db305fb2d02"
+    },
+    {
+      "sha": "c47298d6b895a6445e99e742969f4221ab2e389e",
+      "message": "ci: resolve Edge npm imports with Deno auto node modules\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/c47298d6b895a6445e99e742969f4221ab2e389e"
+    }
+  ],
+  "comments": [
+    {
+      "body": "## PR #206 本番反映前コードレビュー（2026-11-11）\n\n**判定：本文限定変更としての静的レビューは概ね合格。ただし本番反映の最終受入は保留（Draft継続）。**\n\n### 確認済み（HEAD `b2de3ab68c6f5d18756fbff78bc578f59bc2cee3`）\n1. PR差分は3ファイル。watch-rain/index.ts は `notificationDecision.ts` の関数をimportし、既存の `laundryBody` 式だけを関数呼出しに置換。通知の可否 `forecastEpisodeDecision`、`returningRain=false`、`notificationEventType`、`notificationUrgency`、guardedPush、episode/DB保存は**差分上不変**。\n2. `toRainSemanticEvent` と `RainInterpretationEngine` を確認。実況NO_RAINで将来の持続的な1_TO_5雨が30分以内なら `ACTIONABLE_RAIN_APPROACHING`、`LIFESTYLE_ACTION`、`BRING_LAUNDRY_INSIDE` となる。対象条件は本番APIの実際のeventに対応する。\n3. 現在の実況の鮮度（-5〜+15分）は `RainInterpretationEngine` の既存チェックで保証し、無効な実況は `interpretationEnabled=false` によりwatch-rainの通知判定を通過しない。C案独自の時刻判定は不要。\n4. DRY/RAINING + NO_RAIN + 1_TO_5 + ACTIONABLEの場合だけ新本文。その他は旧本文を返す。強雨・終了等の本文優先順位も既存のまま。\n5. 最新HEADのActions: CI **43004306951** completed/success（53ファイル359件、C案20件、Next.js build成功、DB隔離テストも成功）、PR preflight **43004438757** success。PRを再取得してHEAD同一、Draft/open、main未統合を確認。\n   - CI: https://github.com/miyazaki1016/emergencyalert/actions/runs/43004306951\n   - PR preflight: https://github.com/miyazaki1016/emergencyalert/actions/runs/43004438757\n\n### 本番受入前の残課題（重要）\n- **Supabase Edge FunctionのDeno実行環境での型チェック/バンドル検証が未確認。** 現在の `.github/workflows/ci.yml` のverifyは `npm test` と `next build` であり、`supabase/functions/watch-rain/index.ts` をDenoでコンパイルする工程はない。Next.js build成功をEdge Functionのビルド成功と読み替えない。\n- **実際のwatch-rain分岐から通知payloadまでの統合回帰テストは未実施。** 20件は純粋本文関数のユニットテスト。送信件数・時刻・eventType/guardの同等性は差分から強く支持されるが、独立の統合試験による保証は未取得。\n- 実機Pushと本番の気象条件での表示は未確認。既存24件シャドーは研究上の静的変換であり、本番動作検証ではない。\n\n### 次の安全な手順\n1. 既存のテスト資産を再利用し、**外部サービスに接続しない**Deno Edge型チェック/バンドル検証と、watch-rain本文選択の統合回帰テストを追加または実施（別の作業許可範囲を確認）。\n2. コード/テストを追加したら**新HEADの必要CI成功と再照合成功**を確認。\n3. 最終受入を記録してから、**mainマージ・Supabase Edgeデプロイ・実機Push確認を別途明示許可**のもとで実施。PRはDraftのまま、現時点でマージしない。\n\n今回のレビューは読み取り専用。コード変更、mainマージ、DB書込み、Push送信、Supabase/Vercelデプロイなし。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/206#issuecomment-6793611744"
+    },
+    {
+      "body": "## C案：追加オフライン検証完了（2026-11-11）\n\n**結果：前回レビューで挙げた2つの未確認事項を、Draft PR #206内の追加検証で解消。** ただし実機Push/本番受入は未確認。\n\n- **最新HEAD** `c47298d6b895a6445e99e742969f4221ab2e389e`、ブランチ `fix/rain-notification-copy-c-20261111`、Draft/open、main未統合。\n- 追加した `tests/notificationCopyCIntegration.test.ts` で、`RainInterpretationEngine` → `toRainSemanticEvent` → `formatLaundryNotificationBody` のオフライン連携 **6/6成功**。DRY/RAINING、5_TO_10、実況RAIN、古い実況、watch-rainへの本文関数の配線を検証。配線テストは**ソース文字列の静的確認**であり、実際のPush送信を伴う統合試験ではない。\n- `.github/workflows/ci.yml` に `edge-deno-check` を追加し、Deno 2で実際の `supabase/functions/watch-rain/index.ts` の型チェック成功。初回CI run 43005734000はnpm依存解決不足で失敗したが、`--node-modules-dir=auto` に修正し最新CIで成功。外部依存の取得はあるが、本番DB・Push・Supabaseデプロイへのアクセスなし。\n- **最新CI** run **43005847163 completed/success**：verify **54ファイル・365テスト成功**（C案ユニット20＋連携6）、Next.js build、edge-deno-check、rain-delivery-concurrency、phase1-feedback-http、phase1-feedback-rlsすべて成功。\n  https://github.com/miyazaki1016/emergencyalert/actions/runs/43005847163\n- **最新PR自動照合** run **43006060808 completed/success**（PR本文更新後）。\n  https://github.com/miyazaki1016/emergencyalert/actions/runs/43006060808\n- **最新HEAD再取得一致**。差分は通知本文の製品変更、追加テスト、CIのDeno型チェックのみ。通知可否・送信時刻/件数・eventType・urgency・guardedPush・episode/latch・DBスキーマの製品ロジックは差分上不変。\n\n### 引継ぎの4段階\n1. 引継ぎ：成功（Issue #204）。\n2. 既存成果の再利用：成功（#175/#179/#195/#99/#39/#38）。\n3. 新規変更の検証：**最新HEADで成功**（CI/PR preflight）。\n4. 案件の最終受入：**未完了**。実機Push表示と本番環境での挙動・送信件数同等性は未確認。mainマージ/Edgeデプロイは別途明示許可待ち。\n\n**禁止事項維持**：mainマージ、Supabase/Vercelデプロイ、DB変更、Push送信、Vercelビルドなし。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/206#issuecomment-6793712097"
+    }
+  ],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "c47298d6b895a6445e99e742969f4221ab2e389e",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43173028030",
+      "id": 43173028030,
+      "updated_at": "2026-11-12T07:08:20Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "c47298d6b895a6445e99e742969f4221ab2e389e",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43173027962",
+      "id": 43173027962,
+      "updated_at": "2026-11-12T07:08:24Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "d8e19e2e57b5816e5636a2a1a556aa528ffda554",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43212968378",
+      "id": 43212968378,
+      "updated_at": "2026-11-12T11:55:43Z",
+      "event": "create"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "d8e19e2e57b5816e5636a2a1a556aa528ffda554",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43212792890",
+      "id": 43212792890,
+      "updated_at": "2026-11-12T11:52:16Z",
+      "event": "issues"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "d8e19e2e57b5816e5636a2a1a556aa528ffda554",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43210187103",
+      "id": 43210187103,
+      "updated_at": "2026-11-12T11:33:55Z",
+      "event": "issues"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "d8e19e2e57b5816e5636a2a1a556aa528ffda554",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43210062961",
+      "id": 43210062961,
+      "updated_at": "2026-11-12T11:33:09Z",
+      "event": "issues"
+    },
+    {
+      "name": "JMA Palette Watch",
+      "head_sha": "d8e19e2e57b5816e5636a2a1a556aa528ffda554",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43194612705",
+      "id": 43194612705,
+      "updated_at": "2026-11-12T09:48:11Z",
+      "event": "schedule"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "d8e19e2e57b5816e5636a2a1a556aa528ffda554",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43181897650",
+      "id": 43181897650,
+      "updated_at": "2026-11-12T08:22:21Z",
+      "event": "schedule"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "d8e19e2e57b5816e5636a2a1a556aa528ffda554",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43173042612",
+      "id": 43173042612,
+      "updated_at": "2026-11-12T07:08:31Z",
+      "event": "push"
+    },
+    {
+      "name": "CI",
+      "head_sha": "d8e19e2e57b5816e5636a2a1a556aa528ffda554",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43173042744",
+      "id": 43173042744,
+      "updated_at": "2026-11-12T07:09:09Z",
+      "event": "push"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "d8e19e2e57b5816e5636a2a1a556aa528ffda554",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43173042622",
+      "id": 43173042622,
+      "updated_at": "2026-11-12T07:10:47Z",
+      "event": "push"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "c47298d6b895a6445e99e742969f4221ab2e389e",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43006060808",
+      "id": 43006060808,
+      "updated_at": "2026-11-11T10:44:09Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "c47298d6b895a6445e99e742969f4221ab2e389e",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43005847163",
+      "id": 43005847163,
+      "updated_at": "2026-11-11T10:43:26Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "c47298d6b895a6445e99e742969f4221ab2e389e",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43005847109",
+      "id": 43005847109,
+      "updated_at": "2026-11-11T10:42:32Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "c47298d6b895a6445e99e742969f4221ab2e389e",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43005847137",
+      "id": 43005847137,
+      "updated_at": "2026-11-11T10:42:34Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "NOW",
+    "SOURCE",
+    "VAPID_PUBLIC_KEY",
+    "actionable",
+    "actionableAt",
+    "advanceObservationStreak",
+    "args",
+    "base",
+    "body",
+    "checkedAt",
+    "claimed",
+    "code",
+    "confirmedAndEnding",
+    "confirmedWeather",
+    "current",
+    "currentStatus",
+    "db",
+    "decision",
+    "delivered",
+    "deliveryResult",
+    "diagnostic",
+    "endingNotified",
+    "episode",
+    "episodeClosed",
+    "event",
+    "expected",
+    "file",
+    "forecast",
+    "formatLaundryNotificationBody",
+    "frame",
+    "fresh",
+    "initialRaining",
+    "inserted",
+    "intentRecorded",
+    "interpretToBody",
+    "interpretation",
+    "labelCounts",
+    "laundryBody",
+    "lease",
+    "legacy",
+    "lightForecast",
+    "nextLastNotifiedAt",
+    "nextRainEndingNotified",
+    "notificationEventType",
+    "notificationLabel",
+    "notificationUrgency",
+    "notifiedAt",
+    "now",
+    "observation",
+    "outcome",
+    "payload",
+    "persist",
+    "persistedSevere",
+    "prefix",
+    "previousEvent",
+    "previousSevere",
+    "r",
+    "rain",
+    "rainConfirmed",
+    "rainConfirmedNotified"
+  ],
+  "related_sources": [
+    {
+      "path": "docs/research/PRODUCTION_PARITY_28_CASE_RESULTS_20261109.md",
+      "coverage": "削除済み／取得不能・差分参照",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/docs/research/PRODUCTION_PARITY_28_CASE_RESULTS_20261109.md"
+    },
+    {
+      "path": "docs/research/RAIN_ACCURACY_BASELINE_20261109.md",
+      "coverage": "削除済み／取得不能・差分参照",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/docs/research/RAIN_ACCURACY_BASELINE_20261109.md"
+    },
+    {
+      "path": "docs/research/RAIN_EPISODE_HANDOFF_20261109.md",
+      "coverage": "削除済み／取得不能・差分参照",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/docs/research/RAIN_EPISODE_HANDOFF_20261109.md"
+    },
+    {
+      "path": "docs/work-history/cases/pr-38.md",
+      "coverage": "削除済み／取得不能・差分参照",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/docs/work-history/cases/pr-38.md"
+    },
+    {
+      "path": "docs/work-history/cases/pr-39.md",
+      "coverage": "削除済み／取得不能・差分参照",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/docs/work-history/cases/pr-39.md"
+    },
+    {
+      "path": "docs/work-history/cases/pr-99.md",
+      "coverage": "削除済み／取得不能・差分参照",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/docs/work-history/cases/pr-99.md"
+    },
+    {
+      "path": "tests/rain-delivery-concurrency.py",
+      "coverage": "全文",
+      "text": "\"\"\"Disposable Postgres only. No Supabase, credentials, endpoints or Push calls.\"\"\"\nimport concurrent.futures, subprocess\nT='11111111-1111-4111-8111-111111111111';S='22222222-2222-4222-8222-222222222222'\ndef sql(q):\n return subprocess.check_output(['psql','-q','-X','-A','-t','-v','ON_ERROR_STOP=1','-c','set role service_role; '+q],text=True).strip()\ndef race(q):\n with concurrent.futures.ThreadPoolExecutor(max_workers=2) as ex:return list(ex.map(sql,[q,q]))\nleases=race(f\"select coalesce(public.claim_rain_watch_target('{T}')::text,'BUSY')\")\nassert leases.count('BUSY')==1,leases\nlease=next(x for x in leases if x!='BUSY')\nclaims=race(f\"select coalesce(public.claim_rain_push_attempt('{T}','{lease}','episode/APPROACH','{S}')::text,'SKIP')\")\nassert claims.count('SKIP')==1,claims\nattempt=next(x for x in claims if x!='SKIP')\nassert sql('select count(*) from rain_push_attempts')=='1'\n# Transport accepted, history/state update could fail. A new lease cannot resend.\nsql(f\"select public.finish_rain_push_attempt('{attempt}','ACCEPTED')\")\nsql(f\"update rain_watch_runtime set leased_until=now()-interval '1 second'\")\nnew=sql(f\"select public.claim_rain_watch_target('{T}')\")\nassert sql(f\"select public.save_rain_watch_runtime('{T}','{lease}','{{\\\"stale\\\":true}}')\")=='f'\nassert sql(f\"select coalesce(public.claim_rain_push_attempt('{T}','{new}','episode/APPROACH','{S}')::text,'SKIP')\")=='SKIP'\n# Crash/unknown intent: no automatic retry even after lease expiration.\nunknown=sql(f\"select public.claim_rain_push_attempt('{T}','{new}','episode/SEVERE_1','{S}')\")\nsql(\"update rain_watch_runtime set leased_until=now()-interval '1 second'\")\nlatest=sql(f\"select public.claim_rain_watch_target('{T}')\")\nassert sql(f\"select coalesce(public.claim_rain_push_attempt('{T}','{latest}','episode/SEVERE_1','{S}')::text,'SKIP')\")=='SKIP'\n# Escalation and a genuinely new episode retain separate send rights.\nassert sql(f\"select public.claim_rain_push_attempt('{T}','{latest}','episode/SEVERE_2','{S}')\")\nassert sql(f\"select public.claim_rain_push_attempt('{T}','{latest}','new-episode/APPROACH','{S}')\")\nassert sql(\"select has_table_privilege('authenticated','rain_push_attempts','SELECT')\")=='f'\nassert sql(\"select has_function_privilege('anon','public.claim_rain_watch_target(uuid)','EXECUTE')\")=='f'\nassert sql(\"select count(*) from rain_push_attempts where status='ACCEPTED'\")=='1'\nprint('PASS: 2 independent Postgres connections, exclusive target lease and subscription intent; stale writer fenced; accepted/unknown/crash not resent; escalation/new episode allowed; private permissions')\n",
+      "sha256": "1db75b7c2fcaefb5c45031426c47ab485c0768775f36f5d1b8d929cabd33223a",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/rain-delivery-concurrency.py"
+    }
+  ],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "0409e04bdc2d8d3818e7efd6536599fc0558e615783baea4dfa2f46771df35e8",
+  "ci_digest": "ff4d6a1d2dca15e45d07439de1725b4a9597de03bdd1160bb874120fca788772",
+  "collected_at": "2026-11-13T11:18:56.543787+00:00",
+  "decisions": [
+    {
+      "kind": "test",
+      "title": "describes upcoming rain rather than continuing rain when previously DRY",
+      "condition": "describes upcoming rain rather than continuing rain when previously DRY",
+      "behavior": "if ( ／ if (args.previousConfirmedWeather === \"DRY\") { ／ return prefix + \"このあと雨が降る予報だよ。洗濯物を確認してね\"; ／ if (args.previousConfirmedWeather === \"RAINING\") { ／ return prefix + \"いまは雨が検出されていないけど、また降る予報だよ。洗濯物を確認してね\"; ／ return prefix + legacy;",
+      "verification": "テストの期待値: expect(formatLaundryNotificationBody(base)).toBe( \"羽田空港：このあと雨が降る予報だよ。洗濯物を確認してね\", ); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/supabase/functions/watch-rain/notificationDecision.ts#L60",
+        "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyC.test.ts#L13"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "describes a possible return without claiming it is raining now when previously RAINING",
+      "condition": "describes a possible return without claiming it is raining now when previously RAINING",
+      "behavior": "if ( ／ if (args.previousConfirmedWeather === \"DRY\") { ／ return prefix + \"このあと雨が降る予報だよ。洗濯物を確認してね\"; ／ if (args.previousConfirmedWeather === \"RAINING\") { ／ return prefix + \"いまは雨が検出されていないけど、また降る予報だよ。洗濯物を確認してね\"; ／ return prefix + legacy;",
+      "verification": "テストの期待値: expect(formatLaundryNotificationBody({ ...base, previousConfirmedWeather: \"RAINING\" })).toBe( \"羽田空港：いまは雨が検出されていないけど、また降る予報だよ。洗濯物を確認してね\", ); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/supabase/functions/watch-rain/notificationDecision.ts#L60",
+        "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyC.test.ts#L19"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "preserves the existing prefix-free wording for targets without labels",
+      "condition": "preserves the existing prefix-free wording for targets without labels",
+      "behavior": "if ( ／ if (args.previousConfirmedWeather === \"DRY\") { ／ return prefix + \"このあと雨が降る予報だよ。洗濯物を確認してね\"; ／ if (args.previousConfirmedWeather === \"RAINING\") { ／ return prefix + \"いまは雨が検出されていないけど、また降る予報だよ。洗濯物を確認してね\"; ／ return prefix + legacy;",
+      "verification": "テストの期待値: expect(formatLaundryNotificationBody({ ...base, notificationLabel: null })).toBe( \"このあと雨が降る予報だよ。洗濯物を確認してね\", ); ／ expect(formatLaundryNotificationBody({ ...base, notificationLabel: \"\" })).toBe( \"このあと雨が降る予報だよ。洗濯物を確認してね\", ); ／ expect(formatLaundryNotificationBody({ ...base, currentStatus })).toBe( \"羽田空港：このあと雨が続きそう。洗濯物を確認してね\", ); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/supabase/functions/watch-rain/notificationDecision.ts#L60",
+        "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyC.test.ts#L25"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "keeps label punctuation and leaves the input unchanged",
+      "condition": "keeps label punctuation and leaves the input unchanged",
+      "behavior": "if ( ／ if (args.previousConfirmedWeather === \"DRY\") { ／ return prefix + \"このあと雨が降る予報だよ。洗濯物を確認してね\"; ／ if (args.previousConfirmedWeather === \"RAINING\") { ／ return prefix + \"いまは雨が検出されていないけど、また降る予報だよ。洗濯物を確認してね\"; ／ return prefix + legacy;",
+      "verification": "テストの期待値: expect(formatLaundryNotificationBody(args)).toBe( \"羽田空港（東京国際空港）：このあと雨が降る予報だよ。洗濯物を確認してね\", ); ／ expect(args.previousConfirmedWeather).toBe(\"DRY\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/supabase/functions/watch-rain/notificationDecision.ts#L60",
+        "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyC.test.ts#L70"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "checks that the production watch-rain path uses the tested formatter without changing delivery routing",
+      "condition": "checks that the production watch-rain path uses the tested formatter without changing delivery routing",
+      "behavior": "if ( ／ if (args.previousConfirmedWeather === \"DRY\") { ／ return prefix + \"このあと雨が降る予報だよ。洗濯物を確認してね\"; ／ if (args.previousConfirmedWeather === \"RAINING\") { ／ return prefix + \"いまは雨が検出されていないけど、また降る予報だよ。洗濯物を確認してね\"; ／ return prefix + legacy;",
+      "verification": "テストの期待値: expect(source).toContain(\"const laundryBody=formatLaundryNotificationBody({notificationLabel,selectedClass,eventType:rain.event.eventType,currentStatus,previousConfirmedWeather:previous?.confirmed_weather}); ／ expect(source).toContain('rain.event.suggestedAction===\"BRING_LAUNDRY_INSIDE\"?laundryBody'); ／ expect(source).toContain('const returningRain=false; ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/supabase/functions/watch-rain/notificationDecision.ts#L60",
+        "https://github.com/miyazaki1016/emergencyalert/blob/c47298d6b895a6445e99e742969f4221ab2e389e/tests/notificationCopyCIntegration.test.ts#L97"
+      ]
+    }
+  ]
+}

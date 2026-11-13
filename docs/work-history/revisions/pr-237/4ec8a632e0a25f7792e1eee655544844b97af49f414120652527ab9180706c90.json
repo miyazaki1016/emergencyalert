@@ -1,0 +1,243 @@
+{
+  "id": "pr-237",
+  "number": 237,
+  "title": "fix(jaspic): 送信前チェックだけ候補件数を表示（実送信変更なし）",
+  "topics": [
+    "通知・配信",
+    "画面・表示"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更／画面表示や操作に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Issue #235 / PR #236 の診断機能のみを main から切り出し。読み取り専用 preview で県別候補件数を20件超でも表示、県別エラー・DB上限・時間上限を区別。実送信 route / productionPlan / DB は変更しない。CI と preflight 合格後に本番反映する。\n\n## 既存成果照合判断（PR #237）\nPR #234/#226の原本・コードを照合。送信前プレビューの拡張に限定し、送信本体の制限解除はPR #236に分離する。\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-234\",\"decision\":\"extend\",\"reason\":\"既存の認証済み読み取り専用プレビューにある候補ID・NEW_ID/UPDATED・発生日の表示を維持し、20件超でも県別件数とブロッカーを返す診断だけを追加。既存の送信処理は変更しない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/234\"},{\"id\":\"pr-226\",\"decision\":\"extend\",\"reason\":\"既存の認証・collect・snapshotを使った読み取り専用プレビューを再利用し、productionPlanの送信上限によるプレビュー中断を回避する。メール送信とDB書込は追加しない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/226\"}]}\n-->",
+  "snapshot_head": "0abceb601fed9b5743cbc497453fdb6040eef118",
+  "snapshot_consistent": true,
+  "head": "0abceb601fed9b5743cbc497453fdb6040eef118",
+  "base": "6c28cb0483246d0d53b8c55252a305f63c668f1d",
+  "base_ref": "main",
+  "head_ref": "fix/jaspic-preview-counts-only",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-13T11:18:42Z",
+  "merge_commit_sha": "08e1ca238036ee0c4c93cc6338f25112835e2544",
+  "updated_at": "2026-11-13T11:18:42Z",
+  "code_facts": [
+    {
+      "file": "app/jaspic/dispatch/preview/route.ts",
+      "kind": "関数・クラス定義",
+      "expression": "async function previewPlan(province: Province, snapshot: Snapshot, items: Item[], legacy: ReadonlySet<string>) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0abceb601fed9b5743cbc497453fdb6040eef118/app/jaspic/dispatch/preview/route.ts"
+    },
+    {
+      "file": "app/jaspic/dispatch/preview/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0abceb601fed9b5743cbc497453fdb6040eef118/app/jaspic/dispatch/preview/route.ts"
+    },
+    {
+      "file": "app/jaspic/dispatch/preview/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!oldCount || currentCount < oldCount * 0.8) throw new Error(\"SOURCE_COUNT_GUARD\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0abceb601fed9b5743cbc497453fdb6040eef118/app/jaspic/dispatch/preview/route.ts"
+    },
+    {
+      "file": "app/jaspic/dispatch/preview/route.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (previous && fields[item.kind].some(field => !Object.prototype.hasOwnProperty.call(previous, field))) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0abceb601fed9b5743cbc497453fdb6040eef118/app/jaspic/dispatch/preview/route.ts"
+    },
+    {
+      "file": "app/jaspic/dispatch/preview/route.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "const provinceErrors = settled.flatMap((r, i) => r.status === \"rejected\" ? [{province: provinces[i], error: r.reason instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(r.reason.message) ? r.reason.message : \"PREVIEW_FAILED\"}] : []);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0abceb601fed9b5743cbc497453fdb6040eef118/app/jaspic/dispatch/preview/route.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/dispatch/preview/route.ts",
+      "status": "modified",
+      "additions": 43,
+      "deletions": 5,
+      "patch": "diff --git a/app/jaspic/dispatch/preview/route.ts b/app/jaspic/dispatch/preview/route.ts\nindex d3bfd858..c96f1514 100644\n--- a/app/jaspic/dispatch/preview/route.ts\n+++ b/app/jaspic/dispatch/preview/route.ts\n@@ -1,7 +1,29 @@\n import { createClient } from \"@supabase/supabase-js\";\n import { timingSafeEqual } from \"node:crypto\";\n import { collect, type Province } from \"../../../../supabase/functions/_shared/jaspic/collect\";\n-import { productionPlan } from \"../../../../lib/jaspic/production-plan\";\n+import { plan, type Snapshot } from \"../../../../supabase/functions/_shared/jaspic/state\";\n+import { fields } from \"../../../../supabase/functions/_shared/jaspic/mail\";\n+import type { Item } from \"../../../../supabase/functions/_shared/jaspic/collect\";\n+\n+\n+// Read-only planner: never change the production dispatch guard through this diagnostic release.\n+async function previewPlan(province: Province, snapshot: Snapshot, items: Item[], legacy: ReadonlySet<string>) {\n+  if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\");\n+  const kinds = province === \"hiroshima\" ? [\"hiroshima-person\", \"hiroshima-crime\"] as const : [\"shiga-person\"] as const;\n+  for (const kind of kinds) {\n+    const oldCount = Object.keys(snapshot.records).filter(k => k.startsWith(kind + \":\")).length;\n+    const currentCount = items.filter(i => i.kind === kind).length;\n+    if (!oldCount || currentCount < oldCount * 0.8) throw new Error(\"SOURCE_COUNT_GUARD\");\n+  }\n+  for (const item of items) {\n+    const previous = snapshot.records[`${item.kind}:${item.data.id}`];\n+    if (previous && fields[item.kind].some(field => !Object.prototype.hasOwnProperty.call(previous, field))) {\n+      throw new Error(\"BASELINE_FIELDS_MISSING\");\n+    }\n+  }\n+  const result = await plan(province, snapshot, items, { legacyHiroshimaPersonIds: legacy });\n+  return { ...result, quarantined: [] as string[] };\n+}\n \n export const runtime = \"nodejs\";\n export const dynamic = \"force-dynamic\";\n@@ -21,6 +43,7 @@ export async function POST(request: Request) {\n   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;\n   if (!url || !key) return json({ error: \"NOT_CONFIGURED\" }, 503);\n   const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });\n+  const startedAt = Date.now();\n   try {\n     const [legacyResult, unresolved, running] = await Promise.all([\n       db.rpc(\"jaspic_legacy_hiroshima_person_ids\"),\n@@ -31,11 +54,11 @@ export async function POST(request: Request) {\n         legacyResult.data.some((x: unknown) => typeof x !== \"string\") ||\n         unresolved.error || running.error) throw new Error(\"DATABASE_GUARD\");\n     const provinces: Province[] = [\"hiroshima\", \"shiga\"];\n-    const results = await Promise.all(provinces.map(async province => {\n+    const settled = await Promise.allSettled(provinces.map(async province => {\n       const snapshot = await db.rpc(\"jaspic_snapshot\", { p_province: province });\n       if (snapshot.error) throw new Error(\"DATABASE_GUARD\");\n       const items = await collect(province);\n-      const plan = await productionPlan(province, snapshot.data, items,\n+      const plan = await previewPlan(province, snapshot.data, items,\n         new Set<string>(province === \"hiroshima\" ? legacyResult.data : []));\n       return { province, count: plan.candidates.length, quarantined: plan.quarantined.length,\n         keys: plan.candidates.map(c => c.key),\n@@ -47,9 +70,24 @@ export async function POST(request: Request) {\n             publicationDate: null };\n         }), expectedRevision: plan.expectedRevision };\n     }));\n+    const results = settled.flatMap(r => r.status === \"fulfilled\" ? [r.value] : []);\n+    const provinceErrors = settled.flatMap((r, i) => r.status === \"rejected\" ? [{province: provinces[i], error: r.reason instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(r.reason.message) ? r.reason.message : \"PREVIEW_FAILED\"}] : []);\n+    // Preserve every successfully computed count, even if another province fails.\n+    // A count above the DB limit is a send blocker, not a preview error.\n     const total = results.reduce((sum, p) => sum + p.count, 0);\n-    const safe = total <= 20 && unresolved.data.length === 0 && running.data.length === 0;\n-    return json({ mode: \"READ_ONLY\", safeToSend: safe, total, limit: 20,\n+    const countsComplete = provinceErrors.length === 0;\n+    const perProvinceDbLimit = 20; // Current production jaspic_prepare_production limit.\n+    const dbLimitExceeded = results.some(p => p.count > perProvinceDbLimit);\n+    const timeBudgetExceeded = total * 10_000 > 300_000 - (Date.now() - startedAt) - 60_000;\n+    const blockers = [\n+      ...(!countsComplete ? [\"PROVINCE_PREFLIGHT_FAILED\"] : []),\n+      ...(dbLimitExceeded ? [\"DATABASE_PROVINCE_LIMIT\"] : []),\n+      ...(timeBudgetExceeded ? [\"BULK_SEND_TIME_BUDGET\"] : []),\n+      ...(unresolved.data.length ? [\"UNRESOLVED_DELIVERY\"] : []),\n+      ...(running.data.length ? [\"RUN_LOCKED\"] : []),\n+    ];\n+    const safe = blockers.length === 0;\n+    return json({ mode: \"READ_ONLY\", safeToSend: safe, total, perProvinceDbLimit, dbLimitExceeded, timeBudgetExceeded, blockers, provinceErrors, countsComplete,\n       unresolvedDeliveries: unresolved.data.length, runningRuns: running.data.length, provinces: results });\n   } catch (error) {\n     const code = error instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(error.message)\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0abceb601fed9b5743cbc497453fdb6040eef118/app/jaspic/dispatch/preview/route.ts",
+      "source": {
+        "path": "app/jaspic/dispatch/preview/route.ts",
+        "coverage": "全文",
+        "text": "import { createClient } from \"@supabase/supabase-js\";\nimport { timingSafeEqual } from \"node:crypto\";\nimport { collect, type Province } from \"../../../../supabase/functions/_shared/jaspic/collect\";\nimport { plan, type Snapshot } from \"../../../../supabase/functions/_shared/jaspic/state\";\nimport { fields } from \"../../../../supabase/functions/_shared/jaspic/mail\";\nimport type { Item } from \"../../../../supabase/functions/_shared/jaspic/collect\";\n\n\n// Read-only planner: never change the production dispatch guard through this diagnostic release.\nasync function previewPlan(province: Province, snapshot: Snapshot, items: Item[], legacy: ReadonlySet<string>) {\n  if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\");\n  const kinds = province === \"hiroshima\" ? [\"hiroshima-person\", \"hiroshima-crime\"] as const : [\"shiga-person\"] as const;\n  for (const kind of kinds) {\n    const oldCount = Object.keys(snapshot.records).filter(k => k.startsWith(kind + \":\")).length;\n    const currentCount = items.filter(i => i.kind === kind).length;\n    if (!oldCount || currentCount < oldCount * 0.8) throw new Error(\"SOURCE_COUNT_GUARD\");\n  }\n  for (const item of items) {\n    const previous = snapshot.records[`${item.kind}:${item.data.id}`];\n    if (previous && fields[item.kind].some(field => !Object.prototype.hasOwnProperty.call(previous, field))) {\n      throw new Error(\"BASELINE_FIELDS_MISSING\");\n    }\n  }\n  const result = await plan(province, snapshot, items, { legacyHiroshimaPersonIds: legacy });\n  return { ...result, quarantined: [] as string[] };\n}\n\nexport const runtime = \"nodejs\";\nexport const dynamic = \"force-dynamic\";\nexport const maxDuration = 300;\nconst json = (value: unknown, status = 200) =>\n  Response.json(value, { status, headers: { \"Cache-Control\": \"no-store, private\" } });\n\n/** Read-only production preflight. Never claim a delivery, mutate the DB, or send mail. */\nexport async function POST(request: Request) {\n  const secret = process.env.JASPIC_DISPATCH_TOKEN;\n  const supplied = request.headers.get(\"authorization\")?.replace(/^Bearer /, \"\") ?? \"\";\n  if (!secret || supplied.length !== secret.length ||\n      !timingSafeEqual(Buffer.from(supplied), Buffer.from(secret))) {\n    return json({ error: \"UNAUTHORIZED\" }, 401);\n  }\n  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;\n  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;\n  if (!url || !key) return json({ error: \"NOT_CONFIGURED\" }, 503);\n  const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });\n  const startedAt = Date.now();\n  try {\n    const [legacyResult, unresolved, running] = await Promise.all([\n      db.rpc(\"jaspic_legacy_hiroshima_person_ids\"),\n      db.from(\"jaspic_deliveries\").select(\"status\").in(\"status\", [\"PREPARED\", \"SENDING\", \"UNKNOWN\", \"FAILED\"]).limit(1),\n      db.from(\"jaspic_runs\").select(\"id\").eq(\"status\", \"RUNNING\").limit(1),\n    ]);\n    if (legacyResult.error || !Array.isArray(legacyResult.data) ||\n        legacyResult.data.some((x: unknown) => typeof x !== \"string\") ||\n        unresolved.error || running.error) throw new Error(\"DATABASE_GUARD\");\n    const provinces: Province[] = [\"hiroshima\", \"shiga\"];\n    const settled = await Promise.allSettled(provinces.map(async province => {\n      const snapshot = await db.rpc(\"jaspic_snapshot\", { p_province: province });\n      if (snapshot.error) throw new Error(\"DATABASE_GUARD\");\n      const items = await collect(province);\n      const plan = await previewPlan(province, snapshot.data, items,\n        new Set<string>(province === \"hiroshima\" ? legacyResult.data : []));\n      return { province, count: plan.candidates.length, quarantined: plan.quarantined.length,\n        keys: plan.candidates.map(c => c.key),\n        details: plan.candidates.map(c => {\n          const item = items.find(i => `${i.kind}:${i.data.id}` === c.key);\n          const previous = snapshot.data.records[c.key];\n          return { key: c.key, classification: previous ? \"UPDATED\" : \"NEW_ID\",\n            occurrenceDate: item?.data.occurrence_date_from ?? item?.data.occurrence_dt ?? null,\n            publicationDate: null };\n        }), expectedRevision: plan.expectedRevision };\n    }));\n    const results = settled.flatMap(r => r.status === \"fulfilled\" ? [r.value] : []);\n    const provinceErrors = settled.flatMap((r, i) => r.status === \"rejected\" ? [{province: provinces[i], error: r.reason instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(r.reason.message) ? r.reason.message : \"PREVIEW_FAILED\"}] : []);\n    // Preserve every successfully computed count, even if another province fails.\n    // A count above the DB limit is a send blocker, not a preview error.\n    const total = results.reduce((sum, p) => sum + p.count, 0);\n    const countsComplete = provinceErrors.length === 0;\n    const perProvinceDbLimit = 20; // Current production jaspic_prepare_production limit.\n    const dbLimitExceeded = results.some(p => p.count > perProvinceDbLimit);\n    const timeBudgetExceeded = total * 10_000 > 300_000 - (Date.now() - startedAt) - 60_000;\n    const blockers = [\n      ...(!countsComplete ? [\"PROVINCE_PREFLIGHT_FAILED\"] : []),\n      ...(dbLimitExceeded ? [\"DATABASE_PROVINCE_LIMIT\"] : []),\n      ...(timeBudgetExceeded ? [\"BULK_SEND_TIME_BUDGET\"] : []),\n      ...(unresolved.data.length ? [\"UNRESOLVED_DELIVERY\"] : []),\n      ...(running.data.length ? [\"RUN_LOCKED\"] : []),\n    ];\n    const safe = blockers.length === 0;\n    return json({ mode: \"READ_ONLY\", safeToSend: safe, total, perProvinceDbLimit, dbLimitExceeded, timeBudgetExceeded, blockers, provinceErrors, countsComplete,\n      unresolvedDeliveries: unresolved.data.length, runningRuns: running.data.length, provinces: results });\n  } catch (error) {\n    const code = error instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(error.message)\n      ? error.message : \"PREVIEW_FAILED\";\n    return json({ mode: \"READ_ONLY\", safeToSend: false, error: code }, 503);\n  }\n}\n",
+        "sha256": "051ab7a5296c5828ed11c0183e5828b14a807c40364b1f34c83b4a63303cfe1e"
+      }
+    },
+    {
+      "path": "docs/JASPIC_PREVIEW_COUNTS_ACCEPTANCE.md",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 0,
+      "patch": "diff --git a/docs/JASPIC_PREVIEW_COUNTS_ACCEPTANCE.md b/docs/JASPIC_PREVIEW_COUNTS_ACCEPTANCE.md\nnew file mode 100644\nindex 00000000..4f160058\n--- /dev/null\n+++ b/docs/JASPIC_PREVIEW_COUNTS_ACCEPTANCE.md\n@@ -0,0 +1,15 @@\n+# JASPIC 県別候補件数プレビューの受入条件\n+\n+PR #237 は読み取り専用のプレビューに限定する。既存の認証・データ取得・差分判定を再利用し、メール送信・DB更新・cron・本番送信の上限は変更しない。\n+\n+## 既存成果との照合\n+\n+- PR #234: **extend**。候補ID、NEW_ID/UPDATED、発生日の表示を再利用し、県別件数・送信ブロッカーの表示を追加する。https://github.com/miyazaki1016/emergencyalert/pull/234\n+- PR #226: **extend**。認証済みread-onlyプレビューとsnapshot/collectの経路を再利用し、送信本体の件数制限に依存しない診断計算を追加する。https://github.com/miyazaki1016/emergencyalert/pull/226\n+\n+## 受入条件\n+\n+1. 広島が21件以上でも、差分計算が成功すれば件数とDATABASE_PROVINCE_LIMITを返す。滋賀の件数も別に返す。\n+2. 片方の県が取得失敗した場合、成功した県の件数を残し、countsComplete=false、safeToSend=falseとする。合計値は成功した県だけの部分合計であり、全県合計ではない。\n+3. 認証失敗時は401。レスポンスはprivate/no-store。送信、DB書込は行わない。\n+4. 本番公開前に最新コミットのCIと既存成果照合 REVIEW_RECORDED を確認する。PR #236 の大量送信対応は別途検証する。\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/0abceb601fed9b5743cbc497453fdb6040eef118/docs/JASPIC_PREVIEW_COUNTS_ACCEPTANCE.md",
+      "source": {
+        "path": "docs/JASPIC_PREVIEW_COUNTS_ACCEPTANCE.md",
+        "coverage": "全文",
+        "text": "# JASPIC 県別候補件数プレビューの受入条件\n\nPR #237 は読み取り専用のプレビューに限定する。既存の認証・データ取得・差分判定を再利用し、メール送信・DB更新・cron・本番送信の上限は変更しない。\n\n## 既存成果との照合\n\n- PR #234: **extend**。候補ID、NEW_ID/UPDATED、発生日の表示を再利用し、県別件数・送信ブロッカーの表示を追加する。https://github.com/miyazaki1016/emergencyalert/pull/234\n- PR #226: **extend**。認証済みread-onlyプレビューとsnapshot/collectの経路を再利用し、送信本体の件数制限に依存しない診断計算を追加する。https://github.com/miyazaki1016/emergencyalert/pull/226\n\n## 受入条件\n\n1. 広島が21件以上でも、差分計算が成功すれば件数とDATABASE_PROVINCE_LIMITを返す。滋賀の件数も別に返す。\n2. 片方の県が取得失敗した場合、成功した県の件数を残し、countsComplete=false、safeToSend=falseとする。合計値は成功した県だけの部分合計であり、全県合計ではない。\n3. 認証失敗時は401。レスポンスはprivate/no-store。送信、DB書込は行わない。\n4. 本番公開前に最新コミットのCIと既存成果照合 REVIEW_RECORDED を確認する。PR #236 の大量送信対応は別途検証する。\n",
+        "sha256": "bbf4f146508576c7a2c916b57dfd22ab361ecf98928d311de47249fdc0e02b22"
+      }
+    }
+  ],
+  "file_count": 2,
+  "reported_file_count": 2,
+  "commits": [
+    {
+      "sha": "b5bdbac8f44bc32aa85eeb2c5150027cba0ed976",
+      "message": "feat(jaspic): isolate read-only province candidate counts from production send limits\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/b5bdbac8f44bc32aa85eeb2c5150027cba0ed976"
+    },
+    {
+      "sha": "0abceb601fed9b5743cbc497453fdb6040eef118",
+      "message": "docs(jaspic): record preview-only reuse decisions and production acceptance gates\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/0abceb601fed9b5743cbc497453fdb6040eef118"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "0abceb601fed9b5743cbc497453fdb6040eef118",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43416011595",
+      "id": 43416011595,
+      "updated_at": "2026-11-13T11:18:47Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "0abceb601fed9b5743cbc497453fdb6040eef118",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43416011598",
+      "id": 43416011598,
+      "updated_at": "2026-11-13T11:18:43Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "JASPIC admin monitor SQL",
+      "head_sha": "0abceb601fed9b5743cbc497453fdb6040eef118",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43415793770",
+      "id": 43415793770,
+      "updated_at": "2026-11-13T11:17:15Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "0abceb601fed9b5743cbc497453fdb6040eef118",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43415795041",
+      "id": 43415795041,
+      "updated_at": "2026-11-13T11:17:52Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "0abceb601fed9b5743cbc497453fdb6040eef118",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43415794318",
+      "id": 43415794318,
+      "updated_at": "2026-11-13T11:17:11Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "0abceb601fed9b5743cbc497453fdb6040eef118",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43415794149",
+      "id": 43415794149,
+      "updated_at": "2026-11-13T11:17:06Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "08e1ca238036ee0c4c93cc6338f25112835e2544",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43416035845",
+      "id": 43416035845,
+      "updated_at": "2026-11-13T11:18:49Z",
+      "event": "push"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "08e1ca238036ee0c4c93cc6338f25112835e2544",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43416036108",
+      "id": 43416036108,
+      "updated_at": "2026-11-13T11:18:49Z",
+      "event": "push"
+    },
+    {
+      "name": "CI",
+      "head_sha": "08e1ca238036ee0c4c93cc6338f25112835e2544",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43416035515",
+      "id": 43416035515,
+      "updated_at": "2026-11-13T11:18:49Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "POST",
+    "blockers",
+    "code",
+    "countsComplete",
+    "currentCount",
+    "db",
+    "dbLimitExceeded",
+    "dynamic",
+    "item",
+    "items",
+    "json",
+    "key",
+    "kind",
+    "kinds",
+    "maxDuration",
+    "oldCount",
+    "perProvinceDbLimit",
+    "plan",
+    "previewPlan",
+    "previous",
+    "provinceErrors",
+    "provinces",
+    "result",
+    "results",
+    "runtime",
+    "safe",
+    "secret",
+    "settled",
+    "snapshot",
+    "startedAt",
+    "supplied",
+    "timeBudgetExceeded",
+    "total",
+    "url"
+  ],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "35cee6aae5f45426e662a4025f3f60070d4815a38abe3da3c9f257e01db7b429",
+  "ci_digest": "7fbb338ab47223aa3cc82f45aba400a31bf448976e682630f6677d8863a428cb",
+  "collected_at": "2026-11-13T11:18:56.543787+00:00",
+  "decisions": []
+}

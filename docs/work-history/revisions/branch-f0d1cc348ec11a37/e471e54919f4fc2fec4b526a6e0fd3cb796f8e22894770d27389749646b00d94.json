@@ -1,0 +1,29 @@
+{
+  "id": "branch-f0d1cc348ec11a37",
+  "title": "feat/rain-radar-layer",
+  "head": "3f128221d0721ebf2af3d3823506135dfe6839f0",
+  "head_ref": "feat/rain-radar-layer",
+  "linked_prs": [
+    56
+  ],
+  "files": [
+    {
+      "path": "app/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3f128221d0721ebf2af3d3823506135dfe6839f0/app/page.tsx"
+    }
+  ],
+  "commits": "3f128221d0721ebf2af3d3823506135dfe6839f0 Use even native zooms for JMA radar tiles\nf6708a2af12a49b87342491dbb437e3a4fc9acb7 Keep JMA radar overlay on native zoom 10 tiles\n0471c9f926c766f41e386685d04ccf0008388871 Match radar native zoom range to JMA tiles\nabd91219bd9cc02e1f46ec05880a55b7898a6c67 Overlay current JMA rain radar on map picker",
+  "topics": [
+    "雨量・全国検知",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "bd2a05c4b6267db4cc0bb1d667c00b6b25a1f9a5921a5e4997419de193220bda",
+  "collected_at": "2026-11-13T11:18:56.543787+00:00"
+}

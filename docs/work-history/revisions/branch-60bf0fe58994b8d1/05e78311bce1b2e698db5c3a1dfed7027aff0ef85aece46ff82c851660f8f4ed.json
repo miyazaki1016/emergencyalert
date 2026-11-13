@@ -1,0 +1,93 @@
+{
+  "id": "branch-60bf0fe58994b8d1",
+  "title": "feat/feedback-observed-time-20261022",
+  "head": "d7efe03e23f4b8bbb0e95f1de701a08f8fb38223",
+  "head_ref": "feat/feedback-observed-time-20261022",
+  "linked_prs": [
+    71
+  ],
+  "files": [
+    {
+      "path": "app/components/NotificationFeedbackHistory.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/app/components/NotificationFeedbackHistory.tsx"
+    },
+    {
+      "path": "docs/MY_RAIN_OBSERVATION_TIME_STAGE_20261022.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/docs/MY_RAIN_OBSERVATION_TIME_STAGE_20261022.md"
+    },
+    {
+      "path": "docs/sql/my-rain-feedback-observation-preflight.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/docs/sql/my-rain-feedback-observation-preflight.sql"
+    },
+    {
+      "path": "docs/sql/my-rain-feedback-observation-time.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/docs/sql/my-rain-feedback-observation-time.sql"
+    },
+    {
+      "path": "lib/weather/rain/feedbackObservationTime.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackObservationTime.ts"
+    },
+    {
+      "path": "lib/weather/rain/feedbackPhase1Repository.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/lib/weather/rain/feedbackPhase1Repository.ts"
+    },
+    {
+      "path": "tests/feedback-phase1-http.mjs",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedback-phase1-http.mjs"
+    },
+    {
+      "path": "tests/feedbackObservationTime.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/feedbackObservationTime.test.ts"
+    },
+    {
+      "path": "tests/sql/feedback-phase1-http-setup.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/sql/feedback-phase1-http-setup.sql"
+    },
+    {
+      "path": "tests/sql/feedback-phase1-integration.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/d7efe03e23f4b8bbb0e95f1de701a08f8fb38223/tests/sql/feedback-phase1-integration.sql"
+    }
+  ],
+  "commits": "d7efe03e23f4b8bbb0e95f1de701a08f8fb38223 docs: record pre-migration audit and explicit release gate\nbbdb78261539188f3e04f64ac7117a6284aa2cad docs: add read-only pre-migration schema and feedback-count audit\nfa6c4ba0de0feeec8db6eac113551333990a3ea2 sql: make repeated observation-time migration preserve existing constraint\n8f33243957849257291e19ed8744e57bc8e66037 docs: lock iPhone observation-time QA plan and explicitly-cleared input regression\n2f8462037bc6f9dba916626ee9a8e4ac0c1f11a2 test: reject explicitly cleared observation input while preserving untouched previous time\nac69bb07dc3f716fadcffbb1cc8a37e796e2b00e fix: pass untouched versus cleared date-picker state into observation validation\nbd16ed5e7a49341120c293bfd81caf752b378999 fix: distinguish untouched observed-time input from deliberately cleared value\nbf70054f05e8645178d4f16df0f5fc44ebedec98 docs: preflight production migration ordering and read-only schema check; no prod writes\n39134858dcdd6b49f1dc155e3984619fe63d85d9 test: distinguish observation vs delivery interval from forecast accuracy\nfb9044017f3d93d3acbc8176f90bc8b7f77948d9 feat: show timing difference beneath observed weather report\n09c7977dc6592595b62ad166db4da742a87ab6c1 feat: display elapsed interval between Push arrival and actual eyewitness time without scoring accuracy\nf3b4fe3f01e5dd06a82ad3e06fe8a247fe68ca5f docs: checkpoint timestamp coverage UX, clean state on session loss, and CI success\nb8add8776e6372a557aace5d1b0506d3f8755bff test: show known observation-time coverage without counting unknown as false\nf5dc9217e571f5b2967f23f6b68a8d8150c49a98 feat: show observation-time coverage per watched place and clear stale values when session changes\n9ad19e70a091b59deefff7bf74455aab07459989 feat: summarize how many answered notifications have a real observation time\nc39c35773cc60bb3e7fdda2aa2b5bcec983bd71a fix: only show observation-time save after explicit change and detect edited recalled date\nfb7aad08182a3bafc65b872c1181154d044c6288 feat: let an answered notification record observation time without reselecting weather\n25494bca2cd0ca3121a7e078de8911022d298d2f test: prefilled recalled time can be saved without manually retyping\n375f0fb26a8864b1a14589f88d6a3db039e73a68 fix: preserve prefilled eyewitness time when user explicitly reselects earlier\n26943f538f4084487b5bd715cbf657ea0bda4f6c docs: checkpoint preservation of observed timestamp on feedback edits and passing CI\n51c89e8620f134c96520b38b3ebb0b22ef3f7d71 test: keep eyewitness observation time stable when correcting answer and prefill time input\nefff305006bca0ffb956179b67995053af630136 fix: keep original eyewitness timestamp on answer edits and show recalled time in picker\n194b377b3c87fe4c9aa4c86be48230554f7bd71e feat: preserve observation timestamp on answer edit and prefill recalled time\ncf5a1caeadcf5c136c4ac1e3bb09b30d82a29a70 docs: stage observation time design and explicit production DB migration gate\nf354135d99d9ab143a24a8c271368c26dcc0248d test: check PostgREST 400 check-constraint response separately from 403 RLS denials\n4494a7c947a15cd603f3fbce231eea5ef7897c6e test: use portable SQL assertions for historical observation migration\n8aa0d4e109f68326c23a04333217e19b6564820c test: verify historical null observed-time and new timestamp through real PostgREST\nc3a8657cac1f87d2685b2ba1faaf619738b3860e test: include observation metadata in isolated HTTP PostgREST fixture\n1109c5c706209547a5edb9c397adf9978631eaf7 test: execute migration as schema owner and repair plpgsql test block quoting\n0e4dfc7409fcbfea3b01ad38ffd06aa4dd285667 test: check additive migration, existing answers, observed-time pairing and idempotency\n852b5adea02f83e0e1f2018ccb80c1c14067d945 test: observation time is not forecast or response time\nf980b87b581e78b96be8a9b3edd53995c37bd7be sql: let caller control transaction for reversible migration testing\n84ee2557c4b9242b1ecec1c669c9f6190e57c674 feat: optional observation-time selector on each weather feedback card\n4b82213d3018c7bae807fc59db03a7b8d50d1819 feat: persist optional observed-at timestamp separately from reply save time\nf36539e19be93d2e190b840ea3c334520d778405 sql: stage additive nullable observed-time migration; preserve old answers as unknown\nd499906d5043d07d4d023c15343358a4bc970145 feat: distinguish observed weather time from saved and notification time",
+  "topics": [
+    "雨量・全国検知",
+    "通知・配信",
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "30fb7fbfcca6538d127cdca813b28a6aa6dd39a9e8642c3092f21ed93f59cbff",
+  "collected_at": "2026-11-13T11:18:56.543787+00:00"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "branch-8e34b82c3ff2a9ac",
+  "title": "fix/jaspic-google-identity-callback-20261106",
+  "head": "6517de34477c8f658271d582b2ba9baf10f8e7ef",
+  "head_ref": "fix/jaspic-google-identity-callback-20261106",
+  "linked_prs": [
+    169
+  ],
+  "files": [
+    {
+      "path": "lib/jaspic/oauth-identity-token-validation.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6517de34477c8f658271d582b2ba9baf10f8e7ef/lib/jaspic/oauth-identity-token-validation.ts"
+    }
+  ],
+  "commits": "6517de34477c8f658271d582b2ba9baf10f8e7ef fix(jaspic): accept omitted Google identity scope in token response",
+  "topics": [
+    "通知・配信",
+    "認証・安全性"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "1986684585d62d313c49e78faaaf433ca5d36af18d07412a2c31a26fd687b53d",
+  "collected_at": "2026-11-13T11:18:56.543787+00:00"
+}

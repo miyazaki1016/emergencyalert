@@ -174,11 +174,17 @@
   ],
   "app/jaspic/dispatch/preview/route.ts": [
     "branch-09bdbf4a9671c3f0",
+    "branch-1d61765cd085a548",
+    "branch-4f6a16d597900890",
+    "branch-a606cdef1c84e53b",
     "branch-aa227dbec6e5a3d2",
     "pr-226",
-    "pr-234"
+    "pr-234",
+    "pr-236",
+    "pr-237"
   ],
   "app/jaspic/dispatch/route.ts": [
+    "branch-1d61765cd085a548",
     "branch-334cfb3f08d270ec",
     "branch-3caa7689f822f5c5",
     "branch-68a04500a5ab7038",
@@ -186,7 +192,8 @@
     "pr-190",
     "pr-191",
     "pr-193",
-    "pr-224"
+    "pr-224",
+    "pr-236"
   ],
   "app/jaspic/oauth/callback/route.ts": [
     "branch-ae94438b6e247b91",
@@ -390,6 +397,10 @@
     "branch-b84bde7f845491a7",
     "pr-167"
   ],
+  "lib/jaspic/bulk-send-budget.ts": [
+    "branch-1d61765cd085a548",
+    "pr-236"
+  ],
   "lib/jaspic/delivery-routing.ts": [
     "branch-f257789f539b6669",
     "pr-174"
@@ -469,6 +480,7 @@
     "pr-168"
   ],
   "lib/jaspic/production-plan.ts": [
+    "branch-1d61765cd085a548",
     "branch-3caa7689f822f5c5",
     "branch-5f7d8d7f8dc6dd32",
     "branch-68a04500a5ab7038",
@@ -478,7 +490,8 @@
     "pr-191",
     "pr-192",
     "pr-224",
-    "pr-230"
+    "pr-230",
+    "pr-236"
   ],
   "lib/jaspic/shigaMail.ts": [
     "branch-c32f0f97af1ba1b5",
