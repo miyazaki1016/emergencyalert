@@ -1,0 +1,5 @@
+# Muse review prompt (copy/paste)
+
+Please independently audit Amefuru's rain notification prediction timing. Source repository: miyazaki1016/emergencyalert, research branch research/rain-approach-timing-20261109, draft PR #179. Start with docs/research/MUSE_RAIN_REVIEW_PACKAGE_20261109.md and docs/research/RAIN_APPROACH_EVIDENCE_TIER_AUDIT_20261109.md, then inspect the five rain-engine/watch-rain source files listed there.
+
+Be a skeptical second reviewer. Distinguish forecast issuance time, forecast valid time, actionable threshold, observation valid time, and push delivery time. Never treat NO_SUBSCRIPTIONS as a weather negative, and never treat repeated forecast records as independent episodes. Do not assert improvements based on target-time shifts alone. Identify three competing causes, an offline replay design, evidence gaps, measurable acceptance thresholds and risks of duplicate suppression. Do not edit production or send alerts. Return a concise Japanese report with concrete testable recommendations and unanswered questions. If GitHub access is unavailable, say which files/data are missing rather than guessing.
