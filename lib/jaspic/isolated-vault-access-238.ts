@@ -9,9 +9,9 @@ export async function getIsolatedGmailAccessToken(
   authenticatedAdminId: string,
   request: typeof fetch,
 ): Promise<string> {
-  if (process.env.VERCEL_ENV !== "preview" ||
-      process.env.VERCEL_GIT_COMMIT_REF !== "test/jaspic-238-isolated-bulk")
-    throw new Error("ISOLATED_PREVIEW_ONLY");
+  if (process.env.VERCEL_ENV !== "production" ||
+      process.env.JASPIC_ISOLATED_PRODUCTION_TEST_238 !== "enabled")
+    throw new Error("ISOLATED_PRODUCTION_TEST_DISABLED");
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const ownerId = process.env.JASPIC_ADMIN_USER_ID;
