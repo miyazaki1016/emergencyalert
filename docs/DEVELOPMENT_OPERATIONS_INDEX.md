@@ -49,6 +49,8 @@
 | #215 | Draft: 全国大雨予報からBluesky投稿候補を生成（Issue #213） | feat/bluesky-national-forecast-213 |
 | #217 | [Draft] 1mm/h全国雨域検証の独立スキャナ（Issue #216） | feat/national-rain-1mm-dry-run-216 |
 | #222 | [Draft] 全国雨予報6コマGIF生成の独立プロトタイプ (#221) | feat/national-rain-gif-221 |
+| #228 | feat(jaspic): add admin-only send preview button | feat/jaspic-admin-preview-button-20261113 |
+| #232 | feat(jaspic): show held counts in completion email | feat/jaspic-completion-held-count-20261113 |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
