@@ -10,6 +10,14 @@ export async function productionPlan(province: Province, snapshot: Snapshot, ite
     const currentCount = items.filter(i => i.kind === kind).length;
     if (!oldCount || currentCount < oldCount * .8 || currentCount > oldCount * 1.2) throw new Error("SOURCE_COUNT_GUARD");
   }
+  // A partially migrated baseline must never be treated as a real update.
+  // Check only existing records: newly published IDs have no prior fields.
+  for (const item of items) {
+    const previous = snapshot.records[`${item.kind}:${item.data.id}`];
+    if (previous && fields[item.kind].some(field => !Object.prototype.hasOwnProperty.call(previous, field))) {
+      throw new Error("BASELINE_FIELDS_MISSING");
+    }
+  }
   // Occurrence date is not publication date. Do not quarantine new records
   // solely because the event happened on or before the migration cutoff.
   // The existing plan() category filtering, legacy suppression, baseline,
