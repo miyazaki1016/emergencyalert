@@ -4,6 +4,7 @@ import {readEncryptedGmailRefreshToken} from "../../../lib/jaspic/oauth-gmail-to
 import {collect, type Province} from "../../../supabase/functions/_shared/jaspic/collect";
 import {productionPlan} from "../../../lib/jaspic/production-plan";
 import {sendProductionMail} from "../../../lib/jaspic/production-gmail";
+import {selectDispatchBatch} from "../../../lib/jaspic/dispatch-batch";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
@@ -24,6 +25,7 @@ export async function POST(request:Request) {
   if (!url||!key||!ownerId||!encryptionKey||!clientId||!clientSecret) return response({error:"NOT_CONFIGURED"},503);
   const db=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
   async function rpc(name:string,args:Record<string,unknown>={}) {const r=await db.rpc(name,args);if(r.error)throw new Error("DATABASE_GUARD");return r.data;}
+  const dispatchStartedAt=Date.now();
   const id=randomUUID(); let started=false;
   const sent={hiroshima:0,shiga:0};
   let stage="begin-run";
@@ -32,27 +34,36 @@ export async function POST(request:Request) {
   try {
     if (!await rpc("jaspic_begin_run",{p_id:id})) return response({error:"RUN_LOCKED"},409);
     started=true;
-    // Preflight both complete sources before persisting or sending either province.
-    const provinces:Province[]=["hiroshima","shiga"];
-    const legacy=await rpc("jaspic_legacy_hiroshima_person_ids");
-    if(!Array.isArray(legacy)||legacy.some(x=>typeof x!=="string"))throw new Error("LEGACY_HISTORY_INVALID");
-    stage="source-preflight";
-    const settled=await Promise.allSettled(provinces.map(async province=>{
-      const snapshot=await rpc("jaspic_snapshot",{p_province:province});
-      let items;
-      try { items=await collect(province); } catch {
-        sourceErrors.push({province,code:"SOURCE_FETCH_FAILED"});
-        throw new Error("SOURCE_FETCH_FAILED");
+    // Never observe a new source snapshot while any older delivery is pending.
+    // A previous interrupted RUNNING run remains locked for manual review.
+    stage="queue-guard";
+    const unresolved=await db.from("jaspic_deliveries").select("status").in("status",["SENDING","UNKNOWN","FAILED"]).limit(1);
+    if(unresolved.error)throw new Error("QUEUE_READ_FAILED");
+    if(unresolved.data.length){
+      throw new Error("UNRESOLVED_DELIVERY");
+    }
+    const pending=await db.from("jaspic_deliveries").select("record_key").eq("status","PREPARED").limit(1);
+    if(pending.error)throw new Error("QUEUE_READ_FAILED");
+    const resuming=pending.data.length>0;
+    let plans: {province:Province;result:Awaited<ReturnType<typeof productionPlan>>}[]=[];
+    if(!resuming){
+      const provinces:Province[]=["hiroshima","shiga"];
+      const legacy=await rpc("jaspic_legacy_hiroshima_person_ids");
+      if(!Array.isArray(legacy)||legacy.some(x=>typeof x!=="string"))throw new Error("LEGACY_HISTORY_INVALID");
+      stage="source-preflight";
+      const settled=await Promise.allSettled(provinces.map(async province=>{
+        const snapshot=await rpc("jaspic_snapshot",{p_province:province});
+        let items;
+        try { items=await collect(province); } catch {
+          sourceErrors.push({province,code:"SOURCE_FETCH_FAILED"});
+          throw new Error("SOURCE_FETCH_FAILED");
+        }
+        return {province,result:await productionPlan(province,snapshot,items,new Set(province==="hiroshima"?legacy:[]))};
+      }));
+      const failure=settled.find(r=>r.status==="rejected");
+      if(failure?.status==="rejected")throw failure.reason;
+      plans=settled.flatMap(r=>r.status==="fulfilled"?[r.value]:[]);
       }
-      return {province,result:await productionPlan(province,snapshot,items,new Set(province==="hiroshima"?legacy:[]))};
-    }));
-    const failure=settled.find(r=>r.status==="rejected");
-    if(failure?.status==="rejected")throw failure.reason;
-    const plans=settled.flatMap(r=>r.status==="fulfilled"?[r.value]:[]);
-    stage="plan-guard";
-    if(plans.reduce((n,p)=>n+p.result.candidates.length,0)>20)throw new Error("DIFFERENCE_LIMIT");
-    const unresolved=await db.from("jaspic_deliveries").select("status").in("status",["PREPARED","SENDING","UNKNOWN","FAILED"]).limit(1);
-    if(unresolved.error||unresolved.data.length)throw new Error("UNRESOLVED_DELIVERY");
     // Refresh validates the existing encrypted OAuth credential even for a zero-item run.
     stage="gmail-auth";
     const refresh=await readEncryptedGmailRefreshToken({db,ownerId,expectedAdminId:ownerId,encryptionKey});
@@ -61,16 +72,28 @@ export async function POST(request:Request) {
     if(!tokenResponse.ok)throw new Error("GMAIL_REFRESH_FAILED");
     const token=await tokenResponse.json();
     if(typeof token.access_token!=="string"||token.access_token.length<8)throw new Error("GMAIL_TOKEN_INVALID");
-    stage="prepare-delivery";
-    for(const {province,result} of plans){
-      const candidates=result.candidates.map(c=>({...c,mail:{...c.mail,from:"miyazaki1016@gmail.com",to:"getter01@jaspic-nes.net",cc:null}}));
-      await rpc("jaspic_prepare_production",{p_id:id,p_province:province,p_revision:result.expectedRevision,p_records:result.records,p_candidates:candidates});
+    if(resuming){
+      stage="resume-delivery";
+      await rpc("jaspic_resume_prepared",{p_id:id});
+    }else{
+      stage="prepare-delivery";
+      const preparedPlans=plans.map(({province,result})=>({
+        province,revision:result.expectedRevision,records:result.records,
+        candidates:result.candidates.map(c=>({...c,mail:{...c.mail,from:"miyazaki1016@gmail.com",to:"getter01@jaspic-nes.net",cc:null}})),
+      }));
+      // One RPC/transaction: never commit Hiroshima's snapshot without Shiga's.
+      await rpc("jaspic_prepare_all_production",{p_id:id,p_plans:preparedPlans});
     }
-    // Read immutable queued payloads, never regenerate mail after observation was committed.
-    const queue=await db.from("jaspic_deliveries").select("province,record_key,version,mail").eq("run_id",id).eq("status","PREPARED");
+    // Immutable mail is always read from the ledger. Limit only the sending,
+    // never the candidate persistence or source snapshot.
+    const queue=await db.from("jaspic_deliveries").select("province,record_key,version,mail")
+      .eq("run_id",id).eq("status","PREPARED")
+      .order("province",{ascending:true}).order("record_key",{ascending:true})
+      .order("version",{ascending:true}).limit(1000);
     if(queue.error)throw new Error("QUEUE_READ_FAILED");
+    const {selected}=selectDispatchBatch(queue.data,300_000-(Date.now()-dispatchStartedAt));
     stage="gmail-send";
-    for(const delivery of queue.data){
+    for(const delivery of selected){
       province=delivery.province as Province;
       const lease=randomUUID();
       if(!await rpc("jaspic_claim",{p_province:delivery.province,p_key:delivery.record_key,p_version:delivery.version,p_token:lease}))throw new Error("CLAIM_REJECTED");
@@ -80,8 +103,10 @@ export async function POST(request:Request) {
       sent[delivery.province as Province]++;
     }
     stage="save-result";
+    const remaining=await db.from("jaspic_deliveries").select("record_key",{count:"exact",head:true}).eq("status","PREPARED");
+    if(remaining.error||remaining.count===null)throw new Error("QUEUE_READ_FAILED");
     province=null;
-    const result={runId:id,status:"SUCCEEDED",sent,candidates:plans.map(p=>({province:p.province,count:p.result.candidates.length})),quarantined:plans.map(p=>({province:p.province,count:p.result.quarantined.length}))};
+    const result={runId:id,status:"SUCCEEDED",remainingPrepared:remaining.count,resuming,sent,candidates:plans.map(p=>({province:p.province,count:p.result.candidates.length})),quarantined:plans.map(p=>({province:p.province,count:p.result.quarantined.length}))};
     const saved=await db.from("jaspic_runs").update({status:"SUCCEEDED",finished_at:new Date().toISOString(),result}).eq("id",id).eq("status","RUNNING").select("id");
     if(saved.error||saved.data.length!==1)throw new Error("RUN_RESULT_NOT_SAVED");
     return response(result);
