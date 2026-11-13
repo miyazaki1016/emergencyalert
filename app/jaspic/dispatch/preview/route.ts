@@ -33,7 +33,7 @@ export async function POST(request: Request) {
         legacyResult.data.some((x: unknown) => typeof x !== "string") ||
         unresolved.error || running.error) throw new Error("DATABASE_GUARD");
     const provinces: Province[] = ["hiroshima", "shiga"];
-    const results = await Promise.all(provinces.map(async province => {
+    const settled = await Promise.allSettled(provinces.map(async province => {
       const snapshot = await db.rpc("jaspic_snapshot", { p_province: province });
       if (snapshot.error) throw new Error("DATABASE_GUARD");
       const items = await collect(province);
@@ -49,18 +49,21 @@ export async function POST(request: Request) {
             publicationDate: null };
         }), expectedRevision: plan.expectedRevision };
     }));
+    const results = settled.flatMap(r => r.status === "fulfilled" ? [r.value] : []);
+    const provinceErrors = settled.flatMap((r, i) => r.status === "rejected" ? [{province: provinces[i], error: r.reason instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(r.reason.message) ? r.reason.message : "PREVIEW_FAILED"}] : []);
     const total = results.reduce((sum, p) => sum + p.count, 0);
     const perProvinceDbLimit = 20; // Current production jaspic_prepare_production limit.
     const dbLimitExceeded = results.some(p => p.count > perProvinceDbLimit);
     const timeBudgetExceeded = !hasBulkSendTimeBudget(total, Date.now() - startedAt);
     const blockers = [
+      ...(provinceErrors.length ? ["PROVINCE_PREFLIGHT_FAILED"] : []),
       ...(dbLimitExceeded ? ["DATABASE_PROVINCE_LIMIT"] : []),
       ...(timeBudgetExceeded ? ["BULK_SEND_TIME_BUDGET"] : []),
       ...(unresolved.data.length ? ["UNRESOLVED_DELIVERY"] : []),
       ...(running.data.length ? ["RUN_LOCKED"] : []),
     ];
     const safe = blockers.length === 0;
-    return json({ mode: "READ_ONLY", safeToSend: safe, total, perProvinceDbLimit, dbLimitExceeded, timeBudgetExceeded, blockers,
+    return json({ mode: "READ_ONLY", safeToSend: safe, total, perProvinceDbLimit, dbLimitExceeded, timeBudgetExceeded, blockers, provinceErrors,
       unresolvedDeliveries: unresolved.data.length, runningRuns: running.data.length, provinces: results });
   } catch (error) {
     const code = error instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(error.message)
