@@ -1,4 +1,17 @@
--- Draft only: do NOT apply before route integration, CI, and operator approval.
+-- Reclaim an expired invocation only if no Gmail attempt needs reconciliation.
+CREATE OR REPLACE FUNCTION public.jaspic_begin_run(p_id uuid)
+RETURNS boolean LANGUAGE plpgsql SET search_path TO '' AS $function$
+BEGIN
+ PERFORM pg_catalog.pg_advisory_xact_lock(144166021, 238);
+ UPDATE public.jaspic_runs
+ SET status='FAILED',finished_at=now(),error_code='RUN_INTERRUPTED'
+ WHERE status='RUNNING' AND started_at < now()-interval '6 minutes'
+ AND NOT EXISTS (SELECT 1 FROM public.jaspic_deliveries
+                 WHERE status IN ('SENDING','UNKNOWN','FAILED'));
+ INSERT INTO public.jaspic_runs(id,status) VALUES(p_id,'RUNNING') ON CONFLICT DO NOTHING;
+ RETURN FOUND;
+END $function$;
+
 -- Atomic full candidate snapshot; never truncate to a 20-item send batch.
 CREATE OR REPLACE FUNCTION public.jaspic_prepare_production(
  p_id uuid,p_province text,p_revision bigint,p_records jsonb,p_candidates jsonb)
@@ -10,14 +23,15 @@ BEGIN
  THEN RAISE EXCEPTION 'Run unavailable'; END IF;
  SELECT * INTO STRICT s FROM public.jaspic_sources WHERE province=p_province FOR UPDATE;
  IF s.revision<>p_revision OR NOT s.baseline_complete THEN RAISE EXCEPTION 'Stale baseline'; END IF;
- IF jsonb_typeof(p_records)<>'object' OR p_records='{}'::jsonb
-   OR jsonb_typeof(p_candidates)<>'array' OR jsonb_array_length(p_candidates)>1000
+ IF jsonb_typeof(p_records) IS DISTINCT FROM 'object' OR p_records='{}'::jsonb
+   OR jsonb_typeof(p_candidates) IS DISTINCT FROM 'array' OR jsonb_array_length(p_candidates)>1000
  THEN RAISE EXCEPTION 'Invalid plan'; END IF;
  IF EXISTS(SELECT 1 FROM jsonb_array_elements(p_candidates)c
    WHERE NOT(p_records ? (c->>'key'))
+   OR c->>'key' IS NULL OR c->>'version' IS NULL
    OR (c->>'version') !~ '^[0-9a-f]{64}$'
-   OR c->'mail'->>'to'<>'getter01@jaspic-nes.net'
-   OR c->'mail'->>'from'<>'miyazaki1016@gmail.com'
+   OR c->'mail'->>'to' IS DISTINCT FROM 'getter01@jaspic-nes.net'
+   OR c->'mail'->>'from' IS DISTINCT FROM 'miyazaki1016@gmail.com'
    OR c->'mail'->>'cc' IS NOT NULL)
  THEN RAISE EXCEPTION 'Invalid mail'; END IF;
  IF EXISTS(SELECT 1 FROM public.jaspic_deliveries
@@ -74,7 +88,7 @@ CREATE OR REPLACE FUNCTION public.jaspic_prepare_all_production(p_id uuid,p_plan
 RETURNS void LANGUAGE plpgsql SET search_path TO '' AS $function$
 DECLARE entry jsonb;
 BEGIN
- IF jsonb_typeof(p_plans)<>'array' OR jsonb_array_length(p_plans)<>2
+ IF jsonb_typeof(p_plans) IS DISTINCT FROM 'array' OR jsonb_array_length(p_plans)<>2
  THEN RAISE EXCEPTION 'Invalid province plans'; END IF;
  IF (SELECT count(DISTINCT x->>'province') FROM jsonb_array_elements(p_plans)x
        WHERE x->>'province' IN ('hiroshima','shiga'))<>2
