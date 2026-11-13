@@ -1,0 +1,28 @@
+{
+  "id": "branch-04c8f793320315f9",
+  "title": "fix/japanese-address-search",
+  "head": "9f6b368065bd575bb4c9de753b40bad8cd1ae2d3",
+  "head_ref": "fix/japanese-address-search",
+  "linked_prs": [
+    4
+  ],
+  "files": [
+    {
+      "path": "lib/places/searchPlaces.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9f6b368065bd575bb4c9de753b40bad8cd1ae2d3/lib/places/searchPlaces.ts"
+    }
+  ],
+  "commits": "9f6b368065bd575bb4c9de753b40bad8cd1ae2d3 fix: normalize Japanese address queries",
+  "topics": [
+    "その他の開発"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "d7d3fc7793ef8087b481b353ae5516ed2177a505ec2769968e3316706f439057",
+  "collected_at": "2026-11-13T00:48:08.442182+00:00"
+}

@@ -1,0 +1,65 @@
+{
+  "id": "branch-b84bde7f845491a7",
+  "title": "fix/jaspic-mobile-layout-20261106",
+  "head": "37efdbc992e3a63ea0c91c0b1a267e24742ee875",
+  "head_ref": "fix/jaspic-mobile-layout-20261106",
+  "linked_prs": [
+    167
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/oauth/login-client.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/app/jaspic/oauth/login-client.tsx"
+    },
+    {
+      "path": "app/jaspic/oauth/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/app/jaspic/oauth/page.tsx"
+    },
+    {
+      "path": "app/jaspic/oauth/status/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/app/jaspic/oauth/status/route.ts"
+    },
+    {
+      "path": "docs/JASPIC_ADMIN_AUTH_ROLLOUT.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/docs/JASPIC_ADMIN_AUTH_ROLLOUT.md"
+    },
+    {
+      "path": "lib/jaspic/admin-authorization.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/lib/jaspic/admin-authorization.ts"
+    },
+    {
+      "path": "tests/jaspic/admin-authorization.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/37efdbc992e3a63ea0c91c0b1a267e24742ee875/tests/jaspic/admin-authorization.test.ts"
+    }
+  ],
+  "commits": "37efdbc992e3a63ea0c91c0b1a267e24742ee875 docs(jaspic): document gated administrator rollout and rollback\n2d00d8e443f1b924872477174a6fd3598bd1f8c5 test(jaspic): cover malformed config and metadata spoofing\n1b394d1eb64f8fd4934afd33cbd0e10cddd74c28 feat(jaspic): show server verified admin status without enabling OAuth\n46f3bc34c1418f4acedc63f89da82a6042949640 feat(jaspic): add read-only server verified admin status endpoint\n02b77af0d6f3ce741d74ac050aa84c47ae73525b test(jaspic): use synthetic admin UUID fixture\n2b1077bd3e8ec5822c85080cf4917ff718828f35 test(jaspic): add fail-closed admin authorization guard\nab9e1ef1a63cf5df0c26e7bef69551f55186ee0d test(jaspic): add fail-closed admin authorization guard\nd8aec7453c0ead00b59055402e1cd3e7c6c8356b style(jaspic): constrain mobile text and spacing",
+  "topics": [
+    "通知・配信",
+    "認証・安全性",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "3041abf1a8bc8592fd6641d4be9623536ca17d2065a3c4032db7d32ef98a17c1",
+  "collected_at": "2026-11-13T00:48:08.442182+00:00"
+}

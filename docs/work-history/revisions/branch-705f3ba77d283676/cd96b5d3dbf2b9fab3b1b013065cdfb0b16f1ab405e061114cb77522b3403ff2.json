@@ -1,0 +1,28 @@
+{
+  "id": "branch-705f3ba77d283676",
+  "title": "feat/pwa-auth-transition-diagnostics-20261024",
+  "head": "1374fdb3c6f9fdce9778ca8bd3a271ddea57de31",
+  "head_ref": "feat/pwa-auth-transition-diagnostics-20261024",
+  "linked_prs": [
+    85
+  ],
+  "files": [
+    {
+      "path": "app/components/ResumeDiagnosticsPanel.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/1374fdb3c6f9fdce9778ca8bd3a271ddea57de31/app/components/ResumeDiagnosticsPanel.tsx"
+    }
+  ],
+  "commits": "1374fdb3c6f9fdce9778ca8bd3a271ddea57de31 fix: render auth transition journal with line breaks\n2db85ad62911b800804b955c3592b7e6409a641e feat: opt-in local journal for PWA auth-key presence transitions",
+  "topics": [
+    "認証・安全性"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "d5788c4c18ea587b928964b242698a56c29fe4503d8179835db6dbc0d6837865",
+  "collected_at": "2026-11-13T00:48:08.442182+00:00"
+}

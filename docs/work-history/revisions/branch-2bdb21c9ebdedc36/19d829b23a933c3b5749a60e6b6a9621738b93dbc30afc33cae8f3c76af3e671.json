@@ -1,0 +1,29 @@
+{
+  "id": "branch-2bdb21c9ebdedc36",
+  "title": "test-watch-notification-decision",
+  "head": "9ef39b430206d362852116d7cab9c2daa9f8c897",
+  "head_ref": "test-watch-notification-decision",
+  "linked_prs": [
+    13
+  ],
+  "files": [
+    {
+      "path": "lib/weather/rain/watchNotificationDecision.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9ef39b430206d362852116d7cab9c2daa9f8c897/lib/weather/rain/watchNotificationDecision.test.ts"
+    }
+  ],
+  "commits": "9ef39b430206d362852116d7cab9c2daa9f8c897 test: cover watch rain notification decision",
+  "topics": [
+    "雨量・全国検知",
+    "通知・配信"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "4583b3acb88e211ba18457be11f5a6d19bbc81f2af2c14c67eaf408ef875a277",
+  "collected_at": "2026-11-13T00:48:08.442182+00:00"
+}

@@ -1,0 +1,444 @@
+{
+  "id": "pr-224",
+  "number": 224,
+  "title": "fix(jaspic): 広島・滋賀の発生日だけによる保留を解除",
+  "topics": [
+    "通知・配信"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Closes #223（本番・手動送信の完了後にclose）\n\n発生日が2026-11-06以前という理由だけで新規IDを隔離する処理を除去。既存のカテゴリ除外、旧広島IDの抑止、baseline/配送履歴、DIFFERENCE_LIMIT、未解決配送ガード、18時cronは変更しない。\n\n**安全ゲート**：利用者が旧システム停止済みを再確認し、旧システムとの追加照合は不要と明示。既存のbaseline・配送台帳による重複抑止は維持する。手動実行前には無送信候補件数・対象カテゴリ・現行の未解決配送・既存のDIFFERENCE_LIMITを確認する。候補20件超なら既存ガードで停止。最新HEAD CI成功・Vercel READY確認も必要。\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-190\",\"decision\":\"extend\",\"reason\":\"歴史日付による隔離の既存実装を再利用し、日付のみの保留を除去する。旧IDの送信不確実性は実データ照合で別途確認する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/190\"},{\"id\":\"pr-191\",\"decision\":\"extend\",\"reason\":\"旧最終JSONと既存9件限定解除の実績を再利用し、新たな未送信候補の照合を必須とする\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/191\"},{\"id\":\"pr-194\",\"decision\":\"reuse\",\"reason\":\"既存の手動実行と配送記録・完了通知を再利用し送信基盤を変更しない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/194\"},{\"id\":\"pr-193\",\"decision\":\"reuse\",\"reason\":\"原本の管理者向け認証期限・配信異常通知とprivate監視を確認。今回の発生日条件変更では運用監視、メール送信基盤、18時cronに触れずそのまま再利用する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/193\"}]}\n-->",
+  "snapshot_head": "e36e28bbbf9cce64d942ade6a454991f775eb118",
+  "snapshot_consistent": true,
+  "head": "e36e28bbbf9cce64d942ade6a454991f775eb118",
+  "base": "619e7f6448538cb8a9eadaf300c23e1b529aabc1",
+  "base_ref": "main",
+  "head_ref": "fix/jaspic-occurrence-date-hold-20261113",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-13T00:47:56Z",
+  "merge_commit_sha": "0f50ce367502356b95f68080964d01a902afec92",
+  "updated_at": "2026-11-13T00:47:56Z",
+  "code_facts": [
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"JASPIC occurrence-date independent planning\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"plans unseen old and recent eligible IDs once\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(result.quarantined).toEqual([]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(result.candidates.map(c => c.key)).toEqual([\"hiroshima-crime:1126001011\", \"hiroshima-crime:1126001012\"]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(result.records).toHaveProperty(\"hiroshima-crime:1126001011\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(second.quarantined).toEqual([]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"allows a known update and a new old-date ID\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(result.candidates.map(c => c.key)).toEqual([\"hiroshima-crime:1126001001\", \"hiroshima-crime:1126001011\"]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(result.quarantined).toEqual([]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"plans all eligible new records irrespective of occurrence date\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(result.candidates).toHaveLength(10);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic-production-plan-quarantine.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(result.candidates.map(c=>c.key)).toContain(\"hiroshima-crime:1126001999\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts"
+    },
+    {
+      "file": "tests/jaspic/production-delivery.test.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "it(\"plans a historical unknown ID once without marking it sent prematurely\",async()=>{const base=Array.from({length:10},(_,i)=>item(String(i)));const records=Object.fromEntries(base.map(i=>[\"shiga-person:\"+i.data.id,i.data]));const result=await productionPlan(\"shiga\",{revision:4,baseline:true,records},[...base,item(\"unknown\",\"2026-10-01 12:00:00\")]",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic/production-delivery.test.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/dispatch/route.ts",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 2,
+      "patch": "diff --git a/app/jaspic/dispatch/route.ts b/app/jaspic/dispatch/route.ts\nindex 74001592..51385b8c 100644\n--- a/app/jaspic/dispatch/route.ts\n+++ b/app/jaspic/dispatch/route.ts\n@@ -2,7 +2,7 @@ import {createClient} from \"@supabase/supabase-js\";\n import {timingSafeEqual,randomUUID} from \"node:crypto\";\n import {readEncryptedGmailRefreshToken} from \"../../../lib/jaspic/oauth-gmail-token-store-server\";\n import {collect, type Province} from \"../../../supabase/functions/_shared/jaspic/collect\";\n-import {productionPlan,assertVerifiedBackfillScope} from \"../../../lib/jaspic/production-plan\";\n+import {productionPlan} from \"../../../lib/jaspic/production-plan\";\n import {sendProductionMail} from \"../../../lib/jaspic/production-gmail\";\n \n export const runtime=\"nodejs\";\n@@ -51,7 +51,6 @@ export async function POST(request:Request) {\n     const plans=settled.flatMap(r=>r.status===\"fulfilled\"?[r.value]:[]);\n     stage=\"plan-guard\";\n     if(plans.reduce((n,p)=>n+p.result.candidates.length,0)>20)throw new Error(\"DIFFERENCE_LIMIT\");\n-    assertVerifiedBackfillScope(plans);\n     const unresolved=await db.from(\"jaspic_deliveries\").select(\"status\").in(\"status\",[\"PREPARED\",\"SENDING\",\"UNKNOWN\",\"FAILED\"]).limit(1);\n     if(unresolved.error||unresolved.data.length)throw new Error(\"UNRESOLVED_DELIVERY\");\n     // Refresh validates the existing encrypted OAuth credential even for a zero-item run.\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/app/jaspic/dispatch/route.ts",
+      "source": {
+        "path": "app/jaspic/dispatch/route.ts",
+        "coverage": "全文",
+        "text": "import {createClient} from \"@supabase/supabase-js\";\nimport {timingSafeEqual,randomUUID} from \"node:crypto\";\nimport {readEncryptedGmailRefreshToken} from \"../../../lib/jaspic/oauth-gmail-token-store-server\";\nimport {collect, type Province} from \"../../../supabase/functions/_shared/jaspic/collect\";\nimport {productionPlan} from \"../../../lib/jaspic/production-plan\";\nimport {sendProductionMail} from \"../../../lib/jaspic/production-gmail\";\n\nexport const runtime=\"nodejs\";\nexport const dynamic=\"force-dynamic\";\nexport const maxDuration=300;\nconst response=(data:unknown,status=200)=>Response.json(data,{status,headers:{\"Cache-Control\":\"no-store, private\"}});\n\nexport async function POST(request:Request) {\n  const secret=process.env.JASPIC_DISPATCH_TOKEN;\n  const supplied=request.headers.get(\"authorization\")?.replace(/^Bearer /,\"\")??\"\";\n  if (!secret||supplied.length!==secret.length||!timingSafeEqual(Buffer.from(supplied),Buffer.from(secret))) return response({error:\"UNAUTHORIZED\"},401);\n  if (process.env.JASPIC_PRODUCTION_SEND_ENABLED!==\"true\") return response({error:\"DISABLED\"},503);\n  const url=process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/,\"\");\n  const key=process.env.SUPABASE_SERVICE_ROLE_KEY;\n  const ownerId=process.env.JASPIC_ADMIN_USER_ID;\n  const encryptionKey=process.env.JASPIC_GMAIL_TOKEN_VAULT_KEY;\n  const clientId=process.env.JASPIC_GOOGLE_WEB_CLIENT_ID;\n  const clientSecret=process.env.JASPIC_GOOGLE_WEB_CLIENT_SECRET;\n  if (!url||!key||!ownerId||!encryptionKey||!clientId||!clientSecret) return response({error:\"NOT_CONFIGURED\"},503);\n  const db=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});\n  async function rpc(name:string,args:Record<string,unknown>={}) {const r=await db.rpc(name,args);if(r.error)throw new Error(\"DATABASE_GUARD\");return r.data;}\n  const id=randomUUID(); let started=false;\n  const sent={hiroshima:0,shiga:0};\n  let stage=\"begin-run\";\n  let province:Province|null=null;\n  const sourceErrors:{province:Province;code:string}[]=[];\n  try {\n    if (!await rpc(\"jaspic_begin_run\",{p_id:id})) return response({error:\"RUN_LOCKED\"},409);\n    started=true;\n    // Preflight both complete sources before persisting or sending either province.\n    const provinces:Province[]=[\"hiroshima\",\"shiga\"];\n    const legacy=await rpc(\"jaspic_legacy_hiroshima_person_ids\");\n    if(!Array.isArray(legacy)||legacy.some(x=>typeof x!==\"string\"))throw new Error(\"LEGACY_HISTORY_INVALID\");\n    stage=\"source-preflight\";\n    const settled=await Promise.allSettled(provinces.map(async province=>{\n      const snapshot=await rpc(\"jaspic_snapshot\",{p_province:province});\n      let items;\n      try { items=await collect(province); } catch {\n        sourceErrors.push({province,code:\"SOURCE_FETCH_FAILED\"});\n        throw new Error(\"SOURCE_FETCH_FAILED\");\n      }\n      return {province,result:await productionPlan(province,snapshot,items,new Set(province===\"hiroshima\"?legacy:[]))};\n    }));\n    const failure=settled.find(r=>r.status===\"rejected\");\n    if(failure?.status===\"rejected\")throw failure.reason;\n    const plans=settled.flatMap(r=>r.status===\"fulfilled\"?[r.value]:[]);\n    stage=\"plan-guard\";\n    if(plans.reduce((n,p)=>n+p.result.candidates.length,0)>20)throw new Error(\"DIFFERENCE_LIMIT\");\n    const unresolved=await db.from(\"jaspic_deliveries\").select(\"status\").in(\"status\",[\"PREPARED\",\"SENDING\",\"UNKNOWN\",\"FAILED\"]).limit(1);\n    if(unresolved.error||unresolved.data.length)throw new Error(\"UNRESOLVED_DELIVERY\");\n    // Refresh validates the existing encrypted OAuth credential even for a zero-item run.\n    stage=\"gmail-auth\";\n    const refresh=await readEncryptedGmailRefreshToken({db,ownerId,expectedAdminId:ownerId,encryptionKey});\n    if(!refresh)throw new Error(\"GMAIL_NOT_CONNECTED\");\n    const tokenResponse=await fetch(\"https://oauth2.googleapis.com/token\",{method:\"POST\",headers:{\"Content-Type\":\"application/x-www-form-urlencoded\"},body:new URLSearchParams({client_id:clientId,client_secret:clientSecret,refresh_token:refresh,grant_type:\"refresh_token\"}),redirect:\"error\",cache:\"no-store\",signal:AbortSignal.timeout(10_000)});\n    if(!tokenResponse.ok)throw new Error(\"GMAIL_REFRESH_FAILED\");\n    const token=await tokenResponse.json();\n    if(typeof token.access_token!==\"string\"||token.access_token.length<8)throw new Error(\"GMAIL_TOKEN_INVALID\");\n    stage=\"prepare-delivery\";\n    for(const {province,result} of plans){\n      const candidates=result.candidates.map(c=>({...c,mail:{...c.mail,from:\"miyazaki1016@gmail.com\",to:\"getter01@jaspic-nes.net\",cc:null}}));\n      await rpc(\"jaspic_prepare_production\",{p_id:id,p_province:province,p_revision:result.expectedRevision,p_records:result.records,p_candidates:candidates});\n    }\n    // Read immutable queued payloads, never regenerate mail after observation was committed.\n    const queue=await db.from(\"jaspic_deliveries\").select(\"province,record_key,version,mail\").eq(\"run_id\",id).eq(\"status\",\"PREPARED\");\n    if(queue.error)throw new Error(\"QUEUE_READ_FAILED\");\n    stage=\"gmail-send\";\n    for(const delivery of queue.data){\n      province=delivery.province as Province;\n      const lease=randomUUID();\n      if(!await rpc(\"jaspic_claim\",{p_province:delivery.province,p_key:delivery.record_key,p_version:delivery.version,p_token:lease}))throw new Error(\"CLAIM_REJECTED\");\n      const outcome=await sendProductionMail(token.access_token,delivery.mail);\n      if(!await rpc(\"jaspic_finish_production\",{p_id:id,p_province:delivery.province,p_key:delivery.record_key,p_version:delivery.version,p_token:lease,p_status:outcome.status,p_message:outcome.message,p_error:outcome.error}))throw new Error(\"OUTCOME_NOT_SAVED\");\n      if(outcome.status!==\"SENT\")throw new Error(outcome.error??\"SEND_FAILED\");\n      sent[delivery.province as Province]++;\n    }\n    stage=\"save-result\";\n    province=null;\n    const result={runId:id,status:\"SUCCEEDED\",sent,candidates:plans.map(p=>({province:p.province,count:p.result.candidates.length})),quarantined:plans.map(p=>({province:p.province,count:p.result.quarantined.length}))};\n    const saved=await db.from(\"jaspic_runs\").update({status:\"SUCCEEDED\",finished_at:new Date().toISOString(),result}).eq(\"id\",id).eq(\"status\",\"RUNNING\").select(\"id\");\n    if(saved.error||saved.data.length!==1)throw new Error(\"RUN_RESULT_NOT_SAVED\");\n    return response(result);\n  } catch(error) {\n    const code=error instanceof Error&&/^[A-Z][A-Z0-9_]{0,79}$/.test(error.message)?error.message:\"JASPIC_RUN_FAILED\";\n    if(started){\n      // A process crash remains RUNNING. Network uncertainty remains non-retryable SENDING/UNKNOWN.\n      await db.from(\"jaspic_deliveries\").update({status:\"UNKNOWN\",error_code:\"RUN_INTERRUPTED\",finished_at:new Date().toISOString()}).eq(\"run_id\",id).eq(\"status\",\"SENDING\");\n      await db.from(\"jaspic_runs\").update({status:\"FAILED\",finished_at:new Date().toISOString(),error_code:code,result:{sent,stage,province,sourceErrors}}).eq(\"id\",id).eq(\"status\",\"RUNNING\");\n    }\n    return response({runId:id,status:\"FAILED\",error:code,sent},503);\n  }\n}\n",
+        "sha256": "84ea9a061612f2d1d2730c4e43d88abbbe78847c70a960fb7e010f738054e265"
+      }
+    },
+    {
+      "path": "lib/jaspic/production-plan.ts",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 50,
+      "patch": "diff --git a/lib/jaspic/production-plan.ts b/lib/jaspic/production-plan.ts\nindex 9065cf9a..70db6b89 100644\n--- a/lib/jaspic/production-plan.ts\n+++ b/lib/jaspic/production-plan.ts\n@@ -2,31 +2,6 @@ import { fields } from \"../../supabase/functions/_shared/jaspic/mail\";\n import { plan, type Snapshot } from \"../../supabase/functions/_shared/jaspic/state\";\n import type { Item, Province } from \"../../supabase/functions/_shared/jaspic/collect\";\n \n-// One-time migration catch-up: operator confirmed the legacy sender stopped after\n-// the 2026-11-06 archived JSON. All nine keys were absent from that archive and\n-// had no baseline record or delivery as of 2026-11-10. Never generalize this\n-// exception to other historical records.\n-const verifiedHiroshimaBackfillKeys = new Set([\n-  \"hiroshima-person:45811\", \"hiroshima-person:45815\", \"hiroshima-person:45823\",\n-  \"hiroshima-crime:1126015070\", \"hiroshima-crime:1126055048\",\n-  \"hiroshima-crime:1126155046\", \"hiroshima-crime:1126175061\",\n-  \"hiroshima-crime:1126185011\", \"hiroshima-crime:1126195022\",\n-]);\n-\n-export function assertVerifiedBackfillScope(plans: ReadonlyArray<{\n-  province: Province;\n-  result: { verifiedPending: readonly string[]; candidates: ReadonlyArray<{key: string}> };\n-}>) {\n-  const pending = plans.flatMap(p => p.result.verifiedPending);\n-  if (!pending.length) return;\n-  const candidates = plans.flatMap(p => p.result.candidates.map(c => c.key));\n-  if (pending.length !== verifiedHiroshimaBackfillKeys.size ||\n-      candidates.length !== pending.length ||\n-      candidates.some(key => !pending.includes(key))) {\n-    throw new Error(\"VERIFIED_BACKFILL_SCOPE_MISMATCH\");\n-  }\n-}\n-\n export async function productionPlan(province: Province, snapshot: Snapshot, items: Item[], legacy: ReadonlySet<string>) {\n   if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\");\n   const kinds = province === \"hiroshima\" ? [\"hiroshima-person\", \"hiroshima-crime\"] as const : [\"shiga-person\"] as const;\n@@ -35,34 +10,15 @@ export async function productionPlan(province: Province, snapshot: Snapshot, ite\n     const currentCount = items.filter(i => i.kind === kind).length;\n     if (!oldCount || currentCount < oldCount * .8 || currentCount > oldCount * 1.2) throw new Error(\"SOURCE_COUNT_GUARD\");\n   }\n-  // LINKKEY from the legacy portal cannot be mapped back to the map ID.\n-  // An old occurrence date is NOT a publication date. Keep unseen historical\n-  // IDs out of both the delivery queue and the committed baseline until the\n-  // historical send ledger is reconciled. This must not suppress safe changes\n-  // to already-known IDs or prevent newly occurring events from being planned.\n-  const verifiedPending = province === \"hiroshima\"\n-    ? [...verifiedHiroshimaBackfillKeys].filter(key => !snapshot.records[key]) : [];\n+  // Occurrence date is not publication date. Do not quarantine new records\n+  // solely because the event happened on or before the migration cutoff.\n+  // The existing plan() category filtering, legacy suppression, baseline,\n+  // delivery ledger and difference guards remain unchanged.\n   const quarantined: string[] = [];\n-  const eligibleItems: Item[] = [];\n-  for (const item of items) {\n-    const key = `${item.kind}:${item.data.id}`;\n-    const previous = snapshot.records[key];\n-    if (previous && fields[item.kind].some(f => !Object.hasOwn(previous,f))) throw new Error(\"BASELINE_FIELDS_MISSING\");\n-    const legacyPerson = item.kind === \"hiroshima-person\" && legacy.has(item.data.id ?? \"\");\n-    if (!previous && !legacyPerson) {\n-      const date = item.data.occurrence_dt ?? item.data.occurrence_date_from ?? \"\";\n-      // Bicycle theft is never notified by plan(). Keep it in the normal\n-      // baseline for complete-source reconciliation, not in quarantine.\n-      if (item.data.case_type !== \"自転車盗\" && !verifiedHiroshimaBackfillKeys.has(key) && date.slice(0,10).replaceAll(\"/\",\"-\") <= \"2026-11-06\") {\n-        quarantined.push(key);\n-        continue;\n-      }\n-    }\n-    eligibleItems.push(item);\n-  }\n+  const eligibleItems: Item[] = items;\n   // The source-count guard above always uses the COMPLETE source, not this\n   // reduced planning set. Quarantined records are reconsidered on each run.\n   const result = await plan(province, snapshot, eligibleItems, {legacyHiroshimaPersonIds:legacy});\n   if (result.candidates.length > 20) throw new Error(\"DIFFERENCE_LIMIT\");\n-  return {...result, quarantined, verifiedPending};\n+  return {...result, quarantined};\n }\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/lib/jaspic/production-plan.ts",
+      "source": {
+        "path": "lib/jaspic/production-plan.ts",
+        "coverage": "全文",
+        "text": "import { fields } from \"../../supabase/functions/_shared/jaspic/mail\";\nimport { plan, type Snapshot } from \"../../supabase/functions/_shared/jaspic/state\";\nimport type { Item, Province } from \"../../supabase/functions/_shared/jaspic/collect\";\n\nexport async function productionPlan(province: Province, snapshot: Snapshot, items: Item[], legacy: ReadonlySet<string>) {\n  if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\");\n  const kinds = province === \"hiroshima\" ? [\"hiroshima-person\", \"hiroshima-crime\"] as const : [\"shiga-person\"] as const;\n  for (const kind of kinds) {\n    const oldCount = Object.keys(snapshot.records).filter(k => k.startsWith(kind+\":\")).length;\n    const currentCount = items.filter(i => i.kind === kind).length;\n    if (!oldCount || currentCount < oldCount * .8 || currentCount > oldCount * 1.2) throw new Error(\"SOURCE_COUNT_GUARD\");\n  }\n  // Occurrence date is not publication date. Do not quarantine new records\n  // solely because the event happened on or before the migration cutoff.\n  // The existing plan() category filtering, legacy suppression, baseline,\n  // delivery ledger and difference guards remain unchanged.\n  const quarantined: string[] = [];\n  const eligibleItems: Item[] = items;\n  // The source-count guard above always uses the COMPLETE source, not this\n  // reduced planning set. Quarantined records are reconsidered on each run.\n  const result = await plan(province, snapshot, eligibleItems, {legacyHiroshimaPersonIds:legacy});\n  if (result.candidates.length > 20) throw new Error(\"DIFFERENCE_LIMIT\");\n  return {...result, quarantined};\n}\n",
+        "sha256": "84958f3efb9870ece5d3452773a08b5953e805cd70b57e2545bbd1516266dbb0"
+      }
+    },
+    {
+      "path": "tests/jaspic-production-plan-quarantine.test.ts",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 18,
+      "patch": "diff --git a/tests/jaspic-production-plan-quarantine.test.ts b/tests/jaspic-production-plan-quarantine.test.ts\nindex 46a2c064..931f3b80 100644\n--- a/tests/jaspic-production-plan-quarantine.test.ts\n+++ b/tests/jaspic-production-plan-quarantine.test.ts\n@@ -1,5 +1,5 @@\n import { describe, expect, it } from \"vitest\";\n-import { productionPlan, assertVerifiedBackfillScope } from \"../lib/jaspic/production-plan\";\n+import { productionPlan } from \"../lib/jaspic/production-plan\";\n import { fields, type RecordData } from \"../supabase/functions/_shared/jaspic/mail\";\n import type { Item } from \"../supabase/functions/_shared/jaspic/collect\";\n import type { Snapshot } from \"../supabase/functions/_shared/jaspic/state\";\n@@ -33,30 +33,30 @@ function baseline() {\n   return { existing, snapshot: { revision: 5, baseline: true, records } satisfies Snapshot };\n }\n \n-describe(\"JASPIC historical ID quarantine\", () => {\n-  it(\"does not send or baseline unseen historical IDs, while planning a safe recent event\", async () => {\n+describe(\"JASPIC occurrence-date independent planning\", () => {\n+  it(\"plans unseen old and recent eligible IDs once\", async () => {\n     const { existing, snapshot } = baseline();\n     const historical = crime(\"1126001011\", \"2026-10-15 09:00:00\");\n     const recent = crime(\"1126001012\", \"2026-11-08 16:20:00\");\n     const result = await productionPlan(\"hiroshima\", snapshot, [...existing, historical, recent], new Set());\n-    expect(result.quarantined).toEqual([\"hiroshima-crime:1126001011\"]);\n-    expect(result.candidates.map(c => c.key)).toEqual([\"hiroshima-crime:1126001012\"]);\n-    expect(result.records).not.toHaveProperty(\"hiroshima-crime:1126001011\");\n+    expect(result.quarantined).toEqual([]);\n+    expect(result.candidates.map(c => c.key)).toEqual([\"hiroshima-crime:1126001011\", \"hiroshima-crime:1126001012\"]);\n+    expect(result.records).toHaveProperty(\"hiroshima-crime:1126001011\");\n     expect(result.records).toHaveProperty(\"hiroshima-crime:1126001012\");\n \n     const second = await productionPlan(\"hiroshima\", { ...snapshot, revision: 6, records: result.records },\n       [...existing, historical, recent], new Set());\n     expect(second.candidates).toHaveLength(0);\n-    expect(second.quarantined).toEqual([\"hiroshima-crime:1126001011\"]);\n+    expect(second.quarantined).toEqual([]);\n   });\n \n-  it(\"allows an update to a known ID without releasing an unreconciled historical ID\", async () => {\n+  it(\"allows a known update and a new old-date ID\", async () => {\n     const { existing, snapshot } = baseline();\n     const changed = crime(String(1126001001), \"2026-11-01 10:00:00\", \"更新された場所\");\n     const historical = crime(\"1126001011\", \"2026-10-15 09:00:00\");\n     const result = await productionPlan(\"hiroshima\", snapshot, [...existing.slice(1), changed, historical], new Set());\n-    expect(result.candidates.map(c => c.key)).toEqual([\"hiroshima-crime:1126001001\"]);\n-    expect(result.quarantined).toEqual([\"hiroshima-crime:1126001011\"]);\n+    expect(result.candidates.map(c => c.key)).toEqual([\"hiroshima-crime:1126001001\", \"hiroshima-crime:1126001011\"]);\n+    expect(result.quarantined).toEqual([]);\n   });\n \n   it(\"preserves the complete-source count guard\", async () => {\n@@ -87,7 +87,7 @@ describe(\"bicycle theft exclusion without quarantine\", () => {\n describe(\"verified legacy JSON catch-up\", () => {\n   const personIds = [\"45811\", \"45815\", \"45823\"];\n   const crimeIds = [\"1126015070\", \"1126055048\", \"1126155046\", \"1126175061\", \"1126185011\", \"1126195022\"];\n-  it(\"plans exactly the nine operator-verified missing records, retaining other historical IDs in quarantine\", async () => {\n+  it(\"plans all eligible new records irrespective of occurrence date\", async () => {\n     const {existing,snapshot}=baseline();\n     // Maintain the source-count guard with a representative large baseline.\n     const extra=[...Array.from({length:40},(_,n)=>crime(String(1126002001+n))),...Array.from({length:40},(_,n)=>person(String(45601+n)))];\n@@ -96,15 +96,12 @@ describe(\"verified legacy JSON catch-up\", () => {\n     const catchup=[...personIds.map(id=>person(id)),...crimeIds.map(id=>crime(id))];\n     const unrelated=crime(\"1126001999\");\n     const result=await productionPlan(\"hiroshima\",snapshot,[...existing,...catchup,unrelated],new Set());\n-    expect(result.verifiedPending).toHaveLength(9);\n-    expect(new Set(result.candidates.map(c=>c.key))).toEqual(new Set(result.verifiedPending));\n-    expect(result.quarantined).toContain(\"hiroshima-crime:1126001999\");\n-    expect(result.records).not.toHaveProperty(\"hiroshima-crime:1126001999\");\n-    expect(()=>assertVerifiedBackfillScope([{province:\"hiroshima\",result}])).not.toThrow();\n-    expect(()=>assertVerifiedBackfillScope([{province:\"hiroshima\",result:{...result,candidates:[...result.candidates,{...result.candidates[0],key:\"unexpected\"}]}}])).toThrow(\"VERIFIED_BACKFILL_SCOPE_MISMATCH\");\n+    expect(result.candidates).toHaveLength(10);\n+    expect(result.candidates.map(c=>c.key)).toContain(\"hiroshima-crime:1126001999\");\n+    expect(result.quarantined).toEqual([]);\n+    expect(result.records).toHaveProperty(\"hiroshima-crime:1126001999\");\n     const after={...snapshot,records:result.records};\n     const repeated=await productionPlan(\"hiroshima\",after,[...existing,...catchup,unrelated],new Set());\n-    expect(repeated.verifiedPending).toHaveLength(0);\n     expect(repeated.candidates).toHaveLength(0);\n   });\n });\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts",
+      "source": {
+        "path": "tests/jaspic-production-plan-quarantine.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { productionPlan } from \"../lib/jaspic/production-plan\";\nimport { fields, type RecordData } from \"../supabase/functions/_shared/jaspic/mail\";\nimport type { Item } from \"../supabase/functions/_shared/jaspic/collect\";\nimport type { Snapshot } from \"../supabase/functions/_shared/jaspic/state\";\n\nfunction crime(id: string, date = \"2026-11-01 10:00:00\", address = \"テスト地点\"): Item {\n  const data: RecordData = Object.fromEntries(fields[\"hiroshima-crime\"].map(field => [field, \"\"]));\n  Object.assign(data, {\n    id, occurrence_date_from: date, occurrence_date_to: date,\n    case_type: \"住居侵入\", address, latitude: \"34.0\", longitude: \"132.0\",\n    city_code: \"101\", police_station: \"1\",\n  });\n  return { kind: \"hiroshima-crime\", data, context: { cityName: \"テスト市\", stationName: \"テスト警察署\" } };\n}\n\nfunction person(id: string): Item {\n  const data: RecordData = Object.fromEntries(fields[\"hiroshima-person\"].map(field => [field, \"\"]));\n  Object.assign(data, {\n    id, occurrence_dt: \"2026-11-01 10:00:00\",\n    case_type: \"声掛け\", latitude: \"34.0\", longitude: \"132.0\",\n    city_code: \"101\", police_station: \"1\",\n  });\n  return { kind: \"hiroshima-person\", data, context: { cityName: \"テスト市\", stationName: \"テスト警察署\" } };\n}\n\nfunction baseline() {\n  const existing = [\n    ...Array.from({ length: 10 }, (_, n) => crime(String(1126001001 + n))),\n    ...Array.from({ length: 10 }, (_, n) => person(String(45701 + n))),\n  ];\n  const records = Object.fromEntries(existing.map(item => [`${item.kind}:${item.data.id}`, item.data]));\n  return { existing, snapshot: { revision: 5, baseline: true, records } satisfies Snapshot };\n}\n\ndescribe(\"JASPIC occurrence-date independent planning\", () => {\n  it(\"plans unseen old and recent eligible IDs once\", async () => {\n    const { existing, snapshot } = baseline();\n    const historical = crime(\"1126001011\", \"2026-10-15 09:00:00\");\n    const recent = crime(\"1126001012\", \"2026-11-08 16:20:00\");\n    const result = await productionPlan(\"hiroshima\", snapshot, [...existing, historical, recent], new Set());\n    expect(result.quarantined).toEqual([]);\n    expect(result.candidates.map(c => c.key)).toEqual([\"hiroshima-crime:1126001011\", \"hiroshima-crime:1126001012\"]);\n    expect(result.records).toHaveProperty(\"hiroshima-crime:1126001011\");\n    expect(result.records).toHaveProperty(\"hiroshima-crime:1126001012\");\n\n    const second = await productionPlan(\"hiroshima\", { ...snapshot, revision: 6, records: result.records },\n      [...existing, historical, recent], new Set());\n    expect(second.candidates).toHaveLength(0);\n    expect(second.quarantined).toEqual([]);\n  });\n\n  it(\"allows a known update and a new old-date ID\", async () => {\n    const { existing, snapshot } = baseline();\n    const changed = crime(String(1126001001), \"2026-11-01 10:00:00\", \"更新された場所\");\n    const historical = crime(\"1126001011\", \"2026-10-15 09:00:00\");\n    const result = await productionPlan(\"hiroshima\", snapshot, [...existing.slice(1), changed, historical], new Set());\n    expect(result.candidates.map(c => c.key)).toEqual([\"hiroshima-crime:1126001001\", \"hiroshima-crime:1126001011\"]);\n    expect(result.quarantined).toEqual([]);\n  });\n\n  it(\"preserves the complete-source count guard\", async () => {\n    const { existing, snapshot } = baseline();\n    await expect(productionPlan(\"hiroshima\", snapshot, [...existing.slice(0, 7), ...existing.slice(10)], new Set()))\n      .rejects.toThrow(\"SOURCE_COUNT_GUARD\");\n  });\n});\n\ndescribe(\"bicycle theft exclusion without quarantine\", () => {\n  it(\"does not quarantine or notify old/new bicycle theft, but baselines it for future source-count checks\", async () => {\n    const { existing, snapshot } = baseline();\n    const oldBicycle = crime(\"1126001071\", \"2026-08-15 12:00:00\");\n    const newBicycle = crime(\"1126001072\", \"2026-11-09 12:00:00\");\n    oldBicycle.data.case_type = \"自転車盗\";\n    newBicycle.data.case_type = \"自転車盗\";\n    const result = await productionPlan(\"hiroshima\", snapshot, [...existing, oldBicycle, newBicycle], new Set());\n    expect(result.quarantined).toEqual([]);\n    expect(result.candidates).toEqual([]);\n    expect(result.records).toHaveProperty(\"hiroshima-crime:1126001071\");\n    expect(result.records).toHaveProperty(\"hiroshima-crime:1126001072\");\n    const rerun = await productionPlan(\"hiroshima\", { ...snapshot, records: result.records }, [...existing, oldBicycle, newBicycle], new Set());\n    expect(rerun.quarantined).toEqual([]);\n    expect(rerun.candidates).toEqual([]);\n  });\n});\n\ndescribe(\"verified legacy JSON catch-up\", () => {\n  const personIds = [\"45811\", \"45815\", \"45823\"];\n  const crimeIds = [\"1126015070\", \"1126055048\", \"1126155046\", \"1126175061\", \"1126185011\", \"1126195022\"];\n  it(\"plans all eligible new records irrespective of occurrence date\", async () => {\n    const {existing,snapshot}=baseline();\n    // Maintain the source-count guard with a representative large baseline.\n    const extra=[...Array.from({length:40},(_,n)=>crime(String(1126002001+n))),...Array.from({length:40},(_,n)=>person(String(45601+n)))];\n    existing.push(...extra);\n    Object.assign(snapshot.records,Object.fromEntries(extra.map(item=>[`${item.kind}:${item.data.id}`,item.data])));\n    const catchup=[...personIds.map(id=>person(id)),...crimeIds.map(id=>crime(id))];\n    const unrelated=crime(\"1126001999\");\n    const result=await productionPlan(\"hiroshima\",snapshot,[...existing,...catchup,unrelated],new Set());\n    expect(result.candidates).toHaveLength(10);\n    expect(result.candidates.map(c=>c.key)).toContain(\"hiroshima-crime:1126001999\");\n    expect(result.quarantined).toEqual([]);\n    expect(result.records).toHaveProperty(\"hiroshima-crime:1126001999\");\n    const after={...snapshot,records:result.records};\n    const repeated=await productionPlan(\"hiroshima\",after,[...existing,...catchup,unrelated],new Set());\n    expect(repeated.candidates).toHaveLength(0);\n  });\n});\n",
+        "sha256": "75963864fa6012967fb5a206deb639aab1d950d4b4566adb1c02667b49b9f3e7"
+      }
+    },
+    {
+      "path": "tests/jaspic/production-delivery.test.ts",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "diff --git a/tests/jaspic/production-delivery.test.ts b/tests/jaspic/production-delivery.test.ts\nindex 7a7ec96d..5897cdae 100644\n--- a/tests/jaspic/production-delivery.test.ts\n+++ b/tests/jaspic/production-delivery.test.ts\n@@ -13,7 +13,7 @@ describe(\"production safety\",()=>{\n  it(\"distinguishes rejection from ambiguous server failure\",async()=>{expect((await sendProductionMail(\"s\",mail,async()=>new Response(null,{status:403}))).status).toBe(\"FAILED\");expect((await sendProductionMail(\"s\",mail,async()=>new Response(null,{status:500}))).status).toBe(\"UNKNOWN\")});\n  it(\"records confirmed acceptance\",async()=>{expect(await sendProductionMail(\"s\",mail,async()=>Response.json({id:\"abc123\"}))).toEqual({status:\"SENT\",message:\"abc123\",error:null})});\n  it(\"never backfills an established baseline\",async()=>{const i=item(\"1\");expect((await productionPlan(\"shiga\",{revision:4,baseline:true,records:{\"shiga-person:1\":i.data}},[i],new Set())).candidates).toHaveLength(0)});\n- it(\"quarantines a historical unknown ID without treating it as sent\",async()=>{const base=Array.from({length:10},(_,i)=>item(String(i)));const records=Object.fromEntries(base.map(i=>[\"shiga-person:\"+i.data.id,i.data]));const result=await productionPlan(\"shiga\",{revision:4,baseline:true,records},[...base,item(\"unknown\",\"2026-10-01 12:00:00\")],new Set());expect(result.quarantined).toEqual([\"shiga-person:unknown\"]);expect(result.candidates).toHaveLength(0);expect(result.records).not.toHaveProperty(\"shiga-person:unknown\")});\n+ it(\"plans a historical unknown ID once without marking it sent prematurely\",async()=>{const base=Array.from({length:10},(_,i)=>item(String(i)));const records=Object.fromEntries(base.map(i=>[\"shiga-person:\"+i.data.id,i.data]));const result=await productionPlan(\"shiga\",{revision:4,baseline:true,records},[...base,item(\"unknown\",\"2026-10-01 12:00:00\")],new Set());expect(result.quarantined).toEqual([]);expect(result.candidates.map(c=>c.key)).toEqual([\"shiga-person:unknown\"]);expect(result.records).toHaveProperty(\"shiga-person:unknown\")});\n  it(\"detects a missing source kind\",async()=>{await expect(productionPlan(\"hiroshima\",{revision:4,baseline:true,records:{\"hiroshima-person:1\":{},\"hiroshima-crime:1\":{}}},[],new Set())).rejects.toThrow(\"SOURCE_COUNT\")});\n  it(\"does not apply legacy initial-only exclusion to updates\",async()=>{const i=item(\"1\");i.kind=\"hiroshima-person\";i.data={...Object.fromEntries(fields[i.kind].map(f=>[f,\"\"])),id:\"1\",occurrence_dt:\"2026-11-08 12:00:00\",case_type:\"声かけ\"};const old={...i.data,address:\"old\"};const r=await plan(\"hiroshima\",{revision:4,baseline:true,records:{\"hiroshima-person:1\":old}},[i],{legacyHiroshimaPersonIds:new Set([\"1\"])});expect(r.candidates).toHaveLength(1)});\n });\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic/production-delivery.test.ts",
+      "source": {
+        "path": "tests/jaspic/production-delivery.test.ts",
+        "coverage": "全文",
+        "text": "import {describe,it,expect} from \"vitest\";\nimport {sendProductionMail,productionRaw} from \"../../lib/jaspic/production-gmail\";\nimport {productionPlan} from \"../../lib/jaspic/production-plan\";\nimport {fields} from \"../../supabase/functions/_shared/jaspic/mail\";\nimport {plan} from \"../../supabase/functions/_shared/jaspic/state\";\nimport type {Item} from \"../../supabase/functions/_shared/jaspic/collect\";\nconst mail={subject:\" [JASPIC-NES] 滋賀県警専用ツール\",body:\"本文\\r\\n\"};\nconst item=(id:string,date=\"2026-11-08 12:00:00\"):Item=>({kind:\"shiga-person\",data:{...Object.fromEntries(fields[\"shiga-person\"].map(f=>[f,\"\"])),id,occurrence_dt:date,case_type:\"1\"},context:{cityName:\"大津市\",stationName:\"\"}});\ndescribe(\"production safety\",()=>{\n it(\"uses a fixed recipient and no Cc while preserving body bytes\",()=>{const raw=Buffer.from(productionRaw(mail),\"base64url\").toString();expect(raw).toContain(\"To: getter01@jaspic-nes.net\\r\\n\");expect(raw).not.toContain(\"Cc:\");expect(Buffer.from(raw.split(\"\\r\\n\\r\\n\")[1],\"base64\").toString()).toBe(mail.body)});\n it(\"requires Gmail acceptance ID\",async()=>{expect((await sendProductionMail(\"secret\",mail,async()=>Response.json({}))).status).toBe(\"UNKNOWN\")});\n it(\"records network uncertainty without retry\",async()=>{let calls=0;expect((await sendProductionMail(\"secret\",mail,async()=>{calls++;throw new Error(\"timeout\")})).status).toBe(\"UNKNOWN\");expect(calls).toBe(1)});\n it(\"distinguishes rejection from ambiguous server failure\",async()=>{expect((await sendProductionMail(\"s\",mail,async()=>new Response(null,{status:403}))).status).toBe(\"FAILED\");expect((await sendProductionMail(\"s\",mail,async()=>new Response(null,{status:500}))).status).toBe(\"UNKNOWN\")});\n it(\"records confirmed acceptance\",async()=>{expect(await sendProductionMail(\"s\",mail,async()=>Response.json({id:\"abc123\"}))).toEqual({status:\"SENT\",message:\"abc123\",error:null})});\n it(\"never backfills an established baseline\",async()=>{const i=item(\"1\");expect((await productionPlan(\"shiga\",{revision:4,baseline:true,records:{\"shiga-person:1\":i.data}},[i],new Set())).candidates).toHaveLength(0)});\n it(\"plans a historical unknown ID once without marking it sent prematurely\",async()=>{const base=Array.from({length:10},(_,i)=>item(String(i)));const records=Object.fromEntries(base.map(i=>[\"shiga-person:\"+i.data.id,i.data]));const result=await productionPlan(\"shiga\",{revision:4,baseline:true,records},[...base,item(\"unknown\",\"2026-10-01 12:00:00\")],new Set());expect(result.quarantined).toEqual([]);expect(result.candidates.map(c=>c.key)).toEqual([\"shiga-person:unknown\"]);expect(result.records).toHaveProperty(\"shiga-person:unknown\")});\n it(\"detects a missing source kind\",async()=>{await expect(productionPlan(\"hiroshima\",{revision:4,baseline:true,records:{\"hiroshima-person:1\":{},\"hiroshima-crime:1\":{}}},[],new Set())).rejects.toThrow(\"SOURCE_COUNT\")});\n it(\"does not apply legacy initial-only exclusion to updates\",async()=>{const i=item(\"1\");i.kind=\"hiroshima-person\";i.data={...Object.fromEntries(fields[i.kind].map(f=>[f,\"\"])),id:\"1\",occurrence_dt:\"2026-11-08 12:00:00\",case_type:\"声かけ\"};const old={...i.data,address:\"old\"};const r=await plan(\"hiroshima\",{revision:4,baseline:true,records:{\"hiroshima-person:1\":old}},[i],{legacyHiroshimaPersonIds:new Set([\"1\"])});expect(r.candidates).toHaveLength(1)});\n});\n",
+        "sha256": "d348f36dedecb74640c06a14b80570e2b95dd9008281254254787e01a9241eb6"
+      }
+    }
+  ],
+  "file_count": 4,
+  "reported_file_count": 4,
+  "commits": [
+    {
+      "sha": "b7e7c867ec70e9a4121c653915055b0e427afae4",
+      "message": "fix(jaspic): stop holding new records solely by occurrence date\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/b7e7c867ec70e9a4121c653915055b0e427afae4"
+    },
+    {
+      "sha": "255d515a27281b996782c2fd442713e79e7c8d48",
+      "message": "test(jaspic): align old-date candidate tests and remove obsolete nine-only gate\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/255d515a27281b996782c2fd442713e79e7c8d48"
+    },
+    {
+      "sha": "45223864d84f9b4e4979ad36122f29d2592edd8d",
+      "message": "test(jaspic): align old-date candidate tests and remove obsolete nine-only gate\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/45223864d84f9b4e4979ad36122f29d2592edd8d"
+    },
+    {
+      "sha": "6f021273de419bc8215fd4b96d4999b627aed2b1",
+      "message": "test(jaspic): align old-date candidate tests and remove obsolete nine-only gate\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/6f021273de419bc8215fd4b96d4999b627aed2b1"
+    },
+    {
+      "sha": "e36e28bbbf9cce64d942ade6a454991f775eb118",
+      "message": "test(jaspic): align old-date candidate tests and remove obsolete nine-only gate\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/e36e28bbbf9cce64d942ade6a454991f775eb118"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "e36e28bbbf9cce64d942ade6a454991f775eb118",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43339915532",
+      "id": 43339915532,
+      "updated_at": "2026-11-13T00:48:03Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "e36e28bbbf9cce64d942ade6a454991f775eb118",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43339915521",
+      "id": 43339915521,
+      "updated_at": "2026-11-13T00:48:05Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "e36e28bbbf9cce64d942ade6a454991f775eb118",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43339668530",
+      "id": 43339668530,
+      "updated_at": "2026-11-13T00:46:13Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "JASPIC admin monitor SQL",
+      "head_sha": "e36e28bbbf9cce64d942ade6a454991f775eb118",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43339438324",
+      "id": 43339438324,
+      "updated_at": "2026-11-13T00:44:42Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "e36e28bbbf9cce64d942ade6a454991f775eb118",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43339438377",
+      "id": 43339438377,
+      "updated_at": "2026-11-13T00:45:13Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "e36e28bbbf9cce64d942ade6a454991f775eb118",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43339438232",
+      "id": 43339438232,
+      "updated_at": "2026-11-13T00:44:31Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "e36e28bbbf9cce64d942ade6a454991f775eb118",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43339438298",
+      "id": 43339438298,
+      "updated_at": "2026-11-13T00:44:30Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "0f50ce367502356b95f68080964d01a902afec92",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43339925526",
+      "id": 43339925526,
+      "updated_at": "2026-11-13T00:48:02Z",
+      "event": "push"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "0f50ce367502356b95f68080964d01a902afec92",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43339925567",
+      "id": 43339925567,
+      "updated_at": "2026-11-13T00:48:02Z",
+      "event": "push"
+    },
+    {
+      "name": "CI",
+      "head_sha": "0f50ce367502356b95f68080964d01a902afec92",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43339925665",
+      "id": 43339925665,
+      "updated_at": "2026-11-13T00:48:11Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "POST",
+    "after",
+    "assertVerifiedBackfillScope",
+    "base",
+    "baseline",
+    "calls",
+    "candidates",
+    "catchup",
+    "changed",
+    "clientId",
+    "clientSecret",
+    "code",
+    "crime",
+    "crimeIds",
+    "currentCount",
+    "data",
+    "date",
+    "db",
+    "delivery",
+    "dynamic",
+    "eligibleItems",
+    "encryptionKey",
+    "existing",
+    "extra",
+    "failure",
+    "historical",
+    "i",
+    "id",
+    "item",
+    "items",
+    "key",
+    "kind",
+    "kinds",
+    "lease",
+    "legacy",
+    "legacyPerson",
+    "mail",
+    "maxDuration",
+    "newBicycle",
+    "old",
+    "oldBicycle",
+    "oldCount",
+    "outcome",
+    "ownerId",
+    "pending",
+    "person",
+    "personIds",
+    "plans",
+    "previous",
+    "productionPlan",
+    "province",
+    "provinces",
+    "quarantined",
+    "queue",
+    "r",
+    "raw",
+    "recent",
+    "records",
+    "refresh",
+    "repeated"
+  ],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "5bc5caba4961d47bd0b6fbc2d4a757eba97dada17027f7a6b082bbe9f0487aa9",
+  "ci_digest": "4cb56bed68e50edba5f245e6de93445908e15ac3d0abe5b8fcb9caaf59bb745b",
+  "collected_at": "2026-11-13T00:48:08.442182+00:00",
+  "decisions": [
+    {
+      "kind": "test",
+      "title": "plans unseen old and recent eligible IDs once",
+      "condition": "plans unseen old and recent eligible IDs once",
+      "behavior": "if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\"); ／ if (!oldCount || currentCount < oldCount * .8 || currentCount > oldCount * 1.2) throw new Error(\"SOURCE_COUNT_GUARD\"); ／ if (result.candidates.length > 20) throw new Error(\"DIFFERENCE_LIMIT\"); ／ return {...result, quarantined};",
+      "verification": "テストの期待値: expect(result.quarantined).toEqual([]); ／ expect(result.candidates.map(c => c.key)).toEqual([\"hiroshima-crime:1126001011\", \"hiroshima-crime:1126001012\"]); ／ expect(result.records).toHaveProperty(\"hiroshima-crime:1126001011\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/lib/jaspic/production-plan.ts#L5",
+        "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts#L37"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "allows a known update and a new old-date ID",
+      "condition": "allows a known update and a new old-date ID",
+      "behavior": "if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\"); ／ if (!oldCount || currentCount < oldCount * .8 || currentCount > oldCount * 1.2) throw new Error(\"SOURCE_COUNT_GUARD\"); ／ if (result.candidates.length > 20) throw new Error(\"DIFFERENCE_LIMIT\"); ／ return {...result, quarantined};",
+      "verification": "テストの期待値: expect(result.candidates.map(c => c.key)).toEqual([\"hiroshima-crime:1126001001\", \"hiroshima-crime:1126001011\"]); ／ expect(result.quarantined).toEqual([]); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/lib/jaspic/production-plan.ts#L5",
+        "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts#L53"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "does not quarantine or notify old/new bicycle theft, but baselines it for future source-count checks",
+      "condition": "does not quarantine or notify old/new bicycle theft, but baselines it for future source-count checks",
+      "behavior": "if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\"); ／ if (!oldCount || currentCount < oldCount * .8 || currentCount > oldCount * 1.2) throw new Error(\"SOURCE_COUNT_GUARD\"); ／ if (result.candidates.length > 20) throw new Error(\"DIFFERENCE_LIMIT\"); ／ return {...result, quarantined};",
+      "verification": "テストの期待値: expect(result.quarantined).toEqual([]); ／ expect(result.candidates).toEqual([]); ／ expect(result.records).toHaveProperty(\"hiroshima-crime:1126001071\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/lib/jaspic/production-plan.ts#L5",
+        "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts#L70"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "plans all eligible new records irrespective of occurrence date",
+      "condition": "plans all eligible new records irrespective of occurrence date",
+      "behavior": "if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\"); ／ if (!oldCount || currentCount < oldCount * .8 || currentCount > oldCount * 1.2) throw new Error(\"SOURCE_COUNT_GUARD\"); ／ if (result.candidates.length > 20) throw new Error(\"DIFFERENCE_LIMIT\"); ／ return {...result, quarantined};",
+      "verification": "テストの期待値: expect(result.candidates).toHaveLength(10); ／ expect(result.candidates.map(c=>c.key)).toContain(\"hiroshima-crime:1126001999\"); ／ expect(result.quarantined).toEqual([]); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/lib/jaspic/production-plan.ts#L5",
+        "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic-production-plan-quarantine.test.ts#L90"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "never backfills an established baseline",
+      "condition": "never backfills an established baseline",
+      "behavior": "if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\"); ／ if (!oldCount || currentCount < oldCount * .8 || currentCount > oldCount * 1.2) throw new Error(\"SOURCE_COUNT_GUARD\"); ／ if (result.candidates.length > 20) throw new Error(\"DIFFERENCE_LIMIT\"); ／ return {...result, quarantined};",
+      "verification": "テストの期待値: expect((await productionPlan(\"shiga\",{revision:4,baseline:true,records:{\"shiga-person:1\":i.data}},[i],new Set())).candidates).toHaveLength(0)}); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/lib/jaspic/production-plan.ts#L5",
+        "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic/production-delivery.test.ts#L15"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "plans a historical unknown ID once without marking it sent prematurely",
+      "condition": "plans a historical unknown ID once without marking it sent prematurely",
+      "behavior": "if (!snapshot.baseline || snapshot.revision < 4) throw new Error(\"BASELINE_REQUIRED\"); ／ if (!oldCount || currentCount < oldCount * .8 || currentCount > oldCount * 1.2) throw new Error(\"SOURCE_COUNT_GUARD\"); ／ if (result.candidates.length > 20) throw new Error(\"DIFFERENCE_LIMIT\"); ／ return {...result, quarantined};",
+      "verification": "テストの期待値: expect(result.quarantined).toEqual([]); ／ expect(result.candidates.map(c=>c.key)).toEqual([\"shiga-person:unknown\"]); ／ expect(result.records).toHaveProperty(\"shiga-person:unknown\")}); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/lib/jaspic/production-plan.ts#L5",
+        "https://github.com/miyazaki1016/emergencyalert/blob/e36e28bbbf9cce64d942ade6a454991f775eb118/tests/jaspic/production-delivery.test.ts#L16"
+      ]
+    }
+  ]
+}

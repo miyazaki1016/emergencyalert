@@ -1,0 +1,44 @@
+{
+  "id": "branch-5437e621b3e2f897",
+  "title": "fix/feedback-compact-list-20261021",
+  "head": "52e10294c2f10f14368ba31545c0362ad4f85c35",
+  "head_ref": "fix/feedback-compact-list-20261021",
+  "linked_prs": [
+    66
+  ],
+  "files": [
+    {
+      "path": "app/components/NotificationFeedbackHistory.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/app/components/NotificationFeedbackHistory.tsx"
+    },
+    {
+      "path": "lib/weather/rain/feedbackPhase1.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/lib/weather/rain/feedbackPhase1.ts"
+    },
+    {
+      "path": "tests/feedbackPhase1.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/52e10294c2f10f14368ba31545c0362ad4f85c35/tests/feedbackPhase1.test.ts"
+    }
+  ],
+  "commits": "52e10294c2f10f14368ba31545c0362ad4f85c35 test: initial two-card display, gradual reveal and deep link handling\n010e7049cd43cf5514fff77784392fb98fe016cd copy: keep the compact feedback history introduction short\n27de59b01930980548fd60db4c3766d8faba57e8 fix: show two feedback cards initially and reveal older alerts on demand\nc53077b2186e44b2dde3180d8f1314cfddc99a20 feat: compact long notification feedback history while preserving focused alerts",
+  "topics": [
+    "雨量・全国検知",
+    "通知・配信",
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "68bf4d29f705fd9eadf492ed98549cdcadee2422ec66ec3b15879ff6513923d7",
+  "collected_at": "2026-11-13T00:48:08.442182+00:00"
+}

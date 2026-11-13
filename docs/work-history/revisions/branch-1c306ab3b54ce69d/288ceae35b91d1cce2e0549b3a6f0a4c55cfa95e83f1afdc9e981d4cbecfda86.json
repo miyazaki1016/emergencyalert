@@ -1,0 +1,127 @@
+{
+  "id": "branch-1c306ab3b54ce69d",
+  "title": "feat/rain-area-shadow-20261029",
+  "head": "87320a16e3f9f04884a3cc2591ab47b43a3c230b",
+  "head_ref": "feat/rain-area-shadow-20261029",
+  "linked_prs": [
+    101
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/87320a16e3f9f04884a3cc2591ab47b43a3c230b/.github/workflows/ci.yml"
+    },
+    {
+      "path": "PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/87320a16e3f9f04884a3cc2591ab47b43a3c230b/PROJECT_OVERVIEW.md"
+    },
+    {
+      "path": "docs/DEVELOPMENT_LEDGER.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/87320a16e3f9f04884a3cc2591ab47b43a3c230b/docs/DEVELOPMENT_LEDGER.md"
+    },
+    {
+      "path": "docs/PROJECT_OVERVIEW.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/87320a16e3f9f04884a3cc2591ab47b43a3c230b/docs/PROJECT_OVERVIEW.md"
+    },
+    {
+      "path": "docs/RAIN_AREA_SHADOW_20261029.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/87320a16e3f9f04884a3cc2591ab47b43a3c230b/docs/RAIN_AREA_SHADOW_20261029.md"
+    },
+    {
+      "path": "docs/sql/rain-shadow-monitoring.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/87320a16e3f9f04884a3cc2591ab47b43a3c230b/docs/sql/rain-shadow-monitoring.sql"
+    },
+    {
+      "path": "supabase/functions/_shared/areaShadow.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/87320a16e3f9f04884a3cc2591ab47b43a3c230b/supabase/functions/_shared/areaShadow.ts"
+    },
+    {
+      "path": "supabase/functions/_shared/areaShadowImage.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/87320a16e3f9f04884a3cc2591ab47b43a3c230b/supabase/functions/_shared/areaShadowImage.ts"
+    },
+    {
+      "path": "supabase/functions/shadow-rain/index.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/87320a16e3f9f04884a3cc2591ab47b43a3c230b/supabase/functions/shadow-rain/index.ts"
+    },
+    {
+      "path": "supabase/migrations/20261029030141_rain_area_shadow.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/87320a16e3f9f04884a3cc2591ab47b43a3c230b/supabase/migrations/20261029030141_rain_area_shadow.sql"
+    },
+    {
+      "path": "supabase/migrations/20261029032004_rain_area_shadow_schedule.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/87320a16e3f9f04884a3cc2591ab47b43a3c230b/supabase/migrations/20261029032004_rain_area_shadow_schedule.sql"
+    },
+    {
+      "path": "tests/areaShadow.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/87320a16e3f9f04884a3cc2591ab47b43a3c230b/tests/areaShadow.test.ts"
+    },
+    {
+      "path": "tests/areaShadowImage.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/87320a16e3f9f04884a3cc2591ab47b43a3c230b/tests/areaShadowImage.test.ts"
+    },
+    {
+      "path": "tests/shadowRainIntegration.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/87320a16e3f9f04884a3cc2591ab47b43a3c230b/tests/shadowRainIntegration.test.ts"
+    },
+    {
+      "path": "tests/sql/rain-shadow-integration.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/87320a16e3f9f04884a3cc2591ab47b43a3c230b/tests/sql/rain-shadow-integration.sql"
+    }
+  ],
+  "commits": "87320a16e3f9f04884a3cc2591ab47b43a3c230b Record live shadow metrics probe and scheduled comparison checks\ncd369fecad70f62a170376cfc3a337efd208156d Add experimental point area and combined rain shadow comparison",
+  "topics": [
+    "雨量・全国検知",
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "40974645d2a4fd9dbe46f4908f953a087554e0a2e4fdde50d31bad0b86df4c23",
+  "collected_at": "2026-11-13T00:48:08.442182+00:00"
+}

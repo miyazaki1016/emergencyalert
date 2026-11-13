@@ -176,9 +176,11 @@
     "branch-334cfb3f08d270ec",
     "branch-3caa7689f822f5c5",
     "branch-68a04500a5ab7038",
+    "branch-f7e70a5901d7838e",
     "pr-190",
     "pr-191",
-    "pr-193"
+    "pr-193",
+    "pr-224"
   ],
   "app/jaspic/oauth/callback/route.ts": [
     "branch-ae94438b6e247b91",
@@ -448,9 +450,11 @@
     "branch-3caa7689f822f5c5",
     "branch-5f7d8d7f8dc6dd32",
     "branch-68a04500a5ab7038",
+    "branch-f7e70a5901d7838e",
     "pr-190",
     "pr-191",
-    "pr-192"
+    "pr-192",
+    "pr-224"
   ],
   "lib/jaspic/shigaMail.ts": [
     "branch-c32f0f97af1ba1b5",
@@ -700,42 +704,72 @@
     "pr-59"
   ],
   "lib/weather/rain/lightRainAdministrativeAreas.ts": [
+    "branch-2dd17474ef4e7083",
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "lib/weather/rain/lightRainBlueskyDelivery.test.ts": [
+    "branch-2dd17474ef4e7083",
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "lib/weather/rain/lightRainBlueskyDelivery.ts": [
+    "branch-2dd17474ef4e7083",
     "branch-7d28c1fe1dcbf427",
     "pr-217"
   ],
   "lib/weather/rain/lightRainMunicipalities.test.ts": [
+    "branch-2dd17474ef4e7083",
     "branch-7d28c1fe1dcbf427",
     "pr-217"
   ],
   "lib/weather/rain/lightRainMunicipalities.ts": [
+    "branch-2dd17474ef4e7083",
     "branch-7d28c1fe1dcbf427",
     "pr-217"
   ],
   "lib/weather/rain/lightRainN03LocalProof.test.ts": [
+    "branch-2dd17474ef4e7083",
     "branch-7d28c1fe1dcbf427",
     "pr-217"
   ],
   "lib/weather/rain/lightRainN03LocalProof.ts": [
+    "branch-2dd17474ef4e7083",
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "lib/weather/rain/lightRainNationwideN03.test.ts": [
+    "branch-2dd17474ef4e7083",
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "lib/weather/rain/lightRainNationwideN03.ts": [
+    "branch-2dd17474ef4e7083",
     "branch-7d28c1fe1dcbf427",
     "pr-217"
   ],
   "lib/weather/rain/lightRainOfficialN03.test.ts": [
+    "branch-2dd17474ef4e7083",
     "branch-7d28c1fe1dcbf427",
     "pr-217"
   ],
   "lib/weather/rain/lightRainOfficialN03.ts": [
+    "branch-2dd17474ef4e7083",
     "branch-7d28c1fe1dcbf427",
     "pr-217"
   ],
   "lib/weather/rain/lightRainProof.live.test.ts": [
+    "branch-2dd17474ef4e7083",
     "branch-7d28c1fe1dcbf427",
     "pr-217"
   ],
   "lib/weather/rain/lightRainProof.test.ts": [
+    "branch-2dd17474ef4e7083",
     "branch-7d28c1fe1dcbf427",
     "pr-217"
   ],
   "lib/weather/rain/lightRainProof.ts": [
+    "branch-2dd17474ef4e7083",
     "branch-7d28c1fe1dcbf427",
     "pr-217"
   ],
@@ -845,12 +879,18 @@
     "pr-59"
   ],
   "lib/weather/rain/nationalForecastBluesky.test.ts": [
+    "branch-2dd17474ef4e7083",
+    "branch-7d28c1fe1dcbf427",
     "branch-d7e01c30db10e1cb",
-    "pr-215"
+    "pr-215",
+    "pr-217"
   ],
   "lib/weather/rain/nationalForecastBluesky.ts": [
+    "branch-2dd17474ef4e7083",
+    "branch-7d28c1fe1dcbf427",
     "branch-d7e01c30db10e1cb",
-    "pr-215"
+    "pr-215",
+    "pr-217"
   ],
   "lib/weather/rain/nationalForecastSnapshot.test.ts": [
     "branch-8ac7382a5a280d93",
@@ -892,6 +932,14 @@
     "branch-8ac7382a5a280d93",
     "pr-59"
   ],
+  "lib/weather/rain/nationalRainGif.test.ts": [
+    "branch-2dd17474ef4e7083",
+    "pr-222"
+  ],
+  "lib/weather/rain/nationalRainGif.ts": [
+    "branch-2dd17474ef4e7083",
+    "pr-222"
+  ],
   "lib/weather/rain/nationalRainMunicipalities.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
@@ -919,6 +967,14 @@
     "branch-64503a3847e876c9",
     "branch-8ac7382a5a280d93",
     "pr-59"
+  ],
+  "lib/weather/rain/nationalRainPlayback.test.ts": [
+    "branch-2dd17474ef4e7083",
+    "pr-222"
+  ],
+  "lib/weather/rain/nationalRainPlayback.ts": [
+    "branch-2dd17474ef4e7083",
+    "pr-222"
   ],
   "lib/weather/rain/nationalRainQueue.test.ts": [
     "branch-2d0caa2b5330cf58",
@@ -1209,7 +1265,38 @@
     "branch-8ac7382a5a280d93",
     "pr-59"
   ],
+  "scripts/light-rain-bluesky-dry-run.ts": [
+    "branch-2dd17474ef4e7083",
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "scripts/light-rain-jma-n03-live-proof.ts": [
+    "branch-2dd17474ef4e7083",
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "scripts/light-rain-nationwide-live.ts": [
+    "branch-2dd17474ef4e7083",
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "scripts/light-rain-nationwide-n03-audit.ts": [
+    "branch-2dd17474ef4e7083",
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
   "scripts/light-rain-official-n03-proof.ts": [
+    "branch-2dd17474ef4e7083",
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "scripts/light-rain-prepare-official-n03.ts": [
+    "branch-2dd17474ef4e7083",
+    "branch-7d28c1fe1dcbf427",
+    "pr-217"
+  ],
+  "scripts/light-rain-z10-refine.ts": [
+    "branch-2dd17474ef4e7083",
     "branch-7d28c1fe1dcbf427",
     "pr-217"
   ],
@@ -1438,6 +1525,7 @@
     "pr-59"
   ],
   "scripts/national-light-rain-jma-proof.ts": [
+    "branch-2dd17474ef4e7083",
     "branch-7d28c1fe1dcbf427",
     "pr-217"
   ],
