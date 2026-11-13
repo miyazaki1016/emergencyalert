@@ -51,6 +51,7 @@
 | #222 | [Draft] 全国雨予報6コマGIF生成の独立プロトタイプ (#221) | feat/national-rain-gif-221 |
 | #232 | feat(jaspic): show held counts in completion email | feat/jaspic-completion-held-count-20261113 |
 | #236 | fix(jaspic): 滋賀の一括登録を20件制限で停止させない (#235) | fix/jaspic-235-batched-shiga |
+| #239 | Draft: JASPIC 34件隔離DB・Gmail送信試験の安全ゲート | test/jaspic-238-isolated-bulk |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
