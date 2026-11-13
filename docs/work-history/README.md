@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-13T11:18:56.543787+00:00
+更新 (UTC): 2026-11-13T23:25:18.837219+00:00
 
 ## 全案件
 
@@ -35,6 +35,7 @@
 | [automation/ledger-facts-41386003314](cases/branch-1794ffb921ec56a5.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [research/rain-approach-timing-20261109](cases/branch-18dd3fe9c679357b.md) | 雨量・全国検知・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/disambiguate-duplicate-notification-labels](cases/branch-18ddda2fd55d7cdb.md) | 通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [test/jaspic-238-isolated-send](cases/branch-1a34f59f12c294d3.md) | 通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [automation/ledger-facts-41358801614](cases/branch-1a3f41526f29265d.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/rain-area-shadow-20261029](cases/branch-1c306ab3b54ce69d.md) | 雨量・全国検知・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/jaspic-235-batched-shiga](cases/branch-1d61765cd085a548.md) | 通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -114,6 +115,7 @@
 | [feat/pwa-auth-transition-diagnostics-20261024](cases/branch-705f3ba77d283676.md) | 認証・安全性：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [chore/log-rain-diagnostics](cases/branch-7243c32c4aada456.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/feature-reconciliation-20261101](cases/branch-77303b743008b53e.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [test/jaspic-238-isolated-bulk](cases/branch-7886dfcc563cb30d.md) | 通知・配信・認証・安全性：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/operational-inventory-index-20261101](cases/branch-7942aa21d9a9b1bd.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/pr-handoff-risk-routing-20261102](cases/branch-7ae456f5639d43f4.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [test/ledger-automation-safety-gates-20261102](cases/branch-7b4c2cf2503a3179.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -367,7 +369,9 @@
 | [JASPIC送信前チェックに候補ID・新規/更新・発生日の内訳を追加](cases/pr-234.md) | 通知・配信・認証・安全性：通知・メール配信とその運用に関する変更／認証・アクセス制御に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix(jaspic): 滋賀の一括登録を20件制限で停止させない (#235)](cases/pr-236.md) | 通知・配信：通知・メール配信とその運用に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [fix(jaspic): 送信前チェックだけ候補件数を表示（実送信変更なし）](cases/pr-237.md) | 通知・配信・画面・表示：通知・メール配信とその運用に関する変更／画面表示や操作に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [Draft: JASPIC 34件隔離DB・Gmail送信試験の安全ゲート](cases/pr-239.md) | 通知・配信・認証・安全性：通知・メール配信とその運用に関する変更／認証・アクセス制御に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [test: cover early rain prototype API](cases/pr-24.md) | 雨量・全国検知：早期雨予測APIをテスト | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [draft(jaspic): #238 分割送信の安全条件と時間予算を整理](cases/pr-240.md) | 通知・配信・認証・安全性：通知・メール配信とその運用に関する変更／認証・アクセス制御に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [test: verify live JMA early rain data in CI](cases/pr-25.md) | 雨量・全国検知：実際のJMA予測データをCIで検証 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [Use targetTimes member in JMA early forecast tile URL](cases/pr-26.md) | 雨量・全国検知：JMA予測タイルURLにtargetTimesの値を使う | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Restore push notification status after reopening app](cases/pr-27.md) | 通知・配信・画面・表示：アプリ再起動時にPush通知状態を復元 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
@@ -453,6 +457,9 @@
 同じファイルを変更した案件です。同一機能と断定せず、結論と差分を先に照合してください。
 
 - .gitattributes：[branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [pr-155](cases/pr-155.md)
+- app/api/jaspic-isolated-238/health/route.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- app/api/jaspic-isolated-238/readiness/route.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- app/api/jaspic-isolated-238/send/route.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
 - app/api/rain/early/route.test.ts：[branch-e4759b653b6f36d2](cases/branch-e4759b653b6f36d2.md), [pr-24](cases/pr-24.md)
 - app/api/rain/early/route.ts：[branch-68f33791ab263e2e](cases/branch-68f33791ab263e2e.md), [branch-89ed93054e66b5e1](cases/branch-89ed93054e66b5e1.md), [pr-21](cases/pr-21.md), [pr-23](cases/pr-23.md)
 - app/api/rain/national-forecast/route.ts：[branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [branch-d47e9b0dcd4ebc9b](cases/branch-d47e9b0dcd4ebc9b.md), [pr-210](cases/pr-210.md), [pr-211](cases/pr-211.md)
@@ -473,8 +480,8 @@
 - app/dev/rain-lab/page.tsx：[branch-dbcfae267568d52d](cases/branch-dbcfae267568d52d.md), [pr-102](cases/pr-102.md)
 - app/external-ai-review/page.tsx：[branch-31d6803113173639](cases/branch-31d6803113173639.md), [pr-97](cases/pr-97.md)
 - app/icon.tsx：[branch-d8037f3cde5d4713](cases/branch-d8037f3cde5d4713.md), [pr-3](cases/pr-3.md)
-- app/jaspic/dispatch/preview/route.ts：[branch-09bdbf4a9671c3f0](cases/branch-09bdbf4a9671c3f0.md), [branch-1d61765cd085a548](cases/branch-1d61765cd085a548.md), [branch-4f6a16d597900890](cases/branch-4f6a16d597900890.md), [branch-a606cdef1c84e53b](cases/branch-a606cdef1c84e53b.md), [branch-aa227dbec6e5a3d2](cases/branch-aa227dbec6e5a3d2.md), [pr-226](cases/pr-226.md), [pr-234](cases/pr-234.md), [pr-236](cases/pr-236.md), [pr-237](cases/pr-237.md)
-- app/jaspic/dispatch/route.ts：[branch-1d61765cd085a548](cases/branch-1d61765cd085a548.md), [branch-334cfb3f08d270ec](cases/branch-334cfb3f08d270ec.md), [branch-3caa7689f822f5c5](cases/branch-3caa7689f822f5c5.md), [branch-68a04500a5ab7038](cases/branch-68a04500a5ab7038.md), [branch-f7e70a5901d7838e](cases/branch-f7e70a5901d7838e.md), [pr-190](cases/pr-190.md), [pr-191](cases/pr-191.md), [pr-193](cases/pr-193.md), [pr-224](cases/pr-224.md), [pr-236](cases/pr-236.md)
+- app/jaspic/dispatch/preview/route.ts：[branch-09bdbf4a9671c3f0](cases/branch-09bdbf4a9671c3f0.md), [branch-1a34f59f12c294d3](cases/branch-1a34f59f12c294d3.md), [branch-1d61765cd085a548](cases/branch-1d61765cd085a548.md), [branch-4f6a16d597900890](cases/branch-4f6a16d597900890.md), [branch-a606cdef1c84e53b](cases/branch-a606cdef1c84e53b.md), [branch-aa227dbec6e5a3d2](cases/branch-aa227dbec6e5a3d2.md), [pr-226](cases/pr-226.md), [pr-234](cases/pr-234.md), [pr-236](cases/pr-236.md), [pr-237](cases/pr-237.md), [pr-240](cases/pr-240.md)
+- app/jaspic/dispatch/route.ts：[branch-1a34f59f12c294d3](cases/branch-1a34f59f12c294d3.md), [branch-1d61765cd085a548](cases/branch-1d61765cd085a548.md), [branch-334cfb3f08d270ec](cases/branch-334cfb3f08d270ec.md), [branch-3caa7689f822f5c5](cases/branch-3caa7689f822f5c5.md), [branch-68a04500a5ab7038](cases/branch-68a04500a5ab7038.md), [branch-f7e70a5901d7838e](cases/branch-f7e70a5901d7838e.md), [pr-190](cases/pr-190.md), [pr-191](cases/pr-191.md), [pr-193](cases/pr-193.md), [pr-224](cases/pr-224.md), [pr-236](cases/pr-236.md), [pr-240](cases/pr-240.md)
 - app/jaspic/oauth/callback/route.ts：[branch-ae94438b6e247b91](cases/branch-ae94438b6e247b91.md), [branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [branch-dddc96894dde5a85](cases/branch-dddc96894dde5a85.md), [branch-f4ebc6c16c3885bc](cases/branch-f4ebc6c16c3885bc.md), [pr-155](cases/pr-155.md), [pr-168](cases/pr-168.md), [pr-170](cases/pr-170.md), [pr-171](cases/pr-171.md)
 - app/jaspic/oauth/login-client.tsx：[branch-8c6a80e8f4c87a06](cases/branch-8c6a80e8f4c87a06.md), [branch-ae94438b6e247b91](cases/branch-ae94438b6e247b91.md), [branch-b84bde7f845491a7](cases/branch-b84bde7f845491a7.md), [branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [branch-dddc96894dde5a85](cases/branch-dddc96894dde5a85.md), [branch-e532c526e0c8a49b](cases/branch-e532c526e0c8a49b.md), [branch-f257789f539b6669](cases/branch-f257789f539b6669.md), [branch-f4ebc6c16c3885bc](cases/branch-f4ebc6c16c3885bc.md), [pr-155](cases/pr-155.md), [pr-157](cases/pr-157.md), [pr-166](cases/pr-166.md), [pr-167](cases/pr-167.md), [pr-168](cases/pr-168.md), [pr-170](cases/pr-170.md), [pr-171](cases/pr-171.md), [pr-174](cases/pr-174.md)
 - app/jaspic/oauth/page.tsx：[branch-b84bde7f845491a7](cases/branch-b84bde7f845491a7.md), [branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [branch-dddc96894dde5a85](cases/branch-dddc96894dde5a85.md), [branch-e532c526e0c8a49b](cases/branch-e532c526e0c8a49b.md), [branch-e6e1f5d119109659](cases/branch-e6e1f5d119109659.md), [pr-155](cases/pr-155.md), [pr-157](cases/pr-157.md), [pr-167](cases/pr-167.md), [pr-171](cases/pr-171.md), [pr-228](cases/pr-228.md)
@@ -499,8 +506,27 @@
 - components/weather/NationalRainPlayer.tsx：[branch-2dd17474ef4e7083](cases/branch-2dd17474ef4e7083.md), [pr-222](cases/pr-222.md)
 - lib/diagnostics/pwaResumeDiagnostics.ts：[branch-a5f2511bf36597a1](cases/branch-a5f2511bf36597a1.md), [pr-76](cases/pr-76.md)
 - lib/jaspic/admin-authorization.ts：[branch-b84bde7f845491a7](cases/branch-b84bde7f845491a7.md), [pr-167](cases/pr-167.md)
-- lib/jaspic/bulk-send-budget.ts：[branch-1d61765cd085a548](cases/branch-1d61765cd085a548.md), [pr-236](cases/pr-236.md)
+- lib/jaspic/bulk-send-budget.ts：[branch-1a34f59f12c294d3](cases/branch-1a34f59f12c294d3.md), [branch-1d61765cd085a548](cases/branch-1d61765cd085a548.md), [pr-236](cases/pr-236.md), [pr-240](cases/pr-240.md)
 - lib/jaspic/delivery-routing.ts：[branch-f257789f539b6669](cases/branch-f257789f539b6669.md), [pr-174](cases/pr-174.md)
+- lib/jaspic/dispatch-batch.ts：[branch-1a34f59f12c294d3](cases/branch-1a34f59f12c294d3.md), [pr-240](cases/pr-240.md)
+- lib/jaspic/isolated-batch-238.test.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- lib/jaspic/isolated-batch-238.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- lib/jaspic/isolated-content-238.test.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- lib/jaspic/isolated-content-238.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- lib/jaspic/isolated-db-adapter-238.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- lib/jaspic/isolated-first-mail-238.test.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- lib/jaspic/isolated-first-mail-238.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- lib/jaspic/isolated-gmail-238.test.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- lib/jaspic/isolated-gmail-238.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- lib/jaspic/isolated-mail-resolver-238.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- lib/jaspic/isolated-oauth-refresh-238.test.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- lib/jaspic/isolated-oauth-refresh-238.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- lib/jaspic/isolated-preview-238.test.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- lib/jaspic/isolated-preview-238.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- lib/jaspic/isolated-send-gate-238.test.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- lib/jaspic/isolated-send-gate-238.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
+- lib/jaspic/isolated-send-guard.ts：[branch-1a34f59f12c294d3](cases/branch-1a34f59f12c294d3.md), [pr-240](cases/pr-240.md)
+- lib/jaspic/isolated-vault-access-238.ts：[branch-7886dfcc563cb30d](cases/branch-7886dfcc563cb30d.md), [pr-239](cases/pr-239.md)
 - lib/jaspic/oauth-callback-validation.ts：[branch-f4ebc6c16c3885bc](cases/branch-f4ebc6c16c3885bc.md), [pr-168](cases/pr-168.md)
 - lib/jaspic/oauth-consent-preparation.ts：[branch-f4ebc6c16c3885bc](cases/branch-f4ebc6c16c3885bc.md), [pr-168](cases/pr-168.md)
 - lib/jaspic/oauth-gmail-send-callback-server.ts：[branch-5471c028848cfd01](cases/branch-5471c028848cfd01.md), [branch-ae94438b6e247b91](cases/branch-ae94438b6e247b91.md), [branch-ce2746b8f1b60391](cases/branch-ce2746b8f1b60391.md), [branch-dddc96894dde5a85](cases/branch-dddc96894dde5a85.md), [pr-170](cases/pr-170.md), [pr-171](cases/pr-171.md), [pr-172](cases/pr-172.md), [pr-173](cases/pr-173.md)
@@ -516,7 +542,7 @@
 - lib/jaspic/oauth-session-offline.ts：[branch-dddc96894dde5a85](cases/branch-dddc96894dde5a85.md), [branch-f4ebc6c16c3885bc](cases/branch-f4ebc6c16c3885bc.md), [pr-168](cases/pr-168.md), [pr-171](cases/pr-171.md)
 - lib/jaspic/oauth-start-authorization.ts：[branch-f4ebc6c16c3885bc](cases/branch-f4ebc6c16c3885bc.md), [pr-168](cases/pr-168.md)
 - lib/jaspic/oauth-supabase-store.ts：[branch-f4ebc6c16c3885bc](cases/branch-f4ebc6c16c3885bc.md), [pr-168](cases/pr-168.md)
-- lib/jaspic/production-plan.ts：[branch-1d61765cd085a548](cases/branch-1d61765cd085a548.md), [branch-3caa7689f822f5c5](cases/branch-3caa7689f822f5c5.md), [branch-5f7d8d7f8dc6dd32](cases/branch-5f7d8d7f8dc6dd32.md), [branch-68a04500a5ab7038](cases/branch-68a04500a5ab7038.md), [branch-e06eb5609bf2c862](cases/branch-e06eb5609bf2c862.md), [branch-f7e70a5901d7838e](cases/branch-f7e70a5901d7838e.md), [pr-190](cases/pr-190.md), [pr-191](cases/pr-191.md), [pr-192](cases/pr-192.md), [pr-224](cases/pr-224.md), [pr-230](cases/pr-230.md), [pr-236](cases/pr-236.md)
+- lib/jaspic/production-plan.ts：[branch-1a34f59f12c294d3](cases/branch-1a34f59f12c294d3.md), [branch-1d61765cd085a548](cases/branch-1d61765cd085a548.md), [branch-3caa7689f822f5c5](cases/branch-3caa7689f822f5c5.md), [branch-5f7d8d7f8dc6dd32](cases/branch-5f7d8d7f8dc6dd32.md), [branch-68a04500a5ab7038](cases/branch-68a04500a5ab7038.md), [branch-e06eb5609bf2c862](cases/branch-e06eb5609bf2c862.md), [branch-f7e70a5901d7838e](cases/branch-f7e70a5901d7838e.md), [pr-190](cases/pr-190.md), [pr-191](cases/pr-191.md), [pr-192](cases/pr-192.md), [pr-224](cases/pr-224.md), [pr-230](cases/pr-230.md), [pr-236](cases/pr-236.md), [pr-240](cases/pr-240.md)
 - lib/jaspic/shigaMail.ts：[branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [pr-155](cases/pr-155.md)
 - lib/places/searchPlaces.ts：[branch-04c8f793320315f9](cases/branch-04c8f793320315f9.md), [branch-309a089ee15503d2](cases/branch-309a089ee15503d2.md), [branch-8408fe81c12a3d3e](cases/branch-8408fe81c12a3d3e.md), [branch-b075504ef7a80661](cases/branch-b075504ef7a80661.md), [pr-30](cases/pr-30.md), [pr-4](cases/pr-4.md), [pr-5](cases/pr-5.md), [pr-7](cases/pr-7.md)
 - lib/research/forecastEvidence.ts：[branch-e887abe92356f2f8](cases/branch-e887abe92356f2f8.md), [pr-109](cases/pr-109.md)
@@ -786,6 +812,7 @@
 - supabase/migrations/20261029075241_forecast_notification_episodes.sql：[branch-98720101eac846e9](cases/branch-98720101eac846e9.md), [pr-104](cases/pr-104.md)
 - supabase/migrations/20261105074100_jaspic_oauth_once.sql：[branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [pr-155](cases/pr-155.md)
 - supabase/migrations/20261105074500_jaspic_gmail_token_vault.sql：[branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [pr-155](cases/pr-155.md)
+- supabase/migrations/20261114000000_jaspic_lossless_queue_draft.sql：[branch-1a34f59f12c294d3](cases/branch-1a34f59f12c294d3.md), [pr-240](cases/pr-240.md)
 
 ## 更新と制約
 

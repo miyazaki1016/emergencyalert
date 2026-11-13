@@ -3,6 +3,18 @@
     "branch-c32f0f97af1ba1b5",
     "pr-155"
   ],
+  "app/api/jaspic-isolated-238/health/route.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "app/api/jaspic-isolated-238/readiness/route.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "app/api/jaspic-isolated-238/send/route.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
   "app/api/rain/early/route.test.ts": [
     "branch-e4759b653b6f36d2",
     "pr-24"
@@ -174,6 +186,7 @@
   ],
   "app/jaspic/dispatch/preview/route.ts": [
     "branch-09bdbf4a9671c3f0",
+    "branch-1a34f59f12c294d3",
     "branch-1d61765cd085a548",
     "branch-4f6a16d597900890",
     "branch-a606cdef1c84e53b",
@@ -181,9 +194,11 @@
     "pr-226",
     "pr-234",
     "pr-236",
-    "pr-237"
+    "pr-237",
+    "pr-240"
   ],
   "app/jaspic/dispatch/route.ts": [
+    "branch-1a34f59f12c294d3",
     "branch-1d61765cd085a548",
     "branch-334cfb3f08d270ec",
     "branch-3caa7689f822f5c5",
@@ -193,7 +208,8 @@
     "pr-191",
     "pr-193",
     "pr-224",
-    "pr-236"
+    "pr-236",
+    "pr-240"
   ],
   "app/jaspic/oauth/callback/route.ts": [
     "branch-ae94438b6e247b91",
@@ -398,12 +414,90 @@
     "pr-167"
   ],
   "lib/jaspic/bulk-send-budget.ts": [
+    "branch-1a34f59f12c294d3",
     "branch-1d61765cd085a548",
-    "pr-236"
+    "pr-236",
+    "pr-240"
   ],
   "lib/jaspic/delivery-routing.ts": [
     "branch-f257789f539b6669",
     "pr-174"
+  ],
+  "lib/jaspic/dispatch-batch.ts": [
+    "branch-1a34f59f12c294d3",
+    "pr-240"
+  ],
+  "lib/jaspic/isolated-batch-238.test.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "lib/jaspic/isolated-batch-238.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "lib/jaspic/isolated-content-238.test.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "lib/jaspic/isolated-content-238.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "lib/jaspic/isolated-db-adapter-238.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "lib/jaspic/isolated-first-mail-238.test.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "lib/jaspic/isolated-first-mail-238.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "lib/jaspic/isolated-gmail-238.test.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "lib/jaspic/isolated-gmail-238.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "lib/jaspic/isolated-mail-resolver-238.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "lib/jaspic/isolated-oauth-refresh-238.test.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "lib/jaspic/isolated-oauth-refresh-238.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "lib/jaspic/isolated-preview-238.test.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "lib/jaspic/isolated-preview-238.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "lib/jaspic/isolated-send-gate-238.test.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "lib/jaspic/isolated-send-gate-238.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
+  ],
+  "lib/jaspic/isolated-send-guard.ts": [
+    "branch-1a34f59f12c294d3",
+    "pr-240"
+  ],
+  "lib/jaspic/isolated-vault-access-238.ts": [
+    "branch-7886dfcc563cb30d",
+    "pr-239"
   ],
   "lib/jaspic/oauth-callback-validation.ts": [
     "branch-f4ebc6c16c3885bc",
@@ -480,6 +574,7 @@
     "pr-168"
   ],
   "lib/jaspic/production-plan.ts": [
+    "branch-1a34f59f12c294d3",
     "branch-1d61765cd085a548",
     "branch-3caa7689f822f5c5",
     "branch-5f7d8d7f8dc6dd32",
@@ -491,7 +586,8 @@
     "pr-192",
     "pr-224",
     "pr-230",
-    "pr-236"
+    "pr-236",
+    "pr-240"
   ],
   "lib/jaspic/shigaMail.ts": [
     "branch-c32f0f97af1ba1b5",
@@ -2051,5 +2147,9 @@
   "supabase/migrations/20261105074500_jaspic_gmail_token_vault.sql": [
     "branch-c32f0f97af1ba1b5",
     "pr-155"
+  ],
+  "supabase/migrations/20261114000000_jaspic_lossless_queue_draft.sql": [
+    "branch-1a34f59f12c294d3",
+    "pr-240"
   ]
 }

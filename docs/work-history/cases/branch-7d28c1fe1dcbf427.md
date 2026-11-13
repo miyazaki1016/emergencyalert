@@ -18,41 +18,41 @@
 
 関連PR：[#217](https://github.com/miyazaki1016/emergencyalert/pull/217)
 
-根拠取得日時 (UTC)：2026-11-13T11:18:56.543787+00:00
+根拠取得日時 (UTC)：2026-11-13T23:25:18.837219+00:00
 
 
 ## 実際の変更処理（コードから抽出）
 
 差分・ソースを参照
 
-- [.github/workflows/jma-light-rain-proof.yml](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/.github/workflows/jma-light-rain-proof.yml)：同一HEADのPR案件に原文収録
-- [.github/workflows/light-rain-bluesky-issue-219.yml](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/.github/workflows/light-rain-bluesky-issue-219.yml)：同一HEADのPR案件に原文収録
-- [.github/workflows/light-rain-nationwide-n03-acquisition.yml](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/.github/workflows/light-rain-nationwide-n03-acquisition.yml)：同一HEADのPR案件に原文収録
-- [.github/workflows/light-rain-official-n03-proof.yml](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/.github/workflows/light-rain-official-n03-proof.yml)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/lightRainAdministrativeAreas.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/lib/weather/rain/lightRainAdministrativeAreas.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/lightRainBlueskyDelivery.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/lib/weather/rain/lightRainBlueskyDelivery.test.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/lightRainBlueskyDelivery.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/lib/weather/rain/lightRainBlueskyDelivery.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/lightRainMunicipalities.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/lib/weather/rain/lightRainMunicipalities.test.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/lightRainMunicipalities.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/lib/weather/rain/lightRainMunicipalities.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/lightRainN03LocalProof.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/lib/weather/rain/lightRainN03LocalProof.test.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/lightRainN03LocalProof.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/lib/weather/rain/lightRainN03LocalProof.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/lightRainNationwideN03.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/lib/weather/rain/lightRainNationwideN03.test.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/lightRainNationwideN03.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/lib/weather/rain/lightRainNationwideN03.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/lightRainOfficialN03.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/lib/weather/rain/lightRainOfficialN03.test.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/lightRainOfficialN03.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/lib/weather/rain/lightRainOfficialN03.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/lightRainProof.live.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/lib/weather/rain/lightRainProof.live.test.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/lightRainProof.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/lib/weather/rain/lightRainProof.test.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/lightRainProof.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/lib/weather/rain/lightRainProof.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/nationalForecastBluesky.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/lib/weather/rain/nationalForecastBluesky.test.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/nationalForecastBluesky.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/lib/weather/rain/nationalForecastBluesky.ts)：同一HEADのPR案件に原文収録
-- [scripts/light-rain-bluesky-dry-run.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/scripts/light-rain-bluesky-dry-run.ts)：同一HEADのPR案件に原文収録
-- [scripts/light-rain-jma-n03-live-proof.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/scripts/light-rain-jma-n03-live-proof.ts)：同一HEADのPR案件に原文収録
-- [scripts/light-rain-nationwide-live.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/scripts/light-rain-nationwide-live.ts)：同一HEADのPR案件に原文収録
-- [scripts/light-rain-nationwide-n03-audit.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/scripts/light-rain-nationwide-n03-audit.ts)：同一HEADのPR案件に原文収録
-- [scripts/light-rain-official-n03-proof.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/scripts/light-rain-official-n03-proof.ts)：同一HEADのPR案件に原文収録
-- [scripts/light-rain-prepare-official-n03.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/scripts/light-rain-prepare-official-n03.ts)：同一HEADのPR案件に原文収録
-- [scripts/light-rain-z10-refine.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/scripts/light-rain-z10-refine.ts)：同一HEADのPR案件に原文収録
-- [scripts/national-light-rain-jma-proof.ts](https://github.com/miyazaki1016/emergencyalert/blob/d86ff1dc3cd15c1730e9ea474fcb900066674034/scripts/national-light-rain-jma-proof.ts)：同一HEADのPR案件に原文収録
+- [.github/workflows/jma-light-rain-proof.yml](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/.github/workflows/jma-light-rain-proof.yml)：同一HEADのPR案件に原文収録
+- [.github/workflows/light-rain-bluesky-issue-219.yml](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/.github/workflows/light-rain-bluesky-issue-219.yml)：同一HEADのPR案件に原文収録
+- [.github/workflows/light-rain-nationwide-n03-acquisition.yml](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/.github/workflows/light-rain-nationwide-n03-acquisition.yml)：同一HEADのPR案件に原文収録
+- [.github/workflows/light-rain-official-n03-proof.yml](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/.github/workflows/light-rain-official-n03-proof.yml)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/lightRainAdministrativeAreas.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/lib/weather/rain/lightRainAdministrativeAreas.ts)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/lightRainBlueskyDelivery.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/lib/weather/rain/lightRainBlueskyDelivery.test.ts)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/lightRainBlueskyDelivery.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/lib/weather/rain/lightRainBlueskyDelivery.ts)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/lightRainMunicipalities.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/lib/weather/rain/lightRainMunicipalities.test.ts)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/lightRainMunicipalities.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/lib/weather/rain/lightRainMunicipalities.ts)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/lightRainN03LocalProof.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/lib/weather/rain/lightRainN03LocalProof.test.ts)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/lightRainN03LocalProof.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/lib/weather/rain/lightRainN03LocalProof.ts)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/lightRainNationwideN03.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/lib/weather/rain/lightRainNationwideN03.test.ts)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/lightRainNationwideN03.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/lib/weather/rain/lightRainNationwideN03.ts)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/lightRainOfficialN03.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/lib/weather/rain/lightRainOfficialN03.test.ts)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/lightRainOfficialN03.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/lib/weather/rain/lightRainOfficialN03.ts)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/lightRainProof.live.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/lib/weather/rain/lightRainProof.live.test.ts)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/lightRainProof.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/lib/weather/rain/lightRainProof.test.ts)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/lightRainProof.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/lib/weather/rain/lightRainProof.ts)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/nationalForecastBluesky.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/lib/weather/rain/nationalForecastBluesky.test.ts)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/nationalForecastBluesky.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/lib/weather/rain/nationalForecastBluesky.ts)：同一HEADのPR案件に原文収録
+- [scripts/light-rain-bluesky-dry-run.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/scripts/light-rain-bluesky-dry-run.ts)：同一HEADのPR案件に原文収録
+- [scripts/light-rain-jma-n03-live-proof.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/scripts/light-rain-jma-n03-live-proof.ts)：同一HEADのPR案件に原文収録
+- [scripts/light-rain-nationwide-live.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/scripts/light-rain-nationwide-live.ts)：同一HEADのPR案件に原文収録
+- [scripts/light-rain-nationwide-n03-audit.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/scripts/light-rain-nationwide-n03-audit.ts)：同一HEADのPR案件に原文収録
+- [scripts/light-rain-official-n03-proof.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/scripts/light-rain-official-n03-proof.ts)：同一HEADのPR案件に原文収録
+- [scripts/light-rain-prepare-official-n03.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/scripts/light-rain-prepare-official-n03.ts)：同一HEADのPR案件に原文収録
+- [scripts/light-rain-z10-refine.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/scripts/light-rain-z10-refine.ts)：同一HEADのPR案件に原文収録
+- [scripts/national-light-rain-jma-proof.ts](https://github.com/miyazaki1016/emergencyalert/blob/60a1a36a809ffc0407bf41a8d3995298f5a5fa58/scripts/national-light-rain-jma-proof.ts)：同一HEADのPR案件に原文収録
 
 ## 検証実行の事実
 

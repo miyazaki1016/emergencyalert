@@ -1,0 +1,36 @@
+{
+  "id": "branch-b34c306bc7fd0b72",
+  "title": "fix/inventory-delta-artifact-auth-diagnostics-20261101",
+  "head": "112eb50002512097281e59fca830caf1b7ec651b",
+  "head_ref": "fix/inventory-delta-artifact-auth-diagnostics-20261101",
+  "linked_prs": [
+    125
+  ],
+  "files": [
+    {
+      "path": "scripts/development_inventory_delta.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/112eb50002512097281e59fca830caf1b7ec651b/scripts/development_inventory_delta.py"
+    },
+    {
+      "path": "tests/test_development_inventory_delta.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/112eb50002512097281e59fca830caf1b7ec651b/tests/test_development_inventory_delta.py"
+    }
+  ],
+  "commits": "112eb50002512097281e59fca830caf1b7ec651b Fix Python Request API use in redirect sanitization\n1114e4ce1ae45aafd933d671e52ac9d2c867b7d6 Test artifact redirect never forwards GitHub token\nb7fe9528ba1440d4fa769d64a521526eeb099ab9 Safeguard artifact redirects and report which endpoint rejects access",
+  "topics": [
+    "開発管理",
+    "認証・安全性"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "752c4dcdae6d098e646de3ddc6ec955e9750f35c3c98c2057d815f87b30e9e18",
+  "collected_at": "2026-11-13T23:25:18.837219+00:00"
+}
