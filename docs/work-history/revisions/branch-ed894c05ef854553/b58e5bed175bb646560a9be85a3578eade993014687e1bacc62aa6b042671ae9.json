@@ -1,0 +1,42 @@
+{
+  "id": "branch-ed894c05ef854553",
+  "title": "chore/inventory-shared-file-evidence",
+  "head": "6485641e549dfb180fb5b4255087a8065eb0af55",
+  "head_ref": "chore/inventory-shared-file-evidence",
+  "linked_prs": [
+    148
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/development-inventory.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6485641e549dfb180fb5b4255087a8065eb0af55/.github/workflows/development-inventory.yml"
+    },
+    {
+      "path": "scripts/development_branch_compare.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6485641e549dfb180fb5b4255087a8065eb0af55/scripts/development_branch_compare.py"
+    },
+    {
+      "path": "tests/test_development_branch_overlap.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6485641e549dfb180fb5b4255087a8065eb0af55/tests/test_development_branch_overlap.py"
+    }
+  ],
+  "commits": "6485641e549dfb180fb5b4255087a8065eb0af55 Test shared file-path evidence in existing inventory CI\n985cd8d7de3b533b21e558863b24eed91d998966 Test overlap hints, incomplete API evidence and fail-closed behavior\n69c2fe4ce3ce8f3b3a4be70b25624870d6932e10 Capture per-branch changed-file evidence and overlap candidates",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "c5d5005654bbfc3cad0e74b1389333394c59221fe5952399382a153709d3e9e4",
+  "collected_at": "2026-11-13T03:37:57.868129+00:00"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "branch-31d6803113173639",
+  "title": "review/external-ai-page-20261028",
+  "head": "713eca9ebee4587f8653ac8a80a8ef99e07210cd",
+  "head_ref": "review/external-ai-page-20261028",
+  "linked_prs": [
+    97
+  ],
+  "files": [
+    {
+      "path": "app/external-ai-review/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/713eca9ebee4587f8653ac8a80a8ef99e07210cd/app/external-ai-review/page.tsx"
+    }
+  ],
+  "commits": "713eca9ebee4587f8653ac8a80a8ef99e07210cd feat: add isolated external AI review page on preview branch",
+  "topics": [
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "fa41ab2ca2d465eebf93886a3590f305c24bfd1beb3732950a4571e047954ea4",
+  "collected_at": "2026-11-13T03:37:57.868129+00:00"
+}

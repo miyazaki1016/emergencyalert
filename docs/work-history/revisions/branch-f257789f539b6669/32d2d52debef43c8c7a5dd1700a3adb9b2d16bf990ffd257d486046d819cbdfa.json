@@ -1,0 +1,43 @@
+{
+  "id": "branch-f257789f539b6669",
+  "title": "feat/jaspic-single-admin-gmail-test-20261108",
+  "head": "af6fcb14906a8fa271f6a165b5b26ad08821cc66",
+  "head_ref": "feat/jaspic-single-admin-gmail-test-20261108",
+  "linked_prs": [
+    174
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/oauth/login-client.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/af6fcb14906a8fa271f6a165b5b26ad08821cc66/app/jaspic/oauth/login-client.tsx"
+    },
+    {
+      "path": "app/jaspic/oauth/test-send/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/af6fcb14906a8fa271f6a165b5b26ad08821cc66/app/jaspic/oauth/test-send/route.ts"
+    },
+    {
+      "path": "lib/jaspic/delivery-routing.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/af6fcb14906a8fa271f6a165b5b26ad08821cc66/lib/jaspic/delivery-routing.ts"
+    }
+  ],
+  "commits": "af6fcb14906a8fa271f6a165b5b26ad08821cc66 feat(jaspic): add confirmed one-shot Gmail test button for mobile admin\nf4eb726477770330d790ee1ef73ca10f786839ab safety(jaspic): atomically claim one Gmail test before sending\n36f9acc7ca26348c351ab7dba90356c0182eb36b config(jaspic): omit self-CC for both prefectures on Gmail sender\nac8a798b1cf9899d54cbd6a331519c10dc804435 config(jaspic): route Shiga CC to connected Gmail in new system only\n0fcb430a3ae74eb48015ce17213e5b6dd0c64eda fix(jaspic): correct regex and RFC822 CRLF escapes in test sender\n9848a7fab01b8b0b68c1ec0fb65087f03afbc211 feat(jaspic): add gated admin-only single Gmail test endpoint",
+  "topics": [
+    "通知・配信",
+    "認証・安全性"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "8b524a1f3731bbb4ac93eea409a9f8386106774744725d75beb539ae10b76f4e",
+  "collected_at": "2026-11-13T03:37:57.868129+00:00"
+}

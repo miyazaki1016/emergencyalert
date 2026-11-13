@@ -1,0 +1,35 @@
+{
+  "id": "branch-d7e01c30db10e1cb",
+  "title": "feat/bluesky-national-forecast-213",
+  "head": "2e79ef53556d49decb0a868a9716f62ff1e5780d",
+  "head_ref": "feat/bluesky-national-forecast-213",
+  "linked_prs": [
+    215
+  ],
+  "files": [
+    {
+      "path": "lib/weather/rain/nationalForecastBluesky.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalForecastBluesky.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2e79ef53556d49decb0a868a9716f62ff1e5780d/lib/weather/rain/nationalForecastBluesky.ts"
+    }
+  ],
+  "commits": "2e79ef53556d49decb0a868a9716f62ff1e5780d test: verify atomic claim exclusion and storage failure cleanup\nf9d3fd5362a350332f8681f603d61a5f0dab3f9c feat: define atomic publication claim adapter and safe preparation flow\nd86cbad5746b26e3716551b9c4e25dfbc884d000 test: prevent duplicate and out-of-order forecast baseline processing\n6c28f48014d8bfafe0e8df83182b7438a84c619b feat: add safe dry-run forecast publication plan with monotonic baseline\ndbc64eb3cdcaf746cfb3a1292d1ecc176bdba454 test: cover rolling 30-minute municipality maximum and five-minute refresh\n6d8677dc02cd447d436b775f1d0c04ae563f9ac5 feat: prepare municipality-level Bluesky forecast candidates and tests\nacbff92eed681bbf4b1222564a8419dbafd1b9d6 feat: prepare municipality-level Bluesky forecast candidates and tests",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "59c98f8cbaf936ad3d28194aa3e240bda97c3bd2418508543907948b59d16e85",
+  "collected_at": "2026-11-13T03:37:57.868129+00:00"
+}
