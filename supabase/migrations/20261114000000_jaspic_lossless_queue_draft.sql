@@ -21,7 +21,7 @@ BEGIN
    OR c->'mail'->>'cc' IS NOT NULL)
  THEN RAISE EXCEPTION 'Invalid mail'; END IF;
  IF EXISTS(SELECT 1 FROM public.jaspic_deliveries
-   WHERE status IN ('PREPARED','SENDING','UNKNOWN','FAILED')
+   WHERE status IN ('SENDING','UNKNOWN','FAILED')
    AND run_id IS DISTINCT FROM p_id)
  THEN RAISE EXCEPTION 'Unresolved delivery'; END IF;
  -- Prevent duplicate keys inside the same plan and inconsistent silently skipped rows.
