@@ -48,8 +48,10 @@ export async function POST(request: Request) {
         }), expectedRevision: plan.expectedRevision };
     }));
     const total = results.reduce((sum, p) => sum + p.count, 0);
-    const safe = unresolved.data.length === 0 && running.data.length === 0;
-    return json({ mode: "READ_ONLY", safeToSend: safe, total,
+    const perProvinceDbLimit = 20; // Current production jaspic_prepare_production limit.
+    const dbLimitExceeded = results.some(p => p.count > perProvinceDbLimit);
+    const safe = !dbLimitExceeded && unresolved.data.length === 0 && running.data.length === 0;
+    return json({ mode: "READ_ONLY", safeToSend: safe, total, perProvinceDbLimit, dbLimitExceeded,
       unresolvedDeliveries: unresolved.data.length, runningRuns: running.data.length, provinces: results });
   } catch (error) {
     const code = error instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(error.message)
