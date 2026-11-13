@@ -35,7 +35,7 @@ begin
     'COMPLETION_RESULT_INVALID',r.finished_at,'成功記録の送信件数が配信上限を超えています。実行ID: '||r.id);
    continue;
   end if;
-  -- Held counts are from the production plan's quarantine, not excluded
+  -- Counts are scoped to THIS run's result, not historical outstanding holds.\n  -- Held counts are from the production plan's quarantine, not excluded
   -- categories such as bicycle theft. Never interpret missing data as zero.
   if jsonb_typeof(r.result->'quarantined') <> 'array'
    or jsonb_array_length(r.result->'quarantined') <> 2
@@ -49,6 +49,9 @@ begin
   end if;
   select (q->>'count')::integer into hh from jsonb_array_elements(r.result->'quarantined') q where q->>'province'='hiroshima';
   select (q->>'count')::integer into sh from jsonb_array_elements(r.result->'quarantined') q where q->>'province'='shiga';
+  -- A held item is counted only if first quarantined in this run.
+  -- The current production plan emits no quarantine IDs, so never imply
+  -- a historical backlog was counted.
   perform jaspic_monitor.enqueue('completion:'||day_key,'配信完了','jaspic/dispatch','DISPATCH_SUCCEEDED',r.finished_at,
    '18時の配信処理が正常終了しました。'||
    E'\n広島県: 送信 '||h||' 件 / 保留 '||hh||' 件'||
