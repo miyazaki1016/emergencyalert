@@ -119,7 +119,7 @@ async function refineFrame(
   const matched=new Map<string,{code:string;prefecture:string;municipality:string}>();
   let z10NetworkMs=0,z10MatchingMs=0;
   const entries=[...tileMap.values()];
-  const z10Concurrency = Number(process.env.JMA_Z10_CONCURRENCY ?? "8");
+  const z10Concurrency = Number(process.env.JMA_Z10_CONCURRENCY ?? "4");
   if (![4, 8].includes(z10Concurrency)) throw new Error("JMA_Z10_CONCURRENCY must be 4 or 8");
   let rainyTiles=0;
   for(let i=0;i<entries.length;i+=z10Concurrency){
