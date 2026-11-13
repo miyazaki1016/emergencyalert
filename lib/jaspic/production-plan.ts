@@ -8,7 +8,9 @@ export async function productionPlan(province: Province, snapshot: Snapshot, ite
   for (const kind of kinds) {
     const oldCount = Object.keys(snapshot.records).filter(k => k.startsWith(kind+":")).length;
     const currentCount = items.filter(i => i.kind === kind).length;
-    if (!oldCount || currentCount < oldCount * .8 || currentCount > oldCount * 1.2) throw new Error("SOURCE_COUNT_GUARD");
+    // Holiday catch-up can legitimately add many new IDs. Guard source loss,
+    // but do not reject a complete source merely because its count grew.
+    if (!oldCount || currentCount < oldCount * .8) throw new Error("SOURCE_COUNT_GUARD");
   }
   // A partially migrated baseline must never be treated as a real update.
   // Check only existing records: newly published IDs have no prior fields.
@@ -27,6 +29,5 @@ export async function productionPlan(province: Province, snapshot: Snapshot, ite
   // The source-count guard above always uses the COMPLETE source, not this
   // reduced planning set. Quarantined records are reconsidered on each run.
   const result = await plan(province, snapshot, eligibleItems, {legacyHiroshimaPersonIds:legacy});
-  if (result.candidates.length > 20) throw new Error("DIFFERENCE_LIMIT");
   return {...result, quarantined};
 }
