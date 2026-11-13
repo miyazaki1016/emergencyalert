@@ -22,10 +22,16 @@ export async function runIsolatedBatch(
 ): Promise<{claimed:number;sent:number;failed:number;unknown:number;stopped:boolean}> {
   if (!Number.isInteger(maxItems) || maxItems < 1 || maxItems > 10 || !token || !request)
     throw new Error("ISOLATED_BATCH_NOT_CONFIGURED");
-  const claimed = await port.claim(maxItems);
-  if (!Array.isArray(claimed) || claimed.length > maxItems) throw new Error("ISOLATED_CLAIM_INVALID");
+  // Claim only one at a time: an early stop must not strand the other nine in SENDING.
   const seen = new Set<number>();
-  for (const item of claimed) {
+  let claimedCount=0;
+  let sent=0, failed=0, unknown=0;
+  for (let n=0; n<maxItems; n++) {
+    const claimed = await port.claim(1);
+    if (!Array.isArray(claimed) || claimed.length > 1) throw new Error("ISOLATED_CLAIM_INVALID");
+    if (claimed.length===0) break;
+    const item=claimed[0];
+    claimedCount++;
     if (!Number.isSafeInteger(item.claimed_id) || item.claimed_id < 1 ||
         !/^(hiroshima-person|hiroshima-crime|shiga-person):[^\s]{1,120}$/.test(item.claimed_source_id) ||
         (item.claimed_prefecture === "shiga" ? !item.claimed_source_id.startsWith("shiga-") :
@@ -33,9 +39,6 @@ export async function runIsolatedBatch(
         item.claimed_recipient !== "kishibojim@gmail.com" || seen.has(item.claimed_id))
       throw new Error("ISOLATED_CLAIM_INVALID");
     seen.add(item.claimed_id);
-  }
-  let sent=0, failed=0, unknown=0;
-  for (const item of claimed) {
     let result: {status:Outcome;message:string|null} = {status:"UNKNOWN",message:null};
     try {
       const mail = await port.mailFor(item);
@@ -52,7 +55,7 @@ export async function runIsolatedBatch(
     else if (result.status==="FAILED") failed++;
     else unknown++;
     // Fail closed: no further Gmail calls after any non-success.
-    if (result.status!=="SENT") return {claimed:claimed.length,sent,failed,unknown,stopped:true};
+    if (result.status!=="SENT") return {claimed:claimedCount,sent,failed,unknown,stopped:true};
   }
   return {claimed:claimed.length,sent,failed,unknown,stopped:false};
 }
