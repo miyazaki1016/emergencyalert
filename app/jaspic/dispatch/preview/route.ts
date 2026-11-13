@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { timingSafeEqual } from "node:crypto";
 import { collect, type Province } from "../../../../supabase/functions/_shared/jaspic/collect";
 import { productionPlan } from "../../../../lib/jaspic/production-plan";
-import { hasBulkSendTimeBudget } from "../../../../lib/jaspic/bulk-send-budget";
+
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,7 +22,6 @@ export async function POST(request: Request) {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return json({ error: "NOT_CONFIGURED" }, 503);
   const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-  const startedAt = Date.now();
   try {
     const [legacyResult, unresolved, running] = await Promise.all([
       db.rpc("jaspic_legacy_hiroshima_person_ids"),
@@ -51,22 +50,15 @@ export async function POST(request: Request) {
     }));
     const results = settled.flatMap(r => r.status === "fulfilled" ? [r.value] : []);
     const provinceErrors = settled.flatMap((r, i) => r.status === "rejected" ? [{province: provinces[i], error: r.reason instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(r.reason.message) ? r.reason.message : "PREVIEW_FAILED"}] : []);
-    // Preserve every successfully computed count, even if another province fails.
-    // A count above the DB limit is a send blocker, not a preview error.
     const total = results.reduce((sum, p) => sum + p.count, 0);
     const countsComplete = provinceErrors.length === 0;
-    const perProvinceDbLimit = 20; // Current production jaspic_prepare_production limit.
-    const dbLimitExceeded = results.some(p => p.count > perProvinceDbLimit);
-    const timeBudgetExceeded = !hasBulkSendTimeBudget(total, Date.now() - startedAt);
     const blockers = [
       ...(!countsComplete ? ["PROVINCE_PREFLIGHT_FAILED"] : []),
-      ...(dbLimitExceeded ? ["DATABASE_PROVINCE_LIMIT"] : []),
-      ...(timeBudgetExceeded ? ["BULK_SEND_TIME_BUDGET"] : []),
       ...(unresolved.data.length ? ["UNRESOLVED_DELIVERY"] : []),
       ...(running.data.length ? ["RUN_LOCKED"] : []),
     ];
     const safe = blockers.length === 0;
-    return json({ mode: "READ_ONLY", safeToSend: safe, total, perProvinceDbLimit, dbLimitExceeded, timeBudgetExceeded, blockers, provinceErrors, countsComplete,
+    return json({ mode: "READ_ONLY", safeToSend: safe, total, batchLimit: 20, blockers, provinceErrors, countsComplete,
       unresolvedDeliveries: unresolved.data.length, runningRuns: running.data.length, provinces: results });
   } catch (error) {
     const code = error instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(error.message)
