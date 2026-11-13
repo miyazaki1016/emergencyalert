@@ -12,6 +12,21 @@ BEGIN
  RETURN FOUND;
 END $function$;
 
+-- Serialize claims with recovery and reject claims from expired runs.
+CREATE OR REPLACE FUNCTION public.jaspic_claim(p_province text,p_key text,p_version text,p_token uuid)
+RETURNS boolean LANGUAGE plpgsql SET search_path TO '' AS $function$
+BEGIN
+ IF p_token IS NULL THEN RAISE EXCEPTION 'Missing lease token'; END IF;
+ PERFORM pg_catalog.pg_advisory_xact_lock(144166021, 238);
+ UPDATE public.jaspic_deliveries d
+ SET status='SENDING',lease_token=p_token,lease_until=now()+interval '5 minutes'
+ WHERE d.province=p_province AND d.record_key=p_key AND d.version=p_version
+ AND d.status='PREPARED'
+ AND EXISTS (SELECT 1 FROM public.jaspic_runs r WHERE r.id=d.run_id
+             AND r.status='RUNNING' AND r.started_at>now()-interval '5 minutes');
+ RETURN FOUND;
+END $function$;
+
 -- Atomic full candidate snapshot; never truncate to a 20-item send batch.
 CREATE OR REPLACE FUNCTION public.jaspic_prepare_production(
  p_id uuid,p_province text,p_revision bigint,p_records jsonb,p_candidates jsonb)
