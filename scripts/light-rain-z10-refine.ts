@@ -34,13 +34,25 @@ async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:num
   const attempts: string[] = [];
   for (let attempt = 0; attempt < 2; attempt++) {
     signal.throwIfAborted();
+    const started = performance.now();
+    let outcome = "transport_error";
     try {
       const response = await fetch(url, { cache: "no-store", signal: AbortSignal.any([signal, AbortSignal.timeout(8_000)]) });
-      if (response.ok) return Buffer.from(await response.arrayBuffer());
+      outcome = "HTTP_" + response.status;
+      if (response.ok) {
+        const bytes = Buffer.from(await response.arrayBuffer());
+        console.log(JSON.stringify({event:"JMA_TILE_FETCH",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome:"ok",httpStatus:response.status,elapsedMs:Math.round(performance.now()-started),bytes:bytes.length}));
+        return bytes;
+      }
       attempts.push("HTTP " + response.status);
       if (![404, 408, 429, 500, 502, 503, 504].includes(response.status)) break;
     } catch (error) {
-      attempts.push(error instanceof Error ? error.name : "TransportError");
+      outcome = error instanceof Error ? error.name : "TransportError";
+      attempts.push(outcome);
+    } finally {
+      if (outcome !== "HTTP_200" && outcome !== "ok") {
+        console.log(JSON.stringify({event:"JMA_TILE_FETCH",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome,elapsedMs:Math.round(performance.now()-started)}));
+      }
     }
     if (attempt < 1) await delay(500, undefined, { signal });
   }
