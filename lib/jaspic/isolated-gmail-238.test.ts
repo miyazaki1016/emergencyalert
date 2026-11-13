@@ -8,7 +8,7 @@ describe("Issue 238 isolated Gmail safety",()=>{
   it("uses only test recipient, not production recipient",()=>{
     expect(decoded()).toContain("To: kishibojim@gmail.com\r\n");
     expect(decoded()).not.toContain("getter01@jaspic-nes.net");
-    expect(decoded()).toContain("JASPIC");
+    expect(decoded()).toContain(Buffer.from("[JASPIC 隔離試験] 試験件名").toString("base64"));
   });
   it("rejects header injection",()=>{
     expect(()=>isolatedTestRaw({subject:"x\r\nBcc: attacker@example.com",body:"test"})).toThrow();
