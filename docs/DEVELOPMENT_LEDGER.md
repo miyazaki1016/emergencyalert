@@ -307,8 +307,9 @@
 | #230 | fix(jaspic): restore baseline fields safety guard | merged | `9bdb80fd6ace88b69914a8141ca6551a4422173a` | 2026-11-13T03:11:50Z |
 | #232 | feat(jaspic): show held counts in completion email | open | `dba96dd6d265eabc3465d302cb60265d391f2843` | 2026-11-13T03:07:25Z |
 | #234 | JASPIC送信前チェックに候補ID・新規/更新・発生日の内訳を追加 | merged | `f2e03e23db5ead350077f9602873e96113b9ee6c` | 2026-11-13T03:37:43Z |
-| #236 | fix(jaspic): 滋賀の一括登録を20件制限で停止させない (#235) | open | `e3ca534aee6c15b06c6e74567a218d3378ce5a0d` | 2026-11-13T13:01:01Z |
+| #236 | fix(jaspic): 滋賀の一括登録を20件制限で停止させない (#235) | open | `e3ca534aee6c15b06c6e74567a218d3378ce5a0d` | 2026-11-13T23:28:37Z |
 | #237 | fix(jaspic): 送信前チェックだけ候補件数を表示（実送信変更なし） | merged | `0abceb601fed9b5743cbc497453fdb6040eef118` | 2026-11-13T11:18:42Z |
 | #239 | Draft: JASPIC 34件隔離DB・Gmail送信試験の安全ゲート | open | `18ddee678b6bf1579960bf4fdb17b078bce29387` | 2026-11-13T22:45:44Z |
-| #240 | draft(jaspic): #238 分割送信の安全条件と時間予算を整理 | merged | `3a907420294655326e4da1191699cb8298ceb7d5` | 2026-11-13T23:25:06Z |
+| #240 | draft(jaspic): #238 分割送信の安全条件と時間予算を整理 | merged | `3a907420294655326e4da1191699cb8298ceb7d5` | 2026-11-13T23:28:35Z |
+| #241 | fix(jaspic): 全分割の送信確定後に定時配信の完了を通知 | merged | `debfab93d75644d42d019ba8cda125663f0621f7` | 2026-11-13T23:51:45Z |
 <!-- INVENTORY_FACTS_END -->
