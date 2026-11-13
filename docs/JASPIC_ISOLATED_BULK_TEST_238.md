@@ -48,3 +48,10 @@
 - `SENDING` から `SENT`/`UNKNOWN`/`FAILED` のみ遷移可能。`SENT` のみGmail message IDを必須とし、それ以外はmessage ID禁止。
 - 仮レコードをclaim後 `UNKNOWN` にし、続けて `SENT` へ書き換える試行を実施。最終状態は `UNKNOWN` / message ID nullであり、上書きされないことを確認。トランザクションはROLLBACK。
 - **未実施**: 別DB接続による並列競合、Gmailの実送信、34件の実候補取得とCI確認。上記関数はまだアプリから呼び出せない非公開DB管理用の試験関数。
+
+## 2セッション同時claim実測（2026-11-14）
+
+- 非公開スキーマが空であることを確認後、仮データ2件（`synthetic-concurrent-238-A/B`）のみ登録。
+- 2つの独立したSupabase SQLツール呼び出しを並列起動し、各々 `BEGIN; SELECT * FROM jaspic_isolated_test.claim_batch(1); SELECT pg_sleep(2); COMMIT;` を実行。両呼び出し成功。
+- コミット後、A/B各1件が `SENDING`、同一行の二重claimは観測されなかった。2件とも削除し、隔離テーブル0件を別照会で確認。
+- **範囲**: 2件・2呼び出しの同時試験のみ。実際の34件の並行Gmail送信、DB接続IDの検証、負荷時の多重起動は未実施。Gmail実送信0件。
