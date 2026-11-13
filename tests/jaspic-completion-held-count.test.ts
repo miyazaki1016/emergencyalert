@@ -17,6 +17,25 @@ describe("JASPIC per-run completion hold notice", () => {
     expect(sql).toContain("COMPLETION_RESULT_INVALID");
     expect(sql).toContain("DISPATCH_HOLD_REVIEW");
   });
+  it("does not mistake repeated historical exclusions for new holds", async () => {
+    const make = (id: string): Item => {
+      const data = Object.fromEntries(fields["hiroshima-crime"].map(f => [f, ""])) as RecordData;
+      Object.assign(data, { id, occurrence_date_from: "2026-11-01", occurrence_date_to: "2026-11-01", case_type: "自転車盗" });
+      return { kind:"hiroshima-crime", data, context:{cityName:"テスト市",stationName:"テスト署"} };
+    };
+    const person = (id:string):Item => {
+      const data = Object.fromEntries(fields["hiroshima-person"].map(f => [f,""])) as RecordData;
+      Object.assign(data,{id,occurrence_dt:"2026-11-01",case_type:"声掛け"});
+      return {kind:"hiroshima-person",data,context:{cityName:"テスト市",stationName:"テスト署"}};
+    };
+    const all=[...Array.from({length:10},(_,i)=>make(String(i+1))),...Array.from({length:10},(_,i)=>person(String(i+101)))];
+    const snapshot={baseline:true,revision:5,records:Object.fromEntries(all.map(x=>[x.kind+":"+x.data.id,x.data]))};
+    const first=await productionPlan("hiroshima",snapshot,all,new Set());
+    const second=await productionPlan("hiroshima",{...snapshot,revision:6,records:first.records},all,new Set());
+    expect(first.quarantined).toEqual([]);
+    expect(second.quarantined).toEqual([]);
+    expect(second.candidates).toHaveLength(0);
+  });
   it("never counts excluded bicycle theft as held", async () => {
     const make = (id: string, kind: "hiroshima-crime" | "hiroshima-person", bicycle = false): Item => {
       const data = Object.fromEntries(fields[kind].map(f => [f, ""])) as RecordData;
