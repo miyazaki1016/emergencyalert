@@ -55,3 +55,9 @@
 - 2つの独立したSupabase SQLツール呼び出しを並列起動し、各々 `BEGIN; SELECT * FROM jaspic_isolated_test.claim_batch(1); SELECT pg_sleep(2); COMMIT;` を実行。両呼び出し成功。
 - コミット後、A/B各1件が `SENDING`、同一行の二重claimは観測されなかった。2件とも削除し、隔離テーブル0件を別照会で確認。
 - **範囲**: 2件・2呼び出しの同時試験のみ。実際の34件の並行Gmail送信、DB接続IDの検証、負荷時の多重起動は未実施。Gmail実送信0件。
+
+## 固定候補34件の取込ガード（2026-11-14）
+
+- DB migration `jaspic_isolated_test_238_import_snapshot` で非公開 `import_snapshot(jsonb)` を追加。正確に広島31・滋賀3、34キー一意、source ID形式、空の隔離配送台帳のみを許可する。アプリ/APIロールへEXECUTEを許可しない。
+- 仮の非実在ID34件を使い、同一トランザクション内で取込34件（31/3）を検証。ROLLBACK後、隔離配送台帳0件を別SQLで確認。
+- **未完了**: 実際の34件の候補キーを読取専用previewから取得し、出典・同一性を確かめてから登録する作業。取込関数はメールを送らず、本番の `public` 配送台帳を変更しない。Gmail送信・最新HEAD CIも未完了。
