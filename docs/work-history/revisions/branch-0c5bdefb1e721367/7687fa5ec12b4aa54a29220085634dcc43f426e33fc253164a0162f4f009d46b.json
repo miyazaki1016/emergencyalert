@@ -1,0 +1,49 @@
+{
+  "id": "branch-0c5bdefb1e721367",
+  "title": "feat/inventory-decision-evidence-20261112",
+  "head": "308e82f99b9f6e0d72bc48c65382e2b6cdef97b7",
+  "head_ref": "feat/inventory-decision-evidence-20261112",
+  "linked_prs": [
+    218
+  ],
+  "files": [
+    {
+      "path": "docs/WORK_HISTORY_OPERATIONS.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/308e82f99b9f6e0d72bc48c65382e2b6cdef97b7/docs/WORK_HISTORY_OPERATIONS.md"
+    },
+    {
+      "path": "docs/work-history/curated.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/308e82f99b9f6e0d72bc48c65382e2b6cdef97b7/docs/work-history/curated.json"
+    },
+    {
+      "path": "scripts/development_history_evidence.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/308e82f99b9f6e0d72bc48c65382e2b6cdef97b7/scripts/development_history_evidence.py"
+    },
+    {
+      "path": "tests/test_development_history_evidence.py",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/308e82f99b9f6e0d72bc48c65382e2b6cdef97b7/tests/test_development_history_evidence.py"
+    }
+  ],
+  "commits": "308e82f99b9f6e0d72bc48c65382e2b6cdef97b7 Document searching recorded experiment measurements\nb4cbf7ee043f17a478ae6492f2b8eda1a23bdfc2 Include verified experiment observations in the decision search\nf0df8395f2c6df51ba3cbcc1cf0d1962c00ba453 Index implementation decisions from changed files and tests (#212)",
+  "topics": [
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "f47c969fd9d5cfb1d18d81857728abf00cc63b7deff3a7a4e4734305f93d6786",
+  "collected_at": "2026-11-13T00:59:15.835397+00:00"
+}

@@ -1,0 +1,35 @@
+{
+  "id": "branch-b075504ef7a80661",
+  "title": "feat/japanese-address-geocoder",
+  "head": "48f712e77622b5a4969fb8eb6ad8629e4e7b9a13",
+  "head_ref": "feat/japanese-address-geocoder",
+  "linked_prs": [
+    5
+  ],
+  "files": [
+    {
+      "path": "lib/places/searchPlaces.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/48f712e77622b5a4969fb8eb6ad8629e4e7b9a13/lib/places/searchPlaces.ts"
+    },
+    {
+      "path": "package.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/48f712e77622b5a4969fb8eb6ad8629e4e7b9a13/package.json"
+    }
+  ],
+  "commits": "48f712e77622b5a4969fb8eb6ad8629e4e7b9a13 fix: remove stale address fallback and Nominatim retry loop\naad4ffa11b09b20f12f2ff8256bc7b7d0c53f72f chore: retrigger address search build\n0d15066689ff4a946c92bb1a1209a3bf907844ed feat: resolve Japanese street addresses before place search\n3c12ba1f062ce082657f9701fc6f57ed6c84ff76 feat: add Japanese address normalizer\na30a1f3cad10e63483e9563444039167b9ceda91 fix: remove invalid Geolonia normalize endpoint experiment\ndfa3e706c13ecfb5c76d46e4fe92036f81264c50 feat: add Japanese address geocoder fallback",
+  "topics": [
+    "その他の開発"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "bd428a0b85b91add7fd1f9b34c6be6a4046109d11f03eb0182d320f0a514511f",
+  "collected_at": "2026-11-13T00:59:15.835397+00:00"
+}

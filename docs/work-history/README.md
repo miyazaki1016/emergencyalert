@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-13T00:48:08.442182+00:00
+更新 (UTC): 2026-11-13T00:59:15.835397+00:00
 
 ## 全案件
 
@@ -147,6 +147,7 @@
 | [research/contextual-rain-alerts-20261028](cases/branch-a2cfb8135048dc77.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/pr-promotion-classification-ci-20261102](cases/branch-a448d35df12eb780.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [research/pwa-feedback-resume-auth-20261023](cases/branch-a5f2511bf36597a1.md) | 通知・配信・開発管理・認証・安全性・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [feat/jaspic-dispatch-dry-run-20261113](cases/branch-aa227dbec6e5a3d2.md) | 通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/ledger-proposal-pr-automation-20261101](cases/branch-ac4d9f4766a37ec1.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/rain-lab-restore-times-20261109](cases/branch-adfd5936a62983f3.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [research/jaspic-gmail-send-consent-20261106](cases/branch-ae94438b6e247b91.md) | 通知・配信・認証・安全性・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -351,6 +352,7 @@
 | [fix: clear place search UI after registration](cases/pr-22.md) | 画面・表示：登録後に地点検索表示を消去 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [[Draft] 全国雨予報6コマGIF生成の独立プロトタイプ (#221)](cases/pr-222.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [fix(jaspic): 広島・滋賀の発生日だけによる保留を解除](cases/pr-224.md) | 通知・配信：通知・メール配信とその運用に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [Draft: JASPIC本番送信前の読み取り専用候補プレビュー](cases/pr-226.md) | 通知・配信：通知・メール配信とその運用に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [feat: expose early rain forecast prototype API](cases/pr-23.md) | 雨量・全国検知：早期雨予測の試作APIを追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [test: cover early rain prototype API](cases/pr-24.md) | 雨量・全国検知：早期雨予測APIをテスト | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [test: verify live JMA early rain data in CI](cases/pr-25.md) | 雨量・全国検知：実際のJMA予測データをCIで検証 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
@@ -458,6 +460,7 @@
 - app/dev/rain-lab/page.tsx：[branch-dbcfae267568d52d](cases/branch-dbcfae267568d52d.md), [pr-102](cases/pr-102.md)
 - app/external-ai-review/page.tsx：[branch-31d6803113173639](cases/branch-31d6803113173639.md), [pr-97](cases/pr-97.md)
 - app/icon.tsx：[branch-d8037f3cde5d4713](cases/branch-d8037f3cde5d4713.md), [pr-3](cases/pr-3.md)
+- app/jaspic/dispatch/preview/route.ts：[branch-aa227dbec6e5a3d2](cases/branch-aa227dbec6e5a3d2.md), [pr-226](cases/pr-226.md)
 - app/jaspic/dispatch/route.ts：[branch-334cfb3f08d270ec](cases/branch-334cfb3f08d270ec.md), [branch-3caa7689f822f5c5](cases/branch-3caa7689f822f5c5.md), [branch-68a04500a5ab7038](cases/branch-68a04500a5ab7038.md), [branch-f7e70a5901d7838e](cases/branch-f7e70a5901d7838e.md), [pr-190](cases/pr-190.md), [pr-191](cases/pr-191.md), [pr-193](cases/pr-193.md), [pr-224](cases/pr-224.md)
 - app/jaspic/oauth/callback/route.ts：[branch-ae94438b6e247b91](cases/branch-ae94438b6e247b91.md), [branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [branch-dddc96894dde5a85](cases/branch-dddc96894dde5a85.md), [branch-f4ebc6c16c3885bc](cases/branch-f4ebc6c16c3885bc.md), [pr-155](cases/pr-155.md), [pr-168](cases/pr-168.md), [pr-170](cases/pr-170.md), [pr-171](cases/pr-171.md)
 - app/jaspic/oauth/login-client.tsx：[branch-8c6a80e8f4c87a06](cases/branch-8c6a80e8f4c87a06.md), [branch-ae94438b6e247b91](cases/branch-ae94438b6e247b91.md), [branch-b84bde7f845491a7](cases/branch-b84bde7f845491a7.md), [branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [branch-dddc96894dde5a85](cases/branch-dddc96894dde5a85.md), [branch-e532c526e0c8a49b](cases/branch-e532c526e0c8a49b.md), [branch-f257789f539b6669](cases/branch-f257789f539b6669.md), [branch-f4ebc6c16c3885bc](cases/branch-f4ebc6c16c3885bc.md), [pr-155](cases/pr-155.md), [pr-157](cases/pr-157.md), [pr-166](cases/pr-166.md), [pr-167](cases/pr-167.md), [pr-168](cases/pr-168.md), [pr-170](cases/pr-170.md), [pr-171](cases/pr-171.md), [pr-174](cases/pr-174.md)

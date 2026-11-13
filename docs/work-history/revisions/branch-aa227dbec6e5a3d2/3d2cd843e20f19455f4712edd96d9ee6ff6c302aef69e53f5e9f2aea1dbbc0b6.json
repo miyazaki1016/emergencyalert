@@ -1,0 +1,28 @@
+{
+  "id": "branch-aa227dbec6e5a3d2",
+  "title": "feat/jaspic-dispatch-dry-run-20261113",
+  "head": "ccc77ba88d6376ac236e96493fa5eeb0d9bd47e3",
+  "head_ref": "feat/jaspic-dispatch-dry-run-20261113",
+  "linked_prs": [
+    226
+  ],
+  "files": [
+    {
+      "path": "app/jaspic/dispatch/preview/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ccc77ba88d6376ac236e96493fa5eeb0d9bd47e3/app/jaspic/dispatch/preview/route.ts"
+    }
+  ],
+  "commits": "ccc77ba88d6376ac236e96493fa5eeb0d9bd47e3 feat(jaspic): add authenticated read-only production candidate preview",
+  "topics": [
+    "通知・配信"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "0e40ee7678fb0071491f2b3e2320ef638629978622cdabf8648c984ea7959cb3",
+  "collected_at": "2026-11-13T00:59:15.835397+00:00"
+}

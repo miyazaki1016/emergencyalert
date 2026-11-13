@@ -1,0 +1,43 @@
+{
+  "id": "branch-60fdc910109714c5",
+  "title": "fix/jma-transparent-no-rain",
+  "head": "abbc724ff4cf8f4a1ac91b9451e4a2c92390f241",
+  "head_ref": "fix/jma-transparent-no-rain",
+  "linked_prs": [
+    33
+  ],
+  "files": [
+    {
+      "path": "lib/weather/providers/jma/JmaPublicImageProvider.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/JmaPublicImageProvider.test.ts"
+    },
+    {
+      "path": "lib/weather/providers/jma/classifyPixel.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/classifyPixel.test.ts"
+    },
+    {
+      "path": "lib/weather/providers/jma/classifyPixel.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/abbc724ff4cf8f4a1ac91b9451e4a2c92390f241/lib/weather/providers/jma/classifyPixel.ts"
+    }
+  ],
+  "commits": "abbc724ff4cf8f4a1ac91b9451e4a2c92390f241 Update JMA provider tests for transparent no-rain pixels\ne1c1d8a6356d3d63186f40b86e965369bede68fa Test transparent JMA pixels as no rain\na635ba16c86efe9e41ec300ff62963f3a997220a Treat transparent JMA precipitation pixels as no rain",
+  "topics": [
+    "雨量・全国検知",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "4a7fda8060bf91228e9e7e293fed16917ca16683f04c8dc15dfc9aa60da42e78",
+  "collected_at": "2026-11-13T00:59:15.835397+00:00"
+}

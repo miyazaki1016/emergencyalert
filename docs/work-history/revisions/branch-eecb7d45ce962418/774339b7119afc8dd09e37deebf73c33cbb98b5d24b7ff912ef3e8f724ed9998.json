@@ -1,0 +1,49 @@
+{
+  "id": "branch-eecb7d45ce962418",
+  "title": "chore/vercel-build-policy-20261105",
+  "head": "8ee8edff9b9c2fd5ce9d19eea2d408b51c768cab",
+  "head_ref": "chore/vercel-build-policy-20261105",
+  "linked_prs": [
+    161
+  ],
+  "files": [
+    {
+      "path": "docs/VERCEL_BUILD_POLICY.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8ee8edff9b9c2fd5ce9d19eea2d408b51c768cab/docs/VERCEL_BUILD_POLICY.md"
+    },
+    {
+      "path": "scripts/vercel-build-guard.mjs",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8ee8edff9b9c2fd5ce9d19eea2d408b51c768cab/scripts/vercel-build-guard.mjs"
+    },
+    {
+      "path": "tests/vercel-build-guard.test.mjs",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8ee8edff9b9c2fd5ce9d19eea2d408b51c768cab/tests/vercel-build-guard.test.mjs"
+    },
+    {
+      "path": "vercel.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/8ee8edff9b9c2fd5ce9d19eea2d408b51c768cab/vercel.json"
+    }
+  ],
+  "commits": "8ee8edff9b9c2fd5ce9d19eea2d408b51c768cab docs: use the repository test command for build policy verification\na3208285ed01729ef8ebede3d180cf65dc303d1f test: run build policy checks with the existing Vitest runner\n9e55085e5bd03eda56abd9736c4c70b6ad67697c ci: configure selective Vercel builds\n4192fb0cff455c8feb797c663be31b44ca57d804 ci: configure selective Vercel builds\nc4929ba7829d0e421af174b96ca1e6dc789542f3 ci: configure selective Vercel builds\n2ea94f8b8cca0ff27eb30ba4b6340076aa7c897c ci: configure selective Vercel builds",
+  "topics": [
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "985e89c71761b0a909162138e8ec98f6db63e45c6bf756da18e4069495d8d830",
+  "collected_at": "2026-11-13T00:59:15.835397+00:00"
+}
