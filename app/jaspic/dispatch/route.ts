@@ -37,12 +37,14 @@ export async function POST(request:Request) {
     // Never observe a new source snapshot while any older delivery is pending.
     // A previous interrupted RUNNING run remains locked for manual review.
     stage="queue-guard";
-    const unresolved=await db.from("jaspic_deliveries").select("status").in("status",["PREPARED","SENDING","UNKNOWN","FAILED"]).limit(1);
+    const unresolved=await db.from("jaspic_deliveries").select("status").in("status",["SENDING","UNKNOWN","FAILED"]).limit(1);
     if(unresolved.error)throw new Error("QUEUE_READ_FAILED");
-    if(unresolved.data.some(d=>d.status!=="PREPARED")){
+    if(unresolved.data.length){
       throw new Error("UNRESOLVED_DELIVERY");
     }
-    const resuming=unresolved.data.length>0;
+    const pending=await db.from("jaspic_deliveries").select("record_key").eq("status","PREPARED").limit(1);
+    if(pending.error)throw new Error("QUEUE_READ_FAILED");
+    const resuming=pending.data.length>0;
     let plans: {province:Province;result:Awaited<ReturnType<typeof productionPlan>>}[]=[];
     if(!resuming){
       const provinces:Province[]=["hiroshima","shiga"];
@@ -60,7 +62,7 @@ export async function POST(request:Request) {
       }));
       const failure=settled.find(r=>r.status==="rejected");
       if(failure?.status==="rejected")throw failure.reason;
-      const plans=settled.flatMap(r=>r.status==="fulfilled"?[r.value]:[]);
+      plans=settled.flatMap(r=>r.status==="fulfilled"?[r.value]:[]);
       }
     // Refresh validates the existing encrypted OAuth credential even for a zero-item run.
     stage="gmail-auth";
