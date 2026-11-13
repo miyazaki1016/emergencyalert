@@ -69,3 +69,10 @@
 - **停止理由**: 現在のGitHub/Supabase/Vercel接続から、トークンを秘密のまま読み取り専用POSTへ渡す安全な実行経路をまだ確保できていない。Production tokenを取得してPR・Actionsログ・会話へ転記する方法は採用しない。実候補34キーは未取得で、古い31+3という件数だけを根拠に実送信しない。
 - 解消案: 既存認証・権限を保持したサーバー側の一時的な読み取り専用実行環境でpreviewを呼び、取得した結果の件数・県別キー・時点を検証して隔離DBへ渡す。実行経路の権限とログ秘匿をレビューしてから実施する。Productionの送信先、dispatch関数、20件制限は変更しない。
 - コミット `35f36279fdb73855c749ab7b8de462c74b0bf7ae` のCI、既存成果照合、PR分類はすべてsuccess（CI run 43450184882）。
+
+## 既存の管理者プレビュー経路を発見（2026-11-14）
+
+- PR #228（main統合済み）に `app/jaspic/oauth/preview/route.ts` と `app/jaspic/oauth/preview-button.tsx` がある。`/jaspic/oauth/preview` は管理者Supabaseセッションと `Origin: https://emergencyalert.news` を検証し、サーバー内部で `JASPIC_DISPATCH_TOKEN` を使用して読み取り専用 `/jaspic/dispatch/preview` のハンドラーを呼ぶ。秘密トークンはブラウザへ返さない。
+- `/jaspic/oauth` の既存「送信前チェック」ボタンは `provinces[].details[].key` を管理者画面に表示する。したがって前節の「安全な認証経路未確保」は**解消（既存の管理者UI経路を発見）**。ただし接続ツールに管理者ログインセッションは渡されていないため、このチャットからの34件取得はまだ未実施。
+- 安全な次の操作: 管理者が既存画面で送信前チェックを実行し、現在の候補ID・件数・実行日時を確認。取得結果は `lib/jaspic/isolated-preview-238.ts` で厳密に検証し、隔離テーブルにのみ取り込む。31+3は過去時点の件数であり、最新プレビューが異なれば固定34件試験を停止して再判断する。
+- 既存UI/本番認証の変更、新規本番API、Vercelデプロイは不要。実候補の未取得、Gmail実送信0件、本番配送台帳未変更は継続。
