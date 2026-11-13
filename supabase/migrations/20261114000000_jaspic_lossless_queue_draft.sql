@@ -67,3 +67,26 @@ END $function$;
 
 REVOKE ALL ON FUNCTION public.jaspic_resume_prepared(uuid) FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.jaspic_resume_prepared(uuid) TO service_role;
+
+-- Both provinces are committed or rolled back in the same database transaction.
+-- Each province's revision is checked inside jaspic_prepare_production.
+CREATE OR REPLACE FUNCTION public.jaspic_prepare_all_production(p_id uuid,p_plans jsonb)
+RETURNS void LANGUAGE plpgsql SET search_path TO '' AS $function$
+DECLARE entry jsonb;
+BEGIN
+ IF jsonb_typeof(p_plans)<>'array' OR jsonb_array_length(p_plans)<>2
+ THEN RAISE EXCEPTION 'Invalid province plans'; END IF;
+ IF (SELECT count(DISTINCT x->>'province') FROM jsonb_array_elements(p_plans)x
+       WHERE x->>'province' IN ('hiroshima','shiga'))<>2
+ THEN RAISE EXCEPTION 'Missing or repeated province'; END IF;
+ -- Fixed province order prevents lock-order inversion.
+ FOR entry IN SELECT x FROM jsonb_array_elements(p_plans)x ORDER BY x->>'province'
+ LOOP
+  PERFORM public.jaspic_prepare_production(
+   p_id,entry->>'province',(entry->>'revision')::bigint,
+   entry->'records',entry->'candidates');
+ END LOOP;
+END $function$;
+
+REVOKE ALL ON FUNCTION public.jaspic_prepare_all_production(uuid,jsonb) FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.jaspic_prepare_all_production(uuid,jsonb) TO service_role;
