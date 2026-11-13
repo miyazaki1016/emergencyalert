@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import JaspicOauthLoginClient from "./login-client";
+import JaspicPreviewButton from "./preview-button";
 
 export const metadata: Metadata = {
   title: "JASPIC | Gmail認証",
@@ -18,6 +19,7 @@ export default function JaspicOAuthPage() {
         メールの実送信・18時の自動配信も開始されません。
       </p>
       <JaspicOauthLoginClient />
+      <JaspicPreviewButton />
       <p style={{fontSize:13}}>クライアントシークレットやリフレッシュトークンはこの画面に入力しないでください。</p>
       <p style={{ fontSize: 15 }}><Link href="/jaspic">JASPICの説明ページに戻る</Link></p>
     </main>
