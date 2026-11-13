@@ -48,8 +48,8 @@ export async function POST(request: Request) {
         }), expectedRevision: plan.expectedRevision };
     }));
     const total = results.reduce((sum, p) => sum + p.count, 0);
-    const safe = total <= 20 && unresolved.data.length === 0 && running.data.length === 0;
-    return json({ mode: "READ_ONLY", safeToSend: safe, total, limit: 20,
+    const safe = unresolved.data.length === 0 && running.data.length === 0;
+    return json({ mode: "READ_ONLY", safeToSend: safe, total,
       unresolvedDeliveries: unresolved.data.length, runningRuns: running.data.length, provinces: results });
   } catch (error) {
     const code = error instanceof Error && /^[A-Z][A-Z0-9_]{0,79}$/.test(error.message)
