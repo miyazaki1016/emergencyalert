@@ -26,6 +26,14 @@ describe("Issue 238 first real mail preflight boundary",()=>{
   await expect(runVerifiedIsolatedFirstMail(f.port,"mock-token",f.request as typeof fetch)).rejects.toThrow("ISOLATED_STAGED_MISMATCH");
   expect(f.claim).not.toHaveBeenCalled();expect(f.request).not.toHaveBeenCalled();
  });
+ it("rejects a substituted claimed ID before sending Gmail",async()=>{
+  const f=fixture();
+  f.claim.mockResolvedValueOnce([{claimed_id:999,claimed_prefecture:"hiroshima",claimed_source_id:"hiroshima-person:999999",claimed_recipient:"kishibojim@gmail.com"}]);
+  await expect(runVerifiedIsolatedFirstMail(f.port,"mock-token",f.request as typeof fetch)).rejects.toThrow("ISOLATED_CLAIM_NOT_IN_SNAPSHOT");
+  expect(f.request).not.toHaveBeenCalled();
+  // Claimed rows are deliberately not auto-reset: a human must reconcile the lock.
+  expect(f.finish).not.toHaveBeenCalled();
+ });
  it("rejects preview failure before claim",async()=>{
   const f=fixture();f.preview.countsComplete=false;
   await expect(runVerifiedIsolatedFirstMail(f.port,"mock-token",f.request as typeof fetch)).rejects.toThrow("PREVIEW_INCOMPLETE");
