@@ -77,10 +77,12 @@ export async function POST(request:Request) {
       await rpc("jaspic_resume_prepared",{p_id:id});
     }else{
       stage="prepare-delivery";
-      for(const {province,result} of plans){
-        const candidates=result.candidates.map(c=>({...c,mail:{...c.mail,from:"miyazaki1016@gmail.com",to:"getter01@jaspic-nes.net",cc:null}}));
-        await rpc("jaspic_prepare_production",{p_id:id,p_province:province,p_revision:result.expectedRevision,p_records:result.records,p_candidates:candidates});
-      }
+      const preparedPlans=plans.map(({province,result})=>({
+        province,revision:result.expectedRevision,records:result.records,
+        candidates:result.candidates.map(c=>({...c,mail:{...c.mail,from:"miyazaki1016@gmail.com",to:"getter01@jaspic-nes.net",cc:null}})),
+      }));
+      // One RPC/transaction: never commit Hiroshima's snapshot without Shiga's.
+      await rpc("jaspic_prepare_all_production",{p_id:id,p_plans:preparedPlans});
     }
     // Immutable mail is always read from the ledger. Limit only the sending,
     // never the candidate persistence or source snapshot.
