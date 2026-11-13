@@ -1,4 +1,4 @@
-/** Issue #238: branch-scoped, admin-authenticated, first-message-only isolated send. */
+/** Issue #238: production-flagged, admin-authenticated, first-message-only isolated send. */
 import { createClient } from "@supabase/supabase-js";
 import { isJaspicAdmin } from "../../../../lib/jaspic/admin-authorization";
 import { isolatedStagedRows, isolatedDbPort } from "../../../../lib/jaspic/isolated-db-adapter-238";
@@ -13,11 +13,11 @@ const reply = (status: number, result: string, extra?: Record<string, unknown>) 
   Response.json({ result, ...extra }, { status, headers: { "Cache-Control": "no-store, private" } });
 
 export async function POST(request: Request) {
-  if (process.env.VERCEL_ENV !== "preview" ||
-      process.env.VERCEL_GIT_COMMIT_REF !== "test/jaspic-238-isolated-bulk")
+  if (process.env.VERCEL_ENV !== "production" ||
+      process.env.JASPIC_ISOLATED_PRODUCTION_TEST_238 !== "enabled")
     return reply(404, "not-found");
-  const origin = new URL(request.url).origin;
-  if (request.headers.get("origin") !== origin) return reply(403, "forbidden");
+  const origin = "https://emergencyalert.news";
+  if (request.headers.get("origin") !== origin || new URL(request.url).hostname !== "emergencyalert.news") return reply(403, "forbidden");
   const bearer = /^Bearer ([A-Za-z0-9_.-]{16,8192})$/.exec(request.headers.get("authorization") ?? "")?.[1];
   if (!bearer) return reply(401, "unauthorized");
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/+$/, "");
@@ -25,9 +25,8 @@ export async function POST(request: Request) {
   const ownerId = process.env.JASPIC_ADMIN_USER_ID;
   const adminEmail = process.env.JASPIC_OAUTH_ADMIN_EMAIL;
   const dispatchToken = process.env.JASPIC_DISPATCH_TOKEN;
-  const productionPreview = process.env.JASPIC_ISOLATED_PREVIEW_URL_238;
-  if (!url || !publicKey || !ownerId || !adminEmail || !dispatchToken ||
-      productionPreview !== "https://emergencyalert.news/jaspic/dispatch/preview")
+  const productionPreview = "https://emergencyalert.news/jaspic/dispatch/preview";
+  if (!url || !publicKey || !ownerId || !adminEmail || !dispatchToken)
     return reply(503, "not-configured");
   try {
     const { data, error } = await createClient(url, publicKey, {
