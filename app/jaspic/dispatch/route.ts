@@ -45,6 +45,13 @@ export async function POST(request:Request) {
     const pending=await db.from("jaspic_deliveries").select("record_key").eq("status","PREPARED").limit(1);
     if(pending.error)throw new Error("QUEUE_READ_FAILED");
     const resuming=pending.data.length>0;
+    const priorRun=request.headers.get("x-jaspic-resume-run");
+    if (priorRun !== null) {
+      if (!/^[0-9a-f-]{36}$/.test(priorRun)) throw new Error("INVALID_RESUME_RUN");
+      const queued=await db.from("jaspic_deliveries").select("run_id")
+        .eq("status","PREPARED").eq("run_id",priorRun).limit(1);
+      if (queued.error || !queued.data.length) throw new Error("RESUME_QUEUE_CHANGED");
+    }
     let plans: {province:Province;result:Awaited<ReturnType<typeof productionPlan>>}[]=[];
     if(!resuming){
       const provinces:Province[]=["hiroshima","shiga"];

@@ -103,3 +103,5 @@ do $$begin if not exists(select 1 from jaspic_monitor.alerts where event_key='ca
 select 'JASPIC monitor integration assertions passed' as result;
 
 \ir jaspic-monitor-completion.sql
+
+\ir jaspic-monitor-batch-completion.sql
