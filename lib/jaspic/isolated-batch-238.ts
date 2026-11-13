@@ -57,5 +57,5 @@ export async function runIsolatedBatch(
     // Fail closed: no further Gmail calls after any non-success.
     if (result.status!=="SENT") return {claimed:claimedCount,sent,failed,unknown,stopped:true};
   }
-  return {claimed:claimed.length,sent,failed,unknown,stopped:false};
+  return {claimed:claimedCount,sent,failed,unknown,stopped:false};
 }
