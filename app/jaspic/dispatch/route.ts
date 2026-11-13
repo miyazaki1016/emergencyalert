@@ -4,6 +4,7 @@ import {readEncryptedGmailRefreshToken} from "../../../lib/jaspic/oauth-gmail-to
 import {collect, type Province} from "../../../supabase/functions/_shared/jaspic/collect";
 import {productionPlan} from "../../../lib/jaspic/production-plan";
 import {sendProductionMail} from "../../../lib/jaspic/production-gmail";
+import {hasBulkSendTimeBudget} from "../../../lib/jaspic/bulk-send-budget";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
@@ -24,6 +25,7 @@ export async function POST(request:Request) {
   if (!url||!key||!ownerId||!encryptionKey||!clientId||!clientSecret) return response({error:"NOT_CONFIGURED"},503);
   const db=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
   async function rpc(name:string,args:Record<string,unknown>={}) {const r=await db.rpc(name,args);if(r.error)throw new Error("DATABASE_GUARD");return r.data;}
+  const dispatchStartedAt=Date.now();
   const id=randomUUID(); let started=false;
   const sent={hiroshima:0,shiga:0};
   let stage="begin-run";
@@ -60,6 +62,11 @@ export async function POST(request:Request) {
     if(!tokenResponse.ok)throw new Error("GMAIL_REFRESH_FAILED");
     const token=await tokenResponse.json();
     if(typeof token.access_token!=="string"||token.access_token.length<8)throw new Error("GMAIL_TOKEN_INVALID");
+    stage="time-budget-guard";
+    const candidateCount=plans.reduce((sum,p)=>sum+p.result.candidates.length,0);
+    // Reject before persisting any PREPARED deliveries when the remaining time
+    // cannot cover the Gmail request timeout per message plus a DB safety reserve.
+    if(!hasBulkSendTimeBudget(candidateCount,Date.now()-dispatchStartedAt))throw new Error("BULK_SEND_TIME_BUDGET");
     stage="prepare-delivery";
     for(const {province,result} of plans){
       const candidates=result.candidates.map(c=>({...c,mail:{...c.mail,from:"miyazaki1016@gmail.com",to:"getter01@jaspic-nes.net",cc:null}}));
