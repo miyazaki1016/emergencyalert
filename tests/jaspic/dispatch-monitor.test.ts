@@ -11,8 +11,20 @@ import {POST} from "../../app/jaspic/dispatch/route";
 function fixture(queue:unknown[]=[]){
  const writes:{table:string;row:Record<string,unknown>}[]=[];
  const rpc=vi.fn(async(name:string)=>({error:null,data:name==="jaspic_legacy_hiroshima_person_ids"?[]:true}));
+ const query=(table:string,mode:"select"|"update"="select")=>{
+  const q={
+   in:(_field:string,statuses:string[])=>({
+    limit:async()=>({error:null,data:statuses.includes("PREPARED")?[]:[]}),
+   }),
+   eq:(_field:string,_value:unknown)=>q,
+   order:()=>q,
+   limit:async()=>({error:null,data:table==="jaspic_deliveries"?queue:[]}),
+   then:(resolve:(value:unknown)=>unknown)=>resolve({error:null,data:table==="jaspic_deliveries"?queue:[],count:0}),
+  };
+  return q;
+ };
  mocks.create.mockReturnValue({rpc,from:(table:string)=>({
-  select:()=>({in:()=>({limit:async()=>({error:null,data:[]})}),eq:()=>({eq:async()=>({error:null,data:queue})})}),
+  select:(_columns:string,_opts?:unknown)=>query(table),
   update:(row:Record<string,unknown>)=>{writes.push({table,row});return {eq:()=>({eq:async()=>({error:null,data:[]})})};},
  })});
  return {writes,rpc};
