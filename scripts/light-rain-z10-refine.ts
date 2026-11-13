@@ -175,11 +175,29 @@ async function main() {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(new Error("JMA_SLOT_DEADLINE_EXCEEDED")), Math.max(0, slotEnd - Date.now()));
     try {
-    const targets = await fetchForecastTargetTimes((input, init) =>
-      fetch(input, { ...init, signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]) }));
-    const frames = selectFrames(targets, Date.now());
-    if (frames[0].basetime === previousBase) return;
+    // Poll only the lightweight target-time index when the expected cycle is
+    // not yet published. Never rescan old tiles or overlap an active scan.
+    const expectedBaseMs = Math.floor(Date.now() / FIVE_MINUTES) * FIVE_MINUTES;
+    const pollUntil = expectedBaseMs + 4 * 60_000;
+    let frames: JmaTargetTime[] | undefined;
+    while (!controller.signal.aborted) {
+      const checkedAt = new Date().toISOString();
+      const targets = await fetchForecastTargetTimes((input, init) =>
+        fetch(input, { ...init, signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]) }));
+      const newestBase = targets.map(target => target.basetime).sort().at(-1);
+      console.log(JSON.stringify({ event: "JMA_TARGET_TIME_CHECK", checkedAt, expectedBase: new Date(expectedBaseMs).toISOString(), newestBase, previousBase, publication: false }));
+      if (newestBase && forecastTime(newestBase) >= expectedBaseMs && newestBase !== previousBase) {
+        frames = selectFrames(targets, Date.now());
+        break;
+      }
+      if (Date.now() + 30_000 > pollUntil) {
+        console.error(JSON.stringify({ event: "JMA_TARGET_TIME_NOT_READY", expectedBase: new Date(expectedBaseMs).toISOString(), newestBase, publication: false }));
+        return;
+      }
+      await delay(30_000, undefined, { signal: controller.signal });
+    }
     controller.signal.throwIfAborted();
+    if (!frames) return;
     const results = [];
     // Two frames share the cycle budget. Await both before stopping so the next
     // update does not overlap a failed cycle's remaining requests.
