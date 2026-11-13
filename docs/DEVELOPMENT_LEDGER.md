@@ -207,7 +207,7 @@
 | #105 | 予測通知の初期移行で直前の解消確認を正しく引き継ぐ | merged | `326f6d92485e0e158afcd62db5b37131e11dfc51` | 2026-10-29T08:23:10Z |
 | #107 | chore: 読み取り専用の開発忘れ物検出（両プロジェクト共通方式） | merged | `bd03ccc3b96855cfbba2b74409668ce206964f5c` | 2026-10-31T20:12:51Z |
 | #108 | 大雨通知をエピソード1回に制限し、30mm/h自動評価を追加 | merged | `9970fad666c6d863c8a9cf17044e141b85bb2596` | 2026-10-31T10:01:58Z |
-| #109 | 研究用: 大雨予測の継続性判定（通知ロジック非接続） | open | `2a733283299876a2a6ab482833f4190f477629c3` | 2026-11-02T16:18:54Z |
+| #109 | 研究用: 大雨予測の継続性判定（通知ロジック非接続） | open | `6e650705260825c33a9905bbd3802919ba341cc4` | 2026-11-03T23:54:32Z |
 | #110 | docs: 2026-11-01棚卸し・調査結果を台帳へ保存 | merged | `b2ddc796abf2834b549f2c1056d204747e818535` | 2026-10-31T21:24:23Z |
 | #111 | docs: 旧監査ブランチの追加調査を台帳へ記録 | merged | `5b1d48d44666ccee5e845bb5cf0689379c42bd8d` | 2026-10-31T21:28:05Z |
 | #112 | docs: 未整理ブランチの保全・照合・整理候補を分類 | merged | `aee1b209c7f9dcc1e5803ec912ac72960d8fa237` | 2026-10-31T21:31:02Z |
@@ -243,4 +243,73 @@
 | #142 | Define full inventory, ledger and main index completion gates | merged | `11d491a12d25706a6b27182ecf5ca37b8539d8f3` | 2026-11-02T15:54:54Z |
 | #143 | Complete reviewed ledger and main operations-index fact proposals | merged | `88d196dc952cb4b1d86c7ae40cf3ce3386043ec5` | 2026-11-02T16:05:01Z |
 | #145 | fix: avoid proposal branch collisions on GitHub Actions reruns | merged | `73ca67612e27f6413a7f5a5c33a9c2620c8be144` | 2026-11-02T16:21:06Z |
+| #148 | Inventory: report shared changed-file paths across work branches | merged | `6485641e549dfb180fb5b4255087a8065eb0af55` | 2026-11-02T16:37:47Z |
+| #149 | Inventory: cross-reference branches, PR history and existing case IDs | merged | `8f577a38ef6d53b0e6877e5d3bcfc2f81160eaf6` | 2026-11-02T16:40:32Z |
+| #150 | Inventory: compare exact code patch evidence across branches | merged | `4aa5951483030f85ebc5697e0f25d0d23acbb486` | 2026-11-02T16:48:42Z |
+| #151 | Inventory: ranked, evidence-only human review queue | merged | `9c11b14192a5f4e2d214b6d51fc6bb51f844366f` | 2026-11-02T20:53:32Z |
+| #152 | fix: reuse existing ledger facts PR on repeated inventory runs | merged | `5e4acfac946cc17b4f216a5c0d962c453f05a869` | 2026-11-02T23:27:06Z |
+| #153 | fix: restore ledger facts workflow after invalid YAML merge | merged | `dec71eda8c9866709ac3a002481eaf14f0471a99` | 2026-11-03T23:40:09Z |
+| #155 | Draft: JASPIC無送信MIME互換・Windows旧版比較と独立移植 | open | `a83e3f018e60daba771bf832fdfb05d480c58549` | 2026-11-06T22:35:50Z |
+| #156 | docs(web): JASPIC OAuth向け公開説明・プライバシーページ | merged | `e15cb16a477ab7def56a6d696632dc246590018d` | 2026-11-04T16:47:10Z |
+| #157 | JASPIC: iPhone email-login preview only (Gmail OAuth disabled) | merged | `29e257b0c69559f9b3fae7873ca1876366ae957b` | 2026-11-05T00:27:22Z |
+| #158 | docs: link common development management overview in main project overview | merged | `66fcb2c47a00825796bc351bd17eee5a22148bdd` | 2026-11-05T02:12:00Z |
+| #159 | 雨の判定ラボ：レーダー自動評価を主役にし現地報告を任意参考へ | merged | `5eaa58836e6da80b1536351bb05496cdefc905be` | 2026-11-05T03:52:37Z |
+| #160 | 雨の判定ラボ：現地保留を主判定から外し、降り始め不明を補足表示 | open | `c5a46647e183eb00e335cefc3af4054733db9bd7` | 2026-11-05T04:04:38Z |
+| #161 | ci: stop automatic previews and skip documentation-only builds | merged | `8ee8edff9b9c2fd5ce9d19eea2d408b51c768cab` | 2026-11-05T04:43:39Z |
+| #162 | docs: 総覧を短くし、案件管理を開発台帳へ集約 | merged | `77d576da3d309f65b8f7292c16d8d5a71201adf9` | 2026-11-05T04:58:11Z |
+| #164 | feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階） | open | `2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8` | 2026-11-11T13:06:54Z |
+| #165 | docs: 雨の判定ラボ173コマの方式差分・未検証事項を整理 | open | `0ae9da31f65a2afe184a6efd36628a0ac1c2bda3` | 2026-11-08T23:18:57Z |
+| #166 | fix(jaspic): accept trailing slash in Supabase URL | merged | `776fe24e8199cd565625c859b58cf6e1d067284b` | 2026-11-06T04:45:07Z |
+| #167 | style(jaspic): improve iPhone login page layout | merged | `37efdbc992e3a63ea0c91c0b1a267e24742ee875` | 2026-11-06T05:45:33Z |
+| #168 | Draft: JASPIC Gmail OAuth isolation and safe rollout audit (no activation) | merged | `17ef79e93311c4c1c557e523566a18f625f62f4a` | 2026-11-06T07:45:19Z |
+| #169 | fix(jaspic): handle Google token response without scope field | merged | `6517de34477c8f658271d582b2ba9baf10f8e7ef` | 2026-11-06T08:18:16Z |
+| #170 | feat(jaspic): prepare Gmail send-only consent offline | merged | `492c363dca14816bcfba2d88d601b6f29d7d8317` | 2026-11-06T08:29:03Z |
+| #171 | feat(jaspic): save verified Gmail OAuth credentials in encrypted vault | merged | `e48e8a60568f0e5ee8ab1bffb120864091e431de` | 2026-11-06T08:56:23Z |
+| #172 | fix(jaspic): diagnose Gmail OAuth vault failures without logging secrets | merged | `22e5d3d4a5c81c2f2ca8a04fac2c668e202885fa` | 2026-11-08T04:45:57Z |
+| #173 | fix(jaspic): resolve diagnostic stage TypeScript build error | merged | `aee2ec75d98b733f1688c85a0fed60e8c192cf25` | 2026-11-08T07:00:50Z |
+| #174 | feat(jaspic): gated single-recipient Gmail test send | merged | `af6fcb14906a8fa271f6a165b5b26ad08821cc66` | 2026-11-08T10:46:07Z |
+| #175 | Research: rain notification accuracy baseline and replay plan | open | `4c8383f6154fc5136092ae75f49061ace74c35a6` | 2026-11-09T02:13:15Z |
+| #176 | Rain Lab: clearer case summaries and color-coded match grades | merged | `8b556eeee0ce0443a47efbb1077981951a27a00b` | 2026-11-09T02:15:07Z |
+| #177 | Rain Lab: compact case list labels | merged | `1f86e2fc1abd29668aa705b4bb791ad495e6068c` | 2026-11-09T02:19:06Z |
+| #178 | Rain Lab: keep notification and forecast timestamps in case list | merged | `26f68c8668654f1db20469c2815bf36ce41e3587` | 2026-11-09T02:23:17Z |
+| #179 | Research: distinguish rain onset from strengthening in failed alerts | open | `e61aad6fd16f22111cf618dc5a6e0a4e20d9fed2` | 2026-11-09T05:35:38Z |
+| #180 | docs: preserve Sakikuru vision, LIVE JAPAN homepage and original X/GIF assets | merged | `8143ff3a2011a516d3d58be1258dbbb0f9b97785` | 2026-11-09T06:51:07Z |
+| #181 | fix: exhaustive z4 heavy-rain scan and fail-closed missing tiles (PR #62 evidence) | open | `011ca047241641a2af4c4bf12412063e19d0e5bd` | 2026-11-09T08:07:40Z |
+| #182 | feat(inventory): searchable historical PR/branch work index and experiment map | merged | `7a9ead205d805559f59b689f948389a2d07d4018` | 2026-11-09T08:12:21Z |
+| #183 | 日本語開発履歴：コード・検証根拠の検索と過去結論の継続保存 | merged | `65aec4341f19db26084bd7dfcf5c5457d8206b2c` | 2026-11-09T08:56:33Z |
+| #184 | fix(history): 棚卸し中に更新されたPRのコミットを確実に取得 | merged | `25107e4f0760cdcf250308b9cfbb1a2599c52936` | 2026-11-09T09:02:25Z |
+| #185 | fix(history): main統合とPRマージを区別し、検証条件の検索を補強 | merged | `5619eb8e137d20cd4251d53d4c0d3c09e9ea3d6c` | 2026-11-09T09:08:56Z |
+| #186 | docs: require Japanese work-history review before any new development | merged | `b9ae7ed07affee1b14312f9eb3dd8ff8b80825c9` | 2026-11-09T09:21:33Z |
+| #187 | fix(test): 雨判定ラボのテストをVitestで検出できるよう修正 | merged | `50c7ac1fd9c6e7112c679fca33860e44daedfcd7` | 2026-11-09T09:28:37Z |
+| #188 | feat(history): 着手前に「以前の実装・検証」を自動提示して再利用判断を確認 | merged | `d6b226c0bb2aeac2a41839c5b5963f40c918c3d1` | 2026-11-09T09:45:49Z |
+| #189 | docs(history): 着手前自動照合の実測と再利用判断を保存 | merged | `e0b050d6dd7bd7cf05fc37c17d3b58acdf0afd18` | 2026-11-09T09:51:32Z |
+| #190 | fix(jaspic): quarantine unreconciled historical IDs without dispatching them | merged | `eb3136ff0efc13a7e98205c31e56c17a7807fa00` | 2026-11-09T20:37:57Z |
+| #191 | fix(jaspic): deliver nine verified post-migration alerts exactly once | merged | `5bec7803eea833327f74e3b1bfaee565cfbe1e44` | 2026-11-09T21:00:45Z |
+| #192 | fix(jaspic): 自転車盗は通知対象外のまま隔離件数から除外 | merged | `9f59c19e9e23c730e2906c55720d12277194d6d6` | 2026-11-09T21:17:34Z |
+| #193 | JASPIC: 認証期限と自動配信異常の管理者通知を追加 | merged | `4703a0eea48abc7e96c5ad3e252ddb52033edff7` | 2026-11-10T01:46:19Z |
+| #194 | JASPIC: 0件の日も届く18時配信の完了メールを追加 | merged | `6abea5258257c323824ab0bdecdc77d20ccbe6ac` | 2026-11-10T02:10:22Z |
+| #195 | 研究: 未通知ケースを含む雨のエピソード評価基盤 | open | `cd57655109506e45c14c2d719190df1a6c4df418` | 2026-11-10T02:36:07Z |
+| #196 | docs: 日本語開発履歴の引継ぎを通常チャット・Actions経由に対応 | merged | `635b469513d0e16093c0c3853dcd2453ac2dc316` | 2026-11-10T02:50:14Z |
+| #197 | feat(history): Issueへ照合結果を返却し、引継ぎと検証・完成を分離 | merged | `575b0dc055505b7eeecae6f06a45e44447d83141` | 2026-11-10T05:03:44Z |
+| #201 | docs: 自動照合の合格確認まで案件調査を開始しない | merged | `77ddf8dfcbc3fd94e6683b6243a4bfb302345751` | 2026-11-10T05:33:45Z |
+| #203 | docs: 照合待機から本題まで追加合図なしで継続する | merged | `06e2757d6b56ca1ff5cbbacd613742683058deec` | 2026-11-10T08:31:17Z |
+| #206 | [Draft] 雨通知文C案：弱雨予報の本文だけを状況別に改善 | merged | `c47298d6b895a6445e99e742969f4221ab2e389e` | 2026-11-12T07:08:14Z |
+| #208 | feat(history): 中断・再開と引き継ぎ追跡をアメふるにも展開する | merged | `2866aca5dd45fd09829e55749db6508232141e0c` | 2026-11-12T06:57:38Z |
+| #210 | 固定版N03の全国大雨予報をさきどりトップに接続 | open | `1bd934d87180f2d6125d0edff5af7caa0917261a` | 2026-11-12T12:47:03Z |
+| #211 | さきどりのトップにアメふるの全国大雨予報を表示 | merged | `2257cf75011bdef9f1f4e2cd511ec4a63031a256` | 2026-11-12T11:56:23Z |
+| #215 | Draft: 全国大雨予報からBluesky投稿候補を生成（Issue #213） | open | `2e79ef53556d49decb0a868a9716f62ff1e5780d` | 2026-11-12T14:17:47Z |
+| #217 | [Draft] 1mm/h全国雨域検証の独立スキャナ（Issue #216） | open | `60a1a36a809ffc0407bf41a8d3995298f5a5fa58` | 2026-11-13T14:59:19Z |
+| #218 | 開発棚卸しで実装判断と検証根拠を検索できるようにする | merged | `308e82f99b9f6e0d72bc48c65382e2b6cdef97b7` | 2026-11-12T15:33:12Z |
+| #222 | [Draft] 全国雨予報6コマGIF生成の独立プロトタイプ (#221) | open | `5d9de2ff9fe5cd52a701bf718f7081c908a74924` | 2026-11-13T02:03:09Z |
+| #224 | fix(jaspic): 広島・滋賀の発生日だけによる保留を解除 | merged | `e36e28bbbf9cce64d942ade6a454991f775eb118` | 2026-11-13T00:47:56Z |
+| #226 | Draft: JASPIC本番送信前の読み取り専用候補プレビュー | merged | `ccc77ba88d6376ac236e96493fa5eeb0d9bd47e3` | 2026-11-13T00:59:03Z |
+| #228 | feat(jaspic): add admin-only send preview button | merged | `d019d596eeafc7147a2d83c1ac92dd5f237009bd` | 2026-11-13T03:12:03Z |
+| #230 | fix(jaspic): restore baseline fields safety guard | merged | `9bdb80fd6ace88b69914a8141ca6551a4422173a` | 2026-11-13T03:11:50Z |
+| #232 | feat(jaspic): show held counts in completion email | open | `dba96dd6d265eabc3465d302cb60265d391f2843` | 2026-11-13T03:07:25Z |
+| #234 | JASPIC送信前チェックに候補ID・新規/更新・発生日の内訳を追加 | merged | `f2e03e23db5ead350077f9602873e96113b9ee6c` | 2026-11-13T03:37:43Z |
+| #236 | fix(jaspic): 滋賀の一括登録を20件制限で停止させない (#235) | open | `e3ca534aee6c15b06c6e74567a218d3378ce5a0d` | 2026-11-13T23:28:37Z |
+| #237 | fix(jaspic): 送信前チェックだけ候補件数を表示（実送信変更なし） | merged | `0abceb601fed9b5743cbc497453fdb6040eef118` | 2026-11-13T11:18:42Z |
+| #239 | Draft: JASPIC 34件隔離DB・Gmail送信試験の安全ゲート | open | `18ddee678b6bf1579960bf4fdb17b078bce29387` | 2026-11-13T22:45:44Z |
+| #240 | draft(jaspic): #238 分割送信の安全条件と時間予算を整理 | merged | `3a907420294655326e4da1191699cb8298ceb7d5` | 2026-11-13T23:28:35Z |
+| #241 | fix(jaspic): 全分割の送信確定後に定時配信の完了を通知 | merged | `debfab93d75644d42d019ba8cda125663f0621f7` | 2026-11-13T23:51:45Z |
 <!-- INVENTORY_FACTS_END -->

@@ -37,6 +37,21 @@
 | #97 | Preview only: 外部AIレビュー用の公開総覧 | review/external-ai-page-20261028 |
 | #98 | 研究: 通知予測と実況の自動答え合わせ基盤 設計 | research/notification-replay-20261029 |
 | #109 | 研究用: 大雨予測の継続性判定（通知ロジック非接続） | research/severe-rain-consistency-20261101 |
+| #155 | Draft: JASPIC無送信MIME互換・Windows旧版比較と独立移植 | research/jaspic-mail-compat-20261104 |
+| #160 | 雨の判定ラボ：現地保留を主判定から外し、降り始め不明を補足表示 | fix/rain-lab-hold-copy-20261105 |
+| #164 | feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階） | feat/vercel-quota-monitor-20261105 |
+| #165 | docs: 雨の判定ラボ173コマの方式差分・未検証事項を整理 | research/rain-lab-five-frame-differences-20261105 |
+| #175 | Research: rain notification accuracy baseline and replay plan | research/rain-accuracy-baseline-20261109 |
+| #179 | Research: distinguish rain onset from strengthening in failed alerts | research/rain-approach-timing-20261109 |
+| #181 | fix: exhaustive z4 heavy-rain scan and fail-closed missing tiles (PR #62 evidence) | fix/national-preview-fail-closed-20261109 |
+| #195 | 研究: 未通知ケースを含む雨のエピソード評価基盤 | research/rain-episode-evaluation-api-20261110 |
+| #210 | 固定版N03の全国大雨予報をさきどりトップに接続 | work/national-rain-fixed-n03-209 |
+| #215 | Draft: 全国大雨予報からBluesky投稿候補を生成（Issue #213） | feat/bluesky-national-forecast-213 |
+| #217 | [Draft] 1mm/h全国雨域検証の独立スキャナ（Issue #216） | feat/national-rain-1mm-dry-run-216 |
+| #222 | [Draft] 全国雨予報6コマGIF生成の独立プロトタイプ (#221) | feat/national-rain-gif-221 |
+| #232 | feat(jaspic): show held counts in completion email | feat/jaspic-completion-held-count-20261113 |
+| #236 | fix(jaspic): 滋賀の一括登録を20件制限で停止させない (#235) | fix/jaspic-235-batched-shiga |
+| #239 | Draft: JASPIC 34件隔離DB・Gmail送信試験の安全ゲート | test/jaspic-238-isolated-bulk |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
