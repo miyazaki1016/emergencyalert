@@ -61,3 +61,11 @@
 - DB migration `jaspic_isolated_test_238_import_snapshot` で非公開 `import_snapshot(jsonb)` を追加。正確に広島31・滋賀3、34キー一意、source ID形式、空の隔離配送台帳のみを許可する。アプリ/APIロールへEXECUTEを許可しない。
 - 仮の非実在ID34件を使い、同一トランザクション内で取込34件（31/3）を検証。ROLLBACK後、隔離配送台帳0件を別SQLで確認。
 - **未完了**: 実際の34件の候補キーを読取専用previewから取得し、出典・同一性を確かめてから登録する作業。取込関数はメールを送らず、本番の `public` 配送台帳を変更しない。Gmail送信・最新HEAD CIも未完了。
+
+## 実候補の取得経路・権限確認（2026-11-14）
+
+- `app/jaspic/dispatch/preview/route.ts` を確認。既存の読み取り専用POSTは `Authorization: Bearer <JASPIC_DISPATCH_TOKEN>` を要求し、`provinces[].keys` を返す。配信台帳・snapshotへの書込みとGmail送信は行わない。
+- Vercel環境変数を **復号せず名前と適用先のみ** 確認。`JASPIC_DISPATCH_TOKEN` はProduction向け機密変数として存在する。トークン値は取得・記録していない。
+- **停止理由**: 現在のGitHub/Supabase/Vercel接続から、トークンを秘密のまま読み取り専用POSTへ渡す安全な実行経路をまだ確保できていない。Production tokenを取得してPR・Actionsログ・会話へ転記する方法は採用しない。実候補34キーは未取得で、古い31+3という件数だけを根拠に実送信しない。
+- 解消案: 既存認証・権限を保持したサーバー側の一時的な読み取り専用実行環境でpreviewを呼び、取得した結果の件数・県別キー・時点を検証して隔離DBへ渡す。実行経路の権限とログ秘匿をレビューしてから実施する。Productionの送信先、dispatch関数、20件制限は変更しない。
+- コミット `35f36279fdb73855c749ab7b8de462c74b0bf7ae` のCI、既存成果照合、PR分類はすべてsuccess（CI run 43450184882）。
