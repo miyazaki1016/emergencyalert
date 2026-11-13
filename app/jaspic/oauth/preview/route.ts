@@ -16,11 +16,11 @@ export async function POST(request: NextRequest) {
   }
   const token = /^Bearer ([A-Za-z0-9_.-]{16,8192})$/.exec(request.headers.get("authorization") ?? "")?.[1];
   if (!token) return respond({ error: "UNAUTHORIZED" }, 401);
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\\/+$/, "");
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/+$/, "");
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const adminId = process.env.JASPIC_ADMIN_USER_ID;
   const secret = process.env.JASPIC_DISPATCH_TOKEN;
-  if (!url || !key || !adminId || !secret || !/^https:\\/\\/[a-z0-9-]+\\.supabase\\.co$/.test(url)) {
+  if (!url || !key || !adminId || !secret || !/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url)) {
     return respond({ error: "NOT_CONFIGURED" }, 503);
   }
   try {
