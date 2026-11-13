@@ -27,6 +27,5 @@ export async function productionPlan(province: Province, snapshot: Snapshot, ite
   // The source-count guard above always uses the COMPLETE source, not this
   // reduced planning set. Quarantined records are reconsidered on each run.
   const result = await plan(province, snapshot, eligibleItems, {legacyHiroshimaPersonIds:legacy});
-  if (result.candidates.length > 20) throw new Error("DIFFERENCE_LIMIT");
   return {...result, quarantined};
 }
