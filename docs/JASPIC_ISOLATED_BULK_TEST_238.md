@@ -35,3 +35,9 @@
 - 非公開スキーマの `claim_batch(integer)` を `SECURITY INVOKER`、`FOR UPDATE SKIP LOCKED`、最大10件制限で実装。`PUBLIC`、`anon`、`authenticated`、`service_role` へのEXECUTE権限なし。
 - ロールバック専用トランザクション内で仮34件を登録し、`claim_batch(10)` の後に SENDING=10、PREPARED=24 を確認。
 - **独立した2接続を使う同時競合テストは未実施**。実候補34件の取得・保存も未実施。実送信0件。
+
+## 再実行可能なSQLテスト
+
+- `tests/sql/jaspic_isolated_test_238.sql` を追加（HEAD `978ea03557865a4fe5e778806b809e8517a40687`）。
+- 34件synthetic、重複登録、最初のclaim10件、UNKNOWN10件を自動再claimせず次の10件へ進む検証をトランザクション内で実施。SQL実行はエラーなし、終了後0件を別照会で確認。
+- **注意**: これは単一トランザクションでの検証であり、並行した2セッションの競合検証ではない。実候補の取り込み・メール送信・最新CIは未完了。
