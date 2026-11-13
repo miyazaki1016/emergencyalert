@@ -20,3 +20,11 @@
 7. mainマージ、Vercelデプロイ、本番DBテーブルの更新、本番送信は別途許可が必要。
 
 関連: [Issue #235](https://github.com/miyazaki1016/emergencyalert/issues/235) / [Draft PR #236](https://github.com/miyazaki1016/emergencyalert/pull/236) / [Draft PR #239](https://github.com/miyazaki1016/emergencyalert/pull/239)
+
+## 無送信SQL検証（2026-11-13）
+
+- `jaspic_isolated_test.deliveries` へ **synthetic** 34件を1トランザクション内で登録（広島31件相当・滋賀3件相当）。実際の防犯情報IDは使用していない。
+- `unique(prefecture, source_id)` に対する `ON CONFLICT DO NOTHING` の重複登録試行を実施。
+- `FOR UPDATE SKIP LOCKED` で先頭10件を `SENDING` に変更し、10件を `UNKNOWN` として保留、残り24件を `PREPARED` として維持する状態遷移を確認。
+- トランザクションを `ROLLBACK` し、別SQLで永続行数 **0件** を確認。
+- **未検証**: 独立接続間の真の同時claim競合、34件の実候補スナップショット、Gmail message ID、最新HEAD CI、実送信。現時点で本番・テストともメール送信0件。
