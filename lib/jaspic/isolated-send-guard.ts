@@ -21,7 +21,7 @@ function normalizedUrl(value: string): string {
   if (parsed.protocol !== "https:") throw new Error("ISOLATED_DB_HTTPS_REQUIRED");
   if (parsed.username || parsed.password || parsed.search || parsed.hash)
     throw new Error("ISOLATED_DB_URL_INVALID");
-  return parsed.origin.replace(/\\/+$/, "").toLowerCase();
+  return parsed.origin.toLowerCase();
 }
 
 /**
