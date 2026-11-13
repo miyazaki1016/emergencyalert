@@ -91,3 +91,11 @@
 - 試験中の集計は SENDING=24、UNKNOWN=10、PREPARED=0。`ROLLBACK` 後に別SQLで **広島31・滋賀3がすべてPREPARED** と確認。実送信0件。
 - 最初の2回の試行はSQLテスト文の構文ミス（CASE式）および返却列名誤認（`id` ではなく `claimed_id`）で失敗し、修正後に成功。失敗試行による永続状態変更なし。
 - 本検証は同一トランザクション内のDB分割・中断シミュレーションであり、Gmail送信・ネットワーク障害・実際の再起動後の再開を検証したものではない。
+
+## 実送信前の接続経路判断（2026-11-14）
+
+- 最新CI: [run 43462562362](https://github.com/miyazaki1016/emergencyalert/actions/runs/43462562362) success（HEAD `eb2b9b34b18e128fcf69e913d2f1bb7641ab80f6`）。
+- 既存の本番管理者向けGmail OAuth vaultは、管理者認証後に`service_role`クライアント経由で読める。ただし隔離スキーマは`service_role`にUSAGEがなく、Data APIからclaim/finishできない。SQL実測で`postgres=true`、`service_role=false`、`authenticated=false`、`anon=false`を確認。
+- **現時点では実行可能な接続経路が未実装。** 安易に非公開スキーマの権限を拡張しない。専用DB接続の資格情報が既存サーバーにあるかを確認し、なければ専用の最小権限DBロールとサーバー限定接続を別途設計・レビューする。接続情報をGitHub、Issue、クライアント、ログに出さない。
+- 既存`isolated-content-238.ts`は元のメール生成関数を再利用し、宛先情報を引き継がない。既存`isolated-send-gate-238.ts`は候補34件のID・NEW_ID分類・宛先・状態を照合し、`isolated-first-mail-238.ts`は成功後1件だけclaimする。**このゲートは実運用APIに未接続**。
+- 本番配送処理・本番宛先は未変更。34件PREPARED、実送信0件。ユーザーは隔離宛先`kishibojim@gmail.com`への34件の実メール送信を許可済みだが、mainマージ・本番デプロイは未許可。
