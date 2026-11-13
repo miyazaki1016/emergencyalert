@@ -21,12 +21,14 @@ export async function runVerifiedIsolatedFirstMail(
   verifyIsolatedSendSnapshot(preview,staged);
   // A race or faulty DB adapter must not substitute a different row after the gate.
   const expected=new Set(extractIsolatedCandidates(preview).map(c=>c.province+"|"+c.source_id));
+  const stagedById=new Map(staged.map(row=>[row.prefecture+"|"+row.source_id,row]));
   return runIsolatedBatch({
     ...port,
     claim:async limit=>{
       const rows=await port.claim(limit);
       if (!Array.isArray(rows) || rows.length>1 || rows.some(row=>
-        !expected.has(row.claimed_prefecture+"|"+row.claimed_source_id)))
+        !expected.has(row.claimed_prefecture+"|"+row.claimed_source_id) ||
+        stagedById.get(row.claimed_prefecture+"|"+row.claimed_source_id)?.recipient!==row.claimed_recipient))
         throw new Error("ISOLATED_CLAIM_NOT_IN_SNAPSHOT");
       return rows;
     },
