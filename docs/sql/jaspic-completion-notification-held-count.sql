@@ -52,12 +52,12 @@ begin
   -- A held item is counted only if first quarantined in this run.
   -- The current production plan emits no quarantine IDs, so never imply
   -- a historical backlog was counted.
-  perform jaspic_monitor.enqueue('completion:'||day_key,'配信完了','jaspic/dispatch','DISPATCH_SUCCEEDED',r.finished_at,
+  perform jaspic_monitor.enqueue('completion:'||day_key,\n   case when hh+sh>0 then '配信完了・保留要確認' else '配信完了' end,\n   'jaspic/dispatch',case when hh+sh>0 then 'DISPATCH_HOLD_REVIEW' else 'DISPATCH_SUCCEEDED' end,r.finished_at,
    '18時の配信処理が正常終了しました。'||
    E'\n広島県: 送信 '||h||' 件 / 保留 '||hh||' 件'||
    E'\n滋賀県: 送信 '||s||' 件 / 保留 '||sh||' 件'||
    E'\n送信合計: '||(h+s)||' 件 / 保留合計: '||(hh+sh)||' 件'||
-   E'\n※自転車盗など恒久的な配信対象外は保留に含みません。'||
+   E'\n※自転車盗など恒久的な配信対象外は保留に含みません。'||\n   case when hh+sh>0 then E'\n【要確認】今回の処理で保留が発生しました。原因は配信実行ログと保留IDで確認してください。' else '' end||
    case when h+s=0 then E'\n今回は送信対象の新規・更新情報が0件でした。両県の確認処理は正常に完了しています。' else '' end||
    E'\n処理開始（日本時間）: '||to_char(r.started_at at time zone 'Asia/Tokyo','YYYY-MM-DD HH24:MI:SS')||
    E'\n処理完了（日本時間）: '||to_char(r.finished_at at time zone 'Asia/Tokyo','YYYY-MM-DD HH24:MI:SS')||
