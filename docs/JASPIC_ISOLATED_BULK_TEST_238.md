@@ -28,3 +28,10 @@
 - `FOR UPDATE SKIP LOCKED` で先頭10件を `SENDING` に変更し、10件を `UNKNOWN` として保留、残り24件を `PREPARED` として維持する状態遷移を確認。
 - トランザクションを `ROLLBACK` し、別SQLで永続行数 **0件** を確認。
 - **未検証**: 独立接続間の真の同時claim競合、34件の実候補スナップショット、Gmail message ID、最新HEAD CI、実送信。現時点で本番・テストともメール送信0件。
+
+## 追加実装・SQL確認
+
+- Supabase migration `jaspic_isolated_test_238_claim_batch` 適用成功。
+- 非公開スキーマの `claim_batch(integer)` を `SECURITY INVOKER`、`FOR UPDATE SKIP LOCKED`、最大10件制限で実装。`PUBLIC`、`anon`、`authenticated`、`service_role` へのEXECUTE権限なし。
+- ロールバック専用トランザクション内で仮34件を登録し、`claim_batch(10)` の後に SENDING=10、PREPARED=24 を確認。
+- **独立した2接続を使う同時競合テストは未実施**。実候補34件の取得・保存も未実施。実送信0件。
