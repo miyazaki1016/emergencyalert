@@ -1,0 +1,62 @@
+name: Official N03 light rain proof (read-only)
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/light-rain-official-n03-proof.yml"
+      - "scripts/light-rain-official-n03-proof.ts"
+      - "scripts/light-rain-jma-n03-live-proof.ts"
+      - "lib/weather/rain/lightRainOfficialN03.ts"
+      - "lib/weather/rain/lightRainMunicipalities.ts"
+      - "lib/weather/rain/lightRainAdministrativeAreas.ts"
+      - "lib/weather/rain/lightRainNationwideN03.ts"
+      - "lib/weather/rain/lightRainNationwideN03.test.ts"
+      - "scripts/light-rain-prepare-official-n03.ts"
+      - "scripts/light-rain-nationwide-n03-audit.ts"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  official-n03:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Download official Tokyo 2026 N03 (read-only)
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --connect-timeout 20 --max-time 240 "https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-2026/N03-20260101_13_GML.zip" -o /tmp/n03-tokyo.zip
+          mkdir -p /tmp/n03-tokyo
+          unzip -q /tmp/n03-tokyo.zip -d /tmp/n03-tokyo
+          test -s /tmp/n03-tokyo/N03-20260101_13.geojson
+      - name: Prepare and audit official Tokyo N03 as local PR59-compatible asset
+        run: |
+          npx tsx scripts/light-rain-prepare-official-n03.ts 13 /tmp/n03-tokyo/N03-20260101_13.geojson /tmp/n03-local
+          test -s /tmp/n03-local/13.areas.json
+      - name: Match synthetic 1mm pixel with official Ota N03 geometry
+        run: npx tsx scripts/light-rain-official-n03-proof.ts /tmp/n03-tokyo/N03-20260101_13.geojson
+      - name: Download official Hokkaido 2026 N03 (read-only)
+        run: |
+          curl --fail --location --retry 3 --connect-timeout 20 --max-time 240 "https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-2026/N03-20260101_01_GML.zip" -o /tmp/n03-hokkaido.zip
+          mkdir -p /tmp/n03-hokkaido
+          unzip -q /tmp/n03-hokkaido.zip -d /tmp/n03-hokkaido
+          test -s /tmp/n03-hokkaido/N03-20260101_01.geojson
+      - name: Prepare official Hokkaido N03 as local PR59-compatible asset
+        run: |
+          npx tsx scripts/light-rain-prepare-official-n03.ts 01 /tmp/n03-hokkaido/N03-20260101_01.geojson /tmp/n03-local
+          test -s /tmp/n03-local/01.areas.json
+      - name: Assert partial two-prefecture assets fail nationwide audit (fail closed)
+        run: |
+          if npx tsx scripts/light-rain-nationwide-n03-audit.ts /tmp/n03-local; then
+            echo "ERROR: two prefectures must never pass 47-prefecture audit" >&2
+            exit 1
+          fi
+      - name: Verify official Hokkaido ward identity independent of local rain
+        run: |
+          jq -e 'any(.[]; .code == "01106" and .prefecture == "北海道" and .municipality == "札幌市南区")' /tmp/n03-local/01.areas.json
