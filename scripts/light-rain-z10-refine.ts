@@ -8,12 +8,18 @@ import { fetchForecastTargetTimes, type JmaTargetTime } from "../lib/weather/pro
 import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
 import { locateJmaRainPixelsAtLeast1mm, scanJmaTileAtLeast1mm } from "../lib/weather/rain/lightRainProof";
 import { municipalitiesForLightRainTile } from "../lib/weather/rain/lightRainMunicipalities";
+import { municipalitiesForLightRainTileWithMasks } from "../lib/weather/rain/lightRainPixelMasks";
+import { openNationwidePixelMasks } from "../lib/weather/rain/lightRainPixelMaskLoader";
 import { forecastTime } from "../lib/weather/rain/nationalForecastSnapshot";
 import type { AdministrativeArea } from "../lib/weather/rain/lightRainAdministrativeAreas";
 
 const root=process.argv[2];
 if(!root)throw new Error("N03 root required");
 const MAX_TILES=Number(process.env.Z10_MAX_TILES||"2500");
+// Explicit opt-in: without an artifact directory, retain the original matcher.
+// When enabled, missing/stale/corrupt masks are fatal (never silently empty).
+const maskDir = process.env.JMA_Z10_PIXEL_MASK_DIR;
+const pixelMasks = maskDir ? openNationwidePixelMasks(maskDir, process.env.JMA_N03_VERSION || "20260101") : undefined;
 const tiles4=[[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;
 const FIVE_MINUTES = 300_000;
 const lon=(x:number,z:number)=>x/(2**z)*360-180;
@@ -135,7 +141,11 @@ async function refineFrame(
       const scan=scanJmaTileAtLeast1mm(buffer);
       const decodeMs=performance.now()-matchStart;
       if(scan.unknownPixels)throw new Error("UNKNOWN_JMA_PIXEL_Z10 "+t.x+"/"+t.y);
-      const municipalities=scan.rainPixels?municipalitiesForLightRainTile(buffer,10,t.x,t.y,t.areas):[];
+      const municipalities=scan.rainPixels
+        ? pixelMasks
+          ? municipalitiesForLightRainTileWithMasks(buffer,10,t.x,t.y,pixelMasks.load(t.x,t.y),t.areas)
+          : municipalitiesForLightRainTile(buffer,10,t.x,t.y,t.areas)
+        : [];
       const matchingMs=performance.now()-matchStart;
       console.log(JSON.stringify({event:"JMA_TILE_PROCESS",basetime:frame.basetime,validtime:frame.validtime,z:10,x:t.x,y:t.y,decodeMs:Math.round(decodeMs),matchingMs:Math.round(matchingMs),fetchMs:Math.round(fetchMs)}));
       return {scan,municipalities,fetchMs,matchingMs};
