@@ -38,11 +38,13 @@ async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:num
     let outcome = "transport_error";
     try {
       const response = await fetch(url, { cache: "no-store", signal: AbortSignal.any([signal, AbortSignal.timeout(8_000)]) });
+      const headersMs = Math.round(performance.now()-started);
       outcome = "HTTP_" + response.status;
       if (response.ok) {
         const bytes = Buffer.from(await response.arrayBuffer());
+        const bodyDoneMs = Math.round(performance.now()-started);
         outcome = "ok";
-        console.log(JSON.stringify({event:"JMA_TILE_FETCH",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome:"ok",httpStatus:response.status,elapsedMs:Math.round(performance.now()-started),bytes:bytes.length}));
+        console.log(JSON.stringify({event:"JMA_TILE_FETCH",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome:"ok",httpStatus:response.status,headersMs,bodyMs:bodyDoneMs-headersMs,elapsedMs:bodyDoneMs,bytes:bytes.length,cacheStatus:response.headers.get("x-cache")}));
         return bytes;
       }
       attempts.push("HTTP " + response.status);
@@ -131,9 +133,12 @@ async function refineFrame(
       const fetchMs=performance.now()-fetchStart;
       const matchStart=performance.now();
       const scan=scanJmaTileAtLeast1mm(buffer);
+      const decodeMs=performance.now()-matchStart;
       if(scan.unknownPixels)throw new Error("UNKNOWN_JMA_PIXEL_Z10 "+t.x+"/"+t.y);
       const municipalities=scan.rainPixels?municipalitiesForLightRainTile(buffer,10,t.x,t.y,t.areas):[];
-      return {scan,municipalities,fetchMs,matchingMs:performance.now()-matchStart};
+      const matchingMs=performance.now()-matchStart;
+      console.log(JSON.stringify({event:"JMA_TILE_PROCESS",basetime:frame.basetime,validtime:frame.validtime,z:10,x:t.x,y:t.y,decodeMs:Math.round(decodeMs),matchingMs:Math.round(matchingMs),fetchMs:Math.round(fetchMs)}));
+      return {scan,municipalities,fetchMs,matchingMs};
     }));
     for (const outcome of outcomes) {
       if (outcome.status === "rejected") throw outcome.reason;
