@@ -25,6 +25,7 @@ jobs:
           github-token: ${{ github.token }}
           run-id: 43653446881
           artifact-ids: 14136872031
+          merge-multiple: true
           path: /tmp/lrpm-input
       - uses: actions/download-artifact@v4
         with:
@@ -59,7 +60,7 @@ jobs:
           export LRPM_TLS="$tls"
           openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj '/CN=localhost' -addext 'subjectAltName=DNS:localhost' -keyout "$tls/key.pem" -out "$tls/cert.pem" 2>/dev/null
           export NODE_EXTRA_CA_CERTS="$tls/cert.pem"
-          node --input-type=module <<'JS'
+          node --input-type=module <<'JS' | tee /tmp/lrpm-evidence/storage.jsonl
           import { createClient } from '@supabase/supabase-js';
           import { execFileSync } from 'node:child_process';
           import { readFileSync } from 'node:fs';
