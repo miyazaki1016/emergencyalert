@@ -48,7 +48,7 @@ async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:num
       attempts.push("HTTP " + response.status);
       if (![404, 408, 429, 500, 502, 503, 504].includes(response.status)) break;
     } catch (error) {
-      outcome = error instanceof Error ? error.name : "TransportError";
+      outcome = signal.aborted ? "slot_deadline_abort" : error instanceof Error ? error.name : "TransportError";
       attempts.push(outcome);
     } finally {
       if (outcome !== "ok") {
@@ -248,6 +248,11 @@ async function main() {
     recordGap(frames[0].basetime);
     previousBase = frames[0].basetime;
     successfulUpdates++;
+    } catch (error) {
+      if (controller.signal.aborted) {
+        console.error(JSON.stringify({event:"JMA_SLOT_DEADLINE",at:new Date().toISOString(),slotEnd:new Date(slotEnd).toISOString(),elapsedMs:Math.round(performance.now()-scanStarted),reason:String(controller.signal.reason),error:String(error),publication:false}));
+      }
+      throw error;
     } finally { clearTimeout(timer); }
   };
 
