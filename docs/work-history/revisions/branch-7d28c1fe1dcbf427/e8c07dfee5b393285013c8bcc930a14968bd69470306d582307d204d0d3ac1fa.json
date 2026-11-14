@@ -1,0 +1,218 @@
+{
+  "id": "branch-7d28c1fe1dcbf427",
+  "title": "feat/national-rain-1mm-dry-run-216",
+  "head": "e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa",
+  "head_ref": "feat/national-rain-1mm-dry-run-216",
+  "linked_prs": [
+    217
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/jma-light-rain-proof.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/.github/workflows/jma-light-rain-proof.yml"
+    },
+    {
+      "path": ".github/workflows/light-rain-bluesky-issue-219.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/.github/workflows/light-rain-bluesky-issue-219.yml"
+    },
+    {
+      "path": ".github/workflows/light-rain-nationwide-n03-acquisition.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/.github/workflows/light-rain-nationwide-n03-acquisition.yml"
+    },
+    {
+      "path": ".github/workflows/light-rain-official-n03-proof.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/.github/workflows/light-rain-official-n03-proof.yml"
+    },
+    {
+      "path": "lib/weather/rain/lightRainAdministrativeAreas.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/lib/weather/rain/lightRainAdministrativeAreas.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainBlueskyDelivery.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/lib/weather/rain/lightRainBlueskyDelivery.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainBlueskyDelivery.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/lib/weather/rain/lightRainBlueskyDelivery.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainMunicipalities.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/lib/weather/rain/lightRainMunicipalities.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainMunicipalities.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/lib/weather/rain/lightRainMunicipalities.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainN03LocalProof.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/lib/weather/rain/lightRainN03LocalProof.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainN03LocalProof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/lib/weather/rain/lightRainN03LocalProof.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainNationwideN03.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/lib/weather/rain/lightRainNationwideN03.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainNationwideN03.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/lib/weather/rain/lightRainNationwideN03.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainOfficialN03.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/lib/weather/rain/lightRainOfficialN03.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainOfficialN03.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/lib/weather/rain/lightRainOfficialN03.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainProof.live.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/lib/weather/rain/lightRainProof.live.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainProof.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/lib/weather/rain/lightRainProof.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainProof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/lib/weather/rain/lightRainProof.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalForecastBluesky.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/lib/weather/rain/nationalForecastBluesky.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalForecastBluesky.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/lib/weather/rain/nationalForecastBluesky.ts"
+    },
+    {
+      "path": "scripts/light-rain-bluesky-dry-run.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/scripts/light-rain-bluesky-dry-run.ts"
+    },
+    {
+      "path": "scripts/light-rain-jma-n03-live-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/scripts/light-rain-jma-n03-live-proof.ts"
+    },
+    {
+      "path": "scripts/light-rain-nationwide-live.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/scripts/light-rain-nationwide-live.ts"
+    },
+    {
+      "path": "scripts/light-rain-nationwide-n03-audit.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/scripts/light-rain-nationwide-n03-audit.ts"
+    },
+    {
+      "path": "scripts/light-rain-official-n03-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/scripts/light-rain-official-n03-proof.ts"
+    },
+    {
+      "path": "scripts/light-rain-prepare-official-n03.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/scripts/light-rain-prepare-official-n03.ts"
+    },
+    {
+      "path": "scripts/light-rain-z10-refine.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/scripts/light-rain-z10-refine.ts"
+    },
+    {
+      "path": "scripts/national-light-rain-jma-proof.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa/scripts/national-light-rain-jma-proof.ts"
+    }
+  ],
+  "commits": "e07a0717718c0ac1dffb2ec4cacf086c2dc8dcaa diagnostics: separate JMA response headers, body, PNG decode and municipality matching\n271f9b87ccd0cb4d1c5d04fa0143540f564da3c5 diagnostics: distinguish slot deadline abort from tile network timeout\n8e5cccc97169baaa64c5afbedaf9d30a0a3ece5e diagnostics: log z4 JMA tile status, latency and retry attempts\n60a1a36a809ffc0407bf41a8d3995298f5a5fa58 experiment: use four concurrent z10 tile fetches on dry-run branch\n32dadae1672f13995f7c58cd141b648ff2f2f944 experiment: allow 4 or 8 z10 concurrent tile requests via environment\nad1eb7f57413c29e0dfd112b740964ee92ec7e26 diagnostics: mark all successful tile responses before final logging\n60f02ef9b013d5030f47e525bb74ba6181b6980c diagnostics: record per-tile JMA HTTP outcomes and latency without extra requests\nd86ff1dc3cd15c1730e9ea474fcb900066674034 fix(rain): retry unpublished JMA target-time index within slot (#220)\n7b93625b3fe2211c50786fd01dceaadf57009676 fix: bound JMA read-only scan by slot deadline and skip failed cycles (#220)\n671d704714bd9484b6333978f15d269186e4f793 ci: retain read-only nationwide watch error logs on failure (#220)\ne4b08101ade17133cd888ae6f6e3c621b0054c4f fix: record five-minute coverage gaps only after successful JMA scan (#220)\n3c040861aa00e8019e88e1f1d523dc1fd6f1eb19 test: fail read-only watch when five-minute JMA basetimes are skipped (#220)\n3e764b043d9ba8629795689c9612724ef2df46fc Authorize the one-time Bluesky forecast for Issue #219\nb0be7f5bcb0310888747361ec4a580ec5b52340b Authorize the one-time Bluesky forecast for Issue #219\nfd31a7634e1fa829221d986bebd41a9dd1a67be5 Refine live JMA tile acquisition and N03 ward names (#219)\n3696d7a53378770fbd0bba64a66e0268917ac4e2 feat: verify cached nationwide forecast and Bluesky dry run end to end (#219)\n313d35162b2772d8dfcfab20ff92136df0efdb1a feat: verify cached nationwide forecast and Bluesky dry run end to end (#219)\ndef2bda79f5f02c425c8afdcffb929b063430d7b feat: verify cached nationwide forecast and Bluesky dry run end to end (#219)\n0a9eee9e1504d3bf407e4e484fddbf4d8f2cad27 feat: add account-pinned Bluesky delivery with idempotent retries (#219)\n63f5b4b95b26a08d284eaeb3ef01e658b7fc04d1 feat: add account-pinned Bluesky delivery with idempotent retries (#219)\n4ae1ed39a3fac58d680905a49b98edb2a99ae8fd feat: reuse PR #215 forecast candidate generation for the 1mm dry run (#219)\nbe672e2d1a674f844c6005b638772c8dc615b100 feat: reuse PR #215 forecast candidate generation for the 1mm dry run (#219)\n3b613a92990c78409beba0e90c61f07919855359 feat: reuse PR #215 forecast candidate generation for the 1mm dry run (#219)\n608133ee121abd7552042875e1ed948b9f3c449a feat: refine all six consecutive JMA forecast frames with cached N03 (#219)\n32226b96d939f0f492b8c72623bdffb555e5e750 ci: separate official N03 acquisition from cache-only forecast runs (#219)\n925dd69dd1d9961f1126e5fa2a25eb4b3ea0998b perf: cache versioned prepared N03 per prefecture and download only on cache miss\n2db6237e22b012011cfa76ffbb6e8208e3bb8539 perf: measure end-to-end z4/z10 nationwide scan latency and network/matching costs\nc0c18bc7738b6c26d9793285ab624de6534cc9ce ci: run bounded z10 JMA refinement after nationwide N03 acquisition\na6fc11f5574ed9568543ece988095082ce0006f7 feat: refine nationwide real JMA rain candidates using z10 tiles and official N03 geometry\ndf4f1e7eb243557fbc13b48bd2e84b44bf8e78d3 ci: run nationwide real JMA rain municipality extraction after 47 N03 downloads\n0349075b4bde5d0056cb402ce50047eb5a2f1fb6 feat: extract real JMA >=1mm rain municipalities nationwide using 47 official N03 datasets\n3a41b33646c9d2a70c1d6cc19cb321b4ab6815bf ci: launch real 47-prefecture N03 acquisition on draft PR update\na5a0be676c5b129fd4f6c0a74adbfdb0d6b2ab15 ci: acquire official N03 data for all 47 prefectures and audit nationwide completeness\n0d63d105b954397c2e40c774228898bb7a08bb6f ci: verify partial official N03 assets cannot pass nationwide completeness audit\n7f1f4ba35816733811294a705ef76ff026610e54 ci: prove official Tokyo and Hokkaido N03 conversion to local nationwide asset format\nf3d1106afbf7aed46a10fa7b37393a6e95fc9ebf feat: prepare official prefecture N03 GeoJSON for nationwide local read-only audit\n909a5a501761d4f41f42b7571ab400e40433a37c test: reject cross-prefecture N03 identity collisions\nd76f98ccaa1592ae777dabf7ae18a589cd7376d9 fix: validate unique prefecture identity across prepared N03 datasets\nd41469f971ecaa37a23076237c42605709228420 chore: remove unused import from nationwide N03 audit loader\n6e51482372af382fc3a424685933855689a41c80 feat: add read-only fail-closed nationwide N03 asset audit CLI\n9a505ff855a5ef132af853cab00fed6bfd290728 fix: retry transient JMA 404 during forecast publication while failing closed\n2e9aa6fbd3795288775e86b1e4419969be4235cd test: use repository Vitest runner for nationwide N03 coverage tests\n8ae66a9bafa1cdb3508311501d95300c07979d03 ci: trigger official N03 proof for nationwide coverage loader changes\n2803c38853e15c8332e650cd3e16f40a4a563bae test: verify 47-prefecture N03 coverage and fail-closed missing data\n607120fd694abdcbb33a3a4619fcd4f4e61a7c7f feat: add fail-closed 47-prefecture prepared N03 proof loader reusing PR59\ne1a5ada1eb692a88299fc23bf3cbfa9cc3d2ea59 test: require all six forecast frames and document N03 code-based identity\n861412d785d7f128c9faa521d0f7cec6ba911a82 ci: validate real JMA rain against official Hokkaido N03 where rain was observed\nbdf90374cd861ac0be3454cfea5ffcb13ef1924f feat: parameterize real JMA N03 proof by official prefecture\n1bfbdfe9eb38b25e6a27da1be2723b734baa7ddc fix: retry transient JMA tile errors with bounded backoff and fail closed\nea8741c12634b20743d512feada99b5ab2af8b77 test: log geolocated real rain samples to select matching official N03 prefecture\nb7e22815073edae817d3aaa5e7d56a29906fc130 test: diagnose whether missing real Tokyo matches reflect dry weather or N03 intersection defect\n143df378148536e3d76b82bdf64c4339189480de test: fail real JMA N03 proof when no municipality is actually identified\n008b1208b146750cad0776237e6822c9e6b83da3 ci: run real JMA forecast and official N03 intersection proof on draft PR\n15399474c4c643cb9d852b4266064938d83b3fcd feat: connect live JMA 1mm forecast to official Tokyo N03 read-only proof\n48a28630d81f91b140fc7cb7fc19206447087031 fix: replace literal newline escapes in N03 proof TypeScript\n621177af3023a74cafade5bf58b0b8a627f3cc43 fix: narrow official N03 polygon ring types for production build\n938ad27b5200ace47f740cf9f3b4e3372afbf39f ci: verify isolated 1mm pixel against official Tokyo N03 on PR only\n51a27361727ef4d635b1b85e16a6c4a7df1790a7 test: add offline official Tokyo N03 and synthetic 1mm pixel end-to-end proof\n720ac739d90436ae68f1b6e02392c9960b0d1253 test: verify official N03 properties merge and municipality rain intersection\n180bfaedb6bf1ff25624949fadcb244f41e310fe feat: reuse PR59 official N03 GeoJSON conversion for isolated rain proof\n98b787f9fec74543eacbd69480e616b56cf3f75b fix: correct N03 prefecture and municipality code validation regex\n4d1b89a82c4f13e959574621b46dc88c8353fec0 test: validate local N03 prepared data without production storage\n108ebd472f486497282064213f27c4de2bf92502 feat: add read-only local prepared N03 proof adapter with identity validation\n2e47b6d74769b3b08ad6a164520fe400a9535b97 test: prove N03 matching uses complete rainy pixel footprint\n85a08887432e7af23e66e55130666c7cab78dcd0 feat: match complete 1mm rainy pixel footprints against N03 municipalities\n155fac6feca7e8723a81dad9a7fcb26075682eb1 feat: reuse PR59 N03 polygon intersection in isolated light rain proof\n65209a76345fecc8375587339f5cc9f5cb03c962 test: verify rain pixel geographic locations and unknown-color fail closed\n2029b3b80856b931bb7b4b1645ecf6fa6a2c5637 feat: locate every 1mm rain pixel for later exact N03 footprint mapping\n95dc89cff0c12d84b22c82f08099359e4909e1fc test: restore opt-in live JMA gate after successful real-data proof\nf72583f95fb1fb7eb2327a1cd75f0efe30867270 test: run one-shot read-only live JMA proof in PR CI for evidence\n19b15c21155376e4bef472ebca3c643e31250a9d ci: add manually triggered read-only JMA 1mm six-frame proof\n4c85d3c4674c3a907f5c7c8a886dd41f404e9b13 test: add opt-in live JMA six-frame read-only integration proof\nb4cc390b7e13deb28ee6385beb0a077828dd0b09 feat: add read-only real JMA six-frame 1mm rain proof runner\n22893f4c69aceb8a83d2e296353ed3129b549e6e fix: use relative imports compatible with Vitest in 1mm proof\n1c22e740e10fbad3e2d08e2633f5d167b998b282 test: verify 1mm rain classification and no skipped pixels\nc4066f4e6e4b7e13305e2cb7027f976d06e00bb0 feat: add isolated 1mm JMA full-pixel scan for dry-run proof",
+  "topics": [
+    "雨量・全国検知",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "cfd805a1daebcbc90d855b23cf910f56864fd1cdee2a23e59b8e75604ceca59f",
+  "collected_at": "2026-11-14T07:36:10.194993+00:00"
+}
