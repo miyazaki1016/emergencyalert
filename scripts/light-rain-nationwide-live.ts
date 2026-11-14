@@ -29,11 +29,26 @@ function areaBounds(area:AdministrativeArea):[number,number,number,number] {
 }
 async function tileBuffer(url:string,label:string):Promise<Buffer> {
   for(let i=0;i<3;i++){
+    const started=performance.now();
+    let outcome="transport_error";
+    let httpStatus:number|undefined;
     try {
       const response=await fetch(url,{cache:"no-store",signal:AbortSignal.timeout(20000)});
-      if(response.ok)return Buffer.from(await response.arrayBuffer());
+      httpStatus=response.status;
+      outcome="HTTP_"+response.status;
+      if(response.ok){
+        const buffer=Buffer.from(await response.arrayBuffer());
+        outcome="ok";
+        console.error(JSON.stringify({event:"JMA_TILE_FETCH",label,attempt:i+1,outcome,httpStatus,elapsedMs:Math.round(performance.now()-started),bytes:buffer.length}));
+        return buffer;
+      }
       if(![404,429,500,502,503,504].includes(response.status))throw new Error("JMA HTTP "+response.status+" "+label);
-    } catch(error) {if(i===2)throw error;}
+    } catch(error) {
+      if(!outcome.startsWith("HTTP_"))outcome=error instanceof Error?error.name:"TransportError";
+      if(i===2)throw error;
+    } finally {
+      if(outcome!=="ok")console.error(JSON.stringify({event:"JMA_TILE_FETCH",label,attempt:i+1,outcome,httpStatus,elapsedMs:Math.round(performance.now()-started)}));
+    }
     if(i<2)await new Promise(resolve=>setTimeout(resolve,(i+1)*1500));
   }
   throw new Error("INCOMPLETE_JMA_TILE: "+label);
