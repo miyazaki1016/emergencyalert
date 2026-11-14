@@ -40,12 +40,19 @@ async function main() {
   try {
     const response = await fetch(source!, { cache: "no-store", signal: AbortSignal.timeout(120_000) });
     if (!response.ok) throw new Error("LRPM_DOWNLOAD_FAILED: HTTP " + response.status);
+    const maxArchiveBytes = 10 * 1024 * 1024;
+    const declaredSize = Number(response.headers.get("content-length"));
+    if (declaredSize > maxArchiveBytes) throw new Error("LRPM_ARCHIVE_TOO_LARGE");
     const bytes = Buffer.from(await response.arrayBuffer());
+    if (bytes.length > maxArchiveBytes) throw new Error("LRPM_ARCHIVE_TOO_LARGE");
     const digest = createHash("sha256").update(bytes).digest("hex");
     if (digest.toLowerCase() !== expected!.toLowerCase()) throw new Error("LRPM_ARCHIVE_CHECKSUM_MISMATCH");
     const archive = join(scratch, "masks.tar.gz");
     writeFileSync(archive, bytes);
     const entries = execFileSync("tar", ["-tzf", archive], { encoding: "utf8", maxBuffer: 2_000_000 }).split("\n").filter(Boolean);
+    const listing = execFileSync("tar", ["-tvzf", archive], { encoding: "utf8", maxBuffer: 2_000_000 }).split("\n").filter(Boolean);
+    // Only regular files and directories: reject symlinks, hardlinks and special files.
+    if (listing.some(line => !["-", "d"].includes(line[0]))) throw new Error("LRPM_UNSAFE_ARCHIVE_ENTRY");
     if (!entries.length || entries.some(e => e.startsWith("/") || e.split("/").includes("..") || e.includes("\\") || e.startsWith("-"))) {
       throw new Error("LRPM_UNSAFE_ARCHIVE_PATH");
     }
