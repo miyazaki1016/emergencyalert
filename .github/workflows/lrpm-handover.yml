@@ -1,0 +1,18 @@
+name: lrpm-handover-artifact
+on:
+  push:
+    branches: [handover/lrpm-artifact-220]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lrpm-japan-20260101-v1
+          path: lrpm/lrpm-japan-20260101-v1.tar.gz
+          retention-days: 7
+          if-no-files-found: error
