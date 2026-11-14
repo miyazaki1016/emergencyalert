@@ -28,6 +28,29 @@ describe("isolated 1mm N03 municipality intersection", () => {
     expect(municipalitiesForLightRainTile(PNG.sync.write(tile), 4, 14, 6, [area]))
       .toEqual([{ code: "test-1", prefecture: "検証県", municipality: "境界市" }]);
   });
+  it("reuses prepared N03 geometry across forecast frames without changing edge matches", () => {
+    const tile = new PNG({ width: 256, height: 256 });
+    tile.data.fill(0);
+    tile.data.set([160, 210, 255, 255], 0);
+    const lat = (y: number) => Math.atan(Math.sinh(Math.PI - 2 * Math.PI * y / 4096)) * 180 / Math.PI;
+    const north = lat(6 * 256), south = lat(6 * 256 + 1);
+    const area: AdministrativeArea = {
+      code: "cache-edge", prefecture: "検証県", municipality: "沿岸市",
+      geometry: { type: "Polygon", coordinates: [[
+        [135.001, south + 0.001], [135.005, south + 0.001],
+        [135.005, north - 0.001], [135.001, north - 0.001],
+        [135.001, south + 0.001],
+      ]] },
+    };
+    const buffer = PNG.sync.write(tile);
+    const first = municipalitiesForLightRainTile(buffer, 4, 14, 6, [area]);
+    const second = municipalitiesForLightRainTile(buffer, 4, 14, 6, [area]);
+    expect(first).toEqual([{ code: "cache-edge", prefecture: "検証県", municipality: "沿岸市" }]);
+    expect(second).toEqual(first);
+    const dry = new PNG({ width: 256, height: 256 });
+    dry.data.fill(0);
+    expect(municipalitiesForLightRainTile(PNG.sync.write(dry), 4, 14, 6, [area])).toEqual([]);
+  });
   it("returns no municipalities when no rain pixels exist", () => {
     const tile = new PNG({ width: 256, height: 256 });
     tile.data.fill(0);
