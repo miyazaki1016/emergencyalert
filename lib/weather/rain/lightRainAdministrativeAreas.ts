@@ -100,28 +100,38 @@ export function rainPolygonIntersectsAdministrativeArea(rain: HeavyRainPolygon, 
   );
 }
 
+// N03 geometry is immutable during a watch. Cache bounds by area identity so
+// repeated forecast frames do not rescan every coastline vertex.
+type PreparedArea = {
+  area: AdministrativeArea;
+  polygons: Array<{ polygon: number[][][]; bounds: Bounds }>;
+  west: number; south: number; east: number; north: number;
+};
+const preparedAreaCache = new WeakMap<AdministrativeArea, PreparedArea>();
+function prepareArea(area: AdministrativeArea): PreparedArea {
+  const cached = preparedAreaCache.get(area);
+  if (cached) return cached;
+  const geometry = area.geometry.type === "Polygon"
+    ? [area.geometry.coordinates as number[][][]]
+    : area.geometry.coordinates as number[][][][];
+  const polygons = geometry.map((polygon) => ({ polygon, bounds: polygonBounds(polygon) }));
+  const prepared: PreparedArea = {
+    area, polygons,
+    west: Math.min(...polygons.map(({ bounds }) => bounds[0])),
+    south: Math.min(...polygons.map(({ bounds }) => bounds[1])),
+    east: Math.max(...polygons.map(({ bounds }) => bounds[2])),
+    north: Math.max(...polygons.map(({ bounds }) => bounds[3])),
+  };
+  preparedAreaCache.set(area, prepared);
+  return prepared;
+}
+
 export function affectedAdministrativeAreas(rainPolygons: HeavyRainPolygon[], areas: AdministrativeArea[]) {
   const rainWithBounds = rainPolygons.map((rain) => ({
     rain,
     bounds: polygonBounds(rain.coordinates),
   }));
-  const areasWithBounds = areas.map((area) => {
-    const polygons = area.geometry.type === "Polygon"
-      ? [area.geometry.coordinates as number[][][]]
-      : area.geometry.coordinates as number[][][][];
-    const prepared = polygons.map((polygon) => ({
-      polygon,
-      bounds: polygonBounds(polygon),
-    }));
-    return {
-      area,
-      polygons: prepared,
-      west: Math.min(...prepared.map(({ bounds }) => bounds[0])),
-      south: Math.min(...prepared.map(({ bounds }) => bounds[1])),
-      east: Math.max(...prepared.map(({ bounds }) => bounds[2])),
-      north: Math.max(...prepared.map(({ bounds }) => bounds[3])),
-    };
-  });
+  const areasWithBounds = areas.map(prepareArea);
 
   return areasWithBounds
     .filter(({ polygons, west, south, east, north }) =>
