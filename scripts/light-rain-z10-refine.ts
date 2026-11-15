@@ -2,15 +2,19 @@
  * Fail closed when the requested candidate set exceeds the tile budget.
  * Usage: npx tsx scripts/light-rain-z10-refine.ts <47-N03-root>
  */
+import { randomUUID } from "node:crypto";
+import { readFile, rename, rm, writeFile } from "node:fs/promises";
+import { PNG } from "pngjs";
+import { classifyRainPixel } from "../lib/weather/providers/jma/classifyPixel";
 import { setTimeout as delay } from "node:timers/promises";
 import { requireCompleteNationwideN03 } from "../lib/weather/rain/lightRainNationwideN03";
 import { fetchForecastTargetTimes, type JmaTargetTime } from "../lib/weather/providers/jma/targetTimes";
 import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
 import { locateJmaRainPixelsAtLeast1mm, scanJmaTileAtLeast1mm } from "../lib/weather/rain/lightRainProof";
 import { municipalitiesForLightRainTile } from "../lib/weather/rain/lightRainMunicipalities";
-import { municipalitiesForLightRainTileWithMasks } from "../lib/weather/rain/lightRainPixelMasks";
+import { maskHasPixel, municipalitiesForLightRainTileWithMasks, type TilePixelMasks } from "../lib/weather/rain/lightRainPixelMasks";
 import { openNationwidePixelMasks } from "../lib/weather/rain/lightRainPixelMaskLoader";
-import { forecastTime } from "../lib/weather/rain/nationalForecastSnapshot";
+import { forecastTime, readNationalForecastSnapshot, type NationalForecastSnapshot } from "../lib/weather/rain/nationalForecastSnapshot";
 import { affectedAdministrativeAreas, type AdministrativeArea } from "../lib/weather/rain/lightRainAdministrativeAreas";
 
 const root=process.argv[2];
@@ -19,7 +23,10 @@ const MAX_TILES=Number(process.env.Z10_MAX_TILES||"2500");
 // Explicit opt-in: without an artifact directory, retain the original matcher.
 // When enabled, missing/stale/corrupt masks are fatal (never silently empty).
 const maskDir = process.env.JMA_Z10_PIXEL_MASK_DIR;
-const pixelMasks = maskDir ? openNationwidePixelMasks(maskDir, process.env.JMA_N03_VERSION || "20260101") : undefined;
+const n03Version = process.env.JMA_N03_VERSION || "20260101";
+const pixelMasks = maskDir ? openNationwidePixelMasks(maskDir, n03Version) : undefined;
+const snapshotPath = process.env.NATIONAL_RAIN_SNAPSHOT_PATH;
+if (snapshotPath && !pixelMasks) throw new Error("Snapshot generation requires JMA_Z10_PIXEL_MASK_DIR");
 const tiles4=[[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;
 const FIVE_MINUTES = 300_000;
 const lon=(x:number,z:number)=>x/(2**z)*360-180;
@@ -82,6 +89,48 @@ function selectFrames(targets: JmaTargetTime[], now: number): JmaTargetTime[] {
   return frames;
 }
 
+type ForecastMunicipality = NationalForecastSnapshot["frames"][number]["municipalities"][number];
+
+function heavyRainMunicipalities(
+  buffer: Buffer, masks: TilePixelMasks, areaByCode: Map<string, AdministrativeArea>,
+): ForecastMunicipality[] {
+  const tile = PNG.sync.read(buffer);
+  if (tile.width !== 256 || tile.height !== 256) throw new Error("Unexpected JMA tile dimensions");
+  const strengths = new Map<number, 30 | 50 | 80>();
+  for (let i = 0; i < tile.data.length; i += 4) {
+    const pixel = classifyRainPixel({ r: tile.data[i], g: tile.data[i+1], b: tile.data[i+2], a: tile.data[i+3] });
+    switch (pixel.intensityClass) {
+      case "30_TO_50": strengths.set(i / 4, 30); break;
+      case "50_TO_80": strengths.set(i / 4, 50); break;
+      case "GTE_80": strengths.set(i / 4, 80); break;
+    }
+  }
+  return masks.entries.flatMap(({ code, mask }) => {
+    const area = areaByCode.get(code);
+    if (!area) throw new Error("Unknown N03 municipality in LRPM: " + code);
+    let minimumMmPerHour: 30 | 50 | 80 | undefined;
+    for (const [index, strength] of strengths) {
+      if (strength > (minimumMmPerHour ?? 0) && maskHasPixel(mask, index)) minimumMmPerHour = strength;
+      if (minimumMmPerHour === 80) break;
+    }
+    return minimumMmPerHour ? [{ code, prefecture: area.prefecture, municipality: area.municipality, minimumMmPerHour }] : [];
+  });
+}
+
+async function writeSnapshot(path: string, snapshot: NationalForecastSnapshot, signal: AbortSignal) {
+  const temporary = path + "." + randomUUID() + ".tmp";
+  try {
+    await writeFile(temporary, JSON.stringify(snapshot) + "\n", { flag: "wx" });
+    const now = Date.now();
+    if (now - forecastTime(snapshot.basetime) >= 2 * FIVE_MINUTES) throw new Error("JMA forecast expired before publication");
+    readNationalForecastSnapshot(snapshot, now);
+    signal.throwIfAborted();
+    await rename(temporary, path);
+  } finally {
+    await rm(temporary, { force: true });
+  }
+}
+
 async function refineFrame(
   frame: JmaTargetTime,
   indexed: Array<{ area: AdministrativeArea; b: ReturnType<typeof bbox> }>,
@@ -125,6 +174,7 @@ async function refineFrame(
   }
   const tilePlanDone=performance.now();
   const matched=new Map<string,{code:string;prefecture:string;municipality:string}>();
+  const heavy = new Map<string, ForecastMunicipality>();
   let z10NetworkMs=0,z10MatchingMs=0;
   const entries=[...tileMap.values()];
   const z10Concurrency = Number(process.env.JMA_Z10_CONCURRENCY ?? "4");
@@ -150,22 +200,27 @@ async function refineFrame(
           [lon(t.x + 1, 10), lat(t.y + 1, 10)], [lon(t.x, 10), lat(t.y + 1, 10)],
           [lon(t.x, 10), lat(t.y, 10)],
         ]] }], t.areas).length;
-      const municipalities=scan.rainPixels && !unlistedAndDisjoint
+      const masks = scan.rainPixels && !unlistedAndDisjoint ? pixelMasks?.load(t.x, t.y) : undefined;
+      const heavyAreas = snapshotPath && masks ? heavyRainMunicipalities(buffer, masks, areaByCode) : [];
+      const municipalities=!snapshotPath && scan.rainPixels && !unlistedAndDisjoint
         ? pixelMasks
-          ? municipalitiesForLightRainTileWithMasks(buffer,10,t.x,t.y,pixelMasks.load(t.x,t.y),t.areas)
+          ? municipalitiesForLightRainTileWithMasks(buffer,10,t.x,t.y,masks,t.areas)
           : municipalitiesForLightRainTile(buffer,10,t.x,t.y,t.areas)
         : [];
       const matchingMs=performance.now()-matchStart;
       console.log(JSON.stringify({event:"JMA_TILE_PROCESS",basetime:frame.basetime,validtime:frame.validtime,z:10,x:t.x,y:t.y,decodeMs:Math.round(decodeMs),matchingMs:Math.round(matchingMs),fetchMs:Math.round(fetchMs)}));
-      return {scan,municipalities,fetchMs,matchingMs};
+      return {scan,municipalities,heavyAreas,fetchMs,matchingMs};
     }));
     for (const outcome of outcomes) {
       if (outcome.status === "rejected") throw outcome.reason;
-      const { scan, municipalities, fetchMs, matchingMs } = outcome.value;
+      const { scan, municipalities, heavyAreas, fetchMs, matchingMs } = outcome.value;
       z10NetworkMs += fetchMs;
       z10MatchingMs += matchingMs;
       if (scan.rainPixels) rainyTiles++;
       for (const area of municipalities) matched.set(area.code, area);
+      for (const area of heavyAreas) {
+        if (area.minimumMmPerHour > (heavy.get(area.code)?.minimumMmPerHour ?? 0)) heavy.set(area.code, area);
+      }
     }
   }
   const z10Done=performance.now();
@@ -177,7 +232,8 @@ async function refineFrame(
     z4Candidates: candidates.size,
     z10TilesChecked: entries.length,
     z10RainyTiles: rainyTiles,
-    z10Municipalities: matched.size,
+    z10Municipalities: snapshotPath ? heavy.size : matched.size,
+    heavyMunicipalities: [...heavy.values()].sort((a, b) => a.code.localeCompare(b.code)),
     municipalities: [...matched.values()].sort((a, b) => a.code.localeCompare(b.code)),
   };
 }
@@ -189,6 +245,16 @@ async function main() {
   const areaByCode = new Map(coverage.areas.map(area => [area.code, area]));
   const n03LoadAndIndex = Math.round(performance.now() - started);
   let previousBase: string | undefined;
+  if (snapshotPath) {
+    try {
+      const existing = JSON.parse(await readFile(snapshotPath, "utf8"));
+      if (existing?.n03Version === n03Version) {
+        try { previousBase = readNationalForecastSnapshot(existing).basetime; } catch { /* Expired or invalid snapshot. */ }
+      }
+    } catch (error) {
+      if (!(error instanceof SyntaxError) && (error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
+  }
   let successfulUpdates = 0;
   // A successful watch is not evidence of uninterrupted five-minute coverage.
   // Keep gaps visible and fail the read-only audit rather than silently skipping them.
@@ -225,7 +291,7 @@ async function main() {
         fetch(input, { ...init, signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]) }));
       const newestBase = targets.map(target => target.basetime).sort().at(-1);
       console.log(JSON.stringify({ event: "JMA_TARGET_TIME_CHECK", checkedAt, expectedBase: new Date(expectedBaseMs).toISOString(), newestBase, previousBase, publication: false }));
-      if (newestBase && forecastTime(newestBase) >= expectedBaseMs && newestBase !== previousBase) {
+      if (newestBase && forecastTime(newestBase) >= expectedBaseMs && (!previousBase || newestBase > previousBase)) {
         frames = selectFrames(targets, Date.now());
         break;
       }
@@ -253,17 +319,24 @@ async function main() {
     if (Date.now() - forecastTime(frames[0].basetime) >= 2 * FIVE_MINUTES) {
       throw new Error("JMA forecast expired before the scan finished");
     }
+    if (snapshotPath) {
+      await writeSnapshot(snapshotPath, {
+        source: "JMA", n03Version, basetime: frames[0].basetime,
+        frames: results.map(result => ({ validTime: result.validtime, municipalities: result.heavyMunicipalities })),
+      }, controller.signal);
+    }
     console.log(JSON.stringify({
-      mode: "READ_ONLY_Z10_REAL_JMA_N03",
+      mode: snapshotPath ? "NATIONAL_FORECAST_SNAPSHOT" : "READ_ONLY_Z10_REAL_JMA_N03",
       basetime: frames[0].basetime,
       checkedAt: new Date().toISOString(),
       baseAgeMs: Date.now() - forecastTime(frames[0].basetime),
       prefectures: coverage.prefectures,
       municipalityDatasetSize: coverage.municipalities,
-      thresholdMmPerHour: 1,
+      thresholdMmPerHour: snapshotPath ? 30 : 1,
       timingMs: { n03LoadAndIndex, total: Math.round(n03LoadAndIndex + performance.now() - scanStarted) },
       frames: results,
       publication: false,
+      snapshotWritten: Boolean(snapshotPath),
       productionWrites: false,
       blueskyPosts: false,
     }));
