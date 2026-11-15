@@ -11,7 +11,7 @@ import { municipalitiesForLightRainTile } from "../lib/weather/rain/lightRainMun
 import { municipalitiesForLightRainTileWithMasks } from "../lib/weather/rain/lightRainPixelMasks";
 import { openNationwidePixelMasks } from "../lib/weather/rain/lightRainPixelMaskLoader";
 import { forecastTime } from "../lib/weather/rain/nationalForecastSnapshot";
-import type { AdministrativeArea } from "../lib/weather/rain/lightRainAdministrativeAreas";
+import { affectedAdministrativeAreas, type AdministrativeArea } from "../lib/weather/rain/lightRainAdministrativeAreas";
 
 const root=process.argv[2];
 if(!root)throw new Error("N03 root required");
@@ -141,7 +141,16 @@ async function refineFrame(
       const scan=scanJmaTileAtLeast1mm(buffer);
       const decodeMs=performance.now()-matchStart;
       if(scan.unknownPixels)throw new Error("UNKNOWN_JMA_PIXEL_Z10 "+t.x+"/"+t.y);
-      const municipalities=scan.rainPixels
+      // The LRPM generator omits tiles with no intersecting pixels. A bounding-box
+      // candidate can therefore be absent. Prove the whole tile is disjoint
+      // before accepting that absence; declared or land-overlapping tiles stay strict.
+      const unlistedAndDisjoint = scan.rainPixels && pixelMasks && !pixelMasks.has(t.x, t.y)
+        && !affectedAdministrativeAreas([{ coordinates: [[
+          [lon(t.x, 10), lat(t.y, 10)], [lon(t.x + 1, 10), lat(t.y, 10)],
+          [lon(t.x + 1, 10), lat(t.y + 1, 10)], [lon(t.x, 10), lat(t.y + 1, 10)],
+          [lon(t.x, 10), lat(t.y, 10)],
+        ]] }], t.areas).length;
+      const municipalities=scan.rainPixels && !unlistedAndDisjoint
         ? pixelMasks
           ? municipalitiesForLightRainTileWithMasks(buffer,10,t.x,t.y,pixelMasks.load(t.x,t.y),t.areas)
           : municipalitiesForLightRainTile(buffer,10,t.x,t.y,t.areas)
