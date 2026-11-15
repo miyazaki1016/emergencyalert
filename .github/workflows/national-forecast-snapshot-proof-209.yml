@@ -1,0 +1,65 @@
+name: Isolated national forecast snapshot proof
+on:
+  push:
+    branches: [verify/national-forecast-snapshot-209]
+    paths: [.github/workflows/national-forecast-snapshot-proof-209.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 43653446881
+          artifact-ids: 14136872031
+          path: /tmp/lrpm-input
+      - run: npm install --no-audit --no-fund
+      - name: Verify and extract existing nationwide LRPM
+        run: |
+          set -euo pipefail
+          archive=$(find /tmp/lrpm-input -name lrpm-japan-20260101-v1.tar.gz -print -quit)
+          echo "5fb0823f190e9ed893ba5ee9ae47aa7b1e4a8ad9c26601e2cae8b14bc1de33d8  $archive" | sha256sum -c
+          mkdir -p /tmp/forecast-proof/lrpm
+          tar -xzf "$archive" -C /tmp/forecast-proof/lrpm
+      - name: Prepare official N03 in the isolated runner
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/forecast-proof/n03 /tmp/forecast-proof/evidence
+          export PATH="$PWD/node_modules/.bin:$PATH"
+          npm install --no-save --no-audit --no-fund tsx
+          seq -w 1 47 | xargs -P 8 -I CODE bash -c '
+            set -euo pipefail
+            work=$(mktemp -d)
+            trap "rm -rf \"$work\"" EXIT
+            base="N03-20260101_$1"
+            curl -fsSL --retry 2 --max-time 90 "https://nlftp.mlit.go.jp/ksj/gml/data/N03/N03-2026/${base}_GML.zip" -o "$work/n03.zip"
+            unzip -p "$work/n03.zip" "$base.geojson" > "$work/input.geojson"
+            tsx scripts/light-rain-prepare-official-n03.ts "$1" "$work/input.geojson" /tmp/forecast-proof/n03
+          ' _ CODE
+          tsx scripts/light-rain-nationwide-n03-audit.ts /tmp/forecast-proof/n03 --require-wards | tee /tmp/forecast-proof/evidence/n03.json
+      - name: Verify two consecutive live snapshot updates
+        timeout-minutes: 15
+        env:
+          NATIONAL_RAIN_SNAPSHOT_PATH: /tmp/forecast-proof/evidence/snapshot.json
+          JMA_Z10_PIXEL_MASK_DIR: /tmp/forecast-proof/lrpm
+          JMA_Z10_CONCURRENCY: "8"
+          JMA_WATCH_SUCCESS_COUNT: "2"
+        run: |
+          set -o pipefail
+          npx --no-install tsx scripts/light-rain-z10-refine.ts /tmp/forecast-proof/n03 --watch 2>&1 | tee /tmp/forecast-proof/evidence/watch.jsonl
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: national-forecast-snapshot-evidence
+          path: /tmp/forecast-proof/evidence
+          retention-days: 7
