@@ -1,0 +1,433 @@
+{
+  "id": "pr-243",
+  "number": 243,
+  "title": "Draft: z10 read-only scanner LRPM integration (stacked on #242)",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Issue #220。MuseのDraft PR #242に積むソラ担当の統合PR。既存PR #217から派生した#242の生成器・ビットマスク照合APIを再利用し、スキャナに任意の `JMA_Z10_PIXEL_MASK_DIR` を追加。設定時は manifest N03版/format/algorithm/47県を確認し、各タイルのSHA256とz/x/yを検証。欠落・破損時はfail-closed。未設定時は従来の照合を維持。`JMA_N03_VERSION` は既定 `20260101`。追加テストは破損・版違い・欠落。全国35.9MiBの生成成果物は未配置のため、CIと全国5分枠実測は別途必要。mainマージ・本番DB変更・通知・投稿なし。Museの独立QA待ち。\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-217\",\"decision\":\"extend\",\"reason\":\"既存全国z4→z10 read-onlyスキャナと画素照合を土台にし、MuseのLRPM読込だけを追加。5分枠監査は未受入\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/217\"},{\"id\":\"pr-59\",\"decision\":\"reuse\",\"reason\":\"全国N03・区域照合の受入条件と容量設計の既存判断を再利用。未実測のスループットを成功扱いしない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/59\"},{\"id\":\"pr-181\",\"decision\":\"reuse\",\"reason\":\"z4全画素走査と欠損fail-closedの既存方針を維持し、間引き・欠損無視を再導入しない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/181\"},{\"id\":\"pr-99\",\"decision\":\"distinct\",\"reason\":\"本番予測通知の記録・実況照合であり、今回のread-only z10対応表ロードとは別の実装対象\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/99\"},{\"id\":\"pr-71\",\"decision\":\"distinct\",\"reason\":\"現地報告の任意観測時刻であり、固定幾何マスク照合とは別の機能\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/71\"},{\"id\":\"pr-38\",\"decision\":\"distinct\",\"reason\":\"強雨通知層は本番通知の別経路で、今回のread-only全国1mmスキャナ統合には触れない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/38\"},{\"id\":\"pr-179\",\"decision\":\"distinct\",\"reason\":\"降り始めと強まりの通知研究であり、タイル×N03固定幾何の事前計算とは異なる\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/179\"},{\"id\":\"pr-12\",\"decision\":\"distinct\",\"reason\":\"雨通知の行動判断境界テストは本件の画素マスク読込・監査とは異なる\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/12\"}]}\n-->",
+  "snapshot_head": "4e3ef0080f5f08e568f51a07a70726cda4117f44",
+  "snapshot_consistent": true,
+  "head": "4e3ef0080f5f08e568f51a07a70726cda4117f44",
+  "base": "c858740d4a846b6bf5da3306c841cd96a4123c69",
+  "base_ref": "feat/light-rain-pixel-mask-precompute-220",
+  "head_ref": "feat/light-rain-mask-scanner-integration-220",
+  "state": "open",
+  "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+  "draft": true,
+  "merged_at": null,
+  "merge_commit_sha": null,
+  "updated_at": "2026-11-15T01:41:19Z",
+  "code_facts": [
+    {
+      "file": "lib/weather/rain/lightRainPixelMaskLoader.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { describe, expect, it } from \"vitest\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainPixelMaskLoader.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"strict nationwide LRPM loader\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainPixelMaskLoader.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"validates N03 version, checksum, tile identity and missing coverage\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainPixelMaskLoader.test.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "prefectures: Array.from({ length: 47 }, (_, i) => String(i + 1).padStart(2, \"0\")),",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainPixelMaskLoader.test.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "files: { [relative]: { bytes: bytes.length, sha256: createHash(\"sha256\").update(bytes).digest(\"hex\") } },",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainPixelMaskLoader.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(loader.load(885, 407).entries[0].code).toBe(\"35001\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainPixelMaskLoader.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(() => loader.load(885, 408)).toThrow(\"PIXEL_MASK_MISSING\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainPixelMaskLoader.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(() => openNationwidePixelMasks(root, \"20270101\")).toThrow(\"PIXEL_MASK_MANIFEST_INCOMPATIBLE\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainPixelMaskLoader.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(() => loader.load(885, 407)).toThrow(\"PIXEL_MASK_CHECKSUM_MISMATCH\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainPixelMaskLoader.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const ALL_PREFECTURES = Array.from({ length: 47 }, (_, i) => String(i + 1).padStart(2, \"0\"));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainPixelMaskLoader.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function openNationwidePixelMasks(root: string, n03Version: string) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainPixelMaskLoader.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (manifest.format !== \"light-rain-pixel-masks\" ||",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainPixelMaskLoader.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!meta) throw new Error(`PIXEL_MASK_MISSING: ${relative}`);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainPixelMaskLoader.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (bytes.length !== meta.bytes ||",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainPixelMaskLoader.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "createHash(\"sha256\").update(bytes).digest(\"hex\") !== meta.sha256) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.ts"
+    },
+    {
+      "file": "lib/weather/rain/lightRainPixelMaskLoader.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (masks.zoom !== 10 || masks.tileX !== tileX || masks.tileY !== tileY) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.ts"
+    },
+    {
+      "file": "scripts/light-rain-mask-prepare.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "if (!destination || !source || !/^https:\\/\\//.test(source) || !expected || !/^[a-f0-9]{64}$/i.test(expected)) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/scripts/light-rain-mask-prepare.ts"
+    },
+    {
+      "file": "scripts/light-rain-mask-prepare.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function validate(root: string): void {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/scripts/light-rain-mask-prepare.ts"
+    },
+    {
+      "file": "scripts/light-rain-mask-prepare.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (Object.keys(manifest.files ?? {}).length !== 733) throw new Error(\"LRPM_TILE_COUNT_MISMATCH\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/scripts/light-rain-mask-prepare.ts"
+    },
+    {
+      "file": "scripts/light-rain-mask-prepare.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "// Validate every file, including tiles that might never be rainy in a test run.",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/scripts/light-rain-mask-prepare.ts"
+    },
+    {
+      "file": "scripts/light-rain-mask-prepare.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!match) throw new Error(\"LRPM_UNEXPECTED_FILE: \" + key);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/scripts/light-rain-mask-prepare.ts"
+    },
+    {
+      "file": "scripts/light-rain-mask-prepare.ts",
+      "kind": "関数・クラス定義",
+      "expression": "async function main() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/scripts/light-rain-mask-prepare.ts"
+    },
+    {
+      "file": "scripts/light-rain-mask-prepare.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (existsSync(target)) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/scripts/light-rain-mask-prepare.ts"
+    },
+    {
+      "file": "scripts/light-rain-mask-prepare.ts",
+      "kind": "HTTP要求",
+      "expression": "const response = await fetch(source!, { cache: \"no-store\", signal: AbortSignal.timeout(120_000) });",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/scripts/light-rain-mask-prepare.ts"
+    },
+    {
+      "file": "scripts/light-rain-mask-prepare.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!response.ok) throw new Error(\"LRPM_DOWNLOAD_FAILED: HTTP \" + response.status);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/scripts/light-rain-mask-prepare.ts"
+    },
+    {
+      "file": "scripts/light-rain-mask-prepare.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (declaredSize > maxArchiveBytes) throw new Error(\"LRPM_ARCHIVE_TOO_LARGE\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/scripts/light-rain-mask-prepare.ts"
+    },
+    {
+      "file": "scripts/light-rain-mask-prepare.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const bytes = Buffer.from(await response.arrayBuffer());",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/scripts/light-rain-mask-prepare.ts"
+    },
+    {
+      "file": "scripts/light-rain-mask-prepare.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (bytes.length > maxArchiveBytes) throw new Error(\"LRPM_ARCHIVE_TOO_LARGE\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/scripts/light-rain-mask-prepare.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "lib/weather/rain/lightRainPixelMaskLoader.test.ts",
+      "status": "modified",
+      "additions": 38,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/lightRainPixelMaskLoader.test.ts b/lib/weather/rain/lightRainPixelMaskLoader.test.ts\nnew file mode 100644\nindex 00000000..a16fd1fa\n--- /dev/null\n+++ b/lib/weather/rain/lightRainPixelMaskLoader.test.ts\n@@ -0,0 +1,38 @@\n+import { describe, expect, it } from \"vitest\";\n+import { createHash } from \"node:crypto\";\n+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from \"node:fs\";\n+import { tmpdir } from \"node:os\";\n+import { join } from \"node:path\";\n+import { openNationwidePixelMasks } from \"./lightRainPixelMaskLoader\";\n+import { encodeTilePixelMasks, MASK_BYTES } from \"./lightRainPixelMasks\";\n+\n+describe(\"strict nationwide LRPM loader\", () => {\n+  it(\"validates N03 version, checksum, tile identity and missing coverage\", () => {\n+    const root = mkdtempSync(join(tmpdir(), \"lrpm-\"));\n+    try {\n+      const relative = \"z10/885/407.bin\";\n+      mkdirSync(join(root, \"z10\", \"885\"), { recursive: true });\n+      const bytes = encodeTilePixelMasks({\n+        zoom: 10, tileX: 885, tileY: 407,\n+        entries: [{ code: \"35001\", mask: new Uint8Array(MASK_BYTES).fill(1) }],\n+      });\n+      writeFileSync(join(root, relative), bytes);\n+      const manifest = {\n+        format: \"light-rain-pixel-masks\", formatVersion: 1, algorithmVersion: 1,\n+        n03Version: \"20260101\", zoom: 10,\n+        prefectures: Array.from({ length: 47 }, (_, i) => String(i + 1).padStart(2, \"0\")),\n+        municipalities: 1905, tiles: 1,\n+        files: { [relative]: { bytes: bytes.length, sha256: createHash(\"sha256\").update(bytes).digest(\"hex\") } },\n+      };\n+      writeFileSync(join(root, \"manifest.json\"), JSON.stringify(manifest));\n+      const loader = openNationwidePixelMasks(root, \"20260101\");\n+      expect(loader.load(885, 407).entries[0].code).toBe(\"35001\");\n+      expect(() => loader.load(885, 408)).toThrow(\"PIXEL_MASK_MISSING\");\n+      expect(() => openNationwidePixelMasks(root, \"20270101\")).toThrow(\"PIXEL_MASK_MANIFEST_INCOMPATIBLE\");\n+      writeFileSync(join(root, relative), Buffer.alloc(bytes.length));\n+      expect(() => loader.load(885, 407)).toThrow(\"PIXEL_MASK_CHECKSUM_MISMATCH\");\n+    } finally {\n+      rmSync(root, { recursive: true, force: true });\n+    }\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.test.ts",
+      "source": {
+        "path": "lib/weather/rain/lightRainPixelMaskLoader.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { createHash } from \"node:crypto\";\nimport { mkdtempSync, mkdirSync, rmSync, writeFileSync } from \"node:fs\";\nimport { tmpdir } from \"node:os\";\nimport { join } from \"node:path\";\nimport { openNationwidePixelMasks } from \"./lightRainPixelMaskLoader\";\nimport { encodeTilePixelMasks, MASK_BYTES } from \"./lightRainPixelMasks\";\n\ndescribe(\"strict nationwide LRPM loader\", () => {\n  it(\"validates N03 version, checksum, tile identity and missing coverage\", () => {\n    const root = mkdtempSync(join(tmpdir(), \"lrpm-\"));\n    try {\n      const relative = \"z10/885/407.bin\";\n      mkdirSync(join(root, \"z10\", \"885\"), { recursive: true });\n      const bytes = encodeTilePixelMasks({\n        zoom: 10, tileX: 885, tileY: 407,\n        entries: [{ code: \"35001\", mask: new Uint8Array(MASK_BYTES).fill(1) }],\n      });\n      writeFileSync(join(root, relative), bytes);\n      const manifest = {\n        format: \"light-rain-pixel-masks\", formatVersion: 1, algorithmVersion: 1,\n        n03Version: \"20260101\", zoom: 10,\n        prefectures: Array.from({ length: 47 }, (_, i) => String(i + 1).padStart(2, \"0\")),\n        municipalities: 1905, tiles: 1,\n        files: { [relative]: { bytes: bytes.length, sha256: createHash(\"sha256\").update(bytes).digest(\"hex\") } },\n      };\n      writeFileSync(join(root, \"manifest.json\"), JSON.stringify(manifest));\n      const loader = openNationwidePixelMasks(root, \"20260101\");\n      expect(loader.load(885, 407).entries[0].code).toBe(\"35001\");\n      expect(() => loader.load(885, 408)).toThrow(\"PIXEL_MASK_MISSING\");\n      expect(() => openNationwidePixelMasks(root, \"20270101\")).toThrow(\"PIXEL_MASK_MANIFEST_INCOMPATIBLE\");\n      writeFileSync(join(root, relative), Buffer.alloc(bytes.length));\n      expect(() => loader.load(885, 407)).toThrow(\"PIXEL_MASK_CHECKSUM_MISMATCH\");\n    } finally {\n      rmSync(root, { recursive: true, force: true });\n    }\n  });\n});\n",
+        "sha256": "86fcad0f150f6c44743d6ea781666a07509c1cb9521d21f09597a9feffdbb35c"
+      }
+    },
+    {
+      "path": "lib/weather/rain/lightRainPixelMaskLoader.ts",
+      "status": "modified",
+      "additions": 51,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/lightRainPixelMaskLoader.ts b/lib/weather/rain/lightRainPixelMaskLoader.ts\nnew file mode 100644\nindex 00000000..5a6995c2\n--- /dev/null\n+++ b/lib/weather/rain/lightRainPixelMaskLoader.ts\n@@ -0,0 +1,51 @@\n+/** Strict, read-only loader for Muse's versioned LRPM z10 artifacts. */\n+import { createHash } from \"node:crypto\";\n+import { readFileSync } from \"node:fs\";\n+import { join } from \"node:path\";\n+import {\n+  PIXEL_MASK_ALGORITHM_VERSION, PIXEL_MASK_FORMAT_VERSION,\n+  decodeTilePixelMasks, type TilePixelMasks,\n+} from \"./lightRainPixelMasks\";\n+\n+type Manifest = {\n+  format: string; formatVersion: number; algorithmVersion: number;\n+  n03Version: string; zoom: number; prefectures: string[];\n+  municipalities: number; tiles: number;\n+  files: Record<string, { bytes: number; sha256: string }>;\n+};\n+const ALL_PREFECTURES = Array.from({ length: 47 }, (_, i) => String(i + 1).padStart(2, \"0\"));\n+export function openNationwidePixelMasks(root: string, n03Version: string) {\n+  const manifest = JSON.parse(readFileSync(join(root, \"manifest.json\"), \"utf8\")) as Manifest;\n+  if (manifest.format !== \"light-rain-pixel-masks\" ||\n+      manifest.formatVersion !== PIXEL_MASK_FORMAT_VERSION ||\n+      manifest.algorithmVersion !== PIXEL_MASK_ALGORITHM_VERSION ||\n+      manifest.n03Version !== n03Version || manifest.zoom !== 10 ||\n+      !Array.isArray(manifest.prefectures) ||\n+      ALL_PREFECTURES.some(p => !manifest.prefectures.includes(p)) ||\n+      !manifest.files || Object.keys(manifest.files).length !== manifest.tiles ||\n+      !Number.isInteger(manifest.municipalities) || manifest.municipalities <= 0) {\n+    throw new Error(\"PIXEL_MASK_MANIFEST_INCOMPATIBLE\");\n+  }\n+  // The generated nationwide manifest is only ~100KB; never retain all\n+  // 35.9MiB of masks in memory. Read a tile on demand.\n+  return {\n+    has(tileX: number, tileY: number): boolean {\n+      return Object.hasOwn(manifest.files, `z10/${tileX}/${tileY}.bin`);\n+    },\n+    load(tileX: number, tileY: number): TilePixelMasks {\n+      const relative = `z10/${tileX}/${tileY}.bin`;\n+      const meta = manifest.files[relative];\n+      if (!meta) throw new Error(`PIXEL_MASK_MISSING: ${relative}`);\n+      const bytes = readFileSync(join(root, relative));\n+      if (bytes.length !== meta.bytes ||\n+          createHash(\"sha256\").update(bytes).digest(\"hex\") !== meta.sha256) {\n+        throw new Error(`PIXEL_MASK_CHECKSUM_MISMATCH: ${relative}`);\n+      }\n+      const masks = decodeTilePixelMasks(bytes);\n+      if (masks.zoom !== 10 || masks.tileX !== tileX || masks.tileY !== tileY) {\n+        throw new Error(`PIXEL_MASK_TILE_MISMATCH: ${relative}`);\n+      }\n+      return masks;\n+    },\n+  };\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.ts",
+      "source": {
+        "path": "lib/weather/rain/lightRainPixelMaskLoader.ts",
+        "coverage": "全文",
+        "text": "/** Strict, read-only loader for Muse's versioned LRPM z10 artifacts. */\nimport { createHash } from \"node:crypto\";\nimport { readFileSync } from \"node:fs\";\nimport { join } from \"node:path\";\nimport {\n  PIXEL_MASK_ALGORITHM_VERSION, PIXEL_MASK_FORMAT_VERSION,\n  decodeTilePixelMasks, type TilePixelMasks,\n} from \"./lightRainPixelMasks\";\n\ntype Manifest = {\n  format: string; formatVersion: number; algorithmVersion: number;\n  n03Version: string; zoom: number; prefectures: string[];\n  municipalities: number; tiles: number;\n  files: Record<string, { bytes: number; sha256: string }>;\n};\nconst ALL_PREFECTURES = Array.from({ length: 47 }, (_, i) => String(i + 1).padStart(2, \"0\"));\nexport function openNationwidePixelMasks(root: string, n03Version: string) {\n  const manifest = JSON.parse(readFileSync(join(root, \"manifest.json\"), \"utf8\")) as Manifest;\n  if (manifest.format !== \"light-rain-pixel-masks\" ||\n      manifest.formatVersion !== PIXEL_MASK_FORMAT_VERSION ||\n      manifest.algorithmVersion !== PIXEL_MASK_ALGORITHM_VERSION ||\n      manifest.n03Version !== n03Version || manifest.zoom !== 10 ||\n      !Array.isArray(manifest.prefectures) ||\n      ALL_PREFECTURES.some(p => !manifest.prefectures.includes(p)) ||\n      !manifest.files || Object.keys(manifest.files).length !== manifest.tiles ||\n      !Number.isInteger(manifest.municipalities) || manifest.municipalities <= 0) {\n    throw new Error(\"PIXEL_MASK_MANIFEST_INCOMPATIBLE\");\n  }\n  // The generated nationwide manifest is only ~100KB; never retain all\n  // 35.9MiB of masks in memory. Read a tile on demand.\n  return {\n    has(tileX: number, tileY: number): boolean {\n      return Object.hasOwn(manifest.files, `z10/${tileX}/${tileY}.bin`);\n    },\n    load(tileX: number, tileY: number): TilePixelMasks {\n      const relative = `z10/${tileX}/${tileY}.bin`;\n      const meta = manifest.files[relative];\n      if (!meta) throw new Error(`PIXEL_MASK_MISSING: ${relative}`);\n      const bytes = readFileSync(join(root, relative));\n      if (bytes.length !== meta.bytes ||\n          createHash(\"sha256\").update(bytes).digest(\"hex\") !== meta.sha256) {\n        throw new Error(`PIXEL_MASK_CHECKSUM_MISMATCH: ${relative}`);\n      }\n      const masks = decodeTilePixelMasks(bytes);\n      if (masks.zoom !== 10 || masks.tileX !== tileX || masks.tileY !== tileY) {\n        throw new Error(`PIXEL_MASK_TILE_MISMATCH: ${relative}`);\n      }\n      return masks;\n    },\n  };\n}\n",
+        "sha256": "afe9d3dc7c41be45aa57d7620eaded58c7f922cec16e2fe347f21ccff24b8b87"
+      }
+    },
+    {
+      "path": "scripts/light-rain-mask-prepare.ts",
+      "status": "modified",
+      "additions": 78,
+      "deletions": 0,
+      "patch": "diff --git a/scripts/light-rain-mask-prepare.ts b/scripts/light-rain-mask-prepare.ts\nnew file mode 100644\nindex 00000000..773c1aca\n--- /dev/null\n+++ b/scripts/light-rain-mask-prepare.ts\n@@ -0,0 +1,78 @@\n+/** Prepare a versioned LRPM archive from a private Supabase Storage signed URL.\n+ * Read-only: downloads an existing object; never uploads or changes the DB.\n+ * Usage: LRPM_ARCHIVE_URL=<signed-url> LRPM_ARCHIVE_SHA256=<sha256> \\\n+ *   npx tsx scripts/light-rain-mask-prepare.ts <cache-root>\n+ * Then set JMA_Z10_PIXEL_MASK_DIR=<cache-root>/20260101-v1.\n+ */\n+import { createHash } from \"node:crypto\";\n+import { execFileSync } from \"node:child_process\";\n+import { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from \"node:fs\";\n+import { tmpdir } from \"node:os\";\n+import { join, resolve } from \"node:path\";\n+import { openNationwidePixelMasks } from \"../lib/weather/rain/lightRainPixelMaskLoader\";\n+\n+const version = \"20260101-v1\";\n+const destination = process.argv[2];\n+const source = process.env.LRPM_ARCHIVE_URL;\n+const expected = process.env.LRPM_ARCHIVE_SHA256;\n+if (!destination || !source || !/^https:\\/\\//.test(source) || !expected || !/^[a-f0-9]{64}$/i.test(expected)) {\n+  throw new Error(\"Specify cache-root, HTTPS LRPM_ARCHIVE_URL and 64-hex LRPM_ARCHIVE_SHA256\");\n+}\n+const target = join(resolve(destination), version);\n+function validate(root: string): void {\n+  const manifest = JSON.parse(readFileSync(join(root, \"manifest.json\"), \"utf8\")) as { files: Record<string, unknown> };\n+  if (Object.keys(manifest.files ?? {}).length !== 733) throw new Error(\"LRPM_TILE_COUNT_MISMATCH\");\n+  const masks = openNationwidePixelMasks(root, \"20260101\");\n+  // Validate every file, including tiles that might never be rainy in a test run.\n+  for (const key of Object.keys(manifest.files)) {\n+    const match = /^z10\\/(\\d+)\\/(\\d+)\\.bin$/.exec(key);\n+    if (!match) throw new Error(\"LRPM_UNEXPECTED_FILE: \" + key);\n+    masks.load(Number(match[1]), Number(match[2]));\n+  }\n+}\n+async function main() {\n+  if (existsSync(target)) {\n+    validate(target);\n+    console.log(JSON.stringify({ event: \"LRPM_CACHE_VALID\", target, tiles: 733 }));\n+    return;\n+  }\n+  const scratch = mkdtempSync(join(tmpdir(), \"lrpm-\"));\n+  try {\n+    const response = await fetch(source!, { cache: \"no-store\", signal: AbortSignal.timeout(120_000) });\n+    if (!response.ok) throw new Error(\"LRPM_DOWNLOAD_FAILED: HTTP \" + response.status);\n+    const maxArchiveBytes = 10 * 1024 * 1024;\n+    const declaredSize = Number(response.headers.get(\"content-length\"));\n+    if (declaredSize > maxArchiveBytes) throw new Error(\"LRPM_ARCHIVE_TOO_LARGE\");\n+    const bytes = Buffer.from(await response.arrayBuffer());\n+    if (bytes.length > maxArchiveBytes) throw new Error(\"LRPM_ARCHIVE_TOO_LARGE\");\n+    const digest = createHash(\"sha256\").update(bytes).digest(\"hex\");\n+    if (digest.toLowerCase() !== expected!.toLowerCase()) throw new Error(\"LRPM_ARCHIVE_CHECKSUM_MISMATCH\");\n+    const archive = join(scratch, \"masks.tar.gz\");\n+    writeFileSync(archive, bytes);\n+    const entries = execFileSync(\"tar\", [\"-tzf\", archive], { encoding: \"utf8\", maxBuffer: 2_000_000 }).split(\"\\n\").filter(Boolean);\n+    const listing = execFileSync(\"tar\", [\"-tvzf\", archive], { encoding: \"utf8\", maxBuffer: 2_000_000 }).split(\"\\n\").filter(Boolean);\n+    // Only regular files and directories: reject symlinks, hardlinks and special files.\n+    if (listing.some(line => ![\"-\", \"d\"].includes(line[0]))) throw new Error(\"LRPM_UNSAFE_ARCHIVE_ENTRY\");\n+    if (!entries.length || entries.some(e => e.startsWith(\"/\") || e.split(\"/\").includes(\"..\") || e.includes(\"\\\\\") || e.startsWith(\"-\"))) {\n+      throw new Error(\"LRPM_UNSAFE_ARCHIVE_PATH\");\n+    }\n+    const unpacked = join(scratch, \"unpacked\");\n+    mkdirSync(unpacked);\n+    execFileSync(\"tar\", [\"-xzf\", archive, \"-C\", unpacked, \"--no-same-owner\", \"--no-same-permissions\"]);\n+    let root = unpacked;\n+    if (!existsSync(join(root, \"manifest.json\"))) {\n+      const dirs = readdirSync(root, { withFileTypes: true }).filter(e => e.isDirectory());\n+      if (dirs.length !== 1) throw new Error(\"LRPM_ARCHIVE_LAYOUT_UNEXPECTED\");\n+      root = join(root, dirs[0].name);\n+    }\n+    validate(root);\n+    mkdirSync(resolve(destination!), { recursive: true });\n+    // Never overwrite an existing version: fail rather than replace in-use masks.\n+    if (existsSync(target)) throw new Error(\"LRPM_CACHE_ALREADY_EXISTS\");\n+    renameSync(root, target);\n+    console.log(JSON.stringify({ event: \"LRPM_CACHE_PREPARED\", target, tiles: 733, sha256: digest }));\n+  } finally {\n+    rmSync(scratch, { recursive: true, force: true });\n+  }\n+}\n+main().catch(error => { console.error(error); process.exitCode = 1; });\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/scripts/light-rain-mask-prepare.ts",
+      "source": {
+        "path": "scripts/light-rain-mask-prepare.ts",
+        "coverage": "全文",
+        "text": "/** Prepare a versioned LRPM archive from a private Supabase Storage signed URL.\n * Read-only: downloads an existing object; never uploads or changes the DB.\n * Usage: LRPM_ARCHIVE_URL=<signed-url> LRPM_ARCHIVE_SHA256=<sha256> \\\n *   npx tsx scripts/light-rain-mask-prepare.ts <cache-root>\n * Then set JMA_Z10_PIXEL_MASK_DIR=<cache-root>/20260101-v1.\n */\nimport { createHash } from \"node:crypto\";\nimport { execFileSync } from \"node:child_process\";\nimport { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from \"node:fs\";\nimport { tmpdir } from \"node:os\";\nimport { join, resolve } from \"node:path\";\nimport { openNationwidePixelMasks } from \"../lib/weather/rain/lightRainPixelMaskLoader\";\n\nconst version = \"20260101-v1\";\nconst destination = process.argv[2];\nconst source = process.env.LRPM_ARCHIVE_URL;\nconst expected = process.env.LRPM_ARCHIVE_SHA256;\nif (!destination || !source || !/^https:\\/\\//.test(source) || !expected || !/^[a-f0-9]{64}$/i.test(expected)) {\n  throw new Error(\"Specify cache-root, HTTPS LRPM_ARCHIVE_URL and 64-hex LRPM_ARCHIVE_SHA256\");\n}\nconst target = join(resolve(destination), version);\nfunction validate(root: string): void {\n  const manifest = JSON.parse(readFileSync(join(root, \"manifest.json\"), \"utf8\")) as { files: Record<string, unknown> };\n  if (Object.keys(manifest.files ?? {}).length !== 733) throw new Error(\"LRPM_TILE_COUNT_MISMATCH\");\n  const masks = openNationwidePixelMasks(root, \"20260101\");\n  // Validate every file, including tiles that might never be rainy in a test run.\n  for (const key of Object.keys(manifest.files)) {\n    const match = /^z10\\/(\\d+)\\/(\\d+)\\.bin$/.exec(key);\n    if (!match) throw new Error(\"LRPM_UNEXPECTED_FILE: \" + key);\n    masks.load(Number(match[1]), Number(match[2]));\n  }\n}\nasync function main() {\n  if (existsSync(target)) {\n    validate(target);\n    console.log(JSON.stringify({ event: \"LRPM_CACHE_VALID\", target, tiles: 733 }));\n    return;\n  }\n  const scratch = mkdtempSync(join(tmpdir(), \"lrpm-\"));\n  try {\n    const response = await fetch(source!, { cache: \"no-store\", signal: AbortSignal.timeout(120_000) });\n    if (!response.ok) throw new Error(\"LRPM_DOWNLOAD_FAILED: HTTP \" + response.status);\n    const maxArchiveBytes = 10 * 1024 * 1024;\n    const declaredSize = Number(response.headers.get(\"content-length\"));\n    if (declaredSize > maxArchiveBytes) throw new Error(\"LRPM_ARCHIVE_TOO_LARGE\");\n    const bytes = Buffer.from(await response.arrayBuffer());\n    if (bytes.length > maxArchiveBytes) throw new Error(\"LRPM_ARCHIVE_TOO_LARGE\");\n    const digest = createHash(\"sha256\").update(bytes).digest(\"hex\");\n    if (digest.toLowerCase() !== expected!.toLowerCase()) throw new Error(\"LRPM_ARCHIVE_CHECKSUM_MISMATCH\");\n    const archive = join(scratch, \"masks.tar.gz\");\n    writeFileSync(archive, bytes);\n    const entries = execFileSync(\"tar\", [\"-tzf\", archive], { encoding: \"utf8\", maxBuffer: 2_000_000 }).split(\"\\n\").filter(Boolean);\n    const listing = execFileSync(\"tar\", [\"-tvzf\", archive], { encoding: \"utf8\", maxBuffer: 2_000_000 }).split(\"\\n\").filter(Boolean);\n    // Only regular files and directories: reject symlinks, hardlinks and special files.\n    if (listing.some(line => ![\"-\", \"d\"].includes(line[0]))) throw new Error(\"LRPM_UNSAFE_ARCHIVE_ENTRY\");\n    if (!entries.length || entries.some(e => e.startsWith(\"/\") || e.split(\"/\").includes(\"..\") || e.includes(\"\\\\\") || e.startsWith(\"-\"))) {\n      throw new Error(\"LRPM_UNSAFE_ARCHIVE_PATH\");\n    }\n    const unpacked = join(scratch, \"unpacked\");\n    mkdirSync(unpacked);\n    execFileSync(\"tar\", [\"-xzf\", archive, \"-C\", unpacked, \"--no-same-owner\", \"--no-same-permissions\"]);\n    let root = unpacked;\n    if (!existsSync(join(root, \"manifest.json\"))) {\n      const dirs = readdirSync(root, { withFileTypes: true }).filter(e => e.isDirectory());\n      if (dirs.length !== 1) throw new Error(\"LRPM_ARCHIVE_LAYOUT_UNEXPECTED\");\n      root = join(root, dirs[0].name);\n    }\n    validate(root);\n    mkdirSync(resolve(destination!), { recursive: true });\n    // Never overwrite an existing version: fail rather than replace in-use masks.\n    if (existsSync(target)) throw new Error(\"LRPM_CACHE_ALREADY_EXISTS\");\n    renameSync(root, target);\n    console.log(JSON.stringify({ event: \"LRPM_CACHE_PREPARED\", target, tiles: 733, sha256: digest }));\n  } finally {\n    rmSync(scratch, { recursive: true, force: true });\n  }\n}\nmain().catch(error => { console.error(error); process.exitCode = 1; });\n",
+        "sha256": "415584b524073557c19813fdc4831c0f3fbb4160a0306317698cc331031ab648"
+      }
+    },
+    {
+      "path": "scripts/light-rain-z10-refine.ts",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 2,
+      "patch": "diff --git a/scripts/light-rain-z10-refine.ts b/scripts/light-rain-z10-refine.ts\nindex d4422603..b63a5679 100644\n--- a/scripts/light-rain-z10-refine.ts\n+++ b/scripts/light-rain-z10-refine.ts\n@@ -8,12 +8,18 @@ import { fetchForecastTargetTimes, type JmaTargetTime } from \"../lib/weather/pro\n import { buildJmaRainTileUrl } from \"../lib/weather/providers/jma/tileUrl\";\n import { locateJmaRainPixelsAtLeast1mm, scanJmaTileAtLeast1mm } from \"../lib/weather/rain/lightRainProof\";\n import { municipalitiesForLightRainTile } from \"../lib/weather/rain/lightRainMunicipalities\";\n+import { municipalitiesForLightRainTileWithMasks } from \"../lib/weather/rain/lightRainPixelMasks\";\n+import { openNationwidePixelMasks } from \"../lib/weather/rain/lightRainPixelMaskLoader\";\n import { forecastTime } from \"../lib/weather/rain/nationalForecastSnapshot\";\n-import type { AdministrativeArea } from \"../lib/weather/rain/lightRainAdministrativeAreas\";\n+import { affectedAdministrativeAreas, type AdministrativeArea } from \"../lib/weather/rain/lightRainAdministrativeAreas\";\n \n const root=process.argv[2];\n if(!root)throw new Error(\"N03 root required\");\n const MAX_TILES=Number(process.env.Z10_MAX_TILES||\"2500\");\n+// Explicit opt-in: without an artifact directory, retain the original matcher.\n+// When enabled, missing/stale/corrupt masks are fatal (never silently empty).\n+const maskDir = process.env.JMA_Z10_PIXEL_MASK_DIR;\n+const pixelMasks = maskDir ? openNationwidePixelMasks(maskDir, process.env.JMA_N03_VERSION || \"20260101\") : undefined;\n const tiles4=[[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;\n const FIVE_MINUTES = 300_000;\n const lon=(x:number,z:number)=>x/(2**z)*360-180;\n@@ -135,7 +141,20 @@ async function refineFrame(\n       const scan=scanJmaTileAtLeast1mm(buffer);\n       const decodeMs=performance.now()-matchStart;\n       if(scan.unknownPixels)throw new Error(\"UNKNOWN_JMA_PIXEL_Z10 \"+t.x+\"/\"+t.y);\n-      const municipalities=scan.rainPixels?municipalitiesForLightRainTile(buffer,10,t.x,t.y,t.areas):[];\n+      // The LRPM generator omits tiles with no intersecting pixels. A bounding-box\n+      // candidate can therefore be absent. Prove the whole tile is disjoint\n+      // before accepting that absence; declared or land-overlapping tiles stay strict.\n+      const unlistedAndDisjoint = scan.rainPixels && pixelMasks && !pixelMasks.has(t.x, t.y)\n+        && !affectedAdministrativeAreas([{ coordinates: [[\n+          [lon(t.x, 10), lat(t.y, 10)], [lon(t.x + 1, 10), lat(t.y, 10)],\n+          [lon(t.x + 1, 10), lat(t.y + 1, 10)], [lon(t.x, 10), lat(t.y + 1, 10)],\n+          [lon(t.x, 10), lat(t.y, 10)],\n+        ]] }], t.areas).length;\n+      const municipalities=scan.rainPixels && !unlistedAndDisjoint\n+        ? pixelMasks\n+          ? municipalitiesForLightRainTileWithMasks(buffer,10,t.x,t.y,pixelMasks.load(t.x,t.y),t.areas)\n+          : municipalitiesForLightRainTile(buffer,10,t.x,t.y,t.areas)\n+        : [];\n       const matchingMs=performance.now()-matchStart;\n       console.log(JSON.stringify({event:\"JMA_TILE_PROCESS\",basetime:frame.basetime,validtime:frame.validtime,z:10,x:t.x,y:t.y,decodeMs:Math.round(decodeMs),matchingMs:Math.round(matchingMs),fetchMs:Math.round(fetchMs)}));\n       return {scan,municipalities,fetchMs,matchingMs};\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/scripts/light-rain-z10-refine.ts",
+      "source": {
+        "path": "scripts/light-rain-z10-refine.ts",
+        "coverage": "全文",
+        "text": "/** Read-only z10 verification of nationwide z4 municipality candidates.\n * Fail closed when the requested candidate set exceeds the tile budget.\n * Usage: npx tsx scripts/light-rain-z10-refine.ts <47-N03-root>\n */\nimport { setTimeout as delay } from \"node:timers/promises\";\nimport { requireCompleteNationwideN03 } from \"../lib/weather/rain/lightRainNationwideN03\";\nimport { fetchForecastTargetTimes, type JmaTargetTime } from \"../lib/weather/providers/jma/targetTimes\";\nimport { buildJmaRainTileUrl } from \"../lib/weather/providers/jma/tileUrl\";\nimport { locateJmaRainPixelsAtLeast1mm, scanJmaTileAtLeast1mm } from \"../lib/weather/rain/lightRainProof\";\nimport { municipalitiesForLightRainTile } from \"../lib/weather/rain/lightRainMunicipalities\";\nimport { municipalitiesForLightRainTileWithMasks } from \"../lib/weather/rain/lightRainPixelMasks\";\nimport { openNationwidePixelMasks } from \"../lib/weather/rain/lightRainPixelMaskLoader\";\nimport { forecastTime } from \"../lib/weather/rain/nationalForecastSnapshot\";\nimport { affectedAdministrativeAreas, type AdministrativeArea } from \"../lib/weather/rain/lightRainAdministrativeAreas\";\n\nconst root=process.argv[2];\nif(!root)throw new Error(\"N03 root required\");\nconst MAX_TILES=Number(process.env.Z10_MAX_TILES||\"2500\");\n// Explicit opt-in: without an artifact directory, retain the original matcher.\n// When enabled, missing/stale/corrupt masks are fatal (never silently empty).\nconst maskDir = process.env.JMA_Z10_PIXEL_MASK_DIR;\nconst pixelMasks = maskDir ? openNationwidePixelMasks(maskDir, process.env.JMA_N03_VERSION || \"20260101\") : undefined;\nconst tiles4=[[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;\nconst FIVE_MINUTES = 300_000;\nconst lon=(x:number,z:number)=>x/(2**z)*360-180;\nconst lat=(y:number,z:number)=>Math.atan(Math.sinh(Math.PI-2*Math.PI*y/(2**z)))*180/Math.PI;\nfunction bbox(area:AdministrativeArea):[number,number,number,number]{\n  const polys=area.geometry.type===\"Polygon\"?[area.geometry.coordinates as number[][][]]:area.geometry.coordinates as number[][][][];\n  let w=Infinity,s=Infinity,e=-Infinity,n=-Infinity;\n  for(const p of polys)for(const ring of p)for(const [x,y]of ring){w=Math.min(w,x);s=Math.min(s,y);e=Math.max(e,x);n=Math.max(n,y);}\n  return [w,s,e,n];\n}\nconst xy=(longitude:number,latitude:number,z:number):[number,number]=>{\n  const safe=Math.max(-85.05112878,Math.min(85.05112878,latitude));\n  const rad=safe*Math.PI/180;\n  return [Math.floor((longitude+180)/360*2**z),Math.floor((1-Math.asinh(Math.tan(rad))/Math.PI)/2*2**z)];\n};\nasync function fetchTile(frame:{basetime:string;validtime:string},z:number,x:number,y:number, signal:AbortSignal){\n  const url=buildJmaRainTileUrl(frame,z,x,y);\n  const attempts: string[] = [];\n  for (let attempt = 0; attempt < 2; attempt++) {\n    signal.throwIfAborted();\n    const started = performance.now();\n    let outcome = \"transport_error\";\n    try {\n      const response = await fetch(url, { cache: \"no-store\", signal: AbortSignal.any([signal, AbortSignal.timeout(8_000)]) });\n      const headersMs = Math.round(performance.now()-started);\n      outcome = \"HTTP_\" + response.status;\n      if (response.ok) {\n        const bytes = Buffer.from(await response.arrayBuffer());\n        const bodyDoneMs = Math.round(performance.now()-started);\n        outcome = \"ok\";\n        console.log(JSON.stringify({event:\"JMA_TILE_FETCH\",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome:\"ok\",httpStatus:response.status,headersMs,bodyMs:bodyDoneMs-headersMs,elapsedMs:bodyDoneMs,bytes:bytes.length,cacheStatus:response.headers.get(\"x-cache\")}));\n        return bytes;\n      }\n      attempts.push(\"HTTP \" + response.status);\n      if (![404, 408, 429, 500, 502, 503, 504].includes(response.status)) break;\n    } catch (error) {\n      outcome = signal.aborted ? \"slot_deadline_abort\" : error instanceof Error ? error.name : \"TransportError\";\n      attempts.push(outcome);\n    } finally {\n      if (outcome !== \"ok\") {\n        console.log(JSON.stringify({event:\"JMA_TILE_FETCH\",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome,elapsedMs:Math.round(performance.now()-started)}));\n      }\n    }\n    if (attempt < 1) await delay(500, undefined, { signal });\n  }\n  throw new Error(`INCOMPLETE_JMA_TILE ${url} attempts: ${attempts.join(\", \")}`);\n}\nfunction selectFrames(targets: JmaTargetTime[], now: number): JmaTargetTime[] {\n  const basetime = targets\n    .map(frame => frame.basetime)\n    .filter(base => forecastTime(base) <= now && now - forecastTime(base) < 2 * FIVE_MINUTES)\n    .sort().at(-1);\n  if (!basetime) throw new Error(\"NO_FRESH_JMA_BASETIME\");\n  const base = forecastTime(basetime);\n  const frames = targets.filter(frame => frame.basetime === basetime\n    && forecastTime(frame.validtime) > base && forecastTime(frame.validtime) <= base + 6 * FIVE_MINUTES);\n  if (frames.length !== 6 || frames.some((frame, i) => forecastTime(frame.validtime) !== base + (i + 1) * FIVE_MINUTES)) {\n    throw new Error(\"INCOMPLETE_JMA_FRAMES: expected six consecutive forecast frames from one basetime\");\n  }\n  return frames;\n}\n\nasync function refineFrame(\n  frame: JmaTargetTime,\n  indexed: Array<{ area: AdministrativeArea; b: ReturnType<typeof bbox> }>,\n  areaByCode: Map<string, AdministrativeArea>,\n  signal: AbortSignal,\n) {\n  const started = performance.now();\n  const candidates = new Map<string, AdministrativeArea>();\n  const rainyZ10Tiles = new Map<string, { x: number; y: number }>();\n  for (const [x, y] of tiles4) {\n    const bounds = [lon(x, 4), lat(y + 1, 4), lon(x + 1, 4), lat(y, 4)];\n    const relevant = indexed.filter(({ b }) => b[0] <= bounds[2] && b[2] >= bounds[0]\n      && b[1] <= bounds[3] && b[3] >= bounds[1]).map(({ area }) => area);\n    const buffer = await fetchTile(frame, 4, x, y, signal);\n    const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 4, x, y);\n    if (!pixels.length) continue;\n    for (const area of municipalitiesForLightRainTile(buffer, 4, x, y, relevant)) {\n      candidates.set(area.code, areaByCode.get(area.code)!);\n    }\n    // Each z4 PNG pixel spans 1/4 of a z10 tile and the grids share an origin.\n    for (const { pixelX, pixelY } of pixels) {\n      const tileX = x * 64 + Math.floor(pixelX / 4);\n      const tileY = y * 64 + Math.floor(pixelY / 4);\n      rainyZ10Tiles.set(tileX + \"/\" + tileY, { x: tileX, y: tileY });\n    }\n  }\n  const z4Done = performance.now();\n  const tileMap = new Map<string, { x: number; y: number; areas: AdministrativeArea[] }>();\n  for (const area of candidates.values()) {\n    const [w, s, e, n] = bbox(area);\n    const [minX, minY] = xy(w, n, 10), [maxX, maxY] = xy(e, s, 10);\n    for (const [key, { x, y }] of rainyZ10Tiles) {\n      if (x < minX || x > maxX || y < minY || y > maxY) continue;\n      const entry = tileMap.get(key) ?? { x, y, areas: [] };\n      entry.areas.push(area);\n      tileMap.set(key, entry);\n    }\n  }\n  if (tileMap.size > MAX_TILES) {\n    throw new Error(`Z10_TILE_BUDGET_EXCEEDED: ${tileMap.size} > ${MAX_TILES}; no partial result accepted`);\n  }\n  const tilePlanDone=performance.now();\n  const matched=new Map<string,{code:string;prefecture:string;municipality:string}>();\n  let z10NetworkMs=0,z10MatchingMs=0;\n  const entries=[...tileMap.values()];\n  const z10Concurrency = Number(process.env.JMA_Z10_CONCURRENCY ?? \"4\");\n  if (![4, 8].includes(z10Concurrency)) throw new Error(\"JMA_Z10_CONCURRENCY must be 4 or 8\");\n  let rainyTiles=0;\n  for(let i=0;i<entries.length;i+=z10Concurrency){\n    signal.throwIfAborted();\n    const batch=entries.slice(i,i+z10Concurrency);\n    const outcomes=await Promise.allSettled(batch.map(async t=>{\n      const fetchStart=performance.now();\n      const buffer=await fetchTile(frame,10,t.x,t.y,signal);\n      const fetchMs=performance.now()-fetchStart;\n      const matchStart=performance.now();\n      const scan=scanJmaTileAtLeast1mm(buffer);\n      const decodeMs=performance.now()-matchStart;\n      if(scan.unknownPixels)throw new Error(\"UNKNOWN_JMA_PIXEL_Z10 \"+t.x+\"/\"+t.y);\n      // The LRPM generator omits tiles with no intersecting pixels. A bounding-box\n      // candidate can therefore be absent. Prove the whole tile is disjoint\n      // before accepting that absence; declared or land-overlapping tiles stay strict.\n      const unlistedAndDisjoint = scan.rainPixels && pixelMasks && !pixelMasks.has(t.x, t.y)\n        && !affectedAdministrativeAreas([{ coordinates: [[\n          [lon(t.x, 10), lat(t.y, 10)], [lon(t.x + 1, 10), lat(t.y, 10)],\n          [lon(t.x + 1, 10), lat(t.y + 1, 10)], [lon(t.x, 10), lat(t.y + 1, 10)],\n          [lon(t.x, 10), lat(t.y, 10)],\n        ]] }], t.areas).length;\n      const municipalities=scan.rainPixels && !unlistedAndDisjoint\n        ? pixelMasks\n          ? municipalitiesForLightRainTileWithMasks(buffer,10,t.x,t.y,pixelMasks.load(t.x,t.y),t.areas)\n          : municipalitiesForLightRainTile(buffer,10,t.x,t.y,t.areas)\n        : [];\n      const matchingMs=performance.now()-matchStart;\n      console.log(JSON.stringify({event:\"JMA_TILE_PROCESS\",basetime:frame.basetime,validtime:frame.validtime,z:10,x:t.x,y:t.y,decodeMs:Math.round(decodeMs),matchingMs:Math.round(matchingMs),fetchMs:Math.round(fetchMs)}));\n      return {scan,municipalities,fetchMs,matchingMs};\n    }));\n    for (const outcome of outcomes) {\n      if (outcome.status === \"rejected\") throw outcome.reason;\n      const { scan, municipalities, fetchMs, matchingMs } = outcome.value;\n      z10NetworkMs += fetchMs;\n      z10MatchingMs += matchingMs;\n      if (scan.rainPixels) rainyTiles++;\n      for (const area of municipalities) matched.set(area.code, area);\n    }\n  }\n  const z10Done=performance.now();\n  const round=(n:number)=>Math.round(n);\n  const timingMs={z4ScanAndCandidateMatch:round(z4Done-started),z10TilePlanning:round(tilePlanDone-z4Done),z10WallClock:round(z10Done-tilePlanDone),z10NetworkCumulative:round(z10NetworkMs),z10DecodeAndMunicipalityMatchCumulative:round(z10MatchingMs),total:round(z10Done-started)};\n  return {\n    validtime: frame.validtime,\n    timingMs,\n    z4Candidates: candidates.size,\n    z10TilesChecked: entries.length,\n    z10RainyTiles: rainyTiles,\n    z10Municipalities: matched.size,\n    municipalities: [...matched.values()].sort((a, b) => a.code.localeCompare(b.code)),\n  };\n}\n\nasync function main() {\n  const started = performance.now();\n  const coverage = requireCompleteNationwideN03(root);\n  const indexed = coverage.areas.map(area => ({ area, b: bbox(area) }));\n  const areaByCode = new Map(coverage.areas.map(area => [area.code, area]));\n  const n03LoadAndIndex = Math.round(performance.now() - started);\n  let previousBase: string | undefined;\n  let successfulUpdates = 0;\n  // A successful watch is not evidence of uninterrupted five-minute coverage.\n  // Keep gaps visible and fail the read-only audit rather than silently skipping them.\n  const missingBasetimes: string[] = [];\n  const observedBasetimes = new Set<string>();\n  const recordGap = (base: string) => {\n    if (observedBasetimes.has(base)) return;\n    observedBasetimes.add(base);\n    if (!previousBase) return;\n    const from = forecastTime(previousBase);\n    const to = forecastTime(base);\n    if (to <= from) return;\n    for (let t = from + FIVE_MINUTES; t < to; t += FIVE_MINUTES) {\n      const missing = new Date(t).toISOString();\n      missingBasetimes.push(missing);\n      console.error(JSON.stringify({ event: \"MISSING_JMA_BASETIME\", basetime: missing, nextBasetime: base, recovered: false, publication: false }));\n    }\n  };\n  const update = async () => {\n    const scanStarted = performance.now();\n    // Stop this slot before the next JMA publication window; never recover old slots.\n    const slotEnd = Math.floor(Date.now() / FIVE_MINUTES) * FIVE_MINUTES + FIVE_MINUTES + 90_000;\n    const controller = new AbortController();\n    const timer = setTimeout(() => controller.abort(new Error(\"JMA_SLOT_DEADLINE_EXCEEDED\")), Math.max(0, slotEnd - Date.now()));\n    try {\n    // Poll only the lightweight target-time index when the expected cycle is\n    // not yet published. Never rescan old tiles or overlap an active scan.\n    const expectedBaseMs = Math.floor(Date.now() / FIVE_MINUTES) * FIVE_MINUTES;\n    const pollUntil = expectedBaseMs + 4 * 60_000;\n    let frames: JmaTargetTime[] | undefined;\n    while (!controller.signal.aborted) {\n      const checkedAt = new Date().toISOString();\n      const targets = await fetchForecastTargetTimes((input, init) =>\n        fetch(input, { ...init, signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]) }));\n      const newestBase = targets.map(target => target.basetime).sort().at(-1);\n      console.log(JSON.stringify({ event: \"JMA_TARGET_TIME_CHECK\", checkedAt, expectedBase: new Date(expectedBaseMs).toISOString(), newestBase, previousBase, publication: false }));\n      if (newestBase && forecastTime(newestBase) >= expectedBaseMs && newestBase !== previousBase) {\n        frames = selectFrames(targets, Date.now());\n        break;\n      }\n      if (Date.now() + 30_000 > pollUntil) {\n        console.error(JSON.stringify({ event: \"JMA_TARGET_TIME_NOT_READY\", expectedBase: new Date(expectedBaseMs).toISOString(), newestBase, publication: false }));\n        return;\n      }\n      await delay(30_000, undefined, { signal: controller.signal });\n    }\n    controller.signal.throwIfAborted();\n    if (!frames) return;\n    const results = [];\n    // Two frames share the cycle budget. Await both before stopping so the next\n    // update does not overlap a failed cycle's remaining requests.\n    for (let i = 0; i < frames.length; i += 2) {\n      const batch = await Promise.allSettled(\n        frames.slice(i, i + 2).map(frame => refineFrame(frame, indexed, areaByCode, controller.signal)),\n      );\n      for (const result of batch) {\n        if (result.status === \"rejected\") throw result.reason;\n        results.push(result.value);\n      }\n    }\n\n    if (Date.now() - forecastTime(frames[0].basetime) >= 2 * FIVE_MINUTES) {\n      throw new Error(\"JMA forecast expired before the scan finished\");\n    }\n    console.log(JSON.stringify({\n      mode: \"READ_ONLY_Z10_REAL_JMA_N03\",\n      basetime: frames[0].basetime,\n      checkedAt: new Date().toISOString(),\n      baseAgeMs: Date.now() - forecastTime(frames[0].basetime),\n      prefectures: coverage.prefectures,\n      municipalityDatasetSize: coverage.municipalities,\n      thresholdMmPerHour: 1,\n      timingMs: { n03LoadAndIndex, total: Math.round(n03LoadAndIndex + performance.now() - scanStarted) },\n      frames: results,\n      publication: false,\n      productionWrites: false,\n      blueskyPosts: false,\n    }));\n    // Record a gap only after the new cycle has actually completed. A failed\n    // cycle must not be mistaken for successful progress.\n    recordGap(frames[0].basetime);\n    previousBase = frames[0].basetime;\n    successfulUpdates++;\n    } catch (error) {\n      if (controller.signal.aborted) {\n        console.error(JSON.stringify({event:\"JMA_SLOT_DEADLINE\",at:new Date().toISOString(),slotEnd:new Date(slotEnd).toISOString(),elapsedMs:Math.round(performance.now()-scanStarted),reason:String(controller.signal.reason),error:String(error),publication:false}));\n      }\n      throw error;\n    } finally { clearTimeout(timer); }\n  };\n\n  if (!process.argv.includes(\"--watch\")) return update();\n  const watchCount = Number(process.env.JMA_WATCH_SUCCESS_COUNT || \"0\");\n  if (!Number.isSafeInteger(watchCount) || watchCount < 0) throw new Error(\"Invalid watch success count\");\n  while (watchCount === 0 || successfulUpdates < watchCount) {\n    try {\n      await update();\n    } catch (error) {\n      console.error(JSON.stringify({ event: \"JMA_SLOT_FAILED\", at: new Date().toISOString(), error: String(error), recovery: false, publication: false }));\n    }\n    if (watchCount > 0 && successfulUpdates >= watchCount) {\n      if (missingBasetimes.length) {\n        throw new Error(\"INCOMPLETE_FIVE_MINUTE_COVERAGE: \" + missingBasetimes.join(\", \"));\n      }\n      return;\n    }\n    // Let JMA publish the new cycle before polling the next five-minute slot.\n    const now = Date.now();\n    const offset = 120_000;\n    await delay(FIVE_MINUTES - (now - offset) % FIVE_MINUTES);\n  }\n}\n\nmain().catch(error => { console.error(error); process.exitCode = 1; });\n",
+        "sha256": "c592cb313966b02e4ae8ca0e2387bd3a5c17c9ab7f8afbf194533c261bba94b5"
+      }
+    }
+  ],
+  "file_count": 4,
+  "reported_file_count": 4,
+  "commits": [
+    {
+      "sha": "54472fec17702a88c1876ae4023d82116f4a06d1",
+      "message": "feat(rain): add strict read-only nationwide LRPM manifest and tile loader\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/54472fec17702a88c1876ae4023d82116f4a06d1"
+    },
+    {
+      "sha": "f29682ff1dcf45fc58315ad1e6068ddf9d47dfc4",
+      "message": "feat(rain): wire opt-in strict LRPM tile matching into read-only z10 scanner\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/f29682ff1dcf45fc58315ad1e6068ddf9d47dfc4"
+    },
+    {
+      "sha": "6757f4c46f58a79c7b995a55a85ab808ec773c55",
+      "message": "test(rain): verify LRPM loader rejects missing stale and corrupt masks\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/6757f4c46f58a79c7b995a55a85ab808ec773c55"
+    },
+    {
+      "sha": "7587d3e73a6b0d8cde117e714d724c9a379e01ff",
+      "message": "feat(rain): prepare verified versioned LRPM cache from private Storage signed URL\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/7587d3e73a6b0d8cde117e714d724c9a379e01ff"
+    },
+    {
+      "sha": "0eeeea9f322810ae901014a402fc002c9593f1a0",
+      "message": "fix(rain): reject unsafe LRPM archive entries and oversized downloads\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/0eeeea9f322810ae901014a402fc002c9593f1a0"
+    },
+    {
+      "sha": "6317f8e7d9c45f8a81f809f988619eb2ad04192c",
+      "message": "Expose whether a tile is declared in the sparse LRPM manifest\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/6317f8e7d9c45f8a81f809f988619eb2ad04192c"
+    },
+    {
+      "sha": "4e3ef0080f5f08e568f51a07a70726cda4117f44",
+      "message": "Prove unlisted LRPM ocean tiles are disjoint before accepting them\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/4e3ef0080f5f08e568f51a07a70726cda4117f44"
+    }
+  ],
+  "comments": [
+    {
+      "body": "## 全国1mm降雨スキャナの検証記録（2026-11-15 JST）\n\n対象は Draft PR #243 HEAD `0eeeea9f322810ae901014a402fc002c9593f1a0`、Muse の Draft PR #242、Issue #220。\n\n- 今回の依頼を登録した[着手前自動照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/43654162961)は `REVIEW_RECORDED`、公開確定、preflight成功。\n- [通常CI](https://github.com/miyazaki1016/emergencyalert/actions/runs/43653943941)成功。verifyのVitestは406件成功・1件スキップ、LRPM関連をローカルで8件再確認。[PR照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/43653944248)・[昇格分類](https://github.com/miyazaki1016/emergencyalert/actions/runs/43653943947)も成功。\n- [従来の全国N03監査](https://github.com/miyazaki1016/emergencyalert/actions/runs/43653943961)は47県中32県で準備済みキャッシュが見つからず、全国スキャン前に停止。以前の[全国監査成果物](https://github.com/miyazaki1016/emergencyalert/actions/runs/43602835654)に保存された47県分を隔離検証で再利用し、1,905自治体・札幌市南区を含む全国N03監査を確認。\n- [Museの既存artifact](https://github.com/miyazaki1016/emergencyalert/actions/runs/43653446881/artifacts/14136872031)のtar.gz SHA256は `5fb0823f190e9ed893ba5ee9ae47aa7b1e4a8ad9c26601e2cae8b14bc1de33d8`。全733タイル・37,689,065バイトのサイズとSHA256が一致し、PR #243最新ローダーで全件復号成功（ローカル約240ms）。[Muse独立QA](https://github.com/miyazaki1016/emergencyalert/issues/220#issuecomment-6885861291)の全件成功と一致。計測環境が異なるため所要時間は直接比較しない。\n- 本番Supabaseは読み取りで `national-rain-n03` が非公開、上限50MiB、開発ブランチなしと確認。専用の `verify/lrpm-storage-audit-220` ブランチで、GitHub Actionsランナー内の使い捨てSupabaseに非公開バケットを作成し、上書きなしで配置、180秒の署名URL、既存スクリプトで検証する。初回は成果物展開パスで失敗し修正済み。[隔離検証の再実行](https://github.com/miyazaki1016/emergencyalert/actions/runs/43654534055)を完走し、結果を下記に記録。\n- 本番Storage・本番DBへの変更、通知・Bluesky投稿、mainマージ、本番デプロイは実施していない。\n\n### 隔離Storageと初回の全国実測\n\n- [実行 43654534055](https://github.com/miyazaki1016/emergencyalert/actions/runs/43654534055)の隔離Storageは成功。署名なしの公開URLはHTTP 400、180秒の署名URLはHTTP 200。1,207,163バイトが原本と一致し、既存準備スクリプトで733タイルの展開・厳格検証と、再取得なしのキャッシュ再利用を確認。ランナー内のSupabaseは停止済み。[診断成果物](https://github.com/miyazaki1016/emergencyalert/actions/runs/43654534055/artifacts/14137568602)\n- 08:40〜09:00 JST基準の5枠はすべて、外接矩形候補に入った未収録タイル `909/380` または `909/381` で停止（成功0枠）。実N03北海道で双方のタイルと自治体の正確な交差が0、近隣の陽性対照 `910/382` は2自治体と確認。\n- Muse生成器は全自治体との交差画素がゼロのタイルを格納しない。PR #243の修正 `4e3ef0080f5f08e568f51a07a70726cda4117f44` は、未収録かつ既存幾何関数で自治体との交差がないと証明できる場合に限って許容。収録済みファイルの欠落・破損、および陸域と交差する未収録タイルは引き続き失敗扱い。\n- [修正HEADのCI](https://github.com/miyazaki1016/emergencyalert/actions/runs/43656387494)と[隔離再検証 43656395512](https://github.com/miyazaki1016/emergencyalert/actions/runs/43656395512)の完了結果は下記参照。\n\n### 修正後の受入結果\n\n- 最新HEAD `4e3ef0080f5f08e568f51a07a70726cda4117f44` を再取得し、Draftのままであることを確認。[通常CI](https://github.com/miyazaki1016/emergencyalert/actions/runs/43656387494)・[PR照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/43656387507)・[昇格分類](https://github.com/miyazaki1016/emergencyalert/actions/runs/43656387575)は成功。[従来の全国N03監査](https://github.com/miyazaki1016/emergencyalert/actions/runs/43656387512)は32県のキャッシュ欠落で全国ジョブがスキップされたため、ワークフロー自体は失敗のまま。\n- [隔離再検証 43656395512](https://github.com/miyazaki1016/emergencyalert/actions/runs/43656395512)は成功。既存の47都道府県・1,905自治体と同じ733 LRPMを使用し、気象庁の実データで **09:05・09:10 JST基準の連続2枠、各6フレーム、合計5,750 z10処理**を完了。ログ上の欠落・枠失敗・期限超過はいずれも0。\n- スキャナ報告の所要は N03初期化4.116秒を含め **235.521秒／263.265秒**。基準時刻から完了までは **326.035秒／379.188秒**で、完了間隔は **353.153秒**。連続する5分基準枠を処理できたが、基準時刻から5分以内の完了や、長時間・大雨時の安定性は未確認。z10タイル処理は中央値12ms、最大246ms（PNG復号を含む）。\n- 署名なし公開URLの拒否、署名URLによる原本一致、733タイルの展開と再取得なしのキャッシュ検証も再度成功。[証拠 artifact 14138326843](https://github.com/miyazaki1016/emergencyalert/actions/runs/43656395512/artifacts/14138326843)の `n03.json`、`storage.jsonl`、`watch.jsonl` を参照。検証用Storageは停止済み。\n- Museの既存独立QAとの一致は確認済み。修正後HEADに対するMuseの最終独立QA、長時間負荷、従来監査での47県入力の安定供給は残件。継続する場合は修正後HEADと上記証拠から開始し、733タイルを再生成しない。本番操作・main統合には別途承認が必要。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/243#issuecomment-6886056705"
+    },
+    {
+      "body": "## 全国1mm降雨スキャナの並列度8実測（2026-11-15 JST）\n\n[Museの性能分析](https://github.com/miyazaki1016/emergencyalert/issues/220#issuecomment-6887309915)の案1を、[着手前照合済みの全国5分周期検証](https://github.com/miyazaki1016/emergencyalert/actions/runs/43654162961)の続きとして実施。対象は Draft PR #243 HEAD `4e3ef0080f5f08e568f51a07a70726cda4117f44`。同じN03 47都道府県（1,905自治体）・Muse LRPM 733タイルを再利用。フレーム並列2は維持し、検証用ブランチだけで `JMA_Z10_CONCURRENCY=8` に変更。PRコードの差分なし。[通常CI](https://github.com/miyazaki1016/emergencyalert/actions/runs/43656387494) · [Muse最終QA](https://github.com/miyazaki1016/emergencyalert/issues/220#issuecomment-6887241852)\n\n| z10並列度 | 基準時刻 JST | スキャナ所要 | 基準時刻→完了 | z10タイル数 |\n|---|---|---:|---:|---:|\n| 4 | 09:05 | 235.521秒 | 326.035秒 | 2,897 |\n| 4 | 09:10 | 263.265秒 | 379.188秒 | 2,853 |\n| 8 | 10:30 | 185.914秒 | 349.093秒 | 2,794 |\n| 8 | 10:35 | 189.880秒 | 304.686秒 | 2,828 |\n\n並列8の隔離実行は成功。各枠6フレーム、欠落・失敗・期限超過なし。完了間隔255.594秒。ただし基準時刻から300秒以内の完了は **0/2枠**。同じ気象条件での比較ではないため、差を設定変更単独の効果とは見なさない。[並列4の証拠](https://github.com/miyazaki1016/emergencyalert/actions/runs/43656395512/artifacts/14138326843) · [並列8の実行](https://github.com/miyazaki1016/emergencyalert/actions/runs/43663456274) · [並列8の証拠](https://github.com/miyazaki1016/emergencyalert/actions/runs/43663456274/artifacts/14141196684)\n\nz10のフレーム平均壁時間は48.887秒→41.055秒。取得ログの応答ヘッダーまでの中央値は369→568ms、p95は414→765ms。ヘッダー後の本体読取は両方とも中央値0ms、p95 1ms。並列8では対象予報基準時刻をインデックスで初確認したのが基準時刻から198.543秒／150.067秒後。これは観測時刻で、実際の公開時刻は直前ポーリングとの間。次はインデックスの公開待ちと、ヘッダーまでの接続確立・再利用・応答待ちを切り分ける。案2のフレーム並列2は現行実装済みのため、増枠は総同時リクエスト数と取得の内訳を測ってから判断する。\n\n非公開Storageの署名URL経由での取得・全733タイルの展開・再取得なしのキャッシュ再検証も成功し、隔離Supabaseを停止。本番Storage・DB変更、通知、Bluesky投稿、mainマージ、デプロイは未実施。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/243#issuecomment-6887447657"
+    }
+  ],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "4e3ef0080f5f08e568f51a07a70726cda4117f44",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43656387575",
+      "id": 43656387575,
+      "updated_at": "2026-11-15T00:05:04Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "4e3ef0080f5f08e568f51a07a70726cda4117f44",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43656387507",
+      "id": 43656387507,
+      "updated_at": "2026-11-15T00:05:14Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Nationwide official N03 acquisition and audit (read-only)",
+      "head_sha": "4e3ef0080f5f08e568f51a07a70726cda4117f44",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43656387512",
+      "id": 43656387512,
+      "updated_at": "2026-11-15T00:05:55Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "4e3ef0080f5f08e568f51a07a70726cda4117f44",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43656387494",
+      "id": 43656387494,
+      "updated_at": "2026-11-15T00:06:01Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "ALL_PREFECTURES",
+    "FIVE_MINUTES",
+    "MAX_TILES",
+    "archive",
+    "area",
+    "areaByCode",
+    "attempt",
+    "attempts",
+    "base",
+    "basetime",
+    "batch",
+    "bbox",
+    "bodyDoneMs",
+    "bounds",
+    "buffer",
+    "bytes",
+    "candidates",
+    "checkedAt",
+    "controller",
+    "coverage",
+    "declaredSize",
+    "decodeMs",
+    "destination",
+    "digest",
+    "dirs",
+    "entries",
+    "entry",
+    "expected",
+    "expectedBaseMs",
+    "fetchMs",
+    "fetchStart",
+    "fetchTile",
+    "frames",
+    "from",
+    "headersMs",
+    "i",
+    "indexed",
+    "key",
+    "lat",
+    "listing",
+    "loader",
+    "lon",
+    "main",
+    "manifest",
+    "maskDir",
+    "masks",
+    "match",
+    "matchStart",
+    "matched",
+    "matchingMs",
+    "maxArchiveBytes",
+    "meta",
+    "missing",
+    "missingBasetimes",
+    "municipalities",
+    "n03LoadAndIndex",
+    "newestBase",
+    "now",
+    "observedBasetimes",
+    "offset"
+  ],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "1ccbccb490543c0587c0b0a9c163c8e7c205fe530f6e9612ffcfd101e40fa159",
+  "ci_digest": "c766a6fbd8d113ccf534db93e3819b51d1119e711a74e23cd86ceddb73b66baf",
+  "collected_at": "2026-11-15T07:49:49.172013+00:00",
+  "decisions": [
+    {
+      "kind": "test",
+      "title": "validates N03 version, checksum, tile identity and missing coverage",
+      "condition": "validates N03 version, checksum, tile identity and missing coverage",
+      "behavior": "if (manifest.format !== \"light-rain-pixel-masks\" || ／ return { ／ return Object.hasOwn(manifest.files, `z10/${tileX}/${tileY}.bin`); ／ if (!meta) throw new Error(`PIXEL_MASK_MISSING: ${relative}`); ／ if (bytes.length !== meta.bytes || ／ if (masks.zoom !== 10 || masks.tileX !== tileX || masks.tileY !== tileY) { ／ return masks;",
+      "verification": "テストの期待値: expect(loader.load(885, 407).entries[0].code).toBe(\"35001\"); ／ expect(() => loader.load(885, 408)).toThrow(\"PIXEL_MASK_MISSING\"); ／ expect(() => openNationwidePixelMasks(root, \"20270101\")).toThrow(\"PIXEL_MASK_MANIFEST_INCOMPATIBLE\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.ts#L17",
+        "https://github.com/miyazaki1016/emergencyalert/blob/4e3ef0080f5f08e568f51a07a70726cda4117f44/lib/weather/rain/lightRainPixelMaskLoader.test.ts#L10"
+      ]
+    }
+  ]
+}
