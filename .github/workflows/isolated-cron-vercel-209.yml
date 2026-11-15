@@ -1,0 +1,49 @@
+name: Isolated Supabase Cron to Vercel proof
+on:
+  push:
+    branches: [verify/supabase-vercel-cron-209]
+    paths: [.github/workflows/isolated-cron-vercel-209.yml]
+permissions:
+  contents: read
+jobs:
+  cron-http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 3.1.0
+      - name: Use pg_cron and pg_net in a disposable Supabase database
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$(mktemp -d)"
+          supabase init
+          supabase start -x realtime,storage-api,imgproxy,kong,mailpit,postgrest,studio,edge-runtime,logflare,vector,supavisor,gotrue,pg-meta
+          db=$(docker ps --format '{{.Names}}' | awk '/^supabase_db_/ {print; exit}')
+          test -n "$db"
+          run_sql() { docker exec -i "$db" psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 "$@"; }
+          run_sql <<'SQL'
+          create extension if not exists pg_cron;
+          create extension if not exists pg_net;
+          select cron.schedule('isolated-forecast-transport-209', '*/5 * * * *', $cron$
+            select net.http_post(
+              url := 'https://emergencyalert-fjj65qx6j-kishibojim.vercel.app/api/cron-probe',
+              headers := '{"Content-Type":"application/json"}'::jsonb,
+              body := '{"mode":"isolated-cron-transport"}'::jsonb,
+              timeout_milliseconds := 15000
+            );
+          $cron$);
+          SQL
+          for attempt in $(seq 1 67); do
+            result=$(run_sql -Atc "select content from net._http_response where status_code = 200 and content like '%isolated-cron-transport%' limit 1")
+            if [[ -n "$result" ]]; then
+              printf '%s\n' "$result"
+              run_sql -c "select status, start_time, end_time from cron.job_run_details where jobid = (select jobid from cron.job where jobname = 'isolated-forecast-transport-209') order by runid desc limit 1"
+              run_sql -c "select cron.unschedule('isolated-forecast-transport-209')"
+              exit 0
+            fi
+            sleep 5
+          done
+          run_sql -c 'select id, status_code, timed_out, error_msg from net._http_response'
+          exit 1
