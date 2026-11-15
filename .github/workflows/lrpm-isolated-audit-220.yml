@@ -123,10 +123,10 @@ jobs:
           }
           JS
       - name: Measure consecutive nationwide five-minute slots
-        timeout-minutes: 20
+        timeout-minutes: 26
         env:
           JMA_Z10_PIXEL_MASK_DIR: /tmp/lrpm-cache/20260101-v1
-          JMA_WATCH_SUCCESS_COUNT: "2"
+          JMA_WATCH_SUCCESS_COUNT: "4"
           JMA_Z10_CONCURRENCY: "8"
         run: |
           set -o pipefail
