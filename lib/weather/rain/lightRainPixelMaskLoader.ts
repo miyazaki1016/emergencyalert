@@ -29,6 +29,9 @@ export function openNationwidePixelMasks(root: string, n03Version: string) {
   // The generated nationwide manifest is only ~100KB; never retain all
   // 35.9MiB of masks in memory. Read a tile on demand.
   return {
+    has(tileX: number, tileY: number): boolean {
+      return Object.hasOwn(manifest.files, `z10/${tileX}/${tileY}.bin`);
+    },
     load(tileX: number, tileY: number): TilePixelMasks {
       const relative = `z10/${tileX}/${tileY}.bin`;
       const meta = manifest.files[relative];
