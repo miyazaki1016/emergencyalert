@@ -127,6 +127,7 @@ jobs:
         env:
           JMA_Z10_PIXEL_MASK_DIR: /tmp/lrpm-cache/20260101-v1
           JMA_WATCH_SUCCESS_COUNT: "2"
+          JMA_Z10_CONCURRENCY: "8"
         run: |
           set -o pipefail
           npx tsx scripts/light-rain-z10-refine.ts /tmp/n03-local --watch 2>&1 | tee /tmp/lrpm-evidence/watch.jsonl
