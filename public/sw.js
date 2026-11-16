@@ -42,7 +42,11 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const targetUrl = new URL(event.notification.data?.url || "/", self.location.origin).href;
+  const destination = new URL(event.notification.data?.url || "/", self.location.origin);
+  if (destination.origin === self.location.origin && destination.pathname === "/") {
+    destination.pathname = "/my-amefuru";
+  }
+  const targetUrl = destination.href;
   event.waitUntil((async () => {
     const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     for (const client of windows) {

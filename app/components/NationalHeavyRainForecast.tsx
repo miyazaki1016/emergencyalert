@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { forecastRadarSources } from "../../lib/weather/rain/nationalForecastRadar";
 import { forecastTime, type NationalForecastSnapshot, type NationalForecastFrame, type RadarTile } from "../../lib/weather/rain/nationalForecastSnapshot";
@@ -76,7 +77,7 @@ function ForecastBand({ frames, basetime, extended }: {
   return (
     <section className={styles.band} aria-label={title}>
       <div className={styles.bandHeading}>
-        <h3>{title}</h3>
+        <h2>{title}</h2>
         <span>{extended ? "1km" : "250m"}</span>
       </div>
       {frames && cards.length === 0 && <p>取得できた時間帯では、30mm/h以上の該当地域はありません。</p>}
@@ -90,7 +91,7 @@ function ForecastBand({ frames, basetime, extended }: {
             )}
             <div className={styles.cardBody}>
               <small>{area.prefecture}</small>
-              <h4>{area.municipality}</h4>
+              <h3>{area.municipality}</h3>
               <div className={styles.intensity} data-tier={area.minimumMmPerHour}>
                 {area.minimumMmPerHour}<span> mm/h以上</span>
               </div>
@@ -129,13 +130,37 @@ export default function NationalHeavyRainForecast() {
     };
   }, []);
 
+  const areas = forecast
+    ? [...forecast.frames, ...(forecast.extendedFrames ?? [])].flatMap(frame => frame.municipalities)
+    : [];
+  const count = new Set(areas.map(area => area.code)).size;
+  const tier = areas.reduce((maximum, area) => Math.max(maximum, area.minimumMmPerHour), 0);
+
   return (
     <section className={styles.forecast} aria-labelledby="national-rain-heading">
-      <h2 id="national-rain-heading">全国の<span>大雨</span>予報</h2>
-      <p>降水強度30mm/h以上が予測される市区町村</p>
+      <div className={styles.summary}>
+        <div>
+          <h1 id="national-rain-heading">全国の<span>大雨</span>予報</h1>
+          <p>降水強度30mm/h以上が予測される市区町村を、時間帯ごとに表示します。</p>
+        </div>
+        <div className={styles.summaryData}>
+          <dl className={styles.stats}>
+            <div><dt>大雨予報の地域</dt><dd>{forecast ? `${count}地域` : "—"}</dd></div>
+            <div><dt>最大階級</dt><dd>{tier ? `${tier}mm/h以上` : "—"}</dd></div>
+            <div><dt>気象庁の予報基準</dt><dd>{forecast ? `${timeLabel(forecast.basetime)} JST` : "—"}</dd></div>
+          </dl>
+          <div className={styles.legend} aria-label="降水強度の凡例">
+            <span>降水強度 mm/h</span>
+            <span><i />30–50</span><span><i />50–80</span><span><i />80以上</span>
+          </div>
+        </div>
+      </div>
+      <aside className={styles.myBanner}>
+        <div><strong>自分の場所の雨は、MYアメふるで。</strong><p>現在地の雨や、登録した場所の雨通知を確認できます。</p></div>
+        <Link href="/my-amefuru">MYアメふるを開く →</Link>
+      </aside>
       {forecast === undefined && <p role="status">全国の予報を取得中…</p>}
       {forecast === null && <p role="status">現在、全国の予報を確認できません。</p>}
-      {forecast && <p className={styles.source}>気象庁 · {timeLabel(forecast.basetime)} 基準（日本時間）</p>}
       <ForecastBand frames={forecast?.frames} basetime={forecast?.basetime} extended={false} />
       <ForecastBand frames={forecast?.extendedFrames} basetime={forecast?.basetime} extended />
     </section>
