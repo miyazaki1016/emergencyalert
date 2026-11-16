@@ -1304,6 +1304,15 @@
           "https://github.com/miyazaki1016/emergencyalert/pull/248",
           "https://github.com/miyazaki1016/emergencyalert/pull/248/checks"
         ]
+      },
+      "251": {
+        "summary": "全国30mm/h大雨予報とMYアメふる監視の5分起動をGitHub Actionsへ移行",
+        "conclusion": "PR #243のLRPM・全画素走査と現行watch-rainを再利用。全国予報は6フレーム完走と基準時刻から10分未満を保存条件とする。30mm/h閾値と最高階級のローカル検証、保存SQL、監視呼出しの模擬検証を実施。本番相当の複数枠と通知動作の受入は残課題。",
+        "evidence": [
+          "https://github.com/miyazaki1016/emergencyalert/issues/250",
+          "https://github.com/miyazaki1016/emergencyalert/pull/251",
+          "https://github.com/miyazaki1016/emergencyalert/blob/feat/rain-actions-schedule-250/docs/NATIONAL_RAIN_ACTIONS_250.md"
+        ]
       }
   }
 }

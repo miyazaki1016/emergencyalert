@@ -1,0 +1,42 @@
+name: MY Amefuru rain watch
+
+on:
+  schedule:
+    - cron: '2-57/5 * * * *'
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: my-rain-watch-production
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    if: github.repository == 'miyazaki1016/emergencyalert' && vars.MY_RAIN_WATCH_ACTIONS_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Reject stale queued runs and re-runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          created=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at)
+          age=$(( $(date +%s) - $(date -u -d "$created" +%s) ))
+          if [ "$age" -ge 240 ]; then
+            echo 'Watch invocation missed its run window'
+            exit 1
+          fi
+      - name: Invoke the existing watch-rain endpoint
+        env:
+          SUPABASE_URL: ${{ secrets.RAIN_ACTIONS_SUPABASE_URL }}
+          WATCH_CRON_TOKEN: ${{ secrets.RAIN_ACTIONS_WATCH_CRON_TOKEN }}
+        run: node scripts/run-watch-rain.mjs

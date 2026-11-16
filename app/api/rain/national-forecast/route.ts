@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { readNationalForecastSnapshot } from "@/lib/weather/rain/nationalForecastSnapshot";
 
@@ -20,8 +21,16 @@ async function loadSnapshot(): Promise<unknown> {
   }
 
   const path = process.env.NATIONAL_RAIN_SNAPSHOT_PATH;
-  if (!path) throw new Error("Forecast snapshot is not configured");
-  return JSON.parse(await readFile(path, "utf8"));
+  if (path) return JSON.parse(await readFile(path, "utf8"));
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error("Forecast snapshot is not configured");
+  const db = createClient(url, key, { auth: { persistSession: false } });
+  const { data, error } = await db.from("national_rain_forecast_snapshot")
+    .select("payload").eq("id", 1).abortSignal(AbortSignal.timeout(5_000)).single();
+  if (error || !data) throw new Error("Stored forecast snapshot unavailable");
+  return data.payload;
 }
 
 export async function GET() {
