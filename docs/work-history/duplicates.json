@@ -29,7 +29,8 @@
     "branch-8ac7382a5a280d93",
     "branch-d47e9b0dcd4ebc9b",
     "pr-210",
-    "pr-211"
+    "pr-211",
+    "pr-251"
   ],
   "app/api/rain/national-preview/route.test.ts": [
     "branch-2d0caa2b5330cf58",
@@ -90,10 +91,12 @@
     "pr-102"
   ],
   "app/components/NationalHeavyRainForecast.tsx": [
+    "branch-5a8350bbd3ba2bb2",
     "branch-8ac7382a5a280d93",
     "branch-d47e9b0dcd4ebc9b",
     "pr-210",
-    "pr-211"
+    "pr-211",
+    "pr-252"
   ],
   "app/components/NotificationFeedbackHistory.tsx": [
     "branch-091c543ebb50d507",
@@ -141,6 +144,10 @@
     "pr-85",
     "pr-86",
     "pr-87"
+  ],
+  "app/components/national-heavy-rain-forecast.module.css": [
+    "branch-5a8350bbd3ba2bb2",
+    "pr-252"
   ],
   "app/dev/rain-lab/RainLab.tsx": [
     "branch-22f64fc517bd98c8",
@@ -853,7 +860,8 @@
     "branch-7d28c1fe1dcbf427",
     "branch-b6e5605d0721ab6f",
     "branch-f21e5c06f0afa189",
-    "pr-217"
+    "pr-217",
+    "pr-251"
   ],
   "lib/weather/rain/lightRainBlueskyDelivery.test.ts": [
     "branch-12242ada665792be",
@@ -897,7 +905,8 @@
     "branch-7d28c1fe1dcbf427",
     "branch-b6e5605d0721ab6f",
     "branch-f21e5c06f0afa189",
-    "pr-217"
+    "pr-217",
+    "pr-251"
   ],
   "lib/weather/rain/lightRainN03LocalProof.test.ts": [
     "branch-12242ada665792be",
@@ -919,7 +928,8 @@
     "branch-7d28c1fe1dcbf427",
     "branch-b6e5605d0721ab6f",
     "branch-f21e5c06f0afa189",
-    "pr-217"
+    "pr-217",
+    "pr-251"
   ],
   "lib/weather/rain/lightRainNationwideN03.test.ts": [
     "branch-12242ada665792be",
@@ -941,7 +951,8 @@
     "branch-7d28c1fe1dcbf427",
     "branch-b6e5605d0721ab6f",
     "branch-f21e5c06f0afa189",
-    "pr-217"
+    "pr-217",
+    "pr-251"
   ],
   "lib/weather/rain/lightRainOfficialN03.test.ts": [
     "branch-12242ada665792be",
@@ -971,7 +982,8 @@
     "branch-451605c0e2751387",
     "branch-b6e5605d0721ab6f",
     "branch-f21e5c06f0afa189",
-    "pr-243"
+    "pr-243",
+    "pr-251"
   ],
   "lib/weather/rain/lightRainPixelMaskLoader.ts": [
     "branch-214503f4c56a6d5e",
@@ -979,7 +991,8 @@
     "branch-451605c0e2751387",
     "branch-b6e5605d0721ab6f",
     "branch-f21e5c06f0afa189",
-    "pr-243"
+    "pr-243",
+    "pr-251"
   ],
   "lib/weather/rain/lightRainPixelMasks.test.ts": [
     "branch-12242ada665792be",
@@ -988,7 +1001,8 @@
     "branch-451605c0e2751387",
     "branch-b6e5605d0721ab6f",
     "branch-f21e5c06f0afa189",
-    "pr-242"
+    "pr-242",
+    "pr-251"
   ],
   "lib/weather/rain/lightRainPixelMasks.ts": [
     "branch-12242ada665792be",
@@ -997,7 +1011,8 @@
     "branch-451605c0e2751387",
     "branch-b6e5605d0721ab6f",
     "branch-f21e5c06f0afa189",
-    "pr-242"
+    "pr-242",
+    "pr-251"
   ],
   "lib/weather/rain/lightRainProof.live.test.ts": [
     "branch-12242ada665792be",
@@ -1019,7 +1034,8 @@
     "branch-7d28c1fe1dcbf427",
     "branch-b6e5605d0721ab6f",
     "branch-f21e5c06f0afa189",
-    "pr-217"
+    "pr-217",
+    "pr-251"
   ],
   "lib/weather/rain/lightRainProof.ts": [
     "branch-12242ada665792be",
@@ -1030,7 +1046,8 @@
     "branch-7d28c1fe1dcbf427",
     "branch-b6e5605d0721ab6f",
     "branch-f21e5c06f0afa189",
-    "pr-217"
+    "pr-217",
+    "pr-251"
   ],
   "lib/weather/rain/n03AdministrativeAreas.test.ts": [
     "branch-2d0caa2b5330cf58",
@@ -1163,17 +1180,25 @@
     "pr-215",
     "pr-217"
   ],
+  "lib/weather/rain/nationalForecastRadar.ts": [
+    "branch-5a8350bbd3ba2bb2",
+    "pr-252"
+  ],
   "lib/weather/rain/nationalForecastSnapshot.test.ts": [
+    "branch-5a8350bbd3ba2bb2",
     "branch-8ac7382a5a280d93",
     "branch-d47e9b0dcd4ebc9b",
     "pr-210",
-    "pr-211"
+    "pr-211",
+    "pr-252"
   ],
   "lib/weather/rain/nationalForecastSnapshot.ts": [
+    "branch-5a8350bbd3ba2bb2",
     "branch-8ac7382a5a280d93",
     "branch-d47e9b0dcd4ebc9b",
     "pr-210",
-    "pr-211"
+    "pr-211",
+    "pr-252"
   ],
   "lib/weather/rain/nationalHeavyRain.test.ts": [
     "branch-2d0caa2b5330cf58",
@@ -1564,7 +1589,8 @@
     "branch-451605c0e2751387",
     "branch-b6e5605d0721ab6f",
     "branch-f21e5c06f0afa189",
-    "pr-243"
+    "pr-243",
+    "pr-251"
   ],
   "scripts/light-rain-nationwide-live.ts": [
     "branch-12242ada665792be",
@@ -1874,6 +1900,11 @@
     "branch-8ac7382a5a280d93",
     "pr-59"
   ],
+  "scripts/national-heavy-rain-scan.ts": [
+    "branch-5a8350bbd3ba2bb2",
+    "pr-251",
+    "pr-252"
+  ],
   "scripts/national-light-rain-jma-proof.ts": [
     "branch-12242ada665792be",
     "branch-214503f4c56a6d5e",
@@ -2023,6 +2054,10 @@
     "branch-64503a3847e876c9",
     "branch-8ac7382a5a280d93",
     "pr-59"
+  ],
+  "scripts/render-national-rain-mp4.ts": [
+    "branch-5a8350bbd3ba2bb2",
+    "pr-252"
   ],
   "scripts/upload-n03-storage-data.ts": [
     "branch-2d0caa2b5330cf58",
