@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "repository": "miyazaki1016/emergencyalert",
-  "generated_at": "2026-11-16T04:57:56.343713+00:00",
+  "generated_at": "2026-11-16T07:58:05.464556+00:00",
   "cases": {
     "pr-248": {
       "id": "pr-248",
@@ -26,7 +26,7 @@
       "draft": false,
       "merged_at": "2026-11-16T04:57:36Z",
       "merge_commit_sha": "f7557bc6b567a5068ea2e3057ceec1b9b21c8f3a",
-      "updated_at": "2026-11-16T04:57:36Z",
+      "updated_at": "2026-11-16T04:59:04Z",
       "code_facts": [
         {
           "file": "app/jaspic/dispatch/route.ts",
@@ -556,6 +556,10 @@
         {
           "body": "## 2026-11-16 検証・引き継ぎ記録\n\n- **引き継ぎ成功**。最新main `b4ed8c614d616c8fbd032e8961904307287c43a3` の手順・台帳を確認し、Issue #247の依頼本文と判断記録が [確定済み照合結果](https://github.com/miyazaki1016/emergencyalert/issues/247#issuecomment-6907383612) の指紋と一致することを確認した。作業ブランチは `feat/jaspic-self-continue-oauth-summary-247`。\n- **既存成果の再利用成功**。初回runを軸にした送信台帳と20件分割、配信の停止条件、完了通知・Resend再試行、Gmail認証更新を再利用。追加候補はPR本文に判断・根拠を記録し、[PR側の最新照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/43806361104) が `REVIEW_RECORDED`。\n- **新規変更の検証成功**。対象HEADと終了時の再取得HEADは `9302e8845f4aaf079662c3ee8710f508db493c43`。[通常CI](https://github.com/miyazaki1016/emergencyalert/actions/runs/43806238046) の5ジョブと [JASPIC専用PostgreSQL 17 CI](https://github.com/miyazaki1016/emergencyalert/actions/runs/43806238011) が成功。3実行とも試行1。ローカルVitestは387件、Next.jsビルド成功。0・20・34・50・100件、重複起動、途中停止、認証切れ／確認不能、通知503と同一冪等キーでの再試行を無送信で検証した。\n- **案件は本番受入前**。次は別途承認後に定時ジョブ所有者とVaultの実行条件を確認し、既存の18時ジョブを切り替える。[引き継ぎ資料](https://github.com/miyazaki1016/emergencyalert/blob/9302e8845f4aaf079662c3ee8710f508db493c43/docs/JASPIC_SELF_CONTINUE_COMPLETION_247.md) に適用順序と切り戻し手順を記録。main統合、本番デプロイ、本番DB・cron変更、本番メール実送信は未実施。",
           "url": "https://github.com/miyazaki1016/emergencyalert/pull/248#issuecomment-6907635570"
+        },
+        {
+          "body": "## 2026-11-16 本番切り替え記録（JST 13:58）\n\n- DBに `jaspic_scheduled_self_continue_248` を適用。配信用ロールで専用ジョブを登録できることをテストし、合成runとジョブがロールバックされたことを確認。\n- [統合コミット](https://github.com/miyazaki1016/emergencyalert/commit/f7557bc6b567a5068ea2e3057ceec1b9b21c8f3a) の [Vercel本番デプロイ](https://vercel.com/kishibojim/emergencyalert/3qdsCMoqXrZFBmSjKcRSzas36BsT) がREADYになり、`emergencyalert.news` がそのデプロイを参照していることを確認。\n- 18時ジョブ（ID 5、UTC 09:00）のコマンドを `select jaspic_monitor.dispatch_scheduled_1800();` に変更し、再取得して一致を確認。5分監視（ID 6）は停止中。\n- 旧コマンドのMD5は `db0785c924f82ca19bc0e63a0b34d16d`。切り戻し時は `cron.job_run_details` のID 5かつ同じMD5の履歴を使用できる。\n- 手動の本番配信・通知送信は実施していない。初回18時の定時受付、完了通知と専用ジョブの終了は実運用で確認する。",
+          "url": "https://github.com/miyazaki1016/emergencyalert/pull/248#issuecomment-6907757933"
         }
       ],
       "reviews": [],
@@ -651,6 +655,26 @@
           "event": "pull_request"
         },
         {
+          "name": "Development inventory (read-only)",
+          "head_sha": "f7557bc6b567a5068ea2e3057ceec1b9b21c8f3a",
+          "conclusion": null,
+          "status": "in_progress",
+          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43827521836",
+          "id": 43827521836,
+          "updated_at": "2026-11-16T07:57:57Z",
+          "event": "schedule"
+        },
+        {
+          "name": "Development inventory (read-only)",
+          "head_sha": "f7557bc6b567a5068ea2e3057ceec1b9b21c8f3a",
+          "conclusion": "success",
+          "status": "completed",
+          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43807185793",
+          "id": 43807185793,
+          "updated_at": "2026-11-16T05:01:04Z",
+          "event": "push"
+        },
+        {
           "name": "JASPIC admin monitor SQL",
           "head_sha": "f7557bc6b567a5068ea2e3057ceec1b9b21c8f3a",
           "conclusion": "success",
@@ -661,26 +685,6 @@
           "event": "push"
         },
         {
-          "name": "CI",
-          "head_sha": "f7557bc6b567a5068ea2e3057ceec1b9b21c8f3a",
-          "conclusion": null,
-          "status": "in_progress",
-          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43807185727",
-          "id": 43807185727,
-          "updated_at": "2026-11-16T04:57:43Z",
-          "event": "push"
-        },
-        {
-          "name": "Development inventory (read-only)",
-          "head_sha": "f7557bc6b567a5068ea2e3057ceec1b9b21c8f3a",
-          "conclusion": null,
-          "status": "in_progress",
-          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43807185793",
-          "id": 43807185793,
-          "updated_at": "2026-11-16T04:57:43Z",
-          "event": "push"
-        },
-        {
           "name": "Ledger facts proposal PR (review required)",
           "head_sha": "f7557bc6b567a5068ea2e3057ceec1b9b21c8f3a",
           "conclusion": "success",
@@ -688,6 +692,16 @@
           "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43807185776",
           "id": 43807185776,
           "updated_at": "2026-11-16T04:57:53Z",
+          "event": "push"
+        },
+        {
+          "name": "CI",
+          "head_sha": "f7557bc6b567a5068ea2e3057ceec1b9b21c8f3a",
+          "conclusion": "success",
+          "status": "completed",
+          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43807185727",
+          "id": 43807185727,
+          "updated_at": "2026-11-16T04:58:34Z",
           "event": "push"
         }
       ],
@@ -797,9 +811,9 @@
       "production": "未確認（main統合／Vercelプレビューから推定しない）",
       "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
       "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
-      "fingerprint": "bad0e397e1283070ff17c1f7ece5315b28c4d48d8abbe2816e9dcac8302c6ce3",
+      "fingerprint": "3a7638ac9d3effc5043504086762051ef46f0e8ff73b10ee5887883cdc22565d",
       "ci_digest": "4a1301e7c8ebc0ce450667c1e9ad9de937c3d1fc2212c8e5e19128c1d5fd7500",
-      "collected_at": "2026-11-16T04:57:56.343713+00:00",
+      "collected_at": "2026-11-16T07:58:05.464556+00:00",
       "decisions": [
         {
           "kind": "test",
@@ -115828,6 +115842,6 @@
     "pr_cases": 216,
     "branches": 239,
     "errors": [],
-    "api_calls": 18
+    "api_calls": 6
   }
 }
