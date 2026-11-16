@@ -18,24 +18,13 @@
 
 関連PR：[#252](https://github.com/miyazaki1016/emergencyalert/pull/252)
 
-根拠取得日時 (UTC)：2026-11-16T13:14:26.113034+00:00
+根拠取得日時 (UTC)：2026-11-16T13:15:12.233837+00:00
 
 
 ## 実際の変更処理（コードから抽出）
 
 差分・ソースを参照
 
-- [app/components/NationalHeavyRainForecast.tsx](https://github.com/miyazaki1016/emergencyalert/blob/43b7a640eb730bf56edfce78c20f2ef1c15b683f/app/components/NationalHeavyRainForecast.tsx)：同一HEADのPR案件に原文収録
-- [app/components/national-heavy-rain-forecast.module.css](https://github.com/miyazaki1016/emergencyalert/blob/43b7a640eb730bf56edfce78c20f2ef1c15b683f/app/components/national-heavy-rain-forecast.module.css)：同一HEADのPR案件に原文収録
-- [docs/DEVELOPMENT_LEDGER.md](https://github.com/miyazaki1016/emergencyalert/blob/43b7a640eb730bf56edfce78c20f2ef1c15b683f/docs/DEVELOPMENT_LEDGER.md)：同一HEADのPR案件に原文収録
-- [docs/NATIONAL_FORECAST_HOME_209.md](https://github.com/miyazaki1016/emergencyalert/blob/43b7a640eb730bf56edfce78c20f2ef1c15b683f/docs/NATIONAL_FORECAST_HOME_209.md)：同一HEADのPR案件に原文収録
-- [docs/sql/national-rain-forecast-snapshot.sql](https://github.com/miyazaki1016/emergencyalert/blob/43b7a640eb730bf56edfce78c20f2ef1c15b683f/docs/sql/national-rain-forecast-snapshot.sql)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/nationalForecastRadar.ts](https://github.com/miyazaki1016/emergencyalert/blob/43b7a640eb730bf56edfce78c20f2ef1c15b683f/lib/weather/rain/nationalForecastRadar.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/nationalForecastSnapshot.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/43b7a640eb730bf56edfce78c20f2ef1c15b683f/lib/weather/rain/nationalForecastSnapshot.test.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/nationalForecastSnapshot.ts](https://github.com/miyazaki1016/emergencyalert/blob/43b7a640eb730bf56edfce78c20f2ef1c15b683f/lib/weather/rain/nationalForecastSnapshot.ts)：同一HEADのPR案件に原文収録
-- [scripts/national-heavy-rain-scan.ts](https://github.com/miyazaki1016/emergencyalert/blob/43b7a640eb730bf56edfce78c20f2ef1c15b683f/scripts/national-heavy-rain-scan.ts)：同一HEADのPR案件に原文収録
-- [scripts/render-national-rain-mp4.ts](https://github.com/miyazaki1016/emergencyalert/blob/43b7a640eb730bf56edfce78c20f2ef1c15b683f/scripts/render-national-rain-mp4.ts)：同一HEADのPR案件に原文収録
-- [tests/sql/national-rain-forecast-snapshot-integration.sql](https://github.com/miyazaki1016/emergencyalert/blob/43b7a640eb730bf56edfce78c20f2ef1c15b683f/tests/sql/national-rain-forecast-snapshot-integration.sql)：同一HEADのPR案件に原文収録
 
 ## 検証実行の事実
 
