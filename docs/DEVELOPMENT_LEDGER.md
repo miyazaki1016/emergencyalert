@@ -4,6 +4,12 @@
 
 **案件の状態・担当・次の一手を更新する場所はここ。** 状態を変える際は、確認日・PRやブランチ・該当ファイル・検証証拠を残す。main、本番、実機は別々に判定する。
 
+## 全国大雨予報・MYアメふるの5分周期移行（2026-11-16）
+
+- [Issue #250](https://github.com/miyazaki1016/emergencyalert/issues/250) の [着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/43849922596) は公開確定、preflight成功、REVIEW_RECORDED。
+- ブランチ `feat/rain-actions-schedule-250` で、PR #243の全国スキャナとLRPM、既存のwatch-rainをActionsにつなぐ。根拠、稼働手順、残課題は[作業記録](NATIONAL_RAIN_ACTIONS_250.md)を参照。
+- 次はDraft PRの最新HEADのCIと隔離受入。本番Storage配置、保存SQL、スケジュール有効化、実通知、main統合は承認後。
+
 ## 中断・再開チェックポイント
 
 担当ソラは[中断・復帰手順](WORK_RESUME.md)に沿って、再開地点と証拠を記録する。通知文C案は既存の [Issue #205](https://github.com/miyazaki1016/emergencyalert/issues/205) の作業記録から再開できる。

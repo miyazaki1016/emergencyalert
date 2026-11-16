@@ -1,0 +1,246 @@
+import { readFileSync } from "node:fs";
+import { createClient } from "@supabase/supabase-js";
+import { setTimeout as delay } from "node:timers/promises";
+import { requireCompleteNationwideN03 } from "../lib/weather/rain/lightRainNationwideN03";
+import { fetchForecastTargetTimes, type JmaTargetTime } from "../lib/weather/providers/jma/targetTimes";
+import { buildJmaRainTileUrl } from "../lib/weather/providers/jma/tileUrl";
+import { locateJmaRainPixelsAtLeast1mm } from "../lib/weather/rain/lightRainProof";
+import { municipalitiesForLightRainTile } from "../lib/weather/rain/lightRainMunicipalities";
+import { matchHeavyRainPixelsToMasks } from "../lib/weather/rain/lightRainPixelMasks";
+import { openNationwidePixelMasks } from "../lib/weather/rain/lightRainPixelMaskLoader";
+import { forecastTime, readNationalForecastSnapshot, type NationalForecastSnapshot } from "../lib/weather/rain/nationalForecastSnapshot";
+import { affectedAdministrativeAreas, type AdministrativeArea } from "../lib/weather/rain/lightRainAdministrativeAreas";
+
+const root = process.argv[2] ?? "";
+if (!root) throw new Error("N03 root required");
+const MAX_TILES=Number(process.env.Z10_MAX_TILES||"2500");
+const maskDir = process.env.JMA_Z10_PIXEL_MASK_DIR ?? "";
+if (!maskDir) throw new Error("JMA_Z10_PIXEL_MASK_DIR is required");
+const N03_VERSION = "20260101";
+const pixelMasks = openNationwidePixelMasks(maskDir, N03_VERSION);
+const tiles4=[[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;
+const FIVE_MINUTES = 300_000;
+const lon=(x:number,z:number)=>x/(2**z)*360-180;
+const lat=(y:number,z:number)=>Math.atan(Math.sinh(Math.PI-2*Math.PI*y/(2**z)))*180/Math.PI;
+function bbox(area:AdministrativeArea):[number,number,number,number]{
+  const polys=area.geometry.type==="Polygon"?[area.geometry.coordinates as number[][][]]:area.geometry.coordinates as number[][][][];
+  let w=Infinity,s=Infinity,e=-Infinity,n=-Infinity;
+  for(const p of polys)for(const ring of p)for(const [x,y]of ring){w=Math.min(w,x);s=Math.min(s,y);e=Math.max(e,x);n=Math.max(n,y);}
+  return [w,s,e,n];
+}
+const xy=(longitude:number,latitude:number,z:number):[number,number]=>{
+  const safe=Math.max(-85.05112878,Math.min(85.05112878,latitude));
+  const rad=safe*Math.PI/180;
+  return [Math.floor((longitude+180)/360*2**z),Math.floor((1-Math.asinh(Math.tan(rad))/Math.PI)/2*2**z)];
+};
+async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:number,y:number, signal:AbortSignal){
+  const url=buildJmaRainTileUrl(frame,z,x,y);
+  const attempts: string[] = [];
+  for (let attempt = 0; attempt < 2; attempt++) {
+    signal.throwIfAborted();
+    const started = performance.now();
+    let outcome = "transport_error";
+    try {
+      const response = await fetch(url, { cache: "no-store", signal: AbortSignal.any([signal, AbortSignal.timeout(8_000)]) });
+      const headersMs = Math.round(performance.now()-started);
+      outcome = "HTTP_" + response.status;
+      if (response.ok) {
+        const bytes = Buffer.from(await response.arrayBuffer());
+        const bodyDoneMs = Math.round(performance.now()-started);
+        outcome = "ok";
+        console.log(JSON.stringify({event:"JMA_TILE_FETCH",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome:"ok",httpStatus:response.status,headersMs,bodyMs:bodyDoneMs-headersMs,elapsedMs:bodyDoneMs,bytes:bytes.length,cacheStatus:response.headers.get("x-cache")}));
+        return bytes;
+      }
+      attempts.push("HTTP " + response.status);
+      if (![404, 408, 429, 500, 502, 503, 504].includes(response.status)) break;
+    } catch (error) {
+      outcome = signal.aborted ? "slot_deadline_abort" : error instanceof Error ? error.name : "TransportError";
+      attempts.push(outcome);
+    } finally {
+      if (outcome !== "ok") {
+        console.log(JSON.stringify({event:"JMA_TILE_FETCH",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome,elapsedMs:Math.round(performance.now()-started)}));
+      }
+    }
+    if (attempt < 1) await delay(500, undefined, { signal });
+  }
+  throw new Error(`INCOMPLETE_JMA_TILE ${url} attempts: ${attempts.join(", ")}`);
+}
+function selectFrames(targets: JmaTargetTime[], now: number): JmaTargetTime[] {
+  const basetime = targets
+    .map(frame => frame.basetime)
+    .filter(base => forecastTime(base) <= now && now - forecastTime(base) < 2 * FIVE_MINUTES)
+    .sort().at(-1);
+  if (!basetime) throw new Error("NO_FRESH_JMA_BASETIME");
+  const base = forecastTime(basetime);
+  const frames = targets.filter(frame => frame.basetime === basetime
+    && forecastTime(frame.validtime) > base && forecastTime(frame.validtime) <= base + 6 * FIVE_MINUTES);
+  if (frames.length !== 6 || frames.some((frame, i) => forecastTime(frame.validtime) !== base + (i + 1) * FIVE_MINUTES)) {
+    throw new Error("INCOMPLETE_JMA_FRAMES: expected six consecutive forecast frames from one basetime");
+  }
+  return frames;
+}
+
+async function refineFrame(
+  frame: JmaTargetTime,
+  indexed: Array<{ area: AdministrativeArea; b: ReturnType<typeof bbox> }>,
+  areaByCode: Map<string, AdministrativeArea>,
+  signal: AbortSignal,
+) {
+  const started = performance.now();
+  const candidates = new Map<string, AdministrativeArea>();
+  const rainyZ10Tiles = new Map<string, { x: number; y: number }>();
+  for (const [x, y] of tiles4) {
+    const bounds = [lon(x, 4), lat(y + 1, 4), lon(x + 1, 4), lat(y, 4)];
+    const relevant = indexed.filter(({ b }) => b[0] <= bounds[2] && b[2] >= bounds[0]
+      && b[1] <= bounds[3] && b[3] >= bounds[1]).map(({ area }) => area);
+    const buffer = await fetchTile(frame, 4, x, y, signal);
+    const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 4, x, y);
+    if (!pixels.length) continue;
+    for (const area of municipalitiesForLightRainTile(buffer, 4, x, y, relevant)) {
+      candidates.set(area.code, areaByCode.get(area.code)!);
+    }
+    // Each z4 PNG pixel spans 1/4 of a z10 tile and the grids share an origin.
+    for (const { pixelX, pixelY } of pixels) {
+      const tileX = x * 64 + Math.floor(pixelX / 4);
+      const tileY = y * 64 + Math.floor(pixelY / 4);
+      rainyZ10Tiles.set(tileX + "/" + tileY, { x: tileX, y: tileY });
+    }
+  }
+  const z4Done = performance.now();
+  const tileMap = new Map<string, { x: number; y: number; areas: AdministrativeArea[] }>();
+  for (const area of candidates.values()) {
+    const [w, s, e, n] = bbox(area);
+    const [minX, minY] = xy(w, n, 10), [maxX, maxY] = xy(e, s, 10);
+    for (const [key, { x, y }] of rainyZ10Tiles) {
+      if (x < minX || x > maxX || y < minY || y > maxY) continue;
+      const entry = tileMap.get(key) ?? { x, y, areas: [] };
+      entry.areas.push(area);
+      tileMap.set(key, entry);
+    }
+  }
+  if (tileMap.size > MAX_TILES) {
+    throw new Error(`Z10_TILE_BUDGET_EXCEEDED: ${tileMap.size} > ${MAX_TILES}; no partial result accepted`);
+  }
+  const tilePlanDone=performance.now();
+  const matched=new Map<string, NationalForecastSnapshot["frames"][number]["municipalities"][number]>();
+  let z10NetworkMs=0,z10MatchingMs=0;
+  const entries=[...tileMap.values()];
+  const z10Concurrency = Number(process.env.JMA_Z10_CONCURRENCY ?? "4");
+  if (![4, 8].includes(z10Concurrency)) throw new Error("JMA_Z10_CONCURRENCY must be 4 or 8");
+  let rainyTiles=0;
+  for(let i=0;i<entries.length;i+=z10Concurrency){
+    signal.throwIfAborted();
+    const batch=entries.slice(i,i+z10Concurrency);
+    const outcomes=await Promise.allSettled(batch.map(async t=>{
+      const fetchStart=performance.now();
+      const buffer=await fetchTile(frame,10,t.x,t.y,signal);
+      const fetchMs=performance.now()-fetchStart;
+      const matchStart=performance.now();
+      const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 10, t.x, t.y);
+      const decodeMs=performance.now()-matchStart;
+      // The LRPM generator omits tiles with no intersecting pixels. A bounding-box
+      // candidate can therefore be absent. Prove the whole tile is disjoint
+      // before accepting that absence; declared or land-overlapping tiles stay strict.
+      const unlistedAndDisjoint = pixels.length > 0 && !pixelMasks.has(t.x, t.y)
+        && !affectedAdministrativeAreas([{ coordinates: [[
+          [lon(t.x, 10), lat(t.y, 10)], [lon(t.x + 1, 10), lat(t.y, 10)],
+          [lon(t.x + 1, 10), lat(t.y + 1, 10)], [lon(t.x, 10), lat(t.y + 1, 10)],
+          [lon(t.x, 10), lat(t.y, 10)],
+        ]] }], t.areas).length;
+      const municipalities = pixels.length && !unlistedAndDisjoint
+        ? matchHeavyRainPixelsToMasks(pixels, t.x, t.y, pixelMasks.load(t.x, t.y), t.areas)
+        : [];
+      const matchingMs=performance.now()-matchStart;
+      console.log(JSON.stringify({event:"JMA_TILE_PROCESS",basetime:frame.basetime,validtime:frame.validtime,z:10,x:t.x,y:t.y,decodeMs:Math.round(decodeMs),matchingMs:Math.round(matchingMs),fetchMs:Math.round(fetchMs)}));
+      return {rainy: pixels.length > 0, municipalities, fetchMs, matchingMs};
+    }));
+    for (const outcome of outcomes) {
+      if (outcome.status === "rejected") throw outcome.reason;
+      const { rainy, municipalities, fetchMs, matchingMs } = outcome.value;
+      z10NetworkMs += fetchMs;
+      z10MatchingMs += matchingMs;
+      if (rainy) rainyTiles++;
+      for (const area of municipalities) {
+        if ((matched.get(area.code)?.minimumMmPerHour ?? 0) < area.minimumMmPerHour) matched.set(area.code, area);
+      }
+    }
+  }
+  const z10Done=performance.now();
+  const round=(n:number)=>Math.round(n);
+  const timingMs={z4ScanAndCandidateMatch:round(z4Done-started),z10TilePlanning:round(tilePlanDone-z4Done),z10WallClock:round(z10Done-tilePlanDone),z10NetworkCumulative:round(z10NetworkMs),z10DecodeAndMunicipalityMatchCumulative:round(z10MatchingMs),total:round(z10Done-started)};
+  return {
+    validtime: frame.validtime,
+    timingMs,
+    z4Candidates: candidates.size,
+    z10TilesChecked: entries.length,
+    z10RainyTiles: rainyTiles,
+    z10Municipalities: matched.size,
+    municipalities: [...matched.values()].sort((a, b) => a.code.localeCompare(b.code)),
+  };
+}
+
+async function main() {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error("Missing forecast storage credentials");
+  const db = createClient(url, key, { auth: { persistSession: false } });
+  const { data: last, error } = await db.from("national_rain_forecast_snapshot")
+    .select("basetime").eq("id", 1).maybeSingle();
+  if (error) throw new Error("FORECAST_BASETIME_READ_FAILED");
+
+  const timeIndexSignal = AbortSignal.timeout(15_000);
+  const targets = await fetchForecastTargetTimes((input, init) =>
+    fetch(input, { ...init, signal: timeIndexSignal }));
+  const frames = selectFrames(targets, Date.now());
+  const basetime = frames[0].basetime;
+  const baseMs = forecastTime(basetime);
+  if (last?.basetime && last.basetime >= basetime) {
+    console.log(JSON.stringify({ event: "FORECAST_ALREADY_PUBLISHED", basetime }));
+    return;
+  }
+  const deadline = baseMs + 2 * FIVE_MINUTES;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(new Error("FORECAST_EXPIRED")), Math.max(0, deadline - Date.now()));
+  try {
+    const coverage = requireCompleteNationwideN03(root);
+    const manifest = JSON.parse(readFileSync(maskDir + "/manifest.json", "utf8"));
+    if (manifest.municipalities !== coverage.municipalities) throw new Error("N03_LRPM_COVERAGE_MISMATCH");
+    const indexed = coverage.areas.map(area => ({ area, b: bbox(area) }));
+    const areaByCode = new Map(coverage.areas.map(area => [area.code, area]));
+    const results = [];
+    for (let i = 0; i < frames.length; i += 2) {
+      const batch = await Promise.allSettled(frames.slice(i, i + 2)
+        .map(frame => refineFrame(frame, indexed, areaByCode, controller.signal)));
+      for (const result of batch) {
+        if (result.status === "rejected") throw result.reason;
+        results.push(result.value);
+      }
+    }
+    controller.signal.throwIfAborted();
+    if (Date.now() >= deadline) throw new Error("FORECAST_EXPIRED");
+    const snapshot: NationalForecastSnapshot = {
+      source: "JMA", n03Version: N03_VERSION, basetime,
+      frames: results.map(frame => ({ validTime: frame.validtime, municipalities: frame.municipalities })),
+    };
+    readNationalForecastSnapshot(snapshot);
+    const { data: written, error: writeError } = await db.rpc("publish_national_rain_forecast", { p_snapshot: snapshot })
+      .abortSignal(controller.signal);
+    if (writeError) throw new Error("FORECAST_WRITE_FAILED");
+    if (!written) {
+      console.log(JSON.stringify({ event: "FORECAST_ALREADY_PUBLISHED", basetime }));
+      return;
+    }
+    const missingSlots = last?.basetime ? (baseMs - forecastTime(last.basetime)) / FIVE_MINUTES - 1 : 0;
+    console.log(JSON.stringify({ event: "FORECAST_PUBLISHED", basetime, missingSlots, frames: results.map(
+      frame => ({ validTime: frame.validtime, tiles: frame.z10TilesChecked, timingMs: frame.timingMs }),
+    ) }));
+    if (missingSlots > 0) throw new Error("FORECAST_BASETIME_GAP");
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+main().catch(error => {
+  console.error(error instanceof Error ? error.message : "FORECAST_SCAN_FAILED");
+  process.exitCode = 1;
+});

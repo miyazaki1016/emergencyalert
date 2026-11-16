@@ -1,0 +1,55 @@
+name: Nationwide heavy rain forecast
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: national-heavy-rain-production
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    if: github.repository == 'miyazaki1016/emergencyalert' && vars.NATIONAL_HEAVY_RAIN_ACTIONS_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-save --no-package-lock --no-audit --no-fund tsx@4.20.6
+      # These official-N03-derived assets were already shared in the public
+      # verification artifacts. Never cache credentials or signed URLs here.
+      - uses: actions/cache/restore@v4
+        id: inputs
+        with:
+          path: |
+            ${{ runner.temp }}/n03
+            ${{ runner.temp }}/lrpm
+          key: national-heavy-rain-n03-20260101-lrpm-v1-5fb0823f190e
+      - name: Prepare verified N03 and LRPM inputs
+        id: prepare
+        if: steps.inputs.outputs.cache-hit != 'true'
+        env:
+          SUPABASE_URL: ${{ secrets.RAIN_ACTIONS_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.RAIN_ACTIONS_SUPABASE_SERVICE_ROLE_KEY }}
+        run: node --import tsx scripts/prepare-national-rain-inputs.ts "$RUNNER_TEMP/n03" "$RUNNER_TEMP/lrpm"
+      - name: Scan and publish latest fresh forecast
+        env:
+          SUPABASE_URL: ${{ secrets.RAIN_ACTIONS_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.RAIN_ACTIONS_SUPABASE_SERVICE_ROLE_KEY }}
+          JMA_Z10_CONCURRENCY: '8'
+        run: JMA_Z10_PIXEL_MASK_DIR="$RUNNER_TEMP/lrpm/20260101-v1" node --import tsx scripts/national-heavy-rain-scan.ts "$RUNNER_TEMP/n03"
+      - uses: actions/cache/save@v4
+        if: always() && steps.inputs.outputs.cache-hit != 'true' && steps.prepare.outcome == 'success'
+        with:
+          path: |
+            ${{ runner.temp }}/n03
+            ${{ runner.temp }}/lrpm
+          key: ${{ steps.inputs.outputs.cache-primary-key }}
