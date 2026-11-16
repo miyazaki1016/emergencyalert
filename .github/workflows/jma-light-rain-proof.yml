@@ -1,0 +1,22 @@
+name: JMA 1mm rain read-only proof (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-jma-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - name: Scan six real JMA frames (read only; no publish)
+        env:
+          RUN_JMA_LIGHT_RAIN_LIVE: '1'
+        run: npm test -- lib/weather/rain/lightRainProof.live.test.ts
