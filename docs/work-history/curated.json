@@ -1296,6 +1296,14 @@
         "https://github.com/miyazaki1016/emergencyalert/pull/193",
         "https://github.com/miyazaki1016/emergencyalert/blob/feat/jaspic-completion-mail/docs/research/JASPIC_COMPLETION_NOTIFICATION_20261110.md"
       ]
-    }
+    },
+      "248": {
+        "summary": "JASPICの18時配信を20件ずつ自動継続し、Google認証状態と県別集計を完了メールに追加",
+        "conclusion": "既存の配信台帳とResend通知を再利用。日次の処理に限るSupabaseジョブで継続と完了通知を行う。0・20・34・50・100件、途中停止、通知再試行を模擬環境で検証。本番受入は別途。",
+        "evidence": [
+          "https://github.com/miyazaki1016/emergencyalert/pull/248",
+          "https://github.com/miyazaki1016/emergencyalert/pull/248/checks"
+        ]
+      }
   }
 }

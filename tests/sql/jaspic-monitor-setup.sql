@@ -7,7 +7,17 @@ create table vault.decrypted_secrets(name text primary key,decrypted_secret text
 create schema cron;
 create table cron.job(jobid bigint primary key,jobname text,schedule text,active boolean);
 create table cron.job_run_details(jobid bigint,status text,start_time timestamptz);
-create function cron.schedule(text,text,text) returns bigint language sql as $$select 42::bigint$$;
+create table cron.scheduled_commands(jobname text primary key,schedule text,command text);
+create function cron.schedule(text,text,text) returns bigint language sql as $$
+ insert into cron.scheduled_commands values($1,$2,$3) on conflict(jobname) do update set command=excluded.command;
+ select 42::bigint
+$$;
+create function cron.unschedule(text) returns boolean language plpgsql as $$
+begin
+ delete from cron.scheduled_commands where jobname=$1;
+ return found;
+end
+$$;
 create schema net;
 create table net._http_response(id bigint,status_code integer,content text);
 create table net.requests(id bigserial primary key,url text,body jsonb,headers jsonb);

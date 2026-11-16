@@ -1,31 +1,24 @@
-# Issue #247 — JASPIC 自動継続・完了通知の実装チェックポイント
+# JASPIC 18時配信の自動継続と完了通知
 
-> 2026-11-16。実装前の安全設計。**本番反映・DB変更・メール実送信は未実施。** 既存の送信台帳・OAuthを再利用する。
+対象は [Issue #247](https://github.com/miyazaki1016/emergencyalert/issues/247) と [Draft PR #248](https://github.com/miyazaki1016/emergencyalert/pull/248)、ブランチ `feat/jaspic-self-continue-oauth-summary-247`。2026-11-16に最新main `b4ed8c614d616c8fbd032e8961904307287c43a3` を確認。着手前照合は [Issue REVIEW_RECORDED](https://github.com/miyazaki1016/emergencyalert/actions/runs/43804944995)、[設計時点のPR NO_STRONG_MATCH](https://github.com/miyazaki1016/emergencyalert/actions/runs/43805119747)。最新コミットの検証結果はPR本文を参照。
 
-## 確認済みの現状（main）
+## 配信と通知
 
-- `app/jaspic/dispatch/route.ts` は `jaspic_begin_run` の排他を取得し、`SENDING/UNKNOWN/FAILED` があれば停止、`PREPARED` があれば `jaspic_resume_prepared` で再開する。送信は `selectDispatchBatch` により最大20件。最後に `remainingPrepared` を記録して `SUCCEEDED` を返すが、**次の実行を自ら起動しない**。
-- 既存の `jaspic_monitor.scan_completions()` は残キューを見て `pg_net` で `/jaspic/dispatch` を再起動する。5分監視cronを停止すると、この継続経路が使えない。
-- 既存の正常完了メールは `jaspic_monitor.completion_tick()` 側で生成・送信する。したがって、**次バッチだけを自己起動しても、停止中の5分cronに依存する完了メールは届かない**。配信と通知の両方を移行する必要がある。
-- `app/jaspic/dispatch/route.ts` はGmail refresh tokenを復号し、Google OAuth token endpointで更新してから送信する。認証チェックで追加の本番トークン更新を無断実行しない。
-- 既存 `jaspic_monitor` の認証期限はGoogleの実際の有効期限保証ではなく、testing modeの7日推定を含む。メールには「推定」「確認不能」を区別して記載する。
+- 既存18時ジョブが共有のdispatch認証と定時専用ヘッダーを送る。既存の排他取得後、JSTの対象日を台帳に登録して同日重複起動を防ぐ。その登録と日次の作業専用ジョブ作成は同じDBトランザクションで行う。通常の手動起動にはこのジョブを作らない。
+- 作業専用ジョブは当日の配信に限って1分ごとに処理し、既存スキャナーの台帳照合と `pg_net` の起動記録を再利用する。1バッチ最大20件、応答前に次の起動をDBへ記録し、同じバッチの起動は1回。送信先・台帳の配信ID・既存のclaimと結果確定処理は従来どおり。5分監視を有効化する必要はない。
+- 送信結果不明・中断・既存キューとの不整合は自動停止。タイムアウトしたHTTP起動を再発行せず、処理中のロックと未解決の配信行を維持する。古い保留キューを検出した場合は既存の回復手順で先に確認する。処理中のまま10分経過した場合は停止通知の対象とする。翌日と重複しないよう、新規の継続判定は開始から23時間まで。
+- 正常終了時は、最初の実行IDにひも付く全配信行を集計し、日付キーで既存の完了メールを1通作る。広島・滋賀の送信件数、送信合計、送信前の計画で隔離した保留の県別件数と合計を掲載する。送信結果不明や未処理のキュー行がある場合は停止通知とする。
+- 最終バッチ時に既存のGmail認証更新で確認した状態を掲載する。更新成功は「正常」、Googleの `invalid_grant` または認証未登録は「要再認証」、一時障害や読取不能は「確認不能」。既存の再認証ページを掲載し、トークンやGoogleの応答本文を記録しない。0件の日は認証を確認できない場合も完了通知を作れる。送信が必要な日に認証できなければ安全停止する。
+- 管理者メールは既存のResendキュー、1日12種類の上限、最大3回、固定の本文・冪等キーを再利用する。通知失敗は防犯メールの再送を起こさない。通知が終端状態になるか1時間たつと作業専用ジョブを削除する。通常の5分監視ジョブは別に管理する。
 
-## 実装方針と必須条件
+## 無送信検証
 
-1. **継続起動の永続性**：レスポンス送信後の `fetch` や `setTimeout` に依存しない。Supabaseの耐久キュー／単発ジョブを用い、完了したバッチの `remainingPrepared>0` だけ次バッチを登録する。登録の失敗を成功扱いしない。既存の監視を24時間再有効化しない。
-2. **排他・冪等**：`jaspic_begin_run`、`jaspic_claim`、`jaspic_finish_production` と `SENDING/UNKNOWN/FAILED` 停止条件を維持。二重トリガーでも同じ `province/record_key/version` を再送しない。キュー内全候補を保存した後だけスナップショット更新する。
-3. **全件完了の確定**：`remainingPrepared=0` だけでなく、同一対象日の未解決配送や失敗を確認し、正常終了時だけ日付キーで完了メールを1通生成する。途中バッチの `SUCCEEDED` を「全件完了」と誤認しない。0件の日も通知する。
-4. **完了メール**：既存のResend通知・送信回数制限・重複排除を再利用。広島/滋賀の実送信合計、保留件数、最終処理日時を全バッチ集計で記載する。OAuth状態は `正常（実際の更新成功確認時）`／`要再認証`／`確認不能` と区別し、推定期限はその旨を表示する。再認証URLは既存の `https://emergencyalert.news/jaspic/oauth` を使う。トークン・シークレットを含めない。
-5. **障害時**：認証チェック失敗で完了メール生成を妨げない。メール通知失敗は送信台帳と分離し、既存の再試行・idempotency keyを維持。配信処理の失敗やネットワーク結果不明では自動再送しない。
-6. **検証**：0/20/21/34/50/100件、県混在、バッチ起動重複、再開途中停止、Gmail応答不明、認証切れ、通知API失敗、完了通知の重複を無送信テスト。DB migrationを必要とする場合はロールバックと権限・cron設定差分を明記し、別途本番変更許可を得る。
+`tests/jaspic/dispatch-monitor.test.ts` は、配信先・Google・Supabaseのスタブで認証、重複起動と中断を確認する。`tests/sql/jaspic-monitor-integration.sql` は既存監視を含め、0・20・34・50・100件、県別集計・保留・完了通知1通、未確定の停止、Resend 503後の再試行を偽の `pg_net` と `pg_cron` で検証する。一次証拠は [PRの差分](https://github.com/miyazaki1016/emergencyalert/pull/248/files) と [PRのChecks](https://github.com/miyazaki1016/emergencyalert/pull/248/checks)。
 
-## 既存成果照合
+## 引き継ぎと本番切替
 
-- Issue #247 の着手前照合：REVIEW_RECORDED、[Actions #43804944995](https://github.com/miyazaki1016/emergencyalert/actions/runs/43804944995)
-- 分割送信：[#235](https://github.com/miyazaki1016/emergencyalert/issues/235)、[#238](https://github.com/miyazaki1016/emergencyalert/issues/238)、[PR #236](https://github.com/miyazaki1016/emergencyalert/pull/236)、[PR #240](https://github.com/miyazaki1016/emergencyalert/pull/240)
-- 既存完了通知・認証監視：[PR #193](https://github.com/miyazaki1016/emergencyalert/pull/193)、`docs/research/JASPIC_COMPLETION_NOTIFICATION_20261110.md`、`docs/sql/jaspic-admin-monitor.sql`
-- OAuth研究：[PR #155](https://github.com/miyazaki1016/emergencyalert/pull/155)
+本番切替には別途承認が必要。現行18時ジョブのコマンド、所有者、有効状態を控えてから、既存のバッチ完了SQLと同じ所有者で `psql -v ON_ERROR_STOP=1 -f docs/sql/jaspic-self-continue.sql` を適用する。これは関数とトリガーを定義する。依存SQLは `psql` の相対インクルードで読み込む。次に新しいdispatchを反映し、既存18時ジョブのコマンドを `select jaspic_monitor.dispatch_scheduled_1800();` に切り替える。ジョブ名と18時のスケジュールを引き継ぐ。本番のジョブ所有者が定時関数を実行できること、既存Vault設定、5分ジョブが停止中であることを確認してから切り替える。
 
-## 現時点の残課題
+戻す場合は、稼働中の配信・通知キューを確認し、18時ジョブのコマンドを記録済みの元の値へ戻す。処理中の配信を別ルートから再開する前に、台帳と保留・結果不明の行を確認する。不要な `jaspic-delivery-<初回実行ID>` の削除や登録トリガーの撤去は、既存キューの処理状況を確認してから行う。
 
-**実装未着手**。次はSupabaseの耐久起動経路・既存SQL権限の整合を検証し、dispatchと通知の変更、テスト、CIを行う。完了メールを5分cronに依存させたままでは受入不可。
+再利用の根拠は [PR #236](https://github.com/miyazaki1016/emergencyalert/pull/236)、[PR #240](https://github.com/miyazaki1016/emergencyalert/pull/240)、[PR #241](https://github.com/miyazaki1016/emergencyalert/pull/241)、[PR #193](https://github.com/miyazaki1016/emergencyalert/pull/193)、[PR #155](https://github.com/miyazaki1016/emergencyalert/pull/155)。
