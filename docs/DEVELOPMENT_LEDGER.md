@@ -10,6 +10,11 @@
 - ブランチ `feat/rain-actions-schedule-250` で、PR #243の全国スキャナとLRPM、既存のwatch-rainをActionsにつなぐ。根拠、稼働手順、残課題は[作業記録](NATIONAL_RAIN_ACTIONS_250.md)を参照。
 - 次はDraft PRの最新HEADのCIと隔離受入。本番Storage配置、保存SQL、スケジュール有効化、実通知、main統合は承認後。
 
+## さきどりトップの全国大雨カード（2026-11-16）
+
+- [Issue #209](https://github.com/miyazaki1016/emergencyalert/issues/209) の [着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/43871482625) はREVIEW_RECORDED。
+- PR #251の保存基盤を起点に、250m・1kmのカード、予報タイル再生、独立したMP4書き出しを開発。検証手順と承認事項は[作業記録](NATIONAL_FORECAST_HOME_209.md)を参照。
+
 ## 中断・再開チェックポイント
 
 担当ソラは[中断・復帰手順](WORK_RESUME.md)に沿って、再開地点と証拠を記録する。通知文C案は既存の [Issue #205](https://github.com/miyazaki1016/emergencyalert/issues/205) の作業記録から再開できる。

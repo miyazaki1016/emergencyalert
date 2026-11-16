@@ -24,6 +24,16 @@ begin
      or (select basetime from public.national_rain_forecast_snapshot where id = 1) <> current_base then
     raise exception 'Forecast monotonicity failed';
   end if;
+  snapshot := snapshot || jsonb_build_object('basetime', current_base);
+  if public.publish_national_rain_forecast(snapshot || '{"extra":true,"extendedFrames":[{},{},{},{},{},{}]}'::jsonb) then
+    raise exception 'Extended forecast changed the published detailed payload';
+  end if;
+  if not public.publish_national_rain_forecast(snapshot || '{"extendedFrames":[{},{},{},{},{},{}]}'::jsonb) then
+    raise exception 'Same-basetime extended forecast did not publish';
+  end if;
+  if public.publish_national_rain_forecast(snapshot) then
+    raise exception 'Detailed-only retry removed the extended forecast';
+  end if;
   begin
     perform public.publish_national_rain_forecast(snapshot || jsonb_build_object('basetime', expired_base));
     raise exception 'Expired forecast was accepted';

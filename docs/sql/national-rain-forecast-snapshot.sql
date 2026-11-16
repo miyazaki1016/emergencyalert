@@ -30,6 +30,13 @@ begin
     raise exception 'Incomplete forecast snapshot';
   end if;
 
+  if p_snapshot ? 'extendedFrames' then
+    if jsonb_typeof(p_snapshot->'extendedFrames') is distinct from 'array'
+       or jsonb_array_length(p_snapshot->'extendedFrames') <> 6 then
+      raise exception 'Incomplete extended forecast snapshot';
+    end if;
+  end if;
+
   base_at := make_timestamptz(substring(base, 1, 4)::integer,
     substring(base, 5, 2)::integer, substring(base, 7, 2)::integer,
     substring(base, 9, 2)::integer, substring(base, 11, 2)::integer,
@@ -45,7 +52,11 @@ begin
   values (1, base, p_snapshot, clock_timestamp())
   on conflict (id) do update set basetime = excluded.basetime,
     payload = excluded.payload, published_at = excluded.published_at
-  where excluded.basetime > snapshot.basetime;
+  where excluded.basetime > snapshot.basetime
+    or (excluded.basetime = snapshot.basetime
+      and excluded.payload ? 'extendedFrames'
+      and not (snapshot.payload ? 'extendedFrames')
+      and excluded.payload - 'extendedFrames' = snapshot.payload);
   return found;
 end;
 $$;
