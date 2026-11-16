@@ -8,7 +8,7 @@ vi.mock("../../lib/jaspic/production-gmail",()=>({sendProductionMail:mocks.send}
 vi.mock("../../lib/jaspic/oauth-gmail-token-store-server",()=>({readEncryptedGmailRefreshToken:mocks.refresh}));
 import {POST} from "../../app/jaspic/dispatch/route";
 
-function fixture(queue:unknown[]=[]){
+function fixture(queue:unknown[]=[], scheduledAlreadyProcessed=false){
  const writes:{table:string;row:Record<string,unknown>}[]=[];
  const rpc=vi.fn(async(name:string)=>({error:null,data:name==="jaspic_legacy_hiroshima_person_ids"?[]:true}));
  const query=(table:string,mode:"select"|"update"="select")=>{
@@ -17,6 +17,7 @@ function fixture(queue:unknown[]=[]){
     limit:async()=>({error:null,data:statuses.includes("PREPARED")?[]:[]}),
    }),
    eq:(_field:string,_value:unknown)=>q,
+   contains:()=>({limit:async()=>({error:null,data:scheduledAlreadyProcessed?[{id:"prior-run"}]:[]})}),
    order:()=>q,
    limit:async()=>({error:null,data:table==="jaspic_deliveries"?queue:[]}),
    then:(resolve:(value:unknown)=>unknown)=>resolve({error:null,data:table==="jaspic_deliveries"?queue:[],count:0}),
@@ -25,7 +26,7 @@ function fixture(queue:unknown[]=[]){
  };
  mocks.create.mockReturnValue({rpc,from:(table:string)=>({
   select:(_columns:string,_opts?:unknown)=>query(table),
-  update:(row:Record<string,unknown>)=>{writes.push({table,row});return {eq:()=>({eq:async()=>({error:null,data:[]})})};},
+  update:(row:Record<string,unknown>)=>{writes.push({table,row});return {eq:()=>({eq:()=>({select:async()=>({error:null,data:[{id:"synthetic-run"}]})})})};},
  })});
  return {writes,rpc};
 }
@@ -38,7 +39,7 @@ beforeEach(()=>{
  mocks.refresh.mockResolvedValue("synthetic-refresh");
  vi.stubGlobal("fetch",vi.fn(async()=>Response.json({access_token:"synthetic-access"})));
 });
-afterEach(()=>{vi.unstubAllEnvs();vi.unstubAllGlobals();});
+afterEach(()=>{vi.unstubAllEnvs();vi.unstubAllGlobals();vi.useRealTimers();});
 describe("JASPIC dispatch monitoring metadata",()=>{
  it("records both province fetch failures, sanitizes exceptions, and prepares/sends nothing",async()=>{
   const f=fixture();
@@ -54,9 +55,32 @@ describe("JASPIC dispatch monitoring metadata",()=>{
   expect(fetch).not.toHaveBeenCalled();
  });
  it("identifies Gmail authentication errors before preparing any mail",async()=>{
-  const f=fixture();mocks.refresh.mockRejectedValue(new Error("opaque credential details"));
+  const f=fixture();
+  mocks.plan.mockResolvedValue({candidates:[{}]});
+  mocks.refresh.mockRejectedValue(new Error("opaque credential details"));
   await POST(req());
-  expect(f.writes.find(w=>w.table==="jaspic_runs")!.row).toMatchObject({error_code:"JASPIC_RUN_FAILED",result:{stage:"gmail-auth"}});
+  expect(f.writes.find(w=>w.table==="jaspic_runs")!.row).toMatchObject({error_code:"GMAIL_REFRESH_FAILED",result:{stage:"gmail-auth",gmailAuth:"unknown"}});
+  expect(mocks.send).not.toHaveBeenCalled();
+ });
+ it.each([
+  ["reauthorize", () => Response.json({error:"invalid_grant"}, {status:400})],
+  ["unknown", () => Response.json({error:"unavailable"}, {status:503})],
+ ])("completes a zero-candidate run with authorization status %s", async (status, reply) => {
+  const f=fixture();
+  vi.stubGlobal("fetch",vi.fn(async()=>reply()));
+  expect((await POST(req())).status).toBe(200);
+  expect(f.writes.find(w=>w.table==="jaspic_runs")!.row)
+   .toMatchObject({status:"SUCCEEDED",result:{gmailAuth:status,remainingPrepared:0}});
+  expect(mocks.send).not.toHaveBeenCalled();
+ });
+ it("stops before preparing or sending when Google revokes authorization for a nonempty run", async () => {
+  const f=fixture();
+  mocks.plan.mockResolvedValue({candidates:[{}]});
+  vi.stubGlobal("fetch",vi.fn(async()=>Response.json({error:"invalid_grant"},{status:400})));
+  expect((await POST(req())).status).toBe(503);
+  expect(f.writes.find(w=>w.table==="jaspic_runs")!.row)
+   .toMatchObject({error_code:"GMAIL_REAUTH_REQUIRED",result:{gmailAuth:"reauthorize"}});
+  expect(f.rpc.mock.calls.map(([name])=>name)).not.toContain("jaspic_prepare_all_production");
   expect(mocks.send).not.toHaveBeenCalled();
  });
  it("keeps numeric Gmail error codes and partial-success counts without retrying messages",async()=>{
@@ -66,6 +90,20 @@ describe("JASPIC dispatch monitoring metadata",()=>{
   expect(result.error).toBe("GMAIL_HTTP_403");
   expect(mocks.send).toHaveBeenCalledTimes(2);
   expect(f.writes.find(w=>w.table==="jaspic_runs")!.row).toMatchObject({result:{stage:"gmail-send",province:"shiga",sent:{hiroshima:1,shiga:0}}});
+ });
+ it.each([false,true])("guards repeated scheduled starts (prior run: %s)",async(prior)=>{
+  const f=fixture([],prior);
+  vi.useFakeTimers({toFake:["Date"]});
+  vi.setSystemTime(new Date("2026-11-16T09:01:00Z"));
+  const scheduled=new Request(req(),{headers:{Authorization:"Bearer synthetic-dispatch","X-JASPIC-Trigger":"scheduled-1800"}});
+  const result=await (await POST(scheduled)).json();
+  if(prior){
+   expect(result.error).toBe("SCHEDULED_ALREADY_PROCESSED");
+   expect(mocks.collect).not.toHaveBeenCalled();
+  }else{
+   expect(f.writes[0]?.row).toEqual({result:{scheduledDay:"2026-11-16"}});
+   expect(result).toMatchObject({status:"SUCCEEDED",scheduledDay:"2026-11-16",gmailAuth:"normal"});
+  }
  });
  it("refuses unauthorized invocation before database or mail operations",async()=>{
   fixture();expect((await POST(new Request("https://emergencyalert.news/jaspic/dispatch",{method:"POST"}))).status).toBe(401);

@@ -3,6 +3,7 @@ import {timingSafeEqual,randomUUID} from "node:crypto";
 import {readEncryptedGmailRefreshToken} from "../../../lib/jaspic/oauth-gmail-token-store-server";
 import {collect, type Province} from "../../../supabase/functions/_shared/jaspic/collect";
 import {productionPlan} from "../../../lib/jaspic/production-plan";
+import {refreshDispatchGmail, type DispatchGmailAuth} from "../../../lib/jaspic/dispatch-gmail-auth";
 import {sendProductionMail} from "../../../lib/jaspic/production-gmail";
 import {selectDispatchBatch} from "../../../lib/jaspic/dispatch-batch";
 
@@ -29,11 +30,31 @@ export async function POST(request:Request) {
   const id=randomUUID(); let started=false;
   const sent={hiroshima:0,shiga:0};
   let stage="begin-run";
+  let gmailAuth:DispatchGmailAuth="unknown";
+  let priorRunId:string|null=null;
+  let resuming=false;
+  let scheduledDay:string|null=null;
+  const scheduled=request.headers.get("x-jaspic-trigger")==="scheduled-1800";
+  const priorRun=request.headers.get("x-jaspic-resume-run");
+  if(scheduled && priorRun!==null)return response({error:"INVALID_TRIGGER"},400);
   let province:Province|null=null;
   const sourceErrors:{province:Province;code:string}[]=[];
   try {
     if (!await rpc("jaspic_begin_run",{p_id:id})) return response({error:"RUN_LOCKED"},409);
     started=true;
+    if(scheduled){
+      stage="scheduled-guard";
+      const jst=new Date(dispatchStartedAt+9*60*60*1000).toISOString();
+      if(jst.slice(11,16)<"18:00" || jst.slice(11,16)>="18:10")throw new Error("SCHEDULED_WINDOW_CLOSED");
+      const day=jst.slice(0,10);
+      const previous=await db.from("jaspic_runs").select("id").contains("result",{scheduledDay:day}).limit(1);
+      if(previous.error)throw new Error("SCHEDULED_GUARD_FAILED");
+      if(previous.data.length)throw new Error("SCHEDULED_ALREADY_PROCESSED");
+      const registered=await db.from("jaspic_runs").update({result:{scheduledDay:day}})
+        .eq("id",id).eq("status","RUNNING").select("id");
+      if(registered.error||registered.data.length!==1)throw new Error("SCHEDULED_REGISTRATION_FAILED");
+      scheduledDay=day;
+    }
     // Never observe a new source snapshot while any older delivery is pending.
     // A previous interrupted RUNNING run remains locked for manual review.
     stage="queue-guard";
@@ -44,13 +65,14 @@ export async function POST(request:Request) {
     }
     const pending=await db.from("jaspic_deliveries").select("record_key").eq("status","PREPARED").limit(1);
     if(pending.error)throw new Error("QUEUE_READ_FAILED");
-    const resuming=pending.data.length>0;
-    const priorRun=request.headers.get("x-jaspic-resume-run");
+    resuming=pending.data.length>0;
+    if(scheduled && resuming)throw new Error("SCHEDULED_QUEUE_UNRESOLVED");
     if (priorRun !== null) {
-      if (!/^[0-9a-f-]{36}$/.test(priorRun)) throw new Error("INVALID_RESUME_RUN");
+      if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(priorRun)) throw new Error("INVALID_RESUME_RUN");
       const queued=await db.from("jaspic_deliveries").select("run_id")
         .eq("status","PREPARED").eq("run_id",priorRun).limit(1);
       if (queued.error || !queued.data.length) throw new Error("RESUME_QUEUE_CHANGED");
+      priorRunId=priorRun;
     }
     let plans: {province:Province;result:Awaited<ReturnType<typeof productionPlan>>}[]=[];
     if(!resuming){
@@ -73,12 +95,14 @@ export async function POST(request:Request) {
       }
     // Refresh validates the existing encrypted OAuth credential even for a zero-item run.
     stage="gmail-auth";
-    const refresh=await readEncryptedGmailRefreshToken({db,ownerId,expectedAdminId:ownerId,encryptionKey});
-    if(!refresh)throw new Error("GMAIL_NOT_CONNECTED");
-    const tokenResponse=await fetch("https://oauth2.googleapis.com/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({client_id:clientId,client_secret:clientSecret,refresh_token:refresh,grant_type:"refresh_token"}),redirect:"error",cache:"no-store",signal:AbortSignal.timeout(10_000)});
-    if(!tokenResponse.ok)throw new Error("GMAIL_REFRESH_FAILED");
-    const token=await tokenResponse.json();
-    if(typeof token.access_token!=="string"||token.access_token.length<8)throw new Error("GMAIL_TOKEN_INVALID");
+    const auth=await refreshDispatchGmail({
+      readRefreshToken:()=>readEncryptedGmailRefreshToken({db,ownerId,expectedAdminId:ownerId,encryptionKey}),
+      clientId,clientSecret,
+    });
+    gmailAuth=auth.status;
+    if (!auth.accessToken && (resuming || plans.some(({result})=>result.candidates.length>0))) {
+      throw new Error(auth.status==="reauthorize"?"GMAIL_REAUTH_REQUIRED":"GMAIL_REFRESH_FAILED");
+    }
     if(resuming){
       stage="resume-delivery";
       await rpc("jaspic_resume_prepared",{p_id:id});
@@ -99,12 +123,14 @@ export async function POST(request:Request) {
       .order("version",{ascending:true}).limit(1000);
     if(queue.error)throw new Error("QUEUE_READ_FAILED");
     const {selected}=selectDispatchBatch(queue.data,300_000-(Date.now()-dispatchStartedAt));
+    if(queue.data.length && !selected.length)throw new Error("BATCH_BUDGET_EXHAUSTED");
     stage="gmail-send";
     for(const delivery of selected){
       province=delivery.province as Province;
+      if(!auth.accessToken)throw new Error("GMAIL_TOKEN_INVALID");
       const lease=randomUUID();
       if(!await rpc("jaspic_claim",{p_province:delivery.province,p_key:delivery.record_key,p_version:delivery.version,p_token:lease}))throw new Error("CLAIM_REJECTED");
-      const outcome=await sendProductionMail(token.access_token,delivery.mail);
+      const outcome=await sendProductionMail(auth.accessToken,delivery.mail);
       if(!await rpc("jaspic_finish_production",{p_id:id,p_province:delivery.province,p_key:delivery.record_key,p_version:delivery.version,p_token:lease,p_status:outcome.status,p_message:outcome.message,p_error:outcome.error}))throw new Error("OUTCOME_NOT_SAVED");
       if(outcome.status!=="SENT")throw new Error(outcome.error??"SEND_FAILED");
       sent[delivery.province as Province]++;
@@ -113,7 +139,7 @@ export async function POST(request:Request) {
     const remaining=await db.from("jaspic_deliveries").select("record_key",{count:"exact",head:true}).eq("status","PREPARED");
     if(remaining.error||remaining.count===null)throw new Error("QUEUE_READ_FAILED");
     province=null;
-    const result={runId:id,status:"SUCCEEDED",remainingPrepared:remaining.count,resuming,sent,candidates:plans.map(p=>({province:p.province,count:p.result.candidates.length})),quarantined:plans.map(p=>({province:p.province,count:p.result.quarantined.length}))};
+    const result={runId:id,status:"SUCCEEDED",remainingPrepared:remaining.count,resuming,gmailAuth,scheduledDay,sent,candidates:plans.map(p=>({province:p.province,count:p.result.candidates.length})),quarantined:plans.map(p=>({province:p.province,count:p.result.quarantined.length}))};
     const saved=await db.from("jaspic_runs").update({status:"SUCCEEDED",finished_at:new Date().toISOString(),result}).eq("id",id).eq("status","RUNNING").select("id");
     if(saved.error||saved.data.length!==1)throw new Error("RUN_RESULT_NOT_SAVED");
     return response(result);
@@ -122,7 +148,7 @@ export async function POST(request:Request) {
     if(started){
       // A process crash remains RUNNING. Network uncertainty remains non-retryable SENDING/UNKNOWN.
       await db.from("jaspic_deliveries").update({status:"UNKNOWN",error_code:"RUN_INTERRUPTED",finished_at:new Date().toISOString()}).eq("run_id",id).eq("status","SENDING");
-      await db.from("jaspic_runs").update({status:"FAILED",finished_at:new Date().toISOString(),error_code:code,result:{sent,stage,province,sourceErrors}}).eq("id",id).eq("status","RUNNING");
+      await db.from("jaspic_runs").update({status:"FAILED",finished_at:new Date().toISOString(),error_code:code,result:{sent,stage,province,sourceErrors,gmailAuth,priorRunId,resuming,scheduledDay}}).eq("id",id).eq("status","RUNNING");
     }
     return response({runId:id,status:"FAILED",error:code,sent},503);
   }

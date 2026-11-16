@@ -105,3 +105,5 @@ select 'JASPIC monitor integration assertions passed' as result;
 \ir jaspic-monitor-completion.sql
 
 \ir jaspic-monitor-batch-completion.sql
+
+\ir jaspic-monitor-self-continue.sql
