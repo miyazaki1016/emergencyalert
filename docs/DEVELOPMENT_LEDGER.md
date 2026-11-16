@@ -4,6 +4,12 @@
 
 **案件の状態・担当・次の一手を更新する場所はここ。** 状態を変える際は、確認日・PRやブランチ・該当ファイル・検証証拠を残す。main、本番、実機は別々に判定する。
 
+## 全国大雨予報・MYアメふるの5分周期移行（2026-11-16）
+
+- [Issue #250](https://github.com/miyazaki1016/emergencyalert/issues/250) の [着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/43849922596) は公開確定、preflight成功、REVIEW_RECORDED。
+- ブランチ `feat/rain-actions-schedule-250` で、PR #243の全国スキャナとLRPM、既存のwatch-rainをActionsにつなぐ。根拠、稼働手順、残課題は[作業記録](NATIONAL_RAIN_ACTIONS_250.md)を参照。
+- 次はDraft PRの最新HEADのCIと隔離受入。本番Storage配置、保存SQL、スケジュール有効化、実通知、main統合は承認後。
+
 ## 中断・再開チェックポイント
 
 担当ソラは[中断・復帰手順](WORK_RESUME.md)に沿って、再開地点と証拠を記録する。通知文C案は既存の [Issue #205](https://github.com/miyazaki1016/emergencyalert/issues/205) の作業記録から再開できる。
@@ -315,5 +321,7 @@
 | #242 | feat(rain): z10タイル×N03画素対応表の事前計算（Issue #220） | open | `c858740d4a846b6bf5da3306c841cd96a4123c69` | 2026-11-14T22:26:20Z |
 | #243 | Draft: z10 read-only scanner LRPM integration (stacked on #242) | open | `4e3ef0080f5f08e568f51a07a70726cda4117f44` | 2026-11-15T08:05:19Z |
 | #245 | 全国30mm/h予報を5分監視からトップ用スナップショットに接続 | open | `aaa3f7014f3bb7708cac8924635a803d344a4cfd` | 2026-11-15T16:48:02Z |
-| #248 | Draft: JASPICの20件分割配信を自動継続し、認証付き完了通知を送る (#247) | merged | `9302e8845f4aaf079662c3ee8710f508db493c43` | 2026-11-16T04:57:36Z |
+| #248 | Draft: JASPICの20件分割配信を自動継続し、認証付き完了通知を送る (#247) | merged | `9302e8845f4aaf079662c3ee8710f508db493c43` | 2026-11-16T04:59:04Z |
+| #251 | 全国30mm/h大雨予報とMYアメふる監視の5分起動をActionsへ移行 (#250) | merged | `d26c68a898983160b0071cbd841b023dcb14afd2` | 2026-11-16T13:14:13Z |
+| #252 | さきどりトップに250m・1kmの全国大雨カードと雨雲再生を追加 (#209) | open | `43b7a640eb730bf56edfce78c20f2ef1c15b683f` | 2026-11-16T13:14:20Z |
 <!-- INVENTORY_FACTS_END -->
