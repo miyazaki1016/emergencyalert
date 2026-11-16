@@ -55,7 +55,6 @@
 | #242 | feat(rain): z10タイル×N03画素対応表の事前計算（Issue #220） | feat/light-rain-pixel-mask-precompute-220 |
 | #243 | Draft: z10 read-only scanner LRPM integration (stacked on #242) | feat/light-rain-mask-scanner-integration-220 |
 | #245 | 全国30mm/h予報を5分監視からトップ用スナップショットに接続 | work/national-forecast-snapshot-209 |
-| #252 | さきどりトップに250m・1kmの全国大雨カードと雨雲再生を追加 (#209) | feat/forecast-home-player-209 |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
