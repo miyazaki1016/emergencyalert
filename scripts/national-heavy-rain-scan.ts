@@ -65,19 +65,25 @@ async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:num
   }
   throw new Error(`INCOMPLETE_JMA_TILE ${url} attempts: ${attempts.join(", ")}`);
 }
-function selectFrames(targets: JmaTargetTime[], now: number): JmaTargetTime[] {
+function selectDetailedFrames(targets: JmaTargetTime[], now: number): JmaTargetTime[] {
   const basetime = targets
     .map(frame => frame.basetime)
     .filter(base => forecastTime(base) <= now && now - forecastTime(base) < 2 * FIVE_MINUTES)
     .sort().at(-1);
   if (!basetime) throw new Error("NO_FRESH_JMA_BASETIME");
+  return selectBand(targets, basetime, 5);
+}
+
+function selectBand(targets: JmaTargetTime[], basetime: string, firstMinute: number) {
   const base = forecastTime(basetime);
-  const frames = targets.filter(frame => frame.basetime === basetime
-    && forecastTime(frame.validtime) > base && forecastTime(frame.validtime) <= base + 6 * FIVE_MINUTES);
-  if (frames.length !== 6 || frames.some((frame, i) => forecastTime(frame.validtime) !== base + (i + 1) * FIVE_MINUTES)) {
-    throw new Error("INCOMPLETE_JMA_FRAMES: expected six consecutive forecast frames from one basetime");
+  const result = [];
+  for (let index = 0; index < 6; index++) {
+    const valid = base + (firstMinute + 5 * index) * 60_000;
+    const frame = targets.find(target => target.basetime === basetime && forecastTime(target.validtime) === valid);
+    if (!frame) throw new Error("INCOMPLETE_JMA_FRAMES: " + firstMinute);
+    result.push(frame);
   }
-  return frames;
+  return result;
 }
 
 async function refineFrame(
@@ -152,16 +158,16 @@ async function refineFrame(
         : [];
       const matchingMs=performance.now()-matchStart;
       console.log(JSON.stringify({event:"JMA_TILE_PROCESS",basetime:frame.basetime,validtime:frame.validtime,z:10,x:t.x,y:t.y,decodeMs:Math.round(decodeMs),matchingMs:Math.round(matchingMs),fetchMs:Math.round(fetchMs)}));
-      return {rainy: pixels.length > 0, municipalities, fetchMs, matchingMs};
+      return {rainy: pixels.length > 0, municipalities, fetchMs, matchingMs, radarTile: { x: t.x, y: t.y }};
     }));
     for (const outcome of outcomes) {
       if (outcome.status === "rejected") throw outcome.reason;
-      const { rainy, municipalities, fetchMs, matchingMs } = outcome.value;
+      const { rainy, municipalities, fetchMs, matchingMs, radarTile } = outcome.value;
       z10NetworkMs += fetchMs;
       z10MatchingMs += matchingMs;
       if (rainy) rainyTiles++;
       for (const area of municipalities) {
-        if ((matched.get(area.code)?.minimumMmPerHour ?? 0) < area.minimumMmPerHour) matched.set(area.code, area);
+        if ((matched.get(area.code)?.minimumMmPerHour ?? 0) < area.minimumMmPerHour) matched.set(area.code, { ...area, radarTile });
       }
     }
   }
@@ -191,7 +197,7 @@ async function main() {
   const timeIndexSignal = AbortSignal.timeout(15_000);
   const targets = await fetchForecastTargetTimes((input, init) =>
     fetch(input, { ...init, signal: timeIndexSignal }));
-  const frames = selectFrames(targets, Date.now());
+  const frames = selectDetailedFrames(targets, Date.now());
   const basetime = frames[0].basetime;
   const baseMs = forecastTime(basetime);
   if (last?.basetime && last.basetime >= basetime) {
@@ -207,33 +213,39 @@ async function main() {
     if (manifest.municipalities !== coverage.municipalities) throw new Error("N03_LRPM_COVERAGE_MISMATCH");
     const indexed = coverage.areas.map(area => ({ area, b: bbox(area) }));
     const areaByCode = new Map(coverage.areas.map(area => [area.code, area]));
-    const results = [];
-    for (let i = 0; i < frames.length; i += 2) {
-      const batch = await Promise.allSettled(frames.slice(i, i + 2)
-        .map(frame => refineFrame(frame, indexed, areaByCode, controller.signal)));
-      for (const result of batch) {
-        if (result.status === "rejected") throw result.reason;
-        results.push(result.value);
+    async function scanBand(band: JmaTargetTime[]) {
+      const results = [];
+      for (let i = 0; i < band.length; i += 2) {
+        const batch = await Promise.allSettled(band.slice(i, i + 2)
+          .map(frame => refineFrame(frame, indexed, areaByCode, controller.signal)));
+        for (const result of batch) {
+          if (result.status === "rejected") throw result.reason;
+          results.push(result.value);
+        }
       }
+      controller.signal.throwIfAborted();
+      if (Date.now() >= deadline) throw new Error("FORECAST_EXPIRED");
+      return results.map(frame => ({ validTime: frame.validtime, municipalities: frame.municipalities }));
     }
-    controller.signal.throwIfAborted();
-    if (Date.now() >= deadline) throw new Error("FORECAST_EXPIRED");
+
+    async function publish(snapshot: NationalForecastSnapshot) {
+      readNationalForecastSnapshot(snapshot);
+      const { data, error } = await db.rpc("publish_national_rain_forecast", { p_snapshot: snapshot })
+        .abortSignal(controller.signal);
+      if (error) throw new Error("FORECAST_WRITE_FAILED");
+      return data === true;
+    }
+
     const snapshot: NationalForecastSnapshot = {
-      source: "JMA", n03Version: N03_VERSION, basetime,
-      frames: results.map(frame => ({ validTime: frame.validtime, municipalities: frame.municipalities })),
+      source: "JMA", n03Version: N03_VERSION, basetime, frames: await scanBand(frames),
     };
-    readNationalForecastSnapshot(snapshot);
-    const { data: written, error: writeError } = await db.rpc("publish_national_rain_forecast", { p_snapshot: snapshot })
-      .abortSignal(controller.signal);
-    if (writeError) throw new Error("FORECAST_WRITE_FAILED");
-    if (!written) {
-      console.log(JSON.stringify({ event: "FORECAST_ALREADY_PUBLISHED", basetime }));
-      return;
-    }
+    if (!await publish(snapshot)) return;
     const missingSlots = last?.basetime ? (baseMs - forecastTime(last.basetime)) / FIVE_MINUTES - 1 : 0;
-    console.log(JSON.stringify({ event: "FORECAST_PUBLISHED", basetime, missingSlots, frames: results.map(
-      frame => ({ validTime: frame.validtime, tiles: frame.z10TilesChecked, timingMs: frame.timingMs }),
-    ) }));
+    console.log(JSON.stringify({ event: "FORECAST_PUBLISHED", basetime, missingSlots }));
+    // The detailed band is already visible. Failures in the later band leave it intact.
+    const extendedFrames = await scanBand(selectBand(targets, basetime, 35));
+    if (!await publish({ ...snapshot, extendedFrames })) throw new Error("EXTENDED_FORECAST_NOT_PUBLISHED");
+    console.log(JSON.stringify({ event: "EXTENDED_FORECAST_PUBLISHED", basetime }));
     if (missingSlots > 0) throw new Error("FORECAST_BASETIME_GAP");
   } finally {
     clearTimeout(timer);

@@ -1,17 +1,23 @@
 const STRENGTHS = [30, 50, 80] as const;
 
+export type RadarTile = { x: number; y: number };
+
 export type NationalForecastSnapshot = {
   source: "JMA";
   n03Version: string;
   basetime: string;
-  frames: {
-    validTime: string;
-    municipalities: {
-      code: string;
-      prefecture: string;
-      municipality: string;
-      minimumMmPerHour: (typeof STRENGTHS)[number];
-    }[];
+  extendedFrames?: NationalForecastFrame[];
+  frames: NationalForecastFrame[];
+};
+
+export type NationalForecastFrame = {
+  validTime: string;
+  municipalities: {
+    code: string;
+    prefecture: string;
+    municipality: string;
+    minimumMmPerHour: (typeof STRENGTHS)[number];
+    radarTile?: RadarTile;
   }[];
 };
 
@@ -29,23 +35,35 @@ export function readNationalForecastSnapshot(value: unknown, now = Date.now()): 
 
   const base = forecastTime(snapshot.basetime);
   if (base > now || now - base > 15 * 60_000) throw new Error("Stale forecast snapshot");
-  let previous = 0;
-  for (const frame of snapshot.frames) {
-    const time = forecastTime(frame.validTime);
-    if (!Number.isFinite(time) || time <= base || (previous && time - previous !== 300_000)
-      || !Array.isArray(frame.municipalities) || !frame.municipalities.every(area =>
-        /^\d{5}$/.test(area?.code) && typeof area.prefecture === "string"
-        && typeof area.municipality === "string" && STRENGTHS.includes(area.minimumMmPerHour),
-      )) {
-      throw new Error("Invalid forecast frame");
+  function validateFrames(frames: NationalForecastFrame[], firstMinute: number) {
+    if (!Array.isArray(frames) || frames.length !== 6) throw new Error("Incomplete forecast band");
+    for (const [index, frame] of frames.entries()) {
+      if (forecastTime(frame.validTime) !== base + (firstMinute + 5 * index) * 60_000
+        || !Array.isArray(frame.municipalities) || !frame.municipalities.every(area =>
+          /^\d{5}$/.test(area?.code) && typeof area.prefecture === "string"
+          && typeof area.municipality === "string" && STRENGTHS.includes(area.minimumMmPerHour)
+          && (area.radarTile === undefined || validRadarTile(area.radarTile)),
+        )) throw new Error("Invalid forecast frame");
     }
-    previous = time;
   }
-
-  const frames = snapshot.frames.filter(frame => {
-    const time = forecastTime(frame.validTime);
-    return time > now && time <= now + 30 * 60_000;
-  });
+  validateFrames(snapshot.frames, 5);
+  const frames = snapshot.frames.filter(frame => forecastTime(frame.validTime) > now);
   if (!frames.length) throw new Error("No current forecast frames");
-  return { ...snapshot, frames };
+  // A malformed extended band does not hide a healthy detailed forecast.
+  let extendedFrames: NationalForecastFrame[] | undefined;
+  if (snapshot.extendedFrames !== undefined) {
+    try {
+      validateFrames(snapshot.extendedFrames, 35);
+      extendedFrames = snapshot.extendedFrames;
+    } catch {
+      extendedFrames = undefined;
+    }
+  }
+  return { ...snapshot, frames, extendedFrames };
+}
+
+export function validRadarTile(value: unknown): value is RadarTile {
+  if (!value || typeof value !== "object") return false;
+  const { x, y } = value as RadarTile;
+  return [x, y].every(n => Number.isInteger(n) && n >= 0 && n < 1024);
 }
