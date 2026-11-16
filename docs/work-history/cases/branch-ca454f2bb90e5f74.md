@@ -16,17 +16,18 @@
 
 **次の作業：** 関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない
 
-根拠取得日時 (UTC)：2026-11-15T07:49:49.172013+00:00
+根拠取得日時 (UTC)：2026-11-16T04:57:56.343713+00:00
 
 
 ## 実際の変更処理（コードから抽出）
 
 差分・ソースを参照
 
-- [.github/workflows/lrpm-handover.yml](https://github.com/miyazaki1016/emergencyalert/blob/edcfc7699f543033887cb76b70aae7e68e8da8ab/.github/workflows/lrpm-handover.yml)：全文
-- [design/sakidori-design-mock.html](https://github.com/miyazaki1016/emergencyalert/blob/edcfc7699f543033887cb76b70aae7e68e8da8ab/design/sakidori-design-mock.html)：対象外（秘密情報候補／非テキスト）
-- [lrpm/lrpm-japan-20260101-v1.tar.gz](https://github.com/miyazaki1016/emergencyalert/blob/edcfc7699f543033887cb76b70aae7e68e8da8ab/lrpm/lrpm-japan-20260101-v1.tar.gz)：対象外（秘密情報候補／非テキスト）
-- [strategy/sakidori-sns-content-strategy-2026-11-15.md](https://github.com/miyazaki1016/emergencyalert/blob/edcfc7699f543033887cb76b70aae7e68e8da8ab/strategy/sakidori-sns-content-strategy-2026-11-15.md)：全文
+- [.github/workflows/lrpm-handover.yml](https://github.com/miyazaki1016/emergencyalert/blob/3454d75c34810c0ca264fe32a4d9d29facce7fbb/.github/workflows/lrpm-handover.yml)：全文
+- [design/sakidori-design-mock.html](https://github.com/miyazaki1016/emergencyalert/blob/3454d75c34810c0ca264fe32a4d9d29facce7fbb/design/sakidori-design-mock.html)：対象外（秘密情報候補／非テキスト）
+- [lrpm/lrpm-japan-20260101-v1.tar.gz](https://github.com/miyazaki1016/emergencyalert/blob/3454d75c34810c0ca264fe32a4d9d29facce7fbb/lrpm/lrpm-japan-20260101-v1.tar.gz)：対象外（秘密情報候補／非テキスト）
+- [strategy/sakidori-sns-content-strategy-2026-11-15.md](https://github.com/miyazaki1016/emergencyalert/blob/3454d75c34810c0ca264fe32a4d9d29facce7fbb/strategy/sakidori-sns-content-strategy-2026-11-15.md)：全文
+- [verification/nationwide-heavy-rain-verification-design-2026-11-16.md](https://github.com/miyazaki1016/emergencyalert/blob/3454d75c34810c0ca264fe32a4d9d29facce7fbb/verification/nationwide-heavy-rain-verification-design-2026-11-16.md)：全文
 
 ## 検証実行の事実
 
@@ -453,6 +454,102 @@ index 00000000..f3a49a73
 +
 +- 本書は戦略の提案であり、仕様ではない。データ原則と決定済みのサイト構造には反しない範囲で書いた。
 +- 実装に落とす際は、既存Issue（#209/#210/#213/#216/#219/#221ほか）との重複を作らず、拡張か新規かを各Issueで判断すること。
+
+```
+
+### verification/nationwide-heavy-rain-verification-design-2026-11-16.md
+
+```text
+diff --git a/verification/nationwide-heavy-rain-verification-design-2026-11-16.md b/verification/nationwide-heavy-rain-verification-design-2026-11-16.md
+new file mode 100644
+index 00000000..2aae5957
+--- /dev/null
++++ b/verification/nationwide-heavy-rain-verification-design-2026-11-16.md
+@@ -0,0 +1,84 @@
++# 全国大雨予報の検証設計
++
++作成: 2026-11-16（Muse側ソラ）／ 位置づけ: 実装のための設計提案。対象は emergencyalert.news トップの「今後30分以内に、1時間あたり30mm以上の雨が予測される地域」一覧（全国スキャナの出力）。
++
++## 0. 検証は2層に分ける
++
++| 層 | 問い | 捕まえるもの |
++|---|---|---|
++| 第1層: パイプライン検証 | 出した一覧は、正しく計算できていたか | 枠の欠落、タイル欠落、版の取り違え、計算バグ |
++| 第2層: 予報の腕の検証 | 出した一覧は、当たっていたか | 的中・空振り・見逃し、タイミング誤差 |
++
++混ぜてはいけない。第1層が壊れていると、第2層の数字はすべて無意味になる。
++
++## 1. 原則
++
++- **判定の共通化**: 予報と実況で、同一のマスク（LRPM）と同一の色分類を使う。検証側で別の判定ロジックを作らない。判定が違えば、差は予報の腕ではなく判定の差になる。
++- **予測は「出した瞬間」に保存する**: 後から再構成した予測は予測ではない（初期の答え合わせで、通知後に回収した予測画像が低精度になった教訓）。
++- **レーダー同士の比較と、地上の真実は分ける**: 予報レーダーと実況レーダーの比較では「空振り」と言えるが、「地上で降らなかった」とは言わない。アメダスは補助証拠に留める。
++- **データ原則の維持**: 公的データを改変しない。検証は記録と比較のみ。
++- **小さい n で結論を出さない**: すべての集計に件数と信頼区間（95%CI）を付ける。
++
++## 2. 第1層: パイプライン検証
++
++### 2.1 枠ごとに保存するもの
++
++- 基準時刻（basetime）と、使用した targetTimes の内容
++- validtime 別・市区町村別の最大雨量クラス（**一覧に載った所だけでなく全市区町村分**。第2層の見逃し判定に必須）
++- 公開した一覧（市区町村コードの集合）と公開時刻
++- 版情報: スキャナのコミットSHA、マスクの N03 バージョン＋アルゴリズムバージョン
++
++データ量の見積もり: 全市区町村×6 validtime の最大クラスは1枠あたり数十KB以下。1日288枠でも数MBに収まる。安い。
++
++### 2.2 再計算照合
++
++- 保存したタイル（または同一 basetime/validtime の再取得タイル）でオフライン再計算し、公開した一覧と集合が完全一致するか照合する。
++- 不一致は事故として記録し、原因を区別する: 枠欠落／タイル欠落／版違い／計算差。
++- タイル自体の保存は、雨があった枠のみ・期間限定（例: 7日）で十分。
++
++## 3. 第2層: 予報の腕の検証
++
++### 3.1 実況集合の作り方
++
++- 各 validtime について、その時刻の解析フレーム（basetime = validtime の hrpns 解析）を、予報と同一のマスク・分類にかける。
++- 市区町村ごとに「その validtime の実況最大クラス」を得る。予報ウィンドウ（basetime+5分〜+30分）の全 validtime 分を作る。
++
++### 3.2 突合せ
++
++- 単位は（basetime × 市区町村）。
++- 予報側: 一覧に載ったか／最初に30mm以上と予測した validtime／予測最大クラス。
++- 実況側: ウィンドウ内に実況30mm以上があったか／最初の実況 validtime／実況最大クラス。
++- 分類: **的中**（予報あり・実況あり）、**空振り**（予報あり・実況なし）、**見逃し**（予報なし・実況あり）。
++- タイミング: 予報の初回30以上 validtime と実況の初回30以上 validtime の差（開始誤差）を分布で見る。
++
++### 3.3 集計の切り口と指標
++
++- 切り口: リードタイム別（初回予測が +5/+10/+15/+20/+25/+30分）、強さ別（30〜50／50〜80／80以上）、都道府県別。
++- 指標: 的中率（precision）、捕捉率（recall）、空振り率、見逃し率、開始誤差の中央値と分布。すべて n と 95%CI 付き。
++- 同一の雨域が多数の市区町村に広がる事例では、市区町村単位の n が水増しされる。事例（イベント）単位の集計も併記する。
++
++## 4. アメダスの補助証拠
++
++- 市区町村内のアメダス観測点について、対象ウィンドウの10分雨量と1時間雨量を併記する。
++- 1時間雨量30mm以上の観測は「地上でも強い雨があった」強い裏付けとして扱う。
++- 観測点のない市区町村では使えないため、主判定にはしない。あくまで解釈の補助。
++
++## 5. 運用
++
++- 実況は validtime の数分後には揃うため、採点は枠の30分後には自動で回せる。
++- 日次で集計し、食い違いの大きい事例（大きな空振り・見逃し）だけをレビューキューに上げる。
++- 公開（サイトの「答え合わせ」コンテンツ）への接続は別途判断。まず内部の検証として回す。
++
++## 6. 既存資産との対応・注意
++
++- マスクと判定は LRPM（PR #242／統合 PR #243）をそのまま使う。新規の判定実装は不要。
++- 保存の器は `nationalForecastSnapshot` の考え方を拡張する。一覧だけでなく全市区町村の最大クラスを持つこと。
++- 個人向け通知の答え合わせ（rain_notification_evaluations 等）とは混ぜない。全国予報用に保存先を分ける。
++- 採点は予報自身の validtime 軸で行う。公開が基準時刻から5〜6分遅れても採点には影響しない（適時性の判断は Issue #220 コメント 6891177704 を参照）。
++
++## 7. 未決事項（実装前に決める）
++
++- 空振りの確定条件: 実況レーダーのみで確定とするか、アメダスの裏付けがない事例を「保留」に残すか。
++- イベント（雨域）のグルーピング方法: 時空間でどう一塊とみなすか。
++- 保存期間: 枠スナップショットとタイルの保持期間。
++- 公開粒度: 将来公開する場合、市区町村別まで出すか全国集計のみか。
 
 ```
 

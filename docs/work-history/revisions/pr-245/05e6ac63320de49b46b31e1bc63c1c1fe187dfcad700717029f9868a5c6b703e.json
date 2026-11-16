@@ -1,0 +1,276 @@
+{
+  "id": "pr-245",
+  "number": 245,
+  "title": "全国30mm/h予報を5分監視からトップ用スナップショットに接続",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Refs #209, #244\n\n既存 #243 に積む隔離検証用の変更です。既存の5分監視から、30/50/80mm/hを自治体別に集約してトップ用JSONを原子的に更新します。NATIONAL_RAIN_SNAPSHOT_PATH 明示時だけ作動し、LRPMを必須にします。6枠の走査完了と基準時刻+10分未満を確認してから出力します。\n\n[Issue着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/43737077964) · [先行の実データ陽性例](https://github.com/miyazaki1016/emergencyalert/issues/244#issuecomment-6897669835)\n\n本番の配信設定と連続稼働の受入は別途確認。\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-59\",\"decision\":\"reuse\",\"reason\":\"全国の段階的タイル走査と自治体照合を再利用した。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/59\"},{\"id\":\"pr-181\",\"decision\":\"reuse\",\"reason\":\"全画素走査と欠損時に公開しない既存方針を維持した。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/181\"},{\"id\":\"pr-210\",\"decision\":\"extend\",\"reason\":\"既存30/50/80mm/h判定と原子的JSON公開の設計を再利用した。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/210\"},{\"id\":\"pr-211\",\"decision\":\"reuse\",\"reason\":\"既存トップとNATIONAL_RAIN_SNAPSHOT_PATH/URLのデータ契約を再利用した。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/211\"},{\"id\":\"pr-217\",\"decision\":\"reuse\",\"reason\":\"1mm/h走査経路と全国N03準備済み形式を再利用した。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/217\"},{\"id\":\"pr-242\",\"decision\":\"reuse\",\"reason\":\"版付き全国LRPMアーカイブの生成は既存成果を再利用した。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/242\"},{\"id\":\"pr-243\",\"decision\":\"extend\",\"reason\":\"全国LRPMと5分監視を土台に30mm/hのスナップショット出力を追加した。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/243\"},{\"id\":\"branch-2dd17474ef4e7083\",\"decision\":\"distinct\",\"reason\":\"PR #222の雨雲GIF・動画と再生プレイヤーは表示拡張。今回は既存トップ一覧のための自治体別JSON生成だけを追加し、GIF生成やプレイヤー処理を呼び出さない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/blob/development-history/docs/work-history/cases/branch-2dd17474ef4e7083.md\"}]}\n-->",
+  "snapshot_head": "aaa3f7014f3bb7708cac8924635a803d344a4cfd",
+  "snapshot_consistent": true,
+  "head": "aaa3f7014f3bb7708cac8924635a803d344a4cfd",
+  "base": "4e3ef0080f5f08e568f51a07a70726cda4117f44",
+  "base_ref": "feat/light-rain-mask-scanner-integration-220",
+  "head_ref": "work/national-forecast-snapshot-209",
+  "state": "open",
+  "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+  "draft": true,
+  "merged_at": null,
+  "merge_commit_sha": null,
+  "updated_at": "2026-11-15T16:48:02Z",
+  "code_facts": [
+    {
+      "file": "scripts/light-rain-z10-refine.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (snapshotPath && !pixelMasks) throw new Error(\"Snapshot generation requires JMA_Z10_PIXEL_MASK_DIR\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/aaa3f7014f3bb7708cac8924635a803d344a4cfd/scripts/light-rain-z10-refine.ts"
+    },
+    {
+      "file": "scripts/light-rain-z10-refine.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function heavyRainMunicipalities(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/aaa3f7014f3bb7708cac8924635a803d344a4cfd/scripts/light-rain-z10-refine.ts"
+    },
+    {
+      "file": "scripts/light-rain-z10-refine.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (tile.width !== 256 || tile.height !== 256) throw new Error(\"Unexpected JMA tile dimensions\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/aaa3f7014f3bb7708cac8924635a803d344a4cfd/scripts/light-rain-z10-refine.ts"
+    },
+    {
+      "file": "scripts/light-rain-z10-refine.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!area) throw new Error(\"Unknown N03 municipality in LRPM: \" + code);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/aaa3f7014f3bb7708cac8924635a803d344a4cfd/scripts/light-rain-z10-refine.ts"
+    },
+    {
+      "file": "scripts/light-rain-z10-refine.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (strength > (minimumMmPerHour ?? 0) && maskHasPixel(mask, index)) minimumMmPerHour = strength;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/aaa3f7014f3bb7708cac8924635a803d344a4cfd/scripts/light-rain-z10-refine.ts"
+    },
+    {
+      "file": "scripts/light-rain-z10-refine.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (minimumMmPerHour === 80) break;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/aaa3f7014f3bb7708cac8924635a803d344a4cfd/scripts/light-rain-z10-refine.ts"
+    },
+    {
+      "file": "scripts/light-rain-z10-refine.ts",
+      "kind": "関数・クラス定義",
+      "expression": "async function writeSnapshot(path: string, snapshot: NationalForecastSnapshot, signal: AbortSignal) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/aaa3f7014f3bb7708cac8924635a803d344a4cfd/scripts/light-rain-z10-refine.ts"
+    },
+    {
+      "file": "scripts/light-rain-z10-refine.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (now - forecastTime(snapshot.basetime) >= 2 * FIVE_MINUTES) throw new Error(\"JMA forecast expired before publication\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/aaa3f7014f3bb7708cac8924635a803d344a4cfd/scripts/light-rain-z10-refine.ts"
+    },
+    {
+      "file": "scripts/light-rain-z10-refine.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (area.minimumMmPerHour > (heavy.get(area.code)?.minimumMmPerHour ?? 0)) heavy.set(area.code, area);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/aaa3f7014f3bb7708cac8924635a803d344a4cfd/scripts/light-rain-z10-refine.ts"
+    },
+    {
+      "file": "scripts/light-rain-z10-refine.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (snapshotPath) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/aaa3f7014f3bb7708cac8924635a803d344a4cfd/scripts/light-rain-z10-refine.ts"
+    },
+    {
+      "file": "scripts/light-rain-z10-refine.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (existing?.n03Version === n03Version) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/aaa3f7014f3bb7708cac8924635a803d344a4cfd/scripts/light-rain-z10-refine.ts"
+    },
+    {
+      "file": "scripts/light-rain-z10-refine.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!(error instanceof SyntaxError) && (error as NodeJS.ErrnoException).code !== \"ENOENT\") throw error;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/aaa3f7014f3bb7708cac8924635a803d344a4cfd/scripts/light-rain-z10-refine.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "scripts/light-rain-z10-refine.ts",
+      "status": "modified",
+      "additions": 84,
+      "deletions": 11,
+      "patch": "diff --git a/scripts/light-rain-z10-refine.ts b/scripts/light-rain-z10-refine.ts\nindex b63a5679..97182a05 100644\n--- a/scripts/light-rain-z10-refine.ts\n+++ b/scripts/light-rain-z10-refine.ts\n@@ -2,15 +2,19 @@\n  * Fail closed when the requested candidate set exceeds the tile budget.\n  * Usage: npx tsx scripts/light-rain-z10-refine.ts <47-N03-root>\n  */\n+import { randomUUID } from \"node:crypto\";\n+import { readFile, rename, rm, writeFile } from \"node:fs/promises\";\n+import { PNG } from \"pngjs\";\n+import { classifyRainPixel } from \"../lib/weather/providers/jma/classifyPixel\";\n import { setTimeout as delay } from \"node:timers/promises\";\n import { requireCompleteNationwideN03 } from \"../lib/weather/rain/lightRainNationwideN03\";\n import { fetchForecastTargetTimes, type JmaTargetTime } from \"../lib/weather/providers/jma/targetTimes\";\n import { buildJmaRainTileUrl } from \"../lib/weather/providers/jma/tileUrl\";\n import { locateJmaRainPixelsAtLeast1mm, scanJmaTileAtLeast1mm } from \"../lib/weather/rain/lightRainProof\";\n import { municipalitiesForLightRainTile } from \"../lib/weather/rain/lightRainMunicipalities\";\n-import { municipalitiesForLightRainTileWithMasks } from \"../lib/weather/rain/lightRainPixelMasks\";\n+import { maskHasPixel, municipalitiesForLightRainTileWithMasks, type TilePixelMasks } from \"../lib/weather/rain/lightRainPixelMasks\";\n import { openNationwidePixelMasks } from \"../lib/weather/rain/lightRainPixelMaskLoader\";\n-import { forecastTime } from \"../lib/weather/rain/nationalForecastSnapshot\";\n+import { forecastTime, readNationalForecastSnapshot, type NationalForecastSnapshot } from \"../lib/weather/rain/nationalForecastSnapshot\";\n import { affectedAdministrativeAreas, type AdministrativeArea } from \"../lib/weather/rain/lightRainAdministrativeAreas\";\n \n const root=process.argv[2];\n@@ -19,7 +23,10 @@ const MAX_TILES=Number(process.env.Z10_MAX_TILES||\"2500\");\n // Explicit opt-in: without an artifact directory, retain the original matcher.\n // When enabled, missing/stale/corrupt masks are fatal (never silently empty).\n const maskDir = process.env.JMA_Z10_PIXEL_MASK_DIR;\n-const pixelMasks = maskDir ? openNationwidePixelMasks(maskDir, process.env.JMA_N03_VERSION || \"20260101\") : undefined;\n+const n03Version = process.env.JMA_N03_VERSION || \"20260101\";\n+const pixelMasks = maskDir ? openNationwidePixelMasks(maskDir, n03Version) : undefined;\n+const snapshotPath = process.env.NATIONAL_RAIN_SNAPSHOT_PATH;\n+if (snapshotPath && !pixelMasks) throw new Error(\"Snapshot generation requires JMA_Z10_PIXEL_MASK_DIR\");\n const tiles4=[[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;\n const FIVE_MINUTES = 300_000;\n const lon=(x:number,z:number)=>x/(2**z)*360-180;\n@@ -82,6 +89,48 @@ function selectFrames(targets: JmaTargetTime[], now: number): JmaTargetTime[] {\n   return frames;\n }\n \n+type ForecastMunicipality = NationalForecastSnapshot[\"frames\"][number][\"municipalities\"][number];\n+\n+function heavyRainMunicipalities(\n+  buffer: Buffer, masks: TilePixelMasks, areaByCode: Map<string, AdministrativeArea>,\n+): ForecastMunicipality[] {\n+  const tile = PNG.sync.read(buffer);\n+  if (tile.width !== 256 || tile.height !== 256) throw new Error(\"Unexpected JMA tile dimensions\");\n+  const strengths = new Map<number, 30 | 50 | 80>();\n+  for (let i = 0; i < tile.data.length; i += 4) {\n+    const pixel = classifyRainPixel({ r: tile.data[i], g: tile.data[i+1], b: tile.data[i+2], a: tile.data[i+3] });\n+    switch (pixel.intensityClass) {\n+      case \"30_TO_50\": strengths.set(i / 4, 30); break;\n+      case \"50_TO_80\": strengths.set(i / 4, 50); break;\n+      case \"GTE_80\": strengths.set(i / 4, 80); break;\n+    }\n+  }\n+  return masks.entries.flatMap(({ code, mask }) => {\n+    const area = areaByCode.get(code);\n+    if (!area) throw new Error(\"Unknown N03 municipality in LRPM: \" + code);\n+    let minimumMmPerHour: 30 | 50 | 80 | undefined;\n+    for (const [index, strength] of strengths) {\n+      if (strength > (minimumMmPerHour ?? 0) && maskHasPixel(mask, index)) minimumMmPerHour = strength;\n+      if (minimumMmPerHour === 80) break;\n+    }\n+    return minimumMmPerHour ? [{ code, prefecture: area.prefecture, municipality: area.municipality, minimumMmPerHour }] : [];\n+  });\n+}\n+\n+async function writeSnapshot(path: string, snapshot: NationalForecastSnapshot, signal: AbortSignal) {\n+  const temporary = path + \".\" + randomUUID() + \".tmp\";\n+  try {\n+    await writeFile(temporary, JSON.stringify(snapshot) + \"\\n\", { flag: \"wx\" });\n+    const now = Date.now();\n+    if (now - forecastTime(snapshot.basetime) >= 2 * FIVE_MINUTES) throw new Error(\"JMA forecast expired before publication\");\n+    readNationalForecastSnapshot(snapshot, now);\n+    signal.throwIfAborted();\n+    await rename(temporary, path);\n+  } finally {\n+    await rm(temporary, { force: true });\n+  }\n+}\n+\n async function refineFrame(\n   frame: JmaTargetTime,\n   indexed: Array<{ area: AdministrativeArea; b: ReturnType<typeof bbox> }>,\n@@ -125,6 +174,7 @@ async function refineFrame(\n   }\n   const tilePlanDone=performance.now();\n   const matched=new Map<string,{code:string;prefecture:string;municipality:string}>();\n+  const heavy = new Map<string, ForecastMunicipality>();\n   let z10NetworkMs=0,z10MatchingMs=0;\n   const entries=[...tileMap.values()];\n   const z10Concurrency = Number(process.env.JMA_Z10_CONCURRENCY ?? \"4\");\n@@ -150,22 +200,27 @@ async function refineFrame(\n           [lon(t.x + 1, 10), lat(t.y + 1, 10)], [lon(t.x, 10), lat(t.y + 1, 10)],\n           [lon(t.x, 10), lat(t.y, 10)],\n         ]] }], t.areas).length;\n-      const municipalities=scan.rainPixels && !unlistedAndDisjoint\n+      const masks = scan.rainPixels && !unlistedAndDisjoint ? pixelMasks?.load(t.x, t.y) : undefined;\n+      const heavyAreas = snapshotPath && masks ? heavyRainMunicipalities(buffer, masks, areaByCode) : [];\n+      const municipalities=!snapshotPath && scan.rainPixels && !unlistedAndDisjoint\n         ? pixelMasks\n-          ? municipalitiesForLightRainTileWithMasks(buffer,10,t.x,t.y,pixelMasks.load(t.x,t.y),t.areas)\n+          ? municipalitiesForLightRainTileWithMasks(buffer,10,t.x,t.y,masks,t.areas)\n           : municipalitiesForLightRainTile(buffer,10,t.x,t.y,t.areas)\n         : [];\n       const matchingMs=performance.now()-matchStart;\n       console.log(JSON.stringify({event:\"JMA_TILE_PROCESS\",basetime:frame.basetime,validtime:frame.validtime,z:10,x:t.x,y:t.y,decodeMs:Math.round(decodeMs),matchingMs:Math.round(matchingMs),fetchMs:Math.round(fetchMs)}));\n-      return {scan,municipalities,fetchMs,matchingMs};\n+      return {scan,municipalities,heavyAreas,fetchMs,matchingMs};\n     }));\n     for (const outcome of outcomes) {\n       if (outcome.status === \"rejected\") throw outcome.reason;\n-      const { scan, municipalities, fetchMs, matchingMs } = outcome.value;\n+      const { scan, municipalities, heavyAreas, fetchMs, matchingMs } = outcome.value;\n       z10NetworkMs += fetchMs;\n       z10MatchingMs += matchingMs;\n       if (scan.rainPixels) rainyTiles++;\n       for (const area of municipalities) matched.set(area.code, area);\n+      for (const area of heavyAreas) {\n+        if (area.minimumMmPerHour > (heavy.get(area.code)?.minimumMmPerHour ?? 0)) heavy.set(area.code, area);\n+      }\n     }\n   }\n   const z10Done=performance.now();\n@@ -177,7 +232,8 @@ async function refineFrame(\n     z4Candidates: candidates.size,\n     z10TilesChecked: entries.length,\n     z10RainyTiles: rainyTiles,\n-    z10Municipalities: matched.size,\n+    z10Municipalities: snapshotPath ? heavy.size : matched.size,\n+    heavyMunicipalities: [...heavy.values()].sort((a, b) => a.code.localeCompare(b.code)),\n     municipalities: [...matched.values()].sort((a, b) => a.code.localeCompare(b.code)),\n   };\n }\n@@ -189,6 +245,16 @@ async function main() {\n   const areaByCode = new Map(coverage.areas.map(area => [area.code, area]));\n   const n03LoadAndIndex = Math.round(performance.now() - started);\n   let previousBase: string | undefined;\n+  if (snapshotPath) {\n+    try {\n+      const existing = JSON.parse(await readFile(snapshotPath, \"utf8\"));\n+      if (existing?.n03Version === n03Version) {\n+        try { previousBase = readNationalForecastSnapshot(existing).basetime; } catch { /* Expired or invalid snapshot. */ }\n+      }\n+    } catch (error) {\n+      if (!(error instanceof SyntaxError) && (error as NodeJS.ErrnoException).code !== \"ENOENT\") throw error;\n+    }\n+  }\n   let successfulUpdates = 0;\n   // A successful watch is not evidence of uninterrupted five-minute coverage.\n   // Keep gaps visible and fail the read-only audit rather than silently skipping them.\n@@ -225,7 +291,7 @@ async function main() {\n         fetch(input, { ...init, signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]) }));\n       const newestBase = targets.map(target => target.basetime).sort().at(-1);\n       console.log(JSON.stringify({ event: \"JMA_TARGET_TIME_CHECK\", checkedAt, expectedBase: new Date(expectedBaseMs).toISOString(), newestBase, previousBase, publication: false }));\n-      if (newestBase && forecastTime(newestBase) >= expectedBaseMs && newestBase !== previousBase) {\n+      if (newestBase && forecastTime(newestBase) >= expectedBaseMs && (!previousBase || newestBase > previousBase)) {\n         frames = selectFrames(targets, Date.now());\n         break;\n       }\n@@ -253,17 +319,24 @@ async function main() {\n     if (Date.now() - forecastTime(frames[0].basetime) >= 2 * FIVE_MINUTES) {\n       throw new Error(\"JMA forecast expired before the scan finished\");\n     }\n+    if (snapshotPath) {\n+      await writeSnapshot(snapshotPath, {\n+        source: \"JMA\", n03Version, basetime: frames[0].basetime,\n+        frames: results.map(result => ({ validTime: result.validtime, municipalities: result.heavyMunicipalities })),\n+      }, controller.signal);\n+    }\n     console.log(JSON.stringify({\n-      mode: \"READ_ONLY_Z10_REAL_JMA_N03\",\n+      mode: snapshotPath ? \"NATIONAL_FORECAST_SNAPSHOT\" : \"READ_ONLY_Z10_REAL_JMA_N03\",\n       basetime: frames[0].basetime,\n       checkedAt: new Date().toISOString(),\n       baseAgeMs: Date.now() - forecastTime(frames[0].basetime),\n       prefectures: coverage.prefectures,\n       municipalityDatasetSize: coverage.municipalities,\n-      thresholdMmPerHour: 1,\n+      thresholdMmPerHour: snapshotPath ? 30 : 1,\n       timingMs: { n03LoadAndIndex, total: Math.round(n03LoadAndIndex + performance.now() - scanStarted) },\n       frames: results,\n       publication: false,\n+      snapshotWritten: Boolean(snapshotPath),\n       productionWrites: false,\n       blueskyPosts: false,\n     }));\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/aaa3f7014f3bb7708cac8924635a803d344a4cfd/scripts/light-rain-z10-refine.ts",
+      "source": {
+        "path": "scripts/light-rain-z10-refine.ts",
+        "coverage": "先頭18000文字・原本リンク参照",
+        "text": "/** Read-only z10 verification of nationwide z4 municipality candidates.\n * Fail closed when the requested candidate set exceeds the tile budget.\n * Usage: npx tsx scripts/light-rain-z10-refine.ts <47-N03-root>\n */\nimport { randomUUID } from \"node:crypto\";\nimport { readFile, rename, rm, writeFile } from \"node:fs/promises\";\nimport { PNG } from \"pngjs\";\nimport { classifyRainPixel } from \"../lib/weather/providers/jma/classifyPixel\";\nimport { setTimeout as delay } from \"node:timers/promises\";\nimport { requireCompleteNationwideN03 } from \"../lib/weather/rain/lightRainNationwideN03\";\nimport { fetchForecastTargetTimes, type JmaTargetTime } from \"../lib/weather/providers/jma/targetTimes\";\nimport { buildJmaRainTileUrl } from \"../lib/weather/providers/jma/tileUrl\";\nimport { locateJmaRainPixelsAtLeast1mm, scanJmaTileAtLeast1mm } from \"../lib/weather/rain/lightRainProof\";\nimport { municipalitiesForLightRainTile } from \"../lib/weather/rain/lightRainMunicipalities\";\nimport { maskHasPixel, municipalitiesForLightRainTileWithMasks, type TilePixelMasks } from \"../lib/weather/rain/lightRainPixelMasks\";\nimport { openNationwidePixelMasks } from \"../lib/weather/rain/lightRainPixelMaskLoader\";\nimport { forecastTime, readNationalForecastSnapshot, type NationalForecastSnapshot } from \"../lib/weather/rain/nationalForecastSnapshot\";\nimport { affectedAdministrativeAreas, type AdministrativeArea } from \"../lib/weather/rain/lightRainAdministrativeAreas\";\n\nconst root=process.argv[2];\nif(!root)throw new Error(\"N03 root required\");\nconst MAX_TILES=Number(process.env.Z10_MAX_TILES||\"2500\");\n// Explicit opt-in: without an artifact directory, retain the original matcher.\n// When enabled, missing/stale/corrupt masks are fatal (never silently empty).\nconst maskDir = process.env.JMA_Z10_PIXEL_MASK_DIR;\nconst n03Version = process.env.JMA_N03_VERSION || \"20260101\";\nconst pixelMasks = maskDir ? openNationwidePixelMasks(maskDir, n03Version) : undefined;\nconst snapshotPath = process.env.NATIONAL_RAIN_SNAPSHOT_PATH;\nif (snapshotPath && !pixelMasks) throw new Error(\"Snapshot generation requires JMA_Z10_PIXEL_MASK_DIR\");\nconst tiles4=[[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;\nconst FIVE_MINUTES = 300_000;\nconst lon=(x:number,z:number)=>x/(2**z)*360-180;\nconst lat=(y:number,z:number)=>Math.atan(Math.sinh(Math.PI-2*Math.PI*y/(2**z)))*180/Math.PI;\nfunction bbox(area:AdministrativeArea):[number,number,number,number]{\n  const polys=area.geometry.type===\"Polygon\"?[area.geometry.coordinates as number[][][]]:area.geometry.coordinates as number[][][][];\n  let w=Infinity,s=Infinity,e=-Infinity,n=-Infinity;\n  for(const p of polys)for(const ring of p)for(const [x,y]of ring){w=Math.min(w,x);s=Math.min(s,y);e=Math.max(e,x);n=Math.max(n,y);}\n  return [w,s,e,n];\n}\nconst xy=(longitude:number,latitude:number,z:number):[number,number]=>{\n  const safe=Math.max(-85.05112878,Math.min(85.05112878,latitude));\n  const rad=safe*Math.PI/180;\n  return [Math.floor((longitude+180)/360*2**z),Math.floor((1-Math.asinh(Math.tan(rad))/Math.PI)/2*2**z)];\n};\nasync function fetchTile(frame:{basetime:string;validtime:string},z:number,x:number,y:number, signal:AbortSignal){\n  const url=buildJmaRainTileUrl(frame,z,x,y);\n  const attempts: string[] = [];\n  for (let attempt = 0; attempt < 2; attempt++) {\n    signal.throwIfAborted();\n    const started = performance.now();\n    let outcome = \"transport_error\";\n    try {\n      const response = await fetch(url, { cache: \"no-store\", signal: AbortSignal.any([signal, AbortSignal.timeout(8_000)]) });\n      const headersMs = Math.round(performance.now()-started);\n      outcome = \"HTTP_\" + response.status;\n      if (response.ok) {\n        const bytes = Buffer.from(await response.arrayBuffer());\n        const bodyDoneMs = Math.round(performance.now()-started);\n        outcome = \"ok\";\n        console.log(JSON.stringify({event:\"JMA_TILE_FETCH\",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome:\"ok\",httpStatus:response.status,headersMs,bodyMs:bodyDoneMs-headersMs,elapsedMs:bodyDoneMs,bytes:bytes.length,cacheStatus:response.headers.get(\"x-cache\")}));\n        return bytes;\n      }\n      attempts.push(\"HTTP \" + response.status);\n      if (![404, 408, 429, 500, 502, 503, 504].includes(response.status)) break;\n    } catch (error) {\n      outcome = signal.aborted ? \"slot_deadline_abort\" : error instanceof Error ? error.name : \"TransportError\";\n      attempts.push(outcome);\n    } finally {\n      if (outcome !== \"ok\") {\n        console.log(JSON.stringify({event:\"JMA_TILE_FETCH\",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome,elapsedMs:Math.round(performance.now()-started)}));\n      }\n    }\n    if (attempt < 1) await delay(500, undefined, { signal });\n  }\n  throw new Error(`INCOMPLETE_JMA_TILE ${url} attempts: ${attempts.join(\", \")}`);\n}\nfunction selectFrames(targets: JmaTargetTime[], now: number): JmaTargetTime[] {\n  const basetime = targets\n    .map(frame => frame.basetime)\n    .filter(base => forecastTime(base) <= now && now - forecastTime(base) < 2 * FIVE_MINUTES)\n    .sort().at(-1);\n  if (!basetime) throw new Error(\"NO_FRESH_JMA_BASETIME\");\n  const base = forecastTime(basetime);\n  const frames = targets.filter(frame => frame.basetime === basetime\n    && forecastTime(frame.validtime) > base && forecastTime(frame.validtime) <= base + 6 * FIVE_MINUTES);\n  if (frames.length !== 6 || frames.some((frame, i) => forecastTime(frame.validtime) !== base + (i + 1) * FIVE_MINUTES)) {\n    throw new Error(\"INCOMPLETE_JMA_FRAMES: expected six consecutive forecast frames from one basetime\");\n  }\n  return frames;\n}\n\ntype ForecastMunicipality = NationalForecastSnapshot[\"frames\"][number][\"municipalities\"][number];\n\nfunction heavyRainMunicipalities(\n  buffer: Buffer, masks: TilePixelMasks, areaByCode: Map<string, AdministrativeArea>,\n): ForecastMunicipality[] {\n  const tile = PNG.sync.read(buffer);\n  if (tile.width !== 256 || tile.height !== 256) throw new Error(\"Unexpected JMA tile dimensions\");\n  const strengths = new Map<number, 30 | 50 | 80>();\n  for (let i = 0; i < tile.data.length; i += 4) {\n    const pixel = classifyRainPixel({ r: tile.data[i], g: tile.data[i+1], b: tile.data[i+2], a: tile.data[i+3] });\n    switch (pixel.intensityClass) {\n      case \"30_TO_50\": strengths.set(i / 4, 30); break;\n      case \"50_TO_80\": strengths.set(i / 4, 50); break;\n      case \"GTE_80\": strengths.set(i / 4, 80); break;\n    }\n  }\n  return masks.entries.flatMap(({ code, mask }) => {\n    const area = areaByCode.get(code);\n    if (!area) throw new Error(\"Unknown N03 municipality in LRPM: \" + code);\n    let minimumMmPerHour: 30 | 50 | 80 | undefined;\n    for (const [index, strength] of strengths) {\n      if (strength > (minimumMmPerHour ?? 0) && maskHasPixel(mask, index)) minimumMmPerHour = strength;\n      if (minimumMmPerHour === 80) break;\n    }\n    return minimumMmPerHour ? [{ code, prefecture: area.prefecture, municipality: area.municipality, minimumMmPerHour }] : [];\n  });\n}\n\nasync function writeSnapshot(path: string, snapshot: NationalForecastSnapshot, signal: AbortSignal) {\n  const temporary = path + \".\" + randomUUID() + \".tmp\";\n  try {\n    await writeFile(temporary, JSON.stringify(snapshot) + \"\\n\", { flag: \"wx\" });\n    const now = Date.now();\n    if (now - forecastTime(snapshot.basetime) >= 2 * FIVE_MINUTES) throw new Error(\"JMA forecast expired before publication\");\n    readNationalForecastSnapshot(snapshot, now);\n    signal.throwIfAborted();\n    await rename(temporary, path);\n  } finally {\n    await rm(temporary, { force: true });\n  }\n}\n\nasync function refineFrame(\n  frame: JmaTargetTime,\n  indexed: Array<{ area: AdministrativeArea; b: ReturnType<typeof bbox> }>,\n  areaByCode: Map<string, AdministrativeArea>,\n  signal: AbortSignal,\n) {\n  const started = performance.now();\n  const candidates = new Map<string, AdministrativeArea>();\n  const rainyZ10Tiles = new Map<string, { x: number; y: number }>();\n  for (const [x, y] of tiles4) {\n    const bounds = [lon(x, 4), lat(y + 1, 4), lon(x + 1, 4), lat(y, 4)];\n    const relevant = indexed.filter(({ b }) => b[0] <= bounds[2] && b[2] >= bounds[0]\n      && b[1] <= bounds[3] && b[3] >= bounds[1]).map(({ area }) => area);\n    const buffer = await fetchTile(frame, 4, x, y, signal);\n    const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 4, x, y);\n    if (!pixels.length) continue;\n    for (const area of municipalitiesForLightRainTile(buffer, 4, x, y, relevant)) {\n      candidates.set(area.code, areaByCode.get(area.code)!);\n    }\n    // Each z4 PNG pixel spans 1/4 of a z10 tile and the grids share an origin.\n    for (const { pixelX, pixelY } of pixels) {\n      const tileX = x * 64 + Math.floor(pixelX / 4);\n      const tileY = y * 64 + Math.floor(pixelY / 4);\n      rainyZ10Tiles.set(tileX + \"/\" + tileY, { x: tileX, y: tileY });\n    }\n  }\n  const z4Done = performance.now();\n  const tileMap = new Map<string, { x: number; y: number; areas: AdministrativeArea[] }>();\n  for (const area of candidates.values()) {\n    const [w, s, e, n] = bbox(area);\n    const [minX, minY] = xy(w, n, 10), [maxX, maxY] = xy(e, s, 10);\n    for (const [key, { x, y }] of rainyZ10Tiles) {\n      if (x < minX || x > maxX || y < minY || y > maxY) continue;\n      const entry = tileMap.get(key) ?? { x, y, areas: [] };\n      entry.areas.push(area);\n      tileMap.set(key, entry);\n    }\n  }\n  if (tileMap.size > MAX_TILES) {\n    throw new Error(`Z10_TILE_BUDGET_EXCEEDED: ${tileMap.size} > ${MAX_TILES}; no partial result accepted`);\n  }\n  const tilePlanDone=performance.now();\n  const matched=new Map<string,{code:string;prefecture:string;municipality:string}>();\n  const heavy = new Map<string, ForecastMunicipality>();\n  let z10NetworkMs=0,z10MatchingMs=0;\n  const entries=[...tileMap.values()];\n  const z10Concurrency = Number(process.env.JMA_Z10_CONCURRENCY ?? \"4\");\n  if (![4, 8].includes(z10Concurrency)) throw new Error(\"JMA_Z10_CONCURRENCY must be 4 or 8\");\n  let rainyTiles=0;\n  for(let i=0;i<entries.length;i+=z10Concurrency){\n    signal.throwIfAborted();\n    const batch=entries.slice(i,i+z10Concurrency);\n    const outcomes=await Promise.allSettled(batch.map(async t=>{\n      const fetchStart=performance.now();\n      const buffer=await fetchTile(frame,10,t.x,t.y,signal);\n      const fetchMs=performance.now()-fetchStart;\n      const matchStart=performance.now();\n      const scan=scanJmaTileAtLeast1mm(buffer);\n      const decodeMs=performance.now()-matchStart;\n      if(scan.unknownPixels)throw new Error(\"UNKNOWN_JMA_PIXEL_Z10 \"+t.x+\"/\"+t.y);\n      // The LRPM generator omits tiles with no intersecting pixels. A bounding-box\n      // candidate can therefore be absent. Prove the whole tile is disjoint\n      // before accepting that absence; declared or land-overlapping tiles stay strict.\n      const unlistedAndDisjoint = scan.rainPixels && pixelMasks && !pixelMasks.has(t.x, t.y)\n        && !affectedAdministrativeAreas([{ coordinates: [[\n          [lon(t.x, 10), lat(t.y, 10)], [lon(t.x + 1, 10), lat(t.y, 10)],\n          [lon(t.x + 1, 10), lat(t.y + 1, 10)], [lon(t.x, 10), lat(t.y + 1, 10)],\n          [lon(t.x, 10), lat(t.y, 10)],\n        ]] }], t.areas).length;\n      const masks = scan.rainPixels && !unlistedAndDisjoint ? pixelMasks?.load(t.x, t.y) : undefined;\n      const heavyAreas = snapshotPath && masks ? heavyRainMunicipalities(buffer, masks, areaByCode) : [];\n      const municipalities=!snapshotPath && scan.rainPixels && !unlistedAndDisjoint\n        ? pixelMasks\n          ? municipalitiesForLightRainTileWithMasks(buffer,10,t.x,t.y,masks,t.areas)\n          : municipalitiesForLightRainTile(buffer,10,t.x,t.y,t.areas)\n        : [];\n      const matchingMs=performance.now()-matchStart;\n      console.log(JSON.stringify({event:\"JMA_TILE_PROCESS\",basetime:frame.basetime,validtime:frame.validtime,z:10,x:t.x,y:t.y,decodeMs:Math.round(decodeMs),matchingMs:Math.round(matchingMs),fetchMs:Math.round(fetchMs)}));\n      return {scan,municipalities,heavyAreas,fetchMs,matchingMs};\n    }));\n    for (const outcome of outcomes) {\n      if (outcome.status === \"rejected\") throw outcome.reason;\n      const { scan, municipalities, heavyAreas, fetchMs, matchingMs } = outcome.value;\n      z10NetworkMs += fetchMs;\n      z10MatchingMs += matchingMs;\n      if (scan.rainPixels) rainyTiles++;\n      for (const area of municipalities) matched.set(area.code, area);\n      for (const area of heavyAreas) {\n        if (area.minimumMmPerHour > (heavy.get(area.code)?.minimumMmPerHour ?? 0)) heavy.set(area.code, area);\n      }\n    }\n  }\n  const z10Done=performance.now();\n  const round=(n:number)=>Math.round(n);\n  const timingMs={z4ScanAndCandidateMatch:round(z4Done-started),z10TilePlanning:round(tilePlanDone-z4Done),z10WallClock:round(z10Done-tilePlanDone),z10NetworkCumulative:round(z10NetworkMs),z10DecodeAndMunicipalityMatchCumulative:round(z10MatchingMs),total:round(z10Done-started)};\n  return {\n    validtime: frame.validtime,\n    timingMs,\n    z4Candidates: candidates.size,\n    z10TilesChecked: entries.length,\n    z10RainyTiles: rainyTiles,\n    z10Municipalities: snapshotPath ? heavy.size : matched.size,\n    heavyMunicipalities: [...heavy.values()].sort((a, b) => a.code.localeCompare(b.code)),\n    municipalities: [...matched.values()].sort((a, b) => a.code.localeCompare(b.code)),\n  };\n}\n\nasync function main() {\n  const started = performance.now();\n  const coverage = requireCompleteNationwideN03(root);\n  const indexed = coverage.areas.map(area => ({ area, b: bbox(area) }));\n  const areaByCode = new Map(coverage.areas.map(area => [area.code, area]));\n  const n03LoadAndIndex = Math.round(performance.now() - started);\n  let previousBase: string | undefined;\n  if (snapshotPath) {\n    try {\n      const existing = JSON.parse(await readFile(snapshotPath, \"utf8\"));\n      if (existing?.n03Version === n03Version) {\n        try { previousBase = readNationalForecastSnapshot(existing).basetime; } catch { /* Expired or invalid snapshot. */ }\n      }\n    } catch (error) {\n      if (!(error instanceof SyntaxError) && (error as NodeJS.ErrnoException).code !== \"ENOENT\") throw error;\n    }\n  }\n  let successfulUpdates = 0;\n  // A successful watch is not evidence of uninterrupted five-minute coverage.\n  // Keep gaps visible and fail the read-only audit rather than silently skipping them.\n  const missingBasetimes: string[] = [];\n  const observedBasetimes = new Set<string>();\n  const recordGap = (base: string) => {\n    if (observedBasetimes.has(base)) return;\n    observedBasetimes.add(base);\n    if (!previousBase) return;\n    const from = forecastTime(previousBase);\n    const to = forecastTime(base);\n    if (to <= from) return;\n    for (let t = from + FIVE_MINUTES; t < to; t += FIVE_MINUTES) {\n      const missing = new Date(t).toISOString();\n      missingBasetimes.push(missing);\n      console.error(JSON.stringify({ event: \"MISSING_JMA_BASETIME\", basetime: missing, nextBasetime: base, recovered: false, publication: false }));\n    }\n  };\n  const update = async () => {\n    const scanStarted = performance.now();\n    // Stop this slot before the next JMA publication window; never recover old slots.\n    const slotEnd = Math.floor(Date.now() / FIVE_MINUTES) * FIVE_MINUTES + FIVE_MINUTES + 90_000;\n    const controller = new AbortController();\n    const timer = setTimeout(() => controller.abort(new Error(\"JMA_SLOT_DEADLINE_EXCEEDED\")), Math.max(0, slotEnd - Date.now()));\n    try {\n    // Poll only the lightweight target-time index when the expected cycle is\n    // not yet published. Never rescan old tiles or overlap an active scan.\n    const expectedBaseMs = Math.floor(Date.now() / FIVE_MINUTES) * FIVE_MINUTES;\n    const pollUntil = expectedBaseMs + 4 * 60_000;\n    let frames: JmaTargetTime[] | undefined;\n    while (!controller.signal.aborted) {\n      const checkedAt = new Date().toISOString();\n      const targets = await fetchForecastTargetTimes((input, init) =>\n        fetch(input, { ...init, signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]) }));\n      const newestBase = targets.map(target => target.basetime).sort().at(-1);\n      console.log(JSON.stringify({ event: \"JMA_TARGET_TIME_CHECK\", checkedAt, expectedBase: new Date(expectedBaseMs).toISOString(), newestBase, previousBase, publication: false }));\n      if (newestBase && forecastTime(newestBase) >= expectedBaseMs && (!previousBase || newestBase > previousBase)) {\n        frames = selectFrames(targets, Date.now());\n        break;\n      }\n      if (Date.now() + 30_000 > pollUntil) {\n        console.error(JSON.stringify({ event: \"JMA_TARGET_TIME_NOT_READY\", expectedBase: new Date(expectedBaseMs).toISOString(), newestBase, publication: false }));\n        return;\n      }\n      await delay(30_000, undefined, { signal: controller.signal });\n    }\n    controller.signal.throwIfAborted();\n    if (!frames) return;\n    const results = [];\n    // Two frames share the cycle budget. Await both before stopping so the next\n    // update does not overlap a failed cycle's remaining requests.\n    for (let i = 0; i < frames.length; i += 2) {\n      const batch = await Promise.allSettled(\n        frames.slice(i, i + 2).map(frame => refineFrame(frame, indexed, areaByCode, controller.signal)),\n      );\n      for (const result of batch) {\n        if (result.status === \"rejected\") throw result.reason;\n        results.push(result.value);\n      }\n    }\n\n    if (Date.now() - forecastTime(frames[0].basetime) >= 2 * FIVE_MINUTES) {\n      throw new Error(\"JMA forecast expired before the scan finished\");\n    }\n    if (snapshotPath) {\n      await writeSnapshot(snapshotPath, {\n        source: \"JMA\", n03Version, basetime: frames[0].basetime,\n        frames: results.map(result => ({ validTime: result.validtime, municipalities: result.heavyMunicipalities })),\n      }, controller.signal);\n    }\n    console.log(JSON.stringify({\n      mode: snapshotPath ? \"NATIONAL_FORECAST_SNAPSHOT\" : \"READ_ONLY_Z10_REAL_JMA_N03\",\n      basetime: frames[0].basetime,\n      checkedAt: new Date().toISOString(),\n      ",
+        "sha256": "a290b230bcb2552243770af7389df58755f14368a53a5c1e5510244381294eaf"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "aaa3f7014f3bb7708cac8924635a803d344a4cfd",
+      "message": "Generate nationwide heavy rain snapshots from the LRPM watch\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/aaa3f7014f3bb7708cac8924635a803d344a4cfd"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "aaa3f7014f3bb7708cac8924635a803d344a4cfd",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43749001799",
+      "id": 43749001799,
+      "updated_at": "2026-11-15T18:53:26Z",
+      "event": "create"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "aaa3f7014f3bb7708cac8924635a803d344a4cfd",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43737946170",
+      "id": 43737946170,
+      "updated_at": "2026-11-15T16:54:57Z",
+      "event": "create"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "aaa3f7014f3bb7708cac8924635a803d344a4cfd",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43737503862",
+      "id": 43737503862,
+      "updated_at": "2026-11-15T16:48:18Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "aaa3f7014f3bb7708cac8924635a803d344a4cfd",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43737359701",
+      "id": 43737359701,
+      "updated_at": "2026-11-15T16:46:42Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "aaa3f7014f3bb7708cac8924635a803d344a4cfd",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43737359698",
+      "id": 43737359698,
+      "updated_at": "2026-11-15T16:46:51Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "aaa3f7014f3bb7708cac8924635a803d344a4cfd",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43737359787",
+      "id": 43737359787,
+      "updated_at": "2026-11-15T16:47:32Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Nationwide official N03 acquisition and audit (read-only)",
+      "head_sha": "aaa3f7014f3bb7708cac8924635a803d344a4cfd",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43737359711",
+      "id": 43737359711,
+      "updated_at": "2026-11-15T16:48:18Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "FIVE_MINUTES",
+    "MAX_TILES",
+    "area",
+    "areaByCode",
+    "attempt",
+    "attempts",
+    "base",
+    "basetime",
+    "batch",
+    "bbox",
+    "bodyDoneMs",
+    "bounds",
+    "buffer",
+    "bytes",
+    "candidates",
+    "checkedAt",
+    "controller",
+    "coverage",
+    "decodeMs",
+    "entries",
+    "entry",
+    "existing",
+    "expectedBaseMs",
+    "fetchMs",
+    "fetchStart",
+    "fetchTile",
+    "frames",
+    "from",
+    "headersMs",
+    "heavy",
+    "heavyAreas",
+    "heavyRainMunicipalities",
+    "i",
+    "indexed",
+    "lat",
+    "lon",
+    "main",
+    "maskDir",
+    "masks",
+    "matchStart",
+    "matched",
+    "matchingMs",
+    "minimumMmPerHour",
+    "missing",
+    "missingBasetimes",
+    "municipalities",
+    "n03LoadAndIndex",
+    "n03Version",
+    "newestBase",
+    "now",
+    "observedBasetimes",
+    "outcome",
+    "outcomes",
+    "p",
+    "pixel",
+    "pixelMasks",
+    "pixels",
+    "pollUntil",
+    "polys",
+    "previousBase"
+  ],
+  "related_sources": [
+    {
+      "path": "docs/work-history/cases/branch-2dd17474ef4e7083.md",
+      "coverage": "削除済み／取得不能・差分参照",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/aaa3f7014f3bb7708cac8924635a803d344a4cfd/docs/work-history/cases/branch-2dd17474ef4e7083.md"
+    }
+  ],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "37144d4b8e33ebf2c4ae275eb34ab9a904183148f9ef7a166d4f239303639511",
+  "ci_digest": "7858559d02b2588d047b0de4f79d52567928b5cd1bf7dfd4dbe9badbb2d84d03",
+  "collected_at": "2026-11-16T04:57:56.343713+00:00",
+  "decisions": []
+}

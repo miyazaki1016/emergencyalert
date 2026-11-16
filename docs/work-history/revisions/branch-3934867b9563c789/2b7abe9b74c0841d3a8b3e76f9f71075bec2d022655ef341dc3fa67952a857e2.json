@@ -1,0 +1,21 @@
+{
+  "id": "branch-3934867b9563c789",
+  "title": "fix/suppress-rain-confirmed-push",
+  "head": "5bc1fef04789de21dbc72845497cb72131baeabd",
+  "head_ref": "fix/suppress-rain-confirmed-push",
+  "linked_prs": [
+    50
+  ],
+  "files": [],
+  "commits": "",
+  "topics": [
+    "雨量・全国検知",
+    "通知・配信"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "93a3466b2d4301516b24474c5706cd3a392e89f52b1f97f3dca8a9fd65f5c26e",
+  "collected_at": "2026-11-16T04:57:56.343713+00:00"
+}
