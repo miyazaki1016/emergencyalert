@@ -35,10 +35,6 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v4
-      - name: Test nationwide forecast snapshot freshness and permissions
-        env:
-          PGPASSWORD: local-test-only
-        run: psql -h localhost -U postgres -d phase1_test -v ON_ERROR_STOP=1 -f tests/sql/national-rain-forecast-snapshot-integration.sql
       - name: Test developer dashboard permissions and ground reports
         env:
           PGPASSWORD: local-test-only
@@ -59,6 +55,10 @@ jobs:
         env:
           PGPASSWORD: local-test-only
         run: psql -h localhost -U postgres -d phase1_test -v ON_ERROR_STOP=1 -f tests/sql/feedback-phase1-integration.sql
+      - name: Test nationwide forecast snapshot freshness and permissions
+        env:
+          PGPASSWORD: local-test-only
+        run: psql -h localhost -U postgres -d phase1_test -v ON_ERROR_STOP=1 -f tests/sql/national-rain-forecast-snapshot-integration.sql
 
   phase1-feedback-http:
     runs-on: ubuntu-latest
