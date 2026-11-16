@@ -52,6 +52,9 @@
 | #232 | feat(jaspic): show held counts in completion email | feat/jaspic-completion-held-count-20261113 |
 | #236 | fix(jaspic): 滋賀の一括登録を20件制限で停止させない (#235) | fix/jaspic-235-batched-shiga |
 | #239 | Draft: JASPIC 34件隔離DB・Gmail送信試験の安全ゲート | test/jaspic-238-isolated-bulk |
+| #242 | feat(rain): z10タイル×N03画素対応表の事前計算（Issue #220） | feat/light-rain-pixel-mask-precompute-220 |
+| #243 | Draft: z10 read-only scanner LRPM integration (stacked on #242) | feat/light-rain-mask-scanner-integration-220 |
+| #245 | 全国30mm/h予報を5分監視からトップ用スナップショットに接続 | work/national-forecast-snapshot-209 |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
