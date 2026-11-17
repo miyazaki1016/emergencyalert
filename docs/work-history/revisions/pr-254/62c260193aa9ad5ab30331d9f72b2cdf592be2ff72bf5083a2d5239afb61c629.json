@@ -1,0 +1,215 @@
+{
+  "id": "pr-254",
+  "number": 254,
+  "title": "fix(rain): LRPM資材のSHA照合付きStorage配置ツール (#250)",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Continuation of #250. Add a one-time local upload script for verified LRPM tar.gz with exact SHA-256, no overwrite, and post-upload listing check. No secrets committed; no production schedule, notifications, Vercel or Supabase state changed. Requires latest HEAD checks and separate authorization for production activation.\n\nIssue preflight confirmed: https://github.com/miyazaki1016/emergencyalert/actions/runs/43849922596\nPR first preflight REVIEW_REQUIRED: https://github.com/miyazaki1016/emergencyalert/actions/runs/43990018597\nCI success at 8b33684de57581b59c21e4a028b73c9e0d4e5636: https://github.com/miyazaki1016/emergencyalert/actions/runs/43990018733\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-181\",\"decision\":\"reuse\",\"reason\":\"PR #62のstride=2見逃し実測とPR #181の全画素・欠損失敗原則を再利用。今回の差分はLRPM保管ツールだけで走査判定は変更しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/181\"},{\"id\":\"pr-59\",\"decision\":\"reuse\",\"reason\":\"47県N03分割と32MiB LRU・83照合ケースの既存知見を再利用。N03本体や判定ロジックを変更せず、既存LRPMの配布経路のみ補完。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/59\"},{\"id\":\"pr-243\",\"decision\":\"extend\",\"reason\":\"既存LRPMローダーと版固定SHAを再利用し、欠けているStorage原本の一回限りのSHA検証付き・上書き禁止アップロード手順のみ追加。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/243\"},{\"id\":\"pr-251\",\"decision\":\"extend\",\"reason\":\"Issue #250でmain統合済みの全国30/50/80mm/h Actions走査・6フレーム完走・10分鮮度・保存SQLを再利用。PR #251の残件であるLRPM資材のStorage未配置を、SHA固定・上書き禁止の単発配置ツールだけで補完し、走査・MY通知・スケジュールの挙動は変更しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/251\"}]}\n-->",
+  "snapshot_head": "79a732eb1f16bec63141eff6d70a766847c45b9a",
+  "snapshot_consistent": true,
+  "head": "79a732eb1f16bec63141eff6d70a766847c45b9a",
+  "base": "02b542e847e00567573455f52a9f40f98fff4e44",
+  "base_ref": "main",
+  "head_ref": "fix/national-rain-lrpm-storage-250",
+  "state": "open",
+  "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+  "draft": true,
+  "merged_at": null,
+  "merge_commit_sha": null,
+  "updated_at": "2026-11-17T01:27:14Z",
+  "code_facts": [
+    {
+      "file": ".github/workflows/upload-national-lrpm-manual.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "run: gh run download 43653446881 --repo \"$GITHUB_REPOSITORY\" --name lrpm-japan-20260101-v1 --dir \"$RUNNER_TEMP/lrpm-archive\"",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/.github/workflows/upload-national-lrpm-manual.yml"
+    },
+    {
+      "file": ".github/workflows/upload-national-lrpm-manual.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "run: |",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/.github/workflows/upload-national-lrpm-manual.yml"
+    },
+    {
+      "file": ".github/workflows/upload-national-lrpm-manual.yml",
+      "kind": "テストの期待値・条件",
+      "expression": "test -f \"$RUNNER_TEMP/lrpm-archive/lrpm-japan-20260101-v1.tar.gz\"",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/.github/workflows/upload-national-lrpm-manual.yml"
+    },
+    {
+      "file": ".github/workflows/upload-national-lrpm-manual.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "- run: npm install --no-save --no-package-lock --no-audit --no-fund tsx@4.20.6",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/.github/workflows/upload-national-lrpm-manual.yml"
+    },
+    {
+      "file": ".github/workflows/upload-national-lrpm-manual.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "run: node --import tsx scripts/upload-national-lrpm.ts \"$RUNNER_TEMP/lrpm-archive/lrpm-japan-20260101-v1.tar.gz\"",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/.github/workflows/upload-national-lrpm-manual.yml"
+    },
+    {
+      "file": "scripts/upload-national-lrpm.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "const OBJECT_PATH = \"20260101/lrpm-20260101-v1.tar.gz\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/scripts/upload-national-lrpm.ts"
+    },
+    {
+      "file": "scripts/upload-national-lrpm.ts",
+      "kind": "関数・クラス定義",
+      "expression": "async function main() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/scripts/upload-national-lrpm.ts"
+    },
+    {
+      "file": "scripts/upload-national-lrpm.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!archivePath || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/scripts/upload-national-lrpm.ts"
+    },
+    {
+      "file": "scripts/upload-national-lrpm.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const actual = createHash(\"sha256\").update(bytes).digest(\"hex\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/scripts/upload-national-lrpm.ts"
+    },
+    {
+      "file": "scripts/upload-national-lrpm.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (actual !== EXPECTED_SHA256) throw new Error(\"LRPM_SHA256_MISMATCH\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/scripts/upload-national-lrpm.ts"
+    },
+    {
+      "file": "scripts/upload-national-lrpm.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const storage = client.storage.from(\"national-rain-n03\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/scripts/upload-national-lrpm.ts"
+    },
+    {
+      "file": "scripts/upload-national-lrpm.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (listingError) throw new Error(\"LRPM_STORAGE_LIST_FAILED\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/scripts/upload-national-lrpm.ts"
+    },
+    {
+      "file": "scripts/upload-national-lrpm.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (existing?.some(object => object.name === \"lrpm-20260101-v1.tar.gz\")) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/scripts/upload-national-lrpm.ts"
+    },
+    {
+      "file": "scripts/upload-national-lrpm.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (error) throw new Error(\"LRPM_UPLOAD_FAILED: \" + error.message);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/scripts/upload-national-lrpm.ts"
+    },
+    {
+      "file": "scripts/upload-national-lrpm.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (verifyError || !listed?.some(object => object.name === \"lrpm-20260101-v1.tar.gz\")) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/scripts/upload-national-lrpm.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/upload-national-lrpm-manual.yml",
+      "status": "modified",
+      "additions": 37,
+      "deletions": 0,
+      "patch": "diff --git a/.github/workflows/upload-national-lrpm-manual.yml b/.github/workflows/upload-national-lrpm-manual.yml\nnew file mode 100644\nindex 00000000..febd504c\n--- /dev/null\n+++ b/.github/workflows/upload-national-lrpm-manual.yml\n@@ -0,0 +1,37 @@\n+name: Upload verified LRPM asset (manual only)\n+\n+on:\n+  workflow_dispatch:\n+\n+permissions:\n+  contents: read\n+  actions: read\n+\n+jobs:\n+  upload:\n+    if: github.repository == 'miyazaki1016/emergencyalert' && github.ref == 'refs/heads/main'\n+    runs-on: ubuntu-latest\n+    timeout-minutes: 10\n+    steps:\n+      - uses: actions/checkout@v4\n+        with:\n+          persist-credentials: false\n+      - uses: actions/setup-node@v4\n+        with:\n+          node-version: 22\n+      - name: Download previously verified LRPM artifact\n+        env:\n+          GH_TOKEN: ${{ github.token }}\n+        run: gh run download 43653446881 --repo \"$GITHUB_REPOSITORY\" --name lrpm-japan-20260101-v1 --dir \"$RUNNER_TEMP/lrpm-archive\"\n+      - name: Extract and verify immutable archive\n+        run: |\n+          set -euo pipefail\n+          test -f \"$RUNNER_TEMP/lrpm-archive/lrpm-japan-20260101-v1.tar.gz\"\n+          echo '5fb0823f190e9ed893ba5ee9ae47aa7b1e4a8ad9c26601e2cae8b14bc1de33d8  '\"$RUNNER_TEMP/lrpm-archive/lrpm-japan-20260101-v1.tar.gz\" | sha256sum --check\n+          tar -tzf \"$RUNNER_TEMP/lrpm-archive/lrpm-japan-20260101-v1.tar.gz\" >/dev/null\n+      - run: npm install --no-save --no-package-lock --no-audit --no-fund tsx@4.20.6\n+      - name: Upload once (no overwrite) and verify\n+        env:\n+          SUPABASE_URL: ${{ secrets.RAIN_ACTIONS_SUPABASE_URL }}\n+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.RAIN_ACTIONS_SUPABASE_SERVICE_ROLE_KEY }}\n+        run: node --import tsx scripts/upload-national-lrpm.ts \"$RUNNER_TEMP/lrpm-archive/lrpm-japan-20260101-v1.tar.gz\"\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/.github/workflows/upload-national-lrpm-manual.yml",
+      "source": {
+        "path": ".github/workflows/upload-national-lrpm-manual.yml",
+        "coverage": "全文",
+        "text": "name: Upload verified LRPM asset (manual only)\n\non:\n  workflow_dispatch:\n\npermissions:\n  contents: read\n  actions: read\n\njobs:\n  upload:\n    if: github.repository == 'miyazaki1016/emergencyalert' && github.ref == 'refs/heads/main'\n    runs-on: ubuntu-latest\n    timeout-minutes: 10\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          persist-credentials: false\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 22\n      - name: Download previously verified LRPM artifact\n        env:\n          GH_TOKEN: ${{ github.token }}\n        run: gh run download 43653446881 --repo \"$GITHUB_REPOSITORY\" --name lrpm-japan-20260101-v1 --dir \"$RUNNER_TEMP/lrpm-archive\"\n      - name: Extract and verify immutable archive\n        run: |\n          set -euo pipefail\n          test -f \"$RUNNER_TEMP/lrpm-archive/lrpm-japan-20260101-v1.tar.gz\"\n          echo '5fb0823f190e9ed893ba5ee9ae47aa7b1e4a8ad9c26601e2cae8b14bc1de33d8  '\"$RUNNER_TEMP/lrpm-archive/lrpm-japan-20260101-v1.tar.gz\" | sha256sum --check\n          tar -tzf \"$RUNNER_TEMP/lrpm-archive/lrpm-japan-20260101-v1.tar.gz\" >/dev/null\n      - run: npm install --no-save --no-package-lock --no-audit --no-fund tsx@4.20.6\n      - name: Upload once (no overwrite) and verify\n        env:\n          SUPABASE_URL: ${{ secrets.RAIN_ACTIONS_SUPABASE_URL }}\n          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.RAIN_ACTIONS_SUPABASE_SERVICE_ROLE_KEY }}\n        run: node --import tsx scripts/upload-national-lrpm.ts \"$RUNNER_TEMP/lrpm-archive/lrpm-japan-20260101-v1.tar.gz\"\n",
+        "sha256": "16950c1f19651bae575ec3d09a62dd1523f3df1662cf1ff0d0e7b954198c5bd5"
+      }
+    },
+    {
+      "path": "scripts/upload-national-lrpm.ts",
+      "status": "modified",
+      "additions": 52,
+      "deletions": 0,
+      "patch": "diff --git a/scripts/upload-national-lrpm.ts b/scripts/upload-national-lrpm.ts\nnew file mode 100644\nindex 00000000..d728b140\n--- /dev/null\n+++ b/scripts/upload-national-lrpm.ts\n@@ -0,0 +1,52 @@\n+import { createHash } from \"node:crypto\";\n+import { readFile } from \"node:fs/promises\";\n+import { createClient } from \"@supabase/supabase-js\";\n+\n+const OBJECT_PATH = \"20260101/lrpm-20260101-v1.tar.gz\";\n+const EXPECTED_SHA256 = \"5fb0823f190e9ed893ba5ee9ae47aa7b1e4a8ad9c26601e2cae8b14bc1de33d8\";\n+\n+async function main() {\n+  const [archivePath] = process.argv.slice(2);\n+  const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = process.env;\n+  if (!archivePath || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {\n+    throw new Error(\"Usage: SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node --import tsx scripts/upload-national-lrpm.ts <verified-tar.gz>\");\n+  }\n+\n+  const bytes = await readFile(archivePath);\n+  const actual = createHash(\"sha256\").update(bytes).digest(\"hex\");\n+  if (actual !== EXPECTED_SHA256) throw new Error(\"LRPM_SHA256_MISMATCH\");\n+\n+  const client = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {\n+    auth: { persistSession: false },\n+  });\n+  const storage = client.storage.from(\"national-rain-n03\");\n+  const { data: existing, error: listingError } = await storage.list(\"20260101\", {\n+    search: \"lrpm-20260101-v1.tar.gz\",\n+    limit: 100,\n+  });\n+  if (listingError) throw new Error(\"LRPM_STORAGE_LIST_FAILED\");\n+  if (existing?.some(object => object.name === \"lrpm-20260101-v1.tar.gz\")) {\n+    throw new Error(\"LRPM_ALREADY_EXISTS: do not overwrite without explicit review\");\n+  }\n+\n+  const { error } = await storage.upload(OBJECT_PATH, bytes, {\n+    contentType: \"application/gzip\",\n+    upsert: false,\n+    cacheControl: \"31536000\",\n+  });\n+  if (error) throw new Error(\"LRPM_UPLOAD_FAILED: \" + error.message);\n+\n+  const { data: listed, error: verifyError } = await storage.list(\"20260101\", {\n+    search: \"lrpm-20260101-v1.tar.gz\",\n+    limit: 100,\n+  });\n+  if (verifyError || !listed?.some(object => object.name === \"lrpm-20260101-v1.tar.gz\")) {\n+    throw new Error(\"LRPM_POST_UPLOAD_LIST_FAILED\");\n+  }\n+  console.log(\"LRPM_UPLOAD_VERIFIED: \" + OBJECT_PATH + \" SHA256=\" + actual);\n+}\n+\n+main().catch(error => {\n+  console.error(error instanceof Error ? error.message : \"LRPM_UPLOAD_FAILED\");\n+  process.exitCode = 1;\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/scripts/upload-national-lrpm.ts",
+      "source": {
+        "path": "scripts/upload-national-lrpm.ts",
+        "coverage": "全文",
+        "text": "import { createHash } from \"node:crypto\";\nimport { readFile } from \"node:fs/promises\";\nimport { createClient } from \"@supabase/supabase-js\";\n\nconst OBJECT_PATH = \"20260101/lrpm-20260101-v1.tar.gz\";\nconst EXPECTED_SHA256 = \"5fb0823f190e9ed893ba5ee9ae47aa7b1e4a8ad9c26601e2cae8b14bc1de33d8\";\n\nasync function main() {\n  const [archivePath] = process.argv.slice(2);\n  const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = process.env;\n  if (!archivePath || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {\n    throw new Error(\"Usage: SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node --import tsx scripts/upload-national-lrpm.ts <verified-tar.gz>\");\n  }\n\n  const bytes = await readFile(archivePath);\n  const actual = createHash(\"sha256\").update(bytes).digest(\"hex\");\n  if (actual !== EXPECTED_SHA256) throw new Error(\"LRPM_SHA256_MISMATCH\");\n\n  const client = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {\n    auth: { persistSession: false },\n  });\n  const storage = client.storage.from(\"national-rain-n03\");\n  const { data: existing, error: listingError } = await storage.list(\"20260101\", {\n    search: \"lrpm-20260101-v1.tar.gz\",\n    limit: 100,\n  });\n  if (listingError) throw new Error(\"LRPM_STORAGE_LIST_FAILED\");\n  if (existing?.some(object => object.name === \"lrpm-20260101-v1.tar.gz\")) {\n    throw new Error(\"LRPM_ALREADY_EXISTS: do not overwrite without explicit review\");\n  }\n\n  const { error } = await storage.upload(OBJECT_PATH, bytes, {\n    contentType: \"application/gzip\",\n    upsert: false,\n    cacheControl: \"31536000\",\n  });\n  if (error) throw new Error(\"LRPM_UPLOAD_FAILED: \" + error.message);\n\n  const { data: listed, error: verifyError } = await storage.list(\"20260101\", {\n    search: \"lrpm-20260101-v1.tar.gz\",\n    limit: 100,\n  });\n  if (verifyError || !listed?.some(object => object.name === \"lrpm-20260101-v1.tar.gz\")) {\n    throw new Error(\"LRPM_POST_UPLOAD_LIST_FAILED\");\n  }\n  console.log(\"LRPM_UPLOAD_VERIFIED: \" + OBJECT_PATH + \" SHA256=\" + actual);\n}\n\nmain().catch(error => {\n  console.error(error instanceof Error ? error.message : \"LRPM_UPLOAD_FAILED\");\n  process.exitCode = 1;\n});\n",
+        "sha256": "747438c37ea916dcd80f9af4ccf2556ae7203e22bb71b3623d4e8c8487664220"
+      }
+    }
+  ],
+  "file_count": 2,
+  "reported_file_count": 2,
+  "commits": [
+    {
+      "sha": "8b33684de57581b59c21e4a028b73c9e0d4e5636",
+      "message": "fix(rain): add SHA-verified no-overwrite LRPM Storage uploader for issue 250\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/8b33684de57581b59c21e4a028b73c9e0d4e5636"
+    },
+    {
+      "sha": "79a732eb1f16bec63141eff6d70a766847c45b9a",
+      "message": "ci(rain): add guarded manual LRPM artifact upload workflow (#250)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/79a732eb1f16bec63141eff6d70a766847c45b9a"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "79a732eb1f16bec63141eff6d70a766847c45b9a",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43995703042",
+      "id": 43995703042,
+      "updated_at": "2026-11-17T01:27:28Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "79a732eb1f16bec63141eff6d70a766847c45b9a",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43995703088",
+      "id": 43995703088,
+      "updated_at": "2026-11-17T01:27:37Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "79a732eb1f16bec63141eff6d70a766847c45b9a",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/43995703057",
+      "id": 43995703057,
+      "updated_at": "2026-11-17T01:28:16Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [
+    "EXPECTED_SHA256",
+    "OBJECT_PATH",
+    "actual",
+    "bytes",
+    "client",
+    "main",
+    "storage"
+  ],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "6d19ccf892aac68121aad42e644a06d3adf3338c17a9eb3647416e8ff16c8545",
+  "ci_digest": "15977b3e7f9155a924f554599536ccfcbe439e21818a7315b010d8a2438db8f4",
+  "collected_at": "2026-11-17T02:06:50.642185+00:00",
+  "decisions": []
+}
