@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "repository": "miyazaki1016/emergencyalert",
-  "generated_at": "2026-11-17T08:25:30.546901+00:00",
+  "generated_at": "2026-11-17T09:12:06.238494+00:00",
   "cases": {
     "pr-263": {
       "id": "pr-263",
@@ -419,16 +419,6 @@
           "event": "pull_request"
         },
         {
-          "name": "CI",
-          "head_sha": "9a61c4718fb8acfe69e4057b4c5c30efb7f97aad",
-          "conclusion": "success",
-          "status": "completed",
-          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44038204948",
-          "id": 44038204948,
-          "updated_at": "2026-11-17T07:23:20Z",
-          "event": "pull_request"
-        },
-        {
           "name": "PR promotion classification (review only)",
           "head_sha": "9a61c4718fb8acfe69e4057b4c5c30efb7f97aad",
           "conclusion": "success",
@@ -446,6 +436,16 @@
           "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44038204642",
           "id": 44038204642,
           "updated_at": "2026-11-17T07:22:49Z",
+          "event": "pull_request"
+        },
+        {
+          "name": "CI",
+          "head_sha": "9a61c4718fb8acfe69e4057b4c5c30efb7f97aad",
+          "conclusion": "success",
+          "status": "completed",
+          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44038204948",
+          "id": 44038204948,
+          "updated_at": "2026-11-17T07:23:20Z",
           "event": "pull_request"
         },
         {
@@ -497,9 +497,9 @@
       "production": "未確認（main統合／Vercelプレビューから推定しない）",
       "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
       "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
-      "fingerprint": "2d9009bf944eae35d229855ae96db31e4a4f27d887eec3b29f78b946a641d9ee",
-      "ci_digest": "7f69100118de66c8068cec62a540f979d9fd7241227a945e09462f1b0e17381f",
-      "collected_at": "2026-11-17T07:53:34.606748+00:00",
+      "fingerprint": "826205eedef9f65a8e2bcca14dc914a92b1352feb0c808e14a0411b4ca22b9ea",
+      "ci_digest": "c760f05304e0d6c7b0b09425ecfd5ad4b794c2465c3cdda3a9a5a994bbf14b73",
+      "collected_at": "2026-11-17T09:12:06.238494+00:00",
       "decisions": []
     },
     "pr-257": {
@@ -45765,7 +45765,7 @@
       "draft": false,
       "merged_at": null,
       "merge_commit_sha": null,
-      "updated_at": "2026-11-17T08:25:31Z",
+      "updated_at": "2026-11-17T08:26:45Z",
       "code_facts": [
         {
           "file": "docs/DEVELOPMENT_LEDGER.md",
@@ -46231,9 +46231,9 @@
       "production": "未確認（main統合／Vercelプレビューから推定しない）",
       "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
       "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
-      "fingerprint": "480b4677970cfc982a8604497eaabd71b98b864a987cb91951c85f06c7e476de",
-      "ci_digest": "4872e2f1723bdcc7dd6d5e79cb21e6cb128d200eb22e9c6289f09f8bcc1a768a",
-      "collected_at": "2026-11-17T08:25:30.546901+00:00",
+      "fingerprint": "1bcaa59489592113aed59870a52a7e9d0d94216ca789a1eec7f0ff3dafa5e201",
+      "ci_digest": "6d4658bcbb45a0461b2a8f5b9fc4fe4f55db5b2b5757a1ddf360dd49c9df2b50",
+      "collected_at": "2026-11-17T09:12:06.238494+00:00",
       "decisions": []
     },
     "pr-146": {
