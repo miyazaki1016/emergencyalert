@@ -329,4 +329,7 @@
 | #248 | Draft: JASPICの20件分割配信を自動継続し、認証付き完了通知を送る (#247) | merged | `9302e8845f4aaf079662c3ee8710f508db493c43` | 2026-11-16T04:59:04Z |
 | #251 | 全国30mm/h大雨予報とMYアメふる監視の5分起動をActionsへ移行 (#250) | merged | `d26c68a898983160b0071cbd841b023dcb14afd2` | 2026-11-16T13:14:13Z |
 | #252 | さきどりトップに250m・1kmの全国大雨カードと雨雲再生を追加 (#209) | merged | `43b7a640eb730bf56edfce78c20f2ef1c15b683f` | 2026-11-16T13:14:54Z |
+| #253 | 全国大雨予報トップとMYアメふるを別ページに分離 (#209) | open | `a7fdb56c4788c02a8b0a583deadfd37d963530ef` | 2026-11-16T23:50:12Z |
+| #254 | fix(rain): LRPM資材のSHA照合付きStorage配置ツール (#250) | open | `79a732eb1f16bec63141eff6d70a766847c45b9a` | 2026-11-17T01:27:14Z |
+| #255 | fix: MYアメふる監視でProduction環境の既存Secretsを使用 (#250) | merged | `d2f1cbbfecb9f47f1574d28bf404a9796e1c7350` | 2026-11-17T02:06:36Z |
 <!-- INVENTORY_FACTS_END -->

@@ -55,6 +55,8 @@
 | #242 | feat(rain): z10タイル×N03画素対応表の事前計算（Issue #220） | feat/light-rain-pixel-mask-precompute-220 |
 | #243 | Draft: z10 read-only scanner LRPM integration (stacked on #242) | feat/light-rain-mask-scanner-integration-220 |
 | #245 | 全国30mm/h予報を5分監視からトップ用スナップショットに接続 | work/national-forecast-snapshot-209 |
+| #253 | 全国大雨予報トップとMYアメふるを別ページに分離 (#209) | fix/standalone-forecast-home-209 |
+| #254 | fix(rain): LRPM資材のSHA照合付きStorage配置ツール (#250) | fix/national-rain-lrpm-storage-250 |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
