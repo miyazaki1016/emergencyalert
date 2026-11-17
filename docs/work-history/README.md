@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-17T07:28:06.338559+00:00
+更新 (UTC): 2026-11-17T07:53:34.606748+00:00
 
 ## 全案件
 
@@ -197,6 +197,7 @@
 | [diagnostics-persistent-auth-journal-20261024](cases/branch-c05c32337717821c.md) | 認証・安全性：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [research/jaspic-mail-compat-20261104](cases/branch-c32f0f97af1ba1b5.md) | 通知・配信・開発管理・認証・安全性・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/amafuru-source-audit-20261016](cases/branch-c77184eedfbd0794.md) | 記憶・会話：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [diagnostic/bare-five-minute-cron-259](cases/branch-c861726c59dfd3e9.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [codex/verify-jma-png-palette-20260923](cases/branch-c8b61bf965f00d0f.md) | 雨量・全国検知・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/event-driven-ledger-proposals-20261101](cases/branch-ca1310f5dea43c82.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [handover/lrpm-artifact-220](cases/branch-ca454f2bb90e5f74.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -402,6 +403,7 @@
 | [fix: MYアメふる5分監視に手動検証トリガーを追加 (#256)](cases/pr-257.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Use targetTimes member in JMA early forecast tile URL](cases/pr-26.md) | 雨量・全国検知：JMA予測タイルURLにtargetTimesの値を使う | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [test: 5分scheduleイベント欠落を切り分ける無害なheartbeat (#259)](cases/pr-260.md) | その他の開発：変更対象ファイルに関する開発。具体的な目的は原文・差分を確認 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [test: 無条件の5分cron対照実験（Issue #259）](cases/pr-261.md) | その他の開発：変更対象ファイルに関する開発。具体的な目的は原文・差分を確認 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Restore push notification status after reopening app](cases/pr-27.md) | 通知・配信・画面・表示：アプリ再起動時にPush通知状態を復元 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Refine persistent light-rain notification boundary](cases/pr-28.md) | 雨量・全国検知・通知・配信：持続する弱い雨の通知境界を調整 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Prevent duplicate watch target registration](cases/pr-29.md) | 画面・表示：監視地点の重複登録を防止 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
