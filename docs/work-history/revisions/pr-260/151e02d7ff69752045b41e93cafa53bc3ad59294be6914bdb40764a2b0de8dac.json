@@ -1,0 +1,163 @@
+{
+  "id": "pr-260",
+  "number": 260,
+  "title": "test: 5分scheduleイベント欠落を切り分ける無害なheartbeat (#259)",
+  "topics": [
+    "その他の開発"
+  ],
+  "purpose": "変更対象ファイルに関する開発。具体的な目的は原文・差分を確認",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Refs #259; Muse監査 #258 と既存 #256 を拡張。\n\n## 目的\n既存MYの `2-57/5`、全国の `*/5` とは異なる `4-59/5` で、**外部呼出しなし**のschedule配送を独立検証する。GitHub側でrun自体が作成されるかを比較し、ジョブ失敗やスキップと区別する。\n\n## 安全性\n新規workflow 1ファイルのみ。権限 `contents: read`、Secrets/DB/Vercel/Supabase/外部APIを使わず、日時とイベントメタデータをActionsログに表示するだけ。既存MY/全国/JASPICのworkflowは一切変更しない。\n\n**重要**: scheduleはdefault branchに存在しないと自動起動しないため、このDraft PRの状態では5分検証は開始されない。CIと照合が成功した後、mainへのマージはユーザーの別途承認を待つ。\n\n## 検証・引継ぎ\nIssue #259着手前照合: https://github.com/miyazaki1016/emergencyalert/actions/runs/44038077950 (REVIEW_RECORDED, confirmed, success)。HEAD `9a61c4718fb8acfe69e4057b4c5c30efb7f97aad`。最新HEAD CIとPR照合は未確認。5分連続稼働は未確認。\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-251\",\"decision\":\"extend\",\"reason\":\"既存5分scheduleを再利用し、外部呼出しをしない対照workflowを追加。雨計算と通知処理には触れない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/251\"},{\"id\":\"pr-257\",\"decision\":\"reuse\",\"reason\":\"既存手動検証とschedule実行履歴を比較対象として使用。既存workflow_dispatchは変更しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/257\"},{\"id\":\"pr-164\",\"decision\":\"distinct\",\"reason\":\"既存のVercel quota monitorはVercel API読取りとオフラインテストであり、今回のGitHub schedule配送確認はVercel APIを呼ばない独立テスト。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/164\"},{\"id\":\"pr-255\",\"decision\":\"distinct\",\"reason\":\"Production環境Secrets参照修正とは独立したschedule配送テストでありSecretsを使わない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/255\"}]}\n-->",
+  "snapshot_head": "9a61c4718fb8acfe69e4057b4c5c30efb7f97aad",
+  "snapshot_consistent": true,
+  "head": "9a61c4718fb8acfe69e4057b4c5c30efb7f97aad",
+  "base": "c1f6b34ec850b7a671c0ac3441751f3739c12a73",
+  "base_ref": "main",
+  "head_ref": "diagnostic/actions-schedule-heartbeat-259",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-17T07:27:54Z",
+  "merge_commit_sha": "8fac302d204816bae71ade940cd75787077d1e6a",
+  "updated_at": "2026-11-17T07:27:54Z",
+  "code_facts": [
+    {
+      "file": ".github/workflows/schedule-heartbeat-diagnostic.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "run: |",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9a61c4718fb8acfe69e4057b4c5c30efb7f97aad/.github/workflows/schedule-heartbeat-diagnostic.yml"
+    }
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/schedule-heartbeat-diagnostic.yml",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 0,
+      "patch": "diff --git a/.github/workflows/schedule-heartbeat-diagnostic.yml b/.github/workflows/schedule-heartbeat-diagnostic.yml\nnew file mode 100644\nindex 00000000..b72d148f\n--- /dev/null\n+++ b/.github/workflows/schedule-heartbeat-diagnostic.yml\n@@ -0,0 +1,25 @@\n+name: Schedule heartbeat diagnostic (no external calls)\n+\n+on:\n+  schedule:\n+    - cron: '4-59/5 * * * *'\n+  workflow_dispatch:\n+\n+permissions:\n+  contents: read\n+\n+jobs:\n+  heartbeat:\n+    runs-on: ubuntu-latest\n+    timeout-minutes: 2\n+    steps:\n+      - name: Record scheduler delivery metadata only\n+        env:\n+          EVENT_NAME: ${{ github.event_name }}\n+          EVENT_SCHEDULE: ${{ github.event.schedule }}\n+          RUN_ID: ${{ github.run_id }}\n+        run: |\n+          echo \"event=$EVENT_NAME\"\n+          echo \"schedule=$EVENT_SCHEDULE\"\n+          echo \"run_id=$RUN_ID\"\n+          date -u '+runner_utc=%Y-%m-%dT%H:%M:%SZ'\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9a61c4718fb8acfe69e4057b4c5c30efb7f97aad/.github/workflows/schedule-heartbeat-diagnostic.yml",
+      "source": {
+        "path": ".github/workflows/schedule-heartbeat-diagnostic.yml",
+        "coverage": "全文",
+        "text": "name: Schedule heartbeat diagnostic (no external calls)\n\non:\n  schedule:\n    - cron: '4-59/5 * * * *'\n  workflow_dispatch:\n\npermissions:\n  contents: read\n\njobs:\n  heartbeat:\n    runs-on: ubuntu-latest\n    timeout-minutes: 2\n    steps:\n      - name: Record scheduler delivery metadata only\n        env:\n          EVENT_NAME: ${{ github.event_name }}\n          EVENT_SCHEDULE: ${{ github.event.schedule }}\n          RUN_ID: ${{ github.run_id }}\n        run: |\n          echo \"event=$EVENT_NAME\"\n          echo \"schedule=$EVENT_SCHEDULE\"\n          echo \"run_id=$RUN_ID\"\n          date -u '+runner_utc=%Y-%m-%dT%H:%M:%SZ'\n",
+        "sha256": "2fc619c08329119b9c3a5fef371ec8c150eb016356157c36225f6a5830e9e7e6"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "9a61c4718fb8acfe69e4057b4c5c30efb7f97aad",
+      "message": "test: add isolated schedule heartbeat for issue 259\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/9a61c4718fb8acfe69e4057b4c5c30efb7f97aad"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "9a61c4718fb8acfe69e4057b4c5c30efb7f97aad",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44038896354",
+      "id": 44038896354,
+      "updated_at": "2026-11-17T07:28:02Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "9a61c4718fb8acfe69e4057b4c5c30efb7f97aad",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44038896334",
+      "id": 44038896334,
+      "updated_at": "2026-11-17T07:28:01Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "9a61c4718fb8acfe69e4057b4c5c30efb7f97aad",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44038347170",
+      "id": 44038347170,
+      "updated_at": "2026-11-17T07:23:52Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "9a61c4718fb8acfe69e4057b4c5c30efb7f97aad",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44038204948",
+      "id": 44038204948,
+      "updated_at": "2026-11-17T07:23:20Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "9a61c4718fb8acfe69e4057b4c5c30efb7f97aad",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44038204962",
+      "id": 44038204962,
+      "updated_at": "2026-11-17T07:22:48Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "9a61c4718fb8acfe69e4057b4c5c30efb7f97aad",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44038204642",
+      "id": 44038204642,
+      "updated_at": "2026-11-17T07:22:49Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "8fac302d204816bae71ade940cd75787077d1e6a",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44038910455",
+      "id": 44038910455,
+      "updated_at": "2026-11-17T07:28:00Z",
+      "event": "push"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "8fac302d204816bae71ade940cd75787077d1e6a",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44038910476",
+      "id": 44038910476,
+      "updated_at": "2026-11-17T07:28:00Z",
+      "event": "push"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "8fac302d204816bae71ade940cd75787077d1e6a",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44038910412",
+      "id": 44038910412,
+      "updated_at": "2026-11-17T07:27:59Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "9b407a3e7e54669caea041b8d9c6ffac70a77b7627e062e86fad11f446cbdf12",
+  "ci_digest": "2b28874d4c1a553d86944e05ff3810f8e15ad1fe396aecaa3cec5a4db81316a2",
+  "collected_at": "2026-11-17T07:28:06.338559+00:00",
+  "decisions": []
+}
