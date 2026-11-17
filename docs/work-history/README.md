@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-17T07:53:34.606748+00:00
+更新 (UTC): 2026-11-17T08:25:30.546901+00:00
 
 ## 全案件
 
@@ -164,6 +164,7 @@
 | [feat/pr-promotion-classification-ci-20261102](cases/branch-a448d35df12eb780.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [research/pwa-feedback-resume-auth-20261023](cases/branch-a5f2511bf36597a1.md) | 通知・配信・開発管理・認証・安全性・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/jaspic-preview-counts-only](cases/branch-a606cdef1c84e53b.md) | 通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [diagnostic/bare-thirty-minute-cron-262](cases/branch-a9d04d5818cb3cdb.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/jaspic-dispatch-dry-run-20261113](cases/branch-aa227dbec6e5a3d2.md) | 通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/ledger-proposal-pr-automation-20261101](cases/branch-ac4d9f4766a37ec1.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/rain-lab-restore-times-20261109](cases/branch-adfd5936a62983f3.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -404,6 +405,7 @@
 | [Use targetTimes member in JMA early forecast tile URL](cases/pr-26.md) | 雨量・全国検知：JMA予測タイルURLにtargetTimesの値を使う | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [test: 5分scheduleイベント欠落を切り分ける無害なheartbeat (#259)](cases/pr-260.md) | その他の開発：変更対象ファイルに関する開発。具体的な目的は原文・差分を確認 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [test: 無条件の5分cron対照実験（Issue #259）](cases/pr-261.md) | その他の開発：変更対象ファイルに関する開発。具体的な目的は原文・差分を確認 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [test: 30分間隔の無条件cron対照実験 (#262)](cases/pr-263.md) | その他の開発：変更対象ファイルに関する開発。具体的な目的は原文・差分を確認 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Restore push notification status after reopening app](cases/pr-27.md) | 通知・配信・画面・表示：アプリ再起動時にPush通知状態を復元 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Refine persistent light-rain notification boundary](cases/pr-28.md) | 雨量・全国検知・通知・配信：持続する弱い雨の通知境界を調整 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Prevent duplicate watch target registration](cases/pr-29.md) | 画面・表示：監視地点の重複登録を防止 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
