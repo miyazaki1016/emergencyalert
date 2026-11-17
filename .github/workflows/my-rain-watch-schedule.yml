@@ -16,6 +16,7 @@ jobs:
   watch:
     if: github.repository == 'miyazaki1016/emergencyalert' && vars.MY_RAIN_WATCH_ACTIONS_ENABLED == 'true'
     runs-on: ubuntu-latest
+    environment: Production
     timeout-minutes: 4
     steps:
       - uses: actions/checkout@v4
@@ -37,6 +38,6 @@ jobs:
           fi
       - name: Invoke the existing watch-rain endpoint
         env:
-          SUPABASE_URL: ${{ secrets.RAIN_ACTIONS_SUPABASE_URL }}
-          WATCH_CRON_TOKEN: ${{ secrets.RAIN_ACTIONS_WATCH_CRON_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          WATCH_CRON_TOKEN: ${{ secrets.WATCH_CRON_TOKEN }}
         run: node scripts/run-watch-rain.mjs
