@@ -1,0 +1,11 @@
+name: Bare thirty-minute cron diagnostic
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - run: date -u '+tick_utc=%Y-%m-%dT%H:%M:%SZ'
