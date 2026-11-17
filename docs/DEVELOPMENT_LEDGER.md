@@ -332,4 +332,5 @@
 | #253 | 全国大雨予報トップとMYアメふるを別ページに分離 (#209) | open | `a7fdb56c4788c02a8b0a583deadfd37d963530ef` | 2026-11-16T23:50:12Z |
 | #254 | fix(rain): LRPM資材のSHA照合付きStorage配置ツール (#250) | open | `79a732eb1f16bec63141eff6d70a766847c45b9a` | 2026-11-17T01:27:14Z |
 | #255 | fix: MYアメふる監視でProduction環境の既存Secretsを使用 (#250) | merged | `d2f1cbbfecb9f47f1574d28bf404a9796e1c7350` | 2026-11-17T02:06:36Z |
+| #257 | fix: MYアメふる5分監視に手動検証トリガーを追加 (#256) | merged | `5336b771a5501c622234d45b581970a9cf2b5976` | 2026-11-17T02:33:18Z |
 <!-- INVENTORY_FACTS_END -->
