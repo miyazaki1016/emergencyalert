@@ -1,0 +1,37 @@
+name: Upload verified LRPM asset (manual only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  upload:
+    if: github.repository == 'miyazaki1016/emergencyalert' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Download previously verified LRPM artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download 43653446881 --repo "$GITHUB_REPOSITORY" --name lrpm-japan-20260101-v1 --dir "$RUNNER_TEMP/lrpm-archive"
+      - name: Extract and verify immutable archive
+        run: |
+          set -euo pipefail
+          test -f "$RUNNER_TEMP/lrpm-archive/lrpm-japan-20260101-v1.tar.gz"
+          echo '5fb0823f190e9ed893ba5ee9ae47aa7b1e4a8ad9c26601e2cae8b14bc1de33d8  '"$RUNNER_TEMP/lrpm-archive/lrpm-japan-20260101-v1.tar.gz" | sha256sum --check
+          tar -tzf "$RUNNER_TEMP/lrpm-archive/lrpm-japan-20260101-v1.tar.gz" >/dev/null
+      - run: npm install --no-save --no-package-lock --no-audit --no-fund tsx@4.20.6
+      - name: Upload once (no overwrite) and verify
+        env:
+          SUPABASE_URL: ${{ secrets.RAIN_ACTIONS_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.RAIN_ACTIONS_SUPABASE_SERVICE_ROLE_KEY }}
+        run: node --import tsx scripts/upload-national-lrpm.ts "$RUNNER_TEMP/lrpm-archive/lrpm-japan-20260101-v1.tar.gz"
