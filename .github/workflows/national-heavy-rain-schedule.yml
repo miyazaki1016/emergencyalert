@@ -37,13 +37,13 @@ jobs:
         id: prepare
         if: steps.inputs.outputs.cache-hit != 'true'
         env:
-          SUPABASE_URL: ${{ secrets.RAIN_ACTIONS_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.RAIN_ACTIONS_SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node --import tsx scripts/prepare-national-rain-inputs.ts "$RUNNER_TEMP/n03" "$RUNNER_TEMP/lrpm"
       - name: Scan and publish latest fresh forecast
         env:
-          SUPABASE_URL: ${{ secrets.RAIN_ACTIONS_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.RAIN_ACTIONS_SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           JMA_Z10_CONCURRENCY: '8'
         run: JMA_Z10_PIXEL_MASK_DIR="$RUNNER_TEMP/lrpm/20260101-v1" node --import tsx scripts/national-heavy-rain-scan.ts "$RUNNER_TEMP/n03"
       - uses: actions/cache/save@v4
