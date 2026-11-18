@@ -336,4 +336,5 @@
 | #260 | test: 5分scheduleイベント欠落を切り分ける無害なheartbeat (#259) | merged | `9a61c4718fb8acfe69e4057b4c5c30efb7f97aad` | 2026-11-17T07:27:54Z |
 | #261 | test: 無条件の5分cron対照実験（Issue #259） | merged | `21e49aab1af90f1defa2349cfb11412b2fada197` | 2026-11-17T07:53:22Z |
 | #263 | test: 30分間隔の無条件cron対照実験 (#262) | merged | `81aa53035a5a0078d2866919f00c8e91784ab74c` | 2026-11-17T08:25:11Z |
+| #266 | fix: 全国大雨予報で既存Supabase Secretsを再利用 (#265) | merged | `51272231ba40802e957f2e3b3cb400b6c183fe2f` | 2026-11-18T16:29:27Z |
 <!-- INVENTORY_FACTS_END -->
