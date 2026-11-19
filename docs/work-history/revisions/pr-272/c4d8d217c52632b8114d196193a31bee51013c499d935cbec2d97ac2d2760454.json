@@ -1,0 +1,142 @@
+{
+  "id": "pr-272",
+  "number": 272,
+  "title": "箱根日帰りガイドブックを独立ページとして公開 (#269)",
+  "topics": [
+    "画面・表示"
+  ],
+  "purpose": "画面表示や操作に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Closes #269\n\n`public/hakone-guide/index.html` にユーザー提供の箱根ガイドを配置。既存アプリ・API・Cron・通知機能には変更なし。\n\n事前照合: https://github.com/miyazaki1016/emergencyalert/actions/runs/44534757999 (NO_STRONG_MATCH / confirmed / success)\n\n受入条件: 最新HEADのCI成功、公開ページの写真・行程・インタラクション確認、main統合後に https://emergencyalert.news/hakone-guide/ を外部から確認。",
+  "snapshot_head": "60a7fba24813c27c9fc8b15d95db670583ed2503",
+  "snapshot_consistent": true,
+  "head": "60a7fba24813c27c9fc8b15d95db670583ed2503",
+  "base": "e5737dc137755668a02793819551471be115e00d",
+  "base_ref": "main",
+  "head_ref": "feat/hakone-guide-269",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-19T14:00:31Z",
+  "merge_commit_sha": "b6cab232ee31b8d6f8f58f0b4154019c35cc9808",
+  "updated_at": "2026-11-19T14:00:31Z",
+  "code_facts": [],
+  "files": [
+    {
+      "path": "public/hakone-guide/.gitkeep",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "patch": "",
+      "patch_coverage": "差分なし／対象外",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/60a7fba24813c27c9fc8b15d95db670583ed2503/public/hakone-guide/.gitkeep",
+      "source": {
+        "path": "public/hakone-guide/.gitkeep",
+        "coverage": "対象外（秘密情報候補／非テキスト）"
+      }
+    },
+    {
+      "path": "public/hakone-guide/index.html",
+      "status": "modified",
+      "additions": 456,
+      "deletions": 0,
+      "patch": "",
+      "patch_coverage": "差分なし／対象外",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/60a7fba24813c27c9fc8b15d95db670583ed2503/public/hakone-guide/index.html",
+      "source": {
+        "path": "public/hakone-guide/index.html",
+        "coverage": "対象外（秘密情報候補／非テキスト）"
+      }
+    }
+  ],
+  "file_count": 2,
+  "reported_file_count": 2,
+  "commits": [
+    {
+      "sha": "dac74c77b6ade497ebd96a64a6f8dc8b326bc608",
+      "message": "chore: prepare isolated Hakone guide directory (#269)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/dac74c77b6ade497ebd96a64a6f8dc8b326bc608"
+    },
+    {
+      "sha": "60a7fba24813c27c9fc8b15d95db670583ed2503",
+      "message": "Add files via upload\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/60a7fba24813c27c9fc8b15d95db670583ed2503"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "60a7fba24813c27c9fc8b15d95db670583ed2503",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44538782206",
+      "id": 44538782206,
+      "updated_at": "2026-11-19T13:58:37Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "60a7fba24813c27c9fc8b15d95db670583ed2503",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44538782214",
+      "id": 44538782214,
+      "updated_at": "2026-11-19T13:59:22Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "60a7fba24813c27c9fc8b15d95db670583ed2503",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44538782137",
+      "id": 44538782137,
+      "updated_at": "2026-11-19T13:58:35Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "b6cab232ee31b8d6f8f58f0b4154019c35cc9808",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44539144631",
+      "id": 44539144631,
+      "updated_at": "2026-11-19T14:00:38Z",
+      "event": "push"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "b6cab232ee31b8d6f8f58f0b4154019c35cc9808",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44539144442",
+      "id": 44539144442,
+      "updated_at": "2026-11-19T14:00:38Z",
+      "event": "push"
+    },
+    {
+      "name": "CI",
+      "head_sha": "b6cab232ee31b8d6f8f58f0b4154019c35cc9808",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44539144348",
+      "id": 44539144348,
+      "updated_at": "2026-11-19T14:00:44Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "294fd56f8703941666d9a57c0524c699bcee612d25b7754f48c658ab7e896775",
+  "ci_digest": "b0e924905641637e42fc7baf969c8e27494719d9f6ab37b56094dc78051d7eb9",
+  "collected_at": "2026-11-19T14:00:43.341889+00:00",
+  "decisions": []
+}

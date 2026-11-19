@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-19T08:46:19.907740+00:00
+更新 (UTC): 2026-11-19T14:00:43.341889+00:00
 
 ## 全案件
 
@@ -125,6 +125,7 @@
 | [test/watch-rain-notification-regression-20261018](cases/branch-6f858d7bdec005b4.md) | 雨量・全国検知・通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/pwa-auth-transition-diagnostics-20261024](cases/branch-705f3ba77d283676.md) | 認証・安全性：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [chore/log-rain-diagnostics](cases/branch-7243c32c4aada456.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [publish/hakone-guide-269](cases/branch-73e6b0b5ff225598.md) | 画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/feature-reconciliation-20261101](cases/branch-77303b743008b53e.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [test/jaspic-238-isolated-bulk](cases/branch-7886dfcc563cb30d.md) | 通知・配信・認証・安全性：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/operational-inventory-index-20261101](cases/branch-7942aa21d9a9b1bd.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -162,6 +163,7 @@
 | [feat/severe-rain-alerts](cases/branch-a0b81450ed2fd526.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs-living-emergency-concept](cases/branch-a1d45cf719da7025.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [research/contextual-rain-alerts-20261028](cases/branch-a2cfb8135048dc77.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [feat/hakone-guide-269](cases/branch-a340a18cf43767d4.md) | 画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/pr-promotion-classification-ci-20261102](cases/branch-a448d35df12eb780.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [research/pwa-feedback-resume-auth-20261023](cases/branch-a5f2511bf36597a1.md) | 通知・配信・開発管理・認証・安全性・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/jaspic-preview-counts-only](cases/branch-a606cdef1c84e53b.md) | 通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -211,6 +213,7 @@
 | [feat-early-rain-forecast-provider](cases/branch-d157f5472723004f.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/rain-lab-compact-case-label-20261109](cases/branch-d25ed7ecfeb9cfe5.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [research/rain-lab-five-frame-differences-20261105](cases/branch-d27ce89e1738b672.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [publish-hakone-guide](cases/branch-d3098223d84bfb12.md) | 画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [work/sakidori-home-release-209](cases/branch-d47e9b0dcd4ebc9b.md) | 雨量・全国検知・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/standalone-forecast-home-209](cases/branch-d5162b95174defec.md) | 雨量・全国検知・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/inventory-delta-401-fallback-20261101](cases/branch-d5f02538fc12def5.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -411,6 +414,9 @@
 | [fix: 全国大雨予報で既存Supabase Secretsを再利用 (#265)](cases/pr-266.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix: 全国大雨予報のscanジョブにProduction環境を指定 (#267)](cases/pr-268.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [Restore push notification status after reopening app](cases/pr-27.md) | 通知・配信・画面・表示：アプリ再起動時にPush通知状態を復元 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [箱根日帰りガイドブックの公開](cases/pr-270.md) | 画面・表示：画面表示や操作に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
+| [箱根日帰りガイドを公開](cases/pr-271.md) | その他の開発：変更対象ファイルに関する開発。具体的な目的は原文・差分を確認 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
+| [箱根日帰りガイドブックを独立ページとして公開 (#269)](cases/pr-272.md) | 画面・表示：画面表示や操作に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Refine persistent light-rain notification boundary](cases/pr-28.md) | 雨量・全国検知・通知・配信：持続する弱い雨の通知境界を調整 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Prevent duplicate watch target registration](cases/pr-29.md) | 画面・表示：監視地点の重複登録を防止 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix: add PWA install icons](cases/pr-3.md) | その他の開発：PWAのインストール用アイコンを修正 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
@@ -694,6 +700,10 @@
 - lib/weather/rain/townBoundaryManifest.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [pr-59](cases/pr-59.md)
 - lib/weather/rain/watchNotificationDecision.test.ts：[branch-2bdb21c9ebdedc36](cases/branch-2bdb21c9ebdedc36.md), [branch-2d4d1257bf897e74](cases/branch-2d4d1257bf897e74.md), [branch-62efc69d0291dcce](cases/branch-62efc69d0291dcce.md), [branch-6f858d7bdec005b4](cases/branch-6f858d7bdec005b4.md), [branch-b9691c1437f39bb8](cases/branch-b9691c1437f39bb8.md), [branch-f28e11c53b06fa5f](cases/branch-f28e11c53b06fa5f.md), [pr-103](cases/pr-103.md), [pr-13](cases/pr-13.md), [pr-17](cases/pr-17.md), [pr-58](cases/pr-58.md), [pr-89](cases/pr-89.md)
 - public/external-ai-review.html：[branch-ba3b4daa8793346b](cases/branch-ba3b4daa8793346b.md), [pr-96](cases/pr-96.md)
+- public/hakone-guide.html：[branch-73e6b0b5ff225598](cases/branch-73e6b0b5ff225598.md), [pr-270](cases/pr-270.md)
+- public/hakone-guide/.gitkeep：[branch-a340a18cf43767d4](cases/branch-a340a18cf43767d4.md), [pr-272](cases/pr-272.md)
+- public/hakone-guide/index.html：[branch-a340a18cf43767d4](cases/branch-a340a18cf43767d4.md), [pr-272](cases/pr-272.md)
+- public/hakone.html：[branch-d3098223d84bfb12](cases/branch-d3098223d84bfb12.md), [pr-271](cases/pr-271.md)
 - public/sw.js：[branch-8850eea2b9e8ed04](cases/branch-8850eea2b9e8ed04.md), [branch-d5162b95174defec](cases/branch-d5162b95174defec.md), [branch-ed8571ecfbfa4b90](cases/branch-ed8571ecfbfa4b90.md), [pr-2](cases/pr-2.md), [pr-253](cases/pr-253.md), [pr-8](cases/pr-8.md)
 - scripts/audit-ending-radar.mjs：[branch-f481c53a0ffb9f36](cases/branch-f481c53a0ffb9f36.md), [pr-63](cases/pr-63.md)
 - scripts/audit-rain-images.cjs：[branch-62efc69d0291dcce](cases/branch-62efc69d0291dcce.md), [pr-103](cases/pr-103.md)

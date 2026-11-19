@@ -1,14 +1,59 @@
 {
   "repository": "miyazaki1016/emergencyalert",
-  "generated_at": "2026-11-19T08:46:19.907740+00:00",
+  "generated_at": "2026-11-19T14:00:43.341889+00:00",
   "coverage": {
-    "prs": 227,
-    "pr_cases": 227,
-    "branches": 250,
+    "prs": 230,
+    "pr_cases": 230,
+    "branches": 253,
     "errors": [],
-    "api_calls": 9
+    "api_calls": 13
   },
   "cases": [
+    {
+      "id": "pr-272",
+      "title": "箱根日帰りガイドブックを独立ページとして公開 (#269)",
+      "summary": "画面表示や操作に関する変更",
+      "state": "merged",
+      "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+      "topics": [
+        "画面・表示"
+      ],
+      "conclusion": "未確認",
+      "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+      "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+      "production": "未確認（main統合／Vercelプレビューから推定しない）",
+      "search_text": "箱根日帰りガイドブックを独立ページとして公開 (#269) 画面表示や操作に関する変更  {} Closes #269\n\n`public/hakone-guide/index.html` にユーザー提供の箱根ガイドを配置。既存アプリ・API・Cron・通知機能には変更なし。\n\n事前照合: https://github.com/miyazaki1016/emergencyalert/actions/runs/44534757999 (NO_STRONG_MATCH / confirmed / success)\n\n受入条件: 最新HEADのCI成功、公開ページの写真・行程・インタラクション確認、main統合後に https://emergencyalert.news/hakone-guide/ を外部から確認。  [] public/hakone-guide/.gitkeep public/hakone-guide/index.html "
+    },
+    {
+      "id": "pr-271",
+      "title": "箱根日帰りガイドを公開",
+      "summary": "変更対象ファイルに関する開発。具体的な目的は原文・差分を確認",
+      "state": "open",
+      "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+      "topics": [
+        "その他の開発"
+      ],
+      "conclusion": "未確認",
+      "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+      "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+      "production": "未確認（main統合／Vercelプレビューから推定しない）",
+      "search_text": "箱根日帰りガイドを公開 変更対象ファイルに関する開発。具体的な目的は原文・差分を確認  {} 添付のHTMLを `public/hakone.html` に原本のまま配置し、`https://emergencyalert.news/hakone.html` で公開する。\n\n着手前の既存成果照合は、最新の `development-history`（`98876ca3123e8c9854d59b1fb19af2b65705c8cc`）を使ったCLI実行で `NO_STRONG_MATCH`（終了コード0）。既存の公開ファイルと開発台帳も照合済み。\n\n原本とGit blobのSHAが一致することを確認済み。  [] public/hakone.html "
+    },
+    {
+      "id": "pr-270",
+      "title": "箱根日帰りガイドブックの公開",
+      "summary": "画面表示や操作に関する変更",
+      "state": "open",
+      "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+      "topics": [
+        "画面・表示"
+      ],
+      "conclusion": "未確認",
+      "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+      "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+      "production": "未確認（main統合／Vercelプレビューから推定しない）",
+      "search_text": "箱根日帰りガイドブックの公開 画面表示や操作に関する変更  {} Closes #269\n\n添付のHTMLをバイト単位でそのまま `public/hakone-guide.html` に追加します。既存のNext.js静的ファイル配信とmainのVercel連携を使用します。\n\n[着手前照合：NO_STRONG_MATCH／公開確定／preflight成功](https://github.com/miyazaki1016/emergencyalert/actions/runs/44534757999)\n添付原本のGit blobとアップロード済みblobのSHAが一致しました。CI成功後に統合し、公開URLを認証なしでGETして原本と照合します。  [] public/hakone-guide.html "
+    },
     {
       "id": "pr-268",
       "title": "fix: 全国大雨予報のscanジョブにProduction環境を指定 (#267)",
@@ -4941,6 +4986,21 @@
       "search_text": "feat/forecast-home-player-209 ブランチ差分を収録  {}   []  "
     },
     {
+      "id": "branch-a340a18cf43767d4",
+      "title": "feat/hakone-guide-269",
+      "summary": "ブランチ差分を収録",
+      "state": "ブランチ差分（PR関連あり）",
+      "main_status": "未確認",
+      "topics": [
+        "画面・表示"
+      ],
+      "conclusion": "未確認",
+      "remaining": "原本の受入条件・未解決事項を照合",
+      "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+      "production": "未確認",
+      "search_text": "feat/hakone-guide-269 ブランチ差分を収録  {}   [] public/hakone-guide/.gitkeep public/hakone-guide/index.html "
+    },
+    {
       "id": "branch-b5b1d46a6468bd59",
       "title": "feat/inventory-classification-phase3-20261101",
       "summary": "ブランチ差分を収録",
@@ -6945,6 +7005,36 @@
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
       "production": "未確認",
       "search_text": "plan/legacy-notification-history-migration-20261024 ブランチ差分を収録  {}   [] docs/LEGACY_NOTIFICATION_HISTORY_MIGRATION_20261024.md "
+    },
+    {
+      "id": "branch-73e6b0b5ff225598",
+      "title": "publish/hakone-guide-269",
+      "summary": "ブランチ差分を収録",
+      "state": "ブランチ差分（PR関連あり）",
+      "main_status": "未確認",
+      "topics": [
+        "画面・表示"
+      ],
+      "conclusion": "未確認",
+      "remaining": "原本の受入条件・未解決事項を照合",
+      "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+      "production": "未確認",
+      "search_text": "publish/hakone-guide-269 ブランチ差分を収録  {}   [] public/hakone-guide.html "
+    },
+    {
+      "id": "branch-d3098223d84bfb12",
+      "title": "publish-hakone-guide",
+      "summary": "ブランチ差分を収録",
+      "state": "ブランチ差分（PR関連あり）",
+      "main_status": "未確認",
+      "topics": [
+        "画面・表示"
+      ],
+      "conclusion": "未確認",
+      "remaining": "原本の受入条件・未解決事項を照合",
+      "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+      "production": "未確認",
+      "search_text": "publish-hakone-guide ブランチ差分を収録  {}   [] public/hakone.html "
     },
     {
       "id": "branch-b9691c1437f39bb8",
