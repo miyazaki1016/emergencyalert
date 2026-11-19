@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-18T16:29:42.924255+00:00
+更新 (UTC): 2026-11-19T08:46:19.907740+00:00
 
 ## 全案件
 
@@ -20,6 +20,7 @@
 | [fix/ledger-proposal-table-columns-20261101](cases/branch-08e76fdd73cd4686.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/feedback-expandable-cards-20261022](cases/branch-091c543ebb50d507.md) | 雨量・全国検知・通知・配信・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/jaspic-preview-candidate-details-20261113](cases/branch-09bdbf4a9671c3f0.md) | 通知・配信・認証・安全性：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [fix/national-rain-production-env-267](cases/branch-0af77e8d873bbe46.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/inventory-decision-evidence-20261112](cases/branch-0c5bdefb1e721367.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/internal-rain-confirmation-state](cases/branch-0e3b28be9309bc80.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [chore-source-control-watch-rain](cases/branch-1171601f37b8e19d.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -408,6 +409,7 @@
 | [test: 無条件の5分cron対照実験（Issue #259）](cases/pr-261.md) | その他の開発：変更対象ファイルに関する開発。具体的な目的は原文・差分を確認 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [test: 30分間隔の無条件cron対照実験 (#262)](cases/pr-263.md) | その他の開発：変更対象ファイルに関する開発。具体的な目的は原文・差分を確認 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix: 全国大雨予報で既存Supabase Secretsを再利用 (#265)](cases/pr-266.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [fix: 全国大雨予報のscanジョブにProduction環境を指定 (#267)](cases/pr-268.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [Restore push notification status after reopening app](cases/pr-27.md) | 通知・配信・画面・表示：アプリ再起動時にPush通知状態を復元 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Refine persistent light-rain notification boundary](cases/pr-28.md) | 雨量・全国検知・通知・配信：持続する弱い雨の通知境界を調整 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Prevent duplicate watch target registration](cases/pr-29.md) | 画面・表示：監視地点の重複登録を防止 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
