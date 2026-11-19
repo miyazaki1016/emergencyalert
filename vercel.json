@@ -6,5 +6,15 @@
       "main": true
     }
   },
-  "ignoreCommand": "node scripts/vercel-build-guard.mjs"
+  "ignoreCommand": "node scripts/vercel-build-guard.mjs",
+  "rewrites": [
+    {
+      "source": "/hakone-guide",
+      "destination": "/hakone-guide/index.html"
+    },
+    {
+      "source": "/hakone-guide/",
+      "destination": "/hakone-guide/index.html"
+    }
+  ]
 }
