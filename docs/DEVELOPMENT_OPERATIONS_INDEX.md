@@ -57,6 +57,9 @@
 | #245 | 全国30mm/h予報を5分監視からトップ用スナップショットに接続 | work/national-forecast-snapshot-209 |
 | #253 | 全国大雨予報トップとMYアメふるを別ページに分離 (#209) | fix/standalone-forecast-home-209 |
 | #254 | fix(rain): LRPM資材のSHA照合付きStorage配置ツール (#250) | fix/national-rain-lrpm-storage-250 |
+| #268 | fix: 全国大雨予報のscanジョブにProduction環境を指定 (#267) | fix/national-rain-production-env-267 |
+| #270 | 箱根日帰りガイドブックの公開 | publish/hakone-guide-269 |
+| #271 | 箱根日帰りガイドを公開 | publish-hakone-guide |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
