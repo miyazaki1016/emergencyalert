@@ -1,0 +1,169 @@
+{
+  "id": "pr-273",
+  "number": 273,
+  "title": "fix: 箱根ガイドの短い公開URLを静的HTMLに接続 (#269)",
+  "topics": [
+    "その他の開発"
+  ],
+  "purpose": "変更対象ファイルに関する開発。具体的な目的は原文・差分を確認",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Follow-up to #272 / #269. Next.jsの静的 `public/hakone-guide/index.html` に対し、`/hakone-guide` と `/hakone-guide/` からのrewriteのみ追加。既存Vercel設定は維持。通知・Cron・DB・APIは変更なし。\n\n## 既存成果照合・原本判断\n- pr-161 (reuse): [PR #161](https://github.com/miyazaki1016/emergencyalert/pull/161)、[VERCEL_BUILD_POLICY](https://github.com/miyazaki1016/emergencyalert/blob/main/docs/VERCEL_BUILD_POLICY.md)、[build guard](https://github.com/miyazaki1016/emergencyalert/blob/main/scripts/vercel-build-guard.mjs) を確認。main限定自動デプロイ、public assetsと設定変更はビルド対象という方針を再利用。既存git/ignoreCommand設定は保持。\n- pr-272 (extend): [PR #272](https://github.com/miyazaki1016/emergencyalert/pull/272) と[履歴原本](https://github.com/miyazaki1016/emergencyalert/blob/development-history/docs/work-history/cases/pr-272.md)を確認。ガイド本体はmain統合、CI成功、Vercel production READY。短縮URLからindex.htmlへの接続は受入未完了のため本PRで補完する。ガイド本体は再実装しない。\n- pr-164 (distinct): [PR #164](https://github.com/miyazaki1016/emergencyalert/pull/164) と[履歴原本](https://github.com/miyazaki1016/emergencyalert/blob/development-history/docs/work-history/cases/pr-164.md)を確認。Vercelの使用量監視・リリース承認の読み取り専用設計で、今回の静的URL rewriteとは目的・変更範囲が異なる。未完成の監視・承認機能には触れない。\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-161\",\"decision\":\"reuse\",\"reason\":\"既存のmain限定Vercelデプロイとbuild guardをそのまま再利用し、設定のgitとignoreCommandを保持して静的ガイドへのrewriteだけを追加する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/161\"},{\"id\":\"pr-272\",\"decision\":\"extend\",\"reason\":\"先行PRでガイド本体とCIは完成済みなので再実装しない。未解決の短縮公開URLからindex.htmlへの接続だけを追加する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/272\"},{\"id\":\"pr-164\",\"decision\":\"distinct\",\"reason\":\"Vercelデプロイ監視・使用量制御の研究であり、今回の静的ページrewriteとは異なる。未完成の監視機能やリリース承認機構には触れない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/164\"}]}\n-->\n\n最新HEAD `051b70b37df369ffc31d8e392adff33a628e5e94` CI run 44539429963 success。再照合成功を確認後にマージし、本番READYとURLを検証する。",
+  "snapshot_head": "051b70b37df369ffc31d8e392adff33a628e5e94",
+  "snapshot_consistent": true,
+  "head": "051b70b37df369ffc31d8e392adff33a628e5e94",
+  "base": "b6cab232ee31b8d6f8f58f0b4154019c35cc9808",
+  "base_ref": "main",
+  "head_ref": "fix/hakone-guide-route-269",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-19T14:06:45Z",
+  "merge_commit_sha": "c9027275a4c43eb117d0de0c5bf45ff081e4d7d9",
+  "updated_at": "2026-11-19T14:06:45Z",
+  "code_facts": [],
+  "files": [
+    {
+      "path": "vercel.json",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 1,
+      "patch": "diff --git a/vercel.json b/vercel.json\nindex 37531078..70d7f69d 100644\n--- a/vercel.json\n+++ b/vercel.json\n@@ -6,5 +6,15 @@\n       \"main\": true\n     }\n   },\n-  \"ignoreCommand\": \"node scripts/vercel-build-guard.mjs\"\n+  \"ignoreCommand\": \"node scripts/vercel-build-guard.mjs\",\n+  \"rewrites\": [\n+    {\n+      \"source\": \"/hakone-guide\",\n+      \"destination\": \"/hakone-guide/index.html\"\n+    },\n+    {\n+      \"source\": \"/hakone-guide/\",\n+      \"destination\": \"/hakone-guide/index.html\"\n+    }\n+  ]\n }\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/051b70b37df369ffc31d8e392adff33a628e5e94/vercel.json",
+      "source": {
+        "path": "vercel.json",
+        "coverage": "全文",
+        "text": "{\n  \"$schema\": \"https://openapi.vercel.sh/vercel.json\",\n  \"git\": {\n    \"deploymentEnabled\": {\n      \"**\": false,\n      \"main\": true\n    }\n  },\n  \"ignoreCommand\": \"node scripts/vercel-build-guard.mjs\",\n  \"rewrites\": [\n    {\n      \"source\": \"/hakone-guide\",\n      \"destination\": \"/hakone-guide/index.html\"\n    },\n    {\n      \"source\": \"/hakone-guide/\",\n      \"destination\": \"/hakone-guide/index.html\"\n    }\n  ]\n}\n",
+        "sha256": "9318afa705fae70e4d7281a0dd36ce754b2ab02bd13b5e2f81db93fb3a519ff2"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "051b70b37df369ffc31d8e392adff33a628e5e94",
+      "message": "fix: route Hakone guide public URL to static HTML (#269)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/051b70b37df369ffc31d8e392adff33a628e5e94"
+    }
+  ],
+  "comments": [
+    {
+      "body": "## 既存成果照合レビュー（REVIEW_REQUIRED 対応）\n\n- 対象：Issue #269、先行PR #272（mainへ統合済み、Vercel production READY）。\n- 再利用：既存 `public/hakone-guide/index.html` を変更せず、既存 `vercel.json` の `git.deploymentEnabled` と `ignoreCommand` を保持。\n- 今回だけの追加：希望URL `/hakone-guide` と `/hakone-guide/` から既存の `/hakone-guide/index.html` へのrewrite 2件。\n- 非対象：通知、JASPIC、Cron、Supabase、API、ガイド内容。これらは変更していない。\n- 照合判定：preflight run 44539429940 は `REVIEW_REQUIRED`（過去の類似成果を確認するための保留）。本コメントで先行PRと追加範囲を明示する。自動preflightが成功したとは扱わない。\n- 最新HEAD `051b70b37df369ffc31d8e392adff33a628e5e94` のCI run 44539429963 は success。PR分類 run 44539430025 も success。\n- 残課題：preflight の記録済み判定と、マージ後の本番URL実アクセス検証。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/273#issuecomment-7011378952"
+    }
+  ],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "051b70b37df369ffc31d8e392adff33a628e5e94",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44540125206",
+      "id": 44540125206,
+      "updated_at": "2026-11-19T14:06:30Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "051b70b37df369ffc31d8e392adff33a628e5e94",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44539972650",
+      "id": 44539972650,
+      "updated_at": "2026-11-19T14:05:32Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "051b70b37df369ffc31d8e392adff33a628e5e94",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44539429940",
+      "id": 44539429940,
+      "updated_at": "2026-11-19T14:02:27Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "051b70b37df369ffc31d8e392adff33a628e5e94",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44539430025",
+      "id": 44539430025,
+      "updated_at": "2026-11-19T14:02:22Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "051b70b37df369ffc31d8e392adff33a628e5e94",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44539429963",
+      "id": 44539429963,
+      "updated_at": "2026-11-19T14:03:09Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "c9027275a4c43eb117d0de0c5bf45ff081e4d7d9",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44540244635",
+      "id": 44540244635,
+      "updated_at": "2026-11-19T14:06:53Z",
+      "event": "push"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "c9027275a4c43eb117d0de0c5bf45ff081e4d7d9",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44540244308",
+      "id": 44540244308,
+      "updated_at": "2026-11-19T14:06:53Z",
+      "event": "push"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "c9027275a4c43eb117d0de0c5bf45ff081e4d7d9",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44540244399",
+      "id": 44540244399,
+      "updated_at": "2026-11-19T14:07:09Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [],
+  "related_sources": [
+    {
+      "path": "docs/VERCEL_BUILD_POLICY.md",
+      "coverage": "全文",
+      "text": "# Vercel build policy\n\n- Automatic Git deployments: main only. Feature, documentation and automation branches do not deploy automatically.\n- On main, skip documentation text and the explicitly listed management files only. Mixed application/documentation changes build.\n- Compare against VERCEL_GIT_PREVIOUS_SHA (the previous deployed commit), never just HEAD^, so application changes across multiple commits are retained.\n- Missing/invalid baseline, failed Git diff and unknown paths build by default. Public assets and configuration always build.\n- For a requested preview, deploy the reviewed branch manually with `vercel deploy --build-env FORCE_VERCEL_BUILD=1`. This explicit override bypasses the documentation filter. If preview deployments are disabled in project settings, enable them temporarily for the requested preview and restore the setting afterwards.\n- Project setting `previewDeploymentsDisabled=true` also blocks previews from existing branches.\n- Existing branches must incorporate main to receive vercel.json and the guard before further pushes.\n- GitHub Actions tests and GitHub Pages are independent and remain enabled.\n- This reduces future builds; it does not reset an existing Vercel rate limit.\n\nVerification: npm test -- tests/vercel-build-guard.test.mjs\n\nCaution: Ignored Build Step cancellations still count toward Vercel deployment quotas. Disabling automatic previews is the main rate-limit reduction; the documentation filter reduces build work on main.\n\nJASPICのprivate監視SQL・専用SQLテスト・専用workflow・日本語履歴・この判定のコード/境界テストを明示管理パスへ追加。これらはSupabaseへの反映とGitHub Actionsで検証し、Webアプリのビルドを必要としない。アプリ・雨関数・vercel.jsonを混ぜた変更は従来通りビルドする。SQL全般やtests全般を一括で許可しない。\n",
+      "sha256": "4b3b8240af2fa40ec49606133d086873e8d6a9eead78e6e1ff045f6930bc5916",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/051b70b37df369ffc31d8e392adff33a628e5e94/docs/VERCEL_BUILD_POLICY.md"
+    },
+    {
+      "path": "docs/work-history/cases/pr-164.md",
+      "coverage": "削除済み／取得不能・差分参照",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/051b70b37df369ffc31d8e392adff33a628e5e94/docs/work-history/cases/pr-164.md"
+    },
+    {
+      "path": "docs/work-history/cases/pr-272.md",
+      "coverage": "削除済み／取得不能・差分参照",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/051b70b37df369ffc31d8e392adff33a628e5e94/docs/work-history/cases/pr-272.md"
+    }
+  ],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "ce07d10a8858cf08ab57ec149f6d1969ad466fc77c559fad8fc8f81a86690dfb",
+  "ci_digest": "7566602bfa8096fb107b2735d4453028821757fd0ce1ac29d4ffcb2116c5d593",
+  "collected_at": "2026-11-19T14:07:06.202776+00:00",
+  "decisions": []
+}

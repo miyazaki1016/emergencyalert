@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-19T14:00:43.341889+00:00
+更新 (UTC): 2026-11-19T14:07:06.202776+00:00
 
 ## 全案件
 
@@ -259,6 +259,7 @@
 | [research/jaspic-oauth-isolation-20261106](cases/branch-f4ebc6c16c3885bc.md) | 通知・配信・認証・安全性・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/inventory-delta-candidates-20261101](cases/branch-f54fba9240a4e12b.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/pr-promotion-policy-review-20261102](cases/branch-f70b38dbc740ec35.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [fix/hakone-guide-route-269](cases/branch-f745bbfe8b92ab13.md) | 画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/jaspic-occurrence-date-hold-20261113](cases/branch-f7e70a5901d7838e.md) | 通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix-clear-place-form-after-save](cases/branch-f8fadca6ea875ca9.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/require-history-first-20261109](cases/branch-fe43e3f34e45c959.md) | 開発管理・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -417,6 +418,7 @@
 | [箱根日帰りガイドブックの公開](cases/pr-270.md) | 画面・表示：画面表示や操作に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [箱根日帰りガイドを公開](cases/pr-271.md) | その他の開発：変更対象ファイルに関する開発。具体的な目的は原文・差分を確認 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [箱根日帰りガイドブックを独立ページとして公開 (#269)](cases/pr-272.md) | 画面・表示：画面表示や操作に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [fix: 箱根ガイドの短い公開URLを静的HTMLに接続 (#269)](cases/pr-273.md) | その他の開発：変更対象ファイルに関する開発。具体的な目的は原文・差分を確認 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Refine persistent light-rain notification boundary](cases/pr-28.md) | 雨量・全国検知・通知・配信：持続する弱い雨の通知境界を調整 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Prevent duplicate watch target registration](cases/pr-29.md) | 画面・表示：監視地点の重複登録を防止 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix: add PWA install icons](cases/pr-3.md) | その他の開発：PWAのインストール用アイコンを修正 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
