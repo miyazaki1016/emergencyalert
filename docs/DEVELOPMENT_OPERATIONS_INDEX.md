@@ -59,6 +59,7 @@
 | #254 | fix(rain): LRPM資材のSHA照合付きStorage配置ツール (#250) | fix/national-rain-lrpm-storage-250 |
 | #270 | 箱根日帰りガイドブックの公開 | publish/hakone-guide-269 |
 | #271 | 箱根日帰りガイドを公開 | publish-hakone-guide |
+| #276 | Cloudflare起動へ一本化：雨監視2ワークフローのGitHub scheduleを削除 | fix/cloudflare-only-rain-actions-trigger |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
