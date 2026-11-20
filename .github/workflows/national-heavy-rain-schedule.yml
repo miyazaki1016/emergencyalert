@@ -1,6 +1,7 @@
 name: Nationwide heavy rain forecast
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '*/5 * * * *'
 
@@ -13,7 +14,7 @@ concurrency:
 
 jobs:
   scan:
-    if: github.repository == 'miyazaki1016/emergencyalert' && vars.NATIONAL_HEAVY_RAIN_ACTIONS_ENABLED == 'true'
+    if: github.repository == 'miyazaki1016/emergencyalert' && vars.NATIONAL_HEAVY_RAIN_ACTIONS_ENABLED == 'true' && (github.event_name != 'schedule' || vars.RAIN_ACTIONS_TRIGGER_SOURCE != 'cloudflare')
     runs-on: ubuntu-latest
     timeout-minutes: 9
     steps:
