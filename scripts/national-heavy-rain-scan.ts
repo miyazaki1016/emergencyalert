@@ -20,7 +20,8 @@ const N03_VERSION = "20260101";
 const pixelMasks = openNationwidePixelMasks(maskDir, N03_VERSION);
 const tiles4=[[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;
 const FIVE_MINUTES = 300_000;
-const JMA_PUBLICATION_RETRY_DELAYS_MS = [500, 5_000, 15_000, 30_000, 60_000, 60_000];
+const JMA_PUBLICATION_RETRY_DELAYS_MS = [15_000, 30_000, 60_000];
+const JMA_PUBLICATION_RESERVE_MS = 90_000;
 const lon=(x:number,z:number)=>x/(2**z)*360-180;
 const lat=(y:number,z:number)=>Math.atan(Math.sinh(Math.PI-2*Math.PI*y/(2**z)))*180/Math.PI;
 function bbox(area:AdministrativeArea):[number,number,number,number]{
@@ -37,12 +38,10 @@ const xy=(longitude:number,latitude:number,z:number):[number,number]=>{
 async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:number,y:number, signal:AbortSignal){
   const url=buildJmaRainTileUrl(frame,z,x,y);
   const attempts: string[] = [];
-  let transientFailures = 0;
-  for (let attempt = 0; attempt <= JMA_PUBLICATION_RETRY_DELAYS_MS.length; attempt++) {
+  for (let attempt = 0; attempt < 2; attempt++) {
     signal.throwIfAborted();
     const started = performance.now();
     let outcome = "transport_error";
-    let retryDelayMs = 500;
     try {
       const response = await fetch(url, { cache: "no-store", signal: AbortSignal.any([signal, AbortSignal.timeout(8_000)]) });
       const headersMs = Math.round(performance.now()-started);
@@ -54,29 +53,62 @@ async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:num
         console.log(JSON.stringify({event:"JMA_TILE_FETCH",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome:"ok",httpStatus:response.status,headersMs,bodyMs:bodyDoneMs-headersMs,elapsedMs:bodyDoneMs,bytes:bytes.length,cacheStatus:response.headers.get("x-cache")}));
         return bytes;
       }
-      attempts.push("HTTP " + response.status);
       if (response.body) await response.body.cancel().catch(() => undefined);
-      if (response.status === 404) {
-        // The index can list a frame before every tile is available.
-        retryDelayMs = JMA_PUBLICATION_RETRY_DELAYS_MS[attempt];
-      } else if (![408, 429, 500, 502, 503, 504].includes(response.status) || ++transientFailures >= 2) {
-        break;
-      }
+      if (response.status === 404) return null;
+      attempts.push("HTTP " + response.status);
+      if (![408, 429, 500, 502, 503, 504].includes(response.status)) break;
     } catch (error) {
       outcome = signal.aborted ? "slot_deadline_abort" : error instanceof Error ? error.name : "TransportError";
       attempts.push(outcome);
-      signal.throwIfAborted();
-      if (++transientFailures >= 2) break;
     } finally {
       if (outcome !== "ok") {
         console.log(JSON.stringify({event:"JMA_TILE_FETCH",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome,elapsedMs:Math.round(performance.now()-started)}));
       }
     }
-    if (attempt === JMA_PUBLICATION_RETRY_DELAYS_MS.length) break;
-    await delay(retryDelayMs, undefined, { signal });
+    if (attempt < 1) await delay(500, undefined, { signal });
   }
   throw new Error(`INCOMPLETE_JMA_TILE ${url} attempts: ${attempts.join(", ")}`);
 }
+async function processPublishedTiles<T, R>(
+  tiles: ReadonlyArray<T>,
+  concurrency: number,
+  frame: JmaTargetTime,
+  z: number,
+  publicationCutoff: number,
+  signal: AbortSignal,
+  processTile: (tile: T) => Promise<R | null>,
+) {
+  const results: R[] = [];
+  let pending = tiles.map((tile, index) => ({ tile, index }));
+  let round = 0;
+  let totalWaitMs = 0;
+  while (pending.length) {
+    const unpublished: typeof pending = [];
+    for (let offset = 0; offset < pending.length; offset += concurrency) {
+      signal.throwIfAborted();
+      const batch = pending.slice(offset, offset + concurrency);
+      const outcomes = await Promise.allSettled(batch.map(({ tile }) => processTile(tile)));
+      for (const [index, outcome] of outcomes.entries()) {
+        if (outcome.status === "rejected") throw outcome.reason;
+        if (outcome.value === null) unpublished.push(batch[index]);
+        else results[batch[index].index] = outcome.value;
+      }
+    }
+    if (!unpublished.length) break;
+    const waitMs = JMA_PUBLICATION_RETRY_DELAYS_MS[Math.min(round, JMA_PUBLICATION_RETRY_DELAYS_MS.length - 1)];
+    if (Date.now() + waitMs >= publicationCutoff) {
+      throw new Error(`INCOMPLETE_JMA_TILE: ${unpublished.length} unpublished z${z} tiles for ${frame.validtime}`);
+    }
+    round++;
+    totalWaitMs += waitMs;
+    console.log(JSON.stringify({event:"JMA_TILE_WAIT",basetime:frame.basetime,validtime:frame.validtime,z,round,pending:unpublished.length,waitMs,totalWaitMs}));
+    await delay(waitMs, undefined, { signal });
+    if (Date.now() >= publicationCutoff) throw new Error("INCOMPLETE_JMA_TILE: publication wait expired");
+    pending = unpublished;
+  }
+  return results;
+}
+
 function selectDetailedFrames(targets: JmaTargetTime[], now: number): JmaTargetTime[] {
   const basetime = targets
     .map(frame => frame.basetime)
@@ -103,17 +135,19 @@ async function refineFrame(
   indexed: Array<{ area: AdministrativeArea; b: ReturnType<typeof bbox> }>,
   areaByCode: Map<string, AdministrativeArea>,
   signal: AbortSignal,
+  publicationCutoff: number,
 ) {
   const started = performance.now();
   const candidates = new Map<string, AdministrativeArea>();
   const rainyZ10Tiles = new Map<string, { x: number; y: number }>();
-  for (const [x, y] of tiles4) {
+  await processPublishedTiles(tiles4, 1, frame, 4, publicationCutoff, signal, async ([x, y]) => {
     const bounds = [lon(x, 4), lat(y + 1, 4), lon(x + 1, 4), lat(y, 4)];
     const relevant = indexed.filter(({ b }) => b[0] <= bounds[2] && b[2] >= bounds[0]
       && b[1] <= bounds[3] && b[3] >= bounds[1]).map(({ area }) => area);
     const buffer = await fetchTile(frame, 4, x, y, signal);
+    if (buffer === null) return null;
     const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 4, x, y);
-    if (!pixels.length) continue;
+    if (!pixels.length) return true;
     for (const area of municipalitiesForLightRainTile(buffer, 4, x, y, relevant)) {
       candidates.set(area.code, areaByCode.get(area.code)!);
     }
@@ -123,7 +157,8 @@ async function refineFrame(
       const tileY = y * 64 + Math.floor(pixelY / 4);
       rainyZ10Tiles.set(tileX + "/" + tileY, { x: tileX, y: tileY });
     }
-  }
+    return true;
+  });
   const z4Done = performance.now();
   const tileMap = new Map<string, { x: number; y: number; areas: AdministrativeArea[] }>();
   for (const area of candidates.values()) {
@@ -146,41 +181,36 @@ async function refineFrame(
   const z10Concurrency = Number(process.env.JMA_Z10_CONCURRENCY ?? "4");
   if (![4, 8].includes(z10Concurrency)) throw new Error("JMA_Z10_CONCURRENCY must be 4 or 8");
   let rainyTiles=0;
-  for(let i=0;i<entries.length;i+=z10Concurrency){
-    signal.throwIfAborted();
-    const batch=entries.slice(i,i+z10Concurrency);
-    const outcomes=await Promise.allSettled(batch.map(async t=>{
-      const fetchStart=performance.now();
-      const buffer=await fetchTile(frame,10,t.x,t.y,signal);
-      const fetchMs=performance.now()-fetchStart;
-      const matchStart=performance.now();
-      const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 10, t.x, t.y);
-      const decodeMs=performance.now()-matchStart;
-      // The LRPM generator omits tiles with no intersecting pixels. A bounding-box
-      // candidate can therefore be absent. Prove the whole tile is disjoint
-      // before accepting that absence; declared or land-overlapping tiles stay strict.
-      const unlistedAndDisjoint = pixels.length > 0 && !pixelMasks.has(t.x, t.y)
-        && !affectedAdministrativeAreas([{ coordinates: [[
-          [lon(t.x, 10), lat(t.y, 10)], [lon(t.x + 1, 10), lat(t.y, 10)],
-          [lon(t.x + 1, 10), lat(t.y + 1, 10)], [lon(t.x, 10), lat(t.y + 1, 10)],
-          [lon(t.x, 10), lat(t.y, 10)],
-        ]] }], t.areas).length;
-      const municipalities = pixels.length && !unlistedAndDisjoint
-        ? matchHeavyRainPixelsToMasks(pixels, t.x, t.y, pixelMasks.load(t.x, t.y), t.areas)
-        : [];
-      const matchingMs=performance.now()-matchStart;
-      console.log(JSON.stringify({event:"JMA_TILE_PROCESS",basetime:frame.basetime,validtime:frame.validtime,z:10,x:t.x,y:t.y,decodeMs:Math.round(decodeMs),matchingMs:Math.round(matchingMs),fetchMs:Math.round(fetchMs)}));
-      return {rainy: pixels.length > 0, municipalities, fetchMs, matchingMs, radarTile: { x: t.x, y: t.y }};
-    }));
-    for (const outcome of outcomes) {
-      if (outcome.status === "rejected") throw outcome.reason;
-      const { rainy, municipalities, fetchMs, matchingMs, radarTile } = outcome.value;
-      z10NetworkMs += fetchMs;
-      z10MatchingMs += matchingMs;
-      if (rainy) rainyTiles++;
-      for (const area of municipalities) {
-        if ((matched.get(area.code)?.minimumMmPerHour ?? 0) < area.minimumMmPerHour) matched.set(area.code, { ...area, radarTile });
-      }
+  const outcomes = await processPublishedTiles(entries, z10Concurrency, frame, 10, publicationCutoff, signal, async t => {
+    const fetchStart=performance.now();
+    const buffer=await fetchTile(frame,10,t.x,t.y,signal);
+    if (buffer === null) return null;
+    const fetchMs=performance.now()-fetchStart;
+    const matchStart=performance.now();
+    const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 10, t.x, t.y);
+    const decodeMs=performance.now()-matchStart;
+    // The LRPM generator omits tiles with no intersecting pixels. A bounding-box
+    // candidate can therefore be absent. Prove the whole tile is disjoint
+    // before accepting that absence; declared or land-overlapping tiles stay strict.
+    const unlistedAndDisjoint = pixels.length > 0 && !pixelMasks.has(t.x, t.y)
+      && !affectedAdministrativeAreas([{ coordinates: [[
+        [lon(t.x, 10), lat(t.y, 10)], [lon(t.x + 1, 10), lat(t.y, 10)],
+        [lon(t.x + 1, 10), lat(t.y + 1, 10)], [lon(t.x, 10), lat(t.y + 1, 10)],
+        [lon(t.x, 10), lat(t.y, 10)],
+      ]] }], t.areas).length;
+    const municipalities = pixels.length && !unlistedAndDisjoint
+      ? matchHeavyRainPixelsToMasks(pixels, t.x, t.y, pixelMasks.load(t.x, t.y), t.areas)
+      : [];
+    const matchingMs=performance.now()-matchStart;
+    console.log(JSON.stringify({event:"JMA_TILE_PROCESS",basetime:frame.basetime,validtime:frame.validtime,z:10,x:t.x,y:t.y,decodeMs:Math.round(decodeMs),matchingMs:Math.round(matchingMs),fetchMs:Math.round(fetchMs)}));
+    return {rainy: pixels.length > 0, municipalities, fetchMs, matchingMs, radarTile: { x: t.x, y: t.y }};
+  });
+  for (const { rainy, municipalities, fetchMs, matchingMs, radarTile } of outcomes) {
+    z10NetworkMs += fetchMs;
+    z10MatchingMs += matchingMs;
+    if (rainy) rainyTiles++;
+    for (const area of municipalities) {
+      if ((matched.get(area.code)?.minimumMmPerHour ?? 0) < area.minimumMmPerHour) matched.set(area.code, { ...area, radarTile });
     }
   }
   const z10Done=performance.now();
@@ -229,7 +259,7 @@ async function main() {
       const results = [];
       for (let i = 0; i < band.length; i += 2) {
         const batch = await Promise.allSettled(band.slice(i, i + 2)
-          .map(frame => refineFrame(frame, indexed, areaByCode, controller.signal)));
+          .map(frame => refineFrame(frame, indexed, areaByCode, controller.signal, deadline - JMA_PUBLICATION_RESERVE_MS)));
         for (const result of batch) {
           if (result.status === "rejected") throw result.reason;
           results.push(result.value);
