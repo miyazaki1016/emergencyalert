@@ -2,12 +2,6 @@
 .bandHeading { display: flex; align-items: center; gap: 12px; margin: 14px 0; }
 .bandHeading h2 { margin: 0; font-size: clamp(1.08rem, 4.5vw, 1.35rem); }
 .bandHeading span { background: #1a3b55; color: #b4e5ff; border-radius: 6px; padding: 1px 8px; font-size: .8rem; white-space: nowrap; }
-.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 246px), 1fr)); gap: 12px; }
-.card { overflow: hidden; background: #122a40; border: 1px solid #36536b; border-radius: 15px; }
-.cardBody { padding: 14px 16px; }
-.cardBody small { color: #b7cfe5; }
-.cardBody h3 { margin: 0; font-size: 1.28rem; }
-.cardBody p { font-size: .86rem; margin: 4px 0 10px; }
 .intensity { color: #ffd08a; font-size: 1.65rem; font-weight: 800; line-height: 1.25; }
 .intensity[data-tier="50"] { color: #ffa293; }
 .intensity[data-tier="80"] { color: #ffaddb; }
@@ -19,9 +13,9 @@
 .mapTime { top: 6px; font-size: .85rem; }
 .mapCredit { bottom: 6px; font-size: .7rem; }
 .controls { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; }
-.card button { min-height: 40px; padding: 4px 10px; color: #e8f5ff; background: #234b69; border: 1px solid #4b7290; border-radius: 7px; cursor: pointer; }
-.card button:disabled { opacity: .6; cursor: default; }
-.card button:focus-visible { outline: 2px solid #8bdeff; outline-offset: 2px; }
+.controls button { min-height: 40px; padding: 4px 10px; color: #e8f5ff; background: #234b69; border: 1px solid #4b7290; border-radius: 7px; cursor: pointer; }
+.controls button:disabled { opacity: .6; cursor: default; }
+.controls button:focus-visible { outline: 2px solid #8bdeff; outline-offset: 2px; }
 
 .forecast { margin: 0; }
 .summary {
@@ -41,6 +35,7 @@
 .stats div { flex: 1 1 105px; border: 1px solid #294467; border-radius: 10px; padding: 8px 10px; background: #07101f; }
 .stats dt { color: #abc0d9; font-size: .72rem; }
 .stats dd { margin: 2px 0 0; font-weight: 800; font-variant-numeric: tabular-nums; }
+.summary .summaryNote { margin: 0 0 8px; }
 .legend { display: flex; flex-wrap: wrap; gap: 5px 10px; color: #c4d2e5; font-size: .76rem; }
 .legend i { display: inline-block; width: .85em; height: .65em; margin-right: 4px; border-radius: 2px; background: #ff9900; }
 .legend span:nth-child(3) i { background: #ff2800; }
@@ -70,7 +65,9 @@
 .compactRow button:focus-visible { outline: 2px solid #8bdeff; outline-offset: 2px; }
 .timeStrip { display: flex; gap: 3px; margin-top: 8px; }
 .timeStrip span { height: 5px; flex: 1; border-radius: 2px; }
-.timeActive { background: #ff9900; }
-.timeInactive { background: #33475a; }
+.timeStrip span { background: #33475a; }
+.timeStrip [data-tier="30"] { background: #ff9900; }
+.timeStrip [data-tier="50"] { background: #ff2800; }
+.timeStrip [data-tier="80"] { background: #b40068; }
 .expandedRadar { margin-top: 10px; max-width: 320px; }
 .expandedRadar p { font-size: .78rem; color: #d4e2f0; }

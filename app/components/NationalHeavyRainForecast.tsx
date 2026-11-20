@@ -56,7 +56,11 @@ function RadarPlayer({ basetime, times, tile, blocky }: {
   );
 }
 
-type AreaCard = NationalForecastFrame["municipalities"][number] & { peakTime: string; times: string[] };
+type Municipality = NationalForecastFrame["municipalities"][number];
+type AreaCard = Municipality & {
+  peakTime: string;
+  intensityByTime: Map<string, Municipality["minimumMmPerHour"]>;
+};
 
 function ForecastBand({ frames, basetime, extended }: {
   frames?: NationalForecastFrame[]; basetime?: string; extended: boolean;
@@ -66,9 +70,14 @@ function ForecastBand({ frames, basetime, extended }: {
   for (const frame of frames ?? []) {
     for (const area of frame.municipalities) {
       const current = municipalities.get(area.code);
-      const times = [...(current?.times ?? []), frame.validTime];
-      municipalities.set(area.code, current && current.minimumMmPerHour >= area.minimumMmPerHour
-        ? { ...current, times } : { ...area, peakTime: frame.validTime, times });
+      const intensityByTime = current?.intensityByTime ?? new Map();
+      const intensity = intensityByTime.get(frame.validTime);
+      if (intensity === undefined || intensity < area.minimumMmPerHour) {
+        intensityByTime.set(frame.validTime, area.minimumMmPerHour);
+      }
+      if (!current || current.minimumMmPerHour < area.minimumMmPerHour) {
+        municipalities.set(area.code, { ...area, peakTime: frame.validTime, intensityByTime });
+      }
     }
   }
   const cards = [...municipalities.values()].sort((a, b) =>
@@ -100,7 +109,7 @@ function ForecastBand({ frames, basetime, extended }: {
               <h4 className={styles.prefectureHeading}>{prefecture} <small>{entries.length}地域</small></h4>
               <div className={styles.compactList}>
                 {entries.map(area => {
-                  const times = [...new Set(area.times)].sort();
+                  const times = [...area.intensityByTime.keys()].sort();
                   const expanded = selected === area.code;
                   return (
                     <article className={styles.compactCard} key={area.code}>
@@ -114,10 +123,13 @@ function ForecastBand({ frames, basetime, extended }: {
                           {expanded ? "閉じる" : "雨雲を見る"}
                         </button>}
                       </div>
-                      <div className={styles.timeStrip} aria-label={`対象時刻：${times.map(timeLabel).join("、")}`}>
-                        {frames?.map(frame => <span key={frame.validTime}
-                          className={times.includes(frame.validTime) ? styles.timeActive : styles.timeInactive}
-                          title={timeLabel(frame.validTime)} />)}
+                      <div className={styles.timeStrip} role="img" aria-label={times.map(time =>
+                        `${timeLabel(time)} ${area.intensityByTime.get(time)}mm/h以上`).join("、")}>
+                        {frames?.map(({ validTime }) => {
+                          const intensity = area.intensityByTime.get(validTime);
+                          return <span key={validTime} data-tier={intensity}
+                            title={`${timeLabel(validTime)} ${intensity ? `${intensity}mm/h以上` : "30mm/h以上の予報なし"}`} />;
+                        })}
                       </div>
                       {expanded && basetime && area.radarTile && (
                         <div className={styles.expandedRadar}>
@@ -165,6 +177,11 @@ export default function NationalHeavyRainForecast() {
     : [];
   const count = new Set(areas.map(area => area.code)).size;
   const tier = areas.reduce((maximum, area) => Math.max(maximum, area.minimumMmPerHour), 0);
+  const peakAreas = areas.filter(area => area.minimumMmPerHour === tier);
+  const peakCount = new Set(peakAreas.map(area => area.code)).size;
+  const peakPrefectures = [...new Set(peakAreas.map(area => area.prefecture))]
+    .sort((a, b) => a.localeCompare(b, "ja"));
+  const latestTime = (forecast?.extendedFrames ?? forecast?.frames)?.slice(-1)[0]?.validTime;
 
   return (
     <section className={styles.forecast} aria-labelledby="national-rain-heading">
@@ -176,9 +193,12 @@ export default function NationalHeavyRainForecast() {
         <div className={styles.summaryData}>
           <dl className={styles.stats}>
             <div><dt>大雨予報の地域</dt><dd>{forecast ? `${count}地域` : "—"}</dd></div>
-            <div><dt>最大階級</dt><dd>{tier ? `${tier}mm/h以上` : "—"}</dd></div>
+            <div><dt>最大階級</dt><dd>{tier ? `${tier}mm/h以上・${peakCount}地域` : "—"}</dd></div>
             <div><dt>気象庁の予報基準</dt><dd>{forecast ? `${timeLabel(forecast.basetime)} JST` : "—"}</dd></div>
+            {latestTime && <div><dt>取得済みの予報</dt><dd>{timeLabel(latestTime)}まで</dd></div>}
           </dl>
+          {peakPrefectures.length > 0 && <p className={styles.summaryNote}>最大階級の都道府県：{peakPrefectures.join("、")}</p>}
+          {forecast && !forecast.extendedFrames && <p className={styles.summaryNote}>35〜60分先の予報は未取得です。</p>}
           <div className={styles.legend} aria-label="降水強度の凡例">
             <span>降水強度 mm/h</span>
             <span><i />30–50</span><span><i />50–80</span><span><i />80以上</span>
