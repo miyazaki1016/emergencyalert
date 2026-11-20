@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-19T14:07:06.202776+00:00
+更新 (UTC): 2026-11-20T02:40:08.070992+00:00
 
 ## 全案件
 
@@ -150,6 +150,7 @@
 | [fix/jaspic-google-identity-callback-20261106](cases/branch-8e34b82c3ff2a9ac.md) | 通知・配信・認証・安全性：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [chore-push-test-ui](cases/branch-91ead96821aaeff5.md) | 通知・配信・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/test-case-reconciliation-20261101](cases/branch-9386e47050e9d8a9.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [feat/cloudflare-rain-cron-274](cases/branch-93b0152732d96cc4.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [test-jma-early-live-smoke](cases/branch-94d665cd64c44050.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/archived-history-beyond-seven-days-20261023](cases/branch-978ef60235fbbf68.md) | 雨量・全国検知・通知・配信・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/forecast-notification-episodes-20261029](cases/branch-98720101eac846e9.md) | 雨量・全国検知・通知・配信・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -419,6 +420,7 @@
 | [箱根日帰りガイドを公開](cases/pr-271.md) | その他の開発：変更対象ファイルに関する開発。具体的な目的は原文・差分を確認 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [箱根日帰りガイドブックを独立ページとして公開 (#269)](cases/pr-272.md) | 画面・表示：画面表示や操作に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix: 箱根ガイドの短い公開URLを静的HTMLに接続 (#269)](cases/pr-273.md) | その他の開発：変更対象ファイルに関する開発。具体的な目的は原文・差分を確認 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [雨監視2本のCloudflare Cron切替に対応 (#274)](cases/pr-275.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Refine persistent light-rain notification boundary](cases/pr-28.md) | 雨量・全国検知・通知・配信：持続する弱い雨の通知境界を調整 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Prevent duplicate watch target registration](cases/pr-29.md) | 画面・表示：監視地点の重複登録を防止 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix: add PWA install icons](cases/pr-3.md) | その他の開発：PWAのインストール用アイコンを修正 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
