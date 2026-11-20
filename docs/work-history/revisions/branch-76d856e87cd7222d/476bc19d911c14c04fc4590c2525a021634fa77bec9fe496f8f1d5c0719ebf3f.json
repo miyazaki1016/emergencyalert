@@ -1,0 +1,35 @@
+{
+  "id": "branch-76d856e87cd7222d",
+  "title": "fix/national-z4-first-279",
+  "head": "e16c9b793395362ea989f18a7640b29d795cbb93",
+  "head_ref": "fix/national-z4-first-279",
+  "linked_prs": [
+    280
+  ],
+  "files": [
+    {
+      "path": "scripts/jma-z4-probe.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e16c9b793395362ea989f18a7640b29d795cbb93/scripts/jma-z4-probe.ts"
+    },
+    {
+      "path": "scripts/national-heavy-rain-scan.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e16c9b793395362ea989f18a7640b29d795cbb93/scripts/national-heavy-rain-scan.ts"
+    }
+  ],
+  "commits": "e16c9b793395362ea989f18a7640b29d795cbb93 Compare a missing wide tile against a same-frame control during publication\ne2fef55b268e800eef013d228b1bb539291f40ea Start wide tile scans for every frame before queuing detailed work",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "a04778700ff971e663c48a0f454bead210794b9d13a173cb16e9bc2f123246cd",
+  "collected_at": "2026-11-20T09:02:39.508356+00:00"
+}

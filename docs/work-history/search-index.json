@@ -1,14 +1,29 @@
 {
   "repository": "miyazaki1016/emergencyalert",
-  "generated_at": "2026-11-20T08:31:42.302224+00:00",
+  "generated_at": "2026-11-20T09:02:39.508356+00:00",
   "coverage": {
-    "prs": 234,
-    "pr_cases": 234,
-    "branches": 257,
+    "prs": 235,
+    "pr_cases": 235,
+    "branches": 258,
     "errors": [],
-    "api_calls": 11
+    "api_calls": 7
   },
   "cases": [
+    {
+      "id": "pr-280",
+      "title": "全国大雨予報の6時刻分の広域タイルを先行取得する (#279)",
+      "summary": "雨量判定・予測・全国候補抽出に関する変更",
+      "state": "merged",
+      "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+      "topics": [
+        "雨量・全国検知"
+      ],
+      "conclusion": "未確認",
+      "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+      "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+      "production": "未確認（main統合／Vercelプレビューから推定しない）",
+      "search_text": "全国大雨予報の6時刻分の広域タイルを先行取得する (#279) 雨量判定・予測・全国候補抽出に関する変更  {} Refs #279, #256. 広域同時2要求、詳細同時2フレーム、合算のタイル通信は既存の上限内。詳細帯・延長帯を別々に処理し、各帯は全6時刻が揃ったときだけ順序を維持して公開。各時刻の広域取得完了までの経過を記録。手動診断は同一基準・予報時刻の欠損と対照を30秒間隔で比較。\n\n#256 のMuse提案の実装。全国30mm/h予報の各6フレームのz4取得を先行させ、揃ったものからz10を既存の同時2フレーム以内で処理する。公開時刻順・6時刻完全性・詳細帯先行公開・基準+10分・期限90秒前の待ち打切りを維持する。z4が揃った時刻の経過を記録し、失敗URLと同一フレームの成功URLを公開窓内に比較する読み取り専用診断を用意する。MY地点監視は別件。\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-181\",\"decision\":\"reuse\",\"reason\":\"全画素の走査と欠損時の打切りを維持\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/181\"},{\"id\":\"pr-251\",\"decision\":\"reuse\",\"reason\":\"既存の公開期限とフレーム順を維持\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/251\"},{\"id\":\"pr-62\",\"decision\":\"reuse\",\"reason\":\"間引きによる見落としを防ぐ既存方式を継続\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/62\"},{\"id\":\"pr-59\",\"decision\":\"reuse\",\"reason\":\"全国の市区町村照合を再利用\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/59\"},{\"id\":\"pr-217\",\"decision\":\"distinct\",\"reason\":\"弱雨の独立検証とは対象が異なる\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/217\"},{\"id\":\"pr-278\",\"decision\":\"extend\",\"reason\":\"404待機を再利用し広域取得を先行させる\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/278\"},{\"id\":\"pr-164\",\"decision\":\"distinct\",\"reason\":\"Vercelデプロイ監視は別件\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/164\"},{\"id\":\"pr-252\",\"decision\":\"reuse\",\"reason\":\"詳細帯6時刻を先に保存し、延長帯のタイル欠損が起きても公開済みの詳細帯を保持する契約を再利用する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/252\"}]}\n--> FIVE_MINUTES JMA_PUBLICATION_RESERVE_MS JMA_PUBLICATION_RETRY_DELAYS_MS MAX_TILES N03_VERSION active area areaByCode attempt attempts base baseMs basetime batch bbox bodyDoneMs bounds buffer bytes candidates controller coverage cutoff db deadline decodeMs end entries entry extendedFrames fetchMs fetchStart fetchTile frame frames headersMs i index indexed key lat limitParallelism lon main manifest maskDir matchStart matched matchingMs missingSlots municipalities next offset outcome outcomes p pending pixelMasks pixels polys [{\"file\": \"scripts/jma-z4-probe.ts\", \"kind\": \"関数・クラス定義\", \"expression\": \"async function main() {\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/e16c9b793395362ea989f18a7640b29d795cbb93/scripts/jma-z4-probe.ts\"}, {\"file\": \"scripts/jma-z4-probe.ts\", \"kind\": \"テストの期待値・条件\", \"expression\": \"if (![basetime, validtime].every(value => /^\\\\d{14}$/.test(value)) ||\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/e16c9b793395362ea989f18a7640b29d795cbb93/scripts/jma-z4-probe.ts\"}, {\"file\": \"scripts/jma-z4-probe.ts\", \"kind\": \"テストの期待値・条件\", \"expression\": \"![missing, control].every(value => /^(13|14)\\\\/[567]$/.test(value)) || missing === control) {\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/e16c9b793395362ea989f18a7640b29d795cbb93/scripts/jma-z4-probe.ts\"}, {\"file\": \"scripts/jma-z4-probe.ts\", \"kind\": \"条件分岐・閾値\", \"expression\": \"if (Date.now() >= end || base > Date.now()) throw new Error(\\\"Select a current forecast cycle\\\");\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/e16c9b793395362ea989f18a7640b29d795cbb93/scripts/jma-z4-probe.ts\"}, {\"file\": \"scripts/jma-z4-probe.ts\", \"kind\": \"条件分岐・閾値\", \"expression\": \"if (Date.now() >= end) break;\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/e16c9b793395362ea989f18a7640b29d795cbb93/scripts/jma-z4-probe.ts\"}, {\"file\": \"scripts/jma-z4-probe.ts\", \"kind\": \"HTTP要求\", \"expression\": \"const response = await fetch(url, { cache: \\\"no-store\\\", signal: AbortSignal.timeout(8000) });\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/e16c9b793395362ea989f18a7640b29d795cbb93/scripts/jma-z4-probe.ts\"}, {\"file\": \"scripts/national-heavy-rain-scan.ts\", \"kind\": \"関数・クラス定義\", \"expression\": \"function limitParallelism(maximum: number) {\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/e16c9b793395362ea989f18a7640b29d795cbb93/scripts/national-heavy-rain-scan.ts\"}, {\"file\": \"scripts/national-heavy-rain-scan.ts\", \"kind\": \"関数・クラス定義\", \"expression\": \"return async function run<T>(work: () => Promise<T>): Promise<T> {\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/e16c9b793395362ea989f18a7640b29d795cbb93/scripts/national-heavy-rain-scan.ts\"}, {\"file\": \"scripts/national-heavy-rain-scan.ts\", \"kind\": \"条件分岐・閾値\", \"expression\": \"if (active < maximum) active++;\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/e16c9b793395362ea989f18a7640b29d795cbb93/scripts/national-heavy-rain-scan.ts\"}, {\"file\": \"scripts/national-heavy-rain-scan.ts\", \"kind\": \"条件分岐・閾値\", \"expression\": \"if (next) next();\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/e16c9b793395362ea989f18a7640b29d795cbb93/scripts/national-heavy-rain-scan.ts\"}, {\"file\": \"scripts/national-heavy-rain-scan.ts\", \"kind\": \"条件分岐・閾値\", \"expression\": \"if (![4, 8].includes(z10Concurrency)) throw new Error(\\\"JMA_Z10_CONCURRENCY must be 4 or 8\\\");\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/e16c9b793395362ea989f18a7640b29d795cbb93/scripts/national-heavy-rain-scan.ts\"}, {\"file\": \"scripts/national-heavy-rain-scan.ts\", \"kind\": \"関数・クラス定義\", \"expression\": \"async function scanWideTiles(\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/e16c9b793395362ea989f18a7640b29d795cbb93/scripts/national-heavy-rain-scan.ts\"}, {\"file\": \"scripts/national-heavy-rain-scan.ts\", \"kind\": \"関数・クラス定義\", \"expression\": \"async function refineFrame(\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/e16c9b793395362ea989f18a7640b29d795cbb93/scripts/national-heavy-rain-scan.ts\"}] scripts/jma-z4-probe.ts scripts/national-heavy-rain-scan.ts "
+    },
     {
       "id": "pr-278",
       "title": "全国30mm/h予報の気象庁タイル404を期限内に再取得 (#277)",
@@ -6726,6 +6741,21 @@
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
       "production": "未確認",
       "search_text": "fix/national-rain-production-env-267 ブランチ差分を収録  {}   [] .github/workflows/national-heavy-rain-schedule.yml "
+    },
+    {
+      "id": "branch-76d856e87cd7222d",
+      "title": "fix/national-z4-first-279",
+      "summary": "ブランチ差分を収録",
+      "state": "ブランチ差分（PR関連あり）",
+      "main_status": "未確認",
+      "topics": [
+        "雨量・全国検知"
+      ],
+      "conclusion": "未確認",
+      "remaining": "原本の受入条件・未解決事項を照合",
+      "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+      "production": "未確認",
+      "search_text": "fix/national-z4-first-279 ブランチ差分を収録  {}   [] scripts/jma-z4-probe.ts scripts/national-heavy-rain-scan.ts "
     },
     {
       "id": "branch-f2192b8ad5d34f6e",
