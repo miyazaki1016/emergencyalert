@@ -15,6 +15,12 @@
 - [Issue #209](https://github.com/miyazaki1016/emergencyalert/issues/209) の [着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/43871482625) はREVIEW_RECORDED。
 - PR #251の保存基盤を起点に、250m・1kmのカード、予報タイル再生、独立したMP4書き出しを開発。検証手順と承認事項は[作業記録](NATIONAL_FORECAST_HOME_209.md)を参照。
 
+## 全国大雨予報トップへの切り替え（2026-11-20）
+
+- [Issue #281](https://github.com/miyazaki1016/emergencyalert/issues/281) の [着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/44713618332) は公開確定、preflight成功、REVIEW_RECORDED。[Draft PR #282](https://github.com/miyazaki1016/emergencyalert/pull/282) の `d5d41b17` から再開。
+- 既存の階級・県別一覧を再利用し、時間帯の色を各予報時刻の階級に対応させる。要約には最大階級の地域数・県、取得済み予報の終端、延長帯の未取得を表示。PR #253から旧通知URLのクリック遷移を再利用し、クエリとハッシュを維持する。
+- 検証対象はDraft PRの最新コミット。iPhone Safariでのホーム画面起動・通知タップ・雨雲再生の実機受入は未完了。main統合と本番反映は別途承認が必要。
+
 ## 中断・再開チェックポイント
 
 担当ソラは[中断・復帰手順](WORK_RESUME.md)に沿って、再開地点と証拠を記録する。通知文C案は既存の [Issue #205](https://github.com/miyazaki1016/emergencyalert/issues/205) の作業記録から再開できる。
@@ -346,4 +352,5 @@
 | #276 | Cloudflare起動へ一本化：雨監視2ワークフローのGitHub scheduleを削除 | open | `b4a4cab2e998c8cb0493902aa02359d90143b070` | 2026-11-20T07:25:39Z |
 | #278 | 全国30mm/h予報の気象庁タイル404を期限内に再取得 (#277) | merged | `cf6c893c323dc7d55c43e14f90a47a477f377ad0` | 2026-11-20T07:44:55Z |
 | #280 | 全国大雨予報の6時刻分の広域タイルを先行取得する (#279) | merged | `e16c9b793395362ea989f18a7640b29d795cbb93` | 2026-11-20T09:02:26Z |
+| #282 | Draft: 全国予報トップへ分離し現行トップを退避保存 (#281) | merged | `ab58639e098d75ec16ebc1553703b7c74508925f` | 2026-11-20T14:09:47Z |
 <!-- INVENTORY_FACTS_END -->
