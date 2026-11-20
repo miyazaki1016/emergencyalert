@@ -16,18 +16,19 @@
 
 **次の作業：** 関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない
 
-根拠取得日時 (UTC)：2026-11-20T09:02:39.508356+00:00
+根拠取得日時 (UTC)：2026-11-20T14:10:04.384179+00:00
 
 
 ## 実際の変更処理（コードから抽出）
 
 差分・ソースを参照
 
-- [.github/workflows/lrpm-handover.yml](https://github.com/miyazaki1016/emergencyalert/blob/3454d75c34810c0ca264fe32a4d9d29facce7fbb/.github/workflows/lrpm-handover.yml)：全文
-- [design/sakidori-design-mock.html](https://github.com/miyazaki1016/emergencyalert/blob/3454d75c34810c0ca264fe32a4d9d29facce7fbb/design/sakidori-design-mock.html)：対象外（秘密情報候補／非テキスト）
-- [lrpm/lrpm-japan-20260101-v1.tar.gz](https://github.com/miyazaki1016/emergencyalert/blob/3454d75c34810c0ca264fe32a4d9d29facce7fbb/lrpm/lrpm-japan-20260101-v1.tar.gz)：対象外（秘密情報候補／非テキスト）
-- [strategy/sakidori-sns-content-strategy-2026-11-15.md](https://github.com/miyazaki1016/emergencyalert/blob/3454d75c34810c0ca264fe32a4d9d29facce7fbb/strategy/sakidori-sns-content-strategy-2026-11-15.md)：全文
-- [verification/nationwide-heavy-rain-verification-design-2026-11-16.md](https://github.com/miyazaki1016/emergencyalert/blob/3454d75c34810c0ca264fe32a4d9d29facce7fbb/verification/nationwide-heavy-rain-verification-design-2026-11-16.md)：全文
+- [.github/workflows/lrpm-handover.yml](https://github.com/miyazaki1016/emergencyalert/blob/902f21c579e86d1440f6cddfa26e473a624d272c/.github/workflows/lrpm-handover.yml)：全文
+- [design/nationwide-forecast-display-memo-2026-11-20.md](https://github.com/miyazaki1016/emergencyalert/blob/902f21c579e86d1440f6cddfa26e473a624d272c/design/nationwide-forecast-display-memo-2026-11-20.md)：全文
+- [design/sakidori-design-mock.html](https://github.com/miyazaki1016/emergencyalert/blob/902f21c579e86d1440f6cddfa26e473a624d272c/design/sakidori-design-mock.html)：対象外（秘密情報候補／非テキスト）
+- [lrpm/lrpm-japan-20260101-v1.tar.gz](https://github.com/miyazaki1016/emergencyalert/blob/902f21c579e86d1440f6cddfa26e473a624d272c/lrpm/lrpm-japan-20260101-v1.tar.gz)：対象外（秘密情報候補／非テキスト）
+- [strategy/sakidori-sns-content-strategy-2026-11-15.md](https://github.com/miyazaki1016/emergencyalert/blob/902f21c579e86d1440f6cddfa26e473a624d272c/strategy/sakidori-sns-content-strategy-2026-11-15.md)：全文
+- [verification/nationwide-heavy-rain-verification-design-2026-11-16.md](https://github.com/miyazaki1016/emergencyalert/blob/902f21c579e86d1440f6cddfa26e473a624d272c/verification/nationwide-heavy-rain-verification-design-2026-11-16.md)：全文
 
 ## 検証実行の事実
 
@@ -70,6 +71,90 @@ index 00000000..f1d4e5ee
 +          path: lrpm/lrpm-japan-20260101-v1.tar.gz
 +          retention-days: 7
 +          if-no-files-found: error
+
+```
+
+### design/nationwide-forecast-display-memo-2026-11-20.md
+
+```text
+diff --git a/design/nationwide-forecast-display-memo-2026-11-20.md b/design/nationwide-forecast-display-memo-2026-11-20.md
+new file mode 100644
+index 00000000..20f45667
+--- /dev/null
++++ b/design/nationwide-forecast-display-memo-2026-11-20.md
+@@ -0,0 +1,72 @@
++# 全国大雨予報リスト 表示改善メモ（2026-11-20）
++
++作成：Muse（企画側）。宛先：制作側（ChatGPT側ソラ）。
++根拠：2026-11-20 18:09〜18:10 の実物スクリーンショット14枚（emergencyalert.news トップの全国大雨予報リスト）と、承認済みデザインモック v6（2026-11-15）の決定事項。
++
++## 0. 実物で観測した事実
++
++- 詳細予報（30分先まで・250m）のリストが正常に表示されている。80mm/h以上が4件（新潟県 長岡市・小千谷市・魚沼市、鹿児島県 龍郷町）、50mm/h以上が10件、30mm/h以上が少なくとも28件。スクショの範囲でも合計42件以上あり、リストはさらに続く。
++- カード構成は全件共通：都道府県（小）／市区町村名（大）／クラス数値（特大）／対象時刻の羅列／「雨雲の動きを見る」ボタン。カード内の余白が大きい。
++- 並びはクラス降順（80→50→30）。同一クラス内は都道府県が飛ぶ（新潟→鹿児島→新潟→石川…）ため、地理的なまとまりは読み取れない。
++- 35〜60分先の予報（1km）は最下部に「この時間帯の予報は現在取得できていません」と表示されている。
++
++## 1. 問題点（優先順）
++
++### P1. 全体像（要約）がない
++今夜の本当のニュースは「新潟・北陸に集中、最強は80mm/h超、鹿児島にも飛び地」という全体像だが、カードを読み進めないと分からない。ファーストビューで状況がつかめない。
++
++### P2. 長くて密度が低い
++40件超の同形カードが縦に続く。各カードの情報量（県・市町村・数字・時刻・ボタン）に対して面積が大きく、スクロール量の割に得られる情報が少ない。途中で読むのをやめる前提の設計になっていない。
++
++### P3. 時刻の羅列が読みにくい
++「18:10、18:15、18:20、18:25、18:30」では、知りたいこと（何時ごろから強まるか、どれくらい続くか）が読み取りにくい。
++
++### P4. 並び順に地理の軸がない
++クラス降順は妥当だが、同一クラス内は県単位でまとまっていないため、「自分の県はどうか」を探しにくい。
++
++### P5. クラスの色の確認
++80以上＝ピンク系、50＝サーモン系、30＝淡い橙で表示されている。JMA本家の色（30–50：#FF9900、50–80：#FF2800、80以上：#B40068）と「クラス↔色」の対応が一致しているか確認したい。利用者が他媒体で覚えた色と一致することが、瞬時の理解につながる。
++
++### P6. 未取得表示と鮮度の見え方
++- 延長帯（35〜60分）の未取得表示がリスト最下部にあり、到達する利用者はほぼいない。害は小さいが、置き場所は要検討。
++- 基準時刻（いつの予報か）がファーストビューで見えるかはスクショ範囲では未確認。予報リストは鮮度が命なので、基準時刻と「あと何分先までか」は常に見える位置に置くべき。
++
++## 2. 改善案
++
++モック v6 の承認済み決定を基準にする（大きな日本地図ヒーローは予報ページに置かない、要約ストリップ、カードに雨雲アニメーション、30mm/h以上のみ表示、色はJMA本家）。
++
++### A. 先頭に要約ストリップ（P1対応）
++- 例：「80mm/h以上 4件を含む 42市区町村／最も強いのは新潟県（80mm/h以上）／対象は18:30まで」のような1〜2行。
++- 件数・最強クラス・主な都道府県・対象時刻の上限だけに絞る。地図ヒーローは置かない（モック決定どおり）。
++
++### B. 県でグループ化し、カードを詰める（P2・P4対応）
++- クラス降順を維持しつつ、同一クラス内は都道府県でまとめる（県見出し＋その県の市区町村）。
++- カードは「県名＋市町村名＋クラス＋開始時刻」を1〜2行に収める密な行形式も検討。大きな数字の見せ方は最強クラス帯だけに残すなど、全部を同じ大きさにしない。
++- 「雨雲の動きを見る」はカード全体タップに寄せ、ボタンUIの反復を減らす。
++
++### C. 時刻は「開始＋帯」で見せる（P3対応）
++- 主表示は「18:10ごろから」＋継続を示す帯（対象枠内のミニタイムライン）。詳細な5分刻みは展開時に出す。
++- クラスが上がる時刻（例：30→50に強まる）がある場合は、それも帯の色分けで表現できる。
++
++### D. 色はJMA本家に統一（P5対応）
++- クラス色はJMA本家の3色を基準にする。暗背景で文字色として使う場合は視認性のための明度調整のみ可とし、クラスと色の対応関係は崩さない。
++- モック v6 のカードアニメーション（レーダーGIF風の雨雲）も本家色で統一済みなので、実物側もそれに寄せる。
++
++### E. 未取得・鮮度の置き方（P6対応）
++- 基準時刻と対象範囲（例：「18:05基準・18:35までの予報」）を要約ストリップに含める。
++- 延長帯が未取得のときは、詳細帯の末尾ではなく延長帯セクションの見出し位置で短く示す。全帯が未取得のときの表示（17:01の「現在、全国の予報を確認できません」）は現行の正直な表示を維持する。
++
++## 3. 変えないこと
++
++- データ原則：表示の工夫のみで、公的機関のデータ自体には手を入れない。
++- 対象は30mm/h以上の市区町村のみ（現行仕様・モック決定どおり）。
++- 取れていないものを取れているように見せない（未取得は未取得と書く）。
++
++## 4. 未決・確認事項
++
++- 要約ストリップの文言と更新タイミング（毎枠自動生成でよいか）。
++- 行形式にした場合の「雨雲の動き」の見せ方（モックのアニメーションをどこに残すか）。
++- 基準時刻表示の現行実装の有無（スクショ範囲外の確認）。
++- 並び順：クラス降順＋県まとめ、で確定してよいか（県を先にしクラスは県内順、という案もあり得る）。
++
++以上は表示の設計メモであり、実装指示ではない。採用範囲は制作側とユーザーの判断で決めること。
 
 ```
 

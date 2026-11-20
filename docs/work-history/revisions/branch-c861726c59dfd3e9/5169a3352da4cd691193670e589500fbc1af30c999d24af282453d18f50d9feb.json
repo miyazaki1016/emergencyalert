@@ -1,0 +1,28 @@
+{
+  "id": "branch-c861726c59dfd3e9",
+  "title": "diagnostic/bare-five-minute-cron-259",
+  "head": "21e49aab1af90f1defa2349cfb11412b2fada197",
+  "head_ref": "diagnostic/bare-five-minute-cron-259",
+  "linked_prs": [
+    261
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/bare-five-minute-cron-diagnostic.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/21e49aab1af90f1defa2349cfb11412b2fada197/.github/workflows/bare-five-minute-cron-diagnostic.yml"
+    }
+  ],
+  "commits": "21e49aab1af90f1defa2349cfb11412b2fada197 test: add bare five-minute GitHub schedule control",
+  "topics": [
+    "その他の開発"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "6646b38e9a5abd90d2cc5b1eeb168f77d33c52d3fe86d6438d233e649e278c27",
+  "collected_at": "2026-11-20T14:10:04.384179+00:00"
+}
