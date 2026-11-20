@@ -1,0 +1,22 @@
+.site {
+  min-height: 100vh;
+  color: #eaf2ff;
+  font-family: "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+  line-height: 1.65;
+  background:
+    radial-gradient(ellipse at 85% 0, #10294e, transparent 60%),
+    repeating-linear-gradient(0deg, transparent 0 43px, #5a8cdc0c 43px 44px),
+    repeating-linear-gradient(90deg, transparent 0 43px, #5a8cdc0c 43px 44px),
+    #04070f;
+}
+.header { position: sticky; top: 0; z-index: 10; background: #060b16f2; border-bottom: 1px solid #203553; }
+.headerInner, .main { max-width: 1120px; margin: 0 auto; padding-inline: 16px; }
+.headerInner { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 10px; }
+.brand { color: #edf6ff; text-decoration: none; font-size: 1.45rem; font-weight: 900; letter-spacing: .12em; line-height: 1.2; }
+.brand span { color: #3ae2ff; }
+.nav { display: flex; gap: 4px; padding: 4px; border: 1px solid #294467; border-radius: 24px; background: #10203a; }
+.nav a { color: #c9daef; border-radius: 18px; padding: 7px 12px; text-decoration: none; font-weight: 700; font-size: .8rem; white-space: nowrap; }
+.nav a[aria-current] { color: white; background: #1854b5; }
+.nav a:focus-visible, .brand:focus-visible { outline: 2px solid #6fd3ff; outline-offset: 3px; }
+.main { padding-block: 18px 56px; }
+@media (max-width: 370px) { .nav { width: 100%; } .nav a { flex: 1; text-align: center; } }

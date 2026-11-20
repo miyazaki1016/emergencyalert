@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { forecastRadarSources } from "../../lib/weather/rain/nationalForecastRadar";
 import { forecastTime, type NationalForecastSnapshot, type NationalForecastFrame, type RadarTile } from "../../lib/weather/rain/nationalForecastSnapshot";
@@ -55,7 +56,11 @@ function RadarPlayer({ basetime, times, tile, blocky }: {
   );
 }
 
-type AreaCard = NationalForecastFrame["municipalities"][number] & { peakTime: string; times: string[] };
+type Municipality = NationalForecastFrame["municipalities"][number];
+type AreaCard = Municipality & {
+  peakTime: string;
+  intensityByTime: Map<string, Municipality["minimumMmPerHour"]>;
+};
 
 function ForecastBand({ frames, basetime, extended }: {
   frames?: NationalForecastFrame[]; basetime?: string; extended: boolean;
@@ -65,44 +70,82 @@ function ForecastBand({ frames, basetime, extended }: {
   for (const frame of frames ?? []) {
     for (const area of frame.municipalities) {
       const current = municipalities.get(area.code);
-      const times = [...(current?.times ?? []), frame.validTime];
-      municipalities.set(area.code, current && current.minimumMmPerHour >= area.minimumMmPerHour
-        ? { ...current, times } : { ...area, peakTime: frame.validTime, times });
+      const intensityByTime = current?.intensityByTime ?? new Map();
+      const intensity = intensityByTime.get(frame.validTime);
+      if (intensity === undefined || intensity < area.minimumMmPerHour) {
+        intensityByTime.set(frame.validTime, area.minimumMmPerHour);
+      }
+      if (!current || current.minimumMmPerHour < area.minimumMmPerHour) {
+        municipalities.set(area.code, { ...area, peakTime: frame.validTime, intensityByTime });
+      }
     }
   }
-  const cards = [...municipalities.values()].sort((a, b) => b.minimumMmPerHour - a.minimumMmPerHour
-    || a.peakTime.localeCompare(b.peakTime) || a.code.localeCompare(b.code));
+  const cards = [...municipalities.values()].sort((a, b) =>
+    b.minimumMmPerHour - a.minimumMmPerHour ||
+    a.prefecture.localeCompare(b.prefecture, "ja") ||
+    a.peakTime.localeCompare(b.peakTime) || a.code.localeCompare(b.code));
+  const groups = new Map<number, Map<string, AreaCard[]>>();
+  for (const area of cards) {
+    if (!groups.has(area.minimumMmPerHour)) groups.set(area.minimumMmPerHour, new Map());
+    const prefectures = groups.get(area.minimumMmPerHour)!;
+    if (!prefectures.has(area.prefecture)) prefectures.set(area.prefecture, []);
+    prefectures.get(area.prefecture)!.push(area);
+  }
   const title = extended ? "35〜60分先の予報" : "30分先までの詳細予報";
   return (
     <section className={styles.band} aria-label={title}>
       <div className={styles.bandHeading}>
-        <h3>{title}</h3>
+        <h2>{title}</h2>
         <span>{extended ? "1km" : "250m"}</span>
+        <span>{frames ? `${cards.length}市区町村` : "未取得"}</span>
       </div>
       {frames && cards.length === 0 && <p>取得できた時間帯では、30mm/h以上の該当地域はありません。</p>}
       {!frames && basetime && <p role="status">この時間帯の予報は現在取得できていません。</p>}
-      <div className={styles.cards}>
-        {cards.map(area => (
-          <article className={styles.card} key={area.code}>
-            {selected === area.code && basetime && area.radarTile && (
-              <RadarPlayer key={basetime} basetime={basetime} tile={area.radarTile}
-                times={frames!.map(frame => frame.validTime)} blocky={extended} />
-            )}
-            <div className={styles.cardBody}>
-              <small>{area.prefecture}</small>
-              <h4>{area.municipality}</h4>
-              <div className={styles.intensity} data-tier={area.minimumMmPerHour}>
-                {area.minimumMmPerHour}<span> mm/h以上</span>
+      {[...groups].map(([tier, prefectures]) => (
+        <section className={styles.tierGroup} key={tier} aria-label={`${tier}mm/h以上`}>
+          <h3 className={styles.tierHeading} data-tier={tier}>{tier}mm/h以上 <small>{[...prefectures.values()].reduce((sum, list) => sum + list.length, 0)}地域</small></h3>
+          {[...prefectures].map(([prefecture, entries]) => (
+            <div className={styles.prefectureGroup} key={prefecture}>
+              <h4 className={styles.prefectureHeading}>{prefecture} <small>{entries.length}地域</small></h4>
+              <div className={styles.compactList}>
+                {entries.map(area => {
+                  const times = [...area.intensityByTime.keys()].sort();
+                  const expanded = selected === area.code;
+                  return (
+                    <article className={styles.compactCard} key={area.code}>
+                      <div className={styles.compactRow}>
+                        <strong>{area.municipality}</strong>
+                        <span className={styles.compactTime}>{timeLabel(times[0])}ごろから</span>
+                        <span className={styles.intensity} data-tier={area.minimumMmPerHour}>{area.minimumMmPerHour}<small> mm/h以上</small></span>
+                        {area.radarTile && <button type="button" aria-expanded={expanded}
+                          aria-label={`${area.prefecture}${area.municipality}の雨雲の動きを${expanded ? "閉じる" : "見る"}`}
+                          onClick={() => setSelected(code => code === area.code ? undefined : area.code)}>
+                          {expanded ? "閉じる" : "雨雲を見る"}
+                        </button>}
+                      </div>
+                      <div className={styles.timeStrip} role="img" aria-label={times.map(time =>
+                        `${timeLabel(time)} ${area.intensityByTime.get(time)}mm/h以上`).join("、")}>
+                        {frames?.map(({ validTime }) => {
+                          const intensity = area.intensityByTime.get(validTime);
+                          return <span key={validTime} data-tier={intensity}
+                            title={`${timeLabel(validTime)} ${intensity ? `${intensity}mm/h以上` : "30mm/h以上の予報なし"}`} />;
+                        })}
+                      </div>
+                      {expanded && basetime && area.radarTile && (
+                        <div className={styles.expandedRadar}>
+                          <p>対象時刻：{times.map(timeLabel).join("、")}</p>
+                          <RadarPlayer key={basetime} basetime={basetime} tile={area.radarTile}
+                            times={frames!.map(frame => frame.validTime)} blocky={extended} />
+                        </div>
+                      )}
+                    </article>
+                  );
+                })}
               </div>
-              <p>{area.times.map(timeLabel).join("、")}</p>
-              {area.radarTile && <button type="button" aria-expanded={selected === area.code}
-                onClick={() => setSelected(code => code === area.code ? undefined : area.code)}>
-                {selected === area.code ? "雨雲を閉じる" : "雨雲の動きを見る"}
-              </button>}
             </div>
-          </article>
-        ))}
-      </div>
+          ))}
+        </section>
+      ))}
     </section>
   );
 }
@@ -129,13 +172,45 @@ export default function NationalHeavyRainForecast() {
     };
   }, []);
 
+  const areas = forecast
+    ? [...forecast.frames, ...(forecast.extendedFrames ?? [])].flatMap(frame => frame.municipalities)
+    : [];
+  const count = new Set(areas.map(area => area.code)).size;
+  const tier = areas.reduce((maximum, area) => Math.max(maximum, area.minimumMmPerHour), 0);
+  const peakAreas = areas.filter(area => area.minimumMmPerHour === tier);
+  const peakCount = new Set(peakAreas.map(area => area.code)).size;
+  const peakPrefectures = [...new Set(peakAreas.map(area => area.prefecture))]
+    .sort((a, b) => a.localeCompare(b, "ja"));
+  const latestTime = (forecast?.extendedFrames ?? forecast?.frames)?.slice(-1)[0]?.validTime;
+
   return (
     <section className={styles.forecast} aria-labelledby="national-rain-heading">
-      <h2 id="national-rain-heading">全国の<span>大雨</span>予報</h2>
-      <p>降水強度30mm/h以上が予測される市区町村</p>
+      <div className={styles.summary}>
+        <div>
+          <h1 id="national-rain-heading">全国の<span>大雨</span>予報</h1>
+          <p>降水強度30mm/h以上が予測される市区町村を、時間帯ごとに表示します。</p>
+        </div>
+        <div className={styles.summaryData}>
+          <dl className={styles.stats}>
+            <div><dt>大雨予報の地域</dt><dd>{forecast ? `${count}地域` : "—"}</dd></div>
+            <div><dt>最大階級</dt><dd>{tier ? `${tier}mm/h以上・${peakCount}地域` : "—"}</dd></div>
+            <div><dt>気象庁の予報基準</dt><dd>{forecast ? `${timeLabel(forecast.basetime)} JST` : "—"}</dd></div>
+            {latestTime && <div><dt>取得済みの予報</dt><dd>{timeLabel(latestTime)}まで</dd></div>}
+          </dl>
+          {peakPrefectures.length > 0 && <p className={styles.summaryNote}>最大階級の都道府県：{peakPrefectures.join("、")}</p>}
+          {forecast && !forecast.extendedFrames && <p className={styles.summaryNote}>35〜60分先の予報は未取得です。</p>}
+          <div className={styles.legend} aria-label="降水強度の凡例">
+            <span>降水強度 mm/h</span>
+            <span><i />30–50</span><span><i />50–80</span><span><i />80以上</span>
+          </div>
+        </div>
+      </div>
+      <aside className={styles.myBanner}>
+        <div><strong>自分の場所の雨は、MYアメふるで。</strong><p>現在地の雨や、登録した場所の雨通知を確認できます。</p></div>
+        <Link href="/my-amefuru">MYアメふるを開く →</Link>
+      </aside>
       {forecast === undefined && <p role="status">全国の予報を取得中…</p>}
       {forecast === null && <p role="status">現在、全国の予報を確認できません。</p>}
-      {forecast && <p className={styles.source}>気象庁 · {timeLabel(forecast.basetime)} 基準（日本時間）</p>}
       <ForecastBand frames={forecast?.frames} basetime={forecast?.basetime} extended={false} />
       <ForecastBand frames={forecast?.extendedFrames} basetime={forecast?.basetime} extended />
     </section>
