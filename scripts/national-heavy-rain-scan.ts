@@ -35,6 +35,27 @@ const xy=(longitude:number,latitude:number,z:number):[number,number]=>{
   const rad=safe*Math.PI/180;
   return [Math.floor((longitude+180)/360*2**z),Math.floor((1-Math.asinh(Math.tan(rad))/Math.PI)/2*2**z)];
 };
+function limitParallelism(maximum: number) {
+  let active = 0;
+  const waiting: Array<() => void> = [];
+  return async function run<T>(work: () => Promise<T>): Promise<T> {
+    if (active < maximum) active++;
+    else await new Promise<void>(resolve => waiting.push(resolve));
+    try {
+      return await work();
+    } finally {
+      const next = waiting.shift();
+      if (next) next();
+      else active--;
+    }
+  };
+}
+
+const z10Concurrency = Number(process.env.JMA_Z10_CONCURRENCY ?? "4");
+if (![4, 8].includes(z10Concurrency)) throw new Error("JMA_Z10_CONCURRENCY must be 4 or 8");
+const runTileRequest = limitParallelism(2 * z10Concurrency);
+const runWideRequest = limitParallelism(2);
+
 async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:number,y:number, signal:AbortSignal){
   const url=buildJmaRainTileUrl(frame,z,x,y);
   const attempts: string[] = [];
@@ -130,7 +151,7 @@ function selectBand(targets: JmaTargetTime[], basetime: string, firstMinute: num
   return result;
 }
 
-async function refineFrame(
+async function scanWideTiles(
   frame: JmaTargetTime,
   indexed: Array<{ area: AdministrativeArea; b: ReturnType<typeof bbox> }>,
   areaByCode: Map<string, AdministrativeArea>,
@@ -144,7 +165,7 @@ async function refineFrame(
     const bounds = [lon(x, 4), lat(y + 1, 4), lon(x + 1, 4), lat(y, 4)];
     const relevant = indexed.filter(({ b }) => b[0] <= bounds[2] && b[2] >= bounds[0]
       && b[1] <= bounds[3] && b[3] >= bounds[1]).map(({ area }) => area);
-    const buffer = await fetchTile(frame, 4, x, y, signal);
+    const buffer = await runWideRequest(() => runTileRequest(() => fetchTile(frame, 4, x, y, signal)));
     if (buffer === null) return null;
     const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 4, x, y);
     if (!pixels.length) return true;
@@ -160,6 +181,17 @@ async function refineFrame(
     return true;
   });
   const z4Done = performance.now();
+  console.log(JSON.stringify({ event: "JMA_Z4_FRAME_READY", basetime: frame.basetime, validtime: frame.validtime, elapsedFromBaseMs: Date.now() - forecastTime(frame.basetime) }));
+  return { candidates, rainyZ10Tiles, started, z4Done };
+}
+
+async function refineFrame(
+  frame: JmaTargetTime,
+  wide: Awaited<ReturnType<typeof scanWideTiles>>,
+  signal: AbortSignal,
+  publicationCutoff: number,
+) {
+  const { candidates, rainyZ10Tiles, started, z4Done } = wide;
   const tileMap = new Map<string, { x: number; y: number; areas: AdministrativeArea[] }>();
   for (const area of candidates.values()) {
     const [w, s, e, n] = bbox(area);
@@ -178,12 +210,11 @@ async function refineFrame(
   const matched=new Map<string, NationalForecastSnapshot["frames"][number]["municipalities"][number]>();
   let z10NetworkMs=0,z10MatchingMs=0;
   const entries=[...tileMap.values()];
-  const z10Concurrency = Number(process.env.JMA_Z10_CONCURRENCY ?? "4");
-  if (![4, 8].includes(z10Concurrency)) throw new Error("JMA_Z10_CONCURRENCY must be 4 or 8");
+
   let rainyTiles=0;
   const outcomes = await processPublishedTiles(entries, z10Concurrency, frame, 10, publicationCutoff, signal, async t => {
     const fetchStart=performance.now();
-    const buffer=await fetchTile(frame,10,t.x,t.y,signal);
+    const buffer=await runTileRequest(() => fetchTile(frame,10,t.x,t.y,signal));
     if (buffer === null) return null;
     const fetchMs=performance.now()-fetchStart;
     const matchStart=performance.now();
@@ -256,15 +287,15 @@ async function main() {
     const indexed = coverage.areas.map(area => ({ area, b: bbox(area) }));
     const areaByCode = new Map(coverage.areas.map(area => [area.code, area]));
     async function scanBand(band: JmaTargetTime[]) {
-      const results = [];
-      for (let i = 0; i < band.length; i += 2) {
-        const batch = await Promise.allSettled(band.slice(i, i + 2)
-          .map(frame => refineFrame(frame, indexed, areaByCode, controller.signal, deadline - JMA_PUBLICATION_RESERVE_MS)));
-        for (const result of batch) {
-          if (result.status === "rejected") throw result.reason;
-          results.push(result.value);
-        }
-      }
+      const runDetail = limitParallelism(2);
+      const cutoff = deadline - JMA_PUBLICATION_RESERVE_MS;
+      const results = await Promise.all(band.map(async frame => {
+        const wide = await scanWideTiles(frame, indexed, areaByCode, controller.signal, cutoff);
+        return runDetail(() => {
+          controller.signal.throwIfAborted();
+          return refineFrame(frame, wide, controller.signal, cutoff);
+        });
+      }));
       controller.signal.throwIfAborted();
       if (Date.now() >= deadline) throw new Error("FORECAST_EXPIRED");
       return results.map(frame => ({ validTime: frame.validtime, municipalities: frame.municipalities }));
@@ -290,6 +321,7 @@ async function main() {
     console.log(JSON.stringify({ event: "EXTENDED_FORECAST_PUBLISHED", basetime }));
     if (missingSlots > 0) throw new Error("FORECAST_BASETIME_GAP");
   } finally {
+    controller.abort();
     clearTimeout(timer);
   }
 }
