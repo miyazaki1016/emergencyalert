@@ -48,3 +48,29 @@
 .myBanner { margin-top: 14px; padding: 14px 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid #294467; border-radius: 12px; background: #0c2139; }
 .myBanner a { padding: 8px 12px; border-radius: 8px; background: #1957ac; color: white; font-weight: 700; text-decoration: none; }
 .myBanner a:focus-visible { outline: 2px solid #8bdeff; outline-offset: 2px; }
+
+/* Compact severity / prefecture list: radar animation remains expandable. */
+.tierGroup { margin-top: 18px; }
+.tierHeading { margin: 0 0 10px; padding-left: 12px; border-left: 5px solid #ff9900; font-size: 1.1rem; }
+.tierHeading[data-tier="50"] { border-color: #ff2800; }
+.tierHeading[data-tier="80"] { border-color: #b40068; }
+.tierHeading small, .prefectureHeading small { color: #bbd2e9; font-size: .75rem; font-weight: 400; }
+.prefectureGroup { margin: 10px 0 16px; }
+.prefectureHeading { margin: 0 0 6px; font-size: .93rem; color: #d8e9fa; }
+.compactList { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); gap: 7px; }
+.compactCard { min-width: 0; border: 1px solid #36536b; border-radius: 10px; background: #122a40; padding: 9px 11px; }
+.compactRow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.compactRow strong { flex: 1 1 100px; font-size: 1rem; }
+.compactTime { color: #d4e2f0; font-size: .8rem; white-space: nowrap; }
+.compactRow .intensity { font-size: 1rem; white-space: nowrap; color: #ffb341; }
+.compactRow .intensity[data-tier="50"] { color: #ff6254; }
+.compactRow .intensity[data-tier="80"] { color: #f17cb4; }
+.compactRow .intensity small { font-size: .7rem; }
+.compactRow button { min-height: 36px; border-radius: 7px; border: 1px solid #4b7290; background: #234b69; color: #e8f5ff; padding: 5px 8px; cursor: pointer; }
+.compactRow button:focus-visible { outline: 2px solid #8bdeff; outline-offset: 2px; }
+.timeStrip { display: flex; gap: 3px; margin-top: 8px; }
+.timeStrip span { height: 5px; flex: 1; border-radius: 2px; }
+.timeActive { background: #ff9900; }
+.timeInactive { background: #33475a; }
+.expandedRadar { margin-top: 10px; max-width: 320px; }
+.expandedRadar p { font-size: .78rem; color: #d4e2f0; }
