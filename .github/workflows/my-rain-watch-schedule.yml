@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   watch:
-    if: github.repository == 'miyazaki1016/emergencyalert' && vars.MY_RAIN_WATCH_ACTIONS_ENABLED == 'true'
+    if: github.repository == 'miyazaki1016/emergencyalert' && vars.MY_RAIN_WATCH_ACTIONS_ENABLED == 'true' && (github.event_name != 'schedule' || vars.RAIN_ACTIONS_TRIGGER_SOURCE != 'cloudflare')
     runs-on: ubuntu-latest
     environment: Production
     timeout-minutes: 4
