@@ -20,6 +20,7 @@ const N03_VERSION = "20260101";
 const pixelMasks = openNationwidePixelMasks(maskDir, N03_VERSION);
 const tiles4=[[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;
 const FIVE_MINUTES = 300_000;
+const JMA_PUBLICATION_RETRY_DELAYS_MS = [500, 5_000, 15_000, 30_000, 60_000, 60_000];
 const lon=(x:number,z:number)=>x/(2**z)*360-180;
 const lat=(y:number,z:number)=>Math.atan(Math.sinh(Math.PI-2*Math.PI*y/(2**z)))*180/Math.PI;
 function bbox(area:AdministrativeArea):[number,number,number,number]{
@@ -36,10 +37,12 @@ const xy=(longitude:number,latitude:number,z:number):[number,number]=>{
 async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:number,y:number, signal:AbortSignal){
   const url=buildJmaRainTileUrl(frame,z,x,y);
   const attempts: string[] = [];
-  for (let attempt = 0; attempt < 2; attempt++) {
+  let transientFailures = 0;
+  for (let attempt = 0; attempt <= JMA_PUBLICATION_RETRY_DELAYS_MS.length; attempt++) {
     signal.throwIfAborted();
     const started = performance.now();
     let outcome = "transport_error";
+    let retryDelayMs = 500;
     try {
       const response = await fetch(url, { cache: "no-store", signal: AbortSignal.any([signal, AbortSignal.timeout(8_000)]) });
       const headersMs = Math.round(performance.now()-started);
@@ -52,16 +55,25 @@ async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:num
         return bytes;
       }
       attempts.push("HTTP " + response.status);
-      if (![404, 408, 429, 500, 502, 503, 504].includes(response.status)) break;
+      if (response.body) await response.body.cancel().catch(() => undefined);
+      if (response.status === 404) {
+        // The index can list a frame before every tile is available.
+        retryDelayMs = JMA_PUBLICATION_RETRY_DELAYS_MS[attempt];
+      } else if (![408, 429, 500, 502, 503, 504].includes(response.status) || ++transientFailures >= 2) {
+        break;
+      }
     } catch (error) {
       outcome = signal.aborted ? "slot_deadline_abort" : error instanceof Error ? error.name : "TransportError";
       attempts.push(outcome);
+      signal.throwIfAborted();
+      if (++transientFailures >= 2) break;
     } finally {
       if (outcome !== "ok") {
         console.log(JSON.stringify({event:"JMA_TILE_FETCH",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome,elapsedMs:Math.round(performance.now()-started)}));
       }
     }
-    if (attempt < 1) await delay(500, undefined, { signal });
+    if (attempt === JMA_PUBLICATION_RETRY_DELAYS_MS.length) break;
+    await delay(retryDelayMs, undefined, { signal });
   }
   throw new Error(`INCOMPLETE_JMA_TILE ${url} attempts: ${attempts.join(", ")}`);
 }
