@@ -71,39 +71,69 @@ function ForecastBand({ frames, basetime, extended }: {
         ? { ...current, times } : { ...area, peakTime: frame.validTime, times });
     }
   }
-  const cards = [...municipalities.values()].sort((a, b) => b.minimumMmPerHour - a.minimumMmPerHour
-    || a.peakTime.localeCompare(b.peakTime) || a.code.localeCompare(b.code));
+  const cards = [...municipalities.values()].sort((a, b) =>
+    b.minimumMmPerHour - a.minimumMmPerHour ||
+    a.prefecture.localeCompare(b.prefecture, "ja") ||
+    a.peakTime.localeCompare(b.peakTime) || a.code.localeCompare(b.code));
+  const groups = new Map<number, Map<string, AreaCard[]>>();
+  for (const area of cards) {
+    if (!groups.has(area.minimumMmPerHour)) groups.set(area.minimumMmPerHour, new Map());
+    const prefectures = groups.get(area.minimumMmPerHour)!;
+    if (!prefectures.has(area.prefecture)) prefectures.set(area.prefecture, []);
+    prefectures.get(area.prefecture)!.push(area);
+  }
   const title = extended ? "35〜60分先の予報" : "30分先までの詳細予報";
   return (
     <section className={styles.band} aria-label={title}>
       <div className={styles.bandHeading}>
         <h2>{title}</h2>
         <span>{extended ? "1km" : "250m"}</span>
+        <span>{frames ? `${cards.length}市区町村` : "未取得"}</span>
       </div>
       {frames && cards.length === 0 && <p>取得できた時間帯では、30mm/h以上の該当地域はありません。</p>}
       {!frames && basetime && <p role="status">この時間帯の予報は現在取得できていません。</p>}
-      <div className={styles.cards}>
-        {cards.map(area => (
-          <article className={styles.card} key={area.code}>
-            {selected === area.code && basetime && area.radarTile && (
-              <RadarPlayer key={basetime} basetime={basetime} tile={area.radarTile}
-                times={frames!.map(frame => frame.validTime)} blocky={extended} />
-            )}
-            <div className={styles.cardBody}>
-              <small>{area.prefecture}</small>
-              <h3>{area.municipality}</h3>
-              <div className={styles.intensity} data-tier={area.minimumMmPerHour}>
-                {area.minimumMmPerHour}<span> mm/h以上</span>
+      {[...groups].map(([tier, prefectures]) => (
+        <section className={styles.tierGroup} key={tier} aria-label={`${tier}mm/h以上`}>
+          <h3 className={styles.tierHeading} data-tier={tier}>{tier}mm/h以上 <small>{[...prefectures.values()].reduce((sum, list) => sum + list.length, 0)}地域</small></h3>
+          {[...prefectures].map(([prefecture, entries]) => (
+            <div className={styles.prefectureGroup} key={prefecture}>
+              <h4 className={styles.prefectureHeading}>{prefecture} <small>{entries.length}地域</small></h4>
+              <div className={styles.compactList}>
+                {entries.map(area => {
+                  const times = [...new Set(area.times)].sort();
+                  const expanded = selected === area.code;
+                  return (
+                    <article className={styles.compactCard} key={area.code}>
+                      <div className={styles.compactRow}>
+                        <strong>{area.municipality}</strong>
+                        <span className={styles.compactTime}>{timeLabel(times[0])}ごろから</span>
+                        <span className={styles.intensity} data-tier={area.minimumMmPerHour}>{area.minimumMmPerHour}<small> mm/h以上</small></span>
+                        {area.radarTile && <button type="button" aria-expanded={expanded}
+                          aria-label={`${area.prefecture}${area.municipality}の雨雲の動きを${expanded ? "閉じる" : "見る"}`}
+                          onClick={() => setSelected(code => code === area.code ? undefined : area.code)}>
+                          {expanded ? "閉じる" : "雨雲を見る"}
+                        </button>}
+                      </div>
+                      <div className={styles.timeStrip} aria-label={`対象時刻：${times.map(timeLabel).join("、")}`}>
+                        {frames?.map(frame => <span key={frame.validTime}
+                          className={times.includes(frame.validTime) ? styles.timeActive : styles.timeInactive}
+                          title={timeLabel(frame.validTime)} />)}
+                      </div>
+                      {expanded && basetime && area.radarTile && (
+                        <div className={styles.expandedRadar}>
+                          <p>対象時刻：{times.map(timeLabel).join("、")}</p>
+                          <RadarPlayer key={basetime} basetime={basetime} tile={area.radarTile}
+                            times={frames!.map(frame => frame.validTime)} blocky={extended} />
+                        </div>
+                      )}
+                    </article>
+                  );
+                })}
               </div>
-              <p>{area.times.map(timeLabel).join("、")}</p>
-              {area.radarTile && <button type="button" aria-expanded={selected === area.code}
-                onClick={() => setSelected(code => code === area.code ? undefined : area.code)}>
-                {selected === area.code ? "雨雲を閉じる" : "雨雲の動きを見る"}
-              </button>}
             </div>
-          </article>
-        ))}
-      </div>
+          ))}
+        </section>
+      ))}
     </section>
   );
 }
