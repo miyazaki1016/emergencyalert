@@ -1,0 +1,78 @@
+{
+  "id": "branch-82eb6ae5e3cdd506",
+  "title": "feat/national-forecast-tile-versions-285",
+  "head": "6cea9870b9c9b390134586627a0928cb0c1b60e2",
+  "head_ref": "feat/national-forecast-tile-versions-285",
+  "linked_prs": [
+    286
+  ],
+  "files": [
+    {
+      "path": "app/api/rain/national-forecast/route.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6cea9870b9c9b390134586627a0928cb0c1b60e2/app/api/rain/national-forecast/route.ts"
+    },
+    {
+      "path": "app/components/NationalHeavyRainForecast.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6cea9870b9c9b390134586627a0928cb0c1b60e2/app/components/NationalHeavyRainForecast.tsx"
+    },
+    {
+      "path": "docs/DEVELOPMENT_LEDGER.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6cea9870b9c9b390134586627a0928cb0c1b60e2/docs/DEVELOPMENT_LEDGER.md"
+    },
+    {
+      "path": "lib/weather/rain/nationalForecastSnapshot.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6cea9870b9c9b390134586627a0928cb0c1b60e2/lib/weather/rain/nationalForecastSnapshot.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalForecastTiles.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6cea9870b9c9b390134586627a0928cb0c1b60e2/lib/weather/rain/nationalForecastTiles.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalForecastTiles.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6cea9870b9c9b390134586627a0928cb0c1b60e2/lib/weather/rain/nationalForecastTiles.ts"
+    },
+    {
+      "path": "scripts/national-heavy-rain-scan.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6cea9870b9c9b390134586627a0928cb0c1b60e2/scripts/national-heavy-rain-scan.ts"
+    },
+    {
+      "path": "supabase/migrations/20261121060000_national_rain_forecast_tile_versions.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/6cea9870b9c9b390134586627a0928cb0c1b60e2/supabase/migrations/20261121060000_national_rain_forecast_tile_versions.sql"
+    }
+  ],
+  "commits": "6cea9870b9c9b390134586627a0928cb0c1b60e2 全国予報を広域タイル単位で差し替える (#285)",
+  "topics": [
+    "雨量・全国検知",
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "1063d058a8be8ef1b6a7d82c8199ebcb51cc214b1a1fe7a8eaa16bd0d22b41f4",
+  "collected_at": "2026-11-21T06:01:18.845155+00:00"
+}

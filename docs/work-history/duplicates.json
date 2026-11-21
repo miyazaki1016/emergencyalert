@@ -27,12 +27,14 @@
   ],
   "app/api/rain/national-forecast/route.ts": [
     "branch-3cc3b2f103fcdb49",
+    "branch-82eb6ae5e3cdd506",
     "branch-8ac7382a5a280d93",
     "branch-d47e9b0dcd4ebc9b",
     "pr-210",
     "pr-211",
     "pr-251",
-    "pr-284"
+    "pr-284",
+    "pr-286"
   ],
   "app/api/rain/national-preview/route.test.ts": [
     "branch-2d0caa2b5330cf58",
@@ -94,6 +96,7 @@
   ],
   "app/components/NationalHeavyRainForecast.tsx": [
     "branch-3cc3b2f103fcdb49",
+    "branch-82eb6ae5e3cdd506",
     "branch-8ac7382a5a280d93",
     "branch-d47e9b0dcd4ebc9b",
     "branch-d5162b95174defec",
@@ -103,7 +106,8 @@
     "pr-252",
     "pr-253",
     "pr-282",
-    "pr-284"
+    "pr-284",
+    "pr-286"
   ],
   "app/components/NotificationFeedbackHistory.tsx": [
     "branch-091c543ebb50d507",
@@ -1235,12 +1239,22 @@
   ],
   "lib/weather/rain/nationalForecastSnapshot.ts": [
     "branch-3cc3b2f103fcdb49",
+    "branch-82eb6ae5e3cdd506",
     "branch-8ac7382a5a280d93",
     "branch-d47e9b0dcd4ebc9b",
     "pr-210",
     "pr-211",
     "pr-252",
-    "pr-284"
+    "pr-284",
+    "pr-286"
+  ],
+  "lib/weather/rain/nationalForecastTiles.test.ts": [
+    "branch-82eb6ae5e3cdd506",
+    "pr-286"
+  ],
+  "lib/weather/rain/nationalForecastTiles.ts": [
+    "branch-82eb6ae5e3cdd506",
+    "pr-286"
   ],
   "lib/weather/rain/nationalHeavyRain.test.ts": [
     "branch-2d0caa2b5330cf58",
@@ -1968,10 +1982,12 @@
   ],
   "scripts/national-heavy-rain-scan.ts": [
     "branch-76d856e87cd7222d",
+    "branch-82eb6ae5e3cdd506",
     "pr-251",
     "pr-252",
     "pr-278",
-    "pr-280"
+    "pr-280",
+    "pr-286"
   ],
   "scripts/national-light-rain-jma-proof.ts": [
     "branch-12242ada665792be",
@@ -2477,5 +2493,9 @@
   "supabase/migrations/20261114000000_jaspic_lossless_queue_draft.sql": [
     "branch-1a34f59f12c294d3",
     "pr-240"
+  ],
+  "supabase/migrations/20261121060000_national_rain_forecast_tile_versions.sql": [
+    "branch-82eb6ae5e3cdd506",
+    "pr-286"
   ]
 }

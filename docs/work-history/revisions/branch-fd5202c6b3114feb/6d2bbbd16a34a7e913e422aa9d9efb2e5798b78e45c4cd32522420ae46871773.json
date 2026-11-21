@@ -1,0 +1,100 @@
+{
+  "id": "branch-fd5202c6b3114feb",
+  "title": "feat/forecast-home-preserve-281",
+  "head": "ab58639e098d75ec16ebc1553703b7c74508925f",
+  "head_ref": "feat/forecast-home-preserve-281",
+  "linked_prs": [
+    282
+  ],
+  "files": [
+    {
+      "path": "app/components/NationalHeavyRainForecast.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ab58639e098d75ec16ebc1553703b7c74508925f/app/components/NationalHeavyRainForecast.tsx"
+    },
+    {
+      "path": "app/components/national-heavy-rain-forecast.module.css",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ab58639e098d75ec16ebc1553703b7c74508925f/app/components/national-heavy-rain-forecast.module.css"
+    },
+    {
+      "path": "app/forecast-home.module.css",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ab58639e098d75ec16ebc1553703b7c74508925f/app/forecast-home.module.css"
+    },
+    {
+      "path": "app/legacy-top/layout.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ab58639e098d75ec16ebc1553703b7c74508925f/app/legacy-top/layout.tsx"
+    },
+    {
+      "path": "app/legacy-top/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ab58639e098d75ec16ebc1553703b7c74508925f/app/legacy-top/page.tsx"
+    },
+    {
+      "path": "app/manifest.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ab58639e098d75ec16ebc1553703b7c74508925f/app/manifest.ts"
+    },
+    {
+      "path": "app/my-amefuru/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ab58639e098d75ec16ebc1553703b7c74508925f/app/my-amefuru/page.tsx"
+    },
+    {
+      "path": "app/my-forecast-legacy-link.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ab58639e098d75ec16ebc1553703b7c74508925f/app/my-forecast-legacy-link.tsx"
+    },
+    {
+      "path": "app/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ab58639e098d75ec16ebc1553703b7c74508925f/app/page.tsx"
+    },
+    {
+      "path": "docs/DEVELOPMENT_LEDGER.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ab58639e098d75ec16ebc1553703b7c74508925f/docs/DEVELOPMENT_LEDGER.md"
+    },
+    {
+      "path": "public/sw.js",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ab58639e098d75ec16ebc1553703b7c74508925f/public/sw.js"
+    }
+  ],
+  "commits": "ab58639e098d75ec16ebc1553703b7c74508925f Finish national forecast summary and legacy notification navigation (#281)\nd5d41b173886ba69e5e2373ce97290cfdd449301 style: compact rainfall groups and timeline (#281)\n3154e17dbae596c0f7f9ffe77993d9fc1fae84c5 feat: compact forecast by severity and prefecture with time strips (#281)\nd6f833d92b745f3aa33efb90d0b60362a6fb360f feat: reuse forecast homepage layout from PR #253 (#281)\n604c646a83ddbf4667eaa289cf9c52ea58cc3036 feat: reuse forecast homepage layout from PR #253 (#281)\nd80afba36d6e7feda2403fa811c029c47e295c18 feat: reuse forecast homepage layout from PR #253 (#281)\n140e3d7066ad5ecd217313027202f4aac6b6ca77 feat: reuse forecast homepage layout from PR #253 (#281)\n6c1dabb2da65a184901563eedaa59779745a6fc6 feat: reuse PR #253 page separation (#281)\n311d8b394a2fb414823d718c3fafabb1cb17906d feat: reuse PR #253 page separation (#281)\nd7aa1ef709ef46ca800aec0fe3736ce8a2b6dbac feat: reuse PR #253 page separation (#281)\ncb7a67f9ce58d457a0f64d21dc504d993cd923e9 feat: mark preserved legacy homepage noindex (#281)\n5eaa6320bd3fd91d4aea93147a86f91c23734641 feat: preserve existing homepage unchanged at /legacy-top (#281)",
+  "topics": [
+    "雨量・全国検知",
+    "開発管理",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "e3b94c73f81d9c8ae4599bc429197154c052dd224ba6f5d317ad25ec3e4ace11",
+  "collected_at": "2026-11-21T06:01:18.845155+00:00"
+}

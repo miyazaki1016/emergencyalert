@@ -1,0 +1,1681 @@
+{
+  "id": "pr-284",
+  "number": 284,
+  "title": "全国大雨予報を対象時刻まで表示する (#283)",
+  "topics": [
+    "雨量・全国検知",
+    "画面・表示"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更／画面表示や操作に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Closes #283\n\n全国大雨予報の表示継続（#256 Muse補足）\nユーザー依頼「うん、それ実装しようか」「Mainまであげちゃっていいよ」。最後に公開できた全国大雨予報を、基準時刻を明示して未来の対象時刻が残る間だけ表示する。対象時刻を過ぎた詳細帯・延長帯を除外し、全時刻が過ぎれば未取得表示。新規公開期限の基準+10分、各帯6時刻の検証、監視・通知は維持する。\n根拠 https://github.com/miyazaki1016/emergencyalert/issues/256#issuecomment-7054615999\n\n着手前照合は REVIEW_RECORDED、公開確定、成功。 https://github.com/miyazaki1016/emergencyalert/actions/runs/44848238008\n\n保存済みの詳細・延長予報から未来の対象時刻だけを返す。15分を超えた予報は基準時刻と更新待ちを表示し、画面を開いたままでも時刻が過ぎた予報は消える。旧予報が期限内であれば一時的なAPI失敗でも表示を続ける。\n\nローカルの404テスト、Next.jsビルド、隔離データでのHTTP確認（詳細20分経過、延長のみ42分経過、全時刻終了65分経過）が通過。\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-251\",\"decision\":\"reuse\",\"reason\":\"既存の保存済みスナップショットと新規公開期限を維持し、読み取り時だけ未来の時刻を返す。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/251\"},{\"id\":\"pr-252\",\"decision\":\"extend\",\"reason\":\"詳細6時刻と延長6時刻の完全性と雨雲再生を維持し、表示時に期限切れの時刻を除く。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/252\"},{\"id\":\"pr-253\",\"decision\":\"reuse\",\"reason\":\"既存予報APIとMYの画面分離を利用し、ルーティングや通知導線は変更対象外とする。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/253\"},{\"id\":\"pr-282\",\"decision\":\"extend\",\"reason\":\"現行の全国予報要約と基準時刻表示を再利用し、最後の予報を表示中と分かる表示を加える。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/282\"},{\"id\":\"pr-181\",\"decision\":\"reuse\",\"reason\":\"必須タイル欠損を雨なしとして扱わない。過去に全時刻が揃い保存済みの予報だけを表示する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/181\"},{\"id\":\"pr-217\",\"decision\":\"distinct\",\"reason\":\"1mm/hの全国走査・キャッシュ・投稿の検証であり、30mm/hスナップショットの表示寿命とは別。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/217\"}]}\n-->",
+  "snapshot_head": "c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115",
+  "snapshot_consistent": true,
+  "head": "c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115",
+  "base": "2eaf471ce3b16eff1bb97e5d00eaa68f8644359c",
+  "base_ref": "main",
+  "head_ref": "fix/retain-national-forecast-283",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-21T01:10:50Z",
+  "merge_commit_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+  "updated_at": "2026-11-21T01:10:50Z",
+  "code_facts": [
+    {
+      "file": "app/components/NationalHeavyRainForecast.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!controller.signal.aborted) setForecast(current => current ?? null);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/app/components/NationalHeavyRainForecast.tsx"
+    },
+    {
+      "file": "app/components/NationalHeavyRainForecast.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!forecast) return;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/app/components/NationalHeavyRainForecast.tsx"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastSnapshot.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"national forecast display\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastSnapshot.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"retains the last published detail times past the freshness window\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastSnapshot.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(display.basetime).toBe(snapshot.basetime);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastSnapshot.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(display.frames).toEqual(snapshot.frames.slice(-2));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastSnapshot.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(display.extendedFrames).toBeUndefined();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastSnapshot.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(() => readNationalForecastSnapshotForDisplay(snapshot, Date.UTC(2026, 10, 12, 11, 55)))",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastSnapshot.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"shows only the remaining extended times when detail times have passed\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastSnapshot.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(display.frames).toEqual([]);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastSnapshot.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(display.extendedFrames).toEqual(extendedFrames.slice(-2));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastSnapshot.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(() => readNationalForecastSnapshotForDisplay(stored, Date.UTC(2026, 10, 12, 12, 25)))",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastSnapshot.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"still rejects incomplete detail bands and future base times\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastSnapshot.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(() => readNationalForecastSnapshotForDisplay({ ...snapshot, frames: snapshot.frames.slice(1) }, now))",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastSnapshot.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "export const NATIONAL_FORECAST_FRESHNESS_MS = 15 * 60_000;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastSnapshot.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function readNationalForecastSnapshotForDisplay(value: unknown, now = Date.now()): NationalForecastSnapshot {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastSnapshot.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function readSnapshot(value: unknown, now: number, display: boolean): NationalForecastSnapshot {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastSnapshot.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (base > now || (!display && now - base > NATIONAL_FORECAST_FRESHNESS_MS)) throw new Error(\"Stale forecast snapshot\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastSnapshot.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!frames.length && !extendedFrames?.length) throw new Error(\"No current forecast frames\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/api/rain/national-forecast/route.ts",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "patch": "diff --git a/app/api/rain/national-forecast/route.ts b/app/api/rain/national-forecast/route.ts\nindex 2fe49249..6a1f5d2b 100644\n--- a/app/api/rain/national-forecast/route.ts\n+++ b/app/api/rain/national-forecast/route.ts\n@@ -1,7 +1,7 @@\n import { readFile } from \"node:fs/promises\";\n import { createClient } from \"@supabase/supabase-js\";\n import { NextResponse } from \"next/server\";\n-import { readNationalForecastSnapshot } from \"@/lib/weather/rain/nationalForecastSnapshot\";\n+import { readNationalForecastSnapshotForDisplay } from \"@/lib/weather/rain/nationalForecastSnapshot\";\n \n export const dynamic = \"force-dynamic\";\n export const runtime = \"nodejs\";\n@@ -36,7 +36,7 @@ async function loadSnapshot(): Promise<unknown> {\n export async function GET() {\n   const headers = { \"Cache-Control\": \"no-store\" };\n   try {\n-    const snapshot = readNationalForecastSnapshot(await loadSnapshot());\n+    const snapshot = readNationalForecastSnapshotForDisplay(await loadSnapshot());\n     return NextResponse.json(snapshot, { headers });\n   } catch {\n     return NextResponse.json({ error: \"NATIONAL_FORECAST_UNAVAILABLE\" }, { status: 503, headers });\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/app/api/rain/national-forecast/route.ts",
+      "source": {
+        "path": "app/api/rain/national-forecast/route.ts",
+        "coverage": "全文",
+        "text": "import { readFile } from \"node:fs/promises\";\nimport { createClient } from \"@supabase/supabase-js\";\nimport { NextResponse } from \"next/server\";\nimport { readNationalForecastSnapshotForDisplay } from \"@/lib/weather/rain/nationalForecastSnapshot\";\n\nexport const dynamic = \"force-dynamic\";\nexport const runtime = \"nodejs\";\n\nasync function loadSnapshot(): Promise<unknown> {\n  const remote = process.env.NATIONAL_RAIN_SNAPSHOT_URL;\n  if (remote) {\n    const url = new URL(remote);\n    if (url.protocol !== \"https:\") throw new Error(\"Forecast snapshot URL must use HTTPS\");\n    const response = await fetch(url, {\n      cache: \"no-store\",\n      redirect: \"error\",\n      signal: AbortSignal.timeout(5_000),\n    });\n    if (!response.ok) throw new Error(`Forecast source returned ${response.status}`);\n    return response.json();\n  }\n\n  const path = process.env.NATIONAL_RAIN_SNAPSHOT_PATH;\n  if (path) return JSON.parse(await readFile(path, \"utf8\"));\n\n  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;\n  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;\n  if (!url || !key) throw new Error(\"Forecast snapshot is not configured\");\n  const db = createClient(url, key, { auth: { persistSession: false } });\n  const { data, error } = await db.from(\"national_rain_forecast_snapshot\")\n    .select(\"payload\").eq(\"id\", 1).abortSignal(AbortSignal.timeout(5_000)).single();\n  if (error || !data) throw new Error(\"Stored forecast snapshot unavailable\");\n  return data.payload;\n}\n\nexport async function GET() {\n  const headers = { \"Cache-Control\": \"no-store\" };\n  try {\n    const snapshot = readNationalForecastSnapshotForDisplay(await loadSnapshot());\n    return NextResponse.json(snapshot, { headers });\n  } catch {\n    return NextResponse.json({ error: \"NATIONAL_FORECAST_UNAVAILABLE\" }, { status: 503, headers });\n  }\n}\n",
+        "sha256": "484137afa84ca4f0dcca49f97970e031767c0c7c43b6d0836f2049761f6986eb"
+      }
+    },
+    {
+      "path": "app/components/NationalHeavyRainForecast.tsx",
+      "status": "modified",
+      "additions": 26,
+      "deletions": 6,
+      "patch": "diff --git a/app/components/NationalHeavyRainForecast.tsx b/app/components/NationalHeavyRainForecast.tsx\nindex 26ab7a20..b39b110b 100644\n--- a/app/components/NationalHeavyRainForecast.tsx\n+++ b/app/components/NationalHeavyRainForecast.tsx\n@@ -3,7 +3,7 @@\n import Link from \"next/link\";\n import { useEffect, useState } from \"react\";\n import { forecastRadarSources } from \"../../lib/weather/rain/nationalForecastRadar\";\n-import { forecastTime, type NationalForecastSnapshot, type NationalForecastFrame, type RadarTile } from \"../../lib/weather/rain/nationalForecastSnapshot\";\n+import { forecastTime, NATIONAL_FORECAST_FRESHNESS_MS, type NationalForecastSnapshot, type NationalForecastFrame, type RadarTile } from \"../../lib/weather/rain/nationalForecastSnapshot\";\n import styles from \"./national-heavy-rain-forecast.module.css\";\n \n const formatTime = new Intl.DateTimeFormat(\"ja-JP\", {\n@@ -97,9 +97,9 @@ function ForecastBand({ frames, basetime, extended }: {\n       <div className={styles.bandHeading}>\n         <h2>{title}</h2>\n         <span>{extended ? \"1km\" : \"250m\"}</span>\n-        <span>{frames ? `${cards.length}市区町村` : \"未取得\"}</span>\n+        <span>{!frames ? \"未取得\" : frames.length ? `${cards.length}市区町村` : \"対象時刻終了\"}</span>\n       </div>\n-      {frames && cards.length === 0 && <p>取得できた時間帯では、30mm/h以上の該当地域はありません。</p>}\n+      {!!frames?.length && cards.length === 0 && <p>取得できた時間帯では、30mm/h以上の該当地域はありません。</p>}\n       {!frames && basetime && <p role=\"status\">この時間帯の予報は現在取得できていません。</p>}\n       {[...groups].map(([tier, prefectures]) => (\n         <section className={styles.tierGroup} key={tier} aria-label={`${tier}mm/h以上`}>\n@@ -134,7 +134,7 @@ function ForecastBand({ frames, basetime, extended }: {\n                       {expanded && basetime && area.radarTile && (\n                         <div className={styles.expandedRadar}>\n                           <p>対象時刻：{times.map(timeLabel).join(\"、\")}</p>\n-                          <RadarPlayer key={basetime} basetime={basetime} tile={area.radarTile}\n+                          <RadarPlayer key={`${basetime}-${frames?.[0].validTime}`} basetime={basetime} tile={area.radarTile}\n                             times={frames!.map(frame => frame.validTime)} blocky={extended} />\n                         </div>\n                       )}\n@@ -161,7 +161,7 @@ export default function NationalHeavyRainForecast() {\n         const snapshot: NationalForecastSnapshot = await response.json();\n         if (!controller.signal.aborted) setForecast(snapshot);\n       } catch {\n-        if (!controller.signal.aborted) setForecast(null);\n+        if (!controller.signal.aborted) setForecast(current => current ?? null);\n       }\n     }\n     void refresh();\n@@ -172,6 +172,24 @@ export default function NationalHeavyRainForecast() {\n     };\n   }, []);\n \n+  useEffect(() => {\n+    if (!forecast) return;\n+    const frames = [...forecast.frames, ...(forecast.extendedFrames ?? [])];\n+    const now = Date.now();\n+    const refreshNoticeAt = forecastTime(forecast.basetime) + NATIONAL_FORECAST_FRESHNESS_MS + 1;\n+    const nextChange = Math.min(refreshNoticeAt > now ? refreshNoticeAt : Infinity,\n+      ...frames.map(frame => forecastTime(frame.validTime)));\n+    const timer = window.setTimeout(() => {\n+      const cutoff = Date.now();\n+      const upcoming = (frame: NationalForecastFrame) => forecastTime(frame.validTime) > cutoff;\n+      const frames = forecast.frames.filter(upcoming);\n+      const extendedFrames = forecast.extendedFrames?.filter(upcoming);\n+      setForecast(current => current !== forecast ? current\n+        : frames.length || extendedFrames?.length ? { ...forecast, frames, extendedFrames } : null);\n+    }, Math.max(0, nextChange - now));\n+    return () => window.clearTimeout(timer);\n+  }, [forecast]);\n+\n   const areas = forecast\n     ? [...forecast.frames, ...(forecast.extendedFrames ?? [])].flatMap(frame => frame.municipalities)\n     : [];\n@@ -181,7 +199,8 @@ export default function NationalHeavyRainForecast() {\n   const peakCount = new Set(peakAreas.map(area => area.code)).size;\n   const peakPrefectures = [...new Set(peakAreas.map(area => area.prefecture))]\n     .sort((a, b) => a.localeCompare(b, \"ja\"));\n-  const latestTime = (forecast?.extendedFrames ?? forecast?.frames)?.slice(-1)[0]?.validTime;\n+  const latestTime = (forecast?.extendedFrames?.slice(-1)[0] ?? forecast?.frames.slice(-1)[0])?.validTime;\n+  const waitingForUpdate = forecast && Date.now() - forecastTime(forecast.basetime) > NATIONAL_FORECAST_FRESHNESS_MS;\n \n   return (\n     <section className={styles.forecast} aria-labelledby=\"national-rain-heading\">\n@@ -197,6 +216,7 @@ export default function NationalHeavyRainForecast() {\n             <div><dt>気象庁の予報基準</dt><dd>{forecast ? `${timeLabel(forecast.basetime)} JST` : \"—\"}</dd></div>\n             {latestTime && <div><dt>取得済みの予報</dt><dd>{timeLabel(latestTime)}まで</dd></div>}\n           </dl>\n+          {waitingForUpdate && <p className={styles.summaryNote}>更新待ちのため、{timeLabel(forecast.basetime)}時点の予報を表示しています。</p>}\n           {peakPrefectures.length > 0 && <p className={styles.summaryNote}>最大階級の都道府県：{peakPrefectures.join(\"、\")}</p>}\n           {forecast && !forecast.extendedFrames && <p className={styles.summaryNote}>35〜60分先の予報は未取得です。</p>}\n           <div className={styles.legend} aria-label=\"降水強度の凡例\">\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/app/components/NationalHeavyRainForecast.tsx",
+      "source": {
+        "path": "app/components/NationalHeavyRainForecast.tsx",
+        "coverage": "全文",
+        "text": "\"use client\";\n\nimport Link from \"next/link\";\nimport { useEffect, useState } from \"react\";\nimport { forecastRadarSources } from \"../../lib/weather/rain/nationalForecastRadar\";\nimport { forecastTime, NATIONAL_FORECAST_FRESHNESS_MS, type NationalForecastSnapshot, type NationalForecastFrame, type RadarTile } from \"../../lib/weather/rain/nationalForecastSnapshot\";\nimport styles from \"./national-heavy-rain-forecast.module.css\";\n\nconst formatTime = new Intl.DateTimeFormat(\"ja-JP\", {\n  timeZone: \"Asia/Tokyo\", hour: \"2-digit\", minute: \"2-digit\", hourCycle: \"h23\",\n});\n\nconst timeLabel = (value: string) => formatTime.format(forecastTime(value));\n\nfunction RadarPlayer({ basetime, times, tile, blocky }: {\n  basetime: string; times: string[]; tile: RadarTile; blocky: boolean;\n}) {\n  const [index, setIndex] = useState(0);\n  const [playing, setPlaying] = useState(false);\n  const [loaded, setLoaded] = useState(\"\");\n  const [failed, setFailed] = useState(\"\");\n  const [mapFailed, setMapFailed] = useState(false);\n  const last = times.length - 1;\n  const validTime = times[Math.min(index, last)];\n  const urls = forecastRadarSources(basetime, validTime, tile);\n  useEffect(() => {\n    if (!playing || last < 1 || loaded !== urls.rain || failed === urls.rain) return;\n    const timer = window.setTimeout(() => setIndex(i => (i + 1) % (last + 1)), 1100);\n    return () => window.clearTimeout(timer);\n  }, [playing, last, loaded, failed, urls.rain]);\n\n  return (\n    <div>\n      <div className={styles.map}>\n        {/* Fixed matching z10 tiles. Ordinary images avoid browser-side CORS reads. */}\n        {/* eslint-disable @next/next/no-img-element */}\n        <img src={urls.background} alt=\"\" width={256} height={256} onError={() => setMapFailed(true)} />\n        <img key={urls.rain} src={urls.rain} alt=\"\" width={256} height={256}\n          className={blocky ? styles.blocky : undefined} onLoad={() => setLoaded(urls.rain)}\n          onError={() => { setFailed(urls.rain); setPlaying(false); }} />\n        {/* eslint-enable @next/next/no-img-element */}\n        <time className={styles.mapTime}>{timeLabel(validTime)} 予報</time>\n        <span className={styles.mapCredit}>気象庁・地理院タイル</span>\n      </div>\n      {(mapFailed || failed === urls.rain) && <p role=\"status\">一部の地図・雨雲画像を取得できません。</p>}\n      <div className={styles.controls}>\n        <button type=\"button\" disabled={last < 1} onClick={() => setPlaying(value => !value)}>\n          {playing ? \"一時停止\" : \"再生\"}\n        </button>\n        <button type=\"button\" aria-label=\"前の予報時刻\" disabled={last < 1 || index === 0}\n          onClick={() => { setPlaying(false); setIndex(i => i - 1); }}>前へ</button>\n        <button type=\"button\" aria-label=\"次の予報時刻\" disabled={last < 1 || index >= last}\n          onClick={() => { setPlaying(false); setIndex(i => i + 1); }}>次へ</button>\n      </div>\n    </div>\n  );\n}\n\ntype Municipality = NationalForecastFrame[\"municipalities\"][number];\ntype AreaCard = Municipality & {\n  peakTime: string;\n  intensityByTime: Map<string, Municipality[\"minimumMmPerHour\"]>;\n};\n\nfunction ForecastBand({ frames, basetime, extended }: {\n  frames?: NationalForecastFrame[]; basetime?: string; extended: boolean;\n}) {\n  const [selected, setSelected] = useState<string>();\n  const municipalities = new Map<string, AreaCard>();\n  for (const frame of frames ?? []) {\n    for (const area of frame.municipalities) {\n      const current = municipalities.get(area.code);\n      const intensityByTime = current?.intensityByTime ?? new Map();\n      const intensity = intensityByTime.get(frame.validTime);\n      if (intensity === undefined || intensity < area.minimumMmPerHour) {\n        intensityByTime.set(frame.validTime, area.minimumMmPerHour);\n      }\n      if (!current || current.minimumMmPerHour < area.minimumMmPerHour) {\n        municipalities.set(area.code, { ...area, peakTime: frame.validTime, intensityByTime });\n      }\n    }\n  }\n  const cards = [...municipalities.values()].sort((a, b) =>\n    b.minimumMmPerHour - a.minimumMmPerHour ||\n    a.prefecture.localeCompare(b.prefecture, \"ja\") ||\n    a.peakTime.localeCompare(b.peakTime) || a.code.localeCompare(b.code));\n  const groups = new Map<number, Map<string, AreaCard[]>>();\n  for (const area of cards) {\n    if (!groups.has(area.minimumMmPerHour)) groups.set(area.minimumMmPerHour, new Map());\n    const prefectures = groups.get(area.minimumMmPerHour)!;\n    if (!prefectures.has(area.prefecture)) prefectures.set(area.prefecture, []);\n    prefectures.get(area.prefecture)!.push(area);\n  }\n  const title = extended ? \"35〜60分先の予報\" : \"30分先までの詳細予報\";\n  return (\n    <section className={styles.band} aria-label={title}>\n      <div className={styles.bandHeading}>\n        <h2>{title}</h2>\n        <span>{extended ? \"1km\" : \"250m\"}</span>\n        <span>{!frames ? \"未取得\" : frames.length ? `${cards.length}市区町村` : \"対象時刻終了\"}</span>\n      </div>\n      {!!frames?.length && cards.length === 0 && <p>取得できた時間帯では、30mm/h以上の該当地域はありません。</p>}\n      {!frames && basetime && <p role=\"status\">この時間帯の予報は現在取得できていません。</p>}\n      {[...groups].map(([tier, prefectures]) => (\n        <section className={styles.tierGroup} key={tier} aria-label={`${tier}mm/h以上`}>\n          <h3 className={styles.tierHeading} data-tier={tier}>{tier}mm/h以上 <small>{[...prefectures.values()].reduce((sum, list) => sum + list.length, 0)}地域</small></h3>\n          {[...prefectures].map(([prefecture, entries]) => (\n            <div className={styles.prefectureGroup} key={prefecture}>\n              <h4 className={styles.prefectureHeading}>{prefecture} <small>{entries.length}地域</small></h4>\n              <div className={styles.compactList}>\n                {entries.map(area => {\n                  const times = [...area.intensityByTime.keys()].sort();\n                  const expanded = selected === area.code;\n                  return (\n                    <article className={styles.compactCard} key={area.code}>\n                      <div className={styles.compactRow}>\n                        <strong>{area.municipality}</strong>\n                        <span className={styles.compactTime}>{timeLabel(times[0])}ごろから</span>\n                        <span className={styles.intensity} data-tier={area.minimumMmPerHour}>{area.minimumMmPerHour}<small> mm/h以上</small></span>\n                        {area.radarTile && <button type=\"button\" aria-expanded={expanded}\n                          aria-label={`${area.prefecture}${area.municipality}の雨雲の動きを${expanded ? \"閉じる\" : \"見る\"}`}\n                          onClick={() => setSelected(code => code === area.code ? undefined : area.code)}>\n                          {expanded ? \"閉じる\" : \"雨雲を見る\"}\n                        </button>}\n                      </div>\n                      <div className={styles.timeStrip} role=\"img\" aria-label={times.map(time =>\n                        `${timeLabel(time)} ${area.intensityByTime.get(time)}mm/h以上`).join(\"、\")}>\n                        {frames?.map(({ validTime }) => {\n                          const intensity = area.intensityByTime.get(validTime);\n                          return <span key={validTime} data-tier={intensity}\n                            title={`${timeLabel(validTime)} ${intensity ? `${intensity}mm/h以上` : \"30mm/h以上の予報なし\"}`} />;\n                        })}\n                      </div>\n                      {expanded && basetime && area.radarTile && (\n                        <div className={styles.expandedRadar}>\n                          <p>対象時刻：{times.map(timeLabel).join(\"、\")}</p>\n                          <RadarPlayer key={`${basetime}-${frames?.[0].validTime}`} basetime={basetime} tile={area.radarTile}\n                            times={frames!.map(frame => frame.validTime)} blocky={extended} />\n                        </div>\n                      )}\n                    </article>\n                  );\n                })}\n              </div>\n            </div>\n          ))}\n        </section>\n      ))}\n    </section>\n  );\n}\n\nexport default function NationalHeavyRainForecast() {\n  const [forecast, setForecast] = useState<NationalForecastSnapshot | null>();\n  useEffect(() => {\n    const controller = new AbortController();\n    async function refresh() {\n      try {\n        const response = await fetch(\"/api/rain/national-forecast\", { cache: \"no-store\", signal: controller.signal });\n        if (!response.ok) throw new Error(\"Forecast unavailable\");\n        const snapshot: NationalForecastSnapshot = await response.json();\n        if (!controller.signal.aborted) setForecast(snapshot);\n      } catch {\n        if (!controller.signal.aborted) setForecast(current => current ?? null);\n      }\n    }\n    void refresh();\n    const interval = window.setInterval(refresh, 60_000);\n    return () => {\n      controller.abort();\n      window.clearInterval(interval);\n    };\n  }, []);\n\n  useEffect(() => {\n    if (!forecast) return;\n    const frames = [...forecast.frames, ...(forecast.extendedFrames ?? [])];\n    const now = Date.now();\n    const refreshNoticeAt = forecastTime(forecast.basetime) + NATIONAL_FORECAST_FRESHNESS_MS + 1;\n    const nextChange = Math.min(refreshNoticeAt > now ? refreshNoticeAt : Infinity,\n      ...frames.map(frame => forecastTime(frame.validTime)));\n    const timer = window.setTimeout(() => {\n      const cutoff = Date.now();\n      const upcoming = (frame: NationalForecastFrame) => forecastTime(frame.validTime) > cutoff;\n      const frames = forecast.frames.filter(upcoming);\n      const extendedFrames = forecast.extendedFrames?.filter(upcoming);\n      setForecast(current => current !== forecast ? current\n        : frames.length || extendedFrames?.length ? { ...forecast, frames, extendedFrames } : null);\n    }, Math.max(0, nextChange - now));\n    return () => window.clearTimeout(timer);\n  }, [forecast]);\n\n  const areas = forecast\n    ? [...forecast.frames, ...(forecast.extendedFrames ?? [])].flatMap(frame => frame.municipalities)\n    : [];\n  const count = new Set(areas.map(area => area.code)).size;\n  const tier = areas.reduce((maximum, area) => Math.max(maximum, area.minimumMmPerHour), 0);\n  const peakAreas = areas.filter(area => area.minimumMmPerHour === tier);\n  const peakCount = new Set(peakAreas.map(area => area.code)).size;\n  const peakPrefectures = [...new Set(peakAreas.map(area => area.prefecture))]\n    .sort((a, b) => a.localeCompare(b, \"ja\"));\n  const latestTime = (forecast?.extendedFrames?.slice(-1)[0] ?? forecast?.frames.slice(-1)[0])?.validTime;\n  const waitingForUpdate = forecast && Date.now() - forecastTime(forecast.basetime) > NATIONAL_FORECAST_FRESHNESS_MS;\n\n  return (\n    <section className={styles.forecast} aria-labelledby=\"national-rain-heading\">\n      <div className={styles.summary}>\n        <div>\n          <h1 id=\"national-rain-heading\">全国の<span>大雨</span>予報</h1>\n          <p>降水強度30mm/h以上が予測される市区町村を、時間帯ごとに表示します。</p>\n        </div>\n        <div className={styles.summaryData}>\n          <dl className={styles.stats}>\n            <div><dt>大雨予報の地域</dt><dd>{forecast ? `${count}地域` : \"—\"}</dd></div>\n            <div><dt>最大階級</dt><dd>{tier ? `${tier}mm/h以上・${peakCount}地域` : \"—\"}</dd></div>\n            <div><dt>気象庁の予報基準</dt><dd>{forecast ? `${timeLabel(forecast.basetime)} JST` : \"—\"}</dd></div>\n            {latestTime && <div><dt>取得済みの予報</dt><dd>{timeLabel(latestTime)}まで</dd></div>}\n          </dl>\n          {waitingForUpdate && <p className={styles.summaryNote}>更新待ちのため、{timeLabel(forecast.basetime)}時点の予報を表示しています。</p>}\n          {peakPrefectures.length > 0 && <p className={styles.summaryNote}>最大階級の都道府県：{peakPrefectures.join(\"、\")}</p>}\n          {forecast && !forecast.extendedFrames && <p className={styles.summaryNote}>35〜60分先の予報は未取得です。</p>}\n          <div className={styles.legend} aria-label=\"降水強度の凡例\">\n            <span>降水強度 mm/h</span>\n            <span><i />30–50</span><span><i />50–80</span><span><i />80以上</span>\n          </div>\n        </div>\n      </div>\n      <aside className={styles.myBanner}>\n        <div><strong>自分の場所の雨は、MYアメふるで。</strong><p>現在地の雨や、登録した場所の雨通知を確認できます。</p></div>\n        <Link href=\"/my-amefuru\">MYアメふるを開く →</Link>\n      </aside>\n      {forecast === undefined && <p role=\"status\">全国の予報を取得中…</p>}\n      {forecast === null && <p role=\"status\">現在、全国の予報を確認できません。</p>}\n      <ForecastBand frames={forecast?.frames} basetime={forecast?.basetime} extended={false} />\n      <ForecastBand frames={forecast?.extendedFrames} basetime={forecast?.basetime} extended />\n    </section>\n  );\n}\n",
+        "sha256": "d1f8c239fa5c51b45998cbbbcdeebb445d356b214cc3eedb9068a15ffea61089"
+      }
+    },
+    {
+      "path": "lib/weather/rain/nationalForecastSnapshot.test.ts",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 1,
+      "patch": "diff --git a/lib/weather/rain/nationalForecastSnapshot.test.ts b/lib/weather/rain/nationalForecastSnapshot.test.ts\nindex 08059573..bd8d977d 100644\n--- a/lib/weather/rain/nationalForecastSnapshot.test.ts\n+++ b/lib/weather/rain/nationalForecastSnapshot.test.ts\n@@ -1,5 +1,5 @@\n import { describe, expect, it } from \"vitest\";\n-import { readNationalForecastSnapshot, type NationalForecastSnapshot } from \"./nationalForecastSnapshot\";\n+import { readNationalForecastSnapshot, readNationalForecastSnapshotForDisplay, type NationalForecastSnapshot } from \"./nationalForecastSnapshot\";\n \n const now = Date.UTC(2026, 10, 12, 11, 31);\n const snapshot: NationalForecastSnapshot = {\n@@ -33,3 +33,34 @@ it(\"keeps the 35–60 minute band separate and tolerates its absence or corrupti\n     .toBeUndefined();\n   expect(readNationalForecastSnapshot(snapshot, now).frames).toHaveLength(5);\n });\n+\n+describe(\"national forecast display\", () => {\n+  it(\"retains the last published detail times past the freshness window\", () => {\n+    const display = readNationalForecastSnapshotForDisplay(snapshot, Date.UTC(2026, 10, 12, 11, 45));\n+    expect(display.basetime).toBe(snapshot.basetime);\n+    expect(display.frames).toEqual(snapshot.frames.slice(-2));\n+    expect(display.extendedFrames).toBeUndefined();\n+    expect(() => readNationalForecastSnapshotForDisplay(snapshot, Date.UTC(2026, 10, 12, 11, 55)))\n+      .toThrow(\"No current forecast frames\");\n+  });\n+\n+  it(\"shows only the remaining extended times when detail times have passed\", () => {\n+    const extendedFrames = [\"120000\", \"120500\", \"121000\", \"121500\", \"122000\", \"122500\"].map(time => ({\n+      validTime: `20261112${time}`,\n+      municipalities: [],\n+    }));\n+    const stored = { ...snapshot, extendedFrames };\n+    const display = readNationalForecastSnapshotForDisplay(stored, Date.UTC(2026, 10, 12, 12, 15));\n+    expect(display.frames).toEqual([]);\n+    expect(display.extendedFrames).toEqual(extendedFrames.slice(-2));\n+    expect(() => readNationalForecastSnapshotForDisplay(stored, Date.UTC(2026, 10, 12, 12, 25)))\n+      .toThrow(\"No current forecast frames\");\n+  });\n+\n+  it(\"still rejects incomplete detail bands and future base times\", () => {\n+    expect(() => readNationalForecastSnapshotForDisplay({ ...snapshot, frames: snapshot.frames.slice(1) }, now))\n+      .toThrow(\"Invalid forecast snapshot\");\n+    expect(() => readNationalForecastSnapshotForDisplay(snapshot, Date.UTC(2026, 10, 12, 11, 24)))\n+      .toThrow(\"Stale forecast snapshot\");\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts",
+      "source": {
+        "path": "lib/weather/rain/nationalForecastSnapshot.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { readNationalForecastSnapshot, readNationalForecastSnapshotForDisplay, type NationalForecastSnapshot } from \"./nationalForecastSnapshot\";\n\nconst now = Date.UTC(2026, 10, 12, 11, 31);\nconst snapshot: NationalForecastSnapshot = {\n  source: \"JMA\", n03Version: \"20260101\", basetime: \"20261112112500\",\n  frames: [\"113000\", \"113500\", \"114000\", \"114500\", \"115000\", \"115500\"].map(time => ({\n    validTime: `20261112${time}`,\n    municipalities: [{ code: \"28223\", prefecture: \"兵庫県\", municipality: \"丹波市\", minimumMmPerHour: 30 }],\n  })),\n};\n\ndescribe(\"national forecast snapshot\", () => {\n  it(\"exposes only upcoming times and keeps municipality and intensity\", () => {\n    const result = readNationalForecastSnapshot(snapshot, now + 5 * 60_000);\n    expect(result.frames).toHaveLength(4);\n    expect(result.frames[0].municipalities[0]).toEqual(snapshot.frames[0].municipalities[0]);\n  });\n\n  it(\"rejects stale and incomplete scans instead of publishing an empty forecast\", () => {\n    expect(() => readNationalForecastSnapshot(snapshot, now + 15 * 60_000)).toThrow(\"Stale\");\n    expect(() => readNationalForecastSnapshot({ ...snapshot, frames: snapshot.frames.slice(1) }, now)).toThrow(\"Invalid\");\n  });\n});\n\nit(\"keeps the 35–60 minute band separate and tolerates its absence or corruption\", () => {\n  const extendedFrames = [\"120000\", \"120500\", \"121000\", \"121500\", \"122000\", \"122500\"].map(time => ({\n    validTime: `20261112${time}`,\n    municipalities: [{ ...snapshot.frames[0].municipalities[0], radarTile: { x: 904, y: 406 } }],\n  }));\n  expect(readNationalForecastSnapshot({ ...snapshot, extendedFrames }, now).extendedFrames).toEqual(extendedFrames);\n  expect(readNationalForecastSnapshot({ ...snapshot, extendedFrames: extendedFrames.slice(1) }, now).extendedFrames)\n    .toBeUndefined();\n  expect(readNationalForecastSnapshot(snapshot, now).frames).toHaveLength(5);\n});\n\ndescribe(\"national forecast display\", () => {\n  it(\"retains the last published detail times past the freshness window\", () => {\n    const display = readNationalForecastSnapshotForDisplay(snapshot, Date.UTC(2026, 10, 12, 11, 45));\n    expect(display.basetime).toBe(snapshot.basetime);\n    expect(display.frames).toEqual(snapshot.frames.slice(-2));\n    expect(display.extendedFrames).toBeUndefined();\n    expect(() => readNationalForecastSnapshotForDisplay(snapshot, Date.UTC(2026, 10, 12, 11, 55)))\n      .toThrow(\"No current forecast frames\");\n  });\n\n  it(\"shows only the remaining extended times when detail times have passed\", () => {\n    const extendedFrames = [\"120000\", \"120500\", \"121000\", \"121500\", \"122000\", \"122500\"].map(time => ({\n      validTime: `20261112${time}`,\n      municipalities: [],\n    }));\n    const stored = { ...snapshot, extendedFrames };\n    const display = readNationalForecastSnapshotForDisplay(stored, Date.UTC(2026, 10, 12, 12, 15));\n    expect(display.frames).toEqual([]);\n    expect(display.extendedFrames).toEqual(extendedFrames.slice(-2));\n    expect(() => readNationalForecastSnapshotForDisplay(stored, Date.UTC(2026, 10, 12, 12, 25)))\n      .toThrow(\"No current forecast frames\");\n  });\n\n  it(\"still rejects incomplete detail bands and future base times\", () => {\n    expect(() => readNationalForecastSnapshotForDisplay({ ...snapshot, frames: snapshot.frames.slice(1) }, now))\n      .toThrow(\"Invalid forecast snapshot\");\n    expect(() => readNationalForecastSnapshotForDisplay(snapshot, Date.UTC(2026, 10, 12, 11, 24)))\n      .toThrow(\"Stale forecast snapshot\");\n  });\n});\n",
+        "sha256": "a1e1202c1359153412c27e203e3693db1ec18198a5cffaaf268a6189d257d9b5"
+      }
+    },
+    {
+      "path": "lib/weather/rain/nationalForecastSnapshot.ts",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 4,
+      "patch": "diff --git a/lib/weather/rain/nationalForecastSnapshot.ts b/lib/weather/rain/nationalForecastSnapshot.ts\nindex b9cecdf4..6295da0e 100644\n--- a/lib/weather/rain/nationalForecastSnapshot.ts\n+++ b/lib/weather/rain/nationalForecastSnapshot.ts\n@@ -1,3 +1,5 @@\n+export const NATIONAL_FORECAST_FRESHNESS_MS = 15 * 60_000;\n+\n const STRENGTHS = [30, 50, 80] as const;\n \n export type RadarTile = { x: number; y: number };\n@@ -26,15 +28,23 @@ export function forecastTime(value: string) {\n }\n \n export function readNationalForecastSnapshot(value: unknown, now = Date.now()): NationalForecastSnapshot {\n+  return readSnapshot(value, now, false);\n+}\n+\n+export function readNationalForecastSnapshotForDisplay(value: unknown, now = Date.now()): NationalForecastSnapshot {\n+  return readSnapshot(value, now, true);\n+}\n+\n+function readSnapshot(value: unknown, now: number, display: boolean): NationalForecastSnapshot {\n   const snapshot = value as NationalForecastSnapshot;\n   if (snapshot?.source !== \"JMA\" || !/^\\d{8}$/.test(snapshot.n03Version)\n-    || !Number.isFinite(forecastTime(snapshot.basetime))\n+    || typeof snapshot.basetime !== \"string\" || !Number.isFinite(forecastTime(snapshot.basetime))\n     || !Array.isArray(snapshot.frames) || snapshot.frames.length !== 6) {\n     throw new Error(\"Invalid forecast snapshot\");\n   }\n \n   const base = forecastTime(snapshot.basetime);\n-  if (base > now || now - base > 15 * 60_000) throw new Error(\"Stale forecast snapshot\");\n+  if (base > now || (!display && now - base > NATIONAL_FORECAST_FRESHNESS_MS)) throw new Error(\"Stale forecast snapshot\");\n   function validateFrames(frames: NationalForecastFrame[], firstMinute: number) {\n     if (!Array.isArray(frames) || frames.length !== 6) throw new Error(\"Incomplete forecast band\");\n     for (const [index, frame] of frames.entries()) {\n@@ -48,17 +58,17 @@ export function readNationalForecastSnapshot(value: unknown, now = Date.now()):\n   }\n   validateFrames(snapshot.frames, 5);\n   const frames = snapshot.frames.filter(frame => forecastTime(frame.validTime) > now);\n-  if (!frames.length) throw new Error(\"No current forecast frames\");\n   // A malformed extended band does not hide a healthy detailed forecast.\n   let extendedFrames: NationalForecastFrame[] | undefined;\n   if (snapshot.extendedFrames !== undefined) {\n     try {\n       validateFrames(snapshot.extendedFrames, 35);\n-      extendedFrames = snapshot.extendedFrames;\n+      extendedFrames = snapshot.extendedFrames.filter(frame => forecastTime(frame.validTime) > now);\n     } catch {\n       extendedFrames = undefined;\n     }\n   }\n+  if (!frames.length && !extendedFrames?.length) throw new Error(\"No current forecast frames\");\n   return { ...snapshot, frames, extendedFrames };\n }\n \n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.ts",
+      "source": {
+        "path": "lib/weather/rain/nationalForecastSnapshot.ts",
+        "coverage": "全文",
+        "text": "export const NATIONAL_FORECAST_FRESHNESS_MS = 15 * 60_000;\n\nconst STRENGTHS = [30, 50, 80] as const;\n\nexport type RadarTile = { x: number; y: number };\n\nexport type NationalForecastSnapshot = {\n  source: \"JMA\";\n  n03Version: string;\n  basetime: string;\n  extendedFrames?: NationalForecastFrame[];\n  frames: NationalForecastFrame[];\n};\n\nexport type NationalForecastFrame = {\n  validTime: string;\n  municipalities: {\n    code: string;\n    prefecture: string;\n    municipality: string;\n    minimumMmPerHour: (typeof STRENGTHS)[number];\n    radarTile?: RadarTile;\n  }[];\n};\n\nexport function forecastTime(value: string) {\n  return Date.parse(value.replace(/^(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})$/, \"$1-$2-$3T$4:$5:$6Z\"));\n}\n\nexport function readNationalForecastSnapshot(value: unknown, now = Date.now()): NationalForecastSnapshot {\n  return readSnapshot(value, now, false);\n}\n\nexport function readNationalForecastSnapshotForDisplay(value: unknown, now = Date.now()): NationalForecastSnapshot {\n  return readSnapshot(value, now, true);\n}\n\nfunction readSnapshot(value: unknown, now: number, display: boolean): NationalForecastSnapshot {\n  const snapshot = value as NationalForecastSnapshot;\n  if (snapshot?.source !== \"JMA\" || !/^\\d{8}$/.test(snapshot.n03Version)\n    || typeof snapshot.basetime !== \"string\" || !Number.isFinite(forecastTime(snapshot.basetime))\n    || !Array.isArray(snapshot.frames) || snapshot.frames.length !== 6) {\n    throw new Error(\"Invalid forecast snapshot\");\n  }\n\n  const base = forecastTime(snapshot.basetime);\n  if (base > now || (!display && now - base > NATIONAL_FORECAST_FRESHNESS_MS)) throw new Error(\"Stale forecast snapshot\");\n  function validateFrames(frames: NationalForecastFrame[], firstMinute: number) {\n    if (!Array.isArray(frames) || frames.length !== 6) throw new Error(\"Incomplete forecast band\");\n    for (const [index, frame] of frames.entries()) {\n      if (forecastTime(frame.validTime) !== base + (firstMinute + 5 * index) * 60_000\n        || !Array.isArray(frame.municipalities) || !frame.municipalities.every(area =>\n          /^\\d{5}$/.test(area?.code) && typeof area.prefecture === \"string\"\n          && typeof area.municipality === \"string\" && STRENGTHS.includes(area.minimumMmPerHour)\n          && (area.radarTile === undefined || validRadarTile(area.radarTile)),\n        )) throw new Error(\"Invalid forecast frame\");\n    }\n  }\n  validateFrames(snapshot.frames, 5);\n  const frames = snapshot.frames.filter(frame => forecastTime(frame.validTime) > now);\n  // A malformed extended band does not hide a healthy detailed forecast.\n  let extendedFrames: NationalForecastFrame[] | undefined;\n  if (snapshot.extendedFrames !== undefined) {\n    try {\n      validateFrames(snapshot.extendedFrames, 35);\n      extendedFrames = snapshot.extendedFrames.filter(frame => forecastTime(frame.validTime) > now);\n    } catch {\n      extendedFrames = undefined;\n    }\n  }\n  if (!frames.length && !extendedFrames?.length) throw new Error(\"No current forecast frames\");\n  return { ...snapshot, frames, extendedFrames };\n}\n\nexport function validRadarTile(value: unknown): value is RadarTile {\n  if (!value || typeof value !== \"object\") return false;\n  const { x, y } = value as RadarTile;\n  return [x, y].every(n => Number.isInteger(n) && n >= 0 && n < 1024);\n}\n",
+        "sha256": "c753c20036a7dd198f6282eeb9f0b90085ca5c71119baf5b894c5fa5fc66febe"
+      }
+    }
+  ],
+  "file_count": 4,
+  "reported_file_count": 4,
+  "commits": [
+    {
+      "sha": "c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115",
+      "message": "全国大雨予報を対象時刻まで表示する (#283)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44848406061",
+      "id": 44848406061,
+      "updated_at": "2026-11-21T01:09:28Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44848406100",
+      "id": 44848406100,
+      "updated_at": "2026-11-21T01:09:20Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44848406097",
+      "id": 44848406097,
+      "updated_at": "2026-11-21T01:10:07Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44848379785",
+      "id": 44848379785,
+      "updated_at": "2026-11-21T01:13:07Z",
+      "event": "create"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44873517432",
+      "id": 44873517432,
+      "updated_at": "2026-11-21T06:01:01Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44873517227",
+      "id": 44873517227,
+      "updated_at": "2026-11-21T06:01:00Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44873139682",
+      "id": 44873139682,
+      "updated_at": "2026-11-21T05:56:46Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44873139858",
+      "id": 44873139858,
+      "updated_at": "2026-11-21T05:57:43Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44873014391",
+      "id": 44873014391,
+      "updated_at": "2026-11-21T05:54:41Z",
+      "event": "issues"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44872936693",
+      "id": 44872936693,
+      "updated_at": "2026-11-21T05:53:43Z",
+      "event": "issues"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "cancelled",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44872907289",
+      "id": 44872907289,
+      "updated_at": "2026-11-21T05:53:11Z",
+      "event": "issues"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44872769352",
+      "id": 44872769352,
+      "updated_at": "2026-11-21T05:51:44Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44872769200",
+      "id": 44872769200,
+      "updated_at": "2026-11-21T05:53:32Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44872389049",
+      "id": 44872389049,
+      "updated_at": "2026-11-21T05:46:57Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44872388990",
+      "id": 44872388990,
+      "updated_at": "2026-11-21T05:47:51Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44872006052",
+      "id": 44872006052,
+      "updated_at": "2026-11-21T05:42:45Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44872005789",
+      "id": 44872005789,
+      "updated_at": "2026-11-21T05:41:40Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44871627215",
+      "id": 44871627215,
+      "updated_at": "2026-11-21T05:36:46Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44871627050",
+      "id": 44871627050,
+      "updated_at": "2026-11-21T05:37:41Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44871229765",
+      "id": 44871229765,
+      "updated_at": "2026-11-21T05:33:24Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44871229834",
+      "id": 44871229834,
+      "updated_at": "2026-11-21T05:31:50Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44870856478",
+      "id": 44870856478,
+      "updated_at": "2026-11-21T05:26:42Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44870856430",
+      "id": 44870856430,
+      "updated_at": "2026-11-21T05:27:39Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44870462775",
+      "id": 44870462775,
+      "updated_at": "2026-11-21T05:21:47Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44870462544",
+      "id": 44870462544,
+      "updated_at": "2026-11-21T05:22:33Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44870066621",
+      "id": 44870066621,
+      "updated_at": "2026-11-21T05:18:29Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44870066571",
+      "id": 44870066571,
+      "updated_at": "2026-11-21T05:16:54Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44869650916",
+      "id": 44869650916,
+      "updated_at": "2026-11-21T05:11:53Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44869650970",
+      "id": 44869650970,
+      "updated_at": "2026-11-21T05:13:29Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44869246647",
+      "id": 44869246647,
+      "updated_at": "2026-11-21T05:06:37Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44869246571",
+      "id": 44869246571,
+      "updated_at": "2026-11-21T05:07:33Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44868832322",
+      "id": 44868832322,
+      "updated_at": "2026-11-21T05:03:28Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44868832408",
+      "id": 44868832408,
+      "updated_at": "2026-11-21T05:01:56Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44868447639",
+      "id": 44868447639,
+      "updated_at": "2026-11-21T04:56:36Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44868447738",
+      "id": 44868447738,
+      "updated_at": "2026-11-21T04:57:35Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44868066563",
+      "id": 44868066563,
+      "updated_at": "2026-11-21T04:52:00Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44868066473",
+      "id": 44868066473,
+      "updated_at": "2026-11-21T04:52:34Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44867678602",
+      "id": 44867678602,
+      "updated_at": "2026-11-21T04:48:18Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44867678957",
+      "id": 44867678957,
+      "updated_at": "2026-11-21T04:46:49Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44867290121",
+      "id": 44867290121,
+      "updated_at": "2026-11-21T04:41:42Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44867289656",
+      "id": 44867289656,
+      "updated_at": "2026-11-21T04:42:35Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44866892146",
+      "id": 44866892146,
+      "updated_at": "2026-11-21T04:37:02Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44866892175",
+      "id": 44866892175,
+      "updated_at": "2026-11-21T04:37:41Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44866479728",
+      "id": 44866479728,
+      "updated_at": "2026-11-21T04:33:30Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44866479732",
+      "id": 44866479732,
+      "updated_at": "2026-11-21T04:31:42Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44866075834",
+      "id": 44866075834,
+      "updated_at": "2026-11-21T04:28:10Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44866075774",
+      "id": 44866075774,
+      "updated_at": "2026-11-21T04:26:48Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44865661047",
+      "id": 44865661047,
+      "updated_at": "2026-11-21T04:21:54Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44865661162",
+      "id": 44865661162,
+      "updated_at": "2026-11-21T04:22:34Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44865240503",
+      "id": 44865240503,
+      "updated_at": "2026-11-21T04:16:49Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44865240206",
+      "id": 44865240206,
+      "updated_at": "2026-11-21T04:17:35Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Schedule heartbeat diagnostic (no external calls)",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44864946587",
+      "id": 44864946587,
+      "updated_at": "2026-11-21T04:12:37Z",
+      "event": "schedule"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44864807725",
+      "id": 44864807725,
+      "updated_at": "2026-11-21T04:11:55Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44864807854",
+      "id": 44864807854,
+      "updated_at": "2026-11-21T04:12:42Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44864394542",
+      "id": 44864394542,
+      "updated_at": "2026-11-21T04:06:47Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44864394427",
+      "id": 44864394427,
+      "updated_at": "2026-11-21T04:07:34Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44863965009",
+      "id": 44863965009,
+      "updated_at": "2026-11-21T04:01:48Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44863965112",
+      "id": 44863965112,
+      "updated_at": "2026-11-21T04:02:32Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "skipped",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44863890962",
+      "id": 44863890962,
+      "updated_at": "2026-11-21T04:00:08Z",
+      "event": "schedule"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44863569873",
+      "id": 44863569873,
+      "updated_at": "2026-11-21T03:58:13Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44863569560",
+      "id": 44863569560,
+      "updated_at": "2026-11-21T03:56:41Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Bare five-minute cron diagnostic",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44863452747",
+      "id": 44863452747,
+      "updated_at": "2026-11-21T03:54:35Z",
+      "event": "schedule"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44863177459",
+      "id": 44863177459,
+      "updated_at": "2026-11-21T03:52:01Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44863177550",
+      "id": 44863177550,
+      "updated_at": "2026-11-21T03:53:16Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44862777892",
+      "id": 44862777892,
+      "updated_at": "2026-11-21T03:46:45Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44862777906",
+      "id": 44862777906,
+      "updated_at": "2026-11-21T03:47:35Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44862366908",
+      "id": 44862366908,
+      "updated_at": "2026-11-21T03:41:43Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44862366865",
+      "id": 44862366865,
+      "updated_at": "2026-11-21T03:43:27Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44861951370",
+      "id": 44861951370,
+      "updated_at": "2026-11-21T03:36:49Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44861951390",
+      "id": 44861951390,
+      "updated_at": "2026-11-21T03:37:36Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44861512808",
+      "id": 44861512808,
+      "updated_at": "2026-11-21T03:31:37Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44861512946",
+      "id": 44861512946,
+      "updated_at": "2026-11-21T03:32:37Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44861087652",
+      "id": 44861087652,
+      "updated_at": "2026-11-21T03:26:49Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44861087665",
+      "id": 44861087665,
+      "updated_at": "2026-11-21T03:27:33Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44860653052",
+      "id": 44860653052,
+      "updated_at": "2026-11-21T03:21:44Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44860652660",
+      "id": 44860652660,
+      "updated_at": "2026-11-21T03:22:32Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44860214272",
+      "id": 44860214272,
+      "updated_at": "2026-11-21T03:17:01Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44860214296",
+      "id": 44860214296,
+      "updated_at": "2026-11-21T03:17:35Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44859770417",
+      "id": 44859770417,
+      "updated_at": "2026-11-21T03:12:32Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44859770355",
+      "id": 44859770355,
+      "updated_at": "2026-11-21T03:11:46Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44859343593",
+      "id": 44859343593,
+      "updated_at": "2026-11-21T03:06:54Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44859343709",
+      "id": 44859343709,
+      "updated_at": "2026-11-21T03:07:41Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44858904804",
+      "id": 44858904804,
+      "updated_at": "2026-11-21T03:01:38Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44858904342",
+      "id": 44858904342,
+      "updated_at": "2026-11-21T03:02:39Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44858496935",
+      "id": 44858496935,
+      "updated_at": "2026-11-21T02:56:33Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44858496909",
+      "id": 44858496909,
+      "updated_at": "2026-11-21T02:57:36Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "skipped",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44858219353",
+      "id": 44858219353,
+      "updated_at": "2026-11-21T02:52:46Z",
+      "event": "schedule"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44858075812",
+      "id": 44858075812,
+      "updated_at": "2026-11-21T02:51:56Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44858075557",
+      "id": 44858075557,
+      "updated_at": "2026-11-21T02:53:13Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44857641148",
+      "id": 44857641148,
+      "updated_at": "2026-11-21T02:47:44Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44857641057",
+      "id": 44857641057,
+      "updated_at": "2026-11-21T02:46:34Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44857212688",
+      "id": 44857212688,
+      "updated_at": "2026-11-21T02:41:56Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44857212502",
+      "id": 44857212502,
+      "updated_at": "2026-11-21T02:42:35Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44856770958",
+      "id": 44856770958,
+      "updated_at": "2026-11-21T02:37:37Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44856770896",
+      "id": 44856770896,
+      "updated_at": "2026-11-21T02:36:48Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44856311883",
+      "id": 44856311883,
+      "updated_at": "2026-11-21T02:31:38Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44856311909",
+      "id": 44856311909,
+      "updated_at": "2026-11-21T02:32:40Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44855852691",
+      "id": 44855852691,
+      "updated_at": "2026-11-21T02:26:48Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44855852684",
+      "id": 44855852684,
+      "updated_at": "2026-11-21T02:28:28Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44855390728",
+      "id": 44855390728,
+      "updated_at": "2026-11-21T02:21:34Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44855390776",
+      "id": 44855390776,
+      "updated_at": "2026-11-21T02:23:16Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44854914528",
+      "id": 44854914528,
+      "updated_at": "2026-11-21T02:16:45Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44854914460",
+      "id": 44854914460,
+      "updated_at": "2026-11-21T02:17:37Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44854437759",
+      "id": 44854437759,
+      "updated_at": "2026-11-21T02:11:53Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44854437648",
+      "id": 44854437648,
+      "updated_at": "2026-11-21T02:12:40Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44853964107",
+      "id": 44853964107,
+      "updated_at": "2026-11-21T02:06:39Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44853964065",
+      "id": 44853964065,
+      "updated_at": "2026-11-21T02:08:32Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44853476425",
+      "id": 44853476425,
+      "updated_at": "2026-11-21T02:01:48Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44853476734",
+      "id": 44853476734,
+      "updated_at": "2026-11-21T02:02:38Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44853019722",
+      "id": 44853019722,
+      "updated_at": "2026-11-21T01:57:37Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44853019671",
+      "id": 44853019671,
+      "updated_at": "2026-11-21T01:56:36Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44852555037",
+      "id": 44852555037,
+      "updated_at": "2026-11-21T01:51:57Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44852554779",
+      "id": 44852554779,
+      "updated_at": "2026-11-21T01:53:28Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44852082633",
+      "id": 44852082633,
+      "updated_at": "2026-11-21T01:46:37Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44852082762",
+      "id": 44852082762,
+      "updated_at": "2026-11-21T01:47:40Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44851597746",
+      "id": 44851597746,
+      "updated_at": "2026-11-21T01:42:37Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44851597779",
+      "id": 44851597779,
+      "updated_at": "2026-11-21T01:41:38Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44851112199",
+      "id": 44851112199,
+      "updated_at": "2026-11-21T01:36:45Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44851112257",
+      "id": 44851112257,
+      "updated_at": "2026-11-21T01:37:34Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44850616507",
+      "id": 44850616507,
+      "updated_at": "2026-11-21T01:31:44Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44850616684",
+      "id": 44850616684,
+      "updated_at": "2026-11-21T01:32:34Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44850134886",
+      "id": 44850134886,
+      "updated_at": "2026-11-21T01:26:34Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44850134908",
+      "id": 44850134908,
+      "updated_at": "2026-11-21T01:27:36Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44849641231",
+      "id": 44849641231,
+      "updated_at": "2026-11-21T01:21:49Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44849641800",
+      "id": 44849641800,
+      "updated_at": "2026-11-21T01:22:42Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44849125071",
+      "id": 44849125071,
+      "updated_at": "2026-11-21T01:17:04Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44849124905",
+      "id": 44849124905,
+      "updated_at": "2026-11-21T01:18:26Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44848593694",
+      "id": 44848593694,
+      "updated_at": "2026-11-21T01:12:43Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44848593700",
+      "id": 44848593700,
+      "updated_at": "2026-11-21T01:11:46Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "CI",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44848588400",
+      "id": 44848588400,
+      "updated_at": "2026-11-21T01:11:59Z",
+      "event": "push"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44848588402",
+      "id": 44848588402,
+      "updated_at": "2026-11-21T01:14:50Z",
+      "event": "push"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "01963a93a3565ed94c376b3ba8a6d8410d8277fa",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44848588381",
+      "id": 44848588381,
+      "updated_at": "2026-11-21T01:11:12Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "ForecastBand",
+    "GET",
+    "NATIONAL_FORECAST_FRESHNESS_MS",
+    "NationalHeavyRainForecast",
+    "RadarPlayer",
+    "STRENGTHS",
+    "area",
+    "areas",
+    "base",
+    "cards",
+    "controller",
+    "count",
+    "current",
+    "cutoff",
+    "db",
+    "display",
+    "dynamic",
+    "expanded",
+    "extendedFrames",
+    "forecastTime",
+    "formatTime",
+    "frame",
+    "frames",
+    "groups",
+    "headers",
+    "intensity",
+    "intensityByTime",
+    "interval",
+    "key",
+    "last",
+    "latestTime",
+    "loadSnapshot",
+    "municipalities",
+    "nextChange",
+    "now",
+    "path",
+    "peakAreas",
+    "peakCount",
+    "peakPrefectures",
+    "prefectures",
+    "readNationalForecastSnapshot",
+    "readNationalForecastSnapshotForDisplay",
+    "readSnapshot",
+    "refresh",
+    "refreshNoticeAt",
+    "remote",
+    "response",
+    "result",
+    "runtime",
+    "snapshot",
+    "stored",
+    "tier",
+    "timeLabel",
+    "timer",
+    "times",
+    "title",
+    "upcoming",
+    "url",
+    "urls",
+    "validRadarTile"
+  ],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "7d439620016b185b9ed36dc6c5f98ca8df1780d546cafdc70ac28992a6689243",
+  "ci_digest": "82c7a0b28ae570b73424a6ce8cd03b2801d365012c0724368495ba5b23ee3fe7",
+  "collected_at": "2026-11-21T06:01:18.845155+00:00",
+  "decisions": [
+    {
+      "kind": "test",
+      "title": "exposes only upcoming times and keeps municipality and intensity",
+      "condition": "exposes only upcoming times and keeps municipality and intensity",
+      "behavior": "return readSnapshot(value, now, false);",
+      "verification": "テストの期待値: expect(result.frames).toHaveLength(4); ／ expect(result.frames[0].municipalities[0]).toEqual(snapshot.frames[0].municipalities[0]); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.ts#L30",
+        "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts#L14"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "rejects stale and incomplete scans instead of publishing an empty forecast",
+      "condition": "rejects stale and incomplete scans instead of publishing an empty forecast",
+      "behavior": "return readSnapshot(value, now, false);",
+      "verification": "テストの期待値: expect(() => readNationalForecastSnapshot(snapshot, now + 15 * 60_000)).toThrow(\"Stale\"); ／ expect(() => readNationalForecastSnapshot({ ...snapshot, frames: snapshot.frames.slice(1) }, now)).toThrow(\"Invalid\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.ts#L30",
+        "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts#L20"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "keeps the 35–60 minute band separate and tolerates its absence or corruption",
+      "condition": "keeps the 35–60 minute band separate and tolerates its absence or corruption",
+      "behavior": "return readSnapshot(value, now, false);",
+      "verification": "テストの期待値: expect(readNationalForecastSnapshot({ ...snapshot, extendedFrames }, now).extendedFrames).toEqual(extendedFrames); ／ expect(readNationalForecastSnapshot({ ...snapshot, extendedFrames: extendedFrames.slice(1) }, now).extendedFrames) .toBeUndefined(); ／ expect(readNationalForecastSnapshot(snapshot, now).frames).toHaveLength(5); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.ts#L30",
+        "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts#L26"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "retains the last published detail times past the freshness window",
+      "condition": "retains the last published detail times past the freshness window",
+      "behavior": "return readSnapshot(value, now, true);",
+      "verification": "テストの期待値: expect(display.basetime).toBe(snapshot.basetime); ／ expect(display.frames).toEqual(snapshot.frames.slice(-2)); ／ expect(display.extendedFrames).toBeUndefined(); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.ts#L34",
+        "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts#L38"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "shows only the remaining extended times when detail times have passed",
+      "condition": "shows only the remaining extended times when detail times have passed",
+      "behavior": "return readSnapshot(value, now, true);",
+      "verification": "テストの期待値: expect(display.frames).toEqual([]); ／ expect(display.extendedFrames).toEqual(extendedFrames.slice(-2)); ／ expect(() => readNationalForecastSnapshotForDisplay(stored, Date.UTC(2026, 10, 12, 12, 25))) .toThrow(\"No current forecast frames\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.ts#L34",
+        "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts#L47"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "still rejects incomplete detail bands and future base times",
+      "condition": "still rejects incomplete detail bands and future base times",
+      "behavior": "return readSnapshot(value, now, true);",
+      "verification": "テストの期待値: expect(() => readNationalForecastSnapshotForDisplay({ ...snapshot, frames: snapshot.frames.slice(1) }, now)) .toThrow(\"Invalid forecast snapshot\"); ／ expect(() => readNationalForecastSnapshotForDisplay(snapshot, Date.UTC(2026, 10, 12, 11, 24))) .toThrow(\"Stale forecast snapshot\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.ts#L34",
+        "https://github.com/miyazaki1016/emergencyalert/blob/c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115/lib/weather/rain/nationalForecastSnapshot.test.ts#L60"
+      ]
+    }
+  ]
+}
