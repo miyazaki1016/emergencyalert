@@ -1228,10 +1228,11 @@
     },
     "179": {
       "summary": "通知失敗事例で「降り始め」と「雨の強まり」を区別する研究。",
-      "conclusion": "未統合の研究案件。本番通知の改善効果を意味しない。保存済み予測・実況と、対象外・欠損・時刻ずれの条件を分けて次の検証を選ぶ。",
+      "conclusion": "未統合の研究案件。本番通知の改善効果を意味しない。保存済み予測・実況と、対象外・欠損・時刻ずれの条件を分けて次の検証を選ぶ。 2026-11-09引継ぎ：既存28件再生は再測定せず再利用。main 99547abで画像ジョブのaccepted_count>0制限、診断insertエラー未検査、同時刻UNKNOWNのclear維持を確認。未通知を含むエピソード単位の純粋集計を追加し、本番は未変更。",
       "evidence": [
         "https://github.com/miyazaki1016/emergencyalert/pull/179",
-        "https://github.com/miyazaki1016/emergencyalert/blob/main/docs/RAIN_RESEARCH_DASHBOARD_20261029.md"
+        "https://github.com/miyazaki1016/emergencyalert/blob/main/docs/RAIN_RESEARCH_DASHBOARD_20261029.md",
+        "https://github.com/miyazaki1016/emergencyalert/blob/research/rain-episode-evaluation-20261109/docs/research/RAIN_EPISODE_HANDOFF_20261109.md"
       ]
     },
     "180": {
