@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { forecastRadarSources } from "../../lib/weather/rain/nationalForecastRadar";
-import { forecastTime, type NationalForecastSnapshot, type NationalForecastFrame, type RadarTile } from "../../lib/weather/rain/nationalForecastSnapshot";
+import { forecastTime, NATIONAL_FORECAST_FRESHNESS_MS, type NationalForecastSnapshot, type NationalForecastFrame, type RadarTile } from "../../lib/weather/rain/nationalForecastSnapshot";
 import styles from "./national-heavy-rain-forecast.module.css";
 
 const formatTime = new Intl.DateTimeFormat("ja-JP", {
@@ -97,9 +97,9 @@ function ForecastBand({ frames, basetime, extended }: {
       <div className={styles.bandHeading}>
         <h2>{title}</h2>
         <span>{extended ? "1km" : "250m"}</span>
-        <span>{frames ? `${cards.length}市区町村` : "未取得"}</span>
+        <span>{!frames ? "未取得" : frames.length ? `${cards.length}市区町村` : "対象時刻終了"}</span>
       </div>
-      {frames && cards.length === 0 && <p>取得できた時間帯では、30mm/h以上の該当地域はありません。</p>}
+      {!!frames?.length && cards.length === 0 && <p>取得できた時間帯では、30mm/h以上の該当地域はありません。</p>}
       {!frames && basetime && <p role="status">この時間帯の予報は現在取得できていません。</p>}
       {[...groups].map(([tier, prefectures]) => (
         <section className={styles.tierGroup} key={tier} aria-label={`${tier}mm/h以上`}>
@@ -134,7 +134,7 @@ function ForecastBand({ frames, basetime, extended }: {
                       {expanded && basetime && area.radarTile && (
                         <div className={styles.expandedRadar}>
                           <p>対象時刻：{times.map(timeLabel).join("、")}</p>
-                          <RadarPlayer key={basetime} basetime={basetime} tile={area.radarTile}
+                          <RadarPlayer key={`${basetime}-${frames?.[0].validTime}`} basetime={basetime} tile={area.radarTile}
                             times={frames!.map(frame => frame.validTime)} blocky={extended} />
                         </div>
                       )}
@@ -161,7 +161,7 @@ export default function NationalHeavyRainForecast() {
         const snapshot: NationalForecastSnapshot = await response.json();
         if (!controller.signal.aborted) setForecast(snapshot);
       } catch {
-        if (!controller.signal.aborted) setForecast(null);
+        if (!controller.signal.aborted) setForecast(current => current ?? null);
       }
     }
     void refresh();
@@ -172,6 +172,24 @@ export default function NationalHeavyRainForecast() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!forecast) return;
+    const frames = [...forecast.frames, ...(forecast.extendedFrames ?? [])];
+    const now = Date.now();
+    const refreshNoticeAt = forecastTime(forecast.basetime) + NATIONAL_FORECAST_FRESHNESS_MS + 1;
+    const nextChange = Math.min(refreshNoticeAt > now ? refreshNoticeAt : Infinity,
+      ...frames.map(frame => forecastTime(frame.validTime)));
+    const timer = window.setTimeout(() => {
+      const cutoff = Date.now();
+      const upcoming = (frame: NationalForecastFrame) => forecastTime(frame.validTime) > cutoff;
+      const frames = forecast.frames.filter(upcoming);
+      const extendedFrames = forecast.extendedFrames?.filter(upcoming);
+      setForecast(current => current !== forecast ? current
+        : frames.length || extendedFrames?.length ? { ...forecast, frames, extendedFrames } : null);
+    }, Math.max(0, nextChange - now));
+    return () => window.clearTimeout(timer);
+  }, [forecast]);
+
   const areas = forecast
     ? [...forecast.frames, ...(forecast.extendedFrames ?? [])].flatMap(frame => frame.municipalities)
     : [];
@@ -181,7 +199,8 @@ export default function NationalHeavyRainForecast() {
   const peakCount = new Set(peakAreas.map(area => area.code)).size;
   const peakPrefectures = [...new Set(peakAreas.map(area => area.prefecture))]
     .sort((a, b) => a.localeCompare(b, "ja"));
-  const latestTime = (forecast?.extendedFrames ?? forecast?.frames)?.slice(-1)[0]?.validTime;
+  const latestTime = (forecast?.extendedFrames?.slice(-1)[0] ?? forecast?.frames.slice(-1)[0])?.validTime;
+  const waitingForUpdate = forecast && Date.now() - forecastTime(forecast.basetime) > NATIONAL_FORECAST_FRESHNESS_MS;
 
   return (
     <section className={styles.forecast} aria-labelledby="national-rain-heading">
@@ -197,6 +216,7 @@ export default function NationalHeavyRainForecast() {
             <div><dt>気象庁の予報基準</dt><dd>{forecast ? `${timeLabel(forecast.basetime)} JST` : "—"}</dd></div>
             {latestTime && <div><dt>取得済みの予報</dt><dd>{timeLabel(latestTime)}まで</dd></div>}
           </dl>
+          {waitingForUpdate && <p className={styles.summaryNote}>更新待ちのため、{timeLabel(forecast.basetime)}時点の予報を表示しています。</p>}
           {peakPrefectures.length > 0 && <p className={styles.summaryNote}>最大階級の都道府県：{peakPrefectures.join("、")}</p>}
           {forecast && !forecast.extendedFrames && <p className={styles.summaryNote}>35〜60分先の予報は未取得です。</p>}
           <div className={styles.legend} aria-label="降水強度の凡例">

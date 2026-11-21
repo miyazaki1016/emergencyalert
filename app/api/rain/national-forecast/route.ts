@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import { readNationalForecastSnapshot } from "@/lib/weather/rain/nationalForecastSnapshot";
+import { readNationalForecastSnapshotForDisplay } from "@/lib/weather/rain/nationalForecastSnapshot";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -36,7 +36,7 @@ async function loadSnapshot(): Promise<unknown> {
 export async function GET() {
   const headers = { "Cache-Control": "no-store" };
   try {
-    const snapshot = readNationalForecastSnapshot(await loadSnapshot());
+    const snapshot = readNationalForecastSnapshotForDisplay(await loadSnapshot());
     return NextResponse.json(snapshot, { headers });
   } catch {
     return NextResponse.json({ error: "NATIONAL_FORECAST_UNAVAILABLE" }, { status: 503, headers });
