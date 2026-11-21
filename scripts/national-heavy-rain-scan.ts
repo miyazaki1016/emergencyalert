@@ -8,20 +8,22 @@ import { locateJmaRainPixelsAtLeast1mm } from "../lib/weather/rain/lightRainProo
 import { municipalitiesForLightRainTile } from "../lib/weather/rain/lightRainMunicipalities";
 import { matchHeavyRainPixelsToMasks } from "../lib/weather/rain/lightRainPixelMasks";
 import { openNationwidePixelMasks } from "../lib/weather/rain/lightRainPixelMaskLoader";
-import { forecastTime, readNationalForecastSnapshot, type NationalForecastSnapshot } from "../lib/weather/rain/nationalForecastSnapshot";
+import { forecastTime } from "../lib/weather/rain/nationalForecastSnapshot";
+import { NATIONAL_FORECAST_WIDE_TILES, type ForecastTilePayload, type ForecastTileVersion } from "../lib/weather/rain/nationalForecastTiles";
 import { affectedAdministrativeAreas, type AdministrativeArea } from "../lib/weather/rain/lightRainAdministrativeAreas";
 
 const root = process.argv[2] ?? "";
 if (!root) throw new Error("N03 root required");
-const MAX_TILES=Number(process.env.Z10_MAX_TILES||"2500");
+const MAX_TILES = Number(process.env.Z10_MAX_TILES ?? "2500");
+if (!Number.isInteger(MAX_TILES) || MAX_TILES < 1) throw new Error("Invalid Z10 tile budget");
 const maskDir = process.env.JMA_Z10_PIXEL_MASK_DIR ?? "";
 if (!maskDir) throw new Error("JMA_Z10_PIXEL_MASK_DIR is required");
 const N03_VERSION = "20260101";
 const pixelMasks = openNationwidePixelMasks(maskDir, N03_VERSION);
-const tiles4=[[13,5],[14,5],[13,6],[14,6],[13,7],[14,7]] as const;
-const FIVE_MINUTES = 300_000;
-const JMA_PUBLICATION_RETRY_DELAYS_MS = [15_000, 30_000, 60_000];
-const JMA_PUBLICATION_RESERVE_MS = 90_000;
+const MINUTE = 60_000;
+const CYCLE_BUDGET_MS = 4 * MINUTE;
+const TABLE = "national_rain_forecast_tile_versions";
+const utcStamp = (ms: number) => new Date(ms).toISOString().slice(0, 19).replace(/[-:T]/g, "");
 const lon=(x:number,z:number)=>x/(2**z)*360-180;
 const lat=(y:number,z:number)=>Math.atan(Math.sinh(Math.PI-2*Math.PI*y/(2**z)))*180/Math.PI;
 function bbox(area:AdministrativeArea):[number,number,number,number]{
@@ -90,172 +92,88 @@ async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:num
   }
   throw new Error(`INCOMPLETE_JMA_TILE ${url} attempts: ${attempts.join(", ")}`);
 }
-async function processPublishedTiles<T, R>(
-  tiles: ReadonlyArray<T>,
-  concurrency: number,
-  frame: JmaTargetTime,
-  z: number,
-  publicationCutoff: number,
-  signal: AbortSignal,
-  processTile: (tile: T) => Promise<R | null>,
-) {
-  const results: R[] = [];
-  let pending = tiles.map((tile, index) => ({ tile, index }));
-  let round = 0;
-  let totalWaitMs = 0;
-  while (pending.length) {
-    const unpublished: typeof pending = [];
-    for (let offset = 0; offset < pending.length; offset += concurrency) {
-      signal.throwIfAborted();
-      const batch = pending.slice(offset, offset + concurrency);
-      const outcomes = await Promise.allSettled(batch.map(({ tile }) => processTile(tile)));
-      for (const [index, outcome] of outcomes.entries()) {
-        if (outcome.status === "rejected") throw outcome.reason;
-        if (outcome.value === null) unpublished.push(batch[index]);
-        else results[batch[index].index] = outcome.value;
-      }
-    }
-    if (!unpublished.length) break;
-    const waitMs = JMA_PUBLICATION_RETRY_DELAYS_MS[Math.min(round, JMA_PUBLICATION_RETRY_DELAYS_MS.length - 1)];
-    if (Date.now() + waitMs >= publicationCutoff) {
-      throw new Error(`INCOMPLETE_JMA_TILE: ${unpublished.length} unpublished z${z} tiles for ${frame.validtime}`);
-    }
-    round++;
-    totalWaitMs += waitMs;
-    console.log(JSON.stringify({event:"JMA_TILE_WAIT",basetime:frame.basetime,validtime:frame.validtime,z,round,pending:unpublished.length,waitMs,totalWaitMs}));
-    await delay(waitMs, undefined, { signal });
-    if (Date.now() >= publicationCutoff) throw new Error("INCOMPLETE_JMA_TILE: publication wait expired");
-    pending = unpublished;
+function plannedDetailTiles(buffer: Buffer, x: number, y: number, indexed: IndexedArea[]) {
+  const bounds = [lon(x, 4), lat(y + 1, 4), lon(x + 1, 4), lat(y, 4)];
+  const relevant = indexed.filter(({ b }) => b[0] <= bounds[2] && b[2] >= bounds[0]
+    && b[1] <= bounds[3] && b[3] >= bounds[1]).map(({ area }) => area);
+  const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 4, x, y);
+  if (!pixels.length) return new Map<string, DetailTile>();
+  const areas = new Map(relevant.map(area => [area.code, area]));
+  const candidates = municipalitiesForLightRainTile(buffer, 4, x, y, relevant);
+  const rainyTiles = new Map<string, { x: number; y: number }>();
+  for (const { pixelX, pixelY } of pixels) {
+    const tileX = x * 64 + Math.floor(pixelX / 4);
+    const tileY = y * 64 + Math.floor(pixelY / 4);
+    rainyTiles.set(`${tileX}/${tileY}`, { x: tileX, y: tileY });
   }
-  return results;
-}
-
-function selectDetailedFrames(targets: JmaTargetTime[], now: number): JmaTargetTime[] {
-  const basetime = targets
-    .map(frame => frame.basetime)
-    .filter(base => forecastTime(base) <= now && now - forecastTime(base) < 2 * FIVE_MINUTES)
-    .sort().at(-1);
-  if (!basetime) throw new Error("NO_FRESH_JMA_BASETIME");
-  return selectBand(targets, basetime, 5);
-}
-
-function selectBand(targets: JmaTargetTime[], basetime: string, firstMinute: number) {
-  const base = forecastTime(basetime);
-  const result = [];
-  for (let index = 0; index < 6; index++) {
-    const valid = base + (firstMinute + 5 * index) * 60_000;
-    const frame = targets.find(target => target.basetime === basetime && forecastTime(target.validtime) === valid);
-    if (!frame) throw new Error("INCOMPLETE_JMA_FRAMES: " + firstMinute);
-    result.push(frame);
-  }
-  return result;
-}
-
-async function scanWideTiles(
-  frame: JmaTargetTime,
-  indexed: Array<{ area: AdministrativeArea; b: ReturnType<typeof bbox> }>,
-  areaByCode: Map<string, AdministrativeArea>,
-  signal: AbortSignal,
-  publicationCutoff: number,
-) {
-  const started = performance.now();
-  const candidates = new Map<string, AdministrativeArea>();
-  const rainyZ10Tiles = new Map<string, { x: number; y: number }>();
-  await processPublishedTiles(tiles4, 1, frame, 4, publicationCutoff, signal, async ([x, y]) => {
-    const bounds = [lon(x, 4), lat(y + 1, 4), lon(x + 1, 4), lat(y, 4)];
-    const relevant = indexed.filter(({ b }) => b[0] <= bounds[2] && b[2] >= bounds[0]
-      && b[1] <= bounds[3] && b[3] >= bounds[1]).map(({ area }) => area);
-    const buffer = await runWideRequest(() => runTileRequest(() => fetchTile(frame, 4, x, y, signal)));
-    if (buffer === null) return null;
-    const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 4, x, y);
-    if (!pixels.length) return true;
-    for (const area of municipalitiesForLightRainTile(buffer, 4, x, y, relevant)) {
-      candidates.set(area.code, areaByCode.get(area.code)!);
-    }
-    // Each z4 PNG pixel spans 1/4 of a z10 tile and the grids share an origin.
-    for (const { pixelX, pixelY } of pixels) {
-      const tileX = x * 64 + Math.floor(pixelX / 4);
-      const tileY = y * 64 + Math.floor(pixelY / 4);
-      rainyZ10Tiles.set(tileX + "/" + tileY, { x: tileX, y: tileY });
-    }
-    return true;
-  });
-  const z4Done = performance.now();
-  console.log(JSON.stringify({ event: "JMA_Z4_FRAME_READY", basetime: frame.basetime, validtime: frame.validtime, elapsedFromBaseMs: Date.now() - forecastTime(frame.basetime) }));
-  return { candidates, rainyZ10Tiles, started, z4Done };
-}
-
-async function refineFrame(
-  frame: JmaTargetTime,
-  wide: Awaited<ReturnType<typeof scanWideTiles>>,
-  signal: AbortSignal,
-  publicationCutoff: number,
-) {
-  const { candidates, rainyZ10Tiles, started, z4Done } = wide;
-  const tileMap = new Map<string, { x: number; y: number; areas: AdministrativeArea[] }>();
-  for (const area of candidates.values()) {
+  const planned = new Map<string, DetailTile>();
+  for (const candidate of candidates) {
+    const area = areas.get(candidate.code)!;
     const [w, s, e, n] = bbox(area);
     const [minX, minY] = xy(w, n, 10), [maxX, maxY] = xy(e, s, 10);
-    for (const [key, { x, y }] of rainyZ10Tiles) {
-      if (x < minX || x > maxX || y < minY || y > maxY) continue;
-      const entry = tileMap.get(key) ?? { x, y, areas: [] };
+    for (const [key, tile] of rainyTiles) {
+      if (tile.x < minX || tile.x > maxX || tile.y < minY || tile.y > maxY) continue;
+      const entry = planned.get(key) ?? { ...tile, areas: [] };
       entry.areas.push(area);
-      tileMap.set(key, entry);
+      planned.set(key, entry);
     }
   }
-  if (tileMap.size > MAX_TILES) {
-    throw new Error(`Z10_TILE_BUDGET_EXCEEDED: ${tileMap.size} > ${MAX_TILES}; no partial result accepted`);
-  }
-  const tilePlanDone=performance.now();
-  const matched=new Map<string, NationalForecastSnapshot["frames"][number]["municipalities"][number]>();
-  let z10NetworkMs=0,z10MatchingMs=0;
-  const entries=[...tileMap.values()];
+  return planned;
+}
 
-  let rainyTiles=0;
-  const outcomes = await processPublishedTiles(entries, z10Concurrency, frame, 10, publicationCutoff, signal, async t => {
-    const fetchStart=performance.now();
-    const buffer=await runTileRequest(() => fetchTile(frame,10,t.x,t.y,signal));
-    if (buffer === null) return null;
-    const fetchMs=performance.now()-fetchStart;
-    const matchStart=performance.now();
-    const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 10, t.x, t.y);
-    const decodeMs=performance.now()-matchStart;
-    // The LRPM generator omits tiles with no intersecting pixels. A bounding-box
-    // candidate can therefore be absent. Prove the whole tile is disjoint
-    // before accepting that absence; declared or land-overlapping tiles stay strict.
-    const unlistedAndDisjoint = pixels.length > 0 && !pixelMasks.has(t.x, t.y)
-      && !affectedAdministrativeAreas([{ coordinates: [[
-        [lon(t.x, 10), lat(t.y, 10)], [lon(t.x + 1, 10), lat(t.y, 10)],
-        [lon(t.x + 1, 10), lat(t.y + 1, 10)], [lon(t.x, 10), lat(t.y + 1, 10)],
-        [lon(t.x, 10), lat(t.y, 10)],
-      ]] }], t.areas).length;
-    const municipalities = pixels.length && !unlistedAndDisjoint
-      ? matchHeavyRainPixelsToMasks(pixels, t.x, t.y, pixelMasks.load(t.x, t.y), t.areas)
-      : [];
-    const matchingMs=performance.now()-matchStart;
-    console.log(JSON.stringify({event:"JMA_TILE_PROCESS",basetime:frame.basetime,validtime:frame.validtime,z:10,x:t.x,y:t.y,decodeMs:Math.round(decodeMs),matchingMs:Math.round(matchingMs),fetchMs:Math.round(fetchMs)}));
-    return {rainy: pixels.length > 0, municipalities, fetchMs, matchingMs, radarTile: { x: t.x, y: t.y }};
-  });
-  for (const { rainy, municipalities, fetchMs, matchingMs, radarTile } of outcomes) {
-    z10NetworkMs += fetchMs;
-    z10MatchingMs += matchingMs;
-    if (rainy) rainyTiles++;
-    for (const area of municipalities) {
-      if ((matched.get(area.code)?.minimumMmPerHour ?? 0) < area.minimumMmPerHour) matched.set(area.code, { ...area, radarTile });
+type IndexedArea = { area: AdministrativeArea; b: ReturnType<typeof bbox> };
+type DetailTile = { x: number; y: number; areas: AdministrativeArea[] };
+
+async function scanDetail(frame: JmaTargetTime, tile: DetailTile, signal: AbortSignal) {
+  const { x, y, areas } = tile;
+  const buffer = await runTileRequest(() => fetchTile(frame, 10, x, y, signal));
+  if (!buffer) return null;
+  const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 10, x, y);
+  const unlistedAndDisjoint = pixels.length > 0 && !pixelMasks.has(x, y)
+    && !affectedAdministrativeAreas([{ coordinates: [[
+      [lon(x, 10), lat(y, 10)], [lon(x + 1, 10), lat(y, 10)],
+      [lon(x + 1, 10), lat(y + 1, 10)], [lon(x, 10), lat(y + 1, 10)],
+    ]] }], areas).length;
+  const municipalities = pixels.length && !unlistedAndDisjoint
+    ? matchHeavyRainPixelsToMasks(pixels, x, y, pixelMasks.load(x, y), areas)
+    : [];
+  return municipalities.map(area => ({ ...area, radarTile: { x, y } }));
+}
+
+async function scanRegion(row: ForecastTileVersion, indexed: IndexedArea[], signal: AbortSignal) {
+  const { x, y, payload } = row;
+  const frame = { basetime: row.base_time, validtime: row.valid_time, elements: ["hrpns"] };
+  const buffer = await runWideRequest(() => runTileRequest(() => fetchTile(frame, 4, x, y, signal)));
+  if (!buffer) return null;
+  const plan = plannedDetailTiles(buffer, x, y, indexed);
+  const tiles = { ...payload?.tiles };
+  if (payload) {
+    // The same JMA version has the same coverage plan. Treat any previously
+    // unresolved child as unknown until its own tile can be decoded.
+    for (const key of payload.pending) {
+      if (!plan.has(key)) {
+        const [x, y] = key.split("/").map(Number);
+        plan.set(key, { x, y, areas: indexed.filter(({ b }) =>
+          b[0] <= lon(x + 1, 10) && b[2] >= lon(x, 10)
+          && b[1] <= lat(y, 10) && b[3] >= lat(y + 1, 10)).map(({ area }) => area) });
+      }
     }
   }
-  const z10Done=performance.now();
-  const round=(n:number)=>Math.round(n);
-  const timingMs={z4ScanAndCandidateMatch:round(z4Done-started),z10TilePlanning:round(tilePlanDone-z4Done),z10WallClock:round(z10Done-tilePlanDone),z10NetworkCumulative:round(z10NetworkMs),z10DecodeAndMunicipalityMatchCumulative:round(z10MatchingMs),total:round(z10Done-started)};
-  return {
-    validtime: frame.validtime,
-    timingMs,
-    z4Candidates: candidates.size,
-    z10TilesChecked: entries.length,
-    z10RainyTiles: rainyTiles,
-    z10Municipalities: matched.size,
-    municipalities: [...matched.values()].sort((a, b) => a.code.localeCompare(b.code)),
-  };
+  const jobs = [...plan].filter(([key]) => !(key in tiles));
+  const result: ForecastTilePayload = { pending: jobs.map(([key]) => key), tiles };
+  const attempts = jobs.slice(0, MAX_TILES);
+  for (let offset = 0; offset < attempts.length && !signal.aborted; offset += z10Concurrency) {
+    const batch = attempts.slice(offset, offset + z10Concurrency);
+    const outcomes = await Promise.allSettled(batch.map(([, tile]) => scanDetail(frame, tile, signal)));
+    for (const [index, outcome] of outcomes.entries()) {
+      if (outcome.status === "fulfilled" && outcome.value !== null) {
+        const [key] = batch[index];
+        tiles[key] = outcome.value;
+      }
+    }
+  }
+  result.pending = result.pending.filter(key => !(key in tiles));
+  return result;
 }
 
 async function main() {
@@ -263,66 +181,96 @@ async function main() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) throw new Error("Missing forecast storage credentials");
   const db = createClient(url, key, { auth: { persistSession: false } });
-  const { data: last, error } = await db.from("national_rain_forecast_snapshot")
-    .select("basetime").eq("id", 1).maybeSingle();
-  if (error) throw new Error("FORECAST_BASETIME_READ_FAILED");
+  const now = Date.now();
+  const stamp = utcStamp(now);
+  const { error: cleanupError } = await db.from(TABLE).delete().lt("valid_time", utcStamp(now - 24 * 60 * MINUTE));
+  if (cleanupError) throw new Error("FORECAST_TILE_CLEANUP_FAILED");
 
   const timeIndexSignal = AbortSignal.timeout(15_000);
-  const targets = await fetchForecastTargetTimes((input, init) =>
-    fetch(input, { ...init, signal: timeIndexSignal }));
-  const frames = selectDetailedFrames(targets, Date.now());
-  const basetime = frames[0].basetime;
-  const baseMs = forecastTime(basetime);
-  if (last?.basetime && last.basetime >= basetime) {
-    console.log(JSON.stringify({ event: "FORECAST_ALREADY_PUBLISHED", basetime }));
-    return;
-  }
-  const deadline = baseMs + 2 * FIVE_MINUTES;
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(new Error("FORECAST_EXPIRED")), Math.max(0, deadline - Date.now()));
+  let targets: JmaTargetTime[];
   try {
-    const coverage = requireCompleteNationwideN03(root);
-    const manifest = JSON.parse(readFileSync(maskDir + "/manifest.json", "utf8"));
-    if (manifest.municipalities !== coverage.municipalities) throw new Error("N03_LRPM_COVERAGE_MISMATCH");
-    const indexed = coverage.areas.map(area => ({ area, b: bbox(area) }));
-    const areaByCode = new Map(coverage.areas.map(area => [area.code, area]));
-    async function scanBand(band: JmaTargetTime[]) {
-      const runDetail = limitParallelism(2);
-      const cutoff = deadline - JMA_PUBLICATION_RESERVE_MS;
-      const results = await Promise.all(band.map(async frame => {
-        const wide = await scanWideTiles(frame, indexed, areaByCode, controller.signal, cutoff);
-        return runDetail(() => {
-          controller.signal.throwIfAborted();
-          return refineFrame(frame, wide, controller.signal, cutoff);
-        });
-      }));
-      controller.signal.throwIfAborted();
-      if (Date.now() >= deadline) throw new Error("FORECAST_EXPIRED");
-      return results.map(frame => ({ validTime: frame.validtime, municipalities: frame.municipalities }));
+    targets = await fetchForecastTargetTimes((input, init) => fetch(input, { ...init, signal: timeIndexSignal }));
+  } catch (error) {
+    console.error("FORECAST_TARGET_INDEX_UNAVAILABLE", error);
+    targets = [];
+  }
+  const newRows = new Map<string, ForecastTileVersion>();
+  for (const { basetime, validtime } of targets) {
+    if (!/^\d{14}$/.test(basetime) || !/^\d{14}$/.test(validtime)) continue;
+    const base = forecastTime(basetime);
+    const valid = forecastTime(validtime);
+    const lead = (valid - base) / MINUTE;
+    if (!(base <= now && valid > now && lead >= 5 && lead <= 60 && lead % 5 === 0)) continue;
+    for (const [x, y] of NATIONAL_FORECAST_WIDE_TILES) {
+      const row = { base_time: basetime, valid_time: validtime, extended: lead > 30, x, y, payload: null };
+      newRows.set(`${validtime}/${basetime}/${x}/${y}`, row);
     }
+  }
+  if (newRows.size) {
+    const { error } = await db.from(TABLE).upsert([...newRows.values()], { ignoreDuplicates: true });
+    if (error) throw new Error("FORECAST_TILE_QUEUE_WRITE_FAILED");
+  }
+  const { data, error } = await db.from(TABLE)
+    .select("valid_time,base_time,extended,x,y,payload").gt("valid_time", stamp)
+    .order("base_time", { ascending: false }).order("valid_time");
+  if (error) throw new Error("FORECAST_TILE_QUEUE_READ_FAILED");
 
-    async function publish(snapshot: NationalForecastSnapshot) {
-      readNationalForecastSnapshot(snapshot);
-      const { data, error } = await db.rpc("publish_national_rain_forecast", { p_snapshot: snapshot })
-        .abortSignal(controller.signal);
-      if (error) throw new Error("FORECAST_WRITE_FAILED");
-      return data === true;
+  const coverage = requireCompleteNationwideN03(root);
+  const manifest = JSON.parse(readFileSync(maskDir + "/manifest.json", "utf8"));
+  if (manifest.municipalities !== coverage.municipalities) throw new Error("N03_LRPM_COVERAGE_MISMATCH");
+  const indexed = coverage.areas.map(area => ({ area, b: bbox(area) }));
+  const cycleSignal = AbortSignal.timeout(Math.max(1, CYCLE_BUDGET_MS - (Date.now() - now)));
+  const runRegion = limitParallelism(2);
+  const complete = new Set<string>();
+  const work = new Map<string, ForecastTileVersion[]>();
+  for (const row of data as ForecastTileVersion[]) {
+    const region = `${row.valid_time}/${row.extended}/${row.x}/${row.y}`;
+    if (complete.has(region)) continue;
+    if (row.payload && !row.payload.pending.length) {
+      complete.add(region);
+      continue;
     }
-
-    const snapshot: NationalForecastSnapshot = {
-      source: "JMA", n03Version: N03_VERSION, basetime, frames: await scanBand(frames),
-    };
-    if (!await publish(snapshot)) return;
-    const missingSlots = last?.basetime ? (baseMs - forecastTime(last.basetime)) / FIVE_MINUTES - 1 : 0;
-    console.log(JSON.stringify({ event: "FORECAST_PUBLISHED", basetime, missingSlots }));
-    // The detailed band is already visible. Failures in the later band leave it intact.
-    const extendedFrames = await scanBand(selectBand(targets, basetime, 35));
-    if (!await publish({ ...snapshot, extendedFrames })) throw new Error("EXTENDED_FORECAST_NOT_PUBLISHED");
-    console.log(JSON.stringify({ event: "EXTENDED_FORECAST_PUBLISHED", basetime }));
-    if (missingSlots > 0) throw new Error("FORECAST_BASETIME_GAP");
-  } finally {
-    controller.abort();
-    clearTimeout(timer);
+    const versions = work.get(region) ?? [];
+    versions.push(row);
+    work.set(region, versions);
+  }
+  // Attempt one version per region in each pass so old retries do not block first reads.
+  const regions = [...work.entries()];
+  let failures = 0;
+  let writes = 0;
+  for (let pass = 0; regions.some(([, versions]) => versions.length > pass) && !cycleSignal.aborted; pass++) {
+    const satisfied = new Set<string>();
+    await Promise.all(regions.map(([region, versions]) => runRegion(async () => {
+      const row = versions[pass];
+      if (!row || cycleSignal.aborted || forecastTime(row.valid_time) <= Date.now()) return;
+      const signal = AbortSignal.any([cycleSignal, AbortSignal.timeout(Math.max(1, forecastTime(row.valid_time) - Date.now()))]);
+      let payload: ForecastTilePayload | null;
+      try {
+        payload = await scanRegion(row, indexed, signal);
+      } catch (error) {
+        failures++;
+        console.error("FORECAST_REGION_SCAN_FAILED", row.base_time, row.valid_time, row.x, row.y, error);
+        return;
+      }
+      if (!payload || forecastTime(row.valid_time) <= Date.now()) return;
+      const { error } = await db.from(TABLE).update({ payload, updated_at: new Date().toISOString() })
+        .match({ base_time: row.base_time, valid_time: row.valid_time, extended: row.extended, x: row.x, y: row.y })
+        .abortSignal(AbortSignal.timeout(8_000));
+      if (error) {
+        failures++;
+        console.error("FORECAST_TILE_WRITE_FAILED", row.base_time, row.valid_time, row.x, row.y, error.code);
+        return;
+      }
+      writes++;
+      if (!payload.pending.length) satisfied.add(region);
+      console.log(JSON.stringify({ event: "FORECAST_REGION_UPDATED", base: row.base_time, valid: row.valid_time,
+        x: row.x, y: row.y, pending: payload.pending.length, detailTiles: Object.keys(payload.tiles).length }));
+    })));
+    for (const [region, versions] of regions) if (satisfied.has(region)) versions.length = 0;
+  }
+  console.log(JSON.stringify({ event: "FORECAST_TILE_CYCLE", writes, failures, budgetExpired: cycleSignal.aborted }));
+  if (failures || (!writes && (!targets.length || regions.some(([, versions]) => versions.length)))) {
+    throw new Error("NO_FORECAST_TILE_UPDATES");
   }
 }
 

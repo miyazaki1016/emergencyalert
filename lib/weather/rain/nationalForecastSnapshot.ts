@@ -8,18 +8,24 @@ export type NationalForecastSnapshot = {
   source: "JMA";
   n03Version: string;
   basetime: string;
+  tileVersions?: true;
   extendedFrames?: NationalForecastFrame[];
   frames: NationalForecastFrame[];
 };
 
 export type NationalForecastFrame = {
   validTime: string;
+  incomplete?: boolean;
+  basetimes?: string[];
+  refreshPending?: boolean;
+  tileCoverage?: { x: number; y: number; basetime?: string }[];
   municipalities: {
     code: string;
     prefecture: string;
     municipality: string;
     minimumMmPerHour: (typeof STRENGTHS)[number];
     radarTile?: RadarTile;
+    basetime?: string;
   }[];
 };
 

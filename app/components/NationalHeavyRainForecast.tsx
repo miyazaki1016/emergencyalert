@@ -12,16 +12,16 @@ const formatTime = new Intl.DateTimeFormat("ja-JP", {
 
 const timeLabel = (value: string) => formatTime.format(forecastTime(value));
 
-function RadarPlayer({ basetime, times, tile, blocky }: {
-  basetime: string; times: string[]; tile: RadarTile; blocky: boolean;
-}) {
+type RadarFrame = { basetime: string; validTime: string; tile: RadarTile };
+
+function RadarPlayer({ frames, blocky }: { frames: RadarFrame[]; blocky: boolean }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [loaded, setLoaded] = useState("");
   const [failed, setFailed] = useState("");
   const [mapFailed, setMapFailed] = useState(false);
-  const last = times.length - 1;
-  const validTime = times[Math.min(index, last)];
+  const last = frames.length - 1;
+  const { basetime, validTime, tile } = frames[Math.min(index, last)];
   const urls = forecastRadarSources(basetime, validTime, tile);
   useEffect(() => {
     if (!playing || last < 1 || loaded !== urls.rain || failed === urls.rain) return;
@@ -34,12 +34,12 @@ function RadarPlayer({ basetime, times, tile, blocky }: {
       <div className={styles.map}>
         {/* Fixed matching z10 tiles. Ordinary images avoid browser-side CORS reads. */}
         {/* eslint-disable @next/next/no-img-element */}
-        <img src={urls.background} alt="" width={256} height={256} onError={() => setMapFailed(true)} />
+        <img key={urls.background} src={urls.background} alt="" width={256} height={256} onError={() => setMapFailed(true)} />
         <img key={urls.rain} src={urls.rain} alt="" width={256} height={256}
           className={blocky ? styles.blocky : undefined} onLoad={() => setLoaded(urls.rain)}
           onError={() => { setFailed(urls.rain); setPlaying(false); }} />
         {/* eslint-enable @next/next/no-img-element */}
-        <time className={styles.mapTime}>{timeLabel(validTime)} 予報</time>
+        <time className={styles.mapTime}>{timeLabel(validTime)} 予報（{timeLabel(basetime)}基準）</time>
         <span className={styles.mapCredit}>気象庁・地理院タイル</span>
       </div>
       {(mapFailed || failed === urls.rain) && <p role="status">一部の地図・雨雲画像を取得できません。</p>}
@@ -62,8 +62,8 @@ type AreaCard = Municipality & {
   intensityByTime: Map<string, Municipality["minimumMmPerHour"]>;
 };
 
-function ForecastBand({ frames, basetime, extended }: {
-  frames?: NationalForecastFrame[]; basetime?: string; extended: boolean;
+function ForecastBand({ frames, basetime, extended, tileVersions }: {
+  frames?: NationalForecastFrame[]; basetime?: string; extended: boolean; tileVersions?: true;
 }) {
   const [selected, setSelected] = useState<string>();
   const municipalities = new Map<string, AreaCard>();
@@ -91,6 +91,7 @@ function ForecastBand({ frames, basetime, extended }: {
     if (!prefectures.has(area.prefecture)) prefectures.set(area.prefecture, []);
     prefectures.get(area.prefecture)!.push(area);
   }
+  const incomplete = frames?.some(frame => frame.incomplete);
   const title = extended ? "35〜60分先の予報" : "30分先までの詳細予報";
   return (
     <section className={styles.band} aria-label={title}>
@@ -99,7 +100,15 @@ function ForecastBand({ frames, basetime, extended }: {
         <span>{extended ? "1km" : "250m"}</span>
         <span>{!frames ? "未取得" : frames.length ? `${cards.length}市区町村` : "対象時刻終了"}</span>
       </div>
-      {!!frames?.length && cards.length === 0 && <p>取得できた時間帯では、30mm/h以上の該当地域はありません。</p>}
+      {!!frames?.length && cards.length === 0 && <p>取得済みの範囲では、30mm/h以上の該当地域はありません。</p>}
+      {incomplete && <p role="status">一部の時刻・地域は未取得です。</p>}
+      {tileVersions && !!frames?.length && <details>
+        <summary>時刻ごとの取得状況と基準時刻</summary>
+        <ul>{frames.map(frame => <li key={frame.validTime}>{timeLabel(frame.validTime)}　
+          {frame.basetimes?.length ? `${frame.basetimes.map(timeLabel).join(" / ")} 基準` : "未取得"}
+          {frame.incomplete && !!frame.basetimes?.length && "・一部未取得"}
+          {frame.refreshPending && "・一部は前の予報を表示"}</li>)}</ul>
+      </details>}
       {!frames && basetime && <p role="status">この時間帯の予報は現在取得できていません。</p>}
       {[...groups].map(([tier, prefectures]) => (
         <section className={styles.tierGroup} key={tier} aria-label={`${tier}mm/h以上`}>
@@ -111,6 +120,11 @@ function ForecastBand({ frames, basetime, extended }: {
                 {entries.map(area => {
                   const times = [...area.intensityByTime.keys()].sort();
                   const expanded = selected === area.code;
+                  const radarFrames = expanded && basetime && area.radarTile ? (frames ?? []).flatMap(frame => {
+                    const match = frame.municipalities.find(item => item.code === area.code);
+                    const tile = tileVersions ? match?.radarTile : area.radarTile;
+                    return tile ? [{ basetime: match?.basetime ?? basetime, validTime: frame.validTime, tile }] : [];
+                  }) : [];
                   return (
                     <article className={styles.compactCard} key={area.code}>
                       <div className={styles.compactRow}>
@@ -125,17 +139,17 @@ function ForecastBand({ frames, basetime, extended }: {
                       </div>
                       <div className={styles.timeStrip} role="img" aria-label={times.map(time =>
                         `${timeLabel(time)} ${area.intensityByTime.get(time)}mm/h以上`).join("、")}>
-                        {frames?.map(({ validTime }) => {
+                        {frames?.map(({ validTime, incomplete }) => {
                           const intensity = area.intensityByTime.get(validTime);
                           return <span key={validTime} data-tier={intensity}
-                            title={`${timeLabel(validTime)} ${intensity ? `${intensity}mm/h以上` : "30mm/h以上の予報なし"}`} />;
+                            title={`${timeLabel(validTime)} ${intensity ? `${intensity}mm/h以上` : incomplete ? "未取得を含む" : "30mm/h以上の予報なし"}`} />;
                         })}
                       </div>
-                      {expanded && basetime && area.radarTile && (
+                      {!!radarFrames.length && (
                         <div className={styles.expandedRadar}>
                           <p>対象時刻：{times.map(timeLabel).join("、")}</p>
-                          <RadarPlayer key={`${basetime}-${frames?.[0].validTime}`} basetime={basetime} tile={area.radarTile}
-                            times={frames!.map(frame => frame.validTime)} blocky={extended} />
+                          <RadarPlayer key={radarFrames.map(frame => `${frame.basetime}/${frame.validTime}/${frame.tile.x}/${frame.tile.y}`).join(",")}
+                            frames={radarFrames} blocky={extended} />
                         </div>
                       )}
                     </article>
@@ -199,7 +213,7 @@ export default function NationalHeavyRainForecast() {
   const peakCount = new Set(peakAreas.map(area => area.code)).size;
   const peakPrefectures = [...new Set(peakAreas.map(area => area.prefecture))]
     .sort((a, b) => a.localeCompare(b, "ja"));
-  const latestTime = (forecast?.extendedFrames?.slice(-1)[0] ?? forecast?.frames.slice(-1)[0])?.validTime;
+  const latestTime = (forecast?.extendedFrames?.filter(frame => !frame.basetimes || frame.basetimes.length).slice(-1)[0] ?? forecast?.frames.filter(frame => !frame.basetimes || frame.basetimes.length).slice(-1)[0])?.validTime;
   const waitingForUpdate = forecast && Date.now() - forecastTime(forecast.basetime) > NATIONAL_FORECAST_FRESHNESS_MS;
 
   return (
@@ -213,7 +227,7 @@ export default function NationalHeavyRainForecast() {
           <dl className={styles.stats}>
             <div><dt>大雨予報の地域</dt><dd>{forecast ? `${count}地域` : "—"}</dd></div>
             <div><dt>最大階級</dt><dd>{tier ? `${tier}mm/h以上・${peakCount}地域` : "—"}</dd></div>
-            <div><dt>気象庁の予報基準</dt><dd>{forecast ? `${timeLabel(forecast.basetime)} JST` : "—"}</dd></div>
+            <div><dt>{forecast?.tileVersions ? "最新の予報基準" : "気象庁の予報基準"}</dt><dd>{forecast ? `${timeLabel(forecast.basetime)} JST` : "—"}</dd></div>
             {latestTime && <div><dt>取得済みの予報</dt><dd>{timeLabel(latestTime)}まで</dd></div>}
           </dl>
           {waitingForUpdate && <p className={styles.summaryNote}>更新待ちのため、{timeLabel(forecast.basetime)}時点の予報を表示しています。</p>}
@@ -231,8 +245,8 @@ export default function NationalHeavyRainForecast() {
       </aside>
       {forecast === undefined && <p role="status">全国の予報を取得中…</p>}
       {forecast === null && <p role="status">現在、全国の予報を確認できません。</p>}
-      <ForecastBand frames={forecast?.frames} basetime={forecast?.basetime} extended={false} />
-      <ForecastBand frames={forecast?.extendedFrames} basetime={forecast?.basetime} extended />
+      <ForecastBand frames={forecast?.frames} basetime={forecast?.basetime} tileVersions={forecast?.tileVersions} extended={false} />
+      <ForecastBand frames={forecast?.extendedFrames} basetime={forecast?.basetime} tileVersions={forecast?.tileVersions} extended />
     </section>
   );
 }
