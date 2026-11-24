@@ -18,7 +18,7 @@
 
 **次の作業：** 類似コード・既存結論を確認し、未解決条件だけを次の作業にする
 
-根拠取得日時 (UTC)：2026-11-09T09:02:35.033623+00:00
+根拠取得日時 (UTC)：2026-11-24T10:54:10.000193+00:00
 
 ## 日本語で確認した成果
 
@@ -56,7 +56,7 @@ Add a per-target delete action with confirmation. Deleting removes the watch_tar
 
 ```text
 diff --git a/app/page.tsx b/app/page.tsx
-index 4536f3d..39258f3 100644
+index 4536f3d8..39258f3e 100644
 --- a/app/page.tsx
 +++ b/app/page.tsx
 @@ -91,6 +91,25 @@ export default function Home() {

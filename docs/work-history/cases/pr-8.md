@@ -18,7 +18,7 @@
 
 **次の作業：** 類似コード・既存結論を確認し、未解決条件だけを次の作業にする
 
-根拠取得日時 (UTC)：2026-11-09T09:02:35.033623+00:00
+根拠取得日時 (UTC)：2026-11-24T10:54:10.000193+00:00
 
 ## 日本語で確認した成果
 
@@ -63,7 +63,7 @@ Add user-triggered Web Push permission/subscription UI, persist subscriptions un
 
 ```text
 diff --git a/app/page.tsx b/app/page.tsx
-index 39258f3..2b19411 100644
+index 39258f3e..2b19411a 100644
 --- a/app/page.tsx
 +++ b/app/page.tsx
 @@ -44,6 +44,13 @@ type RainResponse = {
@@ -156,7 +156,7 @@ index 39258f3..2b19411 100644
 
 ```text
 diff --git a/public/sw.js b/public/sw.js
-index 3fbd609..b7b9cdc 100644
+index 3fbd609f..b7b9cdc3 100644
 --- a/public/sw.js
 +++ b/public/sw.js
 @@ -26,3 +26,31 @@ self.addEventListener("fetch", (event) => {

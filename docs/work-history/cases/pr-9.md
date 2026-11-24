@@ -18,7 +18,7 @@
 
 **次の作業：** 類似コード・既存結論を確認し、未解決条件だけを次の作業にする
 
-根拠取得日時 (UTC)：2026-11-09T09:02:35.033623+00:00
+根拠取得日時 (UTC)：2026-11-24T10:54:10.000193+00:00
 
 ## 日本語で確認した成果
 
@@ -52,7 +52,7 @@ Use a yellow-green pill for enabled watch targets and a neutral gray pill for di
 
 ```text
 diff --git a/app/page.tsx b/app/page.tsx
-index 39258f3..74ac288 100644
+index 39258f3e..74ac288c 100644
 --- a/app/page.tsx
 +++ b/app/page.tsx
 @@ -340,7 +340,7 @@ export default function Home() {

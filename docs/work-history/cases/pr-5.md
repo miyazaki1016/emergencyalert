@@ -18,7 +18,7 @@
 
 **次の作業：** 類似コード・既存結論を確認し、未解決条件だけを次の作業にする
 
-根拠取得日時 (UTC)：2026-11-09T09:02:35.033623+00:00
+根拠取得日時 (UTC)：2026-11-24T10:54:10.000193+00:00
 
 ## 日本語で確認した成果
 
@@ -55,7 +55,7 @@ Use Geolonia's Japanese address normalizer for address-like queries while retain
 
 ```text
 diff --git a/lib/places/searchPlaces.ts b/lib/places/searchPlaces.ts
-index 0c9888e..8e337ad 100644
+index 0c9888ea..8e337ad9 100644
 --- a/lib/places/searchPlaces.ts
 +++ b/lib/places/searchPlaces.ts
 @@ -1,3 +1,5 @@
@@ -109,7 +109,7 @@ index 0c9888e..8e337ad 100644
 
 ```text
 diff --git a/package.json b/package.json
-index 54bcfa4..5569eb4 100644
+index 54bcfa44..5569eb47 100644
 --- a/package.json
 +++ b/package.json
 @@ -15,7 +15,8 @@

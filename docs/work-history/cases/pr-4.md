@@ -18,7 +18,7 @@
 
 **次の作業：** 類似コード・既存結論を確認し、未解決条件だけを次の作業にする
 
-根拠取得日時 (UTC)：2026-11-09T09:02:35.033623+00:00
+根拠取得日時 (UTC)：2026-11-24T10:54:10.000193+00:00
 
 ## 日本語で確認した成果
 
@@ -65,7 +65,7 @@ Nominatimを予測入力には使わず、従来どおり明示的な検索時�
 
 ```text
 diff --git a/lib/places/searchPlaces.ts b/lib/places/searchPlaces.ts
-index fcea5de..0c9888e 100644
+index fcea5def..0c9888ea 100644
 --- a/lib/places/searchPlaces.ts
 +++ b/lib/places/searchPlaces.ts
 @@ -14,12 +14,22 @@ interface NominatimItem {

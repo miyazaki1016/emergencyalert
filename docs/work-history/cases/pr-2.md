@@ -18,7 +18,7 @@
 
 **次の作業：** 類似コード・既存結論を確認し、未解決条件だけを次の作業にする
 
-根拠取得日時 (UTC)：2026-11-09T09:02:35.033623+00:00
+根拠取得日時 (UTC)：2026-11-24T10:54:10.000193+00:00
 
 ## 日本語で確認した成果
 
@@ -70,7 +70,7 @@ Push通知そのものは次段階で実装します。
 
 ```text
 diff --git a/app/layout.tsx b/app/layout.tsx
-index 6645c6a..dd832d3 100644
+index 6645c6a5..dd832d3d 100644
 --- a/app/layout.tsx
 +++ b/app/layout.tsx
 @@ -1,14 +1,29 @@
@@ -113,7 +113,7 @@ index 6645c6a..dd832d3 100644
 ```text
 diff --git a/app/manifest.ts b/app/manifest.ts
 new file mode 100644
-index 0000000..aad389c
+index 00000000..aad389c7
 --- /dev/null
 +++ b/app/manifest.ts
 @@ -0,0 +1,16 @@
@@ -141,7 +141,7 @@ index 0000000..aad389c
 ```text
 diff --git a/app/pwa-register.tsx b/app/pwa-register.tsx
 new file mode 100644
-index 0000000..ff1a473
+index 00000000..ff1a4732
 --- /dev/null
 +++ b/app/pwa-register.tsx
 @@ -0,0 +1,25 @@
@@ -178,7 +178,7 @@ index 0000000..ff1a473
 ```text
 diff --git a/public/sw.js b/public/sw.js
 new file mode 100644
-index 0000000..3fbd609
+index 00000000..3fbd609f
 --- /dev/null
 +++ b/public/sw.js
 @@ -0,0 +1,28 @@

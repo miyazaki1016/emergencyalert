@@ -18,7 +18,7 @@
 
 **次の作業：** 類似コード・既存結論を確認し、未解決条件だけを次の作業にする
 
-根拠取得日時 (UTC)：2026-11-09T09:02:35.033623+00:00
+根拠取得日時 (UTC)：2026-11-24T10:54:10.000193+00:00
 
 ## 日本語で確認した成果
 
@@ -60,7 +60,7 @@ Android/iPhoneのホーム画面追加で必要なPWAアイコンを追加しま
 ```text
 diff --git a/app/icon.tsx b/app/icon.tsx
 new file mode 100644
-index 0000000..fbcb2d4
+index 00000000..fbcb2d4e
 --- /dev/null
 +++ b/app/icon.tsx
 @@ -0,0 +1,40 @@
@@ -111,7 +111,7 @@ index 0000000..fbcb2d4
 
 ```text
 diff --git a/app/manifest.ts b/app/manifest.ts
-index aad389c..ad14f4f 100644
+index aad389c7..ad14f4f9 100644
 --- a/app/manifest.ts
 +++ b/app/manifest.ts
 @@ -12,5 +12,19 @@ export default function manifest(): MetadataRoute.Manifest {

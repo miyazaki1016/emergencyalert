@@ -18,7 +18,7 @@
 
 **次の作業：** 類似コード・既存結論を確認し、未解決条件だけを次の作業にする
 
-根拠取得日時 (UTC)：2026-11-09T09:02:35.033623+00:00
+根拠取得日時 (UTC)：2026-11-24T10:54:10.000193+00:00
 
 ## 日本語で確認した成果
 
@@ -53,7 +53,7 @@ Fix the address-like query detector. The regex was accidentally written as /\\d/
 
 ```text
 diff --git a/lib/places/searchPlaces.ts b/lib/places/searchPlaces.ts
-index 8e337ad..4ab7f89 100644
+index 8e337ad9..4ab7f89b 100644
 --- a/lib/places/searchPlaces.ts
 +++ b/lib/places/searchPlaces.ts
 @@ -55,7 +55,7 @@ export async function searchPlaces(query: string): Promise<PlaceSearchResult[]>

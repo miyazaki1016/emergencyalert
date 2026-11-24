@@ -18,7 +18,7 @@
 
 **次の作業：** 類似コード・既存結論を確認し、未解決条件だけを次の作業にする
 
-根拠取得日時 (UTC)：2026-11-09T09:02:35.033623+00:00
+根拠取得日時 (UTC)：2026-11-24T10:54:10.000193+00:00
 
 ## 日本語で確認した成果
 
@@ -130,7 +130,7 @@ Tests cover all seven corroborated classes and the archived raw PNG, withdrawn y
 
 ```text
 diff --git a/docs/PNG_PALETTE_EVIDENCE.md b/docs/PNG_PALETTE_EVIDENCE.md
-index e5689e8..1988e88 100644
+index e5689e88..1988e884 100644
 --- a/docs/PNG_PALETTE_EVIDENCE.md
 +++ b/docs/PNG_PALETTE_EVIDENCE.md
 @@ -1,5 +1,11 @@
@@ -261,7 +261,7 @@ index e5689e8..1988e88 100644
 
 ```text
 diff --git a/docs/PROJECT_OVERVIEW.md b/docs/PROJECT_OVERVIEW.md
-index f0bd213..eb83ba8 100644
+index f0bd2131..eb83ba83 100644
 --- a/docs/PROJECT_OVERVIEW.md
 +++ b/docs/PROJECT_OVERVIEW.md
 @@ -176,6 +176,17 @@ glanceable and everyday.
@@ -290,7 +290,7 @@ index f0bd213..eb83ba8 100644
 ```text
 diff --git a/docs/evidence/jma-palette-2026-09-23/manifest.json b/docs/evidence/jma-palette-2026-09-23/manifest.json
 new file mode 100644
-index 0000000..34b7744
+index 00000000..34b7744b
 --- /dev/null
 +++ b/docs/evidence/jma-palette-2026-09-23/manifest.json
 @@ -0,0 +1,1286 @@
@@ -1587,7 +1587,7 @@ index 0000000..34b7744
 
 ```text
 diff --git a/lib/weather/providers/jma/JmaPublicImageProvider.test.ts b/lib/weather/providers/jma/JmaPublicImageProvider.test.ts
-index c4fee3d..f87d8eb 100644
+index c4fee3d9..f87d8ebf 100644
 --- a/lib/weather/providers/jma/JmaPublicImageProvider.test.ts
 +++ b/lib/weather/providers/jma/JmaPublicImageProvider.test.ts
 @@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
@@ -1630,7 +1630,7 @@ index c4fee3d..f87d8eb 100644
 
 ```text
 diff --git a/lib/weather/providers/jma/classifyPixel.test.ts b/lib/weather/providers/jma/classifyPixel.test.ts
-index f5ed6e9..e61cee8 100644
+index f5ed6e93..e61cee8c 100644
 --- a/lib/weather/providers/jma/classifyPixel.test.ts
 +++ b/lib/weather/providers/jma/classifyPixel.test.ts
 @@ -8,12 +8,12 @@ describe("classifyRainPixel", () => {
@@ -1657,7 +1657,7 @@ index f5ed6e9..e61cee8 100644
 
 ```text
 diff --git a/lib/weather/providers/jma/paletteWatcher.test.ts b/lib/weather/providers/jma/paletteWatcher.test.ts
-index 638cb39..73fd781 100644
+index 638cb390..73fd7812 100644
 --- a/lib/weather/providers/jma/paletteWatcher.test.ts
 +++ b/lib/weather/providers/jma/paletteWatcher.test.ts
 @@ -13,29 +13,29 @@ describe("JMA palette watcher", () => {
@@ -1704,7 +1704,7 @@ index 638cb39..73fd781 100644
 
 ```text
 diff --git a/lib/weather/providers/jma/pngPalette.test.ts b/lib/weather/providers/jma/pngPalette.test.ts
-index 8617318..92dac8f 100644
+index 86173189..92dac8f4 100644
 --- a/lib/weather/providers/jma/pngPalette.test.ts
 +++ b/lib/weather/providers/jma/pngPalette.test.ts
 @@ -1,17 +1,54 @@
@@ -1774,7 +1774,7 @@ index 8617318..92dac8f 100644
 
 ```text
 diff --git a/lib/weather/providers/jma/pngPalette.ts b/lib/weather/providers/jma/pngPalette.ts
-index 5798b2d..4567bc2 100644
+index 5798b2d6..4567bc25 100644
 --- a/lib/weather/providers/jma/pngPalette.ts
 +++ b/lib/weather/providers/jma/pngPalette.ts
 @@ -6,10 +6,17 @@ export interface VerifiedPaletteEntry {

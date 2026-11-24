@@ -1,0 +1,42 @@
+{
+  "id": "branch-d40033ba044f0dbc",
+  "title": "feat/radar-five-frames-296",
+  "head": "ce926faa2f1c1a81279a0218dff759d116b7fb6d",
+  "head_ref": "feat/radar-five-frames-296",
+  "linked_prs": [
+    300
+  ],
+  "files": [
+    {
+      "path": "app/components/NationalHeavyRainForecast.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ce926faa2f1c1a81279a0218dff759d116b7fb6d/app/components/NationalHeavyRainForecast.tsx"
+    },
+    {
+      "path": "lib/weather/rain/nationalForecastRadar.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ce926faa2f1c1a81279a0218dff759d116b7fb6d/lib/weather/rain/nationalForecastRadar.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalForecastRadar.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/ce926faa2f1c1a81279a0218dff759d116b7fb6d/lib/weather/rain/nationalForecastRadar.ts"
+    }
+  ],
+  "commits": "ce926faa2f1c1a81279a0218dff759d116b7fb6d Use five forecast time slots for municipality radar playback (#296)",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "059fb52e2d258b4faf99b654122c35d667776dd138ec966d2ac036e570e3578d",
+  "collected_at": "2026-11-24T10:54:10.000193+00:00"
+}

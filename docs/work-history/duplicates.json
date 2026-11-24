@@ -103,6 +103,7 @@
     "branch-3cc3b2f103fcdb49",
     "branch-82eb6ae5e3cdd506",
     "branch-8ac7382a5a280d93",
+    "branch-d40033ba044f0dbc",
     "branch-d47e9b0dcd4ebc9b",
     "branch-d5162b95174defec",
     "branch-fd5202c6b3114feb",
@@ -113,7 +114,8 @@
     "pr-282",
     "pr-284",
     "pr-286",
-    "pr-297"
+    "pr-297",
+    "pr-300"
   ],
   "app/components/NotificationFeedbackHistory.tsx": [
     "branch-091c543ebb50d507",
@@ -1237,6 +1239,15 @@
     "branch-f21e5c06f0afa189",
     "pr-215",
     "pr-217"
+  ],
+  "lib/weather/rain/nationalForecastRadar.test.ts": [
+    "branch-d40033ba044f0dbc",
+    "pr-300"
+  ],
+  "lib/weather/rain/nationalForecastRadar.ts": [
+    "branch-d40033ba044f0dbc",
+    "pr-252",
+    "pr-300"
   ],
   "lib/weather/rain/nationalForecastSnapshot.test.ts": [
     "branch-3cc3b2f103fcdb49",
