@@ -16,7 +16,7 @@
 
 **次の作業：** 関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない
 
-根拠取得日時 (UTC)：2026-11-21T06:01:18.845155+00:00
+根拠取得日時 (UTC)：2026-11-24T08:48:55.028594+00:00
 
 
 ## 実際の変更処理（コードから抽出）
@@ -42,7 +42,7 @@
 - [lib/weather/rain/lightRainPixelMaskLoader.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/a48ab8133da993d55c2eef8e8adfac76191af1c8/lib/weather/rain/lightRainPixelMaskLoader.test.ts)：全文
 - [lib/weather/rain/lightRainPixelMaskLoader.ts](https://github.com/miyazaki1016/emergencyalert/blob/a48ab8133da993d55c2eef8e8adfac76191af1c8/lib/weather/rain/lightRainPixelMaskLoader.ts)：全文
 - [lib/weather/rain/lightRainPixelMasks.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/a48ab8133da993d55c2eef8e8adfac76191af1c8/lib/weather/rain/lightRainPixelMasks.test.ts)：全文
-- [lib/weather/rain/lightRainPixelMasks.ts](https://github.com/miyazaki1016/emergencyalert/blob/a48ab8133da993d55c2eef8e8adfac76191af1c8/lib/weather/rain/lightRainPixelMasks.ts)：先頭18000文字・原本リンク参照
+- [lib/weather/rain/lightRainPixelMasks.ts](https://github.com/miyazaki1016/emergencyalert/blob/a48ab8133da993d55c2eef8e8adfac76191af1c8/lib/weather/rain/lightRainPixelMasks.ts)：全文
 - [lib/weather/rain/lightRainProof.live.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/a48ab8133da993d55c2eef8e8adfac76191af1c8/lib/weather/rain/lightRainProof.live.test.ts)：全文
 - [lib/weather/rain/lightRainProof.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/a48ab8133da993d55c2eef8e8adfac76191af1c8/lib/weather/rain/lightRainProof.test.ts)：全文
 - [lib/weather/rain/lightRainProof.ts](https://github.com/miyazaki1016/emergencyalert/blob/a48ab8133da993d55c2eef8e8adfac76191af1c8/lib/weather/rain/lightRainProof.ts)：全文

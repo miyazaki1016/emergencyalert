@@ -42,7 +42,7 @@ CACHE_NAME、Home、base64、check、client、current、deleteTarget、enablePus
 - 条件分岐・閾値：`if (error) throw error;`（[app/page.tsx](https://github.com/miyazaki1016/emergencyalert/blob/8b845d1d4cd51dec313abf5d27c21ac501a66a9c/app/page.tsx)）
 - 条件分岐・閾値：`if (&quot;focus&quot; in client) {`（[public/sw.js](https://github.com/miyazaki1016/emergencyalert/blob/8b845d1d4cd51dec313abf5d27c21ac501a66a9c/public/sw.js)）
 - 条件分岐・閾値：`if (&quot;navigate&quot; in client) await client.navigate(targetUrl);`（[public/sw.js](https://github.com/miyazaki1016/emergencyalert/blob/8b845d1d4cd51dec313abf5d27c21ac501a66a9c/public/sw.js)）
-- [app/page.tsx](https://github.com/miyazaki1016/emergencyalert/blob/8b845d1d4cd51dec313abf5d27c21ac501a66a9c/app/page.tsx)：先頭18000文字・原本リンク参照
+- [app/page.tsx](https://github.com/miyazaki1016/emergencyalert/blob/8b845d1d4cd51dec313abf5d27c21ac501a66a9c/app/page.tsx)：全文
 - [public/sw.js](https://github.com/miyazaki1016/emergencyalert/blob/8b845d1d4cd51dec313abf5d27c21ac501a66a9c/public/sw.js)：全文
 
 ## 検証実行の事実

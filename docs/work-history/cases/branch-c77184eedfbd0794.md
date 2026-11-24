@@ -16,27 +16,27 @@
 
 **次の作業：** 関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない
 
-根拠取得日時 (UTC)：2026-11-21T06:01:18.845155+00:00
+根拠取得日時 (UTC)：2026-11-24T08:48:55.028594+00:00
 
 
 ## 実際の変更処理（コードから抽出）
 
 差分・ソースを参照
 
-- [PROJECT_OVERVIEW.md](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/PROJECT_OVERVIEW.md)：先頭18000文字・原本リンク参照
+- [PROJECT_OVERVIEW.md](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/PROJECT_OVERVIEW.md)：全文
 - [docs/AMAFURU_AUDIT_CHECKPOINT_20261021.md](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/AMAFURU_AUDIT_CHECKPOINT_20261021.md)：全文
-- [docs/AMAFURU_BRANCH_AUDIT_20261021.md](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/AMAFURU_BRANCH_AUDIT_20261021.md)：先頭18000文字・原本リンク参照
+- [docs/AMAFURU_BRANCH_AUDIT_20261021.md](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/AMAFURU_BRANCH_AUDIT_20261021.md)：全文
 - [docs/AMAFURU_CHAT_HANDOFF_20261021.md](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/AMAFURU_CHAT_HANDOFF_20261021.md)：全文
 - [docs/AMAFURU_CONCEPT.md](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/AMAFURU_CONCEPT.md)：全文
 - [docs/AMAFURU_DEVELOPMENT_OVERVIEW.md](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/AMAFURU_DEVELOPMENT_OVERVIEW.md)：全文
 - [docs/AMAFURU_HANDOFF_20261018.md](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/AMAFURU_HANDOFF_20261018.md)：全文
-- [docs/AMAFURU_SOURCE_AUDIT_20261016.md](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/AMAFURU_SOURCE_AUDIT_20261016.md)：先頭18000文字・原本リンク参照
-- [docs/PROJECT_OVERVIEW.md](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/PROJECT_OVERVIEW.md)：先頭18000文字・原本リンク参照
+- [docs/AMAFURU_SOURCE_AUDIT_20261016.md](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/AMAFURU_SOURCE_AUDIT_20261016.md)：全文
+- [docs/PROJECT_OVERVIEW.md](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/PROJECT_OVERVIEW.md)：全文
 - [docs/SAKIKURU_CONCEPT.md](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/SAKIKURU_CONCEPT.md)：全文
 - [docs/audit/20261021/assets.json](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/audit/20261021/assets.json)：サイズ上限120KB・原本リンク参照
 - [docs/audit/20261021/branches.json](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/audit/20261021/branches.json)：サイズ上限120KB・原本リンク参照
-- [docs/audit/20261021/documents.json](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/audit/20261021/documents.json)：先頭18000文字・原本リンク参照
-- [docs/audit/20261021/prs.json](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/audit/20261021/prs.json)：先頭18000文字・原本リンク参照
+- [docs/audit/20261021/documents.json](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/audit/20261021/documents.json)：全文
+- [docs/audit/20261021/prs.json](https://github.com/miyazaki1016/emergencyalert/blob/f480cc9eea0e41756f8e5f2ba86c2ab1b0116351/docs/audit/20261021/prs.json)：全文
 
 ## 検証実行の事実
 

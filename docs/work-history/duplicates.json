@@ -94,7 +94,12 @@
     "branch-dbcfae267568d52d",
     "pr-102"
   ],
+  "app/components/LiveJapanForecastMap.tsx": [
+    "branch-08f8ed01a2a456eb",
+    "pr-297"
+  ],
   "app/components/NationalHeavyRainForecast.tsx": [
+    "branch-08f8ed01a2a456eb",
     "branch-3cc3b2f103fcdb49",
     "branch-82eb6ae5e3cdd506",
     "branch-8ac7382a5a280d93",
@@ -107,7 +112,8 @@
     "pr-253",
     "pr-282",
     "pr-284",
-    "pr-286"
+    "pr-286",
+    "pr-297"
   ],
   "app/components/NotificationFeedbackHistory.tsx": [
     "branch-091c543ebb50d507",
@@ -155,6 +161,10 @@
     "pr-85",
     "pr-86",
     "pr-87"
+  ],
+  "app/components/live-japan-forecast-map.module.css": [
+    "branch-08f8ed01a2a456eb",
+    "pr-297"
   ],
   "app/components/national-heavy-rain-forecast.module.css": [
     "branch-d5162b95174defec",
@@ -1529,12 +1539,14 @@
   "scripts/development_history_evidence.py": [
     "branch-02f9f023f7c9991c",
     "branch-0c5bdefb1e721367",
+    "branch-3299e830fba85cfb",
     "branch-412ffa2ddbe80074",
     "branch-bbf5a2c293af40b5",
     "pr-183",
     "pr-184",
     "pr-185",
-    "pr-218"
+    "pr-218",
+    "pr-298"
   ],
   "scripts/development_index_proposal.py": [
     "branch-436bd6babf91e34f",
@@ -1582,7 +1594,9 @@
   ],
   "scripts/development_preflight.py": [
     "branch-01116240ec96678b",
-    "pr-188"
+    "branch-3299e830fba85cfb",
+    "pr-188",
+    "pr-298"
   ],
   "scripts/development_resume.py": [
     "branch-da4ff3297fb6648a",

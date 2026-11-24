@@ -1,0 +1,43 @@
+{
+  "id": "branch-08f8ed01a2a456eb",
+  "title": "feat/live-japan-forecast-295",
+  "head": "2fc59bfdaf7ac9bc4e52b754e6367ec70b0dadb4",
+  "head_ref": "feat/live-japan-forecast-295",
+  "linked_prs": [
+    297
+  ],
+  "files": [
+    {
+      "path": "app/components/LiveJapanForecastMap.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2fc59bfdaf7ac9bc4e52b754e6367ec70b0dadb4/app/components/LiveJapanForecastMap.tsx"
+    },
+    {
+      "path": "app/components/NationalHeavyRainForecast.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2fc59bfdaf7ac9bc4e52b754e6367ec70b0dadb4/app/components/NationalHeavyRainForecast.tsx"
+    },
+    {
+      "path": "app/components/live-japan-forecast-map.module.css",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2fc59bfdaf7ac9bc4e52b754e6367ec70b0dadb4/app/components/live-japan-forecast-map.module.css"
+    }
+  ],
+  "commits": "2fc59bfdaf7ac9bc4e52b754e6367ec70b0dadb4 Add first-stage LIVE JAPAN forecast map for #295",
+  "topics": [
+    "雨量・全国検知",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "3840ed822a35616748d6c531c3d97534ffaebf092b6fac3e18610031506aa035",
+  "collected_at": "2026-11-24T08:48:55.028594+00:00"
+}

@@ -16,14 +16,14 @@
 
 **次の作業：** 関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない
 
-根拠取得日時 (UTC)：2026-11-21T06:01:18.845155+00:00
+根拠取得日時 (UTC)：2026-11-24T08:48:55.028594+00:00
 
 
 ## 実際の変更処理（コードから抽出）
 
 差分・ソースを参照
 
-- [docs/DEVELOPMENT_LEDGER.md](https://github.com/miyazaki1016/emergencyalert/blob/aa9ae2a5faf8bb0d4a89db6938e0c4f4b9a2a245/docs/DEVELOPMENT_LEDGER.md)：先頭18000文字・原本リンク参照
+- [docs/DEVELOPMENT_LEDGER.md](https://github.com/miyazaki1016/emergencyalert/blob/aa9ae2a5faf8bb0d4a89db6938e0c4f4b9a2a245/docs/DEVELOPMENT_LEDGER.md)：全文
 
 ## 検証実行の事実
 

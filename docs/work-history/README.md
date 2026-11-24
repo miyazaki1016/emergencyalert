@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-23T08:59:45.034914+00:00
+更新 (UTC): 2026-11-24T08:48:55.028594+00:00
 
 ## 全案件
 
@@ -12,12 +12,14 @@
 | --- | --- | --- | --- |
 | [feat/jaspic-oauth-public-pages-20261105](cases/branch-00f0c673fc11e028.md) | 通知・配信・認証・安全性・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/automatic-history-preflight-20261109](cases/branch-01116240ec96678b.md) | 開発管理・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [ops/sakidori-data-notifications](cases/branch-02a275bdb00b0ef0.md) | 通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/japanese-development-history-20261109](cases/branch-02f9f023f7c9991c.md) | 雨量・全国検知・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/japanese-address-search](cases/branch-04c8f793320315f9.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [automation/ledger-facts-41361771659](cases/branch-051c30db2c2ec79a.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [research/notification-replay-20261029](cases/branch-06febc013000a880.md) | 雨量・全国検知・通知・配信・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [automation/ledger-facts-41481560407-1](cases/branch-083f29c4f7c978b0.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/ledger-proposal-table-columns-20261101](cases/branch-08e76fdd73cd4686.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [feat/live-japan-forecast-295](cases/branch-08f8ed01a2a456eb.md) | 雨量・全国検知・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/feedback-expandable-cards-20261022](cases/branch-091c543ebb50d507.md) | 雨量・全国検知・通知・配信・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/jaspic-preview-candidate-details-20261113](cases/branch-09bdbf4a9671c3f0.md) | 通知・配信・認証・安全性：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/national-rain-production-env-267](cases/branch-0af77e8d873bbe46.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -32,6 +34,7 @@
 | [feat/live-japan-experience-prototype](cases/branch-153fab71251172b0.md) | 画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feature/repair-push-owner-20261024](cases/branch-15e527c001981f05.md) | 通知・配信・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/inventory-triage-ledger-proposals-20261101](cases/branch-1601ee37d65ba186.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [ops/sakidori-frontend](cases/branch-1608b5c20bbb4d34.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [chore/daily-development-inventory-20261101](cases/branch-169c5743ec9e55c9.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/rain-start-first-index-20261028](cases/branch-1790942244d0a449.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [automation/ledger-facts-41386003314](cases/branch-1794ffb921ec56a5.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -64,6 +67,7 @@
 | [fix/address-query-detection](cases/branch-309a089ee15503d2.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/accuracy-first-priorities-20261026](cases/branch-317741a0ff4a2ed9.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [review/external-ai-page-20261028](cases/branch-31d6803113173639.md) | 画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [feat/decision-preflight-20261124](cases/branch-3299e830fba85cfb.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/jaspic-admin-monitor](cases/branch-334cfb3f08d270ec.md) | 通知・配信・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [verify/national-forecast-snapshot-209](cases/branch-349358bb4a595e5f.md) | 雨量・全国検知・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [chore/inventory-index-review](cases/branch-35677a391b35c95c.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -435,6 +439,10 @@
 | [全国大雨予報を対象時刻まで表示する (#283)](cases/pr-284.md) | 雨量・全国検知・画面・表示：雨量判定・予測・全国候補抽出に関する変更／画面表示や操作に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [全国大雨予報を広域タイル単位で更新する (#285)](cases/pr-286.md) | 雨量・全国検知・開発管理：雨量判定・予測・全国候補抽出に関する変更／開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Prevent duplicate watch target registration](cases/pr-29.md) | 画面・表示：監視地点の重複登録を防止 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [さきどり フロント担当の作業窓口](cases/pr-290.md) | その他の開発：変更対象ファイルに関する開発。具体的な目的は原文・差分を確認 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
+| [さきどり データ・通知担当の作業窓口](cases/pr-291.md) | 通知・配信：通知・メール配信とその運用に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
+| [LIVE JAPAN 地図トップの第1段階 (#295)](cases/pr-297.md) | 雨量・全国検知・画面・表示：雨量判定・予測・全国候補抽出に関する変更／画面表示や操作に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
+| [実装判断を着手前の自動照合に接続し履歴抽出を拡充](cases/pr-298.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix: add PWA install icons](cases/pr-3.md) | その他の開発：PWAのインストール用アイコンを修正 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Deduplicate place search results](cases/pr-30.md) | その他の開発：地点検索の重複候補を除去 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Add rain interpretation diagnostics](cases/pr-31.md) | 雨量・全国検知：雨解釈の診断情報を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
@@ -529,10 +537,12 @@
 - app/api/rain/national-worker/route.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [pr-59](cases/pr-59.md)
 - app/api/rain/route.ts：[branch-628f136aaac0ca36](cases/branch-628f136aaac0ca36.md), [branch-7243c32c4aada456](cases/branch-7243c32c4aada456.md), [branch-9ee36a6124cd667e](cases/branch-9ee36a6124cd667e.md), [branch-e887abe92356f2f8](cases/branch-e887abe92356f2f8.md), [pr-109](cases/pr-109.md), [pr-31](cases/pr-31.md), [pr-32](cases/pr-32.md), [pr-34](cases/pr-34.md)
 - app/components/DeveloperLabLink.tsx：[branch-dbcfae267568d52d](cases/branch-dbcfae267568d52d.md), [pr-102](cases/pr-102.md)
-- app/components/NationalHeavyRainForecast.tsx：[branch-3cc3b2f103fcdb49](cases/branch-3cc3b2f103fcdb49.md), [branch-82eb6ae5e3cdd506](cases/branch-82eb6ae5e3cdd506.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [branch-d47e9b0dcd4ebc9b](cases/branch-d47e9b0dcd4ebc9b.md), [branch-d5162b95174defec](cases/branch-d5162b95174defec.md), [branch-fd5202c6b3114feb](cases/branch-fd5202c6b3114feb.md), [pr-210](cases/pr-210.md), [pr-211](cases/pr-211.md), [pr-252](cases/pr-252.md), [pr-253](cases/pr-253.md), [pr-282](cases/pr-282.md), [pr-284](cases/pr-284.md), [pr-286](cases/pr-286.md)
+- app/components/LiveJapanForecastMap.tsx：[branch-08f8ed01a2a456eb](cases/branch-08f8ed01a2a456eb.md), [pr-297](cases/pr-297.md)
+- app/components/NationalHeavyRainForecast.tsx：[branch-08f8ed01a2a456eb](cases/branch-08f8ed01a2a456eb.md), [branch-3cc3b2f103fcdb49](cases/branch-3cc3b2f103fcdb49.md), [branch-82eb6ae5e3cdd506](cases/branch-82eb6ae5e3cdd506.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [branch-d47e9b0dcd4ebc9b](cases/branch-d47e9b0dcd4ebc9b.md), [branch-d5162b95174defec](cases/branch-d5162b95174defec.md), [branch-fd5202c6b3114feb](cases/branch-fd5202c6b3114feb.md), [pr-210](cases/pr-210.md), [pr-211](cases/pr-211.md), [pr-252](cases/pr-252.md), [pr-253](cases/pr-253.md), [pr-282](cases/pr-282.md), [pr-284](cases/pr-284.md), [pr-286](cases/pr-286.md), [pr-297](cases/pr-297.md)
 - app/components/NotificationFeedbackHistory.tsx：[branch-091c543ebb50d507](cases/branch-091c543ebb50d507.md), [branch-5437e621b3e2f897](cases/branch-5437e621b3e2f897.md), [branch-5c8dd10b120b7b96](cases/branch-5c8dd10b120b7b96.md), [branch-60bf0fe58994b8d1](cases/branch-60bf0fe58994b8d1.md), [branch-7cf91be9fae8af1b](cases/branch-7cf91be9fae8af1b.md), [branch-7d74693488d68979](cases/branch-7d74693488d68979.md), [branch-87d4561c05ed70fb](cases/branch-87d4561c05ed70fb.md), [branch-8d4b5b57bc91e1f1](cases/branch-8d4b5b57bc91e1f1.md), [branch-978ef60235fbbf68](cases/branch-978ef60235fbbf68.md), [branch-9bfa97f866ff8bc0](cases/branch-9bfa97f866ff8bc0.md), [branch-a5f2511bf36597a1](cases/branch-a5f2511bf36597a1.md), [branch-b5bac1644f15f8e7](cases/branch-b5bac1644f15f8e7.md), [pr-65](cases/pr-65.md), [pr-66](cases/pr-66.md), [pr-68](cases/pr-68.md), [pr-69](cases/pr-69.md), [pr-71](cases/pr-71.md), [pr-72](cases/pr-72.md), [pr-73](cases/pr-73.md), [pr-74](cases/pr-74.md), [pr-76](cases/pr-76.md), [pr-77](cases/pr-77.md), [pr-83](cases/pr-83.md)
 - app/components/PwaDiagnosticsToggle.tsx：[branch-b5bac1644f15f8e7](cases/branch-b5bac1644f15f8e7.md), [pr-77](cases/pr-77.md)
 - app/components/ResumeDiagnosticsPanel.tsx：[branch-1df54a47e158f2ad](cases/branch-1df54a47e158f2ad.md), [branch-6a8121b2550dbe9c](cases/branch-6a8121b2550dbe9c.md), [branch-705f3ba77d283676](cases/branch-705f3ba77d283676.md), [branch-7cf91be9fae8af1b](cases/branch-7cf91be9fae8af1b.md), [branch-a5f2511bf36597a1](cases/branch-a5f2511bf36597a1.md), [branch-b5bac1644f15f8e7](cases/branch-b5bac1644f15f8e7.md), [branch-c05c32337717821c](cases/branch-c05c32337717821c.md), [branch-d6fc6f60ebda9d5a](cases/branch-d6fc6f60ebda9d5a.md), [pr-76](cases/pr-76.md), [pr-77](cases/pr-77.md), [pr-81](cases/pr-81.md), [pr-82](cases/pr-82.md), [pr-83](cases/pr-83.md), [pr-85](cases/pr-85.md), [pr-86](cases/pr-86.md), [pr-87](cases/pr-87.md)
+- app/components/live-japan-forecast-map.module.css：[branch-08f8ed01a2a456eb](cases/branch-08f8ed01a2a456eb.md), [pr-297](cases/pr-297.md)
 - app/components/national-heavy-rain-forecast.module.css：[branch-d5162b95174defec](cases/branch-d5162b95174defec.md), [branch-fd5202c6b3114feb](cases/branch-fd5202c6b3114feb.md), [pr-252](cases/pr-252.md), [pr-253](cases/pr-253.md), [pr-282](cases/pr-282.md)
 - app/dev/rain-lab/RainLab.tsx：[branch-22f64fc517bd98c8](cases/branch-22f64fc517bd98c8.md), [branch-62efc69d0291dcce](cases/branch-62efc69d0291dcce.md), [branch-80c56aa91b391a23](cases/branch-80c56aa91b391a23.md), [branch-98720101eac846e9](cases/branch-98720101eac846e9.md), [branch-adfd5936a62983f3](cases/branch-adfd5936a62983f3.md), [branch-d25ed7ecfeb9cfe5](cases/branch-d25ed7ecfeb9cfe5.md), [branch-d60839d7bd6952a6](cases/branch-d60839d7bd6952a6.md), [branch-dbcfae267568d52d](cases/branch-dbcfae267568d52d.md), [branch-dfd42da398610013](cases/branch-dfd42da398610013.md), [pr-102](cases/pr-102.md), [pr-103](cases/pr-103.md), [pr-104](cases/pr-104.md), [pr-159](cases/pr-159.md), [pr-160](cases/pr-160.md), [pr-175](cases/pr-175.md), [pr-176](cases/pr-176.md), [pr-177](cases/pr-177.md), [pr-178](cases/pr-178.md)
 - app/dev/rain-lab/lab.module.css：[branch-22f64fc517bd98c8](cases/branch-22f64fc517bd98c8.md), [branch-62efc69d0291dcce](cases/branch-62efc69d0291dcce.md), [branch-dbcfae267568d52d](cases/branch-dbcfae267568d52d.md), [branch-dfd42da398610013](cases/branch-dfd42da398610013.md), [pr-102](cases/pr-102.md), [pr-103](cases/pr-103.md), [pr-175](cases/pr-175.md), [pr-176](cases/pr-176.md)
@@ -737,13 +747,13 @@
 - scripts/development_branch_case_handoff.py：[branch-f4a34127c79a783d](cases/branch-f4a34127c79a783d.md), [pr-149](cases/pr-149.md)
 - scripts/development_branch_compare.py：[branch-35677a391b35c95c](cases/branch-35677a391b35c95c.md), [branch-b23be022a75304ba](cases/branch-b23be022a75304ba.md), [branch-ed894c05ef854553](cases/branch-ed894c05ef854553.md), [pr-142](cases/pr-142.md), [pr-148](cases/pr-148.md), [pr-150](cases/pr-150.md)
 - scripts/development_branch_review_queue.py：[branch-2f842ea0ac1d18a4](cases/branch-2f842ea0ac1d18a4.md), [pr-151](cases/pr-151.md)
-- scripts/development_history_evidence.py：[branch-02f9f023f7c9991c](cases/branch-02f9f023f7c9991c.md), [branch-0c5bdefb1e721367](cases/branch-0c5bdefb1e721367.md), [branch-412ffa2ddbe80074](cases/branch-412ffa2ddbe80074.md), [branch-bbf5a2c293af40b5](cases/branch-bbf5a2c293af40b5.md), [pr-183](cases/pr-183.md), [pr-184](cases/pr-184.md), [pr-185](cases/pr-185.md), [pr-218](cases/pr-218.md)
+- scripts/development_history_evidence.py：[branch-02f9f023f7c9991c](cases/branch-02f9f023f7c9991c.md), [branch-0c5bdefb1e721367](cases/branch-0c5bdefb1e721367.md), [branch-3299e830fba85cfb](cases/branch-3299e830fba85cfb.md), [branch-412ffa2ddbe80074](cases/branch-412ffa2ddbe80074.md), [branch-bbf5a2c293af40b5](cases/branch-bbf5a2c293af40b5.md), [pr-183](cases/pr-183.md), [pr-184](cases/pr-184.md), [pr-185](cases/pr-185.md), [pr-218](cases/pr-218.md), [pr-298](cases/pr-298.md)
 - scripts/development_index_proposal.py：[branch-436bd6babf91e34f](cases/branch-436bd6babf91e34f.md), [pr-143](cases/pr-143.md)
 - scripts/development_index_review.py：[branch-35677a391b35c95c](cases/branch-35677a391b35c95c.md), [pr-142](cases/pr-142.md)
 - scripts/development_inventory.py：[branch-b5b1d46a6468bd59](cases/branch-b5b1d46a6468bd59.md), [branch-d92ca54cbab20357](cases/branch-d92ca54cbab20357.md), [branch-f54fba9240a4e12b](cases/branch-f54fba9240a4e12b.md), [pr-107](cases/pr-107.md), [pr-122](cases/pr-122.md), [pr-128](cases/pr-128.md)
 - scripts/development_inventory_delta.py：[branch-1601ee37d65ba186](cases/branch-1601ee37d65ba186.md), [branch-4fd3d1bdc2b892c1](cases/branch-4fd3d1bdc2b892c1.md), [branch-7ea3560ec516692d](cases/branch-7ea3560ec516692d.md), [branch-b30df8ff98a54148](cases/branch-b30df8ff98a54148.md), [branch-b34c306bc7fd0b72](cases/branch-b34c306bc7fd0b72.md), [branch-b5b1d46a6468bd59](cases/branch-b5b1d46a6468bd59.md), [branch-d5f02538fc12def5](cases/branch-d5f02538fc12def5.md), [branch-f54fba9240a4e12b](cases/branch-f54fba9240a4e12b.md), [pr-122](cases/pr-122.md), [pr-124](cases/pr-124.md), [pr-125](cases/pr-125.md), [pr-126](cases/pr-126.md), [pr-127](cases/pr-127.md), [pr-128](cases/pr-128.md), [pr-129](cases/pr-129.md), [pr-136](cases/pr-136.md)
 - scripts/development_ledger_proposal.py：[branch-08e76fdd73cd4686](cases/branch-08e76fdd73cd4686.md), [branch-3ab6bf48d6ece55f](cases/branch-3ab6bf48d6ece55f.md), [branch-7b4c2cf2503a3179](cases/branch-7b4c2cf2503a3179.md), [branch-ac4d9f4766a37ec1](cases/branch-ac4d9f4766a37ec1.md), [pr-130](cases/pr-130.md), [pr-131](cases/pr-131.md), [pr-132](cases/pr-132.md), [pr-134](cases/pr-134.md)
-- scripts/development_preflight.py：[branch-01116240ec96678b](cases/branch-01116240ec96678b.md), [pr-188](cases/pr-188.md)
+- scripts/development_preflight.py：[branch-01116240ec96678b](cases/branch-01116240ec96678b.md), [branch-3299e830fba85cfb](cases/branch-3299e830fba85cfb.md), [pr-188](cases/pr-188.md), [pr-298](cases/pr-298.md)
 - scripts/development_resume.py：[branch-da4ff3297fb6648a](cases/branch-da4ff3297fb6648a.md), [pr-208](cases/pr-208.md)
 - scripts/development_work_history.py：[branch-a05fbbad807e392f](cases/branch-a05fbbad807e392f.md), [pr-182](cases/pr-182.md)
 - scripts/jaspic-dry-run.ts：[branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [pr-155](cases/pr-155.md)
@@ -900,7 +910,7 @@
 ## 更新と制約
 
 - 過去版は revisions/ に追記保存。state.json は次回の差分解析に利用。
-- ソースは120KB以下のテキストを最大18000文字ずつ取得。差分省略、取得失敗は原本確認が必要。
+- ソースは120KB以下のテキストを最大120000文字ずつ取得。差分省略、取得失敗は原本確認が必要。
 - CI結果はコミットSHA付き実行記録。テスト個別の意味・本番動作を保証しない。
 - 外部AI APIは呼び出さないため追加AI料金・APIキーは不要。英語原文の全文翻訳・自由な意味理解は行わない。
 - 総覧＝製品全体、台帳＝現在の判断、承認ボード＝採否、本履歴＝過去の根拠。

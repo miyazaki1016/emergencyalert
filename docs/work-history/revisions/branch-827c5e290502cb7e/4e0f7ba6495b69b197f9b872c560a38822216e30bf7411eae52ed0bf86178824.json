@@ -1,0 +1,28 @@
+{
+  "id": "branch-827c5e290502cb7e",
+  "title": "fix/prevent-duplicate-watch-targets",
+  "head": "9e6fbd0bb0f4f7d2a09777029d4ae9df2c6d3126",
+  "head_ref": "fix/prevent-duplicate-watch-targets",
+  "linked_prs": [
+    29
+  ],
+  "files": [
+    {
+      "path": "app/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/9e6fbd0bb0f4f7d2a09777029d4ae9df2c6d3126/app/page.tsx"
+    }
+  ],
+  "commits": "9e6fbd0bb0f4f7d2a09777029d4ae9df2c6d3126 Prevent duplicate watch target registration",
+  "topics": [
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "50ddc4ef390fcf5063427f1030f7449d02abebeac60a2a697b0562cd1491a10d",
+  "collected_at": "2026-11-24T08:48:55.028594+00:00"
+}
