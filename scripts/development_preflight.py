@@ -18,7 +18,7 @@ import re
 import subprocess
 import unicodedata
 
-from development_history_evidence import clean
+from development_history_evidence import clean, decision_search_text
 
 VERSION = 1
 CONCEPTS = {
@@ -82,6 +82,34 @@ def case_text(case):
     return primary, secondary
 
 
+def matching_decisions(case, task):
+    """Rank individual decisions so unrelated findings in a large PR do not add up."""
+    query = tokens(task)
+    if not query:
+        return [], 0
+    rows = []
+    for decision in case.get('decisions', [])[:176]:
+        text = decision_search_text({'decisions': [decision]})
+        common = query & tokens(text)
+        coverage = len(common) / len(query)
+        if len(common) >= 2 and coverage >= .35:
+            rows.append((coverage, decision))
+    rows.sort(key=lambda row: -row[0])
+    coverage = rows[0][0] if rows else 0
+    # Preserve composed search phrases derived from proof/test pairs.
+    decision_text = normal(decision_search_text(case))
+    phrases = re.findall(r'[45]\d\dを取り直してる間に次の\d+分が来たら[？?]', decision_text)
+    exact_query = len(normal(task).strip()) >= 12 and normal(task).strip() in decision_text
+    if exact_query or any(phrase in normal(task) for phrase in phrases):
+        coverage = 1
+        if not rows:
+            rows = [(1, row) for row in case.get('decisions', [])[:176]
+                    if row.get('kind') == 'proof' or (
+                        re.search(r'\d{14}', row.get('verification', ''))
+                        and re.search(r'retry|再取得', row.get('title', ''), re.I))]
+    return [row for _, row in rows[:3]], coverage
+
+
 def evidence_links(case, repo):
     root = 'https://github.com/' + repo
     result = [root+'/blob/development-history/docs/work-history/cases/'+case['id']+'.md']
@@ -106,12 +134,14 @@ def match_cases(state, task, paths=(), exclude=None, limit=8):
     total = sum(weights.values()) or 1
     results = []
     for c, primary, secondary, pt, st in document_tokens:
+        decisions, decision_coverage = matching_decisions(c, task)
         common = query & (pt | st)
         # Primary findings count in full; body and filenames contribute 30%.
         score = 70*sum(weights[t]*(1 if t in pt else .3) for t in common)/total
         matched_concepts = query_concepts & concepts(primary+' '+secondary)
         primary_concepts = query_concepts & concepts(primary)
         score += min(30, 10*len(primary_concepts))
+        score += 30 * decision_coverage
         overlap = sorted(set(paths) & {f['path'] for f in c.get('files', [])})
         if overlap:
             score += 38
@@ -120,10 +150,14 @@ def match_cases(state, task, paths=(), exclude=None, limit=8):
             score += 80
         # A generic topic alone (e.g. "notification") is not enough to block work.
         specific = matched_concepts - {'比較検証', '性能', '雨の検知', '通知配信', '承認'}
-        required = explicit or bool(overlap) or (score >= 24 and len(primary_concepts) >= 2 and bool(specific))
+        required = explicit or bool(overlap) or decision_coverage >= .6 or (score >= 24 and len(primary_concepts) >= 2 and bool(specific))
         if score < 13 and not required:
             continue
         links = evidence_links(c, state['repository'])
+        root = 'https://github.com/' + state['repository'] + '/'
+        decision_links = [url for row in decisions for url in row.get('links', [])
+                          if isinstance(url, str) and url.startswith(root)]
+        links = list(dict.fromkeys(links[:2] + decision_links + links[2:]))
         results.append({'id':c['id'], 'title':clean(c['title']), 'score':round(score, 2),
                         'review_required':required, 'matched_concepts':sorted(matched_concepts),
                         'matched_paths':overlap, 'matched_terms':sorted(common, key=lambda t:-weights[t])[:12],
@@ -133,7 +167,7 @@ def match_cases(state, task, paths=(), exclude=None, limit=8):
                         'next':clean(c.get('next') or '関連PRと既存実装を照合する'),
                         'state':c.get('state'), 'main_status':c.get('main_status', '未確認'),
                         'production':c.get('production', '未確認'), 'archived':c.get('archived', False),
-                        'evidence':links[:12],
+                        'evidence':links[:12], 'implementation_decisions':decisions,
                         'runs':[{'name':r.get('name'), 'head_sha':r.get('head_sha'), 'conclusion':r.get('conclusion'), 'url':r.get('url')} for r in c.get('runs', [])][:8]})
     results.sort(key=lambda c:(-c['score'], not c['id'].startswith('pr-'), c['id']))
     # Same-HEAD branches reuse their PR evidence; don't demand duplicate decisions.
@@ -215,6 +249,12 @@ def markdown(report):
                   '**過去の結論：** '+esc(c['conclusion']), '', '**残課題：** '+esc(c['remaining']), '',
                   '**次の作業：** '+esc(c['next']), '',
                   'PR／ブランチ状態：'+esc(c['state'])+' ／ main：'+esc(c['main_status'])+' ／ 本番：'+esc(c['production']), '']
+        for row in c.get('implementation_decisions', []):
+            lines += ['**実装判断の候補：** '+esc(row.get('title')), '',
+                      '- 条件：'+esc(row.get('condition')),
+                      '- 動作：'+esc(row.get('behavior')),
+                      '- 検証範囲：'+esc(row.get('verification')),
+                      '- 残課題：'+esc(row.get('remaining'))]
         lines += ['- [原本・コード・検証根拠]('+url+')' for url in c['evidence']]
         for r in c['runs']:
             lines += ['- 検証実行：'+esc(r['name'])+'／'+esc(r['conclusion'])+'／SHA `'+esc(r['head_sha'])+'`（[実行元]('+str(r['url'])+')）']

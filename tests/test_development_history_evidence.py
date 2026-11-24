@@ -18,6 +18,49 @@ class FakeAPI:
         return {'title':'Stride experiment','body':'47 regions missed','head':{'sha':'a'*40,'ref':'research'},'base':{'sha':'b'*40,'ref':'feature'},'state':'closed','merged_at':'2026-01-01','merge_commit_sha':'c'*40,'updated_at':'2026-01-02','draft':False}
 
 class HistoryTests(unittest.TestCase):
+
+    def test_long_source_arrow_and_node_assert_keep_correct_line(self):
+        implementation = '// padding\n' * 1900 + 'export const ready = (count: number): boolean => count === 12;\n'
+        head = 'a' * 40
+        with patch.object(history, 'git', side_effect=[str(len(implementation.encode())), implementation]):
+            source = history.source(head, 'lib/cycle.ts')
+        self.assertEqual(source['coverage'], '全文')
+        case = {'files': [
+            {'path':'lib/cycle.ts','url':'https://github.com/test/repo/blob/'+head+'/lib/cycle.ts','source':source},
+            {'path':'tests/cycle.test.ts','url':'https://github.com/test/repo/blob/'+head+'/tests/cycle.test.ts',
+             'source':{'text':'import assert from "node:assert/strict";\nimport {ready} from "../lib/cycle.ts";\n'
+                              'test("必要コマが全部揃ったら完了", () => { assert.equal(ready(12), true); });\n'}},
+        ]}
+        row, = history.decision_candidates(case, 'test/repo')
+        self.assertTrue(row['links'][0].endswith('#L1901'))
+        self.assertIn('count === 12', row['behavior'])
+        self.assertIn('未確認', row['verification'])
+
+    def test_truncated_history_refreshes_without_mutating_previous_record(self):
+        old = {'head':'a'*40, 'files':[
+            {'path':'lib/cycle.ts','source':{'coverage':'先頭18000文字・原本リンク参照','text':'old'}, 'url':'code'}]}
+        with patch.object(history, 'ensure_commit') as ensure, patch.object(history, 'source', return_value={
+                'coverage':'全文','text':'full'}) as source:
+            current = history.refresh_truncated_sources(old)
+            ensure.assert_called_once_with('a'*40)
+            source.assert_called_once_with('a'*40, 'lib/cycle.ts')
+        self.assertEqual(current['files'][0]['source']['text'], 'full')
+        self.assertEqual(old['files'][0]['source']['text'], 'old')
+    def test_extracts_node_assert_and_skips_interpolated_test_titles(self):
+        case = {'files': [
+            {'path': 'lib/turn.ts', 'url': 'code', 'source': {
+                'text': 'export function canResume(ready) {\n  return ready === true;\n}\n'}},
+            {'path': 'tests/turn.test.ts', 'url': 'test', 'source': {'text': (
+                'import assert from "node:assert/strict";\n'
+                'import {canResume} from "../lib/turn.ts";\n'
+                'test("待機中は復帰しない", () => {assert.equal(canResume(false), false);});\n'
+                'test(`state ${ready ? "ready" : "waiting"}`, () => {assert.equal(canResume(true), true);});\n')}},
+        ]}
+        decision, = history.decision_candidates(case, 'test/repo')
+        self.assertEqual(decision['links'], ['code#L1', 'test#L3'])
+        self.assertIn('assert.equal(canResume(false), false)', decision['verification'])
+        self.assertIn('未確認', decision['verification'])
+
     def test_decision_candidates_link_test_code_and_proof_without_pr_summary(self):
         head = 'a' * 40
         root = 'https://github.com/test/repo'
