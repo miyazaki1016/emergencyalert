@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:,">
+<title>LIVE JAPAN デザインモック — さきどり</title>
+<style>
+  :root{
+    --bg:#07090d; --bg2:#0b0f16; --panel:#0e141f; --panel2:#111a29;
+    --line:#1e2a3d; --line2:#2a3a52;
+    --text:#e8edf3; --muted:#8b9bb0; --muted2:#5f718a;
+    --amber:#f5c86b; --teal:#38d9c5;
+    --c30:#FF9900; --c50:#FF2800; --c80:#B40068;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;cursor:pointer}
+  /* header */
+  .topbar{position:sticky;top:0;z-index:30;background:rgba(7,9,13,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .topbar-inner{max-width:1080px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
+  .mark{width:36px;height:36px;border-radius:9px;background:#0f1a2b;border:1px solid var(--line2);display:grid;place-items:center;flex-shrink:0}
+  .mark i{display:block;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 35%, #7dd3fc, #0ea5e9 45%, transparent 70%);box-shadow:0 0 12px rgba(56,189,248,.6);position:relative}
+  .mark i:after{content:"";position:absolute;inset:5px;border:1px solid rgba(255,255,255,.7);border-radius:50%;border-top-color:transparent;transform:rotate(40deg)}
+  .brand-text{line-height:1.1}
+  .brand-text strong{font-size:20px;letter-spacing:.08em;font-weight:800}
+  .brand-text strong span{color:var(--teal)}
+  .brand-text p{margin:2px 0 0;font-size:11px;letter-spacing:.06em;color:var(--muted);white-space:nowrap}
+  .my-btn{flex-shrink:0;display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:8px 13px;border-radius:999px;background:#fff;color:#0a0f16;font-weight:700;font-size:13px;border:1px solid #fff}
+  .my-btn small{font-weight:600;background:#0a0f16;color:#fff;font-size:10px;padding:2px 6px;border-radius:999px;letter-spacing:.04em}
+  /* layout */
+  .wrap{max-width:1080px;margin:0 auto;padding:14px 14px 0}
+  /* segmented */
+  .seg-wrap{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+  .seg-wrap button{min-height:44px;border:0;border-radius:999px;background:transparent;color:var(--muted);font-weight:700;font-size:13.5px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;padding:6px 2px}
+  .seg-wrap button span{font-size:10px;font-weight:500;opacity:.75;margin-top:2px;letter-spacing:.03em}
+  .seg-wrap button[aria-pressed="true"]{background:#e8edf3;color:#0a0f16}
+  body[data-state="heavy"] .seg-wrap button[aria-pressed="true"]{background:var(--c80);color:#fff}
+  body[data-state="rain"] .seg-wrap button[aria-pressed="true"]{background:#12263f;color:#7dd3fc;box-shadow:inset 0 0 0 1px #2a4a6b}
+  .state-desc{margin:10px 2px 0;font-size:12.5px;line-height:1.6;color:var(--muted)}
+  .state-desc strong{color:var(--text)}
+  /* meta bar */
+  .meta-bar{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
+  .meta-bar div{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:11px;line-height:1.3;color:var(--muted)}
+  .meta-bar b{color:var(--text);font-weight:700}
+  .meta-bar .live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.15);margin-right:5px;vertical-align:1px}
+  body[data-state="heavy"] .meta-bar .live-dot{background:#f43f5e;box-shadow:0 0 0 4px rgba(244,63,94,.15)}
+  /* map card */
+  .map-card{margin-top:12px;background:radial-gradient(120% 90% at 50% 0%, #101a2a 0%, #0a0f18 55%, #07090d 100%);border:1px solid var(--line);border-radius:18px;overflow:hidden;position:relative}
+  body[data-state="calm"] .map-card{background:radial-gradient(120% 100% at 20% 0%, #1a1a14 0%, #121a22 38%, #0b111a 100%)}
+  body[data-state="heavy"] .map-card{border-color:#3a1a2e;background:radial-gradient(120% 90% at 70% 20%, #1c0f1a 0%, #0a0f18 55%)}
+  .map-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:14px 14px 6px}
+  .map-head h1{margin:0;font-size:18px;line-height:1.25;letter-spacing:.02em}
+  .map-head h1 em{font-style:normal;color:var(--amber)}
+  body[data-state="heavy"] .map-head h1 em{color:#ff6b9d}
+  .map-head p{margin:5px 0 0;font-size:12px;line-height:1.5;color:var(--muted)}
+  .zoom-toggle{display:flex;background:#0a0f16;border:1px solid var(--line2);border-radius:999px;padding:3px;flex-shrink:0}
+  .zoom-toggle button{min-height:36px;border:0;background:transparent;color:var(--muted);font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px}
+  .zoom-toggle button.active{background:#fff;color:#000}
+  .map-stage{position:relative;margin:2px 10px 0;border-radius:12px;overflow:hidden;background:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size:28px 28px;background-color:#080d14}
+  body[data-state="calm"] .map-stage{background-color:#0d141d}
+  .map-stage svg{display:block;width:100%;height:auto}
+  .map-viewport{transition:transform .6s cubic-bezier(.2,.8,.2,1);transform-origin:68% 62%}
+  .map-stage.zoomed .map-viewport{transform:scale(2.05)}
+  /* chips on map */
+  .band-chip{position:absolute;z-index:4;background:rgba(7,9,13,.88);border:1px solid var(--line2);backdrop-filter:blur(6px);border-radius:999px;padding:6px 10px;font-size:11px;font-weight:700;line-height:1.2;display:none;align-items:center;gap:6px}
+  .band-chip i{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  body[data-state="heavy"] .band-chip{display:inline-flex}
+  .chip-a{top:12px;left:12px}
+  .chip-b{top:46px;left:12px}
+  .chip-a i{background:var(--c80);box-shadow:0 0 10px var(--c80)}
+  .chip-b i{background:var(--c50);box-shadow:0 0 10px var(--c50)}
+  .unknown-label{position:absolute;right:12px;top:12px;z-index:4;display:none;background:repeating-linear-gradient(45deg,#1a2436 0 6px,#0e1622 6px 12px);border:1px dashed #5b6f8d;color:#cbd5e1;font-size:11px;font-weight:700;padding:7px 9px;border-radius:8px}
+  body[data-state="heavy"] .unknown-label{display:block}
+  /* legend + freshness inside map */
+  .map-foot{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:flex-end;padding:10px 14px 14px}
+  .legend{display:flex;flex-wrap:wrap;gap:6px}
+  .legend span{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--line);padding:6px 8px;border-radius:999px}
+  .legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+  .fresh{font-size:11px;line-height:1.5;color:var(--muted);text-align:right}
+  .fresh b{color:var(--text)}
+  /* time axis */
+  .time-panel{margin-top:12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px 14px}
+  .time-panel[hidden]{display:none}
+  .time-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .time-top label{font-size:12px;font-weight:700;letter-spacing:.04em}
+  .time-top output{font-variant-numeric:tabular-nums;font-weight:800;font-size:15px}
+  .time-top output small{font-size:11px;color:var(--muted);font-weight:600}
+  .play-btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--line2);background:#fff;color:#000;display:grid;place-items:center;flex-shrink:0;font-size:16px}
+  .play-btn[aria-pressed="true"]{background:var(--teal);border-color:var(--teal)}
+  .scrub{margin-top:10px}
+  input[type="range"]{width:100%;accent-color:#38bdf8;height:36px}
+  .time-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px}
+  .time-labels b{color:var(--text)}
+  .ticks{display:flex;justify-content:space-between;margin-top:6px}
+  .ticks button{min-height:36px;flex:1;border:0;background:transparent;color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums;font-weight:700;padding:4px 0;border-top:2px solid var(--line)}
+  .ticks button.active{color:#fff;border-top-color:#38bdf8}
+  /* detail + list grid */
+  .below{display:grid;gap:12px;margin-top:12px}
+  @media(min-width:760px){.below{grid-template-columns:1fr 1.15fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+  .card h2{margin:0;font-size:13px;letter-spacing:.06em;color:var(--muted);font-weight:700}
+  .detail-main{display:flex;justify-content:space-between;gap:12px;margin-top:10px;align-items:flex-start}
+  .detail-main h3{margin:0;font-size:22px;line-height:1.1}
+  .detail-main p{margin:4px 0 0;font-size:12px;color:var(--muted)}
+  .badge{flex-shrink:0;text-align:center;border-radius:10px;padding:9px 10px;min-width:86px;color:#fff}
+  .badge strong{display:block;font-size:18px;line-height:1}
+  .badge span{font-size:11px;opacity:.9}
+  .badge.c0{background:#1e2a3d;color:var(--muted)}
+  .badge.c1{background:var(--c30);color:#1a1000}
+  .badge.c2{background:var(--c50)}
+  .badge.c3{background:var(--c80)}
+  .badge.unknown{background:repeating-linear-gradient(45deg,#243044 0 6px,#182233 6px 12px);color:#e2e8f0;border:1px dashed #64748b}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .detail-grid div{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:9px 10px}
+  .detail-grid dt{font-size:11px;color:var(--muted)}
+  .detail-grid dd{margin:3px 0 0;font-size:13px;font-weight:700}
+  .hint{margin:10px 0 0;font-size:11.5px;line-height:1.6;color:var(--muted)}
+  /* list */
+  .list-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .list-head span{font-size:11px;color:var(--muted);background:var(--bg2);border:1px solid var(--line);padding:4px 7px;border-radius:999px;white-space:nowrap}
+  .rain-list{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:7px}
+  .rain-list li{margin:0}
+  .rain-list button{width:100%;min-height:52px;display:flex;align-items:center;gap:10px;text-align:left;background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:9px 11px;color:var(--text)}
+  .rain-list button.selected{border-color:#7dd3fc;box-shadow:0 0 0 1px #7dd3fc inset}
+  .dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+  .dot.calm{background:#334155;border:1px solid #475569}
+  .dot.c1{background:var(--c30)} .dot.c2{background:var(--c50)} .dot.c3{background:var(--c80);box-shadow:0 0 10px rgba(180,0,104,.8)}
+  .dot.unknown{background:repeating-linear-gradient(45deg,#475569 0 3px,#1e293b 3px 6px);border:1px solid #64748b;border-radius:4px}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:.65}}
+  body[data-state="heavy"] .dot.c3{animation:pulse 1.4s ease-in-out infinite}
+  .rain-list b{font-size:14px}
+  .rain-list small{display:block;font-size:11px;color:var(--muted);margin-top:1px}
+  .rain-list em{margin-left:auto;font-style:normal;font-weight:800;font-size:13px;white-space:nowrap}
+  /* calm cities */
+  .calm-note{display:none;margin-top:12px;background:linear-gradient(135deg,#171a12,#0e141f);border:1px solid #2a2f22;border-radius:14px;padding:14px}
+  body[data-state="calm"] .calm-note{display:block}
+  .calm-note h2{margin:0;font-size:13px;color:#d6c9a8;letter-spacing:.05em}
+  .calm-note p{margin:6px 0 0;font-size:12.5px;line-height:1.7;color:var(--muted)}
+  .city-temps{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .city-temps span{font-size:12px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;padding:6px 9px}
+  .city-temps b{color:var(--amber)}
+  /* footer */
+  footer{max-width:1080px;margin:18px auto 0;padding:16px 16px 28px;border-top:1px solid var(--line);color:var(--muted);font-size:11.5px;line-height:1.7}
+  footer strong{color:var(--text)}
+  .foot-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .foot-links a{min-height:36px;display:inline-flex;align-items:center;padding:6px 10px;border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:700;color:var(--text);background:var(--panel)}
+  /* svg muni */
+  .muni{cursor:pointer}
+  .muni circle.core{stroke:#07090d;stroke-width:1.5}
+  .muni text{font-size:9px;fill:#e8edf3;font-weight:700;paint-order:stroke;stroke:#07090d;stroke-width:3px;pointer-events:none}
+  .muni.selected circle.halo{fill:none;stroke:#7dd3fc;stroke-width:1.5}
+  body[data-state="heavy"] .muni.c3 circle.core{animation:pulse 1.4s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+  .city-label{font-size:9.5px;fill:#cbd5e1;font-weight:600;paint-order:stroke;stroke:#07090d;stroke-width:3px}
+  .city-temp{font-size:9px;fill:#f5c86b;font-weight:700;paint-order:stroke;stroke:#07090d;stroke-width:3px}
+  @media(max-width:520px){
+    .brand-text p{display:block;font-size:10px;white-space:normal;line-height:1.35}
+    .brand-text strong{font-size:17px}
+    .map-head{flex-direction:column}
+    .zoom-toggle{align-self:flex-start}
+    .fresh{text-align:left}
+    .chip-b{top:auto;bottom:12px;left:12px}
+    .unknown-label{top:52px}
+    .band-chip{max-width:62%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body data-state="calm">
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"><i></i></div>
+      <div class="brand-text">
+        <strong>さきどり <span>LIVE JAPAN</span></strong>
+        <p>日本の今と、少し先の未来。 — 呼び名は仮称</p>
+      </div>
+    </div>
+    <a class="my-btn" href="#my">MYアメふる <small>登録地点</small></a>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- State switch -->
+  <div class="seg-wrap" role="group" aria-label="表示状態の切り替え">
+    <button type="button" data-set-state="calm" aria-pressed="true">平常時<span>何もない日の顔</span></button>
+    <button type="button" data-set-state="rain" aria-pressed="false">雨のとき<span>形 ＋ 色の二重表示</span></button>
+    <button type="button" data-set-state="heavy" aria-pressed="false">大雨の日<span>2026年11月24日事例</span></button>
+  </div>
+  <p class="state-desc" id="stateDesc"><strong>平常時：</strong>雨がない日でも開きたくなる、静かな日本の地図。昼夜と季節の演出はデータの色と分けてあります。</p>
+
+  <!-- Freshness / source always visible -->
+  <div class="meta-bar" aria-label="出典と鮮度">
+    <div><span class="live-dot"></span><b id="metaStatus">平常時 — 特別な警戒なし</b></div>
+    <div>出典： <b>気象庁</b>（降水短時間予報・ナウキャスト）</div>
+    <div>基準時刻： <b id="metaBase">2026/11/24 12:50</b></div>
+    <div>予報対象： <b id="metaValid">13:00 時点</b></div>
+  </div>
+
+  <!-- MAP -->
+  <section class="map-card" aria-label="日本地図">
+    <div class="map-head">
+      <div>
+        <h1 id="mapTitle">いまの日本は、<em>穏やかな午後</em>です</h1>
+        <p id="mapSub">太陽の位置に合わせた昼夜のグラデーションと、晩秋の淡い色味。観測データではない演出として、色の体系を分けています。</p>
+      </div>
+      <div class="zoom-toggle" role="group" aria-label="地図の拡大">
+        <button type="button" id="zoomNational" class="active">全国</button>
+        <button type="button" id="zoomDetail">関東・東海を拡大</button>
+      </div>
+    </div>
+
+    <div class="map-stage" id="mapStage">
+      <div class="band-chip chip-a"><i></i>東海の帯 — 13:30ごろピーク</div>
+      <div class="band-chip chip-b"><i></i>伊豆・箱根 — 80mm/h超が継続</div>
+      <div class="unknown-label">〰 御殿場市付近：未取得（不明）</div>
+
+      <svg viewBox="0 0 360 400" role="img" aria-label="日本地図（模式図）" id="japanSvg">
+        <defs>
+          <radialGradient id="sunGrad" cx="62%" cy="38%" r="75%">
+            <stop offset="0%" stop-color="#f5c86b" stop-opacity=".28"/>
+            <stop offset="42%" stop-color="#f5c86b" stop-opacity=".08"/>
+            <stop offset="72%" stop-color="#0b1220" stop-opacity=".05"/>
+            <stop offset="100%" stop-color="#020617" stop-opacity=".55"/>
+          </radialGradient>
+          <linearGradient id="seasonGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#b45309" stop-opacity=".10"/>
+            <stop offset="55%" stop-color="#0f766e" stop-opacity=".05"/>
+            <stop offset="100%" stop-color="#1e3a5f" stop-opacity=".12"/>
+          </linearGradient>
+          <filter id="blur18" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="14"/></filter>
+          <filter id="blur10" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="8"/></filter>
+          <pattern id="hatch" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+            <rect width="7" height="7" fill="#162033"/><line x1="0" y1="0" x2="0" y2="7" stroke="#64748b" stroke-width="2"/>
+          </pattern>
+          <pattern id="dotPat" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#3a4f6d"/></pattern>
+        </defs>
+
+        <g class="map-viewport" id="mapViewport">
+          <!-- Land silhouette: stylized simplified polygon -->
+          <path d="M286 18 L330 10 L352 34 L344 68 L312 84 L282 62 L272 36 Z
+                   M268 92 L292 104 L282 132 L258 150 L238 178 L228 208 L208 238 L186 262 L158 282 L128 302 L102 326 L84 350 L66 342 L78 316 L98 292 L122 268 L148 242 L168 214 L186 184 L204 152 L226 124 L248 100 Z
+                   M96 306 L118 316 L112 340 L84 348 L72 328 Z
+                   M52 352 L78 356 L74 378 L48 376 Z" fill="#131e2e" stroke="#2b3d57" stroke-width="1.2" stroke-linejoin="round"/>
+          <path d="M286 18 L330 10 L352 34 L344 68 L312 84 L282 62 L272 36 Z
+                   M268 92 L292 104 L282 132 L258 150 L238 178 L228 208 L208 238 L186 262 L158 282 L128 302 L102 326 L84 350 L66 342 L78 316 L98 292 L122 268 L148 242 L168 214 L186 184 L204 152 L226 124 L248 100 Z
+                   M96 306 L118 316 L112 340 L84 348 L72 328 Z
+                   M52 352 L78 356 L74 378 L48 376 Z" fill="url(#dotPat)" opacity=".55"/>
+
+          <!-- Calm overlays -->
+          <g id="calmOverlay">
+            <rect x="0" y="0" width="360" height="400" fill="url(#sunGrad)"/>
+            <rect x="0" y="0" width="360" height="400" fill="url(#seasonGrad)"/>
+            <circle cx="232" cy="150" r="5" fill="#fde68a"/><circle cx="232" cy="150" r="11" fill="none" stroke="#fde68a" stroke-opacity=".4"/>
+            <text x="14" y="26" class="city-label">☀ 昼の側</text>
+            <text x="14" y="39" style="font-size:8.5px;fill:#8b9bb0">太陽は南西寄り</text>
+            <!-- city temps -->
+            <g id="cityTemps">
+              <text x="306" y="58" class="city-label">札幌</text><text x="306" y="70" class="city-temp">6℃</text>
+              <text x="252" y="132" class="city-label">仙台</text><text x="252" y="144" class="city-temp">11℃</text>
+              <text x="218" y="228" class="city-label">東京</text><text x="218" y="240" class="city-temp">14℃</text>
+              <text x="172" y="258" class="city-label">名古屋</text><text x="172" y="270" class="city-temp">13℃</text>
+              <text x="138" y="282" class="city-label">大阪</text><text x="138" y="294" class="city-temp">15℃</text>
+              <text x="76" y="338" class="city-label">福岡</text><text x="76" y="350" class="city-temp">16℃</text>
+            </g>
+          </g>
+
+          <!-- Rain shape layer -->
+          <g id="shapeLayer" opacity="0" filter="url(#blur10)"></g>
+          <!-- Unknown area (heavy only) -->
+          <g id="unknownLayer" opacity="0">
+            <rect x="196" y="238" width="42" height="30" rx="6" fill="url(#hatch)" stroke="#64748b" stroke-dasharray="4 3"/>
+            <text x="217" y="256" text-anchor="middle" style="font-size:8.5px;fill:#e2e8f0;font-weight:700">未取得</text>
+          </g>
+          <!-- Municipalities -->
+          <g id="muniLayer"></g>
+        </g>
+      </svg>
+    </div>
+
+    <div class="map-foot">
+      <div class="legend" aria-label="雨の強さ凡例（気象庁カラー）">
+        <span><i style="background:var(--c30)"></i>30–50 mm/h</span>
+        <span><i style="background:var(--c50)"></i>50–80 mm/h</span>
+        <span><i style="background:var(--c80)"></i>80 mm/h以上</i></span>
+        <span><i style="background:repeating-linear-gradient(45deg,#475569 0 3px,#1e293b 3px 6px);border:1px solid #64748b"></i>未取得＝不明</span>
+      </div>
+      <div class="fresh">地図は模式図（ドット＋簡略ポリゴン）／ 実データ接続前のデザインモック<br>鮮度： <b id="freshText">平常時表示 — 雨レイヤーなし</b></div>
+    </div>
+  </section>
+
+  <!-- Time axis -->
+  <section class="time-panel" id="timePanel" hidden aria-label="時刻の切り替え">
+    <div class="time-top">
+      <button class="play-btn" id="playBtn" type="button" aria-pressed="false" aria-label="再生">▶</button>
+      <div style="flex:1">
+        <label for="timeRange">これまで ・ いま ・ このあと — 予報対象時刻で切り替え</label>
+        <div style="margin-top:2px"><output id="timeOutput">13:00 <small>いま / 基準 12:50 発表分</small></output></div>
+      </div>
+    </div>
+    <div class="scrub"><input type="range" id="timeRange" min="0" max="5" step="1" value="2" aria-label="予報対象時刻"></div>
+    <div class="time-labels"><span>◀ これまで</span><b>いま</b><span>このあと ▶</span></div>
+    <div class="ticks" id="ticks"></div>
+    <p class="hint" style="margin-top:8px">再生は公式予報の対象時刻どおりに切り替えます。雨域の形を創作で補間せず、各時刻の予報スナップショットを表示します（モックではサンプル形状）。</p>
+  </section>
+
+  <div class="calm-note">
+    <h2>平常時の考え方 — LIVE JAPAN のもう半分</h2>
+    <p>雨レイヤーが主役になるのは年に数十日。残りの日は「開くと日本の今が感じられる」ことがトップの仕事です。昼夜・季節の演出はデータ色（橙・赤・紫）を使わず、温かい光と淡い色だけに限定 — 飾りを観測と誤認させないための分離です。MYアメふるは登録地点の入口として常時固定。</p>
+    <div class="city-temps"><span>札幌 <b>6℃</b></span><span>仙台 <b>11℃</b></span><span>東京・木場 <b>14℃</b> 晴れ寄り</span><span>名古屋 <b>13℃</b></span><span>大阪 <b>15℃</b></span><span>福岡 <b>16℃</b></span></div>
+  </div>
+
+  <div class="below">
+    <!-- Detail card -->
+    <section class="card" aria-label="選択中の地域">
+      <h2>選択中の地域 — 地図をタップ / 一覧から選択</h2>
+      <div class="detail-main">
+        <div><h3 id="dName">箱根町</h3><p id="dPref">神奈川県 足柄下郡</p></div>
+        <div class="badge c3" id="dBadge"><strong id="dVal">84</strong><span id="dClass">mm/h ・ 80以上</span></div>
+      </div>
+      <dl class="detail-grid">
+        <div><dt>予報対象時刻</dt><dd id="dValid">13:00</dd></div>
+        <div><dt>このタイルの基準時刻</dt><dd id="dBase">12:50</dd></div>
+        <div><dt>強さの区分</dt><dd id="dRange">80 mm/h以上</dd></div>
+        <div><dt>状態</dt><dd id="dState">取得済み ・ 最新版</dd></div>
+      </dl>
+      <p class="hint" id="dHint">東海から伊豆へ伸びる帯の芯にあたります。大雨の日はこのカードが警戒情報の要約も兼ねます。タイルごとに基準時刻が異なる場合があるため、地域ごとに表示します。</p>
+    </section>
+
+    <!-- List companion -->
+    <section class="card" aria-label="全国の大雨予報一覧">
+      <div class="list-head"><h2>全国の大雨予報 — 地図の相棒（一覧で確認）</h2><span id="listCount">80mm/h以上 6地域</span></div>
+      <ul class="rain-list" id="rainList"></ul>
+      <p class="hint">一覧は格下げではなく確認用です。地図で分布と帯を掴み、一覧で自分の地域があるかを確かめる順番を想定しています。未取得は「雨なし」と表示せず、そのまま不明として残します。</p>
+    </section>
+  </div>
+
+  <p class="hint" style="margin-top:12px;padding:0 2px">操作メモ：上の3ボタンで顔が切り替わります。「雨のとき」「大雨の日」では下の時間軸を再生／スライドできます。地図右上の拡大で、全国分布 → 関東・東海の詳細という二段構えを確認できます。このモックの数値は 2026年11月24日の事例をもとにしたサンプルです。</p>
+</main>
+
+<footer>
+  <strong>さきどり / LIVE JAPAN（仮称）— デザインモック</strong><br>
+  データは公的機関（気象庁など）の公開情報を、加工せずそのまま届けることを原則とします。本ページは表示デザインの検討用モックで、地図・雨域・数値はすべてサンプルです。実データの取得・判定ロジックは含みません。<br>
+  色分けは気象庁の雨量階級カラーに準拠： 30–50mm/h #FF9900 ／ 50–80mm/h #FF2800 ／ 80mm/h以上 #B40068。「未取得」は雨の有無が分からない状態として、斜線と文字で明示します。
+  <div class="foot-links">
+    <a href="#my" id="my">MYアメふるへ（登録地点の雨通知）</a>
+    <a href="#" onclick="return false">全国大雨予報の詳細（モック）</a>
+    <a href="#" onclick="return false">出典・検証（答え合わせ）について</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var times = ["12:00","12:30","13:00","13:30","14:00","14:30"];
+  var timeNotes = ["これまで","これまで","いま","このあと","このあと","このあと"];
+  // intensities per time index: 0 none, 1=30-50, 2=50-80, 3=80+, -1 unknown
+  var munis = [
+    {id:"hakone", name:"箱根町", pref:"神奈川県 足柄下郡", x:207, y:252, base:"12:50", vals:[38,62,84,92,71,48], cls:[1,2,3,3,2,1]},
+    {id:"odawara", name:"小田原市", pref:"神奈川県", x:196, y:262, base:"12:50", vals:[28,44,58,66,52,36], cls:[0,1,2,2,2,1]},
+    {id:"minamiashigara", name:"南足柄市", pref:"神奈川県", x:200, y:244, base:"12:50", vals:[42,58,76,88,64,40], cls:[1,2,2,3,2,1]},
+    {id:"mishima", name:"三島市", pref:"静岡県", x:186, y:250, base:"12:45", vals:[35,52,68,82,74,50], cls:[1,2,2,3,2,2]},
+    {id:"susono", name:"裾野市", pref:"静岡県", x:182, y:240, base:"12:45", vals:[30,46,60,72,58,38], cls:[1,1,2,2,2,1]},
+    {id:"kannami", name:"函南町", pref:"静岡県 田方郡", x:190, y:258, base:"12:45", vals:[32,48,64,78,60,42], cls:[1,1,2,2,2,1]},
+    {id:"atami", name:"熱海市", pref:"静岡県", x:198, y:270, base:"12:50", vals:[18,30,44,52,40,28], cls:[0,1,1,2,1,0]},
+    {id:"gotemba", name:"御殿場市", pref:"静岡県", x:188, y:232, base:"—", vals:[null,null,null,null,null,null], cls:[-1,-1,-1,-1,-1,-1], unknown:true},
+    {id:"numazu", name:"沼津市", pref:"静岡県", x:178, y:254, base:"12:45", vals:[22,36,48,55,44,30], cls:[0,1,1,2,1,1]},
+    {id:"izu", name:"伊豆市", pref:"静岡県", x:184, y:268, base:"12:45", vals:[20,34,46,58,46,32], cls:[0,1,1,2,1,1]}
+  ];
+  // shape blobs per time: cx,cy,rx,ry, color opacity handled
+  var shapes = [
+    [{cx:175,cy:245,rx:42,ry:16},{cx:205,cy:258,rx:26,ry:12}],
+    [{cx:182,cy:248,rx:48,ry:18},{cx:210,cy:260,rx:30,ry:13}],
+    [{cx:190,cy:252,rx:54,ry:19},{cx:214,cy:262,rx:32,ry:14}],
+    [{cx:196,cy:254,rx:58,ry:20},{cx:218,cy:264,rx:34,ry:15}],
+    [{cx:202,cy:258,rx:50,ry:18},{cx:222,cy:268,rx:28,ry:12}],
+    [{cx:208,cy:262,rx:40,ry:15},{cx:226,cy:272,rx:22,ry:10}]
+  ];
+  var state = "calm";
+  var timeIdx = 2;
+  var selectedId = "hakone";
+  var playing = false, timer = null;
+
+  var body = document.body;
+  var muniLayer = document.getElementById("muniLayer");
+  var shapeLayer = document.getElementById("shapeLayer");
+  var calmOverlay = document.getElementById("calmOverlay");
+  var unknownLayer = document.getElementById("unknownLayer");
+  var rainList = document.getElementById("rainList");
+  var ticks = document.getElementById("ticks");
+
+  // build ticks
+  times.forEach(function(t,i){
+    var b=document.createElement("button"); b.type="button"; b.textContent=t; b.dataset.i=i;
+    b.addEventListener("click",function(){ setTime(i); stopPlay(); });
+    ticks.appendChild(b);
+  });
+
+  function classLabel(c){
+    if(c===-1) return "未取得";
+    if(c===3) return "80 mm/h以上";
+    if(c===2) return "50–80 mm/h";
+    if(c===1) return "30–50 mm/h";
+    return "30 mm/h未満";
+  }
+  function renderShapes(){
+    shapeLayer.innerHTML="";
+    if(state==="calm"){ shapeLayer.setAttribute("opacity","0"); return; }
+    shapeLayer.setAttribute("opacity", state==="heavy" ? "0.95" : "0.8");
+    var frame = shapes[timeIdx];
+    var ns="http://www.w3.org/2000/svg";
+    frame.forEach(function(s,idx){
+      var e=document.createElementNS(ns,"ellipse");
+      e.setAttribute("cx",s.cx); e.setAttribute("cy",s.cy);
+      e.setAttribute("rx",s.rx); e.setAttribute("ry",s.ry);
+      e.setAttribute("fill", idx===0 ? (state==="heavy" ? "#B40068" : "#0ea5e9") : (state==="heavy" ? "#FF2800" : "#38bdf8"));
+      e.setAttribute("opacity", idx===0 ? ".38" : ".30");
+      shapeLayer.appendChild(e);
+      var e2=document.createElementNS(ns,"ellipse");
+      e2.setAttribute("cx",s.cx); e2.setAttribute("cy",s.cy);
+      e2.setAttribute("rx",s.rx*0.55); e2.setAttribute("ry",s.ry*0.55);
+      e2.setAttribute("fill", state==="heavy" ? "#FF9900" : "#7dd3fc");
+      e2.setAttribute("opacity",".28");
+      shapeLayer.appendChild(e2);
+    });
+  }
+  function renderMunis(){
+    muniLayer.innerHTML="";
+    var ns="http://www.w3.org/2000/svg";
+    var show = state!=="calm";
+    munis.forEach(function(m){
+      var g=document.createElementNS(ns,"g");
+      g.setAttribute("class","muni"+(m.id===selectedId?" selected":""));
+      g.dataset.id=m.id;
+      var c = m.cls[timeIdx];
+      if(m.unknown) g.setAttribute("class", g.getAttribute("class")+" unknown");
+      else if(c===3) g.setAttribute("class", g.getAttribute("class")+" c3");
+      // halo for selected
+      var halo=document.createElementNS(ns,"circle");
+      halo.setAttribute("cx",m.x); halo.setAttribute("cy",m.y); halo.setAttribute("r","11");
+      halo.setAttribute("class","halo"); halo.setAttribute("fill","none");
+      if(m.id!==selectedId) halo.setAttribute("opacity","0");
+      g.appendChild(halo);
+      var core=document.createElementNS(ns,"circle");
+      core.setAttribute("cx",m.x); core.setAttribute("cy",m.y);
+      core.setAttribute("r", m.unknown ? "7" : (c===0 ? "4" : c===1 ? "6" : c===2 ? "7" : "8"));
+      core.setAttribute("class","core");
+      if(!show){
+        core.setAttribute("fill","#334155"); core.setAttribute("opacity",".35");
+      } else if(m.unknown){
+        core.setAttribute("fill","url(#hatch)"); core.setAttribute("stroke","#94a3b8");
+      } else if(c===3) core.setAttribute("fill","#B40068");
+      else if(c===2) core.setAttribute("fill","#FF2800");
+      else if(c===1) core.setAttribute("fill","#FF9900");
+      else core.setAttribute("fill","#475569");
+      g.appendChild(core);
+      if(show){
+        var t=document.createElementNS(ns,"text");
+        t.setAttribute("x",m.x+11); t.setAttribute("y",m.y+3); t.textContent=m.name;
+        g.appendChild(t);
+      }
+      g.addEventListener("click",function(){ selectedId=m.id; renderAll(); });
+      muniLayer.appendChild(g);
+    });
+    calmOverlay.style.opacity = state==="calm" ? "1" : "0.12";
+    unknownLayer.setAttribute("opacity", state==="heavy" ? "1" : "0");
+  }
+  function renderDetail(){
+    var m = munis.find(function(x){return x.id===selectedId}) || munis[0];
+    var c = m.cls[timeIdx];
+    document.getElementById("dName").textContent=m.name;
+    document.getElementById("dPref").textContent=m.pref;
+    var badge=document.getElementById("dBadge");
+    if(state==="calm"){
+      badge.className="badge c0";
+      document.getElementById("dVal").textContent="—";
+      document.getElementById("dClass").textContent="平常時 ・ 雨なし";
+      document.getElementById("dRange").textContent="該当なし（30mm/h以上の予報なし）";
+      document.getElementById("dState").textContent="平常時 — 雨レイヤーなし";
+      document.getElementById("dHint").textContent="平常時は雨の強さを表示しません。上の切り替えで「雨のとき」「大雨の日」にすると、この地域の予報（対象時刻・基準時刻つき）が色と数値で表示されます。";
+      document.getElementById("dValid").textContent="—（平常時）";
+      document.getElementById("dBase").textContent="—";
+      return;
+    }
+    badge.className="badge "+(m.unknown?"unknown":("c"+c));
+    if(m.unknown){
+      document.getElementById("dVal").textContent="未取得";
+      document.getElementById("dClass").textContent="不明 — 雨なしではない";
+      document.getElementById("dRange").textContent="未取得（判定不可）";
+      document.getElementById("dState").textContent="未取得 — 次回スキャンで再試行";
+      document.getElementById("dHint").textContent="このタイルは読み取れませんでした。読めないことは「雨が降っていない」こととは違うため、斜線で不明のまま表示します（UNKNOWNの原則）。";
+    } else {
+      document.getElementById("dVal").textContent= state==="calm" ? "—" : m.vals[timeIdx];
+      document.getElementById("dClass").textContent= state==="calm" ? "平常時" : ("mm/h ・ "+(c===3?"80以上":c===2?"50–80":c===1?"30–50":"30未満"));
+      document.getElementById("dRange").textContent=classLabel(c);
+      document.getElementById("dState").textContent="取得済み ・ 最新版";
+      document.getElementById("dHint").textContent = state==="heavy" ? "東海から伊豆へ伸びる帯の芯にあたります。大雨の日はこのカードが警戒情報の要約も兼ねます。タイルごとに基準時刻が異なる場合があるため、地域ごとに表示します。" : "地図の色は自治体単位の最大値、形は雨域そのものです。両方を重ねることで「帯の位置」と「どの町か」が同時に分かります。";
+    }
+    document.getElementById("dValid").textContent=times[timeIdx]+"（"+timeNotes[timeIdx]+"）";
+    document.getElementById("dBase").textContent=m.base==="—" ? "—（未取得）" : ("2026/11/24 "+m.base);
+  }
+  function renderList(){
+    rainList.innerHTML="";
+    var sorted = munis.slice().sort(function(a,b){ return (b.vals[timeIdx]||-1)-(a.vals[timeIdx]||-1); });
+    sorted.forEach(function(m){
+      var c=m.cls[timeIdx];
+      var li=document.createElement("li");
+      var btn=document.createElement("button"); btn.type="button";
+      if(m.id===selectedId) btn.className="selected";
+      var dotCls = state==="calm" ? "calm" : (m.unknown ? "unknown" : ("c"+Math.max(c,0)));
+      var sub = state==="calm" ? (m.pref+' ・ 平常時 — 強い雨の予報なし') : (m.pref+' ・ 対象 '+times[timeIdx]+' ・ 基準 '+m.base);
+      btn.innerHTML='<span class="dot '+dotCls+'"></span><span><b>'+m.name+'</b><small>'+sub+'</small></span><em>'+(state==="calm"?'雨なし':(m.unknown?'未取得':m.vals[timeIdx]+" mm/h"))+'</em>';
+      btn.addEventListener("click",function(){ selectedId=m.id; renderAll(); document.getElementById("mapStage").scrollIntoView({behavior:"smooth",block:"nearest"}); });
+      li.appendChild(btn); rainList.appendChild(li);
+    });
+    var n80 = munis.filter(function(m){return m.cls[timeIdx]===3}).length;
+    var n50 = munis.filter(function(m){return m.cls[timeIdx]>=2}).length;
+    document.getElementById("listCount").textContent = state==="calm" ? "平常時 — 該当なし" : ("80mm/h以上 "+n80+"地域 ／ 50以上 "+n50+"地域");
+  }
+  function renderTime(){
+    document.getElementById("timeRange").value=timeIdx;
+    document.getElementById("timeOutput").innerHTML=times[timeIdx]+' <small>'+timeNotes[timeIdx]+' / 基準 12:50 発表分</small>';
+    document.getElementById("metaValid").textContent= state==="calm" ? "—（平常時・対象なし）" : times[timeIdx]+" 時点";
+    Array.prototype.forEach.call(ticks.children,function(el,i){ el.classList.toggle("active", i===timeIdx); });
+    document.getElementById("freshText").textContent = state==="calm" ? "平常時表示 — 雨レイヤーなし" : ("対象 "+times[timeIdx]+" ・ 基準 12:50 版を表示中");
+  }
+  function renderState(){
+    body.dataset.state=state;
+    document.querySelectorAll("[data-set-state]").forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.setState===state ? "true":"false"); });
+    var desc=document.getElementById("stateDesc");
+    var title=document.getElementById("mapTitle");
+    var sub=document.getElementById("mapSub");
+    var panel=document.getElementById("timePanel");
+    if(state==="calm"){
+      desc.innerHTML="<strong>平常時：</strong>雨がない日でも開きたくなる、静かな日本の地図。昼夜と季節の演出はデータの色と分けてあります。";
+      title.innerHTML='いまの日本は、<em>穏やかな午後</em>です';
+      sub.textContent="太陽の位置に合わせた昼夜のグラデーションと、晩秋の淡い色味。観測データではない演出として、色の体系を分けています。";
+      document.getElementById("metaStatus").textContent="平常時 — 特別な警戒なし";
+      document.getElementById("metaBase").textContent="—（平常時サンプル・雨予報なし）";
+      panel.hidden=true; stopPlay();
+    } else if(state==="rain"){
+      desc.innerHTML="<strong>雨のとき：</strong>雨雲の「形」と自治体の「色」を二重に重ねます。形だけでは町が分からず、色だけでは帯の動きが分からない — 両方で初めて読めます。";
+      title.innerHTML='雨の帯が、<em>東海から伊豆</em>へかかっています';
+      sub.textContent="水色のぼんやりした面が雨域の形、色付きの点が自治体ごとの強さです。時間軸を再生すると、予報対象時刻ごとに両方が切り替わります。";
+      document.getElementById("metaStatus").textContent="雨 — 30mm/h以上の地域あり";
+      document.getElementById("metaBase").textContent="2026/11/24 12:50";
+      panel.hidden=false;
+    } else {
+      desc.innerHTML="<strong>大雨の日（2026年11月24日）：</strong>演出を引っ込め、危険情報が主役の管制室モード。80mm/h以上が脈打ち、帯ごとの要約と鮮度が常時見えます。";
+      title.innerHTML='大雨 — <em>80mm/h以上が6地域</em>、帯は東海に停滞';
+      sub.textContent="今日のような広域の日は、全国表示で分布を掴むのが先です。リストでは帯の位置も動きも読めません。未取得は不明のまま残します。";
+      document.getElementById("metaStatus").textContent="警戒 — 80mm/h以上あり・線状の帯";
+      document.getElementById("metaBase").textContent="2026/11/24 12:50";
+      panel.hidden=false;
+    }
+  }
+  function renderAll(){ renderState(); renderShapes(); renderMunis(); renderDetail(); renderList(); renderTime(); }
+  function setTime(i){ timeIdx=Math.max(0,Math.min(5,i)); renderShapes(); renderMunis(); renderDetail(); renderList(); renderTime(); }
+  function stopPlay(){ playing=false; var b=document.getElementById("playBtn"); b.textContent="▶"; b.setAttribute("aria-pressed","false"); if(timer){clearInterval(timer); timer=null;} }
+  document.querySelectorAll("[data-set-state]").forEach(function(b){
+    b.addEventListener("click",function(){ state=b.dataset.setState; if(state==="heavy") timeIdx=3; if(state==="rain") timeIdx=2; renderAll(); });
+  });
+  document.getElementById("timeRange").addEventListener("input",function(e){ setTime(parseInt(e.target.value,10)); stopPlay(); });
+  document.getElementById("playBtn").addEventListener("click",function(){
+    if(playing){ stopPlay(); return; }
+    playing=true; this.textContent="❚❚"; this.setAttribute("aria-pressed","true");
+    timer=setInterval(function(){ var n=timeIdx+1; if(n>5){ stopPlay(); return; } setTime(n); },1100);
+  });
+  // zoom
+  var stage=document.getElementById("mapStage");
+  document.getElementById("zoomNational").addEventListener("click",function(){ stage.classList.remove("zoomed"); this.classList.add("active"); document.getElementById("zoomDetail").classList.remove("active"); });
+  document.getElementById("zoomDetail").addEventListener("click",function(){ stage.classList.add("zoomed"); this.classList.add("active"); document.getElementById("zoomNational").classList.remove("active"); });
+
+  renderAll();
+})();
+</script>
+</body>
+</html>
