@@ -32,6 +32,43 @@ RAIN = case(62, 'ズーム4全画素走査と1ピクセル飛ばしを比較し�
 
 
 class PreflightTests(unittest.TestCase):
+
+    def test_composed_retry_query_returns_both_proof_and_cutoff_decisions(self):
+        proof = {'kind':'proof','title':'http-503-retry-proof','condition':'','behavior':'再取得',
+                 'verification':'未確認','remaining':'本番未確認','links':[]}
+        cutoff = {'kind':'test','title':'drops an older retry when a newer candidate exists',
+                  'condition':'','behavior':'','verification':'20260101003000 20260101003700',
+                  'remaining':'本番未確認','links':[]}
+        c = case(42, '条件の調整', decisions=[proof,cutoff])
+        report = p.inspect(state(c), '全国予報を調査。503を取り直してる間に次の7分が来たら？古い枠の挙動を確認したい', now=NOW)
+        self.assertEqual(report['status'], 'REVIEW_REQUIRED')
+        self.assertEqual(report['candidates'][0]['implementation_decisions'], [proof,cutoff])
+
+    def test_decision_only_match_requires_review_and_returns_exact_evidence(self):
+        root = 'https://github.com/test/repo'
+        row = {'kind':'test', 'title':'重複登録の再実行で二重反映を防ぐ', 'condition':'同じ登録IDで再実行',
+               'behavior':'二重反映を拒否', 'verification':'テスト定義のみ。実行未確認',
+               'remaining':'本番採用は未確認', 'links':[root+'/blob/'+'a'*40+'/lib/guard.ts#L24',
+                                                       root+'/blob/'+'a'*40+'/tests/guard.test.ts#L31']}
+        c = case(42, '保存処理の調整', decisions=[row])
+        task = '重複登録の再実行で二重反映を防ぐ'
+        report = p.inspect(state(c), task, now=NOW)
+        self.assertEqual(report['status'], 'REVIEW_REQUIRED')
+        candidate, = report['candidates']
+        self.assertEqual(candidate['implementation_decisions'], [row])
+        self.assertIn(row['links'][0], candidate['evidence'])
+        self.assertIn('本番採用は未確認', p.markdown(report))
+        decision = {'id':'pr-42', 'decision':'reuse', 'reason':'既存の登録IDによる二重反映防止を再利用し、未解決の条件だけ追加検証する',
+                    'evidence':row['links'][1]}
+        self.assertEqual(p.inspect(state(c), task, decisions=[decision], now=NOW)['status'], 'REVIEW_RECORDED')
+        self.assertEqual(p.inspect(state(c), '猫の写真帳を作りたい', now=NOW)['status'], 'NO_STRONG_MATCH')
+
+    def test_unrelated_decisions_do_not_accumulate_into_strong_match(self):
+        rows = [{'kind':'test','title':word,'condition':'','behavior':'','verification':'','remaining':'','links':[]}
+                for word in ('zirconium', 'tungsten', 'rhodium', 'osmium')]
+        c = case(42, '独立した設定', decisions=rows)
+        report = p.inspect(state(c), 'zirconium tungsten rhodium osmium', now=NOW)
+        self.assertEqual(report['status'], 'NO_STRONG_MATCH')
     def test_freeform_japanese_recovers_unmerged_stride_conclusion(self):
         s=state(RAIN, case(1, '全国の雨量を地図へ表示する'))
         r=p.inspect(s, '全国の雨雲の候補抽出を軽くしたい。1ピクセルおきに間引いて走査しても大丈夫か比較する', now=NOW)

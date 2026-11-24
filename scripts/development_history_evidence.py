@@ -98,8 +98,8 @@ def source(sha,path):
         size=int(git('cat-file','-s',sha+':'+path))
         if size>120000: return {'path':path,'coverage':'サイズ上限120KB・原本リンク参照'}
         text=clean(git('show',sha+':'+path))
-        return {'path':path,'coverage':'全文' if len(text)<=18000 else '先頭18000文字・原本リンク参照',
-                'text':text[:18000], 'sha256':hashlib.sha256(text.encode()).hexdigest()}
+        return {'path':path,'coverage':'全文' if len(text)<=120000 else '先頭120000文字・原本リンク参照',
+                'text':text[:120000], 'sha256':hashlib.sha256(text.encode()).hexdigest()}
     except (subprocess.CalledProcessError,ValueError):
         return {'path':path,'coverage':'削除済み／取得不能・差分参照'}
 
@@ -177,6 +177,36 @@ def verified_observation(case, repo, field, path):
             return clean(observed['result']), url
     return None
 
+def function_definitions(text):
+    """Recognize named functions and simple typed arrow declarations."""
+    declarations = list(re.finditer(r'\bfunction\s+([\w$]+)\s*\(', text))
+    arrows = re.finditer(
+        r'\b(?:const|let)\s+([\w$]+)\s*=\s*(?:async\s+)?'
+        r'(?:\([^)]{0,2000}\)|[\w$]+)\s*(?::\s*[^=;\n]{1,200})?=>', text)
+    declarations.extend(arrows)
+    return sorted(declarations, key=lambda match: match.start())
+
+
+def refresh_truncated_sources(case):
+    """Expand old truncated evidence locally without refetching PR metadata."""
+    truncated = [f for f in case.get('files', []) + case.get('related_sources', [])
+                 if '先頭18000文字' in f.get('source', f).get('coverage', '')]
+    if not truncated:
+        return case
+    ensure_commit(case['head'])
+    refreshed = dict(case)
+    for field in ('files', 'related_sources'):
+        refreshed[field] = []
+        for item in case.get(field, []):
+            if '先頭18000文字' in item.get('source', item).get('coverage', ''):
+                updated = source(case['head'], item['path'])
+                if 'text' not in updated:
+                    raise ValueError('Source refresh incomplete')
+                item = dict(item, source=updated) if 'source' in item else dict(item, **updated)
+            refreshed[field].append(item)
+    return refreshed
+
+
 def decision_candidates(case, repo):
     """Link literal expectations and proof settings to the files that define them."""
     files = {f['path']: f for f in case.get('files', []) + case.get('related_sources', []) if f.get('url')}
@@ -185,7 +215,7 @@ def decision_candidates(case, repo):
     for path, text in sources.items():
         if Path(path).suffix not in ('.ts', '.tsx', '.js', '.mjs', '.cjs') or re.search(r'\.(?:test|spec)\.', path):
             continue
-        for match in re.finditer(r'\bfunction\s+([\w$]+)\s*\(', text):
+        for match in function_definitions(text):
             definitions.setdefault(match[1], []).append((path, match.start()))
     rows = []
     for path, text in sources.items():
@@ -193,10 +223,15 @@ def decision_candidates(case, repo):
             continue
         # Test names provide intent. Only link a call with a unique source in the
         # same directory or an explicit import/reference in this test.
-        tests = list(re.finditer(r'\b(?:it|test)\(\s*["\x27`]([^"\x27`\n]+)["\x27`]', text))
+        tests = list(re.finditer(r'\b(?:it|test)\(\s*(["\x27`])([^\n]+?)\1\s*,', text))
         for i, test in enumerate(tests):
+            if test[1] == '`' and '${' in test[2]:
+                continue
             block = text[test.end():tests[i+1].start() if i+1 < len(tests) else len(text)][:4000]
-            assertions = list(re.finditer(r'\bexpect\s*\((.*?)\)\s*\.\s*to\w+\(.*?(?:;|(?=\n\s*\}\);)|$)', block, re.S))
+            expectations = re.findall(r'\b(expect\s*\((.*?)\)\s*\.\s*to\w+\(.*?(?:;|(?=\n\s*\}\);)|$))', block, re.S)
+            # Misaki also uses node:test with node:assert/strict.
+            if re.search(r'["\x27]node:assert(?:/strict)?["\x27]', text):
+                expectations.extend((line, line) for line in re.findall(r'\bassert\.\w+\([^;\n]+', block))
             names = list(dict.fromkeys(re.findall(r'\b([\w$]+)\s*\(', block)))
             matches = []
             for name in names:
@@ -205,18 +240,18 @@ def decision_candidates(case, repo):
                               r'["\x27][^"\x27\n]*[/]'+re.escape(Path(src).stem)+r'(?:\.[a-z]+)?["\x27]', text)]
                 if len(linked) == 1:
                     matches.append((name, *linked[0]))
-            if not assertions or not matches:
+            if not expectations or not matches:
                 continue
             # Prefer the function called inside expect() to helper calls in setup.
-            asserted = [m for m in matches if any(re.search(r'\b'+re.escape(m[0])+r'\s*\(', a[1]) for a in assertions)]
+            asserted = [m for m in matches if any(re.search(r'\b'+re.escape(m[0])+r'\s*\(', target) for _, target in expectations)]
             name, src, pos = (asserted or matches)[0]
             statement = sources[src][pos:]
-            next_decl = re.search(r'\n(?:export\s+)?(?:async\s+)?function\s+', statement)
-            excerpt = statement[:next_decl.start()] if next_decl else statement
+            declarations = [m for m in function_definitions(sources[src]) if m.start() > pos]
+            excerpt = sources[src][pos:declarations[0].start()] if declarations else statement
             returns = [line.strip() for line in excerpt.splitlines() if line.strip().startswith(('return ', 'if ('))]
-            condition = test[1][:180]
-            expected = ' ／ '.join(' '.join(a[0].split())[:250] for a in assertions[:3])
-            behavior = ' ／ '.join(returns[:8])[:560] or name
+            condition = test[2][:180]
+            expected = ' ／ '.join(' '.join(assertion.split())[:250] for assertion, _ in expectations[:3])
+            behavior = ' ／ '.join(returns[:8])[:560] or ' '.join(excerpt.split())[:560]
             links = [line_link(files[src], sources[src], pos), line_link(files[path], text, test.start())]
             verification = '個別の実行結果は未確認'
             if observed := verified_observation(case, repo, 'test_observations', path):
@@ -463,7 +498,7 @@ def render_output(state,out,repo):
     for path,ids in duplicates.items():
         lines+=['- '+md(path)+'：'+', '.join('['+key+'](cases/'+key+'.md)' for key in ids)]
     lines+=['','## 更新と制約','', '- 過去版は revisions/ に追記保存。state.json は次回の差分解析に利用。',
-            '- ソースは120KB以下のテキストを最大18000文字ずつ取得。差分省略、取得失敗は原本確認が必要。',
+            '- ソースは120KB以下のテキストを最大120000文字ずつ取得。差分省略、取得失敗は原本確認が必要。',
             '- CI結果はコミットSHA付き実行記録。テスト個別の意味・本番動作を保証しない。',
             '- 外部AI APIは呼び出さないため追加AI料金・APIキーは不要。英語原文の全文翻訳・自由な意味理解は行わない。',
             '- 総覧＝製品全体、台帳＝現在の判断、承認ボード＝採否、本履歴＝過去の根拠。']
@@ -521,7 +556,13 @@ def build(report,api,out,previous=None,curated=None):
     # every unchanged PR or losing archived findings.
     for key,c in cases.items():
         if key.startswith('pr-') and not c.get('error'):
-            c['decisions'] = decision_candidates(c,repo)
+            try:
+                c = refresh_truncated_sources(c)
+                c['decisions'] = decision_candidates(c,repo)
+                cases[key] = c
+            except (RuntimeError, ValueError, KeyError, OSError, subprocess.CalledProcessError):
+                errors.append({'id': key, 'error': 'SourceRefreshError'})
+                cases[key] = dict(c, error='関連ソースの再取得に失敗。旧結果を保持、再収集が必要')
     if api.pending:
         dump(Path(out)/'pending-requests.json',sorted(api.pending)); return None
     state={'schema_version':VERSION,'repository':repo,'generated_at':report['generated_at'], 'cases':cases,
