@@ -187,21 +187,38 @@ class LiveEventTests(unittest.TestCase):
             p.live_event({'issue': {'number': 1}}, 'https://invalid.example')
 
     def test_pr300_rerun_replaces_stale_event_decisions_with_latest(self):
-        # Regression for emergencyalert PR #300 (run 45366196961): re-running an
-        # old run reuses the old GITHUB_EVENT_PATH. Its stale decision record
-        # must never survive; only the latest original may be evaluated.
+        # Regression for emergencyalert PR #300 (run 45366196961, re-run
+        # attempt 3 on 2026-11-25 still REVIEW_REQUIRED): re-running an old
+        # run reuses the old GITHUB_EVENT_PATH, whose frozen body holds only
+        # the FIRST 8 decision records (pr-252 was still "distinct" there).
+        # The latest PR body holds all 15 records (pr-252 corrected to
+        # "extend", pr-286 "reuse", ...). Only the latest may be evaluated.
         from unittest.mock import patch
         import os
+        def ack(decisions):
+            return '<!-- history-preflight '+json.dumps({'decisions': decisions})+' -->'
+        def record(i, decision):
+            return {'id': 'pr-'+str(i), 'decision': decision,
+                    'reason': '候補の原本を確認した判断記録の検証データ',
+                    'evidence': 'https://github.com/test/repo/pull/'+str(i)}
+        # Only the counts (8 stale / 15 latest) and pr-252 / pr-286 below are
+        # from the real PR #300 record; the other ids are neutral fixtures.
+        stale_ids = [252, 101, 102, 103, 104, 105, 106, 107]
         stale = {'pull_request': {'number': 300, 'title': 'old title',
-                 'body': '<!-- history-preflight {"decisions":[{"id":"pr-1","decision":"distinct","reason":"古い判断記録のまま再実行された","evidence":"https://github.com/test/repo/pull/1"}]} -->'}}
-        latest = pr_payload('<!-- history-preflight {"decisions":[{"id":"pr-62","decision":"reuse","reason":"最新の判断記録を再実行でも読み直す","evidence":"https://github.com/test/repo/pull/62"}]} -->')
+                 'body': ack([record(i, 'distinct' if i == 252 else 'reuse') for i in stale_ids])}}
+        latest_ids = stale_ids+[286, 108, 109, 110, 111, 112, 113]
+        latest_decisions = [record(i, 'extend' if i == 252 else 'reuse') for i in latest_ids]
+        latest = pr_payload(ack(latest_decisions))
         with patch.dict(os.environ, {'PREFLIGHT_GITHUB_TOKEN': 'test'}), \
                 patch('urllib.request.urlopen', side_effect=live_responses(latest, {'object': {'sha': 'a'*40}})):
             result = p.live_event(stale, 'test/repo')
         task, decisions, _ = p.event_task(result)
-        self.assertEqual([d['id'] for d in decisions], ['pr-62'])
-        self.assertEqual(decisions[0]['decision'], 'reuse')
-        self.assertNotIn('pr-1', task)
+        self.assertEqual(len(decisions), 15)
+        self.assertEqual([d['id'] for d in decisions], ['pr-'+str(i) for i in latest_ids])
+        by_id = {d['id']: d['decision'] for d in decisions}
+        self.assertEqual(by_id['pr-252'], 'extend')
+        self.assertEqual(by_id['pr-286'], 'reuse')
+        self.assertNotIn('distinct', by_id.values())
 
     def test_live_event_ignores_unrelated_counters_and_timestamps(self):
         # Comment counts / reactions / updated_at change constantly and must
