@@ -85,6 +85,31 @@ test('a successful-looking report from a failed analysis job is not accepted as 
   assert.equal((await publishResult(f.options)).status,'INCOMPLETE');
 });
 
+test('live analysis fingerprint publishes despite a stale event snapshot (PR #300 rerun case)',async()=>{
+  // The rerun's event snapshot still holds the pre-decision body, while the
+  // analysis re-fetched the latest Issue. Its fingerprint (of the latest
+  // body) must be honoured, not compared against the stale snapshot.
+  const f=fixture({status:'REVIEW_RECORDED'});
+  f.context.payload.issue={...f.issue,body:'判断記録を入れる前の古い本文'};
+  f.options.report={repository:'test/repo',status:'REVIEW_RECORDED',subject_number:174,
+    request_sha256:requestFingerprint(f.issue)};
+  const result=await publishResult(f.options);
+  assert.equal(result.status,'REVIEW_RECORDED');assert.equal(f.calls.length,2);
+  const meta=metadata({body:f.calls.at(-1)[1].body,user:{login:'github-actions[bot]'}});
+  assert.equal(meta.request_sha256,requestFingerprint(f.issue));
+});
+
+test('live analysis fingerprint for another subject or another body is never published',async()=>{
+  const wrongSubject=fixture({status:'REVIEW_RECORDED'});
+  wrongSubject.options.report={repository:'test/repo',status:'REVIEW_RECORDED',subject_number:999,
+    request_sha256:requestFingerprint(wrongSubject.issue)};
+  await assert.rejects(()=>publishResult(wrongSubject.options));assert.equal(wrongSubject.calls.length,0);
+  const wrongBody=fixture({status:'REVIEW_RECORDED'});
+  wrongBody.options.report={repository:'test/repo',status:'REVIEW_RECORDED',subject_number:174,
+    request_sha256:requestFingerprint({title:'既存成果を引き継ぐ',body:'分析後に変わった本文'})};
+  assert.equal((await publishResult(wrongBody.options)).reason,'request-changed');assert.equal(wrongBody.calls.length,0);
+});
+
 test('a failed re-read leaves a non-green pending comment, never an unconfirmed success',async()=>{
   const f=fixture({status:'REVIEW_RECORDED'});let calls=0;
   f.github.rest.issues.get=async()=>{if(calls++)throw Error('API unavailable');return {data:f.issue}};
