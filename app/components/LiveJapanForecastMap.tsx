@@ -39,14 +39,7 @@ export default function LiveJapanForecastMap({ frame, onSelect }: {
       if (disposed) return;
       const layer = L.layerGroup().addTo(map);
       removeLayer = () => layer.remove();
-      const zoom = 4;
-      for (const tile of frame.tileCoverage ?? []) {
-        if (tile.basetime) continue;
-        const southwest = map.unproject([tile.x * 256, (tile.y + 1) * 256], zoom);
-        const northeast = map.unproject([(tile.x + 1) * 256, tile.y * 256], zoom);
-        const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><defs><pattern id="h" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0V8" stroke="#475569" stroke-width="2"/></pattern></defs><rect width="100%" height="100%" fill="url(#h)"/></svg>';
-        L.imageOverlay("data:image/svg+xml," + encodeURIComponent(svg), L.latLngBounds(southwest, northeast), { opacity: 0.65 }).addTo(layer);
-      }
+      // Tile bounds include foreign land and sea. Do not depict them as domestic missing coverage without a verified geographic mask.
       const groups = new Map<string, Area[]>();
       for (const area of frame.municipalities) {
         if (!area.radarTile) continue;
