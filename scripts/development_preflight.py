@@ -283,6 +283,30 @@ def load_history(path=None, repo=None, refresh=True):
     return state, revision
 
 
+def live_event(event, repo):
+    """Refresh only the identified subject; never trust stale event contents."""
+    import urllib.request
+    if not REPO_RE.fullmatch(repo or ''):
+        raise ValueError('Invalid repository')
+    kind = 'pull_request' if event.get('pull_request') else 'issue'
+    number = event[kind]['number']
+    if type(number) is not int or number < 1:
+        raise ValueError('Invalid subject')
+    token = os.environ['PREFLIGHT_GITHUB_TOKEN']
+    endpoint = 'pulls' if kind == 'pull_request' else 'issues'
+    def get(path):
+        request = urllib.request.Request(
+            'https://api.github.com/repos/' + repo + '/' + path,
+            headers={'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json'})
+        with urllib.request.urlopen(request, timeout=20) as response:
+            return json.load(response)
+    item = get(endpoint + '/' + str(number))
+    if item['number'] != number or (kind == 'issue' and item.get('pull_request')):
+        raise ValueError('Subject mismatch')
+    main = get('git/ref/heads/main')['object']['sha']
+    return {kind: item, 'main_sha': main}
+
+
 def event_task(event):
     item = event.get('pull_request') or event.get('issue') or {}
     body = item.get('body') or ''
@@ -322,7 +346,8 @@ def main():
         decisions = json.loads(Path(args.decisions).read_text()) if args.decisions else []
         exclude = None
         if args.event:
-            event = json.loads(Path(args.event).read_text())
+            original_event = json.loads(Path(args.event).read_text())
+            event = live_event(original_event, args.repo) if os.environ.get('GITHUB_ACTIONS') == 'true' else original_event
             task, event_decisions, exclude = event_task(event)
             args.paths = event_paths(event)
             decisions = event_decisions
@@ -340,6 +365,9 @@ def main():
             exclude = [exclude]+[c['id'] for c in state['cases'].values()
                                  if c['id'].startswith('branch-') and branch and (c.get('head_ref') or c.get('title')) == branch]
         report = inspect(state, task, args.paths, decisions, exclude, max_age_hours=args.max_age_hours, revision=revision)
+        if args.event and os.environ.get('GITHUB_ACTIONS') == 'true':
+            if live_event(original_event, args.repo) != event:
+                raise ValueError('Subject changed during analysis')
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
         # No exception messages: command arguments/event content can contain secrets.
         report = {'status':'INCOMPLETE', 'problems':['履歴または作業内容を取得・検証できない。成功扱いせず復旧後に再照合する']}
