@@ -55,31 +55,41 @@ export default function LiveJapanForecastMap({ frame, onSelect }: {
         areas.push(area);
         groups.set(key, areas);
       }
-      for (const areas of groups.values()) {
+      const points = [...groups.values()].map(areas => {
         const { x, y } = areas[0].radarTile!;
+        return { areas, location: map.unproject([(x + 0.5) * 256, (y + 0.5) * 256], 10) };
+      });
+      for (const { areas, location } of points) {
         const tier = areas.reduce((largest, area) => area.minimumMmPerHour > largest ? area.minimumMmPerHour : largest, areas[0].minimumMmPerHour);
+        const makePopup = (entries: Area[]) => {
         const popup = document.createElement("div");
-        for (const area of areas) {
+        for (const area of entries) {
           const button = document.createElement("button");
           button.type = "button";
           button.textContent = `${area.prefecture} ${area.municipality}・${area.minimumMmPerHour} mm/h以上`;
           button.onclick = () => onSelect(area);
           popup.append(button, document.createElement("br"));
         }
+        return popup;
+        };
         const marker = document.createElement("span");
         marker.className = styles.areaMarker;
         marker.style.backgroundColor = colors[tier];
         marker.textContent = String(tier);
-        const point = L.marker(map.unproject([(x + 0.5) * 256, (y + 0.5) * 256], 10), {
+        const point = L.marker(location, {
           icon: L.divIcon({ className: "", html: marker, iconSize: [32, 32] }),
           title: areas.map(area => area.municipality).join("、"),
           zIndexOffset: tier * 10000,
         }).addTo(layer);
-        if (areas.length === 1) {
-          point.on("click", () => onSelect(areas[0]));
-        } else {
-          point.bindPopup(popup);
-        }
+        point.on("click", () => {
+          const origin = map.latLngToLayerPoint(location);
+          const nearby = points.filter(candidate => {
+            const p = map.latLngToLayerPoint(candidate.location);
+            return Math.abs(p.x - origin.x) < 32 && Math.abs(p.y - origin.y) < 32;
+          }).flatMap(candidate => candidate.areas).sort((a, b) => b.minimumMmPerHour - a.minimumMmPerHour);
+          if (nearby.length === 1) onSelect(nearby[0]);
+          else L.popup().setLatLng(location).setContent(makePopup(nearby)).openOn(map);
+        });
       }
     });
     return () => { disposed = true; removeLayer?.(); };
