@@ -265,7 +265,7 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
         {forecast === undefined ? <p role="status">予報を取得中…</p>
           : !hasCoverage ? <p role="status">この予報帯・時刻のデータは未取得です。</p>
           : <>
-            {frame.incomplete && <p role="status">斜線は未取得の範囲です。</p>}
+            {frame?.incomplete && <p role="status">一部の時刻・地域は未取得です。{visibleFrames.length === 1 ? "斜線は未取得タイルの範囲です（国外・海上を含む）。" : "時刻を絞ると未取得タイルを確認できます。"}</p>}
             {!frame?.municipalities.length && <p>取得済みの範囲で30mm/h以上の予報はありません。</p>}
           </>}
         {!!frame?.municipalities.length && <div className={styles.controls} aria-label="選択時刻の対象地域">
