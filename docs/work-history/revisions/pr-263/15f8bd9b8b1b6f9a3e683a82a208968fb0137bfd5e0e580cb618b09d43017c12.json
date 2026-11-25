@@ -1,0 +1,133 @@
+{
+  "id": "pr-263",
+  "number": 263,
+  "title": "test: 30分間隔の無条件cron対照実験 (#262)",
+  "topics": [
+    "その他の開発"
+  ],
+  "purpose": "変更対象ファイルに関する開発。具体的な目的は原文・差分を確認",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "## 目的\nIssue #262（親調査 #259）の対照実験。5分間隔の既存 #260/#261 と比較して、GitHub Actions schedule の欠落が5分特有か、30分でも起きるかを観測する。\n\n## 差分\n`.github/workflows/bare-thirty-minute-cron-diagnostic.yml` の新規1ファイルのみ。`*/30 * * * *` のscheduleだけ。UTC時刻を1行出力。認証、Secrets、vars、environment、concurrency、外部通信、DB、Vercel、通知、雨処理なし。既存ワークフローを変更しない。\n\n## 着手前照合\nIssue https://github.com/miyazaki1016/emergencyalert/issues/262\nREVIEW_RECORDED / publication_status=confirmed / preflight success: https://github.com/miyazaki1016/emergencyalert/actions/runs/44045738570\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-164\",\"decision\":\"distinct\",\"reason\":\"PR #164はVercelデプロイ履歴のAPI監視であり、今回の30分cronは外部APIもVercelも呼ばずUTC時刻を表示するだけの独立実験。原本のPR説明と差分を確認した。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/164\"},{\"id\":\"pr-261\",\"decision\":\"extend\",\"reason\":\"PR #261の無条件5分cron実装を原本差分で確認し、同じ無害なdate出力を30分周期で追加して比較する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/261\"},{\"id\":\"pr-260\",\"decision\":\"extend\",\"reason\":\"PR #260の5分オフセット診断の原本差分を確認。既存診断を維持し、30分周期の独立した比較対象を追加する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/260\"},{\"id\":\"pr-251\",\"decision\":\"reuse\",\"reason\":\"PR #251のMY監視5分scheduleを原本差分で確認。実処理には触れずスケジュール配送の比較対象としてのみ再利用する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/251\"}]}\n-->\n\nmainへのマージは別途承認を得る。",
+  "snapshot_head": "81aa53035a5a0078d2866919f00c8e91784ab74c",
+  "snapshot_consistent": true,
+  "head": "81aa53035a5a0078d2866919f00c8e91784ab74c",
+  "base": "f2619addec727dbcc6d951c60c8e72820b404136",
+  "base_ref": "main",
+  "head_ref": "diagnostic/bare-thirty-minute-cron-262",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-17T08:25:11Z",
+  "merge_commit_sha": "ed3b80a122ac4779d17d3025b4afb4daf998aca6",
+  "updated_at": "2026-11-25T04:38:03Z",
+  "code_facts": [
+    {
+      "file": ".github/workflows/bare-thirty-minute-cron-diagnostic.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "- run: date -u '+tick_utc=%Y-%m-%dT%H:%M:%SZ'",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/81aa53035a5a0078d2866919f00c8e91784ab74c/.github/workflows/bare-thirty-minute-cron-diagnostic.yml"
+    }
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/bare-thirty-minute-cron-diagnostic.yml",
+      "status": "modified",
+      "additions": 11,
+      "deletions": 0,
+      "patch": "diff --git a/.github/workflows/bare-thirty-minute-cron-diagnostic.yml b/.github/workflows/bare-thirty-minute-cron-diagnostic.yml\nnew file mode 100644\nindex 00000000..86159a8f\n--- /dev/null\n+++ b/.github/workflows/bare-thirty-minute-cron-diagnostic.yml\n@@ -0,0 +1,11 @@\n+name: Bare thirty-minute cron diagnostic\n+\n+on:\n+  schedule:\n+    - cron: '*/30 * * * *'\n+\n+jobs:\n+  tick:\n+    runs-on: ubuntu-latest\n+    steps:\n+      - run: date -u '+tick_utc=%Y-%m-%dT%H:%M:%SZ'\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/81aa53035a5a0078d2866919f00c8e91784ab74c/.github/workflows/bare-thirty-minute-cron-diagnostic.yml",
+      "source": {
+        "path": ".github/workflows/bare-thirty-minute-cron-diagnostic.yml",
+        "coverage": "全文",
+        "text": "name: Bare thirty-minute cron diagnostic\n\non:\n  schedule:\n    - cron: '*/30 * * * *'\n\njobs:\n  tick:\n    runs-on: ubuntu-latest\n    steps:\n      - run: date -u '+tick_utc=%Y-%m-%dT%H:%M:%SZ'\n",
+        "sha256": "e7684cd5a65e988956ca8baa51bc676ec309978c7b45099043bf7f81d7e987a9"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "81aa53035a5a0078d2866919f00c8e91784ab74c",
+      "message": "test: add isolated thirty-minute schedule diagnostic (#262)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/81aa53035a5a0078d2866919f00c8e91784ab74c"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "81aa53035a5a0078d2866919f00c8e91784ab74c",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44046557900",
+      "id": 44046557900,
+      "updated_at": "2026-11-17T08:25:21Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "81aa53035a5a0078d2866919f00c8e91784ab74c",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44046558035",
+      "id": 44046558035,
+      "updated_at": "2026-11-17T08:25:19Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "81aa53035a5a0078d2866919f00c8e91784ab74c",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44046098076",
+      "id": 44046098076,
+      "updated_at": "2026-11-17T08:22:19Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "81aa53035a5a0078d2866919f00c8e91784ab74c",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44045959322",
+      "id": 44045959322,
+      "updated_at": "2026-11-17T08:21:07Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "81aa53035a5a0078d2866919f00c8e91784ab74c",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44045959257",
+      "id": 44045959257,
+      "updated_at": "2026-11-17T08:21:15Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "81aa53035a5a0078d2866919f00c8e91784ab74c",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44045959315",
+      "id": 44045959315,
+      "updated_at": "2026-11-17T08:21:52Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "68cebce0cbb320bf10955d4de2748338a177bf30269a4068e97ce359fadc8f7e",
+  "ci_digest": "deccbec4342cb5f148a8923801799013baa2b96ca9260e9337672ec7b9a82071",
+  "collected_at": "2026-11-25T09:50:23.054036+00:00",
+  "decisions": []
+}

@@ -1,0 +1,116 @@
+{
+  "id": "pr-257",
+  "number": 257,
+  "title": "fix: MYアメふる5分監視に手動検証トリガーを追加 (#256)",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Issue #256 / 親Issue #250。既存の `.github/workflows/my-rain-watch-schedule.yml` に `workflow_dispatch` のみ追加し、5分ごとの `schedule` と `Production` 環境、`MY_RAIN_WATCH_ACTIONS_ENABLED` ガード、既存watch-rain認証・通知重複防止を維持。コード上の通知ロジック変更なし。\n\n実行履歴では2026-11-16T22:53:59Zのscheduleスキップ1回のみで、本番監視の再開は未確認。PRの最新HEAD CIと着手前再照合が成功した後、ユーザーの最終マージ承認を得る。マージ後、GitHub UIのRun workflowで一度だけ起動し、Supabase `watch_states.last_checked_at` とログ、5分間隔の継続を確認する。GitHub scheduleには遅延・欠落があり、稼働保証とはしない。全国スキャンとJASPICは対象外。\n\n着手前照合: https://github.com/miyazaki1016/emergencyalert/actions/runs/44002678649 (REVIEW_RECORDED / confirmed / success)。\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-251\",\"decision\":\"extend\",\"reason\":\"PR #251の既存scheduleとwatch-rain呼出しを再利用し、手動検証トリガーのみ追加する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/251\"},{\"id\":\"pr-255\",\"decision\":\"reuse\",\"reason\":\"PR #255のProduction環境Secrets修正をそのまま使用する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/255\"},{\"id\":\"pr-59\",\"decision\":\"distinct\",\"reason\":\"全国スキャナは今回変更しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/59\"}]}\n-->",
+  "snapshot_head": "5336b771a5501c622234d45b581970a9cf2b5976",
+  "snapshot_consistent": true,
+  "head": "5336b771a5501c622234d45b581970a9cf2b5976",
+  "base": "de7276446b877ce1362cc07855cd2e76307ce77c",
+  "base_ref": "main",
+  "head_ref": "fix/my-rain-watch-manual-dispatch-256",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-17T02:33:18Z",
+  "merge_commit_sha": "c1f6b34ec850b7a671c0ac3441751f3739c12a73",
+  "updated_at": "2026-11-25T04:45:14Z",
+  "code_facts": [],
+  "files": [
+    {
+      "path": ".github/workflows/my-rain-watch-schedule.yml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "patch": "diff --git a/.github/workflows/my-rain-watch-schedule.yml b/.github/workflows/my-rain-watch-schedule.yml\nindex c73ec41d..7cd38315 100644\n--- a/.github/workflows/my-rain-watch-schedule.yml\n+++ b/.github/workflows/my-rain-watch-schedule.yml\n@@ -1,6 +1,7 @@\n name: MY Amefuru rain watch\n \n on:\n+  workflow_dispatch:\n   schedule:\n     - cron: '2-57/5 * * * *'\n \n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/5336b771a5501c622234d45b581970a9cf2b5976/.github/workflows/my-rain-watch-schedule.yml",
+      "source": {
+        "path": ".github/workflows/my-rain-watch-schedule.yml",
+        "coverage": "全文",
+        "text": "name: MY Amefuru rain watch\n\non:\n  workflow_dispatch:\n  schedule:\n    - cron: '2-57/5 * * * *'\n\npermissions:\n  actions: read\n  contents: read\n\nconcurrency:\n  group: my-rain-watch-production\n  cancel-in-progress: false\n\njobs:\n  watch:\n    if: github.repository == 'miyazaki1016/emergencyalert' && vars.MY_RAIN_WATCH_ACTIONS_ENABLED == 'true'\n    runs-on: ubuntu-latest\n    environment: Production\n    timeout-minutes: 4\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          persist-credentials: false\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 22\n      - name: Reject stale queued runs and re-runs\n        env:\n          GH_TOKEN: ${{ github.token }}\n        run: |\n          test \"$GITHUB_RUN_ATTEMPT\" = 1\n          created=$(gh api \"repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID\" --jq .created_at)\n          age=$(( $(date +%s) - $(date -u -d \"$created\" +%s) ))\n          if [ \"$age\" -ge 240 ]; then\n            echo 'Watch invocation missed its run window'\n            exit 1\n          fi\n      - name: Invoke the existing watch-rain endpoint\n        env:\n          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}\n          WATCH_CRON_TOKEN: ${{ secrets.WATCH_CRON_TOKEN }}\n        run: node scripts/run-watch-rain.mjs\n",
+        "sha256": "2e3eca1e250516c958ca3375265b95e7aad4fb851db29d347c4cc750ed001771"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "5336b771a5501c622234d45b581970a9cf2b5976",
+      "message": "fix: allow controlled manual MY rain watch verification (#256)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/5336b771a5501c622234d45b581970a9cf2b5976"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "5336b771a5501c622234d45b581970a9cf2b5976",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44003831861",
+      "id": 44003831861,
+      "updated_at": "2026-11-17T02:33:23Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "5336b771a5501c622234d45b581970a9cf2b5976",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44003831876",
+      "id": 44003831876,
+      "updated_at": "2026-11-17T02:33:32Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "5336b771a5501c622234d45b581970a9cf2b5976",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44003471112",
+      "id": 44003471112,
+      "updated_at": "2026-11-17T02:30:34Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "5336b771a5501c622234d45b581970a9cf2b5976",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44003470904",
+      "id": 44003470904,
+      "updated_at": "2026-11-17T02:30:35Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "5336b771a5501c622234d45b581970a9cf2b5976",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/44003470896",
+      "id": 44003470896,
+      "updated_at": "2026-11-17T02:31:18Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "9384781aac77ce7c8b4ee6de006be1eb7e72511814bc4cc3b1674d891ec2d0c3",
+  "ci_digest": "8fe085408be4dcbcb3f9a2e26b7ed29f7d416c00ea7e22d4f61cf16d1ade501f",
+  "collected_at": "2026-11-25T09:50:23.054036+00:00",
+  "decisions": []
+}

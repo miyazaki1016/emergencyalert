@@ -1,0 +1,29 @@
+{
+  "id": "branch-a9d04d5818cb3cdb",
+  "title": "diagnostic/bare-thirty-minute-cron-262",
+  "head": "81aa53035a5a0078d2866919f00c8e91784ab74c",
+  "head_ref": "diagnostic/bare-thirty-minute-cron-262",
+  "linked_prs": [
+    263
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/bare-thirty-minute-cron-diagnostic.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/81aa53035a5a0078d2866919f00c8e91784ab74c/.github/workflows/bare-thirty-minute-cron-diagnostic.yml"
+    }
+  ],
+  "commits": "81aa53035a5a0078d2866919f00c8e91784ab74c test: add isolated thirty-minute schedule diagnostic (#262)",
+  "topics": [
+    "その他の開発"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "722893f85770bc267e6cfe1077c8399514bf217ff72b9db54cc7d2031e1b7e2a",
+  "collected_at": "2026-11-25T02:31:09.261491+00:00",
+  "archived": true
+}
