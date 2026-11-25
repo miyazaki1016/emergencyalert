@@ -147,5 +147,26 @@ class PreflightTests(unittest.TestCase):
         self.assertNotIn(secret, json.dumps(r))
 
 
+class LiveEventTests(unittest.TestCase):
+    def test_rerun_reads_latest_decision(self):
+        from unittest.mock import patch, MagicMock
+        import os
+        old = {'pull_request': {'number': 300, 'body': 'old'}}
+        latest = {'number': 300, 'title': 'task', 'body': '<!-- history-preflight {"decisions":[{"id":"pr-62","decision":"reuse"}]} -->'}
+        responses = []
+        for data in (latest, {'object': {'sha': 'a'*40}}):
+            response = MagicMock()
+            response.__enter__.return_value.read.return_value = json.dumps(data).encode()
+            responses.append(response)
+        with patch.dict(os.environ, {'PREFLIGHT_GITHUB_TOKEN': 'test'}), patch('urllib.request.urlopen', side_effect=responses) as request:
+            result = p.live_event(old, 'test/repo')
+        self.assertEqual(p.event_task(result)[1][0]['decision'], 'reuse')
+        self.assertTrue(request.call_args_list[0].args[0].full_url.endswith('/pulls/300'))
+
+    def test_invalid_repository_rejected(self):
+        with self.assertRaises(ValueError):
+            p.live_event({'issue': {'number': 1}}, 'https://invalid.example')
+
+
 if __name__ == '__main__':
     unittest.main()
