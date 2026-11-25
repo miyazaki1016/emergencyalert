@@ -222,6 +222,7 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
     ...visibleFrames[0],
     municipalities: [...peaks.values()].map(item => item.area),
     incomplete: visibleFrames.some(item => item.incomplete),
+    tileCoverage: visibleFrames.length === 1 ? visibleFrames[0].tileCoverage : undefined,
   } : undefined;
   const selectedArea = frame?.municipalities.find(area => area.code === areaCode);
   const hasCoverage = visibleFrames.some(item => !item.tileCoverage || item.tileCoverage.some(tile => tile.basetime));
@@ -278,7 +279,7 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
           {!!radarFrames.length && <RadarPlayer key={radarFrames.map(item => `${item.basetime}/${item.validTime}/${item.tile.x}/${item.tile.y}`).join(",")}
             frames={radarFrames} blocky={band === "extended"} />}
         </div>}
-        <Link href="/?view=forecast">全国の大雨予報一覧を見る</Link>
+        <Link className={styles.forecastLink} href="/?view=forecast">全国の大雨予報一覧を見る →</Link>
       </section> : <>
       <div className={styles.summary}>
         <div>
