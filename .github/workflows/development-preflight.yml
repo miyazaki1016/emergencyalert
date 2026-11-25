@@ -12,6 +12,8 @@ on:
         type: string
 permissions:
   contents: read
+  pull-requests: read
+  issues: read
 concurrency:
   group: work-preflight-${{ github.event.pull_request.number || github.event.issue.number || github.run_id }}
   cancel-in-progress: true
@@ -42,6 +44,7 @@ jobs:
       - name: Check prior work before accepting a new task
         env:
           PREFLIGHT_TASK: ${{ inputs.task }}
+          PREFLIGHT_GITHUB_TOKEN: ${{ github.token }}
         run: |
           if ! test -f scripts/development_preflight.py; then
             echo 'Bootstrap PR: preflight becomes active after main integration. Regression job tests its implementation.' >> "$GITHUB_STEP_SUMMARY"
