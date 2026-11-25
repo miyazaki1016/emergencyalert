@@ -165,7 +165,7 @@ function ForecastBand({ frames, basetime, extended, tileVersions }: {
   );
 }
 
-export default function NationalHeavyRainForecast() {
+export default function NationalHeavyRainForecast({ view = "map" }: { view?: "map" | "list" }) {
   const [band, setBand] = useState<"detail" | "extended">("detail");
   const [time, setTime] = useState("");
   const [areaCode, setAreaCode] = useState("");
@@ -232,9 +232,9 @@ export default function NationalHeavyRainForecast() {
   const waitingForUpdate = forecast && Date.now() - forecastTime(forecast.basetime) > NATIONAL_FORECAST_FRESHNESS_MS;
 
   return (
-    <section className={styles.forecast} aria-labelledby="national-rain-heading">
-      <section aria-labelledby="live-japan-heading" className={styles.band}>
-        <h2 id="live-japan-heading">全国の大雨を地図で見る</h2>
+    <section className={styles.forecast} aria-labelledby={view === "map" ? "live-japan-heading" : "national-rain-heading"}>
+      {view === "map" ? <section aria-labelledby="live-japan-heading" className={styles.band}>
+        <h1 id="live-japan-heading">全国の大雨を地図で見る</h1>
         <div className={styles.controls} aria-label="予報帯">
           <button type="button" aria-pressed={band === "detail"} onClick={() => setBand("detail")}>詳細 +5〜30分</button>
           <button type="button" aria-pressed={band === "extended"} onClick={() => setBand("extended")}>延長 +35〜60分</button>
@@ -264,8 +264,8 @@ export default function NationalHeavyRainForecast() {
           {!!radarFrames.length && <RadarPlayer key={radarFrames.map(item => `${item.basetime}/${item.validTime}/${item.tile.x}/${item.tile.y}`).join(",")}
             frames={radarFrames} blocky={band === "extended"} />}
         </div>}
-        <a href="#national-rain-heading">全国の大雨予報一覧を見る</a>
-      </section>
+        <Link href="/?view=forecast">全国の大雨予報一覧を見る</Link>
+      </section> : <>
       <div className={styles.summary}>
         <div>
           <h1 id="national-rain-heading">全国の<span>大雨</span>予報</h1>
@@ -295,6 +295,7 @@ export default function NationalHeavyRainForecast() {
       {forecast === null && <p role="status">現在、全国の予報を確認できません。</p>}
       <ForecastBand frames={forecast?.frames} basetime={forecast?.basetime} tileVersions={forecast?.tileVersions} extended={false} />
       <ForecastBand frames={forecast?.extendedFrames} basetime={forecast?.basetime} tileVersions={forecast?.tileVersions} extended />
+      </>}
     </section>
   );
 }
