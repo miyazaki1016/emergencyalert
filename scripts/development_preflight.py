@@ -374,6 +374,10 @@ def main():
         if args.event and os.environ.get('GITHUB_ACTIONS') == 'true':
             if live_event(original_event, args.repo) != event:
                 raise ValueError('Subject changed during analysis')
+            subject = event.get('issue') or event.get('pull_request')
+            report['request_sha256'] = hashlib.sha256(json.dumps([subject.get('title') or '', subject.get('body') or ''], ensure_ascii=False, separators=(',', ':')).encode('utf-8')).hexdigest()
+            report['subject_number'] = subject['number']
+            report['main_sha'] = event['main_sha']
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
         # No exception messages: command arguments/event content can contain secrets.
         report = {'status':'INCOMPLETE', 'problems':['履歴または作業内容を取得・検証できない。成功扱いせず復旧後に再照合する']}
