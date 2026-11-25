@@ -58,13 +58,15 @@ export async function publishResult({github, context, report, markdown, jobResul
   if (!snapshot || snapshot.pull_request || !Number.isSafeInteger(snapshot.number)) throw Error('Invalid Issue event');
   const {owner, repo} = context.repo;
   const current = (await github.rest.issues.get({owner,repo,issue_number:snapshot.number})).data;
-  const fingerprint = requestFingerprint(snapshot);
+  const live = report?.request_sha256 !== undefined;
+  const fingerprint = live ? report.request_sha256 : requestFingerprint(snapshot);
+  if (live && (report.subject_number !== snapshot.number || !/^[0-9a-f]{64}$/.test(fingerprint))) throw Error('Invalid analysis identity');
   if (requestFingerprint(current) !== fingerprint) return {posted:false, reason:'request-changed'};
   const valid = STATES.has(report?.status) && (!report.repository || report.repository === `${owner}/${repo}`) &&
     !(jobResult !== 'success' && ['REVIEW_RECORDED','NO_STRONG_MATCH'].includes(report.status));
   const analysisStatus = valid ? report.status : 'INCOMPLETE';
   const meta = {schema_version:1, issue_number:snapshot.number, repository:`${owner}/${repo}`,
-    request_sha256:fingerprint, request_updated_at:snapshot.updated_at,
+    request_sha256:fingerprint, request_updated_at:live ? current.updated_at : snapshot.updated_at,
     run_id:Number(context.runId), run_attempt:Number(runAttempt),
     run_url:`https://github.com/${owner}/${repo}/actions/runs/${Number(context.runId)}`,
     analysis_status:analysisStatus, publication_status:'confirmed', preflight_job_result:jobResult,

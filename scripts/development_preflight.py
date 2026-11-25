@@ -283,6 +283,62 @@ def load_history(path=None, repo=None, refresh=True):
     return state, revision
 
 
+def live_event(event, repo):
+    """Refresh only the identified subject; never trust stale event contents."""
+    import urllib.request
+    if not REPO_RE.fullmatch(repo or ''):
+        raise ValueError('Invalid repository')
+    kind = 'pull_request' if event.get('pull_request') else 'issue'
+    number = event[kind]['number']
+    if type(number) is not int or number < 1:
+        raise ValueError('Invalid subject')
+    token = os.environ['PREFLIGHT_GITHUB_TOKEN']
+    endpoint = 'pulls' if kind == 'pull_request' else 'issues'
+    def get(path):
+        request = urllib.request.Request(
+            'https://api.github.com/repos/' + repo + '/' + path,
+            headers={'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json'})
+        with urllib.request.urlopen(request, timeout=20) as response:
+            return json.load(response)
+    item = get(endpoint + '/' + str(number))
+    if item['number'] != number or (kind == 'issue' and item.get('pull_request')):
+        raise ValueError('Subject mismatch')
+    main = get('git/ref/heads/main')['object']['sha']
+    snapshot = {key: item.get(key) for key in ('number', 'title', 'body', 'state')}
+    if kind == 'pull_request':
+        for side in ('base', 'head'):
+            snapshot[side] = {key: item[side][key] for key in ('sha', 'ref')}
+    if not re.fullmatch(r'[0-9a-f]{40}', main):
+        raise ValueError('Invalid main SHA')
+    return {kind: snapshot, 'main_sha': main}
+
+
+def request_fingerprint(title, body):
+    """Fingerprint of the analysed subject, byte-identical to the publisher's.
+
+    scripts/development-preflight-publish.mjs computes
+    sha256(JSON.stringify([title, body])) in JavaScript. Python's
+    json.dumps(..., ensure_ascii=False, separators=(',', ':')) produces the
+    same string for the same values, so both sides agree on one fingerprint.
+    """
+    payload = json.dumps([title or '', body or ''], ensure_ascii=False, separators=(',', ':'))
+    return hashlib.sha256(payload.encode('utf-8')).hexdigest()
+
+
+def subject_event(kind, number):
+    """Minimal event for a manually dispatched recheck of one Issue or PR.
+
+    Only the number is trusted; live_event replaces every other field with
+    the current GitHub original, so a dispatch can never smuggle in a stale
+    or fabricated body, decision record or HEAD.
+    """
+    if kind not in ('issue', 'pull_request'):
+        raise ValueError('Invalid subject kind')
+    if type(number) is not int or number < 1:
+        raise ValueError('Invalid subject')
+    return {kind: {'number': number}}
+
+
 def event_task(event):
     item = event.get('pull_request') or event.get('issue') or {}
     body = item.get('body') or ''
@@ -312,6 +368,7 @@ def event_paths(event):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--task'); parser.add_argument('--event'); parser.add_argument('--history')
+    parser.add_argument('--issue', type=int); parser.add_argument('--pull-request', type=int)
     parser.add_argument('--paths', nargs='*', default=[]); parser.add_argument('--decisions')
     parser.add_argument('--repo', default=os.environ.get('GITHUB_REPOSITORY'))
     parser.add_argument('--output', default='/tmp/development-preflight')
@@ -321,8 +378,15 @@ def main():
     try:
         decisions = json.loads(Path(args.decisions).read_text()) if args.decisions else []
         exclude = None
-        if args.event:
-            event = json.loads(Path(args.event).read_text())
+        subject_mode = bool(args.event or args.issue is not None or args.pull_request is not None)
+        if subject_mode:
+            if args.event:
+                original_event = json.loads(Path(args.event).read_text())
+            elif args.issue is not None:
+                original_event = subject_event('issue', args.issue)
+            else:
+                original_event = subject_event('pull_request', args.pull_request)
+            event = live_event(original_event, args.repo) if os.environ.get('GITHUB_ACTIONS') == 'true' else original_event
             task, event_decisions, exclude = event_task(event)
             args.paths = event_paths(event)
             decisions = event_decisions
@@ -335,11 +399,21 @@ def main():
             raise ValueError('Invalid repository')
         if args.repo and state['repository'] != args.repo:
             raise ValueError('Repository/history mismatch')
-        if args.event and event.get('pull_request'):
+        if subject_mode and event.get('pull_request'):
             branch = event['pull_request']['head'].get('ref')
             exclude = [exclude]+[c['id'] for c in state['cases'].values()
                                  if c['id'].startswith('branch-') and branch and (c.get('head_ref') or c.get('title')) == branch]
         report = inspect(state, task, args.paths, decisions, exclude, max_age_hours=args.max_age_hours, revision=revision)
+        if subject_mode and os.environ.get('GITHUB_ACTIONS') == 'true':
+            if live_event(original_event, args.repo) != event:
+                raise ValueError('Subject changed during analysis')
+            subject = event.get('issue') or event.get('pull_request')
+            report['request_sha256'] = request_fingerprint(subject.get('title'), subject.get('body'))
+            report['subject_number'] = subject['number']
+            report['main_sha'] = event['main_sha']
+            # Bind the result to the analysed HEAD so a pass for another HEAD
+            # can never be reused. Issues have no HEAD: null.
+            report['subject_head_sha'] = subject.get('head', {}).get('sha') if event.get('pull_request') else None
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
         # No exception messages: command arguments/event content can contain secrets.
         report = {'status':'INCOMPLETE', 'problems':['履歴または作業内容を取得・検証できない。成功扱いせず復旧後に再照合する']}
