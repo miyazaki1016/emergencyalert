@@ -7,8 +7,16 @@ on:
   workflow_dispatch:
     inputs:
       task:
-        description: '新しい作業の内容を日本語で入力（機能名だけでなく目的・変更内容）'
-        required: true
+        description: '新しい作業の内容を日本語で入力（機能名だけでなく目的・変更内容）。Issue／PR番号を指定する場合は空欄でよい'
+        required: false
+        type: string
+      issue_number:
+        description: '再照合するIssue番号（任意）。指定時はそのIssueの最新本文・判断記録で再照合する'
+        required: false
+        type: string
+      pull_request_number:
+        description: '再照合するPR番号（任意）。指定時はそのPRの最新本文・判断記録・HEADで再照合する'
+        required: false
         type: string
 permissions:
   contents: read
@@ -44,13 +52,19 @@ jobs:
       - name: Check prior work before accepting a new task
         env:
           PREFLIGHT_TASK: ${{ inputs.task }}
+          PREFLIGHT_ISSUE_NUMBER: ${{ inputs.issue_number }}
+          PREFLIGHT_PR_NUMBER: ${{ inputs.pull_request_number }}
           PREFLIGHT_GITHUB_TOKEN: ${{ github.token }}
         run: |
           if ! test -f scripts/development_preflight.py; then
             echo 'Bootstrap PR: preflight becomes active after main integration. Regression job tests its implementation.' >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
-          if test "$GITHUB_EVENT_NAME" = workflow_dispatch; then
+          if test -n "$PREFLIGHT_ISSUE_NUMBER"; then
+            python3 scripts/development_preflight.py --issue "$PREFLIGHT_ISSUE_NUMBER" --output preflight-output
+          elif test -n "$PREFLIGHT_PR_NUMBER"; then
+            python3 scripts/development_preflight.py --pull-request "$PREFLIGHT_PR_NUMBER" --output preflight-output
+          elif test "$GITHUB_EVENT_NAME" = workflow_dispatch; then
             python3 scripts/development_preflight.py --task "$PREFLIGHT_TASK" --output preflight-output
           else
             python3 scripts/development_preflight.py --event "$GITHUB_EVENT_PATH" --output preflight-output
