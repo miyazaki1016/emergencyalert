@@ -221,7 +221,7 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
   const frame = visibleFrames.length ? {
     ...visibleFrames[0],
     municipalities: [...peaks.values()].map(item => item.area),
-    incomplete: visibleFrames.some(item => item.incomplete),
+    incomplete: visibleFrames.some(item => item.incomplete || item.tileCoverage?.some(tile => !tile.basetime)) || (band === "all" && !forecast?.extendedFrames),
     tileCoverage: visibleFrames.length === 1 ? visibleFrames[0].tileCoverage : undefined,
   } : undefined;
   const selectedArea = frame?.municipalities.find(area => area.code === areaCode);
@@ -265,7 +265,7 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
         {forecast === undefined ? <p role="status">予報を取得中…</p>
           : !hasCoverage ? <p role="status">この予報帯・時刻のデータは未取得です。</p>
           : <>
-            {frame?.incomplete && <p role="status">一部の時刻・地域は未取得です。{visibleFrames.length === 1 ? "斜線は未取得タイルの範囲です（国外・海上を含む）。" : "時刻を絞ると未取得タイルを確認できます。"}</p>}
+            {frame?.incomplete && <p role="status">一部の時刻・地域は未取得です。地図にマーカーがない場所でも、大雨なしとは限りません。</p>}
             {!frame?.municipalities.length && <p>取得済みの範囲で30mm/h以上の予報はありません。</p>}
           </>}
         {!!frame?.municipalities.length && <div className={styles.controls} aria-label="選択時刻の対象地域">
