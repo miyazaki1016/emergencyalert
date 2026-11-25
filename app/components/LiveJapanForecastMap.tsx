@@ -70,10 +70,15 @@ export default function LiveJapanForecastMap({ frame, onSelect }: {
         marker.className = styles.areaMarker;
         marker.style.backgroundColor = colors[tier];
         marker.textContent = String(tier);
-        L.marker(map.unproject([(x + 0.5) * 256, (y + 0.5) * 256], 10), {
+        const point = L.marker(map.unproject([(x + 0.5) * 256, (y + 0.5) * 256], 10), {
           icon: L.divIcon({ className: "", html: marker, iconSize: [32, 32] }),
           title: areas.map(area => area.municipality).join("、"),
-        }).bindPopup(popup).addTo(layer);
+        }).addTo(layer);
+        if (areas.length === 1) {
+          point.on("click", () => onSelect(areas[0]));
+        } else {
+          point.bindPopup(popup);
+        }
       }
     });
     return () => { disposed = true; removeLayer?.(); };
