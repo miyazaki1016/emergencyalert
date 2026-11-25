@@ -304,7 +304,13 @@ def live_event(event, repo):
     if item['number'] != number or (kind == 'issue' and item.get('pull_request')):
         raise ValueError('Subject mismatch')
     main = get('git/ref/heads/main')['object']['sha']
-    return {kind: item, 'main_sha': main}
+    snapshot = {key: item.get(key) for key in ('number', 'title', 'body', 'state')}
+    if kind == 'pull_request':
+        for side in ('base', 'head'):
+            snapshot[side] = {key: item[side][key] for key in ('sha', 'ref')}
+    if not re.fullmatch(r'[0-9a-f]{40}', main):
+        raise ValueError('Invalid main SHA')
+    return {kind: snapshot, 'main_sha': main}
 
 
 def event_task(event):
