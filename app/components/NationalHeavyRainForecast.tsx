@@ -213,7 +213,6 @@ export default function NationalHeavyRainForecast() {
   const frame = bandFrames?.find(item => item.validTime === time) ?? bandFrames?.[0];
   const selectedArea = frame?.municipalities.find(area => area.code === areaCode);
   const hasCoverage = frame && (!frame.tileCoverage || frame.tileCoverage.some(tile => tile.basetime));
-  const previousBases = frame?.basetimes?.filter(base => base !== forecast?.basetime) ?? [];
   const radarFrames = selectedArea && forecast ? (bandFrames ?? []).flatMap(item => {
     const match = item.municipalities.find(area => area.code === selectedArea.code);
     return match?.radarTile ? [{
@@ -252,7 +251,6 @@ export default function NationalHeavyRainForecast() {
           : !hasCoverage ? <p role="status">この予報帯・時刻のデータは未取得です。</p>
           : <>
             {frame.incomplete && <p role="status">斜線は未取得の範囲です。</p>}
-            {!!previousBases.length && <p role="status">旧版を採用した基準時刻：{previousBases.map(timeLabel).join("、")}</p>}
             {!frame.municipalities.length && <p>取得済みの範囲で30mm/h以上の予報はありません。</p>}
           </>}
         {!!frame?.municipalities.length && <div className={styles.controls} aria-label="選択時刻の対象地域">
