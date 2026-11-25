@@ -152,7 +152,7 @@ class LiveEventTests(unittest.TestCase):
         from unittest.mock import patch, MagicMock
         import os
         old = {'pull_request': {'number': 300, 'body': 'old'}}
-        latest = {'number': 300, 'title': 'task', 'body': '<!-- history-preflight {"decisions":[{"id":"pr-62","decision":"reuse"}]} -->'}
+        latest = {'number': 300, 'title': 'task', 'base': {'sha': 'a'*40, 'ref': 'main'}, 'head': {'sha': 'b'*40, 'ref': 'fix'}, 'comments': 12, 'body': '<!-- history-preflight {"decisions":[{"id":"pr-62","decision":"reuse"}]} -->'}
         responses = []
         for data in (latest, {'object': {'sha': 'a'*40}}):
             response = MagicMock()
@@ -161,6 +161,7 @@ class LiveEventTests(unittest.TestCase):
         with patch.dict(os.environ, {'PREFLIGHT_GITHUB_TOKEN': 'test'}), patch('urllib.request.urlopen', side_effect=responses) as request:
             result = p.live_event(old, 'test/repo')
         self.assertEqual(p.event_task(result)[1][0]['decision'], 'reuse')
+        self.assertNotIn('comments', result['pull_request'])
         self.assertTrue(request.call_args_list[0].args[0].full_url.endswith('/pulls/300'))
 
     def test_invalid_repository_rejected(self):
