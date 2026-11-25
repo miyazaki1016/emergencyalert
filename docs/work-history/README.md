@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-25T01:03:09.930527+00:00
+更新 (UTC): 2026-11-25T02:31:09.261491+00:00
 
 ## 全案件
 
@@ -26,6 +26,7 @@
 | [feat/inventory-decision-evidence-20261112](cases/branch-0c5bdefb1e721367.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/internal-rain-confirmation-state](cases/branch-0e3b28be9309bc80.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [chore-source-control-watch-rain](cases/branch-1171601f37b8e19d.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [fix/preflight-live-recheck](cases/branch-1197d81e10313c32.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/light-rain-pixel-mask-precompute-220](cases/branch-12242ada665792be.md) | 雨量・全国検知・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/pr-review-handoff-queue-20261102](cases/branch-136d018fe1cd5ebc.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix-push-test-status](cases/branch-137eb0d47116605a.md) | 通知・配信・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -233,6 +234,7 @@
 | [feat/bluesky-national-forecast-213](cases/branch-d7e01c30db10e1cb.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/pwa-icons](cases/branch-d8037f3cde5d4713.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/persistent-light-rain-notification](cases/branch-d8764d3bc33c1caa.md) | 雨量・全国検知・通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [feat/live-japan-improvements-301](cases/branch-d8d3a36da9ae3119.md) | 雨量・全国検知・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [chore/development-inventory-automation-20261031](cases/branch-d92ca54cbab20357.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [automation/ledger-facts-41478448528](cases/branch-d94f48695e3a96be.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/work-resume-rollout-20261112](cases/branch-da4ff3297fb6648a.md) | 開発管理・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -447,6 +449,8 @@
 | [fix: add PWA install icons](cases/pr-3.md) | その他の開発：PWAのインストール用アイコンを修正 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Deduplicate place search results](cases/pr-30.md) | その他の開発：地点検索の重複候補を除去 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [自治体の雨雲再生を連続5時刻に揃える (#296)](cases/pr-300.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
+| [全国地図の全時刻集約・危険度優先・操作改善 (#301)](cases/pr-303.md) | 雨量・全国検知・画面・表示：雨量判定・予測・全国候補抽出に関する変更／画面表示や操作に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
+| [着手前照合の最新原本再取得と再実行の改善](cases/pr-305.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Add rain interpretation diagnostics](cases/pr-31.md) | 雨量・全国検知：雨解釈の診断情報を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Log withheld rain diagnostics](cases/pr-32.md) | 雨量・全国検知：送信を見送った雨判定の診断を記録 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Fix transparent JMA pixels blocking dry/ending states](cases/pr-33.md) | 雨量・全国検知・画面・表示：JMAの透明画素で晴れ・雨終了判定が止まる問題を修正 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
@@ -539,11 +543,12 @@
 - app/api/rain/national-worker/route.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [pr-59](cases/pr-59.md)
 - app/api/rain/route.ts：[branch-628f136aaac0ca36](cases/branch-628f136aaac0ca36.md), [branch-7243c32c4aada456](cases/branch-7243c32c4aada456.md), [branch-9ee36a6124cd667e](cases/branch-9ee36a6124cd667e.md), [branch-e887abe92356f2f8](cases/branch-e887abe92356f2f8.md), [pr-109](cases/pr-109.md), [pr-31](cases/pr-31.md), [pr-32](cases/pr-32.md), [pr-34](cases/pr-34.md)
 - app/components/DeveloperLabLink.tsx：[branch-dbcfae267568d52d](cases/branch-dbcfae267568d52d.md), [pr-102](cases/pr-102.md)
-- app/components/NationalHeavyRainForecast.tsx：[branch-3cc3b2f103fcdb49](cases/branch-3cc3b2f103fcdb49.md), [branch-82eb6ae5e3cdd506](cases/branch-82eb6ae5e3cdd506.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [branch-d40033ba044f0dbc](cases/branch-d40033ba044f0dbc.md), [branch-d47e9b0dcd4ebc9b](cases/branch-d47e9b0dcd4ebc9b.md), [branch-d5162b95174defec](cases/branch-d5162b95174defec.md), [branch-fd5202c6b3114feb](cases/branch-fd5202c6b3114feb.md), [pr-210](cases/pr-210.md), [pr-211](cases/pr-211.md), [pr-252](cases/pr-252.md), [pr-253](cases/pr-253.md), [pr-282](cases/pr-282.md), [pr-284](cases/pr-284.md), [pr-286](cases/pr-286.md), [pr-297](cases/pr-297.md), [pr-300](cases/pr-300.md)
+- app/components/LiveJapanForecastMap.tsx：[branch-d8d3a36da9ae3119](cases/branch-d8d3a36da9ae3119.md), [pr-297](cases/pr-297.md), [pr-303](cases/pr-303.md)
+- app/components/NationalHeavyRainForecast.tsx：[branch-3cc3b2f103fcdb49](cases/branch-3cc3b2f103fcdb49.md), [branch-82eb6ae5e3cdd506](cases/branch-82eb6ae5e3cdd506.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [branch-d40033ba044f0dbc](cases/branch-d40033ba044f0dbc.md), [branch-d47e9b0dcd4ebc9b](cases/branch-d47e9b0dcd4ebc9b.md), [branch-d5162b95174defec](cases/branch-d5162b95174defec.md), [branch-d8d3a36da9ae3119](cases/branch-d8d3a36da9ae3119.md), [branch-fd5202c6b3114feb](cases/branch-fd5202c6b3114feb.md), [pr-210](cases/pr-210.md), [pr-211](cases/pr-211.md), [pr-252](cases/pr-252.md), [pr-253](cases/pr-253.md), [pr-282](cases/pr-282.md), [pr-284](cases/pr-284.md), [pr-286](cases/pr-286.md), [pr-297](cases/pr-297.md), [pr-300](cases/pr-300.md), [pr-303](cases/pr-303.md)
 - app/components/NotificationFeedbackHistory.tsx：[branch-091c543ebb50d507](cases/branch-091c543ebb50d507.md), [branch-5437e621b3e2f897](cases/branch-5437e621b3e2f897.md), [branch-5c8dd10b120b7b96](cases/branch-5c8dd10b120b7b96.md), [branch-60bf0fe58994b8d1](cases/branch-60bf0fe58994b8d1.md), [branch-7cf91be9fae8af1b](cases/branch-7cf91be9fae8af1b.md), [branch-7d74693488d68979](cases/branch-7d74693488d68979.md), [branch-87d4561c05ed70fb](cases/branch-87d4561c05ed70fb.md), [branch-8d4b5b57bc91e1f1](cases/branch-8d4b5b57bc91e1f1.md), [branch-978ef60235fbbf68](cases/branch-978ef60235fbbf68.md), [branch-9bfa97f866ff8bc0](cases/branch-9bfa97f866ff8bc0.md), [branch-a5f2511bf36597a1](cases/branch-a5f2511bf36597a1.md), [branch-b5bac1644f15f8e7](cases/branch-b5bac1644f15f8e7.md), [pr-65](cases/pr-65.md), [pr-66](cases/pr-66.md), [pr-68](cases/pr-68.md), [pr-69](cases/pr-69.md), [pr-71](cases/pr-71.md), [pr-72](cases/pr-72.md), [pr-73](cases/pr-73.md), [pr-74](cases/pr-74.md), [pr-76](cases/pr-76.md), [pr-77](cases/pr-77.md), [pr-83](cases/pr-83.md)
 - app/components/PwaDiagnosticsToggle.tsx：[branch-b5bac1644f15f8e7](cases/branch-b5bac1644f15f8e7.md), [pr-77](cases/pr-77.md)
 - app/components/ResumeDiagnosticsPanel.tsx：[branch-1df54a47e158f2ad](cases/branch-1df54a47e158f2ad.md), [branch-6a8121b2550dbe9c](cases/branch-6a8121b2550dbe9c.md), [branch-705f3ba77d283676](cases/branch-705f3ba77d283676.md), [branch-7cf91be9fae8af1b](cases/branch-7cf91be9fae8af1b.md), [branch-a5f2511bf36597a1](cases/branch-a5f2511bf36597a1.md), [branch-b5bac1644f15f8e7](cases/branch-b5bac1644f15f8e7.md), [branch-c05c32337717821c](cases/branch-c05c32337717821c.md), [branch-d6fc6f60ebda9d5a](cases/branch-d6fc6f60ebda9d5a.md), [pr-76](cases/pr-76.md), [pr-77](cases/pr-77.md), [pr-81](cases/pr-81.md), [pr-82](cases/pr-82.md), [pr-83](cases/pr-83.md), [pr-85](cases/pr-85.md), [pr-86](cases/pr-86.md), [pr-87](cases/pr-87.md)
-- app/components/national-heavy-rain-forecast.module.css：[branch-d5162b95174defec](cases/branch-d5162b95174defec.md), [branch-fd5202c6b3114feb](cases/branch-fd5202c6b3114feb.md), [pr-252](cases/pr-252.md), [pr-253](cases/pr-253.md), [pr-282](cases/pr-282.md)
+- app/components/national-heavy-rain-forecast.module.css：[branch-d5162b95174defec](cases/branch-d5162b95174defec.md), [branch-d8d3a36da9ae3119](cases/branch-d8d3a36da9ae3119.md), [branch-fd5202c6b3114feb](cases/branch-fd5202c6b3114feb.md), [pr-252](cases/pr-252.md), [pr-253](cases/pr-253.md), [pr-282](cases/pr-282.md), [pr-303](cases/pr-303.md)
 - app/dev/rain-lab/RainLab.tsx：[branch-22f64fc517bd98c8](cases/branch-22f64fc517bd98c8.md), [branch-62efc69d0291dcce](cases/branch-62efc69d0291dcce.md), [branch-80c56aa91b391a23](cases/branch-80c56aa91b391a23.md), [branch-98720101eac846e9](cases/branch-98720101eac846e9.md), [branch-adfd5936a62983f3](cases/branch-adfd5936a62983f3.md), [branch-d25ed7ecfeb9cfe5](cases/branch-d25ed7ecfeb9cfe5.md), [branch-d60839d7bd6952a6](cases/branch-d60839d7bd6952a6.md), [branch-dbcfae267568d52d](cases/branch-dbcfae267568d52d.md), [branch-dfd42da398610013](cases/branch-dfd42da398610013.md), [pr-102](cases/pr-102.md), [pr-103](cases/pr-103.md), [pr-104](cases/pr-104.md), [pr-159](cases/pr-159.md), [pr-160](cases/pr-160.md), [pr-175](cases/pr-175.md), [pr-176](cases/pr-176.md), [pr-177](cases/pr-177.md), [pr-178](cases/pr-178.md)
 - app/dev/rain-lab/lab.module.css：[branch-22f64fc517bd98c8](cases/branch-22f64fc517bd98c8.md), [branch-62efc69d0291dcce](cases/branch-62efc69d0291dcce.md), [branch-dbcfae267568d52d](cases/branch-dbcfae267568d52d.md), [branch-dfd42da398610013](cases/branch-dfd42da398610013.md), [pr-102](cases/pr-102.md), [pr-103](cases/pr-103.md), [pr-175](cases/pr-175.md), [pr-176](cases/pr-176.md)
 - app/dev/rain-lab/page.tsx：[branch-dbcfae267568d52d](cases/branch-dbcfae267568d52d.md), [pr-102](cases/pr-102.md)
@@ -745,7 +750,7 @@
 - scripts/census-town-boundary-topojson-proof.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [pr-59](cases/pr-59.md)
 - scripts/check-jma-early-rain.ts：[branch-94d665cd64c44050](cases/branch-94d665cd64c44050.md), [pr-25](cases/pr-25.md)
 - scripts/compare-jaspic-eml.mjs：[branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [pr-155](cases/pr-155.md)
-- scripts/development-preflight-publish.mjs：[branch-ffc3354680bad3ec](cases/branch-ffc3354680bad3ec.md), [pr-197](cases/pr-197.md)
+- scripts/development-preflight-publish.mjs：[branch-ffc3354680bad3ec](cases/branch-ffc3354680bad3ec.md), [pr-197](cases/pr-197.md), [pr-305](cases/pr-305.md)
 - scripts/development_branch_case_handoff.py：[branch-f4a34127c79a783d](cases/branch-f4a34127c79a783d.md), [pr-149](cases/pr-149.md)
 - scripts/development_branch_compare.py：[branch-35677a391b35c95c](cases/branch-35677a391b35c95c.md), [branch-b23be022a75304ba](cases/branch-b23be022a75304ba.md), [branch-ed894c05ef854553](cases/branch-ed894c05ef854553.md), [pr-142](cases/pr-142.md), [pr-148](cases/pr-148.md), [pr-150](cases/pr-150.md)
 - scripts/development_branch_review_queue.py：[branch-2f842ea0ac1d18a4](cases/branch-2f842ea0ac1d18a4.md), [pr-151](cases/pr-151.md)
@@ -755,7 +760,7 @@
 - scripts/development_inventory.py：[branch-b5b1d46a6468bd59](cases/branch-b5b1d46a6468bd59.md), [branch-d92ca54cbab20357](cases/branch-d92ca54cbab20357.md), [branch-f54fba9240a4e12b](cases/branch-f54fba9240a4e12b.md), [pr-107](cases/pr-107.md), [pr-122](cases/pr-122.md), [pr-128](cases/pr-128.md)
 - scripts/development_inventory_delta.py：[branch-1601ee37d65ba186](cases/branch-1601ee37d65ba186.md), [branch-4fd3d1bdc2b892c1](cases/branch-4fd3d1bdc2b892c1.md), [branch-7ea3560ec516692d](cases/branch-7ea3560ec516692d.md), [branch-b30df8ff98a54148](cases/branch-b30df8ff98a54148.md), [branch-b34c306bc7fd0b72](cases/branch-b34c306bc7fd0b72.md), [branch-b5b1d46a6468bd59](cases/branch-b5b1d46a6468bd59.md), [branch-d5f02538fc12def5](cases/branch-d5f02538fc12def5.md), [branch-f54fba9240a4e12b](cases/branch-f54fba9240a4e12b.md), [pr-122](cases/pr-122.md), [pr-124](cases/pr-124.md), [pr-125](cases/pr-125.md), [pr-126](cases/pr-126.md), [pr-127](cases/pr-127.md), [pr-128](cases/pr-128.md), [pr-129](cases/pr-129.md), [pr-136](cases/pr-136.md)
 - scripts/development_ledger_proposal.py：[branch-08e76fdd73cd4686](cases/branch-08e76fdd73cd4686.md), [branch-3ab6bf48d6ece55f](cases/branch-3ab6bf48d6ece55f.md), [branch-7b4c2cf2503a3179](cases/branch-7b4c2cf2503a3179.md), [branch-ac4d9f4766a37ec1](cases/branch-ac4d9f4766a37ec1.md), [pr-130](cases/pr-130.md), [pr-131](cases/pr-131.md), [pr-132](cases/pr-132.md), [pr-134](cases/pr-134.md)
-- scripts/development_preflight.py：[branch-01116240ec96678b](cases/branch-01116240ec96678b.md), [branch-3299e830fba85cfb](cases/branch-3299e830fba85cfb.md), [pr-188](cases/pr-188.md), [pr-298](cases/pr-298.md)
+- scripts/development_preflight.py：[branch-01116240ec96678b](cases/branch-01116240ec96678b.md), [branch-3299e830fba85cfb](cases/branch-3299e830fba85cfb.md), [pr-188](cases/pr-188.md), [pr-298](cases/pr-298.md), [pr-305](cases/pr-305.md)
 - scripts/development_resume.py：[branch-da4ff3297fb6648a](cases/branch-da4ff3297fb6648a.md), [pr-208](cases/pr-208.md)
 - scripts/development_work_history.py：[branch-a05fbbad807e392f](cases/branch-a05fbbad807e392f.md), [pr-182](cases/pr-182.md)
 - scripts/jaspic-dry-run.ts：[branch-c32f0f97af1ba1b5](cases/branch-c32f0f97af1ba1b5.md), [pr-155](cases/pr-155.md)

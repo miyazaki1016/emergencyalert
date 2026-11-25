@@ -1,0 +1,28 @@
+{
+  "id": "branch-0af77e8d873bbe46",
+  "title": "fix/national-rain-production-env-267",
+  "head": "40437da178c5f31be0c0f112ca5cb20ece57f820",
+  "head_ref": "fix/national-rain-production-env-267",
+  "linked_prs": [
+    268
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/national-heavy-rain-schedule.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/40437da178c5f31be0c0f112ca5cb20ece57f820/.github/workflows/national-heavy-rain-schedule.yml"
+    }
+  ],
+  "commits": "40437da178c5f31be0c0f112ca5cb20ece57f820 fix(actions): access Production environment secrets for nationwide scan (#267)",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "953512d19dd5784f7e1c91cb18faa14e52a08fd8d454e6c3b3b17d3057a8ab45",
+  "collected_at": "2026-11-25T02:31:09.261491+00:00"
+}

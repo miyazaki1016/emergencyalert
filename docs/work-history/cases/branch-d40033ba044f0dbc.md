@@ -18,16 +18,16 @@
 
 関連PR：[#300](https://github.com/miyazaki1016/emergencyalert/pull/300)
 
-根拠取得日時 (UTC)：2026-11-25T01:03:09.930527+00:00
+根拠取得日時 (UTC)：2026-11-25T02:31:09.261491+00:00
 
 
 ## 実際の変更処理（コードから抽出）
 
 差分・ソースを参照
 
-- [app/components/NationalHeavyRainForecast.tsx](https://github.com/miyazaki1016/emergencyalert/blob/ce926faa2f1c1a81279a0218dff759d116b7fb6d/app/components/NationalHeavyRainForecast.tsx)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/nationalForecastRadar.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/ce926faa2f1c1a81279a0218dff759d116b7fb6d/lib/weather/rain/nationalForecastRadar.test.ts)：同一HEADのPR案件に原文収録
-- [lib/weather/rain/nationalForecastRadar.ts](https://github.com/miyazaki1016/emergencyalert/blob/ce926faa2f1c1a81279a0218dff759d116b7fb6d/lib/weather/rain/nationalForecastRadar.ts)：同一HEADのPR案件に原文収録
+- [app/components/NationalHeavyRainForecast.tsx](https://github.com/miyazaki1016/emergencyalert/blob/121ab7eb879f89a2795d51f6fd7748670f70dcb9/app/components/NationalHeavyRainForecast.tsx)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/nationalForecastRadar.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/121ab7eb879f89a2795d51f6fd7748670f70dcb9/lib/weather/rain/nationalForecastRadar.test.ts)：同一HEADのPR案件に原文収録
+- [lib/weather/rain/nationalForecastRadar.ts](https://github.com/miyazaki1016/emergencyalert/blob/121ab7eb879f89a2795d51f6fd7748670f70dcb9/lib/weather/rain/nationalForecastRadar.ts)：同一HEADのPR案件に原文収録
 
 ## 検証実行の事実
 
