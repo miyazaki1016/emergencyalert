@@ -73,6 +73,7 @@ export default function LiveJapanForecastMap({ frame, onSelect }: {
         const point = L.marker(map.unproject([(x + 0.5) * 256, (y + 0.5) * 256], 10), {
           icon: L.divIcon({ className: "", html: marker, iconSize: [32, 32] }),
           title: areas.map(area => area.municipality).join("、"),
+          zIndexOffset: tier * 10000,
         }).addTo(layer);
         if (areas.length === 1) {
           point.on("click", () => onSelect(areas[0]));
