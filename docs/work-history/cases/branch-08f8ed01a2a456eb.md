@@ -18,16 +18,13 @@
 
 関連PR：[#297](https://github.com/miyazaki1016/emergencyalert/pull/297)
 
-根拠取得日時 (UTC)：2026-11-24T08:48:55.028594+00:00
+根拠取得日時 (UTC)：2026-11-25T01:03:09.930527+00:00
 
 
 ## 実際の変更処理（コードから抽出）
 
 差分・ソースを参照
 
-- [app/components/LiveJapanForecastMap.tsx](https://github.com/miyazaki1016/emergencyalert/blob/2fc59bfdaf7ac9bc4e52b754e6367ec70b0dadb4/app/components/LiveJapanForecastMap.tsx)：同一HEADのPR案件に原文収録
-- [app/components/NationalHeavyRainForecast.tsx](https://github.com/miyazaki1016/emergencyalert/blob/2fc59bfdaf7ac9bc4e52b754e6367ec70b0dadb4/app/components/NationalHeavyRainForecast.tsx)：同一HEADのPR案件に原文収録
-- [app/components/live-japan-forecast-map.module.css](https://github.com/miyazaki1016/emergencyalert/blob/2fc59bfdaf7ac9bc4e52b754e6367ec70b0dadb4/app/components/live-japan-forecast-map.module.css)：同一HEADのPR案件に原文収録
 
 ## 検証実行の事実
 

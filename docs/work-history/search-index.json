@@ -1,12 +1,12 @@
 {
   "repository": "miyazaki1016/emergencyalert",
-  "generated_at": "2026-11-24T10:54:10.000193+00:00",
+  "generated_at": "2026-11-25T01:03:09.930527+00:00",
   "coverage": {
     "prs": 243,
     "pr_cases": 243,
     "branches": 244,
     "errors": [],
-    "api_calls": 115
+    "api_calls": 23
   },
   "cases": [
     {
@@ -43,8 +43,8 @@
       "id": "pr-297",
       "title": "LIVE JAPAN 地図トップの第1段階 (#295)",
       "summary": "雨量判定・予測・全国候補抽出に関する変更／画面表示や操作に関する変更",
-      "state": "open",
-      "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+      "state": "merged",
+      "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
       "topics": [
         "雨量・全国検知",
         "画面・表示"
@@ -53,7 +53,7 @@
       "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
       "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
       "production": "未確認（main統合／Vercelプレビューから推定しない）",
-      "search_text": "LIVE JAPAN 地図トップの第1段階 (#295) 雨量判定・予測・全国候補抽出に関する変更／画面表示や操作に関する変更  {} Refs #295 / #290\n\n既存予報APIの時刻別データを地図と地域一覧に接続し、タイル取得状況・旧版基準時刻・雨雲再生への導線を表示します。PR #61のLeaflet操作を再利用。自治体の強度は該当レーダータイルの位置へ表示します。\n\n着手前照合 https://github.com/miyazaki1016/emergencyalert/actions/runs/45347248646\n\n型検査と既存予報テスト10件はローカル成功。画面の4状態と最新HEADのCIは確認対象。 ForecastBand LiveJapanForecastMap NationalHeavyRainForecast RadarPlayer area areas bandFrames button cards colors controller count current cutoff disposed element expanded extendedFrames formatTime frame frames groups hasCoverage incomplete instance intensity intensityByTime interval japan key last latestTime layer marker match municipalities nextChange northeast now peakAreas peakCount peakPrefectures popup prefectures previousBases radarFrames refresh refreshNoticeAt removeLayer response selectArea selectedArea snapshot southwest svg tier tile timeLabel timer times [{\"file\": \"app/components/LiveJapanForecastMap.tsx\", \"kind\": \"関数・クラス定義\", \"expression\": \"export default function LiveJapanForecastMap({ frame, onSelect }: {\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/2fc59bfdaf7ac9bc4e52b754e6367ec70b0dadb4/app/components/LiveJapanForecastMap.tsx\"}, {\"file\": \"app/components/LiveJapanForecastMap.tsx\", \"kind\": \"条件分岐・閾値\", \"expression\": \"if (disposed || !element.current) return;\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/2fc59bfdaf7ac9bc4e52b754e6367ec70b0dadb4/app/components/LiveJapanForecastMap.tsx\"}, {\"file\": \"app/components/LiveJapanForecastMap.tsx\", \"kind\": \"条件分岐・閾値\", \"expression\": \"if (!map || !frame) return;\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/2fc59bfdaf7ac9bc4e52b754e6367ec70b0dadb4/app/components/LiveJapanForecastMap.tsx\"}, {\"file\": \"app/components/LiveJapanForecastMap.tsx\", \"kind\": \"条件分岐・閾値\", \"expression\": \"if (disposed) return;\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/2fc59bfdaf7ac9bc4e52b754e6367ec70b0dadb4/app/components/LiveJapanForecastMap.tsx\"}, {\"file\": \"app/components/LiveJapanForecastMap.tsx\", \"kind\": \"条件分岐・閾値\", \"expression\": \"if (tile.basetime) continue;\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/2fc59bfdaf7ac9bc4e52b754e6367ec70b0dadb4/app/components/LiveJapanForecastMap.tsx\"}, {\"file\": \"app/components/LiveJapanForecastMap.tsx\", \"kind\": \"条件分岐・閾値\", \"expression\": \"if (!area.radarTile) continue;\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/2fc59bfdaf7ac9bc4e52b754e6367ec70b0dadb4/app/components/LiveJapanForecastMap.tsx\"}] app/components/LiveJapanForecastMap.tsx app/components/NationalHeavyRainForecast.tsx app/components/live-japan-forecast-map.module.css "
+      "search_text": "LIVE JAPAN 地図トップの第1段階 (#295) 雨量判定・予測・全国候補抽出に関する変更／画面表示や操作に関する変更  {} Refs #295 / #290\n\n既存予報APIの時刻別データを地図と地域一覧に接続し、タイル取得状況・旧版基準時刻・雨雲再生への導線を表示します。PR #61のLeaflet操作を再利用。自治体の強度は該当レーダータイルの位置へ表示します。\n\n着手前照合 https://github.com/miyazaki1016/emergencyalert/actions/runs/45347248646\n\n型検査と既存予報テスト10件はローカル成功。画面の4状態と最新HEADのCIは確認対象。\n\n## PR着手前照合の追加判断\n- pr-61 reuse — Leaflet地図の初期化・操作を再利用。サンプルイベントは実予報に転用しない。 https://github.com/miyazaki1016/emergencyalert/pull/61\n- pr-252 extend — 既存の詳細・延長帯、予報カードとタイル再生を維持し、地図と時刻選択の連携を追加する。 https://github.com/miyazaki1016/emergencyalert/pull/252\n- pr-253 extend — 予報専用トップとMYアメふる分離・既存導線を維持し、予報コンポーネントに地図を追加する。 https://github.com/miyazaki1016/emergencyalert/pull/253\n\n<!-- history-preflight {\"schema_version\":1,\"decisions\":[{\"id\":\"pr-61\",\"decision\":\"reuse\",\"reason\":\"Leaflet地図の初期化・操作を再利用。サンプルイベントは実予報に転用しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/61\"},{\"id\":\"pr-252\",\"decision\":\"extend\",\"reason\":\"既存の詳細・延長帯、予報カードとタイル再生を維持し、地図と時刻選択の連携を追加する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/252\"},{\"id\":\"pr-253\",\"decision\":\"extend\",\"reason\":\"予報専用トップとMYアメふる分離・既存導線を維持し、予報コンポーネントに地図を追加する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/253\"},{\"id\":\"pr-290\",\"decision\":\"distinct\",\"reason\":\"担当窓口の運用文書のみを追加するPRであり、地図表示の実装は含まない。窓口として参照し、表示実装は#297で管理する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/290\"}]} --> ForecastBand ForecastHome LiveJapanForecastMap NationalHeavyRainForecast RadarPlayer area areas bandFrames button cards colors controller count current cutoff disposed element expanded extendedFrames formatTime frame frames groups hasCoverage incomplete instance intensity intensityByTime interval japan key last latestTime layer marker match municipalities nextChange northeast now peakAreas peakCount peakPrefectures point popup prefectures radarFrames refresh refreshNoticeAt removeLayer response selectArea selectedArea snapshot southwest svg tier tile timeLabel timer [{\"file\": \"app/components/LiveJapanForecastMap.tsx\", \"kind\": \"関数・クラス定義\", \"expression\": \"export default function LiveJapanForecastMap({ frame, onSelect }: {\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/cf9aea763b413bfc34e92908019887d4b053a012/app/components/LiveJapanForecastMap.tsx\"}, {\"file\": \"app/components/LiveJapanForecastMap.tsx\", \"kind\": \"条件分岐・閾値\", \"expression\": \"if (disposed || !element.current) return;\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/cf9aea763b413bfc34e92908019887d4b053a012/app/components/LiveJapanForecastMap.tsx\"}, {\"file\": \"app/components/LiveJapanForecastMap.tsx\", \"kind\": \"条件分岐・閾値\", \"expression\": \"if (!map || !frame) return;\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/cf9aea763b413bfc34e92908019887d4b053a012/app/components/LiveJapanForecastMap.tsx\"}, {\"file\": \"app/components/LiveJapanForecastMap.tsx\", \"kind\": \"条件分岐・閾値\", \"expression\": \"if (disposed) return;\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/cf9aea763b413bfc34e92908019887d4b053a012/app/components/LiveJapanForecastMap.tsx\"}, {\"file\": \"app/components/LiveJapanForecastMap.tsx\", \"kind\": \"条件分岐・閾値\", \"expression\": \"if (tile.basetime) continue;\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/cf9aea763b413bfc34e92908019887d4b053a012/app/components/LiveJapanForecastMap.tsx\"}, {\"file\": \"app/components/LiveJapanForecastMap.tsx\", \"kind\": \"条件分岐・閾値\", \"expression\": \"if (!area.radarTile) continue;\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/cf9aea763b413bfc34e92908019887d4b053a012/app/components/LiveJapanForecastMap.tsx\"}, {\"file\": \"app/components/LiveJapanForecastMap.tsx\", \"kind\": \"条件分岐・閾値\", \"expression\": \"if (areas.length === 1) {\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/cf9aea763b413bfc34e92908019887d4b053a012/app/components/LiveJapanForecastMap.tsx\"}, {\"file\": \"app/components/NationalHeavyRainForecast.tsx\", \"kind\": \"関数・クラス定義\", \"expression\": \"export default function NationalHeavyRainForecast({ view = \\\"map\\\" }: { view?: \\\"map\\\" | \\\"list\\\" }) {\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/cf9aea763b413bfc34e92908019887d4b053a012/app/components/NationalHeavyRainForecast.tsx\"}, {\"file\": \"app/page.tsx\", \"kind\": \"関数・クラス定義\", \"expression\": \"export default async function ForecastHome({ searchParams }: { searchParams: Promise<{ view?: string }> }) {\", \"url\": \"https://github.com/miyazaki1016/emergencyalert/blob/cf9aea763b413bfc34e92908019887d4b053a012/app/page.tsx\"}] app/components/LiveJapanForecastMap.tsx app/components/NationalHeavyRainForecast.tsx app/components/live-japan-forecast-map.module.css app/page.tsx "
     },
     {
       "id": "pr-291",
@@ -5492,14 +5492,13 @@
       "state": "ブランチ差分（PR関連あり）",
       "main_status": "未確認",
       "topics": [
-        "雨量・全国検知",
-        "画面・表示"
+        "雨量・全国検知"
       ],
       "conclusion": "未確認",
       "remaining": "原本の受入条件・未解決事項を照合",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
       "production": "未確認",
-      "search_text": "feat/live-japan-forecast-295 ブランチ差分を収録  {}   [] app/components/LiveJapanForecastMap.tsx app/components/NationalHeavyRainForecast.tsx app/components/live-japan-forecast-map.module.css "
+      "search_text": "feat/live-japan-forecast-295 ブランチ差分を収録  {}   []  "
     },
     {
       "id": "branch-52dac5d3c9480200",
