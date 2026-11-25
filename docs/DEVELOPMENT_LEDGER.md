@@ -126,32 +126,32 @@
 
 | PR | タイトル | 状態 | head SHA | 更新日時 |
 | --- | --- | --- | --- | --- |
-| #1 | Verify seven JMA PNG bands; withdraw unsupported yellow mapping | merged | `891318d7026f1c90209341a48c38ec8df0d879e8` | 2026-09-23T10:42:16Z |
-| #2 | feat: add PWA foundation for iPhone and Android | merged | `3618081f7307ad4690021a345e72411bb41c9cbc` | 2026-09-23T17:05:04Z |
-| #3 | fix: add PWA install icons | merged | `bb6c7ae27a4bf1cbb6e1e0d60f9c1630f9f6080f` | 2026-09-23T22:41:40Z |
-| #4 | fix: improve Japanese address search normalization | merged | `9f6b368065bd575bb4c9de753b40bad8cd1ae2d3` | 2026-09-23T23:13:48Z |
-| #5 | feat: support Japanese street address search | merged | `48f712e77622b5a4969fb8eb6ad8629e4e7b9a13` | 2026-09-23T23:36:16Z |
-| #6 | feat: allow deleting watch targets | merged | `a2c4c5970436745d8fef1ce2cefe64b2984e2d3a` | 2026-09-23T23:26:27Z |
-| #7 | fix: route Japanese numeric addresses to address normalizer | merged | `1896f541792a3bffa860d66cc02413e27b50346d` | 2026-09-23T23:43:07Z |
-| #8 | feat: add web push subscription flow | merged | `8b845d1d4cd51dec313abf5d27c21ac501a66a9c` | 2026-09-24T04:36:50Z |
-| #9 | feat: make watch ON/OFF state visually clear | merged | `1b5649b6d7a57d501b2d4f57f600f6ab45d69c27` | 2026-09-24T04:17:19Z |
-| #10 | chore: add authenticated push test button | merged | `9ea4e2e986a4864a25f8d713593ce685483b148b` | 2026-09-24T05:25:17Z |
-| #11 | fix: avoid false push test failure status | merged | `55c57d4d2a83d53ec341bc176a2638ad826abd10` | 2026-09-24T05:34:35Z |
+| #1 | Verify seven JMA PNG bands; withdraw unsupported yellow mapping | merged | `891318d7026f1c90209341a48c38ec8df0d879e8` | 2026-11-24T09:12:34Z |
+| #2 | feat: add PWA foundation for iPhone and Android | merged | `3618081f7307ad4690021a345e72411bb41c9cbc` | 2026-11-24T09:12:40Z |
+| #3 | fix: add PWA install icons | merged | `bb6c7ae27a4bf1cbb6e1e0d60f9c1630f9f6080f` | 2026-11-24T09:12:43Z |
+| #4 | fix: improve Japanese address search normalization | merged | `9f6b368065bd575bb4c9de753b40bad8cd1ae2d3` | 2026-11-24T09:12:47Z |
+| #5 | feat: support Japanese street address search | merged | `48f712e77622b5a4969fb8eb6ad8629e4e7b9a13` | 2026-11-24T09:12:39Z |
+| #6 | feat: allow deleting watch targets | merged | `a2c4c5970436745d8fef1ce2cefe64b2984e2d3a` | 2026-11-24T09:12:36Z |
+| #7 | fix: route Japanese numeric addresses to address normalizer | merged | `1896f541792a3bffa860d66cc02413e27b50346d` | 2026-11-24T09:12:45Z |
+| #8 | feat: add web push subscription flow | merged | `8b845d1d4cd51dec313abf5d27c21ac501a66a9c` | 2026-11-24T09:13:01Z |
+| #9 | feat: make watch ON/OFF state visually clear | merged | `1b5649b6d7a57d501b2d4f57f600f6ab45d69c27` | 2026-11-24T09:13:03Z |
+| #10 | chore: add authenticated push test button | merged | `9ea4e2e986a4864a25f8d713593ce685483b148b` | 2026-11-24T09:12:49Z |
+| #11 | fix: avoid false push test failure status | merged | `55c57d4d2a83d53ec341bc176a2638ad826abd10` | 2026-11-24T09:13:10Z |
 | #12 | test: cover actionable rain notification boundary | merged | `2f7c0aa1109a5a81cc404d8bb69c3a98ff3fd2de` | 2026-09-24T06:03:16Z |
 | #13 | test: cover watch-rain notification decision | merged | `9ef39b430206d362852116d7cab9c2daa9f8c897` | 2026-09-24T07:07:35Z |
-| #14 | chore: remove temporary push test UI | merged | `604eeeab1ef39e701a7c133613bb8ff10b7224b5` | 2026-09-24T07:11:00Z |
-| #15 | fix: resubscribe when VAPID key changes | merged | `9f182608fb0dfe8dc56129f8938bb745cb893ec2` | 2026-09-24T07:29:39Z |
-| #16 | chore: source-control production watch-rain | merged | `0aac1241eb6852512f6a03b788f4d85df14e9881` | 2026-09-24T11:13:14Z |
-| #17 | refactor: test production watch notification decision | merged | `d1146ef7a2a82685f519d7f69d60cebac325db9f` | 2026-09-24T11:20:04Z |
-| #18 | fix: clear place search after registration | merged | `e5408f5823004ab67f4d0a191d052d8131fe2a0a` | 2026-09-24T11:45:21Z |
-| #19 | docs: define living emergency and laundry alert direction | merged | `80d09c1bcd31ff5c5c3fb82daead0bd92220cde5` | 2026-09-24T13:58:46Z |
-| #20 | feat: add early rain forecast provider | merged | `03e4d17c5ed6660517b7c970ff0bceeb4ab42c31` | 2026-09-24T14:27:03Z |
+| #14 | chore: remove temporary push test UI | merged | `604eeeab1ef39e701a7c133613bb8ff10b7224b5` | 2026-11-24T09:12:51Z |
+| #15 | fix: resubscribe when VAPID key changes | merged | `9f182608fb0dfe8dc56129f8938bb745cb893ec2` | 2026-11-24T09:13:12Z |
+| #16 | chore: source-control production watch-rain | merged | `0aac1241eb6852512f6a03b788f4d85df14e9881` | 2026-11-24T09:12:53Z |
+| #17 | refactor: test production watch notification decision | merged | `d1146ef7a2a82685f519d7f69d60cebac325db9f` | 2026-11-24T09:13:16Z |
+| #18 | fix: clear place search after registration | merged | `e5408f5823004ab67f4d0a191d052d8131fe2a0a` | 2026-11-24T09:13:05Z |
+| #19 | docs: define living emergency and laundry alert direction | merged | `80d09c1bcd31ff5c5c3fb82daead0bd92220cde5` | 2026-11-24T09:12:55Z |
+| #20 | feat: add early rain forecast provider | merged | `03e4d17c5ed6660517b7c970ff0bceeb4ab42c31` | 2026-11-24T09:12:59Z |
 | #21 | feat: expose early rain forecast prototype API | closed | `6dca8cedc99d2e468cc1d1bbf86a03f1f82bb739` | 2026-09-24T15:51:44Z |
-| #22 | fix: clear place search UI after registration | merged | `0c6e8e182d78c9dda143ce4dfed807a0b0291aea` | 2026-09-24T15:44:45Z |
-| #23 | feat: expose early rain forecast prototype API | merged | `99df471a5c30908e4925def8a2463ff37af6dff2` | 2026-09-24T15:53:27Z |
-| #24 | test: cover early rain prototype API | merged | `0d9bea1c83478b525faddc73628e320bb430f1ae` | 2026-09-24T16:04:30Z |
+| #22 | fix: clear place search UI after registration | merged | `0c6e8e182d78c9dda143ce4dfed807a0b0291aea` | 2026-11-24T09:13:08Z |
+| #23 | feat: expose early rain forecast prototype API | merged | `99df471a5c30908e4925def8a2463ff37af6dff2` | 2026-11-24T09:12:57Z |
+| #24 | test: cover early rain prototype API | merged | `0d9bea1c83478b525faddc73628e320bb430f1ae` | 2026-11-24T09:13:18Z |
 | #25 | test: verify live JMA early rain data in CI | open | `55174d5c0de802fa06ada23b6ce77aab8840bf6a` | 2026-09-24T23:49:53Z |
-| #26 | Use targetTimes member in JMA early forecast tile URL | merged | `3e21ed4d4dacb2cc4827a9560f407a81fee8e273` | 2026-09-24T23:09:13Z |
+| #26 | Use targetTimes member in JMA early forecast tile URL | merged | `3e21ed4d4dacb2cc4827a9560f407a81fee8e273` | 2026-11-24T09:13:13Z |
 | #27 | Restore push notification status after reopening app | merged | `c4559c3d7037081cf468f0a34ac6f1e3b7d87ab1` | 2026-09-25T13:42:40Z |
 | #28 | Refine persistent light-rain notification boundary | merged | `46b2540bcc07f94909554598857c04a77b7e5d4f` | 2026-09-25T18:52:50Z |
 | #29 | Prevent duplicate watch target registration | merged | `9e6fbd0bb0f4f7d2a09777029d4ae9df2c6d3126` | 2026-09-25T19:07:58Z |
@@ -361,8 +361,9 @@
 | #282 | Draft: 全国予報トップへ分離し現行トップを退避保存 (#281) | merged | `ab58639e098d75ec16ebc1553703b7c74508925f` | 2026-11-20T14:09:47Z |
 | #284 | 全国大雨予報を対象時刻まで表示する (#283) | merged | `c3e2ce7bf597d1b01d3bbdc610e9a8da249ac115` | 2026-11-21T01:10:50Z |
 | #286 | 全国大雨予報を広域タイル単位で更新する (#285) | merged | `6cea9870b9c9b390134586627a0928cb0c1b60e2` | 2026-11-21T06:01:03Z |
-| #290 | さきどり フロント担当の作業窓口 | open | `f8379abbd20450c31f12b8c7d62af575fd00d7f9` | 2026-11-24T08:28:46Z |
-| #291 | さきどり データ・通知担当の作業窓口 | open | `2f3e9fa34d765681009704dc6c802016b8668f44` | 2026-11-24T05:09:47Z |
-| #297 | LIVE JAPAN 地図トップの第1段階 (#295) | open | `2fc59bfdaf7ac9bc4e52b754e6367ec70b0dadb4` | 2026-11-24T08:31:42Z |
+| #290 | さきどり フロント担当の作業窓口 | open | `f8379abbd20450c31f12b8c7d62af575fd00d7f9` | 2026-11-24T23:20:25Z |
+| #291 | さきどり データ・通知担当の作業窓口 | open | `2f3e9fa34d765681009704dc6c802016b8668f44` | 2026-11-24T23:24:43Z |
+| #297 | LIVE JAPAN 地図トップの第1段階 (#295) | merged | `cf9aea763b413bfc34e92908019887d4b053a012` | 2026-11-25T01:02:53Z |
 | #298 | 実装判断を着手前の自動照合に接続し履歴抽出を拡充 | merged | `805795efc4c57e0d5c3b7386907bad9c0e538dd1` | 2026-11-24T08:48:38Z |
+| #300 | 自治体の雨雲再生を連続5時刻に揃える (#296) | open | `ce926faa2f1c1a81279a0218dff759d116b7fb6d` | 2026-11-24T09:32:35Z |
 <!-- INVENTORY_FACTS_END -->
