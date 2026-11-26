@@ -147,5 +147,154 @@ class PreflightTests(unittest.TestCase):
         self.assertNotIn(secret, json.dumps(r))
 
 
+def live_responses(*payloads):
+    from unittest.mock import MagicMock
+    responses = []
+    for data in payloads:
+        response = MagicMock()
+        response.__enter__.return_value.read.return_value = json.dumps(data).encode()
+        responses.append(response)
+    return responses
+
+
+def pr_payload(body, **extra):
+    payload = {'number': 300, 'title': 'task', 'state': 'open',
+               'base': {'sha': 'a'*40, 'ref': 'main'}, 'head': {'sha': 'b'*40, 'ref': 'fix'},
+               'body': body}
+    payload.update(extra)
+    return payload
+
+
+class LiveEventTests(unittest.TestCase):
+    def test_rerun_reads_latest_decision(self):
+        from unittest.mock import patch, MagicMock
+        import os
+        old = {'pull_request': {'number': 300, 'body': 'old'}}
+        latest = {'number': 300, 'title': 'task', 'base': {'sha': 'a'*40, 'ref': 'main'}, 'head': {'sha': 'b'*40, 'ref': 'fix'}, 'comments': 12, 'body': '<!-- history-preflight {"decisions":[{"id":"pr-62","decision":"reuse"}]} -->'}
+        responses = []
+        for data in (latest, {'object': {'sha': 'a'*40}}):
+            response = MagicMock()
+            response.__enter__.return_value.read.return_value = json.dumps(data).encode()
+            responses.append(response)
+        with patch.dict(os.environ, {'PREFLIGHT_GITHUB_TOKEN': 'test'}), patch('urllib.request.urlopen', side_effect=responses) as request:
+            result = p.live_event(old, 'test/repo')
+        self.assertEqual(p.event_task(result)[1][0]['decision'], 'reuse')
+        self.assertNotIn('comments', result['pull_request'])
+        self.assertTrue(request.call_args_list[0].args[0].full_url.endswith('/pulls/300'))
+
+    def test_invalid_repository_rejected(self):
+        with self.assertRaises(ValueError):
+            p.live_event({'issue': {'number': 1}}, 'https://invalid.example')
+
+    def test_pr300_rerun_replaces_stale_event_decisions_with_latest(self):
+        # Regression for emergencyalert PR #300 (run 45366196961, re-run
+        # attempt 3 on 2026-11-25 still REVIEW_REQUIRED): re-running an old
+        # run reuses the old GITHUB_EVENT_PATH, whose frozen body holds only
+        # the FIRST 8 decision records (pr-252 was still "distinct" there).
+        # The latest PR body holds all 15 records (pr-252 corrected to
+        # "extend", pr-286 "reuse", ...). Only the latest may be evaluated.
+        from unittest.mock import patch
+        import os
+        def ack(decisions):
+            return '<!-- history-preflight '+json.dumps({'decisions': decisions})+' -->'
+        def record(i, decision):
+            return {'id': 'pr-'+str(i), 'decision': decision,
+                    'reason': '候補の原本を確認した判断記録の検証データ',
+                    'evidence': 'https://github.com/test/repo/pull/'+str(i)}
+        # Only the counts (8 stale / 15 latest) and pr-252 / pr-286 below are
+        # from the real PR #300 record; the other ids are neutral fixtures.
+        stale_ids = [252, 101, 102, 103, 104, 105, 106, 107]
+        stale = {'pull_request': {'number': 300, 'title': 'old title',
+                 'body': ack([record(i, 'distinct' if i == 252 else 'reuse') for i in stale_ids])}}
+        latest_ids = stale_ids+[286, 108, 109, 110, 111, 112, 113]
+        latest_decisions = [record(i, 'extend' if i == 252 else 'reuse') for i in latest_ids]
+        latest = pr_payload(ack(latest_decisions))
+        with patch.dict(os.environ, {'PREFLIGHT_GITHUB_TOKEN': 'test'}), \
+                patch('urllib.request.urlopen', side_effect=live_responses(latest, {'object': {'sha': 'a'*40}})):
+            result = p.live_event(stale, 'test/repo')
+        task, decisions, _ = p.event_task(result)
+        self.assertEqual(len(decisions), 15)
+        self.assertEqual([d['id'] for d in decisions], ['pr-'+str(i) for i in latest_ids])
+        by_id = {d['id']: d['decision'] for d in decisions}
+        self.assertEqual(by_id['pr-252'], 'extend')
+        self.assertEqual(by_id['pr-286'], 'reuse')
+        self.assertNotIn('distinct', by_id.values())
+
+    def test_live_event_ignores_unrelated_counters_and_timestamps(self):
+        # Comment counts / reactions / updated_at change constantly and must
+        # not invalidate an otherwise identical subject (no false "changed").
+        from unittest.mock import patch
+        import os
+        first = pr_payload('body', comments=3, reactions={'total_count': 1}, updated_at='2026-11-25T00:00:00Z')
+        second = pr_payload('body', comments=99, reactions={'total_count': 7}, updated_at='2026-11-25T01:00:00Z')
+        with patch.dict(os.environ, {'PREFLIGHT_GITHUB_TOKEN': 'test'}):
+            with patch('urllib.request.urlopen', side_effect=live_responses(first, {'object': {'sha': 'a'*40}})):
+                one = p.live_event({'pull_request': {'number': 300}}, 'test/repo')
+            with patch('urllib.request.urlopen', side_effect=live_responses(second, {'object': {'sha': 'a'*40}})):
+                two = p.live_event({'pull_request': {'number': 300}}, 'test/repo')
+        self.assertEqual(one, two)
+
+    def test_live_event_detects_body_and_head_change_during_analysis(self):
+        from unittest.mock import patch
+        import os
+        before = pr_payload('body v1')
+        after_body = pr_payload('body v2')
+        after_head = pr_payload('body v1', head={'sha': 'c'*40, 'ref': 'fix'})
+        with patch.dict(os.environ, {'PREFLIGHT_GITHUB_TOKEN': 'test'}):
+            for changed in (after_body, after_head):
+                with patch('urllib.request.urlopen', side_effect=live_responses(before, {'object': {'sha': 'a'*40}})):
+                    start = p.live_event({'pull_request': {'number': 300}}, 'test/repo')
+                with patch('urllib.request.urlopen', side_effect=live_responses(changed, {'object': {'sha': 'a'*40}})):
+                    end = p.live_event({'pull_request': {'number': 300}}, 'test/repo')
+                self.assertNotEqual(start, end)
+
+    def test_live_event_rejects_mismatched_or_invalid_originals(self):
+        from unittest.mock import patch
+        import os
+        with patch.dict(os.environ, {'PREFLIGHT_GITHUB_TOKEN': 'test'}):
+            # API returns a different number than the event identified.
+            with patch('urllib.request.urlopen', side_effect=live_responses(pr_payload('x', number=301), {'object': {'sha': 'a'*40}})):
+                with self.assertRaises(ValueError):
+                    p.live_event({'pull_request': {'number': 300}}, 'test/repo')
+            # An Issue lookup that resolves to a PR is not a valid Issue subject.
+            issue_pr = {'number': 7, 'title': 't', 'body': 'b', 'pull_request': {'url': 'https://api.github.com/x'}}
+            with patch('urllib.request.urlopen', side_effect=live_responses(issue_pr, {'object': {'sha': 'a'*40}})):
+                with self.assertRaises(ValueError):
+                    p.live_event({'issue': {'number': 7}}, 'test/repo')
+            # A malformed main SHA must fail closed.
+            with patch('urllib.request.urlopen', side_effect=live_responses(pr_payload('x'), {'object': {'sha': 'not-a-sha'}})):
+                with self.assertRaises(ValueError):
+                    p.live_event({'pull_request': {'number': 300}}, 'test/repo')
+
+    def test_request_fingerprint_matches_javascript_publisher(self):
+        # The publisher (development-preflight-publish.mjs) hashes
+        # JSON.stringify([title, body]); lock the exact byte layout here.
+        import hashlib
+        self.assertEqual(p.request_fingerprint('a', 'b'),
+                         hashlib.sha256('["a","b"]'.encode('utf-8')).hexdigest())
+        self.assertEqual(p.request_fingerprint('題名', '本文\n次の行'),
+                         hashlib.sha256('["題名","本文\\n次の行"]'.encode('utf-8')).hexdigest())
+        self.assertEqual(p.request_fingerprint(None, None),
+                         hashlib.sha256('["",""]'.encode('utf-8')).hexdigest())
+        self.assertNotEqual(p.request_fingerprint('t', 'reuse'), p.request_fingerprint('t', 'extend'))
+
+    def test_subject_event_for_manual_dispatch_validates_number(self):
+        self.assertEqual(p.subject_event('issue', 304), {'issue': {'number': 304}})
+        self.assertEqual(p.subject_event('pull_request', 300), {'pull_request': {'number': 300}})
+        for kind, number in (('issue', 0), ('issue', -1), ('pull_request', '300'), ('comment', 1)):
+            with self.assertRaises(ValueError):
+                p.subject_event(kind, number)
+        # A dispatched recheck still goes through live_event: only the number
+        # is taken from the dispatch, everything else from the GitHub original.
+        from unittest.mock import patch
+        import os
+        latest = {'number': 304, 'title': 'task', 'state': 'open', 'body': 'latest body'}
+        with patch.dict(os.environ, {'PREFLIGHT_GITHUB_TOKEN': 'test'}), \
+                patch('urllib.request.urlopen', side_effect=live_responses(latest, {'object': {'sha': 'a'*40}})) as request:
+            result = p.live_event(p.subject_event('issue', 304), 'test/repo')
+        self.assertEqual(result['issue']['body'], 'latest body')
+        self.assertTrue(request.call_args_list[0].args[0].full_url.endswith('/issues/304'))
+
+
 if __name__ == '__main__':
     unittest.main()
