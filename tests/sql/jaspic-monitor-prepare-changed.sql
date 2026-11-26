@@ -8,7 +8,7 @@ create table public.jaspic_deliveries(province text,record_key text,version text
 
 create table record_updates(record_key text);
 create function count_record_update() returns trigger language plpgsql as $$
-begin insert into record_updates values(new.record_key); return new; end $$;
+begin insert into public.record_updates values(new.record_key); return new; end $$;
 create trigger count_updates after update on public.jaspic_records for each row execute function count_record_update();
 insert into public.jaspic_sources values('hiroshima',20,true,now()),('shiga',20,true,now());
 insert into public.jaspic_records
