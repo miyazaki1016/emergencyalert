@@ -50,3 +50,8 @@ begin
  if (select revision from public.jaspic_sources where province='hiroshima')<>before_revision then raise exception 'partial commit'; end if;
 end $$;
 select 'unchanged, changed, new, queue and atomic rollback assertions passed';
+
+do $$begin
+ if not exists(select 1 from pg_proc where oid='public.jaspic_prepare_all_production(uuid,jsonb)'::regprocedure
+ and proconfig @> array['statement_timeout=30s']) then raise exception 'bounded RPC timeout missing'; end if;
+end $$;

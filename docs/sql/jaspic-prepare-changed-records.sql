@@ -48,3 +48,8 @@ BEGIN
  WHERE province=p_province;
 END $function$
 ;
+
+-- Limit the exception to JASPIC's atomic prepare RPC.
+-- PostgREST applies function settings before executing this request.
+alter function public.jaspic_prepare_all_production(uuid,jsonb) set statement_timeout='30s';
+notify pgrst, 'reload schema';
