@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { forecastRadarPlayback, forecastRadarSources, type RadarPlaybackFrame } from "../../lib/weather/rain/nationalForecastRadar";
 import { forecastTime, NATIONAL_FORECAST_FRESHNESS_MS, type NationalForecastSnapshot, type NationalForecastFrame } from "../../lib/weather/rain/nationalForecastSnapshot";
+import { forecastMapSelection, type ForecastMapBand } from "../../lib/weather/rain/nationalForecastMap";
 import LiveJapanForecastMap from "./LiveJapanForecastMap";
 import styles from "./national-heavy-rain-forecast.module.css";
 
@@ -112,7 +113,7 @@ function ForecastBand({ frames, basetime, extended, tileVersions }: {
         <summary>時刻ごとの取得状況と基準時刻</summary>
         <ul>{frames.map(frame => <li key={frame.validTime}>{timeLabel(frame.validTime)}　
           {frame.basetimes?.length ? `${frame.basetimes.map(timeLabel).join(" / ")} 基準` : "未取得"}
-          {frame.incomplete && !!frame.basetimes?.length && "・一部未取得"}
+          {frame?.incomplete && !!frame.basetimes?.length && "・一部未取得"}
           {frame.refreshPending && "・一部は前の予報を表示"}</li>)}</ul>
       </details>}
       {!frames && basetime && <p role="status">この時間帯の予報は現在取得できていません。</p>}
@@ -169,8 +170,8 @@ function ForecastBand({ frames, basetime, extended, tileVersions }: {
 }
 
 export default function NationalHeavyRainForecast({ view = "map" }: { view?: "map" | "list" }) {
-  const [band, setBand] = useState<"detail" | "extended">("detail");
-  const [time, setTime] = useState("");
+  const [band, setBand] = useState<ForecastMapBand>("all");
+  const [time, setTime] = useState<number | null>(null);
   const [areaCode, setAreaCode] = useState("");
   const selectArea = useCallback((area: Municipality) => setAreaCode(area.code), []);
   const [forecast, setForecast] = useState<NationalForecastSnapshot | null>();
@@ -212,12 +213,14 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
     return () => window.clearTimeout(timer);
   }, [forecast]);
 
-  const bandFrames = band === "detail" ? forecast?.frames : forecast?.extendedFrames;
-  const frame = bandFrames?.find(item => item.validTime === time) ?? bandFrames?.[0];
+  const { slots, activeTime, peaks, frame, hasCoverage } = forecastMapSelection(forecast, band, time);
   const selectedArea = frame?.municipalities.find(area => area.code === areaCode);
-  const hasCoverage = frame && (!frame.tileCoverage || frame.tileCoverage.some(tile => tile.basetime));
+  // In the all-band view, play the band that produced the displayed municipality peak.
+  const radarIsExtended = band === "extended" || (band === "all" && selectedArea !== undefined &&
+    forecast?.extendedFrames?.some(item => item.municipalities.includes(selectedArea)) === true);
+  const radarBandFrames = radarIsExtended ? forecast?.extendedFrames : forecast?.frames;
   const radarFrames = selectedArea && forecast
-    ? forecastRadarPlayback(bandFrames ?? [], selectedArea.code, forecast.basetime, forecast.tileVersions)
+    ? forecastRadarPlayback(radarBandFrames ?? [], selectedArea.code, forecast.basetime, forecast.tileVersions)
     : [];
   const areas = forecast
     ? [...forecast.frames, ...(forecast.extendedFrames ?? [])].flatMap(frame => frame.municipalities)
@@ -236,22 +239,27 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
       {view === "map" ? <section aria-labelledby="live-japan-heading" className={styles.band}>
         <h1 id="live-japan-heading">全国の大雨を地図で見る</h1>
         <div className={styles.controls} aria-label="予報帯">
-          <button type="button" aria-pressed={band === "detail"} onClick={() => setBand("detail")}>詳細 +5〜30分</button>
-          <button type="button" aria-pressed={band === "extended"} onClick={() => setBand("extended")}>延長 +35〜60分</button>
+          <button type="button" aria-pressed={band === "all"} onClick={() => { setBand("all"); setTime(null); }}>すべて</button>
+          <button type="button" aria-pressed={band === "detail"} onClick={() => { setBand("detail"); setTime(null); }}>詳細 +5〜30分</button>
+          <button type="button" aria-pressed={band === "extended"} onClick={() => { setBand("extended"); setTime(null); }}>延長 +35〜60分</button>
         </div>
         <div className={styles.controls} aria-label="予報対象時刻">
-          {bandFrames?.map(item => <button type="button" key={item.validTime}
-            aria-pressed={frame === item} onClick={() => setTime(item.validTime)}>{timeLabel(item.validTime)}</button>)}
+          <button type="button" aria-pressed={activeTime === null} onClick={() => setTime(null)}>全時刻</button>
+          {slots.map(slot => <button type="button" key={slot.time}
+            aria-pressed={activeTime === slot.time} onClick={() => setTime(slot.time)}>
+            {formatTime.format(slot.time)}{slot.missing && "（未取得）"}
+          </button>)}
         </div>
         <LiveJapanForecastMap frame={frame} onSelect={selectArea} />
         <div className={styles.legend} aria-label="降水強度の凡例">
           <span>降水強度 mm/h</span><span><i />30–50未満</span><span><i />50–80未満</span><span><i />80以上</span>
         </div>
+        {frame?.tileCoverage?.some(tile => !tile.basetime) && <p>地図の斜線は予報データを未取得の陸地です。</p>}
         {forecast === undefined ? <p role="status">予報を取得中…</p>
-          : !hasCoverage ? <p role="status">この予報帯・時刻のデータは未取得です。</p>
+          : !hasCoverage ? <p role="status">{activeTime === null ? "この予報帯のデータは表示できません。" : "この予報時刻のデータは未取得です。"}</p>
           : <>
-            {frame.incomplete && <p role="status">斜線は未取得の範囲です。</p>}
-            {!frame.municipalities.length && <p>取得済みの範囲で30mm/h以上の予報はありません。</p>}
+            {frame?.incomplete && <p role="status">一部の時刻・地域は未取得です。地図にマーカーがない場所でも、大雨なしとは限りません。</p>}
+            {!frame?.municipalities.length && <p>取得済みの範囲で30mm/h以上の予報はありません。</p>}
           </>}
         {!!frame?.municipalities.length && <div className={styles.controls} aria-label="選択時刻の対象地域">
           {frame.municipalities.map(area => <button type="button" key={area.code} aria-pressed={areaCode === area.code}
@@ -259,12 +267,12 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
         </div>}
         {frame && selectedArea && <div className={styles.expandedRadar} aria-live="polite">
           <h3>{selectedArea.prefecture} {selectedArea.municipality}</h3>
-          <p>{timeLabel(frame.validTime)}の予報・{selectedArea.minimumMmPerHour} mm/h以上
+          <p>{timeLabel(peaks.get(selectedArea.code)?.time ?? frame.validTime)}の予報・{selectedArea.minimumMmPerHour} mm/h以上
             {selectedArea.basetime && `・タイル基準 ${timeLabel(selectedArea.basetime)}`}</p>
           {!!radarFrames.length && <RadarPlayer key={radarFrames.map(item => `${item.basetime}/${item.validTime}/${item.tile.x}/${item.tile.y}`).join(",")}
-            frames={radarFrames} blocky={band === "extended"} />}
+            frames={radarFrames} blocky={radarIsExtended} />}
         </div>}
-        <Link href="/?view=forecast">全国の大雨予報一覧を見る</Link>
+        <Link className={styles.forecastLink} href="/?view=forecast">全国の大雨予報一覧を見る →</Link>
       </section> : <>
       <div className={styles.summary}>
         <div>

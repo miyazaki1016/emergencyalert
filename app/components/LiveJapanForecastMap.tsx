@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { Map as LeafletMap } from "leaflet";
 import type { NationalForecastFrame } from "../../lib/weather/rain/nationalForecastSnapshot";
+import {
+  FORECAST_COVERAGE_ZOOM, FORECAST_MARKER_SIZE, forecastMarkersOverlap, forecastMarkerZIndex, missingLandOverlay,
+} from "../../lib/weather/rain/nationalForecastMapOverlay";
 import styles from "./live-japan-forecast-map.module.css";
 
 const colors = { 30: "#FF9900", 50: "#FF2800", 80: "#B40068" };
@@ -39,13 +42,14 @@ export default function LiveJapanForecastMap({ frame, onSelect }: {
       if (disposed) return;
       const layer = L.layerGroup().addTo(map);
       removeLayer = () => layer.remove();
-      const zoom = 4;
       for (const tile of frame.tileCoverage ?? []) {
         if (tile.basetime) continue;
-        const southwest = map.unproject([tile.x * 256, (tile.y + 1) * 256], zoom);
-        const northeast = map.unproject([(tile.x + 1) * 256, tile.y * 256], zoom);
-        const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><defs><pattern id="h" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0V8" stroke="#475569" stroke-width="2"/></pattern></defs><rect width="100%" height="100%" fill="url(#h)"/></svg>';
-        L.imageOverlay("data:image/svg+xml," + encodeURIComponent(svg), L.latLngBounds(southwest, northeast), { opacity: 0.65 }).addTo(layer);
+        const { url, southwest, northeast } = missingLandOverlay(tile.x, tile.y);
+        const bounds = L.latLngBounds(
+          map.unproject(southwest, FORECAST_COVERAGE_ZOOM),
+          map.unproject(northeast, FORECAST_COVERAGE_ZOOM),
+        );
+        L.imageOverlay(url, bounds, { opacity: 0.65, interactive: false }).addTo(layer);
       }
       const groups = new Map<string, Area[]>();
       for (const area of frame.municipalities) {
@@ -55,30 +59,41 @@ export default function LiveJapanForecastMap({ frame, onSelect }: {
         areas.push(area);
         groups.set(key, areas);
       }
-      for (const areas of groups.values()) {
+      const points = [...groups.values()].map(areas => {
         const { x, y } = areas[0].radarTile!;
+        return { areas, location: map.unproject([(x + 0.5) * 256, (y + 0.5) * 256], 10) };
+      });
+      for (const { areas, location } of points) {
         const tier = areas.reduce((largest, area) => area.minimumMmPerHour > largest ? area.minimumMmPerHour : largest, areas[0].minimumMmPerHour);
-        const popup = document.createElement("div");
-        for (const area of areas) {
-          const button = document.createElement("button");
-          button.type = "button";
-          button.textContent = `${area.prefecture} ${area.municipality}・${area.minimumMmPerHour} mm/h以上`;
-          button.onclick = () => onSelect(area);
-          popup.append(button, document.createElement("br"));
-        }
+        const makePopup = (entries: Area[]) => {
+          const popup = document.createElement("div");
+          for (const area of entries) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = `${area.prefecture} ${area.municipality}・${area.minimumMmPerHour} mm/h以上`;
+            button.onclick = () => onSelect(area);
+            popup.append(button, document.createElement("br"));
+          }
+          return popup;
+        };
         const marker = document.createElement("span");
         marker.className = styles.areaMarker;
         marker.style.backgroundColor = colors[tier];
         marker.textContent = String(tier);
-        const point = L.marker(map.unproject([(x + 0.5) * 256, (y + 0.5) * 256], 10), {
-          icon: L.divIcon({ className: "", html: marker, iconSize: [32, 32] }),
+        const point = L.marker(location, {
+          icon: L.divIcon({ className: "", html: marker, iconSize: [FORECAST_MARKER_SIZE, FORECAST_MARKER_SIZE] }),
           title: areas.map(area => area.municipality).join("、"),
+          zIndexOffset: forecastMarkerZIndex(tier),
         }).addTo(layer);
-        if (areas.length === 1) {
-          point.on("click", () => onSelect(areas[0]));
-        } else {
-          point.bindPopup(popup);
-        }
+        point.on("click", () => {
+          const origin = map.latLngToLayerPoint(location);
+          const nearby = points.filter(candidate => {
+            const p = map.latLngToLayerPoint(candidate.location);
+            return forecastMarkersOverlap(origin, p);
+          }).flatMap(candidate => candidate.areas).sort((a, b) => b.minimumMmPerHour - a.minimumMmPerHour);
+          if (nearby.length === 1) onSelect(nearby[0]);
+          else L.popup().setLatLng(location).setContent(makePopup(nearby)).openOn(map);
+        });
       }
     });
     return () => { disposed = true; removeLayer?.(); };
