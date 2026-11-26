@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { Map as LeafletMap } from "leaflet";
 import type { NationalForecastFrame } from "../../lib/weather/rain/nationalForecastSnapshot";
+import {
+  FORECAST_COVERAGE_ZOOM, FORECAST_MARKER_SIZE, forecastMarkersOverlap, forecastMarkerZIndex, missingLandOverlay,
+} from "../../lib/weather/rain/nationalForecastMapOverlay";
 import styles from "./live-japan-forecast-map.module.css";
 
 const colors = { 30: "#FF9900", 50: "#FF2800", 80: "#B40068" };
@@ -39,7 +42,15 @@ export default function LiveJapanForecastMap({ frame, onSelect }: {
       if (disposed) return;
       const layer = L.layerGroup().addTo(map);
       removeLayer = () => layer.remove();
-      // Tile bounds include foreign land and sea. Do not depict them as domestic missing coverage without a verified geographic mask.
+      for (const tile of frame.tileCoverage ?? []) {
+        if (tile.basetime) continue;
+        const { url, southwest, northeast } = missingLandOverlay(tile.x, tile.y);
+        const bounds = L.latLngBounds(
+          map.unproject(southwest, FORECAST_COVERAGE_ZOOM),
+          map.unproject(northeast, FORECAST_COVERAGE_ZOOM),
+        );
+        L.imageOverlay(url, bounds, { opacity: 0.65, interactive: false }).addTo(layer);
+      }
       const groups = new Map<string, Area[]>();
       for (const area of frame.municipalities) {
         if (!area.radarTile) continue;
@@ -55,30 +66,30 @@ export default function LiveJapanForecastMap({ frame, onSelect }: {
       for (const { areas, location } of points) {
         const tier = areas.reduce((largest, area) => area.minimumMmPerHour > largest ? area.minimumMmPerHour : largest, areas[0].minimumMmPerHour);
         const makePopup = (entries: Area[]) => {
-        const popup = document.createElement("div");
-        for (const area of entries) {
-          const button = document.createElement("button");
-          button.type = "button";
-          button.textContent = `${area.prefecture} ${area.municipality}・${area.minimumMmPerHour} mm/h以上`;
-          button.onclick = () => onSelect(area);
-          popup.append(button, document.createElement("br"));
-        }
-        return popup;
+          const popup = document.createElement("div");
+          for (const area of entries) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = `${area.prefecture} ${area.municipality}・${area.minimumMmPerHour} mm/h以上`;
+            button.onclick = () => onSelect(area);
+            popup.append(button, document.createElement("br"));
+          }
+          return popup;
         };
         const marker = document.createElement("span");
         marker.className = styles.areaMarker;
         marker.style.backgroundColor = colors[tier];
         marker.textContent = String(tier);
         const point = L.marker(location, {
-          icon: L.divIcon({ className: "", html: marker, iconSize: [32, 32] }),
+          icon: L.divIcon({ className: "", html: marker, iconSize: [FORECAST_MARKER_SIZE, FORECAST_MARKER_SIZE] }),
           title: areas.map(area => area.municipality).join("、"),
-          zIndexOffset: tier * 10000,
+          zIndexOffset: forecastMarkerZIndex(tier),
         }).addTo(layer);
         point.on("click", () => {
           const origin = map.latLngToLayerPoint(location);
           const nearby = points.filter(candidate => {
             const p = map.latLngToLayerPoint(candidate.location);
-            return Math.abs(p.x - origin.x) < 32 && Math.abs(p.y - origin.y) < 32;
+            return forecastMarkersOverlap(origin, p);
           }).flatMap(candidate => candidate.areas).sort((a, b) => b.minimumMmPerHour - a.minimumMmPerHour);
           if (nearby.length === 1) onSelect(nearby[0]);
           else L.popup().setLatLng(location).setContent(makePopup(nearby)).openOn(map);

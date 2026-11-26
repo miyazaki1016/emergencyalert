@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { forecastRadarSources } from "../../lib/weather/rain/nationalForecastRadar";
 import { forecastTime, NATIONAL_FORECAST_FRESHNESS_MS, type NationalForecastSnapshot, type NationalForecastFrame, type RadarTile } from "../../lib/weather/rain/nationalForecastSnapshot";
+import { forecastMapSelection, type ForecastMapBand } from "../../lib/weather/rain/nationalForecastMap";
 import LiveJapanForecastMap from "./LiveJapanForecastMap";
 import styles from "./national-heavy-rain-forecast.module.css";
 
@@ -166,8 +167,8 @@ function ForecastBand({ frames, basetime, extended, tileVersions }: {
 }
 
 export default function NationalHeavyRainForecast({ view = "map" }: { view?: "map" | "list" }) {
-  const [band, setBand] = useState<"all" | "detail" | "extended">("all");
-  const [time, setTime] = useState("");
+  const [band, setBand] = useState<ForecastMapBand>("all");
+  const [time, setTime] = useState<number | null>(null);
   const [areaCode, setAreaCode] = useState("");
   const selectArea = useCallback((area: Municipality) => setAreaCode(area.code), []);
   const [forecast, setForecast] = useState<NationalForecastSnapshot | null>();
@@ -209,32 +210,9 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
     return () => window.clearTimeout(timer);
   }, [forecast]);
 
-  const bandFrames = band === "all" ? (forecast ? [...forecast.frames, ...(forecast.extendedFrames ?? [])] : undefined) : band === "detail" ? forecast?.frames : forecast?.extendedFrames;
-  const now = Date.now();
-  const expected = forecast?.tileVersions ? Array.from({ length: 12 }, (_, i) => {
-    const minute = i < 6 ? (i + 1) * 5 : 30 + (i - 5) * 5;
-    return forecastTime(forecast.basetime) + minute * 60_000;
-  }).filter((value, i) => value > now && (band === "all" || (band === "detail" ? i < 6 : i >= 6))) : [];
-  const actualTimes = new Map((bandFrames ?? []).map(item => [forecastTime(item.validTime), item.validTime]));
-  const times = [...new Set([...actualTimes.keys(), ...expected])].sort((a, b) => a - b)
-    .map(value => actualTimes.get(value) ?? new Date(value).toISOString());
-  const missingTimes = new Set(times.filter(value => !actualTimes.has(forecastTime(value))));
-  const activeTime = times.includes(time) ? time : "";
-  const visibleFrames = (bandFrames ?? []).filter(item => !activeTime || item.validTime === activeTime);
-  const peaks = new Map<string, { area: Municipality; time: string }>();
-  for (const item of visibleFrames) for (const area of item.municipalities) {
-    const previous = peaks.get(area.code);
-    if (!previous || previous.area.minimumMmPerHour < area.minimumMmPerHour) peaks.set(area.code, { area, time: item.validTime });
-  }
-  const frame = visibleFrames.length ? {
-    ...visibleFrames[0],
-    municipalities: [...peaks.values()].map(item => item.area),
-    incomplete: visibleFrames.some(item => item.incomplete || item.tileCoverage?.some(tile => !tile.basetime)) || missingTimes.size > 0 || (band === "all" && !forecast?.extendedFrames),
-    tileCoverage: forecast?.tileVersions ? [...new Map(visibleFrames.flatMap(item => item.tileCoverage ?? []).sort((a, b) => (a.basetime ?? "").localeCompare(b.basetime ?? "")).map(tile => [`${tile.x}/${tile.y}`, tile])).values()] : undefined,
-  } : undefined;
+  const { bandFrames, slots, activeTime, peaks, frame, hasCoverage } = forecastMapSelection(forecast, band, time);
   const selectedArea = frame?.municipalities.find(area => area.code === areaCode);
-  const hasCoverage = visibleFrames.some(item => !item.tileCoverage || item.tileCoverage.some(tile => tile.basetime));
-  const radarFrames = selectedArea && forecast ? (bandFrames ?? []).flatMap(item => {
+  const radarFrames = selectedArea && forecast ? bandFrames.flatMap(item => {
     const match = item.municipalities.find(area => area.code === selectedArea.code);
     return match?.radarTile ? [{
       basetime: match.basetime ?? forecast.basetime, validTime: item.validTime, tile: match.radarTile,
@@ -257,21 +235,24 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
       {view === "map" ? <section aria-labelledby="live-japan-heading" className={styles.band}>
         <h1 id="live-japan-heading">全国の大雨を地図で見る</h1>
         <div className={styles.controls} aria-label="予報帯">
-          <button type="button" aria-pressed={band === "all"} onClick={() => { setBand("all"); setTime(""); }}>すべて</button>
-          <button type="button" aria-pressed={band === "detail"} onClick={() => { setBand("detail"); setTime(""); }}>詳細 +5〜30分</button>
-          <button type="button" aria-pressed={band === "extended"} onClick={() => { setBand("extended"); setTime(""); }}>延長 +35〜60分</button>
+          <button type="button" aria-pressed={band === "all"} onClick={() => { setBand("all"); setTime(null); }}>すべて</button>
+          <button type="button" aria-pressed={band === "detail"} onClick={() => { setBand("detail"); setTime(null); }}>詳細 +5〜30分</button>
+          <button type="button" aria-pressed={band === "extended"} onClick={() => { setBand("extended"); setTime(null); }}>延長 +35〜60分</button>
         </div>
         <div className={styles.controls} aria-label="予報対象時刻">
-          <button type="button" aria-pressed={!activeTime} onClick={() => setTime("")}>全時刻</button>
-          {times.map(item => <button type="button" key={item}
-            aria-pressed={activeTime === item} onClick={() => setTime(item)}>{timeLabel(item)}{missingTimes.has(item) && "（未取得）"}</button>)}
+          <button type="button" aria-pressed={activeTime === null} onClick={() => setTime(null)}>全時刻</button>
+          {slots.map(slot => <button type="button" key={slot.time}
+            aria-pressed={activeTime === slot.time} onClick={() => setTime(slot.time)}>
+            {formatTime.format(slot.time)}{slot.missing && "（未取得）"}
+          </button>)}
         </div>
         <LiveJapanForecastMap frame={frame} onSelect={selectArea} />
         <div className={styles.legend} aria-label="降水強度の凡例">
           <span>降水強度 mm/h</span><span><i />30–50未満</span><span><i />50–80未満</span><span><i />80以上</span>
         </div>
+        {frame?.tileCoverage?.some(tile => !tile.basetime) && <p>地図の斜線は予報データを未取得の陸地です。</p>}
         {forecast === undefined ? <p role="status">予報を取得中…</p>
-          : !hasCoverage ? <p role="status">この予報帯・時刻のデータは未取得です。</p>
+          : !hasCoverage ? <p role="status">{activeTime === null ? "この予報帯のデータは表示できません。" : "この予報時刻のデータは未取得です。"}</p>
           : <>
             {frame?.incomplete && <p role="status">一部の時刻・地域は未取得です。地図にマーカーがない場所でも、大雨なしとは限りません。</p>}
             {!frame?.municipalities.length && <p>取得済みの範囲で30mm/h以上の予報はありません。</p>}
