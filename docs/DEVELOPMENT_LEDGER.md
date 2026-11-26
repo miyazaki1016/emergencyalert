@@ -4,6 +4,13 @@
 
 **案件の状態・担当・次の一手を更新する場所はここ。** 状態を変える際は、確認日・PRやブランチ・該当ファイル・検証証拠を残す。main、本番、実機は別々に判定する。
 
+## JASPIC DB保存タイムアウトの復旧（2026-11-26）
+
+- [Issue #308](https://github.com/miyazaki1016/emergencyalert/issues/308)、[PR #309](https://github.com/miyazaki1016/emergencyalert/pull/309)。18時run `88dee18e-970f-4180-a453-e4c9ba8a3e20` は認証正常後prepare-deliveryで失敗。PostgreSQL/PostgRESTログでSQLSTATE 57014、statement_timeout 8秒を確認。
+- [着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/45814003350) は公開確定REVIEW_RECORDED。既存原子的保存を継承し、同一payloadへのUPDATEを省く。本番量のロールバック試験は約794ms。これは負荷の異なる18時の処理時間保証ではない。
+- DB変更前に管理者専用バックアップ `jaspic_backup_20261126_prepare` を取得。復旧は保存済み関数定義を戻す。送信開始後は台帳やbaseline全体の過去版上書きをせず、SENT/UNKNOWNを保存する。
+- 次は最新HEADのCI成功、本番SQL適用、候補広島17・滋賀6の再確認、未送信配信と県別結果の記録。送信前時点の候補件数であり実送信の証明ではない。
+
 ## 全国大雨予報・MYアメふるの5分周期移行（2026-11-16）
 
 - [Issue #250](https://github.com/miyazaki1016/emergencyalert/issues/250) の [着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/43849922596) は公開確定、preflight成功、REVIEW_RECORDED。
