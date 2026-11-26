@@ -62,7 +62,6 @@
 | #276 | Cloudflare起動へ一本化：雨監視2ワークフローのGitHub scheduleを削除 | fix/cloudflare-only-rain-actions-trigger |
 | #290 | さきどり フロント担当の作業窓口 | ops/sakidori-frontend |
 | #291 | さきどり データ・通知担当の作業窓口 | ops/sakidori-data-notifications |
-| #303 | 全国地図の全時刻集約・危険度優先・操作改善 (#301) | feat/live-japan-improvements-301 |
 | #306 | Bluesky候補生成をタイル版に適合するドライラン (#302) | feat/bluesky-tile-dry-run-302 |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
