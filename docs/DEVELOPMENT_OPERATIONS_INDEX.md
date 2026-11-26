@@ -64,6 +64,7 @@
 | #291 | さきどり データ・通知担当の作業窓口 | ops/sakidori-data-notifications |
 | #300 | 自治体の雨雲再生を連続5時刻に揃える (#296) | feat/radar-five-frames-296 |
 | #303 | 全国地図の全時刻集約・危険度優先・操作改善 (#301) | feat/live-japan-improvements-301 |
+| #306 | Bluesky候補生成をタイル版に適合するドライラン (#302) | feat/bluesky-tile-dry-run-302 |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
