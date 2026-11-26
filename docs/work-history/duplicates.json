@@ -1224,9 +1224,11 @@
     "branch-7d28c1fe1dcbf427",
     "branch-b6e5605d0721ab6f",
     "branch-d7e01c30db10e1cb",
+    "branch-ec7f6a5ca74ddaea",
     "branch-f21e5c06f0afa189",
     "pr-215",
-    "pr-217"
+    "pr-217",
+    "pr-306"
   ],
   "lib/weather/rain/nationalForecastBluesky.ts": [
     "branch-12242ada665792be",
@@ -1237,9 +1239,19 @@
     "branch-7d28c1fe1dcbf427",
     "branch-b6e5605d0721ab6f",
     "branch-d7e01c30db10e1cb",
+    "branch-ec7f6a5ca74ddaea",
     "branch-f21e5c06f0afa189",
     "pr-215",
-    "pr-217"
+    "pr-217",
+    "pr-306"
+  ],
+  "lib/weather/rain/nationalForecastBlueskyTiles.test.ts": [
+    "branch-ec7f6a5ca74ddaea",
+    "pr-306"
+  ],
+  "lib/weather/rain/nationalForecastBlueskyTiles.ts": [
+    "branch-ec7f6a5ca74ddaea",
+    "pr-306"
   ],
   "lib/weather/rain/nationalForecastRadar.test.ts": [
     "branch-d40033ba044f0dbc",
@@ -1498,6 +1510,10 @@
   "scripts/benchmark_rain_tile.py": [
     "branch-06febc013000a880",
     "pr-98"
+  ],
+  "scripts/bluesky-national-forecast-dry-run.ts": [
+    "branch-ec7f6a5ca74ddaea",
+    "pr-306"
   ],
   "scripts/census-town-boundary-benchmark.test.ts": [
     "branch-2d0caa2b5330cf58",

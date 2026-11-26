@@ -1,0 +1,43 @@
+{
+  "id": "branch-d8d3a36da9ae3119",
+  "title": "feat/live-japan-improvements-301",
+  "head": "24759b94fe41e81338f0d99ef2bc0ced0afdcb42",
+  "head_ref": "feat/live-japan-improvements-301",
+  "linked_prs": [
+    303
+  ],
+  "files": [
+    {
+      "path": "app/components/LiveJapanForecastMap.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/24759b94fe41e81338f0d99ef2bc0ced0afdcb42/app/components/LiveJapanForecastMap.tsx"
+    },
+    {
+      "path": "app/components/NationalHeavyRainForecast.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/24759b94fe41e81338f0d99ef2bc0ced0afdcb42/app/components/NationalHeavyRainForecast.tsx"
+    },
+    {
+      "path": "app/components/national-heavy-rain-forecast.module.css",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/24759b94fe41e81338f0d99ef2bc0ced0afdcb42/app/components/national-heavy-rain-forecast.module.css"
+    }
+  ],
+  "commits": "24759b94fe41e81338f0d99ef2bc0ced0afdcb42 fix: expose missing forecast slots and aggregate tile coverage (#301)\n09b786071370f4a086d116c2458682584d65f6e8 Preserve missing-data warning without misleading geographic overlay (#301)\nd725b07ae9c28e9ec21333debbf445cc2a9d808b Avoid misleading foreign-area missing coverage overlay (#301)\n9d46ecbe3d46898c6ae47c05078e97e551fd6746 Fix optional frame type error and clarify missing coverage (#301)\n0b6ad5a5b7421e615170d1121ae667a0224f8ef0 Allow selection of overlapping map markers at current zoom (#301)\n9575dea670a1954ec4b07c4a8a5ccc0877dae920 Clarify aggregate coverage and improve list link (#301)\n9289b760af7d4e8a1c54059885889429b15811cf Highlight selected forecast filters and list navigation (#301)\ne20768588a8742b90b6bbc1f3247191f2372df80 Aggregate all forecast times by municipality and allow time filtering (#301)\n2be76e2e041223a486b4e0ebe6b276dfd2265e07 Prioritize severe rain markers above lower tiers (#301)",
+  "topics": [
+    "雨量・全国検知",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "396810d8b171f171f265a3da6496aba3b5d0490a496691abc89a0f9353b91b28",
+  "collected_at": "2026-11-26T09:30:25.937878+00:00"
+}

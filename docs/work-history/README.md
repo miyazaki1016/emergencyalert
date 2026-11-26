@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-25T09:50:23.054036+00:00
+更新 (UTC): 2026-11-26T09:30:25.937878+00:00
 
 ## 全案件
 
@@ -252,6 +252,7 @@
 | [fix/keep-rain-check-together](cases/branch-e791556de8e560bd.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/simplify-main-overviews-20261105](cases/branch-e88492625bb5b983.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [research/severe-rain-consistency-20261101](cases/branch-e887abe92356f2f8.md) | 雨量・全国検知・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [feat/bluesky-tile-dry-run-302](cases/branch-ec7f6a5ca74ddaea.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/jaspic-completion-held-count-20261113](cases/branch-ed5a77acb086e38f.md) | 通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/push-subscription-ui](cases/branch-ed8571ecfbfa4b90.md) | 通知・配信・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [chore/inventory-shared-file-evidence](cases/branch-ed894c05ef854553.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -451,6 +452,7 @@
 | [自治体の雨雲再生を連続5時刻に揃える (#296)](cases/pr-300.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [全国地図の全時刻集約・危険度優先・操作改善 (#301)](cases/pr-303.md) | 雨量・全国検知・画面・表示：雨量判定・予測・全国候補抽出に関する変更／画面表示や操作に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [着手前照合の最新原本再取得と再実行の改善](cases/pr-305.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [Bluesky候補生成をタイル版に適合するドライラン (#302)](cases/pr-306.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [Add rain interpretation diagnostics](cases/pr-31.md) | 雨量・全国検知：雨解釈の診断情報を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Log withheld rain diagnostics](cases/pr-32.md) | 雨量・全国検知：送信を見送った雨判定の診断を記録 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Fix transparent JMA pixels blocking dry/ending states](cases/pr-33.md) | 雨量・全国検知・画面・表示：JMAの透明画素で晴れ・雨終了判定が止まる問題を修正 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
@@ -699,8 +701,10 @@
 - lib/weather/rain/n03PreparedStorageContract.test.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [pr-59](cases/pr-59.md)
 - lib/weather/rain/n03PreparedStorageLoader.test.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [pr-59](cases/pr-59.md)
 - lib/weather/rain/n03PreparedStorageLoader.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [pr-59](cases/pr-59.md)
-- lib/weather/rain/nationalForecastBluesky.test.ts：[branch-12242ada665792be](cases/branch-12242ada665792be.md), [branch-214503f4c56a6d5e](cases/branch-214503f4c56a6d5e.md), [branch-2dd17474ef4e7083](cases/branch-2dd17474ef4e7083.md), [branch-349358bb4a595e5f](cases/branch-349358bb4a595e5f.md), [branch-451605c0e2751387](cases/branch-451605c0e2751387.md), [branch-7d28c1fe1dcbf427](cases/branch-7d28c1fe1dcbf427.md), [branch-b6e5605d0721ab6f](cases/branch-b6e5605d0721ab6f.md), [branch-d7e01c30db10e1cb](cases/branch-d7e01c30db10e1cb.md), [branch-f21e5c06f0afa189](cases/branch-f21e5c06f0afa189.md), [pr-215](cases/pr-215.md), [pr-217](cases/pr-217.md)
-- lib/weather/rain/nationalForecastBluesky.ts：[branch-12242ada665792be](cases/branch-12242ada665792be.md), [branch-214503f4c56a6d5e](cases/branch-214503f4c56a6d5e.md), [branch-2dd17474ef4e7083](cases/branch-2dd17474ef4e7083.md), [branch-349358bb4a595e5f](cases/branch-349358bb4a595e5f.md), [branch-451605c0e2751387](cases/branch-451605c0e2751387.md), [branch-7d28c1fe1dcbf427](cases/branch-7d28c1fe1dcbf427.md), [branch-b6e5605d0721ab6f](cases/branch-b6e5605d0721ab6f.md), [branch-d7e01c30db10e1cb](cases/branch-d7e01c30db10e1cb.md), [branch-f21e5c06f0afa189](cases/branch-f21e5c06f0afa189.md), [pr-215](cases/pr-215.md), [pr-217](cases/pr-217.md)
+- lib/weather/rain/nationalForecastBluesky.test.ts：[branch-12242ada665792be](cases/branch-12242ada665792be.md), [branch-214503f4c56a6d5e](cases/branch-214503f4c56a6d5e.md), [branch-2dd17474ef4e7083](cases/branch-2dd17474ef4e7083.md), [branch-349358bb4a595e5f](cases/branch-349358bb4a595e5f.md), [branch-451605c0e2751387](cases/branch-451605c0e2751387.md), [branch-7d28c1fe1dcbf427](cases/branch-7d28c1fe1dcbf427.md), [branch-b6e5605d0721ab6f](cases/branch-b6e5605d0721ab6f.md), [branch-d7e01c30db10e1cb](cases/branch-d7e01c30db10e1cb.md), [branch-ec7f6a5ca74ddaea](cases/branch-ec7f6a5ca74ddaea.md), [branch-f21e5c06f0afa189](cases/branch-f21e5c06f0afa189.md), [pr-215](cases/pr-215.md), [pr-217](cases/pr-217.md), [pr-306](cases/pr-306.md)
+- lib/weather/rain/nationalForecastBluesky.ts：[branch-12242ada665792be](cases/branch-12242ada665792be.md), [branch-214503f4c56a6d5e](cases/branch-214503f4c56a6d5e.md), [branch-2dd17474ef4e7083](cases/branch-2dd17474ef4e7083.md), [branch-349358bb4a595e5f](cases/branch-349358bb4a595e5f.md), [branch-451605c0e2751387](cases/branch-451605c0e2751387.md), [branch-7d28c1fe1dcbf427](cases/branch-7d28c1fe1dcbf427.md), [branch-b6e5605d0721ab6f](cases/branch-b6e5605d0721ab6f.md), [branch-d7e01c30db10e1cb](cases/branch-d7e01c30db10e1cb.md), [branch-ec7f6a5ca74ddaea](cases/branch-ec7f6a5ca74ddaea.md), [branch-f21e5c06f0afa189](cases/branch-f21e5c06f0afa189.md), [pr-215](cases/pr-215.md), [pr-217](cases/pr-217.md), [pr-306](cases/pr-306.md)
+- lib/weather/rain/nationalForecastBlueskyTiles.test.ts：[branch-ec7f6a5ca74ddaea](cases/branch-ec7f6a5ca74ddaea.md), [pr-306](cases/pr-306.md)
+- lib/weather/rain/nationalForecastBlueskyTiles.ts：[branch-ec7f6a5ca74ddaea](cases/branch-ec7f6a5ca74ddaea.md), [pr-306](cases/pr-306.md)
 - lib/weather/rain/nationalForecastRadar.test.ts：[branch-d40033ba044f0dbc](cases/branch-d40033ba044f0dbc.md), [pr-300](cases/pr-300.md)
 - lib/weather/rain/nationalForecastRadar.ts：[branch-d40033ba044f0dbc](cases/branch-d40033ba044f0dbc.md), [pr-252](cases/pr-252.md), [pr-300](cases/pr-300.md)
 - lib/weather/rain/nationalForecastSnapshot.test.ts：[branch-3cc3b2f103fcdb49](cases/branch-3cc3b2f103fcdb49.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [branch-d47e9b0dcd4ebc9b](cases/branch-d47e9b0dcd4ebc9b.md), [pr-210](cases/pr-210.md), [pr-211](cases/pr-211.md), [pr-252](cases/pr-252.md), [pr-284](cases/pr-284.md)
@@ -745,6 +749,7 @@
 - scripts/audit-ending-radar.mjs：[branch-f481c53a0ffb9f36](cases/branch-f481c53a0ffb9f36.md), [pr-63](cases/pr-63.md)
 - scripts/audit-rain-images.cjs：[branch-62efc69d0291dcce](cases/branch-62efc69d0291dcce.md), [pr-103](cases/pr-103.md)
 - scripts/benchmark_rain_tile.py：[branch-06febc013000a880](cases/branch-06febc013000a880.md), [pr-98](cases/pr-98.md)
+- scripts/bluesky-national-forecast-dry-run.ts：[branch-ec7f6a5ca74ddaea](cases/branch-ec7f6a5ca74ddaea.md), [pr-306](cases/pr-306.md)
 - scripts/census-town-boundary-benchmark.test.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [pr-59](cases/pr-59.md)
 - scripts/census-town-boundary-benchmark.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [pr-59](cases/pr-59.md)
 - scripts/census-town-boundary-topojson-proof.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [pr-59](cases/pr-59.md)

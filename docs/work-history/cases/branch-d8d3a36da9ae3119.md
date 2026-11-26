@@ -18,16 +18,16 @@
 
 関連PR：[#303](https://github.com/miyazaki1016/emergencyalert/pull/303)
 
-根拠取得日時 (UTC)：2026-11-25T02:31:09.261491+00:00
+根拠取得日時 (UTC)：2026-11-26T09:30:25.937878+00:00
 
 
 ## 実際の変更処理（コードから抽出）
 
 差分・ソースを参照
 
-- [app/components/LiveJapanForecastMap.tsx](https://github.com/miyazaki1016/emergencyalert/blob/09b786071370f4a086d116c2458682584d65f6e8/app/components/LiveJapanForecastMap.tsx)：同一HEADのPR案件に原文収録
-- [app/components/NationalHeavyRainForecast.tsx](https://github.com/miyazaki1016/emergencyalert/blob/09b786071370f4a086d116c2458682584d65f6e8/app/components/NationalHeavyRainForecast.tsx)：同一HEADのPR案件に原文収録
-- [app/components/national-heavy-rain-forecast.module.css](https://github.com/miyazaki1016/emergencyalert/blob/09b786071370f4a086d116c2458682584d65f6e8/app/components/national-heavy-rain-forecast.module.css)：同一HEADのPR案件に原文収録
+- [app/components/LiveJapanForecastMap.tsx](https://github.com/miyazaki1016/emergencyalert/blob/24759b94fe41e81338f0d99ef2bc0ced0afdcb42/app/components/LiveJapanForecastMap.tsx)：同一HEADのPR案件に原文収録
+- [app/components/NationalHeavyRainForecast.tsx](https://github.com/miyazaki1016/emergencyalert/blob/24759b94fe41e81338f0d99ef2bc0ced0afdcb42/app/components/NationalHeavyRainForecast.tsx)：同一HEADのPR案件に原文収録
+- [app/components/national-heavy-rain-forecast.module.css](https://github.com/miyazaki1016/emergencyalert/blob/24759b94fe41e81338f0d99ef2bc0ced0afdcb42/app/components/national-heavy-rain-forecast.module.css)：同一HEADのPR案件に原文収録
 
 ## 検証実行の事実
 
