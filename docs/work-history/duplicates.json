@@ -103,7 +103,6 @@
     "branch-3cc3b2f103fcdb49",
     "branch-82eb6ae5e3cdd506",
     "branch-8ac7382a5a280d93",
-    "branch-d40033ba044f0dbc",
     "branch-d47e9b0dcd4ebc9b",
     "branch-d5162b95174defec",
     "branch-d8d3a36da9ae3119",
@@ -905,6 +904,10 @@
     "branch-f481c53a0ffb9f36",
     "pr-63"
   ],
+  "lib/weather/rain/japanLandPath.ts": [
+    "branch-d8d3a36da9ae3119",
+    "pr-303"
+  ],
   "lib/weather/rain/japanPrefectures.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
@@ -1253,12 +1256,19 @@
     "branch-ec7f6a5ca74ddaea",
     "pr-306"
   ],
-  "lib/weather/rain/nationalForecastRadar.test.ts": [
-    "branch-d40033ba044f0dbc",
-    "pr-300"
+  "lib/weather/rain/nationalForecastMap.test.ts": [
+    "branch-d8d3a36da9ae3119",
+    "pr-303"
+  ],
+  "lib/weather/rain/nationalForecastMap.ts": [
+    "branch-d8d3a36da9ae3119",
+    "pr-303"
+  ],
+  "lib/weather/rain/nationalForecastMapOverlay.ts": [
+    "branch-d8d3a36da9ae3119",
+    "pr-303"
   ],
   "lib/weather/rain/nationalForecastRadar.ts": [
-    "branch-d40033ba044f0dbc",
     "pr-252",
     "pr-300"
   ],

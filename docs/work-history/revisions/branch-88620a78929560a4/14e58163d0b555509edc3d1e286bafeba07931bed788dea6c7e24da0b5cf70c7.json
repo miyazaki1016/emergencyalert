@@ -1,0 +1,50 @@
+{
+  "id": "branch-88620a78929560a4",
+  "title": "fix/jaspic-308-prepare-timeout",
+  "head": "08d2e7dc06cf2c4cf115675f6267f554882f5520",
+  "head_ref": "fix/jaspic-308-prepare-timeout",
+  "linked_prs": [
+    309
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/jaspic-admin-monitor.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/08d2e7dc06cf2c4cf115675f6267f554882f5520/.github/workflows/jaspic-admin-monitor.yml"
+    },
+    {
+      "path": "docs/DEVELOPMENT_LEDGER.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/08d2e7dc06cf2c4cf115675f6267f554882f5520/docs/DEVELOPMENT_LEDGER.md"
+    },
+    {
+      "path": "docs/sql/jaspic-prepare-changed-records.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/08d2e7dc06cf2c4cf115675f6267f554882f5520/docs/sql/jaspic-prepare-changed-records.sql"
+    },
+    {
+      "path": "tests/sql/jaspic-monitor-prepare-changed.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/08d2e7dc06cf2c4cf115675f6267f554882f5520/tests/sql/jaspic-monitor-prepare-changed.sql"
+    }
+  ],
+  "commits": "08d2e7dc06cf2c4cf115675f6267f554882f5520 docs(jaspic): record timeout evidence, backup and recovery checkpoint\n0a4af9f6d5ff02ae88687c25a0db340d2ccd8724 test(jaspic): qualify the fixture audit table under empty search_path\n922eb64f3a0a9cea536b37252915a9205087a558 fix(jaspic): avoid rewriting unchanged source records during preparation",
+  "topics": [
+    "通知・配信",
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "6b2d0145d5b08f267cefee061ce6c65adc0315ea26a63e4784e3c950159cdcb8",
+  "collected_at": "2026-11-26T20:26:13.197903+00:00"
+}

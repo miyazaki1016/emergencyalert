@@ -1,0 +1,85 @@
+{
+  "id": "branch-d5162b95174defec",
+  "title": "fix/standalone-forecast-home-209",
+  "head": "a7fdb56c4788c02a8b0a583deadfd37d963530ef",
+  "head_ref": "fix/standalone-forecast-home-209",
+  "linked_prs": [
+    253
+  ],
+  "files": [
+    {
+      "path": "app/components/NationalHeavyRainForecast.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a7fdb56c4788c02a8b0a583deadfd37d963530ef/app/components/NationalHeavyRainForecast.tsx"
+    },
+    {
+      "path": "app/components/national-heavy-rain-forecast.module.css",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a7fdb56c4788c02a8b0a583deadfd37d963530ef/app/components/national-heavy-rain-forecast.module.css"
+    },
+    {
+      "path": "app/forecast-home.module.css",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a7fdb56c4788c02a8b0a583deadfd37d963530ef/app/forecast-home.module.css"
+    },
+    {
+      "path": "app/manifest.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a7fdb56c4788c02a8b0a583deadfd37d963530ef/app/manifest.ts"
+    },
+    {
+      "path": "app/my-amefuru/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a7fdb56c4788c02a8b0a583deadfd37d963530ef/app/my-amefuru/page.tsx"
+    },
+    {
+      "path": "app/my-forecast-legacy-link.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a7fdb56c4788c02a8b0a583deadfd37d963530ef/app/my-forecast-legacy-link.tsx"
+    },
+    {
+      "path": "app/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a7fdb56c4788c02a8b0a583deadfd37d963530ef/app/page.tsx"
+    },
+    {
+      "path": "docs/NATIONAL_FORECAST_HOME_209.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a7fdb56c4788c02a8b0a583deadfd37d963530ef/docs/NATIONAL_FORECAST_HOME_209.md"
+    },
+    {
+      "path": "public/sw.js",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a7fdb56c4788c02a8b0a583deadfd37d963530ef/public/sw.js"
+    }
+  ],
+  "commits": "a7fdb56c4788c02a8b0a583deadfd37d963530ef fix(home): separate the forecast homepage from MY Amefuru (#209)",
+  "topics": [
+    "雨量・全国検知",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "a049de0031c85c3976d072a913f8b2f10db0544d00f18f3f86baaa3d9fd80fe9",
+  "collected_at": "2026-11-26T20:26:13.197903+00:00"
+}

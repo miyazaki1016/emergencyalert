@@ -1,0 +1,2279 @@
+{
+  "id": "pr-310",
+  "number": 310,
+  "title": "fix(jaspic): 原子的保存RPCだけ30秒の実行予算を設定 (#308)",
+  "topics": [
+    "通知・配信"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Related #308. #309の無変更UPDATE抑制後もPostgREST呼出しが8秒で中断したため、jaspic_prepare_all_productionだけstatement_timeout=30sを設定する。全体ロール・他APIの時間制限は変更しない。送信前の原子性と再送禁止を維持。公式 https://supabase.com/docs/guides/database/postgres/timeouts のfunction level設定を使用。\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-155\",\"decision\":\"reuse\",\"reason\":\"既存OAuth・MIMEを再利用し認証経路を作り直さない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/155\"},{\"id\":\"pr-190\",\"decision\":\"reuse\",\"reason\":\"旧IDと同一事案の安全判定を維持する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/190\"},{\"id\":\"pr-191\",\"decision\":\"reuse\",\"reason\":\"過去の限定送信済み案件を再送せず台帳を継承する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/191\"},{\"id\":\"pr-192\",\"decision\":\"reuse\",\"reason\":\"自転車盗の恒久的対象外を維持する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/192\"},{\"id\":\"pr-193\",\"decision\":\"reuse\",\"reason\":\"管理者通知と既存の失敗監視を維持する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/193\"},{\"id\":\"pr-194\",\"decision\":\"reuse\",\"reason\":\"既存正常完了通知と0件時の完了報告を維持する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/194\"},{\"id\":\"pr-240\",\"decision\":\"extend\",\"reason\":\"全件原子的保存・PREPARED再開とSENT/UNKNOWN非再送を維持する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/240\"},{\"id\":\"pr-248\",\"decision\":\"reuse\",\"reason\":\"既存の自己継続・完了通知と排他を維持しDB保存段階の障害だけを修復する\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/248\"},{\"id\":\"pr-251\",\"decision\":\"distinct\",\"reason\":\"原本の雨予測・Push・研究または開発棚卸しを確認。共有の開発台帳パスで一致した別案件であり、今回のJASPIC baseline保存の無変更UPDATE抑制とは処理が異なる。既存実装は変更しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/251\"},{\"id\":\"pr-104\",\"decision\":\"distinct\",\"reason\":\"原本の雨予測・Push・研究または開発棚卸しを確認。共有の開発台帳パスで一致した別案件であり、今回のJASPIC baseline保存の無変更UPDATE抑制とは処理が異なる。既存実装は変更しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/104\"},{\"id\":\"pr-109\",\"decision\":\"distinct\",\"reason\":\"原本の雨予測・Push・研究または開発棚卸しを確認。共有の開発台帳パスで一致した別案件であり、今回のJASPIC baseline保存の無変更UPDATE抑制とは処理が異なる。既存実装は変更しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/109\"},{\"id\":\"pr-103\",\"decision\":\"distinct\",\"reason\":\"原本の雨予測・Push・研究または開発棚卸しを確認。共有の開発台帳パスで一致した別案件であり、今回のJASPIC baseline保存の無変更UPDATE抑制とは処理が異なる。既存実装は変更しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/103\"},{\"id\":\"pr-105\",\"decision\":\"distinct\",\"reason\":\"原本の雨予測・Push・研究または開発棚卸しを確認。共有の開発台帳パスで一致した別案件であり、今回のJASPIC baseline保存の無変更UPDATE抑制とは処理が異なる。既存実装は変更しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/105\"},{\"id\":\"pr-110\",\"decision\":\"distinct\",\"reason\":\"原本の雨予測・Push・研究または開発棚卸しを確認。共有の開発台帳パスで一致した別案件であり、今回のJASPIC baseline保存の無変更UPDATE抑制とは処理が異なる。既存実装は変更しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/110\"},{\"id\":\"pr-107\",\"decision\":\"distinct\",\"reason\":\"原本の雨予測・Push・研究または開発棚卸しを確認。共有の開発台帳パスで一致した別案件であり、今回のJASPIC baseline保存の無変更UPDATE抑制とは処理が異なる。既存実装は変更しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/107\"}]}\n-->",
+  "snapshot_head": "45caca466b702bc5c1a8a907bf905a15edc289d2",
+  "snapshot_consistent": true,
+  "head": "45caca466b702bc5c1a8a907bf905a15edc289d2",
+  "base": "bce0375e11afbd81c07fc3bdc2cd2233025e9ccd",
+  "base_ref": "main",
+  "head_ref": "fix/jaspic-308-rpc-budget",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-26T11:59:29Z",
+  "merge_commit_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+  "updated_at": "2026-11-26T12:01:57Z",
+  "code_facts": [
+    {
+      "file": "docs/sql/jaspic-prepare-changed-records.sql",
+      "kind": "関数・クラス定義",
+      "expression": "-- PostgREST applies function settings before executing this request.",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/45caca466b702bc5c1a8a907bf905a15edc289d2/docs/sql/jaspic-prepare-changed-records.sql"
+    },
+    {
+      "file": "docs/sql/jaspic-prepare-changed-records.sql",
+      "kind": "SQL定義・権限",
+      "expression": "alter function public.jaspic_prepare_all_production(uuid,jsonb) set statement_timeout='30s';",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/45caca466b702bc5c1a8a907bf905a15edc289d2/docs/sql/jaspic-prepare-changed-records.sql"
+    },
+    {
+      "file": "tests/sql/jaspic-monitor-prepare-changed.sql",
+      "kind": "条件分岐・閾値",
+      "expression": "if not exists(select 1 from pg_proc where oid='public.jaspic_prepare_all_production(uuid,jsonb)'::regprocedure",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/45caca466b702bc5c1a8a907bf905a15edc289d2/tests/sql/jaspic-monitor-prepare-changed.sql"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/sql/jaspic-prepare-changed-records.sql",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "patch": "diff --git a/docs/sql/jaspic-prepare-changed-records.sql b/docs/sql/jaspic-prepare-changed-records.sql\nindex 3b91f697..56143229 100644\n--- a/docs/sql/jaspic-prepare-changed-records.sql\n+++ b/docs/sql/jaspic-prepare-changed-records.sql\n@@ -48,3 +48,8 @@ BEGIN\n  WHERE province=p_province;\n END $function$\n ;\n+\n+-- Limit the exception to JASPIC's atomic prepare RPC.\n+-- PostgREST applies function settings before executing this request.\n+alter function public.jaspic_prepare_all_production(uuid,jsonb) set statement_timeout='30s';\n+notify pgrst, 'reload schema';\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/45caca466b702bc5c1a8a907bf905a15edc289d2/docs/sql/jaspic-prepare-changed-records.sql",
+      "source": {
+        "path": "docs/sql/jaspic-prepare-changed-records.sql",
+        "coverage": "全文",
+        "text": "-- Avoid rewriting unchanged baseline rows while preserving atomic queue persistence.\nCREATE OR REPLACE FUNCTION public.jaspic_prepare_production(p_id uuid, p_province text, p_revision bigint, p_records jsonb, p_candidates jsonb)\n RETURNS void\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\nDECLARE s public.jaspic_sources;\nBEGIN\n IF NOT EXISTS(SELECT 1 FROM public.jaspic_runs\n   WHERE id=p_id AND status='RUNNING' AND started_at>now()-interval '5 minutes')\n THEN RAISE EXCEPTION 'Run unavailable'; END IF;\n SELECT * INTO STRICT s FROM public.jaspic_sources WHERE province=p_province FOR UPDATE;\n IF s.revision<>p_revision OR NOT s.baseline_complete THEN RAISE EXCEPTION 'Stale baseline'; END IF;\n IF jsonb_typeof(p_records) IS DISTINCT FROM 'object' OR p_records='{}'::jsonb\n   OR jsonb_typeof(p_candidates) IS DISTINCT FROM 'array' OR jsonb_array_length(p_candidates)>1000\n THEN RAISE EXCEPTION 'Invalid plan'; END IF;\n IF EXISTS(SELECT 1 FROM jsonb_array_elements(p_candidates)c\n   WHERE NOT(p_records ? (c->>'key'))\n   OR c->>'key' IS NULL OR c->>'version' IS NULL\n   OR (c->>'version') !~ '^[0-9a-f]{64}$'\n   OR c->'mail'->>'to' IS DISTINCT FROM 'getter01@jaspic-nes.net'\n   OR c->'mail'->>'from' IS DISTINCT FROM 'miyazaki1016@gmail.com'\n   OR c->'mail'->>'cc' IS NOT NULL)\n THEN RAISE EXCEPTION 'Invalid mail'; END IF;\n IF EXISTS(SELECT 1 FROM public.jaspic_deliveries\n   WHERE status IN ('SENDING','UNKNOWN','FAILED')\n   AND run_id IS DISTINCT FROM p_id)\n THEN RAISE EXCEPTION 'Unresolved delivery'; END IF;\n -- Prevent duplicate keys inside the same plan and inconsistent silently skipped rows.\n IF EXISTS(SELECT 1 FROM jsonb_array_elements(p_candidates)c\n   GROUP BY c->>'key',c->>'version' HAVING count(*)>1)\n THEN RAISE EXCEPTION 'Duplicate candidate'; END IF;\n INSERT INTO public.jaspic_deliveries(province,record_key,version,status,mail,run_id)\n SELECT p_province,c->>'key',c->>'version','PREPARED',c->'mail',p_id\n FROM jsonb_array_elements(p_candidates)c ON CONFLICT DO NOTHING;\n -- Existing SENT versions are idempotent, but any conflict with a non-SENT\n -- version from another run must not silently advance the baseline.\n IF EXISTS(SELECT 1 FROM jsonb_array_elements(p_candidates)c\n   JOIN public.jaspic_deliveries d\n   ON d.province=p_province AND d.record_key=c->>'key' AND d.version=c->>'version'\n   WHERE d.run_id IS DISTINCT FROM p_id AND d.status<>'SENT')\n THEN RAISE EXCEPTION 'Conflicting delivery'; END IF;\n INSERT INTO public.jaspic_records(province,record_key,payload)\n SELECT p_province,key,value FROM jsonb_each(p_records)\n ON CONFLICT(province,record_key) DO UPDATE SET payload=excluded.payload\n WHERE jaspic_records.payload IS DISTINCT FROM excluded.payload;\n UPDATE public.jaspic_sources SET revision=revision+1,checked_at=now()\n WHERE province=p_province;\nEND $function$\n;\n\n-- Limit the exception to JASPIC's atomic prepare RPC.\n-- PostgREST applies function settings before executing this request.\nalter function public.jaspic_prepare_all_production(uuid,jsonb) set statement_timeout='30s';\nnotify pgrst, 'reload schema';\n",
+        "sha256": "5613ecfd1db5539c5bbdcc1372d962cb911ed07a23bb2e1527a6af688bead473"
+      }
+    },
+    {
+      "path": "tests/sql/jaspic-monitor-prepare-changed.sql",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "patch": "diff --git a/tests/sql/jaspic-monitor-prepare-changed.sql b/tests/sql/jaspic-monitor-prepare-changed.sql\nindex d71cab43..05e4bcf6 100644\n--- a/tests/sql/jaspic-monitor-prepare-changed.sql\n+++ b/tests/sql/jaspic-monitor-prepare-changed.sql\n@@ -50,3 +50,8 @@ begin\n  if (select revision from public.jaspic_sources where province='hiroshima')<>before_revision then raise exception 'partial commit'; end if;\n end $$;\n select 'unchanged, changed, new, queue and atomic rollback assertions passed';\n+\n+do $$begin\n+ if not exists(select 1 from pg_proc where oid='public.jaspic_prepare_all_production(uuid,jsonb)'::regprocedure\n+ and proconfig @> array['statement_timeout=30s']) then raise exception 'bounded RPC timeout missing'; end if;\n+end $$;\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/45caca466b702bc5c1a8a907bf905a15edc289d2/tests/sql/jaspic-monitor-prepare-changed.sql",
+      "source": {
+        "path": "tests/sql/jaspic-monitor-prepare-changed.sql",
+        "coverage": "全文",
+        "text": "-- Isolated fixture. Never run against production.\ncreate table public.jaspic_sources(province text primary key,revision bigint,baseline_complete boolean,checked_at timestamptz);\ncreate table public.jaspic_records(province text,record_key text,payload jsonb,primary key(province,record_key));\ncreate table public.jaspic_deliveries(province text,record_key text,version text,status text check(status in ('PREPARED')),lease_token uuid,lease_until timestamptz,primary key(province,record_key,version));\n\\ir ../../docs/sql/jaspic-production-delivery.sql\n\\ir ../../supabase/migrations/20261114000000_jaspic_lossless_queue_draft.sql\n\\ir ../../docs/sql/jaspic-prepare-changed-records.sql\n\ncreate table record_updates(record_key text);\ncreate function count_record_update() returns trigger language plpgsql as $$\nbegin insert into public.record_updates values(new.record_key); return new; end $$;\ncreate trigger count_updates after update on public.jaspic_records for each row execute function count_record_update();\ninsert into public.jaspic_sources values('hiroshima',20,true,now()),('shiga',20,true,now());\ninsert into public.jaspic_records\nselect 'hiroshima','hiroshima-crime:'||n,jsonb_build_object('id',n,'body',repeat('data',80)) from generate_series(1,7000)n;\ninsert into public.jaspic_records values('shiga','shiga-person:1','{\"id\":1}');\ninsert into public.jaspic_runs(id,status) values('00000000-0000-4000-8000-000000000308','RUNNING');\ncreate temp table plans as\nselect jsonb_agg(jsonb_build_object('province',s.province,'revision',s.revision,\n 'records',(select jsonb_object_agg(record_key,payload) from public.jaspic_records r where r.province=s.province),\n 'candidates','[]'::jsonb)) value from public.jaspic_sources s;\nset statement_timeout='8s';\nselect public.jaspic_prepare_all_production('00000000-0000-4000-8000-000000000308',(select value from plans));\ndo $$begin\n if exists(select 1 from record_updates) then raise exception 'unchanged rows rewritten'; end if;\n if exists(select 1 from public.jaspic_sources where revision<>21) then raise exception 'revision not advanced'; end if;\nend $$;\ndo $$\ndeclare snapshot jsonb; batch jsonb; before_revision bigint;\nbegin\n select jsonb_object_agg(record_key,payload) into snapshot from public.jaspic_records where province='hiroshima';\n snapshot=jsonb_set(snapshot,'{hiroshima-crime:1,body}','\"changed\"');\n snapshot=snapshot||jsonb_build_object('hiroshima-crime:new',jsonb_build_object('id','new'));\n select jsonb_agg(jsonb_build_object('key',key,'version',repeat('a',64),\n  'mail',jsonb_build_object('to','getter01@jaspic-nes.net','from','miyazaki1016@gmail.com')))\n into batch from jsonb_object_keys(snapshot) key where key='hiroshima-crime:new';\n perform public.jaspic_prepare_production('00000000-0000-4000-8000-000000000308','hiroshima',21,snapshot,batch);\n if (select count(*) from record_updates)<>1 then raise exception 'changed row was not updated exactly once'; end if;\n if (select count(*) from public.jaspic_deliveries where status='PREPARED')<>1 then raise exception 'candidate lost'; end if;\n -- A failure in the second province must roll back the first province too.\n before_revision=(select revision from public.jaspic_sources where province='hiroshima');\n begin\n  perform public.jaspic_prepare_all_production('00000000-0000-4000-8000-000000000308',\n   jsonb_build_array(jsonb_build_object('province','hiroshima','revision',22,'records',snapshot,'candidates','[]'::jsonb),\n    jsonb_build_object('province','shiga','revision',999,'records','{\"shiga-person:1\":{\"id\":1}}'::jsonb,'candidates','[]'::jsonb)));\n  raise exception 'stale second province accepted';\n exception when raise_exception then\n  if sqlerrm<>'Stale baseline' then raise; end if;\n end;\n if (select revision from public.jaspic_sources where province='hiroshima')<>before_revision then raise exception 'partial commit'; end if;\nend $$;\nselect 'unchanged, changed, new, queue and atomic rollback assertions passed';\n\ndo $$begin\n if not exists(select 1 from pg_proc where oid='public.jaspic_prepare_all_production(uuid,jsonb)'::regprocedure\n and proconfig @> array['statement_timeout=30s']) then raise exception 'bounded RPC timeout missing'; end if;\nend $$;\n",
+        "sha256": "490c7f09873c2c82b96fa4dcb872a2482826d265c39a562a70cf8bf162a7e462"
+      }
+    }
+  ],
+  "file_count": 2,
+  "reported_file_count": 2,
+  "commits": [
+    {
+      "sha": "45caca466b702bc5c1a8a907bf905a15edc289d2",
+      "message": "fix(jaspic): bound the prepare RPC timeout independently of other API calls\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/45caca466b702bc5c1a8a907bf905a15edc289d2"
+    }
+  ],
+  "comments": [
+    {
+      "body": "## 11/26 復旧完了\n\nPostgreSQL/PostgREST原本ログで18時失敗のSQLSTATE 57014（statement timeout）を確認。authenticatorの8秒制限で全県保存が中断。無変更payloadへのUPDATEを省く #309 を先に適用したが、実API経由の再開も8秒で中断し送信0。DB内ロールバック試験約794msだけではAPIの処理時間を保証できなかった。#310で **jaspic_prepare_all_production(uuid,jsonb)だけ** statement_timeout=30sを設定し、PostgREST schema cacheを更新。全体ロールのtimeoutは変更なし。既存原子性・権限・送信済み/不明の非再送は保持。\n\n- [Issue着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/45814003350) は確定REVIEW_RECORDED。\n- 最終main SHA `92756cf7df349ab82209474f6a83109b21aa5ab0`。[CI](https://github.com/miyazaki1016/emergencyalert/actions/runs/45815489092) と [PostgreSQL17回帰](https://github.com/miyazaki1016/emergencyalert/actions/runs/45815489062) は成功。7000件の無変更行更新0、変更1件更新、新規キュー保存、片県失敗時全rollback、関数限定timeoutを確認。\n- 本番適用履歴名 `jaspic_prepare_changed_records_308` / `jaspic_prepare_rpc_budget_308`。旧関数2本・records7169件・deliveries163件・sources・runsを管理者専用スキーマへ保全。切り戻し時は保存済み関数定義を復元してPostgREST schema cache更新。送信開始後にbaseline/台帳全体を過去版に上書きしない。\n- HTTP51839 → run `24808141-e5de-4140-b310-2fd0239d178f` はSUCCEEDED、広島17・滋賀3送信、PREPARED3。HTTP51840 → run `034b4a5a-ddf4-4800-9227-666b36b116ea` はSUCCEEDED、滋賀3送信、残0。\n- 広島17件・滋賀6件、計23件すべてSENTでGmail message IDも17/6。失敗0・結果不明0・PREPARED0。配信後の本番読み取り専用preview HTTP51841も200、候補0、blockers空。\n- 手動復旧として既存固定宛先へ送信。受信先の取り込みは未確認。次の定時実行の実績は今回の手動復旧結果とは別に確認する。\n\n[本番DB確認先](https://supabase.com/dashboard/project/yqyevipvkdwmhcaxywes/editor)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/310#issuecomment-7191478085"
+    }
+  ],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "45caca466b702bc5c1a8a907bf905a15edc289d2",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45815481037",
+      "id": 45815481037,
+      "updated_at": "2026-11-26T11:59:48Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "45caca466b702bc5c1a8a907bf905a15edc289d2",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45815480996",
+      "id": 45815480996,
+      "updated_at": "2026-11-26T11:59:40Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "45caca466b702bc5c1a8a907bf905a15edc289d2",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45815255567",
+      "id": 45815255567,
+      "updated_at": "2026-11-26T11:58:05Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "JASPIC admin monitor SQL",
+      "head_sha": "45caca466b702bc5c1a8a907bf905a15edc289d2",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45815255546",
+      "id": 45815255546,
+      "updated_at": "2026-11-26T11:58:18Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "45caca466b702bc5c1a8a907bf905a15edc289d2",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45815255600",
+      "id": 45815255600,
+      "updated_at": "2026-11-26T11:58:52Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "45caca466b702bc5c1a8a907bf905a15edc289d2",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45815255594",
+      "id": 45815255594,
+      "updated_at": "2026-11-26T11:58:08Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "45caca466b702bc5c1a8a907bf905a15edc289d2",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45815248942",
+      "id": 45815248942,
+      "updated_at": "2026-11-26T11:59:15Z",
+      "event": "create"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "skipped",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45890895103",
+      "id": 45890895103,
+      "updated_at": "2026-11-26T20:25:12Z",
+      "event": "schedule"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45890379431",
+      "id": 45890379431,
+      "updated_at": "2026-11-26T20:21:42Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45890379668",
+      "id": 45890379668,
+      "updated_at": "2026-11-26T20:24:16Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45889768816",
+      "id": 45889768816,
+      "updated_at": "2026-11-26T20:16:42Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45889768704",
+      "id": 45889768704,
+      "updated_at": "2026-11-26T20:19:18Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45889128219",
+      "id": 45889128219,
+      "updated_at": "2026-11-26T20:11:33Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45889127867",
+      "id": 45889127867,
+      "updated_at": "2026-11-26T20:14:05Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45888508416",
+      "id": 45888508416,
+      "updated_at": "2026-11-26T20:06:35Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45888508287",
+      "id": 45888508287,
+      "updated_at": "2026-11-26T20:08:31Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45887881751",
+      "id": 45887881751,
+      "updated_at": "2026-11-26T20:01:43Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45887880646",
+      "id": 45887880646,
+      "updated_at": "2026-11-26T20:03:48Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45887282564",
+      "id": 45887282564,
+      "updated_at": "2026-11-26T19:56:38Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45887282482",
+      "id": 45887282482,
+      "updated_at": "2026-11-26T19:58:41Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45886670446",
+      "id": 45886670446,
+      "updated_at": "2026-11-26T19:53:18Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45886670607",
+      "id": 45886670607,
+      "updated_at": "2026-11-26T19:51:41Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45886055239",
+      "id": 45886055239,
+      "updated_at": "2026-11-26T19:46:39Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45886055406",
+      "id": 45886055406,
+      "updated_at": "2026-11-26T19:48:57Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45885443055",
+      "id": 45885443055,
+      "updated_at": "2026-11-26T19:43:53Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45885442972",
+      "id": 45885442972,
+      "updated_at": "2026-11-26T19:41:43Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45884829507",
+      "id": 45884829507,
+      "updated_at": "2026-11-26T19:36:43Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45884829038",
+      "id": 45884829038,
+      "updated_at": "2026-11-26T19:39:00Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45884202864",
+      "id": 45884202864,
+      "updated_at": "2026-11-26T19:34:02Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45884202948",
+      "id": 45884202948,
+      "updated_at": "2026-11-26T19:31:36Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45883598208",
+      "id": 45883598208,
+      "updated_at": "2026-11-26T19:26:38Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45883598648",
+      "id": 45883598648,
+      "updated_at": "2026-11-26T19:28:42Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45882972280",
+      "id": 45882972280,
+      "updated_at": "2026-11-26T19:21:57Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45882972390",
+      "id": 45882972390,
+      "updated_at": "2026-11-26T19:23:43Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45882334605",
+      "id": 45882334605,
+      "updated_at": "2026-11-26T19:16:34Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45882334511",
+      "id": 45882334511,
+      "updated_at": "2026-11-26T19:18:37Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45881688660",
+      "id": 45881688660,
+      "updated_at": "2026-11-26T19:11:42Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45881688638",
+      "id": 45881688638,
+      "updated_at": "2026-11-26T19:14:27Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45881046198",
+      "id": 45881046198,
+      "updated_at": "2026-11-26T19:06:51Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45881046344",
+      "id": 45881046344,
+      "updated_at": "2026-11-26T19:09:32Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45880389328",
+      "id": 45880389328,
+      "updated_at": "2026-11-26T19:01:57Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45880389253",
+      "id": 45880389253,
+      "updated_at": "2026-11-26T19:03:54Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45879765292",
+      "id": 45879765292,
+      "updated_at": "2026-11-26T18:56:37Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45879765251",
+      "id": 45879765251,
+      "updated_at": "2026-11-26T18:58:57Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45879143322",
+      "id": 45879143322,
+      "updated_at": "2026-11-26T18:51:56Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45879143139",
+      "id": 45879143139,
+      "updated_at": "2026-11-26T18:54:27Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45878504498",
+      "id": 45878504498,
+      "updated_at": "2026-11-26T18:49:14Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45878504678",
+      "id": 45878504678,
+      "updated_at": "2026-11-26T18:46:56Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45877861550",
+      "id": 45877861550,
+      "updated_at": "2026-11-26T18:41:56Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45877861331",
+      "id": 45877861331,
+      "updated_at": "2026-11-26T18:44:13Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45877206939",
+      "id": 45877206939,
+      "updated_at": "2026-11-26T18:36:43Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45877206965",
+      "id": 45877206965,
+      "updated_at": "2026-11-26T18:38:46Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45876534506",
+      "id": 45876534506,
+      "updated_at": "2026-11-26T18:31:40Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45876534183",
+      "id": 45876534183,
+      "updated_at": "2026-11-26T18:33:50Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45875863673",
+      "id": 45875863673,
+      "updated_at": "2026-11-26T18:29:13Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45875863301",
+      "id": 45875863301,
+      "updated_at": "2026-11-26T18:26:51Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45875188113",
+      "id": 45875188113,
+      "updated_at": "2026-11-26T18:21:51Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45875188077",
+      "id": 45875188077,
+      "updated_at": "2026-11-26T18:23:26Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45874519002",
+      "id": 45874519002,
+      "updated_at": "2026-11-26T18:16:49Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45874519214",
+      "id": 45874519214,
+      "updated_at": "2026-11-26T18:18:13Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45873840195",
+      "id": 45873840195,
+      "updated_at": "2026-11-26T18:11:55Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45873840168",
+      "id": 45873840168,
+      "updated_at": "2026-11-26T18:13:47Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45873173183",
+      "id": 45873173183,
+      "updated_at": "2026-11-26T18:08:13Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45873173418",
+      "id": 45873173418,
+      "updated_at": "2026-11-26T18:06:36Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45872484533",
+      "id": 45872484533,
+      "updated_at": "2026-11-26T18:01:47Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45872484564",
+      "id": 45872484564,
+      "updated_at": "2026-11-26T18:04:01Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45871823543",
+      "id": 45871823543,
+      "updated_at": "2026-11-26T17:56:32Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45871824275",
+      "id": 45871824275,
+      "updated_at": "2026-11-26T17:58:27Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45871152127",
+      "id": 45871152127,
+      "updated_at": "2026-11-26T17:53:24Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45871151968",
+      "id": 45871151968,
+      "updated_at": "2026-11-26T17:51:54Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45870469966",
+      "id": 45870469966,
+      "updated_at": "2026-11-26T17:46:34Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45870469909",
+      "id": 45870469909,
+      "updated_at": "2026-11-26T17:48:20Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45869773259",
+      "id": 45869773259,
+      "updated_at": "2026-11-26T17:44:13Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45869773411",
+      "id": 45869773411,
+      "updated_at": "2026-11-26T17:41:37Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45869086390",
+      "id": 45869086390,
+      "updated_at": "2026-11-26T17:36:34Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45869086566",
+      "id": 45869086566,
+      "updated_at": "2026-11-26T17:38:36Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45868371793",
+      "id": 45868371793,
+      "updated_at": "2026-11-26T17:33:53Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45868371656",
+      "id": 45868371656,
+      "updated_at": "2026-11-26T17:31:56Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45867680522",
+      "id": 45867680522,
+      "updated_at": "2026-11-26T17:29:09Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45867679745",
+      "id": 45867679745,
+      "updated_at": "2026-11-26T17:26:44Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45866964003",
+      "id": 45866964003,
+      "updated_at": "2026-11-26T17:21:59Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45866964286",
+      "id": 45866964286,
+      "updated_at": "2026-11-26T17:23:40Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45866239414",
+      "id": 45866239414,
+      "updated_at": "2026-11-26T17:16:35Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45866240041",
+      "id": 45866240041,
+      "updated_at": "2026-11-26T17:19:05Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45865492729",
+      "id": 45865492729,
+      "updated_at": "2026-11-26T17:11:33Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45865492735",
+      "id": 45865492735,
+      "updated_at": "2026-11-26T17:13:27Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45864743964",
+      "id": 45864743964,
+      "updated_at": "2026-11-26T17:06:39Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45864743748",
+      "id": 45864743748,
+      "updated_at": "2026-11-26T17:08:56Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45863984119",
+      "id": 45863984119,
+      "updated_at": "2026-11-26T17:01:43Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45863984203",
+      "id": 45863984203,
+      "updated_at": "2026-11-26T17:04:08Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45863248337",
+      "id": 45863248337,
+      "updated_at": "2026-11-26T16:56:34Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45863248287",
+      "id": 45863248287,
+      "updated_at": "2026-11-26T16:58:28Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45862507738",
+      "id": 45862507738,
+      "updated_at": "2026-11-26T16:51:48Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45862507516",
+      "id": 45862507516,
+      "updated_at": "2026-11-26T16:53:30Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45861752954",
+      "id": 45861752954,
+      "updated_at": "2026-11-26T16:46:34Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45861752762",
+      "id": 45861752762,
+      "updated_at": "2026-11-26T16:49:17Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45860997725",
+      "id": 45860997725,
+      "updated_at": "2026-11-26T16:44:17Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45860997762",
+      "id": 45860997762,
+      "updated_at": "2026-11-26T16:41:47Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45860235316",
+      "id": 45860235316,
+      "updated_at": "2026-11-26T16:36:46Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45860235805",
+      "id": 45860235805,
+      "updated_at": "2026-11-26T16:38:51Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45859471237",
+      "id": 45859471237,
+      "updated_at": "2026-11-26T16:33:35Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45859471227",
+      "id": 45859471227,
+      "updated_at": "2026-11-26T16:31:59Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45858702543",
+      "id": 45858702543,
+      "updated_at": "2026-11-26T16:28:29Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45858702527",
+      "id": 45858702527,
+      "updated_at": "2026-11-26T16:26:31Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45857912341",
+      "id": 45857912341,
+      "updated_at": "2026-11-26T16:23:31Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45857912490",
+      "id": 45857912490,
+      "updated_at": "2026-11-26T16:21:48Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45857121242",
+      "id": 45857121242,
+      "updated_at": "2026-11-26T16:18:58Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45857121052",
+      "id": 45857121052,
+      "updated_at": "2026-11-26T16:16:35Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45856316250",
+      "id": 45856316250,
+      "updated_at": "2026-11-26T16:11:32Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45856316181",
+      "id": 45856316181,
+      "updated_at": "2026-11-26T16:13:25Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45855525613",
+      "id": 45855525613,
+      "updated_at": "2026-11-26T16:08:29Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45855525647",
+      "id": 45855525647,
+      "updated_at": "2026-11-26T16:06:56Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45854704530",
+      "id": 45854704530,
+      "updated_at": "2026-11-26T16:03:30Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45854705378",
+      "id": 45854705378,
+      "updated_at": "2026-11-26T16:01:48Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45853913499",
+      "id": 45853913499,
+      "updated_at": "2026-11-26T15:56:48Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45853914042",
+      "id": 45853914042,
+      "updated_at": "2026-11-26T15:58:39Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45853115226",
+      "id": 45853115226,
+      "updated_at": "2026-11-26T15:51:52Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45853114837",
+      "id": 45853114837,
+      "updated_at": "2026-11-26T15:53:37Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45852313349",
+      "id": 45852313349,
+      "updated_at": "2026-11-26T15:46:47Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45852313595",
+      "id": 45852313595,
+      "updated_at": "2026-11-26T15:48:41Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45851503736",
+      "id": 45851503736,
+      "updated_at": "2026-11-26T15:44:09Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45851503594",
+      "id": 45851503594,
+      "updated_at": "2026-11-26T15:41:30Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45850686096",
+      "id": 45850686096,
+      "updated_at": "2026-11-26T15:36:54Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45850686258",
+      "id": 45850686258,
+      "updated_at": "2026-11-26T15:39:14Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45849848905",
+      "id": 45849848905,
+      "updated_at": "2026-11-26T15:31:50Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45849848919",
+      "id": 45849848919,
+      "updated_at": "2026-11-26T15:34:20Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45849026978",
+      "id": 45849026978,
+      "updated_at": "2026-11-26T15:26:32Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45849026430",
+      "id": 45849026430,
+      "updated_at": "2026-11-26T15:29:17Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45848177560",
+      "id": 45848177560,
+      "updated_at": "2026-11-26T15:21:40Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45848177850",
+      "id": 45848177850,
+      "updated_at": "2026-11-26T15:24:18Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45847333435",
+      "id": 45847333435,
+      "updated_at": "2026-11-26T15:16:54Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45847333164",
+      "id": 45847333164,
+      "updated_at": "2026-11-26T15:18:35Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Bare five-minute cron diagnostic",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45846696098",
+      "id": 45846696098,
+      "updated_at": "2026-11-26T15:12:18Z",
+      "event": "schedule"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45846474510",
+      "id": 45846474510,
+      "updated_at": "2026-11-26T15:11:50Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45846475214",
+      "id": 45846475214,
+      "updated_at": "2026-11-26T15:14:14Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45845624927",
+      "id": 45845624927,
+      "updated_at": "2026-11-26T15:06:41Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45845625244",
+      "id": 45845625244,
+      "updated_at": "2026-11-26T15:08:38Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45844762802",
+      "id": 45844762802,
+      "updated_at": "2026-11-26T15:04:10Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45844763126",
+      "id": 45844763126,
+      "updated_at": "2026-11-26T15:01:34Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45843939869",
+      "id": 45843939869,
+      "updated_at": "2026-11-26T14:56:43Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45843939659",
+      "id": 45843939659,
+      "updated_at": "2026-11-26T14:59:20Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45843109190",
+      "id": 45843109190,
+      "updated_at": "2026-11-26T14:51:42Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45843109547",
+      "id": 45843109547,
+      "updated_at": "2026-11-26T14:54:12Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45842278835",
+      "id": 45842278835,
+      "updated_at": "2026-11-26T14:49:11Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45842278497",
+      "id": 45842278497,
+      "updated_at": "2026-11-26T14:46:53Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45841455684",
+      "id": 45841455684,
+      "updated_at": "2026-11-26T14:41:42Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45841455223",
+      "id": 45841455223,
+      "updated_at": "2026-11-26T14:44:04Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45840625472",
+      "id": 45840625472,
+      "updated_at": "2026-11-26T14:39:17Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45840625787",
+      "id": 45840625787,
+      "updated_at": "2026-11-26T14:36:47Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45839779173",
+      "id": 45839779173,
+      "updated_at": "2026-11-26T14:31:42Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45839779179",
+      "id": 45839779179,
+      "updated_at": "2026-11-26T14:33:44Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45838937333",
+      "id": 45838937333,
+      "updated_at": "2026-11-26T14:26:42Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45838938074",
+      "id": 45838938074,
+      "updated_at": "2026-11-26T14:28:59Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45838091996",
+      "id": 45838091996,
+      "updated_at": "2026-11-26T14:24:21Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45838092586",
+      "id": 45838092586,
+      "updated_at": "2026-11-26T14:21:47Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45837242919",
+      "id": 45837242919,
+      "updated_at": "2026-11-26T14:17:01Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45837243052",
+      "id": 45837243052,
+      "updated_at": "2026-11-26T14:19:16Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45836399090",
+      "id": 45836399090,
+      "updated_at": "2026-11-26T14:13:29Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45836399365",
+      "id": 45836399365,
+      "updated_at": "2026-11-26T14:11:41Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45835578808",
+      "id": 45835578808,
+      "updated_at": "2026-11-26T14:09:24Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45835577947",
+      "id": 45835577947,
+      "updated_at": "2026-11-26T14:06:51Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45834748263",
+      "id": 45834748263,
+      "updated_at": "2026-11-26T14:01:52Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45834748602",
+      "id": 45834748602,
+      "updated_at": "2026-11-26T14:03:35Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45833934588",
+      "id": 45833934588,
+      "updated_at": "2026-11-26T13:59:24Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45833935155",
+      "id": 45833935155,
+      "updated_at": "2026-11-26T13:56:41Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45833127814",
+      "id": 45833127814,
+      "updated_at": "2026-11-26T13:54:09Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45833127792",
+      "id": 45833127792,
+      "updated_at": "2026-11-26T13:51:36Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45832320827",
+      "id": 45832320827,
+      "updated_at": "2026-11-26T13:48:42Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45832321027",
+      "id": 45832321027,
+      "updated_at": "2026-11-26T13:46:46Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45831506139",
+      "id": 45831506139,
+      "updated_at": "2026-11-26T13:41:42Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45831506304",
+      "id": 45831506304,
+      "updated_at": "2026-11-26T13:44:15Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45830692940",
+      "id": 45830692940,
+      "updated_at": "2026-11-26T13:36:39Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45830692743",
+      "id": 45830692743,
+      "updated_at": "2026-11-26T13:38:41Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45829875147",
+      "id": 45829875147,
+      "updated_at": "2026-11-26T13:34:10Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45829875217",
+      "id": 45829875217,
+      "updated_at": "2026-11-26T13:31:55Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Bare thirty-minute cron diagnostic",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45829226359",
+      "id": 45829226359,
+      "updated_at": "2026-11-26T13:26:56Z",
+      "event": "schedule"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45829077313",
+      "id": 45829077313,
+      "updated_at": "2026-11-26T13:26:46Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45829077006",
+      "id": 45829077006,
+      "updated_at": "2026-11-26T13:29:12Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45828260422",
+      "id": 45828260422,
+      "updated_at": "2026-11-26T13:21:34Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45828260392",
+      "id": 45828260392,
+      "updated_at": "2026-11-26T13:24:02Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45827459763",
+      "id": 45827459763,
+      "updated_at": "2026-11-26T13:16:32Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45827459029",
+      "id": 45827459029,
+      "updated_at": "2026-11-26T13:18:31Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45826644324",
+      "id": 45826644324,
+      "updated_at": "2026-11-26T13:11:41Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45826641430",
+      "id": 45826641430,
+      "updated_at": "2026-11-26T13:13:59Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45825835156",
+      "id": 45825835156,
+      "updated_at": "2026-11-26T13:06:39Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45825835404",
+      "id": 45825835404,
+      "updated_at": "2026-11-26T13:08:27Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45825026019",
+      "id": 45825026019,
+      "updated_at": "2026-11-26T13:01:51Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45825026376",
+      "id": 45825026376,
+      "updated_at": "2026-11-26T13:03:51Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45824255724",
+      "id": 45824255724,
+      "updated_at": "2026-11-26T12:56:37Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45824255693",
+      "id": 45824255693,
+      "updated_at": "2026-11-26T12:58:32Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45823486909",
+      "id": 45823486909,
+      "updated_at": "2026-11-26T12:51:54Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45823487491",
+      "id": 45823487491,
+      "updated_at": "2026-11-26T12:53:52Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45822712343",
+      "id": 45822712343,
+      "updated_at": "2026-11-26T12:49:06Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45822712334",
+      "id": 45822712334,
+      "updated_at": "2026-11-26T12:46:47Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45821921140",
+      "id": 45821921140,
+      "updated_at": "2026-11-26T12:41:35Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45821921298",
+      "id": 45821921298,
+      "updated_at": "2026-11-26T12:44:10Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45821143368",
+      "id": 45821143368,
+      "updated_at": "2026-11-26T12:39:25Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45821143102",
+      "id": 45821143102,
+      "updated_at": "2026-11-26T12:36:33Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45820356919",
+      "id": 45820356919,
+      "updated_at": "2026-11-26T12:31:40Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45820356877",
+      "id": 45820356877,
+      "updated_at": "2026-11-26T12:34:04Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45819577433",
+      "id": 45819577433,
+      "updated_at": "2026-11-26T12:29:09Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45819577694",
+      "id": 45819577694,
+      "updated_at": "2026-11-26T12:26:48Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45818806708",
+      "id": 45818806708,
+      "updated_at": "2026-11-26T12:21:41Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45818806532",
+      "id": 45818806532,
+      "updated_at": "2026-11-26T12:23:54Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45818031423",
+      "id": 45818031423,
+      "updated_at": "2026-11-26T12:19:02Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45818031935",
+      "id": 45818031935,
+      "updated_at": "2026-11-26T12:16:55Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "skipped",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45817867139",
+      "id": 45817867139,
+      "updated_at": "2026-11-26T12:14:54Z",
+      "event": "schedule"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45817258576",
+      "id": 45817258576,
+      "updated_at": "2026-11-26T12:14:02Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45817258598",
+      "id": 45817258598,
+      "updated_at": "2026-11-26T12:11:40Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45816486335",
+      "id": 45816486335,
+      "updated_at": "2026-11-26T12:06:42Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45816486411",
+      "id": 45816486411,
+      "updated_at": "2026-11-26T12:09:07Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45815709682",
+      "id": 45815709682,
+      "updated_at": "2026-11-26T12:03:26Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45815709719",
+      "id": 45815709719,
+      "updated_at": "2026-11-26T12:01:57Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45815489110",
+      "id": 45815489110,
+      "updated_at": "2026-11-26T12:02:32Z",
+      "event": "push"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45815489052",
+      "id": 45815489052,
+      "updated_at": "2026-11-26T11:59:53Z",
+      "event": "push"
+    },
+    {
+      "name": "CI",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45815489092",
+      "id": 45815489092,
+      "updated_at": "2026-11-26T12:00:16Z",
+      "event": "push"
+    },
+    {
+      "name": "JASPIC admin monitor SQL",
+      "head_sha": "92756cf7df349ab82209474f6a83109b21aa5ab0",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45815489062",
+      "id": 45815489062,
+      "updated_at": "2026-11-26T12:00:01Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "count_record_update",
+    "public",
+    "settings"
+  ],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "9fc728291252f13afdb6d9d5331ddc265c0f5d6055359346d5a8868b035c8d81",
+  "ci_digest": "12c92aac8c18d14aab47c57b0a3f96bf1bc5cc5be99ca939b2d19110b659c245",
+  "collected_at": "2026-11-26T20:26:13.197903+00:00",
+  "decisions": []
+}
