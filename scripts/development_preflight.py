@@ -18,7 +18,7 @@ import re
 import subprocess
 import unicodedata
 
-from development_history_evidence import clean
+from development_history_evidence import clean, decision_search_text
 
 VERSION = 1
 CONCEPTS = {
@@ -82,6 +82,34 @@ def case_text(case):
     return primary, secondary
 
 
+def matching_decisions(case, task):
+    """Rank individual decisions so unrelated findings in a large PR do not add up."""
+    query = tokens(task)
+    if not query:
+        return [], 0
+    rows = []
+    for decision in case.get('decisions', [])[:176]:
+        text = decision_search_text({'decisions': [decision]})
+        common = query & tokens(text)
+        coverage = len(common) / len(query)
+        if len(common) >= 2 and coverage >= .35:
+            rows.append((coverage, decision))
+    rows.sort(key=lambda row: -row[0])
+    coverage = rows[0][0] if rows else 0
+    # Preserve composed search phrases derived from proof/test pairs.
+    decision_text = normal(decision_search_text(case))
+    phrases = re.findall(r'[45]\d\dを取り直してる間に次の\d+分が来たら[？?]', decision_text)
+    exact_query = len(normal(task).strip()) >= 12 and normal(task).strip() in decision_text
+    if exact_query or any(phrase in normal(task) for phrase in phrases):
+        coverage = 1
+        if not rows:
+            rows = [(1, row) for row in case.get('decisions', [])[:176]
+                    if row.get('kind') == 'proof' or (
+                        re.search(r'\d{14}', row.get('verification', ''))
+                        and re.search(r'retry|再取得', row.get('title', ''), re.I))]
+    return [row for _, row in rows[:3]], coverage
+
+
 def evidence_links(case, repo):
     root = 'https://github.com/' + repo
     result = [root+'/blob/development-history/docs/work-history/cases/'+case['id']+'.md']
@@ -106,12 +134,14 @@ def match_cases(state, task, paths=(), exclude=None, limit=8):
     total = sum(weights.values()) or 1
     results = []
     for c, primary, secondary, pt, st in document_tokens:
+        decisions, decision_coverage = matching_decisions(c, task)
         common = query & (pt | st)
         # Primary findings count in full; body and filenames contribute 30%.
         score = 70*sum(weights[t]*(1 if t in pt else .3) for t in common)/total
         matched_concepts = query_concepts & concepts(primary+' '+secondary)
         primary_concepts = query_concepts & concepts(primary)
         score += min(30, 10*len(primary_concepts))
+        score += 30 * decision_coverage
         overlap = sorted(set(paths) & {f['path'] for f in c.get('files', [])})
         if overlap:
             score += 38
@@ -120,10 +150,14 @@ def match_cases(state, task, paths=(), exclude=None, limit=8):
             score += 80
         # A generic topic alone (e.g. "notification") is not enough to block work.
         specific = matched_concepts - {'比較検証', '性能', '雨の検知', '通知配信', '承認'}
-        required = explicit or bool(overlap) or (score >= 24 and len(primary_concepts) >= 2 and bool(specific))
+        required = explicit or bool(overlap) or decision_coverage >= .6 or (score >= 24 and len(primary_concepts) >= 2 and bool(specific))
         if score < 13 and not required:
             continue
         links = evidence_links(c, state['repository'])
+        root = 'https://github.com/' + state['repository'] + '/'
+        decision_links = [url for row in decisions for url in row.get('links', [])
+                          if isinstance(url, str) and url.startswith(root)]
+        links = list(dict.fromkeys(links[:2] + decision_links + links[2:]))
         results.append({'id':c['id'], 'title':clean(c['title']), 'score':round(score, 2),
                         'review_required':required, 'matched_concepts':sorted(matched_concepts),
                         'matched_paths':overlap, 'matched_terms':sorted(common, key=lambda t:-weights[t])[:12],
@@ -133,7 +167,7 @@ def match_cases(state, task, paths=(), exclude=None, limit=8):
                         'next':clean(c.get('next') or '関連PRと既存実装を照合する'),
                         'state':c.get('state'), 'main_status':c.get('main_status', '未確認'),
                         'production':c.get('production', '未確認'), 'archived':c.get('archived', False),
-                        'evidence':links[:12],
+                        'evidence':links[:12], 'implementation_decisions':decisions,
                         'runs':[{'name':r.get('name'), 'head_sha':r.get('head_sha'), 'conclusion':r.get('conclusion'), 'url':r.get('url')} for r in c.get('runs', [])][:8]})
     results.sort(key=lambda c:(-c['score'], not c['id'].startswith('pr-'), c['id']))
     # Same-HEAD branches reuse their PR evidence; don't demand duplicate decisions.
@@ -215,6 +249,12 @@ def markdown(report):
                   '**過去の結論：** '+esc(c['conclusion']), '', '**残課題：** '+esc(c['remaining']), '',
                   '**次の作業：** '+esc(c['next']), '',
                   'PR／ブランチ状態：'+esc(c['state'])+' ／ main：'+esc(c['main_status'])+' ／ 本番：'+esc(c['production']), '']
+        for row in c.get('implementation_decisions', []):
+            lines += ['**実装判断の候補：** '+esc(row.get('title')), '',
+                      '- 条件：'+esc(row.get('condition')),
+                      '- 動作：'+esc(row.get('behavior')),
+                      '- 検証範囲：'+esc(row.get('verification')),
+                      '- 残課題：'+esc(row.get('remaining'))]
         lines += ['- [原本・コード・検証根拠]('+url+')' for url in c['evidence']]
         for r in c['runs']:
             lines += ['- 検証実行：'+esc(r['name'])+'／'+esc(r['conclusion'])+'／SHA `'+esc(r['head_sha'])+'`（[実行元]('+str(r['url'])+')）']
@@ -241,6 +281,62 @@ def load_history(path=None, repo=None, refresh=True):
     if repo and state.get('repository') != repo:
         raise ValueError('Repository/history mismatch')
     return state, revision
+
+
+def live_event(event, repo):
+    """Refresh only the identified subject; never trust stale event contents."""
+    import urllib.request
+    if not REPO_RE.fullmatch(repo or ''):
+        raise ValueError('Invalid repository')
+    kind = 'pull_request' if event.get('pull_request') else 'issue'
+    number = event[kind]['number']
+    if type(number) is not int or number < 1:
+        raise ValueError('Invalid subject')
+    token = os.environ['PREFLIGHT_GITHUB_TOKEN']
+    endpoint = 'pulls' if kind == 'pull_request' else 'issues'
+    def get(path):
+        request = urllib.request.Request(
+            'https://api.github.com/repos/' + repo + '/' + path,
+            headers={'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json'})
+        with urllib.request.urlopen(request, timeout=20) as response:
+            return json.load(response)
+    item = get(endpoint + '/' + str(number))
+    if item['number'] != number or (kind == 'issue' and item.get('pull_request')):
+        raise ValueError('Subject mismatch')
+    main = get('git/ref/heads/main')['object']['sha']
+    snapshot = {key: item.get(key) for key in ('number', 'title', 'body', 'state')}
+    if kind == 'pull_request':
+        for side in ('base', 'head'):
+            snapshot[side] = {key: item[side][key] for key in ('sha', 'ref')}
+    if not re.fullmatch(r'[0-9a-f]{40}', main):
+        raise ValueError('Invalid main SHA')
+    return {kind: snapshot, 'main_sha': main}
+
+
+def request_fingerprint(title, body):
+    """Fingerprint of the analysed subject, byte-identical to the publisher's.
+
+    scripts/development-preflight-publish.mjs computes
+    sha256(JSON.stringify([title, body])) in JavaScript. Python's
+    json.dumps(..., ensure_ascii=False, separators=(',', ':')) produces the
+    same string for the same values, so both sides agree on one fingerprint.
+    """
+    payload = json.dumps([title or '', body or ''], ensure_ascii=False, separators=(',', ':'))
+    return hashlib.sha256(payload.encode('utf-8')).hexdigest()
+
+
+def subject_event(kind, number):
+    """Minimal event for a manually dispatched recheck of one Issue or PR.
+
+    Only the number is trusted; live_event replaces every other field with
+    the current GitHub original, so a dispatch can never smuggle in a stale
+    or fabricated body, decision record or HEAD.
+    """
+    if kind not in ('issue', 'pull_request'):
+        raise ValueError('Invalid subject kind')
+    if type(number) is not int or number < 1:
+        raise ValueError('Invalid subject')
+    return {kind: {'number': number}}
 
 
 def event_task(event):
@@ -272,6 +368,7 @@ def event_paths(event):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--task'); parser.add_argument('--event'); parser.add_argument('--history')
+    parser.add_argument('--issue', type=int); parser.add_argument('--pull-request', type=int)
     parser.add_argument('--paths', nargs='*', default=[]); parser.add_argument('--decisions')
     parser.add_argument('--repo', default=os.environ.get('GITHUB_REPOSITORY'))
     parser.add_argument('--output', default='/tmp/development-preflight')
@@ -281,8 +378,15 @@ def main():
     try:
         decisions = json.loads(Path(args.decisions).read_text()) if args.decisions else []
         exclude = None
-        if args.event:
-            event = json.loads(Path(args.event).read_text())
+        subject_mode = bool(args.event or args.issue is not None or args.pull_request is not None)
+        if subject_mode:
+            if args.event:
+                original_event = json.loads(Path(args.event).read_text())
+            elif args.issue is not None:
+                original_event = subject_event('issue', args.issue)
+            else:
+                original_event = subject_event('pull_request', args.pull_request)
+            event = live_event(original_event, args.repo) if os.environ.get('GITHUB_ACTIONS') == 'true' else original_event
             task, event_decisions, exclude = event_task(event)
             args.paths = event_paths(event)
             decisions = event_decisions
@@ -295,11 +399,21 @@ def main():
             raise ValueError('Invalid repository')
         if args.repo and state['repository'] != args.repo:
             raise ValueError('Repository/history mismatch')
-        if args.event and event.get('pull_request'):
+        if subject_mode and event.get('pull_request'):
             branch = event['pull_request']['head'].get('ref')
             exclude = [exclude]+[c['id'] for c in state['cases'].values()
                                  if c['id'].startswith('branch-') and branch and (c.get('head_ref') or c.get('title')) == branch]
         report = inspect(state, task, args.paths, decisions, exclude, max_age_hours=args.max_age_hours, revision=revision)
+        if subject_mode and os.environ.get('GITHUB_ACTIONS') == 'true':
+            if live_event(original_event, args.repo) != event:
+                raise ValueError('Subject changed during analysis')
+            subject = event.get('issue') or event.get('pull_request')
+            report['request_sha256'] = request_fingerprint(subject.get('title'), subject.get('body'))
+            report['subject_number'] = subject['number']
+            report['main_sha'] = event['main_sha']
+            # Bind the result to the analysed HEAD so a pass for another HEAD
+            # can never be reused. Issues have no HEAD: null.
+            report['subject_head_sha'] = subject.get('head', {}).get('sha') if event.get('pull_request') else None
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
         # No exception messages: command arguments/event content can contain secrets.
         report = {'status':'INCOMPLETE', 'problems':['履歴または作業内容を取得・検証できない。成功扱いせず復旧後に再照合する']}

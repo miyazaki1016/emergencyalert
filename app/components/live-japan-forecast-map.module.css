@@ -1,0 +1,21 @@
+.map {
+  height: clamp(300px, 52vh, 610px);
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #e8eff7;
+  isolation: isolate;
+}
+
+.areaMarker {
+  display: grid;
+  height: 32px;
+  place-items: center;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  color: #171717;
+  font-weight: 800;
+}
+
+.areaMarker[style*="180"] {
+  color: #fff;
+}
