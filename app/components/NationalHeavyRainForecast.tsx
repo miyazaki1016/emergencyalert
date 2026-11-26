@@ -210,7 +210,15 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
   }, [forecast]);
 
   const bandFrames = band === "all" ? (forecast ? [...forecast.frames, ...(forecast.extendedFrames ?? [])] : undefined) : band === "detail" ? forecast?.frames : forecast?.extendedFrames;
-  const times = [...new Set(bandFrames?.map(item => item.validTime) ?? [])].sort();
+  const now = Date.now();
+  const expected = forecast?.tileVersions ? Array.from({ length: 12 }, (_, i) => {
+    const minute = i < 6 ? (i + 1) * 5 : 30 + (i - 5) * 5;
+    return forecastTime(forecast.basetime) + minute * 60_000;
+  }).filter((value, i) => value > now && (band === "all" || (band === "detail" ? i < 6 : i >= 6))) : [];
+  const actualTimes = new Map((bandFrames ?? []).map(item => [forecastTime(item.validTime), item.validTime]));
+  const times = [...new Set([...actualTimes.keys(), ...expected])].sort((a, b) => a - b)
+    .map(value => actualTimes.get(value) ?? new Date(value).toISOString());
+  const missingTimes = new Set(times.filter(value => !actualTimes.has(forecastTime(value))));
   const activeTime = times.includes(time) ? time : "";
   const visibleFrames = (bandFrames ?? []).filter(item => !activeTime || item.validTime === activeTime);
   const peaks = new Map<string, { area: Municipality; time: string }>();
@@ -221,8 +229,8 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
   const frame = visibleFrames.length ? {
     ...visibleFrames[0],
     municipalities: [...peaks.values()].map(item => item.area),
-    incomplete: visibleFrames.some(item => item.incomplete || item.tileCoverage?.some(tile => !tile.basetime)) || (band === "all" && !forecast?.extendedFrames),
-    tileCoverage: visibleFrames.length === 1 ? visibleFrames[0].tileCoverage : undefined,
+    incomplete: visibleFrames.some(item => item.incomplete || item.tileCoverage?.some(tile => !tile.basetime)) || missingTimes.size > 0 || (band === "all" && !forecast?.extendedFrames),
+    tileCoverage: forecast?.tileVersions ? [...new Map(visibleFrames.flatMap(item => item.tileCoverage ?? []).sort((a, b) => (a.basetime ?? "").localeCompare(b.basetime ?? "")).map(tile => [`${tile.x}/${tile.y}`, tile])).values()] : undefined,
   } : undefined;
   const selectedArea = frame?.municipalities.find(area => area.code === areaCode);
   const hasCoverage = visibleFrames.some(item => !item.tileCoverage || item.tileCoverage.some(tile => tile.basetime));
@@ -256,7 +264,7 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
         <div className={styles.controls} aria-label="予報対象時刻">
           <button type="button" aria-pressed={!activeTime} onClick={() => setTime("")}>全時刻</button>
           {times.map(item => <button type="button" key={item}
-            aria-pressed={activeTime === item} onClick={() => setTime(item)}>{timeLabel(item)}</button>)}
+            aria-pressed={activeTime === item} onClick={() => setTime(item)}>{timeLabel(item)}{missingTimes.has(item) && "（未取得）"}</button>)}
         </div>
         <LiveJapanForecastMap frame={frame} onSelect={selectArea} />
         <div className={styles.legend} aria-label="降水強度の凡例">
