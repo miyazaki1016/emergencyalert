@@ -10,7 +10,10 @@ export default async function ForecastHome({ searchParams }: { searchParams: Pro
       <MyForecastLegacyLink />
       <header className={styles.header}>
         <div className={styles.headerInner}>
-          <Link className={styles.brand} href="/" aria-label="さきどり トップ">さき<span>どり</span></Link>
+          <div className={styles.identity}>
+            <Link className={styles.brand} href="/" aria-label="さきどり トップ">さき<span>どり</span></Link>
+            <span className={styles.tagline}>暮らしを少し先回りする</span>
+          </div>
           <nav className={styles.nav} aria-label="ページ切替">
             <Link href="/" aria-current={view === "map" ? "page" : undefined}>全国地図</Link>
             <Link href="/?view=forecast" aria-current={view === "list" ? "page" : undefined}>全国の大雨</Link>

@@ -16,6 +16,19 @@
   font-weight: 800;
 }
 
-.areaMarker[style*="180"] {
+.areaMarker[data-tier="80"] {
   color: #fff;
 }
+
+.mapShell { position: relative; isolation: isolate; }
+.overview {
+  position: absolute; z-index: 1; top: 12px; left: 12px;
+  padding: 8px 12px; min-height: 36px; border: 1px solid #4b6885; border-radius: 10px;
+  background: #10243b; color: #eff8ff; cursor: pointer; font: inherit; font-weight: 700; font-size: .8rem;
+}
+.overview:focus-visible { outline: 2px solid #60c9ff; outline-offset: 2px; }
+.markerPopup :global(.leaflet-popup-content-wrapper),
+.markerPopup :global(.leaflet-popup-tip) { background: #10243b; color: #eef5ff; }
+.markerPopup :global(.leaflet-popup-close-button) { color: #d3e5f7; }
+.markerDetails { display: grid; gap: 6px; min-width: 8rem; }
+.markerDetails button { text-align: left; border: 1px solid #54718e; border-radius: 6px; padding: 6px; color: inherit; background: #19334d; cursor: pointer; }
