@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-26T09:30:25.937878+00:00
+更新 (UTC): 2026-11-26T11:56:10.955591+00:00
 
 ## 全案件
 
@@ -152,6 +152,7 @@
 | [fix/dedupe-place-search-results](cases/branch-8408fe81c12a3d3e.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/rain-feedback-phase1-history-20261021](cases/branch-87d4561c05ed70fb.md) | 雨量・全国検知・通知・配信・開発管理・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/pwa-foundation](cases/branch-8850eea2b9e8ed04.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [fix/jaspic-308-prepare-timeout](cases/branch-88620a78929560a4.md) | 通知・配信・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat-early-rain-forecast-api](cases/branch-89ed93054e66b5e1.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [work/national-rain-fixed-n03-209](cases/branch-8ac7382a5a280d93.md) | 雨量・全国検知・開発管理・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/jaspic-supabase-trailing-slash-20261106](cases/branch-8c6a80e8f4c87a06.md) | 通知・配信・認証・安全性：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -453,6 +454,7 @@
 | [全国地図の全時刻集約・危険度優先・操作改善 (#301)](cases/pr-303.md) | 雨量・全国検知・画面・表示：雨量判定・予測・全国候補抽出に関する変更／画面表示や操作に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [着手前照合の最新原本再取得と再実行の改善](cases/pr-305.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Bluesky候補生成をタイル版に適合するドライラン (#302)](cases/pr-306.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
+| [fix(jaspic): 差分保存で変更のない全件更新を省く (#308)](cases/pr-309.md) | 通知・配信・開発管理：通知・メール配信とその運用に関する変更／開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Add rain interpretation diagnostics](cases/pr-31.md) | 雨量・全国検知：雨解釈の診断情報を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Log withheld rain diagnostics](cases/pr-32.md) | 雨量・全国検知：送信を見送った雨判定の診断を記録 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Fix transparent JMA pixels blocking dry/ending states](cases/pr-33.md) | 雨量・全国検知・画面・表示：JMAの透明画素で晴れ・雨終了判定が止まる問題を修正 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
