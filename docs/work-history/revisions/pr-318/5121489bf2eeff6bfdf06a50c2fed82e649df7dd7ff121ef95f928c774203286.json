@@ -1,0 +1,563 @@
+{
+  "id": "pr-318",
+  "number": 318,
+  "title": "全国地図・一覧から大雨事案ページへ接続 (#311)",
+  "topics": [
+    "雨量・全国検知",
+    "画面・表示"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更／画面表示や操作に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Refs #311 / #290\n\n### 段階3（D6）\n\n- 全国地図の自治体マーカーと一覧カードを、保存済みの進行中事案のURLに接続。地図の段階ズームを維持し、重なるマーカーはポップアップで行き先を選択。事案がない場合はリンクを出さない。\n- 一覧カード内の画像再生と展開操作を外し、自治体・開始時刻・最大強度と概要の時刻ストリップを維持。事案ページの既存の予報詳細とレーダーを再利用し、時刻スライダーを追加。\n- 既存の事案テーブルから、公開用の自治体コードとslugのみを読み取る。既存の全国予報レスポンスと集計ロジックは変更なし。\n\n### 検証\n\n- ローカルで型検査、Vitest全442件、本番用ビルド成功。隔離した合成DB応答で保存済みリンクと事案ページのスライダー・未取得表示を確認。\n- 11/28 03:20 JST基準の同一の公開予報応答で、地図と一覧の自治体別集計が105地域・最大80 mm/hで一致。\n- [元指示](https://github.com/miyazaki1016/emergencyalert/issues/256#issuecomment-7203965794) ・ [起動](https://github.com/miyazaki1016/emergencyalert/pull/290#issuecomment-7225484306) ・ [着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/45899563699)\n\n<!-- history-preflight {\"schema_version\":1,\"decisions\":[{\"id\":\"pr-314\",\"decision\":\"reuse\",\"reason\":\"事案ページと予報詳細・保存済みレーダー再生を再利用し、導線と時刻操作を追加する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/314\"},{\"id\":\"pr-313\",\"decision\":\"extend\",\"reason\":\"全国地図の段階ズームと一覧カードを保持し、段階3の事案導線だけを接続する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/313\"},{\"id\":\"pr-312\",\"decision\":\"reuse\",\"reason\":\"事案ストアの確定済みslugを読み取り、保存・生成・配信処理はそのまま使う。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/312\"},{\"id\":\"pr-303\",\"decision\":\"reuse\",\"reason\":\"地図と一覧の集計ロジック、時刻の内側欠け、未取得表示をそのまま使う。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/303\"},{\"id\":\"pr-300\",\"decision\":\"reuse\",\"reason\":\"共通の5枚レーダー再生ルールを事案ページの既存部品経由で維持する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/300\"},{\"id\":\"pr-290\",\"decision\":\"distinct\",\"reason\":\"担当の窓口PRであり、段階3の画面実装は含まない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/290\"},{\"id\":\"pr-306\",\"decision\":\"distinct\",\"reason\":\"タイル版からのBluesky候補計画のドライラン。事案画面の導線には関与しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/306\"},{\"id\":\"pr-252\",\"decision\":\"extend\",\"reason\":\"一覧カードの自治体・強度・概要の時刻ストリップを残し、カード内画像再生を事案ページの共通レーダーに集約する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/252\"},{\"id\":\"pr-282\",\"decision\":\"extend\",\"reason\":\"統合済みの全国地図・一覧の分離を基盤に、両方から事案ページへの導線を追加する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/282\"},{\"id\":\"pr-253\",\"decision\":\"distinct\",\"reason\":\"未マージの並行するホーム分離案であり、この変更は統合済みのmainの地図と一覧を対象とする。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/253\"},{\"id\":\"pr-284\",\"decision\":\"distinct\",\"reason\":\"旧版保持と公開予報の取得・鮮度判定は同じまま、事案リンクの読取失敗を予報の取得から独立させる。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/284\"}]} -->",
+  "snapshot_head": "4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24",
+  "snapshot_consistent": true,
+  "head": "4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24",
+  "base": "a729a26c619cf058b24e2531222d17c248652d9d",
+  "base_ref": "main",
+  "head_ref": "feat/rain-case-navigation-311",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-27T18:37:06Z",
+  "merge_commit_sha": "25ab1a1f91d097ba9fcfcc49a170b847154e363b",
+  "updated_at": "2026-11-27T18:37:07Z",
+  "code_facts": [
+    {
+      "file": "app/api/rain/active-cases/route.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export async function GET() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/api/rain/active-cases/route.ts"
+    },
+    {
+      "file": "app/cases/[slug]/loadRainCase.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export async function readActiveRainCaseSlugs() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/cases/%5Bslug%5D/loadRainCase.ts"
+    },
+    {
+      "file": "app/cases/[slug]/loadRainCase.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "let query = db.from(\"national_rain_cases\").select(\"municipality_code,slug\")",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/cases/%5Bslug%5D/loadRainCase.ts"
+    },
+    {
+      "file": "app/cases/[slug]/loadRainCase.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (after) query = query.gt(\"municipality_code\", after);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/cases/%5Bslug%5D/loadRainCase.ts"
+    },
+    {
+      "file": "app/cases/[slug]/loadRainCase.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (error) throw new Error(\"Active rain cases are unavailable\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/cases/%5Bslug%5D/loadRainCase.ts"
+    },
+    {
+      "file": "app/cases/[slug]/loadRainCase.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (rainCaseHref(slug, code)) slugs[code] = slug;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/cases/%5Bslug%5D/loadRainCase.ts"
+    },
+    {
+      "file": "app/cases/[slug]/loadRainCase.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (data.length < pageSize) return slugs;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/cases/%5Bslug%5D/loadRainCase.ts"
+    },
+    {
+      "file": "app/components/LiveJapanForecastMap.tsx",
+      "kind": "関数・クラス定義",
+      "expression": "function popupDetails(areas: Area[], peaks: ReadonlyMap<string, { time: string }>, caseSlugs: ActiveRainCaseSlugs) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/components/LiveJapanForecastMap.tsx"
+    },
+    {
+      "file": "app/components/LiveJapanForecastMap.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (href) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/components/LiveJapanForecastMap.tsx"
+    },
+    {
+      "file": "app/components/LiveJapanForecastMap.tsx",
+      "kind": "関数・クラス定義",
+      "expression": "export default function LiveJapanForecastMap({ frame, peaks, caseSlugs }: {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/components/LiveJapanForecastMap.tsx"
+    },
+    {
+      "file": "app/components/LiveJapanForecastMap.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (caseHref) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/components/LiveJapanForecastMap.tsx"
+    },
+    {
+      "file": "app/components/NationalHeavyRainForecast.tsx",
+      "kind": "関数・クラス定義",
+      "expression": "function ForecastBand({ frames, basetime, extended, tileVersions, caseSlugs }: {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/components/NationalHeavyRainForecast.tsx"
+    },
+    {
+      "file": "app/components/NationalHeavyRainForecast.tsx",
+      "kind": "関数・クラス定義",
+      "expression": "async function refreshCaseSlugs() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/components/NationalHeavyRainForecast.tsx"
+    },
+    {
+      "file": "app/components/NationalHeavyRainForecast.tsx",
+      "kind": "HTTP要求",
+      "expression": "const response = await fetch(\"/api/rain/active-cases\", { cache: \"no-store\", signal: controller.signal });",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/components/NationalHeavyRainForecast.tsx"
+    },
+    {
+      "file": "app/components/NationalHeavyRainForecast.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!response.ok) throw new Error(\"Case links unavailable\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/components/NationalHeavyRainForecast.tsx"
+    },
+    {
+      "file": "app/components/NationalHeavyRainForecast.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!controller.signal.aborted) setCaseSlugs(slugs);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/components/NationalHeavyRainForecast.tsx"
+    },
+    {
+      "file": "app/components/NationalHeavyRainForecast.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!controller.signal.aborted) setCaseSlugs({});",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/components/NationalHeavyRainForecast.tsx"
+    },
+    {
+      "file": "app/components/NationalHeavyRainForecast.tsx",
+      "kind": "関数・クラス定義",
+      "expression": "function refreshPageData() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/components/NationalHeavyRainForecast.tsx"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseDisplay.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"links both forecast views to a stored active case for the exact municipality only\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/lib/weather/rain/nationalRainCaseDisplay.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseDisplay.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(rainCaseHref(incident.slug, \"17384\")).toBe(`/cases/${incident.slug}`);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/lib/weather/rain/nationalRainCaseDisplay.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseDisplay.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(rainCaseHref(undefined, \"17385\")).toBeUndefined();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/lib/weather/rain/nationalRainCaseDisplay.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseDisplay.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(rainCaseHref(incident.slug, \"17385\")).toBeUndefined();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/lib/weather/rain/nationalRainCaseDisplay.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseDisplay.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(rainCaseHref(\"//example.com\", \"17384\")).toBeUndefined();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/lib/weather/rain/nationalRainCaseDisplay.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseDisplay.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function rainCaseHref(slug: string | undefined, code: string) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/lib/weather/rain/nationalRainCaseDisplay.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseDisplay.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "return typeof slug === \"string\" && rainCaseSlug.test(slug) && slug.startsWith(`${code}-`) ? `/cases/${slug}` : undefined;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/lib/weather/rain/nationalRainCaseDisplay.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/api/rain/active-cases/route.ts",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 0,
+      "patch": "diff --git a/app/api/rain/active-cases/route.ts b/app/api/rain/active-cases/route.ts\nnew file mode 100644\nindex 00000000..1d5b5032\n--- /dev/null\n+++ b/app/api/rain/active-cases/route.ts\n@@ -0,0 +1,13 @@\n+import { NextResponse } from \"next/server\";\n+import { readActiveRainCaseSlugs } from \"@/app/cases/[slug]/loadRainCase\";\n+\n+export const dynamic = \"force-dynamic\";\n+\n+export async function GET() {\n+  const headers = { \"Cache-Control\": \"no-store\" };\n+  try {\n+    return NextResponse.json(await readActiveRainCaseSlugs(), { headers });\n+  } catch {\n+    return NextResponse.json({ error: \"ACTIVE_RAIN_CASES_UNAVAILABLE\" }, { status: 503, headers });\n+  }\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/api/rain/active-cases/route.ts",
+      "source": {
+        "path": "app/api/rain/active-cases/route.ts",
+        "coverage": "全文",
+        "text": "import { NextResponse } from \"next/server\";\nimport { readActiveRainCaseSlugs } from \"@/app/cases/[slug]/loadRainCase\";\n\nexport const dynamic = \"force-dynamic\";\n\nexport async function GET() {\n  const headers = { \"Cache-Control\": \"no-store\" };\n  try {\n    return NextResponse.json(await readActiveRainCaseSlugs(), { headers });\n  } catch {\n    return NextResponse.json({ error: \"ACTIVE_RAIN_CASES_UNAVAILABLE\" }, { status: 503, headers });\n  }\n}\n",
+        "sha256": "6e5448d6bd9e98899681309c89ebeea1104d2fc941c54adae8857c4023004112"
+      }
+    },
+    {
+      "path": "app/cases/[slug]/loadRainCase.ts",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 1,
+      "patch": "diff --git a/app/cases/[slug]/loadRainCase.ts b/app/cases/[slug]/loadRainCase.ts\nindex 795d1d62..c68b3043 100644\n--- a/app/cases/[slug]/loadRainCase.ts\n+++ b/app/cases/[slug]/loadRainCase.ts\n@@ -2,7 +2,7 @@ import \"server-only\";\n \n import { cache } from \"react\";\n import { createClient } from \"@supabase/supabase-js\";\n-import { caseDetailsExpired, rainCaseSlug, type RainCase, type RainCaseVersion } from \"../../../lib/weather/rain/nationalRainCaseDisplay\";\n+import { caseDetailsExpired, rainCaseHref, rainCaseSlug, type RainCase, type RainCaseVersion } from \"../../../lib/weather/rain/nationalRainCaseDisplay\";\n \n const summaryFields = \"slug,municipality_code,prefecture,municipality,first_base,first_valid_time,last_base,peak_tier,peak_valid_time,status,ended_at,permanent,details_expire_at,verification_summary\";\n const versionFields = \"slug,base_time,detail_state,peak_tier,peak_valid_time,slots,verification\";\n@@ -16,6 +16,26 @@ function caseDatabase() {\n   return createClient(url, key, { auth: { persistSession: false } });\n }\n \n+export async function readActiveRainCaseSlugs() {\n+  const db = caseDatabase();\n+  const deadline = AbortSignal.timeout(5000);\n+  const pageSize = 250;\n+  const slugs: Record<string, string> = {};\n+  let after: string | undefined;\n+  while (true) {\n+    let query = db.from(\"national_rain_cases\").select(\"municipality_code,slug\")\n+      .eq(\"status\", \"forecast\").order(\"municipality_code\").limit(pageSize);\n+    if (after) query = query.gt(\"municipality_code\", after);\n+    const { data, error } = await query.abortSignal(deadline);\n+    if (error) throw new Error(\"Active rain cases are unavailable\");\n+    for (const { municipality_code: code, slug } of data) {\n+      if (rainCaseHref(slug, code)) slugs[code] = slug;\n+    }\n+    if (data.length < pageSize) return slugs;\n+    after = data.at(-1)?.municipality_code;\n+  }\n+}\n+\n export const readRainCase = cache(async (slug: string): Promise<RainCase | null> => {\n   if (!rainCaseSlug.test(slug)) return null;\n   const { data, error } = await caseDatabase().from(\"national_rain_cases\")\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/cases/%5Bslug%5D/loadRainCase.ts",
+      "source": {
+        "path": "app/cases/[slug]/loadRainCase.ts",
+        "coverage": "全文",
+        "text": "import \"server-only\";\n\nimport { cache } from \"react\";\nimport { createClient } from \"@supabase/supabase-js\";\nimport { caseDetailsExpired, rainCaseHref, rainCaseSlug, type RainCase, type RainCaseVersion } from \"../../../lib/weather/rain/nationalRainCaseDisplay\";\n\nconst summaryFields = \"slug,municipality_code,prefecture,municipality,first_base,first_valid_time,last_base,peak_tier,peak_valid_time,status,ended_at,permanent,details_expire_at,verification_summary\";\nconst versionFields = \"slug,base_time,detail_state,peak_tier,peak_valid_time,slots,verification\";\nconst relatedFields = \"slug,municipality,peak_tier,first_base\";\ntype RelatedCase = Pick<RainCase, \"slug\" | \"municipality\" | \"peak_tier\" | \"first_base\">;\n\nfunction caseDatabase() {\n  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;\n  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;\n  if (!url || !key) throw new Error(\"Rain case storage is unavailable\");\n  return createClient(url, key, { auth: { persistSession: false } });\n}\n\nexport async function readActiveRainCaseSlugs() {\n  const db = caseDatabase();\n  const deadline = AbortSignal.timeout(5000);\n  const pageSize = 250;\n  const slugs: Record<string, string> = {};\n  let after: string | undefined;\n  while (true) {\n    let query = db.from(\"national_rain_cases\").select(\"municipality_code,slug\")\n      .eq(\"status\", \"forecast\").order(\"municipality_code\").limit(pageSize);\n    if (after) query = query.gt(\"municipality_code\", after);\n    const { data, error } = await query.abortSignal(deadline);\n    if (error) throw new Error(\"Active rain cases are unavailable\");\n    for (const { municipality_code: code, slug } of data) {\n      if (rainCaseHref(slug, code)) slugs[code] = slug;\n    }\n    if (data.length < pageSize) return slugs;\n    after = data.at(-1)?.municipality_code;\n  }\n}\n\nexport const readRainCase = cache(async (slug: string): Promise<RainCase | null> => {\n  if (!rainCaseSlug.test(slug)) return null;\n  const { data, error } = await caseDatabase().from(\"national_rain_cases\")\n    .select(summaryFields).eq(\"slug\", slug).abortSignal(AbortSignal.timeout(5000)).maybeSingle();\n  if (error) throw new Error(\"Rain case summary is unavailable\");\n  return data as RainCase | null;\n});\n\nexport async function loadRainCaseDetails(incident: RainCase, now: number) {\n  const db = caseDatabase();\n  const deadline = AbortSignal.timeout(8000);\n  const relatedRequest = db.from(\"national_rain_cases\")\n    .select(relatedFields).eq(\"prefecture\", incident.prefecture).eq(\"permanent\", true)\n    .neq(\"slug\", incident.slug).order(\"first_base\", { ascending: false }).order(\"slug\")\n    .limit(4).abortSignal(deadline);\n  const expired = caseDetailsExpired(incident, now);\n\n  async function readVersions() {\n    const versions: RainCaseVersion[] = [];\n    let after: string | undefined;\n    const pageSize = 250;\n    while (!expired) {\n      let query = db.from(\"national_rain_case_versions\").select(versionFields)\n        .eq(\"slug\", incident.slug).lte(\"base_time\", incident.last_base)\n        .order(\"base_time\").limit(pageSize);\n      if (after) query = query.gt(\"base_time\", after);\n      const { data, error } = await query.abortSignal(deadline);\n      if (error) throw new Error(\"Rain case versions are unavailable\");\n      const page = (data ?? []) as RainCaseVersion[];\n      versions.push(...page);\n      if (page.length < pageSize) break;\n      after = page.at(-1)?.base_time;\n    }\n    return versions;\n  }\n\n  const [versions, related] = await Promise.all([readVersions(), relatedRequest]);\n  return { versions, related: (related.data ?? []) as RelatedCase[], expired };\n}\n",
+        "sha256": "972e47864bdd4ce57f2103fb0f967334068e4bf433e288e7a2171b9459477080"
+      }
+    },
+    {
+      "path": "app/cases/[slug]/page.tsx",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "diff --git a/app/cases/[slug]/page.tsx b/app/cases/[slug]/page.tsx\nindex 55ad7fa8..6e4e4740 100644\n--- a/app/cases/[slug]/page.tsx\n+++ b/app/cases/[slug]/page.tsx\n@@ -80,7 +80,7 @@ function ActiveForecast({ incident, version, now }: { incident: RainCase; versio\n       const frames = caseRadarFrames(incident, version, key, now);\n       return <section className={styles.radar} key={key} aria-label={`${label}の雨雲再生`}>\n         <h3>{label}の雨雲</h3>\n-        {frames.length ? <RadarPlayer frames={frames} blocky={key === \"extended\"} /> : <p>再生できる予報画像はありません。</p>}\n+        {frames.length ? <RadarPlayer key={version.base_time} frames={frames} blocky={key === \"extended\"} /> : <p>再生できる予報画像はありません。</p>}\n       </section>;\n     })}</div>\n   </section>;\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/cases/%5Bslug%5D/page.tsx",
+      "source": {
+        "path": "app/cases/[slug]/page.tsx",
+        "coverage": "全文",
+        "text": "import type { Metadata } from \"next\";\nimport Link from \"next/link\";\nimport { notFound } from \"next/navigation\";\nimport RadarPlayer from \"../../components/RadarPlayer\";\nimport { japanLandPath } from \"../../../lib/weather/rain/japanLandPath\";\nimport { forecastTime, type RadarTile } from \"../../../lib/weather/rain/nationalForecastSnapshot\";\nimport {\n  caseDetailsExpired, caseLeadMinutes, caseRadarFrames, presentCaseVersions,\n  type CaseBand, type CaseSlot, type RainCase, type RainCaseVersion,\n} from \"../../../lib/weather/rain/nationalRainCaseDisplay\";\nimport { loadRainCaseDetails, readRainCase } from \"./loadRainCase\";\nimport styles from \"./rain-case.module.css\";\n\nexport const dynamic = \"force-dynamic\";\nconst site = \"https://emergencyalert.news\";\nconst zone = \"Asia/Tokyo\";\nconst clock = new Intl.DateTimeFormat(\"ja-JP\", { timeZone: zone, hour: \"2-digit\", minute: \"2-digit\", hourCycle: \"h23\" });\nconst calendar = new Intl.DateTimeFormat(\"ja-JP\", { timeZone: zone, year: \"numeric\", month: \"long\", day: \"numeric\" });\nconst timedDay = new Intl.DateTimeFormat(\"ja-JP\", { timeZone: zone, month: \"numeric\", day: \"numeric\",\n  hour: \"2-digit\", minute: \"2-digit\", hourCycle: \"h23\" });\nconst states = { forecast: \"予報中\", ended: \"終了\", verified: \"答え合わせ済み\" };\nconst bands: { key: CaseBand; label: string }[] = [\n  { key: \"detail\", label: \"詳細帯（5〜30分先）\" },\n  { key: \"extended\", label: \"延長帯（35〜60分先）\" },\n];\nconst dateTime = (input: string) => new Date(forecastTime(input)).toISOString();\nconst timeLabel = (input: string) => clock.format(forecastTime(input));\ntype Route = { params: Promise<{ slug: string }> };\n\nexport async function generateMetadata({ params }: Route): Promise<Metadata> {\n  const incident = await readRainCase((await params).slug);\n  if (!incident) return { title: \"大雨予報の記録\", robots: { index: false } };\n  const title = `${incident.municipality}の大雨予報 | さきどり`;\n  const description = `${calendar.format(forecastTime(incident.first_base))}の${incident.prefecture}${incident.municipality}。最大${incident.peak_tier} mm/h以上の予報、${states[incident.status]}。`;\n  const url = `${site}/cases/${incident.slug}`;\n  return {\n    title, description, alternates: { canonical: url },\n    openGraph: { type: \"article\", locale: \"ja_JP\", title, description, url },\n    robots: caseDetailsExpired(incident) ? { index: false } : undefined,\n  };\n}\n\nfunction CaseMap({ tile, municipality }: { tile: RadarTile; municipality: string }) {\n  // Saved z10 radar tile centers are stored alongside forecast values.\n  const x = (tile.x + 0.5) * 4;\n  const y = (tile.y + 0.5) * 4;\n  return <figure className={styles.map}>\n    <svg viewBox={`${x - 45} ${y - 26} 90 52`} role=\"img\" aria-label={`${municipality}の予報タイル付近の地図`}>\n      <path d={japanLandPath} fill=\"var(--case-land)\" fillRule=\"evenodd\" />\n      <circle cx={x} cy={y} r={2.4} stroke=\"white\" strokeWidth={0.6} fill=\"#c32659\" />\n    </svg>\n    <figcaption>予報に使ったタイルのおおよその位置。地図は Natural Earth の概形です。</figcaption>\n  </figure>;\n}\n\nfunction TimeBands({ slots }: { slots: CaseSlot[] }) {\n  return <div className={styles.bands}>{bands.map(({ key, label }) => {\n    const times = slots.filter(slot => slot.band === key);\n    return <section key={key} aria-label={label}>\n      <h3>{label}</h3>\n      {times.length ? <ul className={styles.slots}>\n        {times.map(slot => <li key={slot.validTime} data-state={slot.state} data-tier={slot.tier ?? undefined}>\n          <time dateTime={dateTime(slot.validTime)}>{timedDay.format(forecastTime(slot.validTime))}</time>\n          {slot.state === \"rain\" && <strong>{slot.tier} mm/h以上</strong>}\n          {slot.state === \"below\" && <span>30 mm/h未満</span>}\n          {slot.state === \"unknown\" && <span className={styles.missing}>未取得</span>}\n          {slot.basetime && <small>{timeLabel(slot.basetime)}基準</small>}\n        </li>)}\n      </ul> : <p>この帯の記録はありません。</p>}\n    </section>;\n  })}</div>;\n}\n\nfunction ActiveForecast({ incident, version, now }: { incident: RainCase; version: RainCaseVersion; now: number }) {\n  return <section className={styles.card} aria-labelledby=\"active-forecast\">\n    <h2 id=\"active-forecast\">予報詳細</h2>\n    <p><time dateTime={dateTime(version.base_time)}>{timedDay.format(forecastTime(version.base_time))}</time> 基準</p>\n    <TimeBands slots={version.slots.filter(slot => forecastTime(slot.validTime) > now)} />\n    <div className={styles.bands}>{bands.map(({ key, label }) => {\n      const frames = caseRadarFrames(incident, version, key, now);\n      return <section className={styles.radar} key={key} aria-label={`${label}の雨雲再生`}>\n        <h3>{label}の雨雲</h3>\n        {frames.length ? <RadarPlayer key={version.base_time} frames={frames} blocky={key === \"extended\"} /> : <p>再生できる予報画像はありません。</p>}\n      </section>;\n    })}</div>\n  </section>;\n}\n\nexport default async function RainCasePage({ params }: Route) {\n  const incident = await readRainCase((await params).slug);\n  if (!incident) notFound();\n  const now = Date.now();\n  const { versions, expired, related } = await loadRainCaseDetails(incident, now);\n  const { history, timeline, verification, latest, pin } = presentCaseVersions(versions);\n  const strengthening = history.find(({ change }) => change === \"強まった\");\n  const lead = caseLeadMinutes(incident);\n  const summary = incident.verification_summary;\n\n  return <main className={styles.page}>\n    <header className={styles.hero}>\n      <Link href=\"/\" className={styles.brand}>さきどり</Link>\n      <div className={styles.heading}>\n        <span className={styles.status} data-status={incident.status}>{states[incident.status]}</span>\n        <time dateTime={dateTime(incident.first_base)}>{calendar.format(forecastTime(incident.first_base))}</time>\n      </div>\n      <h1>{incident.municipality}の大雨予報</h1>\n      <p>{incident.prefecture} · 気象庁の予報をもとにした記録</p>\n      <div className={styles.numbers}>\n        <div><span>最強の予報</span><strong>{incident.peak_tier} <small>mm/h以上</small></strong>\n          <time dateTime={dateTime(incident.peak_valid_time)}>{timedDay.format(forecastTime(incident.peak_valid_time))}ごろ</time></div>\n        <div><span>ピーク予報時刻まで</span><strong>{lead} <small>分</small></strong>\n          <span>{timeLabel(incident.first_base)}に最初の予報を検出</span></div>\n      </div>\n    </header>\n\n    {expired ? <section className={styles.card}>\n      <h2>記録の要約</h2><p>この事案の詳細公開は終了しました。</p>\n    </section> : <>\n      <section className={styles.card} aria-labelledby=\"case-history\">\n        <h2 id=\"case-history\">大雨予報の経過</h2>\n        <ol className={styles.chapters}>\n          <li><strong>始まり</strong><span>{timeLabel(incident.first_base)}に検出。最初の予報対象は{timeLabel(incident.first_valid_time)}ごろ。</span></li>\n          <li><strong>強まり</strong><span>{strengthening\n            ? `${timeLabel(strengthening.version.base_time)}基準で${strengthening.version.peak_tier} mm/h以上`\n            : \"強まりの記録はありません。\"}</span></li>\n          <li><strong>ピーク</strong><span>{timedDay.format(forecastTime(incident.peak_valid_time))}ごろ、{incident.peak_tier} mm/h以上の予報。</span></li>\n          <li><strong>収束</strong><span>{incident.ended_at\n            ? `${timedDay.format(forecastTime(incident.ended_at))}基準で事案終了。`\n            : \"終了の判定はまだ記録されていません。\"}</span></li>\n        </ol>\n        {pin && <CaseMap tile={pin} municipality={incident.municipality} />}\n        {!pin && <p>この事案に地図位置の記録はありません。</p>}\n      </section>\n      {incident.status === \"forecast\" && latest && <ActiveForecast incident={incident} version={latest} now={now} />}\n      <section className={styles.card} aria-labelledby=\"recorded-forecast\">\n        <h2 id=\"recorded-forecast\">記録した予報の時系列</h2>\n        <p>各時刻について、保存された最新の版を表示しています。</p>\n        <TimeBands slots={timeline} />\n        <h3>予報の更新履歴</h3>\n        <ol className={styles.history}>\n          {history.map(({ version, change }) => <li key={version.base_time}>\n            <time dateTime={dateTime(version.base_time)}>{timedDay.format(forecastTime(version.base_time))}基準</time>\n            <span>{change}{version.peak_tier !== null && ` · 最大${version.peak_tier} mm/h以上`}</span>\n          </li>)}\n        </ol>\n        {!history.length && <p>予報の版履歴は未取得です。</p>}\n      </section>\n    </>}\n\n    {incident.status !== \"forecast\" && <section className={styles.card} aria-labelledby=\"case-verification\">\n      <h2 id=\"case-verification\">答え合わせ</h2>\n      {summary ? <p>気象庁のレーダー実況を使用。照合方法は{summary.method}。一致{summary.match}件、不一致{summary.different}件、不明{summary.unknown}件。</p>\n        : <p>予報時刻の気象庁レーダー実況で照合します。答え合わせはまだ記録されていません。</p>}\n      {!expired && verification.length > 0 && <ul className={styles.history}>\n        {verification.map(row => <li key={row.validTime}>\n          <time dateTime={dateTime(row.validTime)}>{timedDay.format(forecastTime(row.validTime))}</time>\n          <span>{row.result === \"match\" ? \"一致\" : row.result === \"different\" ? \"不一致\" : \"不明\"}</span>\n          <span>実況 {row.observedTier === null ? \"未取得\" : row.observedTier === 0 ? \"30 mm/h未満\" : `${row.observedTier} mm/h以上`}</span>\n        </li>)}\n      </ul>}\n    </section>}\n\n    <nav className={styles.card} aria-label=\"関連ページ\">\n      <h2>この地域の雨を、降る前に知る</h2>\n      <div className={styles.links}><Link href=\"/my-amefuru\">MYアメふるで通知を登録</Link><Link href=\"/\">全国地図を見る</Link></div>\n      {related.length > 0 && <>\n        <h3>{incident.prefecture}のほかの大雨予報</h3>\n        <ul className={styles.history}>{related.map(item => <li key={item.slug}>\n          <Link href={`/cases/${item.slug}`}>{item.municipality}・{calendar.format(forecastTime(item.first_base))}・{item.peak_tier} mm/h以上</Link>\n        </li>)}</ul>\n      </>}\n    </nav>\n  </main>;\n}\n",
+        "sha256": "55c7dd8fc56e9e99323a93aff8b2e64caf49324b3b99fd29af89cd971523863d"
+      }
+    },
+    {
+      "path": "app/components/LiveJapanForecastMap.tsx",
+      "status": "modified",
+      "additions": 19,
+      "deletions": 4,
+      "patch": "diff --git a/app/components/LiveJapanForecastMap.tsx b/app/components/LiveJapanForecastMap.tsx\nindex a2baf43c..7259b432 100644\n--- a/app/components/LiveJapanForecastMap.tsx\n+++ b/app/components/LiveJapanForecastMap.tsx\n@@ -6,6 +6,7 @@ import { forecastTime, type NationalForecastFrame } from \"../../lib/weather/rain\n import {\n   FORECAST_COVERAGE_ZOOM, FORECAST_MARKER_SIZE, forecastMarkersOverlap, forecastMarkerZIndex, missingLandOverlay,\n } from \"../../lib/weather/rain/nationalForecastMapOverlay\";\n+import { rainCaseHref, type ActiveRainCaseSlugs } from \"../../lib/weather/rain/nationalRainCaseDisplay\";\n import municipalityPoints from \"../../lib/weather/rain/nationalMapMunicipalityPoints.json\";\n import styles from \"./live-japan-forecast-map.module.css\";\n \n@@ -22,7 +23,7 @@ function overview(map: LeafletMap) {\n   map.fitBounds(japan, { padding: [18, 18], maxZoom: 5, animate: true });\n }\n \n-function popupDetails(areas: Area[], peaks: ReadonlyMap<string, { time: string }>) {\n+function popupDetails(areas: Area[], peaks: ReadonlyMap<string, { time: string }>, caseSlugs: ActiveRainCaseSlugs) {\n   const content = document.createElement(\"div\");\n   content.className = styles.markerDetails;\n   const showArea = (area: Area) => {\n@@ -38,6 +39,14 @@ function popupDetails(areas: Area[], peaks: ReadonlyMap<string, { time: string }\n     showArea(areas[0]);\n   } else {\n     for (const area of areas) {\n+      const href = rainCaseHref(caseSlugs[area.code], area.code);\n+      if (href) {\n+        const link = document.createElement(\"a\");\n+        link.href = href;\n+        link.textContent = `${area.prefecture} ${area.municipality}の事案を見る`;\n+        content.append(link);\n+        continue;\n+      }\n       const button = document.createElement(\"button\");\n       button.type = \"button\";\n       button.textContent = `${area.prefecture} ${area.municipality}・${area.minimumMmPerHour} mm/h以上`;\n@@ -52,9 +61,10 @@ function popupDetails(areas: Area[], peaks: ReadonlyMap<string, { time: string }\n   return content;\n }\n \n-export default function LiveJapanForecastMap({ frame, peaks }: {\n+export default function LiveJapanForecastMap({ frame, peaks, caseSlugs }: {\n   frame?: NationalForecastFrame;\n   peaks: ReadonlyMap<string, { time: string }>;\n+  caseSlugs: ActiveRainCaseSlugs;\n }) {\n   const element = useRef<HTMLDivElement>(null);\n   const [map, setMap] = useState<LeafletMap>();\n@@ -141,8 +151,13 @@ export default function LiveJapanForecastMap({ frame, peaks }: {\n             const nearby = points.filter(candidate => forecastMarkersOverlap(origin, map.latLngToLayerPoint(candidate.location)))\n               .flatMap(candidate => candidate.areas)\n               .sort((a, b) => b.minimumMmPerHour - a.minimumMmPerHour);\n+            const caseHref = nearby.length === 1 ? rainCaseHref(caseSlugs[nearby[0].code], nearby[0].code) : undefined;\n+            if (caseHref) {\n+              window.location.assign(caseHref);\n+              return;\n+            }\n             L.popup({ className: styles.markerPopup }).setLatLng(location)\n-              .setContent(popupDetails(nearby, peaks)).openOn(map);\n+              .setContent(popupDetails(nearby, peaks, caseSlugs)).openOn(map);\n           });\n         }\n       }\n@@ -157,7 +172,7 @@ export default function LiveJapanForecastMap({ frame, peaks }: {\n       };\n     });\n     return () => { disposed = true; removeLayers?.(); };\n-  }, [map, frame, peaks]);\n+  }, [map, frame, peaks, caseSlugs]);\n \n   return <div className={styles.mapShell}>\n     <div ref={element} className={styles.map} role=\"region\" aria-label=\"日本地図・全国の大雨予報\" />\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/components/LiveJapanForecastMap.tsx",
+      "source": {
+        "path": "app/components/LiveJapanForecastMap.tsx",
+        "coverage": "全文",
+        "text": "\"use client\";\n\nimport { useEffect, useRef, useState } from \"react\";\nimport type { LatLng, Map as LeafletMap } from \"leaflet\";\nimport { forecastTime, type NationalForecastFrame } from \"../../lib/weather/rain/nationalForecastSnapshot\";\nimport {\n  FORECAST_COVERAGE_ZOOM, FORECAST_MARKER_SIZE, forecastMarkersOverlap, forecastMarkerZIndex, missingLandOverlay,\n} from \"../../lib/weather/rain/nationalForecastMapOverlay\";\nimport { rainCaseHref, type ActiveRainCaseSlugs } from \"../../lib/weather/rain/nationalRainCaseDisplay\";\nimport municipalityPoints from \"../../lib/weather/rain/nationalMapMunicipalityPoints.json\";\nimport styles from \"./live-japan-forecast-map.module.css\";\n\nconst colors = { 30: \"#FF9900\", 50: \"#FF2800\", 80: \"#B40068\" };\nconst japan: [[number, number], [number, number]] = [[23.6, 122.4], [46.0, 154.3]];\nconst regionalZoom = 7;\nconst municipalZoom = 9;\nconst labelTime = new Intl.DateTimeFormat(\"ja-JP\", { timeZone: \"Asia/Tokyo\", hour: \"2-digit\", minute: \"2-digit\" });\nconst representatives: Record<string, number[] | undefined> = municipalityPoints;\ntype Area = NationalForecastFrame[\"municipalities\"][number];\ntype MarkerGroup = { location: LatLng; areas: Area[] };\n\nfunction overview(map: LeafletMap) {\n  map.fitBounds(japan, { padding: [18, 18], maxZoom: 5, animate: true });\n}\n\nfunction popupDetails(areas: Area[], peaks: ReadonlyMap<string, { time: string }>, caseSlugs: ActiveRainCaseSlugs) {\n  const content = document.createElement(\"div\");\n  content.className = styles.markerDetails;\n  const showArea = (area: Area) => {\n    const name = document.createElement(\"strong\");\n    name.textContent = `${area.prefecture} ${area.municipality}`;\n    const detail = document.createElement(\"span\");\n    const time = peaks.get(area.code)?.time;\n    const hours = time ? `${labelTime.format(forecastTime(time))}の予報・` : \"\";\n    detail.textContent = `${hours}${area.minimumMmPerHour} mm/h以上`;\n    content.replaceChildren(name, detail);\n  };\n  if (areas.length === 1) {\n    showArea(areas[0]);\n  } else {\n    for (const area of areas) {\n      const href = rainCaseHref(caseSlugs[area.code], area.code);\n      if (href) {\n        const link = document.createElement(\"a\");\n        link.href = href;\n        link.textContent = `${area.prefecture} ${area.municipality}の事案を見る`;\n        content.append(link);\n        continue;\n      }\n      const button = document.createElement(\"button\");\n      button.type = \"button\";\n      button.textContent = `${area.prefecture} ${area.municipality}・${area.minimumMmPerHour} mm/h以上`;\n      button.onclick = () => {\n        showArea(area);\n        content.tabIndex = -1;\n        content.focus();\n      };\n      content.append(button);\n    }\n  }\n  return content;\n}\n\nexport default function LiveJapanForecastMap({ frame, peaks, caseSlugs }: {\n  frame?: NationalForecastFrame;\n  peaks: ReadonlyMap<string, { time: string }>;\n  caseSlugs: ActiveRainCaseSlugs;\n}) {\n  const element = useRef<HTMLDivElement>(null);\n  const [map, setMap] = useState<LeafletMap>();\n  useEffect(() => {\n    let disposed = false;\n    let instance: LeafletMap | undefined;\n    void import(\"leaflet\").then(L => {\n      if (disposed || !element.current) return;\n      instance = L.map(element.current, {\n        minZoom: 2, maxZoom: municipalZoom, zoomSnap: 0.25, zoomControl: false, scrollWheelZoom: false,\n      });\n      overview(instance);\n      L.control.zoom({ position: \"bottomright\" }).addTo(instance);\n      L.tileLayer(\"https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png\", {\n        attribution: '<a href=\"https://maps.gsi.go.jp/development/ichiran.html\">地理院タイル</a>',\n      }).addTo(instance);\n      instance.attributionControl.addAttribution('<a href=\"https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-2026.html\">行政区域データ（加工）</a>');\n      setMap(instance);\n    });\n    return () => { disposed = true; instance?.remove(); };\n  }, []);\n\n  useEffect(() => {\n    if (!map || !frame) return;\n    let disposed = false;\n    let removeLayers: (() => void) | undefined;\n    void import(\"leaflet\").then(L => {\n      if (disposed) return;\n      const masks = L.layerGroup().addTo(map);\n      const markers = L.layerGroup().addTo(map);\n      for (const tile of frame.tileCoverage ?? []) {\n        if (tile.basetime) continue;\n        const { url, southwest, northeast } = missingLandOverlay(tile.x, tile.y);\n        const bounds = L.latLngBounds(\n          map.unproject(southwest, FORECAST_COVERAGE_ZOOM),\n          map.unproject(northeast, FORECAST_COVERAGE_ZOOM),\n        );\n        L.imageOverlay(url, bounds, { opacity: 0.65, interactive: false }).addTo(masks);\n      }\n\n      function renderMarkers() {\n        if (!map) return;\n        markers.clearLayers();\n        const zoom = map.getZoom();\n        const groups = new Map<string, MarkerGroup>();\n        for (const area of frame?.municipalities ?? []) {\n          const representative = representatives[area.code];\n          const tile = area.radarTile;\n          const individual = representative && (zoom >= regionalZoom || !tile);\n          if (!individual && !tile) continue;\n          const key = individual ? area.code : `${tile!.x}/${tile!.y}`;\n          const group = groups.get(key);\n          if (group) group.areas.push(area);\n          else {\n            const location = individual ? L.latLng(representative[0], representative[1])\n              : map.unproject([(tile!.x + 0.5) * 256, (tile!.y + 0.5) * 256], 10);\n            groups.set(key, { location, areas: [area] });\n          }\n        }\n        const points = [...groups.values()];\n        for (const { areas, location } of points) {\n          const tier = areas.reduce((largest, area) =>\n            area.minimumMmPerHour > largest ? area.minimumMmPerHour : largest, areas[0].minimumMmPerHour);\n          const marker = document.createElement(\"span\");\n          marker.className = styles.areaMarker;\n          marker.dataset.tier = String(tier);\n          marker.dataset.municipalities = String(areas.length);\n          marker.style.backgroundColor = colors[tier];\n          marker.textContent = String(tier);\n          const title = areas.map(area => area.municipality).join(\"、\");\n          const point = L.marker(location, {\n            icon: L.divIcon({ className: \"\", html: marker, iconSize: [FORECAST_MARKER_SIZE, FORECAST_MARKER_SIZE] }),\n            title,\n            zIndexOffset: forecastMarkerZIndex(tier),\n          }).addTo(markers);\n          point.getElement()?.setAttribute(\"aria-label\", title);\n          point.on(\"click\", () => {\n            if (zoom < municipalZoom) {\n              map.closePopup();\n              map.flyTo(location, zoom < regionalZoom ? regionalZoom : municipalZoom, { duration: 0.65 });\n              return;\n            }\n            const origin = map.latLngToLayerPoint(location);\n            const nearby = points.filter(candidate => forecastMarkersOverlap(origin, map.latLngToLayerPoint(candidate.location)))\n              .flatMap(candidate => candidate.areas)\n              .sort((a, b) => b.minimumMmPerHour - a.minimumMmPerHour);\n            const caseHref = nearby.length === 1 ? rainCaseHref(caseSlugs[nearby[0].code], nearby[0].code) : undefined;\n            if (caseHref) {\n              window.location.assign(caseHref);\n              return;\n            }\n            L.popup({ className: styles.markerPopup }).setLatLng(location)\n              .setContent(popupDetails(nearby, peaks, caseSlugs)).openOn(map);\n          });\n        }\n      }\n\n      renderMarkers();\n      map.on(\"zoomend\", renderMarkers);\n      removeLayers = () => {\n        map.off(\"zoomend\", renderMarkers);\n        map.closePopup();\n        markers.remove();\n        masks.remove();\n      };\n    });\n    return () => { disposed = true; removeLayers?.(); };\n  }, [map, frame, peaks, caseSlugs]);\n\n  return <div className={styles.mapShell}>\n    <div ref={element} className={styles.map} role=\"region\" aria-label=\"日本地図・全国の大雨予報\" />\n    <button type=\"button\" className={styles.overview} disabled={!map} onClick={() => {\n      if (!map) return;\n      map.closePopup();\n      overview(map);\n    }}>全体表示</button>\n  </div>;\n}\n",
+        "sha256": "b58f4ce27a19fe0aa932f146d9979f828540ba0c4682e9eb0068fe677a846a70"
+      }
+    },
+    {
+      "path": "app/components/NationalHeavyRainForecast.tsx",
+      "status": "modified",
+      "additions": 27,
+      "deletions": 29,
+      "patch": "diff --git a/app/components/NationalHeavyRainForecast.tsx b/app/components/NationalHeavyRainForecast.tsx\nindex 1668377f..7a33c7dd 100644\n--- a/app/components/NationalHeavyRainForecast.tsx\n+++ b/app/components/NationalHeavyRainForecast.tsx\n@@ -2,11 +2,10 @@\n \n import Link from \"next/link\";\n import { useCallback, useEffect, useMemo, useState } from \"react\";\n-import { forecastRadarPlayback } from \"../../lib/weather/rain/nationalForecastRadar\";\n import { forecastTime, NATIONAL_FORECAST_FRESHNESS_MS, type NationalForecastSnapshot, type NationalForecastFrame } from \"../../lib/weather/rain/nationalForecastSnapshot\";\n import { forecastMapSelection, type ForecastMapBand } from \"../../lib/weather/rain/nationalForecastMap\";\n+import { rainCaseHref, type ActiveRainCaseSlugs } from \"../../lib/weather/rain/nationalRainCaseDisplay\";\n import ForecastMapTimeline from \"./ForecastMapTimeline\";\n-import RadarPlayer from \"./RadarPlayer\";\n import LiveJapanForecastMap from \"./LiveJapanForecastMap\";\n import styles from \"./national-heavy-rain-forecast.module.css\";\n \n@@ -22,10 +21,9 @@ type AreaCard = Municipality & {\n   intensityByTime: Map<string, Municipality[\"minimumMmPerHour\"]>;\n };\n \n-function ForecastBand({ frames, basetime, extended, tileVersions }: {\n-  frames?: NationalForecastFrame[]; basetime?: string; extended: boolean; tileVersions?: true;\n+function ForecastBand({ frames, basetime, extended, tileVersions, caseSlugs }: {\n+  frames?: NationalForecastFrame[]; basetime?: string; extended: boolean; tileVersions?: true; caseSlugs: ActiveRainCaseSlugs;\n }) {\n-  const [selected, setSelected] = useState<string>();\n   const municipalities = new Map<string, AreaCard>();\n   for (const frame of frames ?? []) {\n     for (const area of frame.municipalities) {\n@@ -36,9 +34,7 @@ function ForecastBand({ frames, basetime, extended, tileVersions }: {\n         intensityByTime.set(frame.validTime, area.minimumMmPerHour);\n       }\n       if (!current || current.minimumMmPerHour < area.minimumMmPerHour) {\n-        municipalities.set(area.code, { ...area, radarTile: area.radarTile ?? current?.radarTile, peakTime: frame.validTime, intensityByTime });\n-      } else if (!current.radarTile && area.radarTile) {\n-        current.radarTile = area.radarTile;\n+        municipalities.set(area.code, { ...area, peakTime: frame.validTime, intensityByTime });\n       }\n     }\n   }\n@@ -81,21 +77,15 @@ function ForecastBand({ frames, basetime, extended, tileVersions }: {\n               <div className={styles.compactList}>\n                 {entries.map(area => {\n                   const times = [...area.intensityByTime.keys()].sort();\n-                  const expanded = selected === area.code;\n-                  const radarFrames = expanded && basetime\n-                    ? forecastRadarPlayback(frames ?? [], area.code, basetime, tileVersions)\n-                    : [];\n+                  const caseHref = rainCaseHref(caseSlugs[area.code], area.code);\n                   return (\n                     <article className={styles.compactCard} key={area.code}>\n                       <div className={styles.compactRow}>\n                         <strong>{area.municipality}</strong>\n                         <span className={styles.compactTime}>{timeLabel(times[0])}ごろから</span>\n                         <span className={styles.intensity} data-tier={area.minimumMmPerHour}>{area.minimumMmPerHour}<small> mm/h以上</small></span>\n-                        {area.radarTile && <button type=\"button\" aria-expanded={expanded}\n-                          aria-label={`${area.prefecture}${area.municipality}の雨雲の動きを${expanded ? \"閉じる\" : \"見る\"}`}\n-                          onClick={() => setSelected(code => code === area.code ? undefined : area.code)}>\n-                          {expanded ? \"閉じる\" : \"雨雲を見る\"}\n-                        </button>}\n+                        {caseHref && <Link href={caseHref} prefetch={false}\n+                          aria-label={`${area.prefecture}${area.municipality}の事案を見る`}>事案を見る</Link>}\n                       </div>\n                       <div className={styles.timeStrip} role=\"img\" aria-label={times.map(time =>\n                         `${timeLabel(time)} ${area.intensityByTime.get(time)}mm/h以上`).join(\"、\")}>\n@@ -105,13 +95,6 @@ function ForecastBand({ frames, basetime, extended, tileVersions }: {\n                             title={`${timeLabel(validTime)} ${intensity ? `${intensity}mm/h以上` : incomplete ? \"未取得を含む\" : \"30mm/h以上の予報なし\"}`} />;\n                         })}\n                       </div>\n-                      {!!radarFrames.length && (\n-                        <div className={styles.expandedRadar}>\n-                          <p>対象時刻：{radarFrames.map(frame => timeLabel(frame.validTime)).join(\"、\")}</p>\n-                          <RadarPlayer key={radarFrames.map(frame => `${frame.basetime}/${frame.validTime}/${frame.tile.x}/${frame.tile.y}`).join(\",\")}\n-                            frames={radarFrames} blocky={extended} />\n-                        </div>\n-                      )}\n                     </article>\n                   );\n                 })}\n@@ -128,6 +111,7 @@ export default function NationalHeavyRainForecast({ view = \"map\" }: { view?: \"ma\n   const [band, setBand] = useState<ForecastMapBand>(\"all\");\n   const [time, setTime] = useState<number | null>(null);\n   const [forecast, setForecast] = useState<NationalForecastSnapshot | null>();\n+  const [caseSlugs, setCaseSlugs] = useState<ActiveRainCaseSlugs>({});\n   useEffect(() => {\n     const controller = new AbortController();\n     async function refresh() {\n@@ -140,8 +124,22 @@ export default function NationalHeavyRainForecast({ view = \"map\" }: { view?: \"ma\n         if (!controller.signal.aborted) setForecast(current => current ?? null);\n       }\n     }\n-    void refresh();\n-    const interval = window.setInterval(refresh, 60_000);\n+    async function refreshCaseSlugs() {\n+      try {\n+        const response = await fetch(\"/api/rain/active-cases\", { cache: \"no-store\", signal: controller.signal });\n+        if (!response.ok) throw new Error(\"Case links unavailable\");\n+        const slugs: ActiveRainCaseSlugs = await response.json();\n+        if (!controller.signal.aborted) setCaseSlugs(slugs);\n+      } catch {\n+        if (!controller.signal.aborted) setCaseSlugs({});\n+      }\n+    }\n+    function refreshPageData() {\n+      void refresh();\n+      void refreshCaseSlugs();\n+    }\n+    refreshPageData();\n+    const interval = window.setInterval(refreshPageData, 60_000);\n     return () => {\n       controller.abort();\n       window.clearInterval(interval);\n@@ -199,7 +197,7 @@ export default function NationalHeavyRainForecast({ view = \"map\" }: { view?: \"ma\n         <h1 id=\"live-japan-heading\">全国の大雨を地図で見る</h1>\n         <ForecastMapTimeline key={band} slots={slots} activeTime={activeTime}\n           expired={expired || timeExpired} setTime={chooseTime} formatTime={time => formatTime.format(time)} />\n-        <LiveJapanForecastMap frame={frame} peaks={peaks} />\n+        <LiveJapanForecastMap frame={frame} peaks={peaks} caseSlugs={caseSlugs} />\n         <div className={styles.controls} aria-label=\"予報帯\">\n           <button type=\"button\" aria-pressed={band === \"all\"} onClick={() => { setBand(\"all\"); chooseTime(null); }}>すべて</button>\n           <button type=\"button\" aria-pressed={band === \"detail\"} onClick={() => { setBand(\"detail\"); chooseTime(null); }}>詳細 +5〜30分</button>\n@@ -244,8 +242,8 @@ export default function NationalHeavyRainForecast({ view = \"map\" }: { view?: \"ma\n       </aside>\n       {forecast === undefined && <p role=\"status\">全国の予報を取得中…</p>}\n       {forecast === null && <p role=\"status\">現在、全国の予報を確認できません。</p>}\n-      <ForecastBand frames={forecast?.frames} basetime={forecast?.basetime} tileVersions={forecast?.tileVersions} extended={false} />\n-      <ForecastBand frames={forecast?.extendedFrames} basetime={forecast?.basetime} tileVersions={forecast?.tileVersions} extended />\n+      <ForecastBand frames={forecast?.frames} basetime={forecast?.basetime} tileVersions={forecast?.tileVersions} caseSlugs={caseSlugs} extended={false} />\n+      <ForecastBand frames={forecast?.extendedFrames} basetime={forecast?.basetime} tileVersions={forecast?.tileVersions} caseSlugs={caseSlugs} extended />\n       </>}\n     </section>\n   );\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/components/NationalHeavyRainForecast.tsx",
+      "source": {
+        "path": "app/components/NationalHeavyRainForecast.tsx",
+        "coverage": "全文",
+        "text": "\"use client\";\n\nimport Link from \"next/link\";\nimport { useCallback, useEffect, useMemo, useState } from \"react\";\nimport { forecastTime, NATIONAL_FORECAST_FRESHNESS_MS, type NationalForecastSnapshot, type NationalForecastFrame } from \"../../lib/weather/rain/nationalForecastSnapshot\";\nimport { forecastMapSelection, type ForecastMapBand } from \"../../lib/weather/rain/nationalForecastMap\";\nimport { rainCaseHref, type ActiveRainCaseSlugs } from \"../../lib/weather/rain/nationalRainCaseDisplay\";\nimport ForecastMapTimeline from \"./ForecastMapTimeline\";\nimport LiveJapanForecastMap from \"./LiveJapanForecastMap\";\nimport styles from \"./national-heavy-rain-forecast.module.css\";\n\nconst formatTime = new Intl.DateTimeFormat(\"ja-JP\", {\n  timeZone: \"Asia/Tokyo\", hour: \"2-digit\", minute: \"2-digit\", hourCycle: \"h23\",\n});\n\nconst timeLabel = (value: string) => formatTime.format(forecastTime(value));\n\ntype Municipality = NationalForecastFrame[\"municipalities\"][number];\ntype AreaCard = Municipality & {\n  peakTime: string;\n  intensityByTime: Map<string, Municipality[\"minimumMmPerHour\"]>;\n};\n\nfunction ForecastBand({ frames, basetime, extended, tileVersions, caseSlugs }: {\n  frames?: NationalForecastFrame[]; basetime?: string; extended: boolean; tileVersions?: true; caseSlugs: ActiveRainCaseSlugs;\n}) {\n  const municipalities = new Map<string, AreaCard>();\n  for (const frame of frames ?? []) {\n    for (const area of frame.municipalities) {\n      const current = municipalities.get(area.code);\n      const intensityByTime = current?.intensityByTime ?? new Map();\n      const intensity = intensityByTime.get(frame.validTime);\n      if (intensity === undefined || intensity < area.minimumMmPerHour) {\n        intensityByTime.set(frame.validTime, area.minimumMmPerHour);\n      }\n      if (!current || current.minimumMmPerHour < area.minimumMmPerHour) {\n        municipalities.set(area.code, { ...area, peakTime: frame.validTime, intensityByTime });\n      }\n    }\n  }\n  const cards = [...municipalities.values()].sort((a, b) =>\n    b.minimumMmPerHour - a.minimumMmPerHour ||\n    a.prefecture.localeCompare(b.prefecture, \"ja\") ||\n    a.peakTime.localeCompare(b.peakTime) || a.code.localeCompare(b.code));\n  const groups = new Map<number, Map<string, AreaCard[]>>();\n  for (const area of cards) {\n    if (!groups.has(area.minimumMmPerHour)) groups.set(area.minimumMmPerHour, new Map());\n    const prefectures = groups.get(area.minimumMmPerHour)!;\n    if (!prefectures.has(area.prefecture)) prefectures.set(area.prefecture, []);\n    prefectures.get(area.prefecture)!.push(area);\n  }\n  const incomplete = frames?.some(frame => frame.incomplete);\n  const title = extended ? \"35〜60分先の予報\" : \"30分先までの詳細予報\";\n  return (\n    <section className={styles.band} aria-label={title}>\n      <div className={styles.bandHeading}>\n        <h2>{title}</h2>\n        <span>{extended ? \"1km\" : \"250m\"}</span>\n        <span>{!frames ? \"未取得\" : frames.length ? `${cards.length}市区町村` : \"対象時刻終了\"}</span>\n      </div>\n      {!!frames?.length && cards.length === 0 && <p>取得済みの範囲では、30mm/h以上の該当地域はありません。</p>}\n      {incomplete && <p role=\"status\">一部の時刻・地域は未取得です。</p>}\n      {tileVersions && !!frames?.length && <details>\n        <summary>時刻ごとの取得状況と基準時刻</summary>\n        <ul>{frames.map(frame => <li key={frame.validTime}>{timeLabel(frame.validTime)}　\n          {frame.basetimes?.length ? `${frame.basetimes.map(timeLabel).join(\" / \")} 基準` : \"未取得\"}\n          {frame?.incomplete && !!frame.basetimes?.length && \"・一部未取得\"}\n          {frame.refreshPending && \"・一部は前の予報を表示\"}</li>)}</ul>\n      </details>}\n      {!frames && basetime && <p role=\"status\">この時間帯の予報は現在取得できていません。</p>}\n      {[...groups].map(([tier, prefectures]) => (\n        <section className={styles.tierGroup} key={tier} aria-label={`${tier}mm/h以上`}>\n          <h3 className={styles.tierHeading} data-tier={tier}>{tier}mm/h以上 <small>{[...prefectures.values()].reduce((sum, list) => sum + list.length, 0)}地域</small></h3>\n          {[...prefectures].map(([prefecture, entries]) => (\n            <div className={styles.prefectureGroup} key={prefecture}>\n              <h4 className={styles.prefectureHeading}>{prefecture} <small>{entries.length}地域</small></h4>\n              <div className={styles.compactList}>\n                {entries.map(area => {\n                  const times = [...area.intensityByTime.keys()].sort();\n                  const caseHref = rainCaseHref(caseSlugs[area.code], area.code);\n                  return (\n                    <article className={styles.compactCard} key={area.code}>\n                      <div className={styles.compactRow}>\n                        <strong>{area.municipality}</strong>\n                        <span className={styles.compactTime}>{timeLabel(times[0])}ごろから</span>\n                        <span className={styles.intensity} data-tier={area.minimumMmPerHour}>{area.minimumMmPerHour}<small> mm/h以上</small></span>\n                        {caseHref && <Link href={caseHref} prefetch={false}\n                          aria-label={`${area.prefecture}${area.municipality}の事案を見る`}>事案を見る</Link>}\n                      </div>\n                      <div className={styles.timeStrip} role=\"img\" aria-label={times.map(time =>\n                        `${timeLabel(time)} ${area.intensityByTime.get(time)}mm/h以上`).join(\"、\")}>\n                        {frames?.map(({ validTime, incomplete }) => {\n                          const intensity = area.intensityByTime.get(validTime);\n                          return <span key={validTime} data-tier={intensity}\n                            title={`${timeLabel(validTime)} ${intensity ? `${intensity}mm/h以上` : incomplete ? \"未取得を含む\" : \"30mm/h以上の予報なし\"}`} />;\n                        })}\n                      </div>\n                    </article>\n                  );\n                })}\n              </div>\n            </div>\n          ))}\n        </section>\n      ))}\n    </section>\n  );\n}\n\nexport default function NationalHeavyRainForecast({ view = \"map\" }: { view?: \"map\" | \"list\" }) {\n  const [band, setBand] = useState<ForecastMapBand>(\"all\");\n  const [time, setTime] = useState<number | null>(null);\n  const [forecast, setForecast] = useState<NationalForecastSnapshot | null>();\n  const [caseSlugs, setCaseSlugs] = useState<ActiveRainCaseSlugs>({});\n  useEffect(() => {\n    const controller = new AbortController();\n    async function refresh() {\n      try {\n        const response = await fetch(\"/api/rain/national-forecast\", { cache: \"no-store\", signal: controller.signal });\n        if (!response.ok) throw new Error(\"Forecast unavailable\");\n        const snapshot: NationalForecastSnapshot = await response.json();\n        if (!controller.signal.aborted) setForecast(snapshot);\n      } catch {\n        if (!controller.signal.aborted) setForecast(current => current ?? null);\n      }\n    }\n    async function refreshCaseSlugs() {\n      try {\n        const response = await fetch(\"/api/rain/active-cases\", { cache: \"no-store\", signal: controller.signal });\n        if (!response.ok) throw new Error(\"Case links unavailable\");\n        const slugs: ActiveRainCaseSlugs = await response.json();\n        if (!controller.signal.aborted) setCaseSlugs(slugs);\n      } catch {\n        if (!controller.signal.aborted) setCaseSlugs({});\n      }\n    }\n    function refreshPageData() {\n      void refresh();\n      void refreshCaseSlugs();\n    }\n    refreshPageData();\n    const interval = window.setInterval(refreshPageData, 60_000);\n    return () => {\n      controller.abort();\n      window.clearInterval(interval);\n    };\n  }, []);\n\n  useEffect(() => {\n    if (!forecast) return;\n    const frames = [...forecast.frames, ...(forecast.extendedFrames ?? [])];\n    const now = Date.now();\n    const refreshNoticeAt = forecastTime(forecast.basetime) + NATIONAL_FORECAST_FRESHNESS_MS + 1;\n    const nextChange = Math.min(refreshNoticeAt > now ? refreshNoticeAt : Infinity,\n      ...frames.map(frame => forecastTime(frame.validTime)));\n    const timer = window.setTimeout(() => {\n      const cutoff = Date.now();\n      const upcoming = (frame: NationalForecastFrame) => forecastTime(frame.validTime) > cutoff;\n      const frames = forecast.frames.filter(upcoming);\n      const extendedFrames = forecast.extendedFrames?.filter(upcoming);\n      setForecast(current => current !== forecast ? current\n        : frames.length || extendedFrames?.length ? { ...forecast, frames, extendedFrames } : null);\n    }, Math.max(0, nextChange - now));\n    return () => window.clearTimeout(timer);\n  }, [forecast]);\n\n  const { slots, activeTime, peaks, frame, hasCoverage } = useMemo(\n    () => forecastMapSelection(forecast, band, time), [forecast, band, time],\n  );\n  const expired = time !== null && activeTime === null;\n  const [timeExpired, setTimeExpired] = useState(false);\n  useEffect(() => {\n    if (!expired) return;\n    setTime(null);\n    setTimeExpired(true);\n  }, [expired]);\n\n  const chooseTime = useCallback((value: number | null) => {\n    setTime(value);\n    setTimeExpired(false);\n  }, []);\n  const areas = forecast\n    ? [...forecast.frames, ...(forecast.extendedFrames ?? [])].flatMap(frame => frame.municipalities)\n    : [];\n  const count = new Set(areas.map(area => area.code)).size;\n  const tier = areas.reduce((maximum, area) => Math.max(maximum, area.minimumMmPerHour), 0);\n  const peakAreas = areas.filter(area => area.minimumMmPerHour === tier);\n  const peakCount = new Set(peakAreas.map(area => area.code)).size;\n  const peakPrefectures = [...new Set(peakAreas.map(area => area.prefecture))]\n    .sort((a, b) => a.localeCompare(b, \"ja\"));\n  const latestTime = (forecast?.extendedFrames?.filter(frame => !frame.basetimes || frame.basetimes.length).slice(-1)[0] ?? forecast?.frames.filter(frame => !frame.basetimes || frame.basetimes.length).slice(-1)[0])?.validTime;\n  const waitingForUpdate = forecast && Date.now() - forecastTime(forecast.basetime) > NATIONAL_FORECAST_FRESHNESS_MS;\n\n  return (\n    <section className={styles.forecast} aria-labelledby={view === \"map\" ? \"live-japan-heading\" : \"national-rain-heading\"}>\n      {view === \"map\" ? <section aria-labelledby=\"live-japan-heading\" className={styles.band}>\n        <h1 id=\"live-japan-heading\">全国の大雨を地図で見る</h1>\n        <ForecastMapTimeline key={band} slots={slots} activeTime={activeTime}\n          expired={expired || timeExpired} setTime={chooseTime} formatTime={time => formatTime.format(time)} />\n        <LiveJapanForecastMap frame={frame} peaks={peaks} caseSlugs={caseSlugs} />\n        <div className={styles.controls} aria-label=\"予報帯\">\n          <button type=\"button\" aria-pressed={band === \"all\"} onClick={() => { setBand(\"all\"); chooseTime(null); }}>すべて</button>\n          <button type=\"button\" aria-pressed={band === \"detail\"} onClick={() => { setBand(\"detail\"); chooseTime(null); }}>詳細 +5〜30分</button>\n          <button type=\"button\" aria-pressed={band === \"extended\"} onClick={() => { setBand(\"extended\"); chooseTime(null); }}>延長 +35〜60分</button>\n        </div>\n        <div className={styles.legend} aria-label=\"降水強度の凡例\">\n          <span>降水強度 mm/h</span><span><i />30–50未満</span><span><i />50–80未満</span><span><i />80以上</span>\n        </div>\n        {frame?.tileCoverage?.some(tile => !tile.basetime) && <p>地図の斜線は予報データを未取得の陸地です。</p>}\n        {forecast === undefined ? <p role=\"status\">予報を取得中…</p>\n          : !hasCoverage ? <p role=\"status\">{activeTime === null ? \"この予報帯のデータは表示できません。\" : \"この予報時刻のデータは未取得です。\"}</p>\n          : <>\n            {frame?.incomplete && <p role=\"status\">一部の時刻・地域は未取得です。地図にマーカーがない場所でも、大雨なしとは限りません。</p>}\n            {!frame?.municipalities.length && <p>取得済みの範囲で30mm/h以上の予報はありません。</p>}\n          </>}\n        <Link className={styles.forecastLink} href=\"/?view=forecast\">全国の大雨予報一覧を見る →</Link>\n      </section> : <>\n      <div className={styles.summary}>\n        <div>\n          <h1 id=\"national-rain-heading\">全国の<span>大雨</span>予報</h1>\n          <p>降水強度30mm/h以上が予測される市区町村を、時間帯ごとに表示します。</p>\n        </div>\n        <div className={styles.summaryData}>\n          <dl className={styles.stats}>\n            <div><dt>大雨予報の地域</dt><dd>{forecast ? `${count}地域` : \"—\"}</dd></div>\n            <div><dt>最大階級</dt><dd>{tier ? `${tier}mm/h以上・${peakCount}地域` : \"—\"}</dd></div>\n            <div><dt>{forecast?.tileVersions ? \"最新の予報基準\" : \"気象庁の予報基準\"}</dt><dd>{forecast ? `${timeLabel(forecast.basetime)} JST` : \"—\"}</dd></div>\n            {latestTime && <div><dt>取得済みの予報</dt><dd>{timeLabel(latestTime)}まで</dd></div>}\n          </dl>\n          {waitingForUpdate && <p className={styles.summaryNote}>更新待ちのため、{timeLabel(forecast.basetime)}時点の予報を表示しています。</p>}\n          {peakPrefectures.length > 0 && <p className={styles.summaryNote}>最大階級の都道府県：{peakPrefectures.join(\"、\")}</p>}\n          {forecast && !forecast.extendedFrames && <p className={styles.summaryNote}>35〜60分先の予報は未取得です。</p>}\n          <div className={styles.legend} aria-label=\"降水強度の凡例\">\n            <span>降水強度 mm/h</span>\n            <span><i />30–50</span><span><i />50–80</span><span><i />80以上</span>\n          </div>\n        </div>\n      </div>\n      <aside className={styles.myBanner}>\n        <div><strong>自分の場所の雨は、MYアメふるで。</strong><p>現在地の雨や、登録した場所の雨通知を確認できます。</p></div>\n        <Link href=\"/my-amefuru\">MYアメふるを開く →</Link>\n      </aside>\n      {forecast === undefined && <p role=\"status\">全国の予報を取得中…</p>}\n      {forecast === null && <p role=\"status\">現在、全国の予報を確認できません。</p>}\n      <ForecastBand frames={forecast?.frames} basetime={forecast?.basetime} tileVersions={forecast?.tileVersions} caseSlugs={caseSlugs} extended={false} />\n      <ForecastBand frames={forecast?.extendedFrames} basetime={forecast?.basetime} tileVersions={forecast?.tileVersions} caseSlugs={caseSlugs} extended />\n      </>}\n    </section>\n  );\n}\n",
+        "sha256": "51eda35dda339e34e015e7252f34f6e3729c7dc3ba8ae09599d1ffa709b6b069"
+      }
+    },
+    {
+      "path": "app/components/RadarPlayer.tsx",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 0,
+      "patch": "diff --git a/app/components/RadarPlayer.tsx b/app/components/RadarPlayer.tsx\nindex 9953f08e..1ff3d7f2 100644\n--- a/app/components/RadarPlayer.tsx\n+++ b/app/components/RadarPlayer.tsx\n@@ -49,6 +49,10 @@ export default function RadarPlayer({ frames, blocky }: { frames: RadarPlaybackF\n         <button type=\"button\" disabled={last < 1 || !rainUrl || failed === rainUrl} onClick={() => setPlaying(value => !value)}>\n           {playing ? \"一時停止\" : \"再生\"}\n         </button>\n+        {last > 0 && <input className={styles.radarSlider} type=\"range\"\n+          aria-label=\"雨雲の予報時刻を選択\" aria-valuetext={`${timeLabel(validTime)}${basetime ? \"\" : \"（未取得）\"}`}\n+          min={0} max={last} step={1} value={index}\n+          onChange={event => { setPlaying(false); setIndex(event.currentTarget.valueAsNumber); }} />}\n         <button type=\"button\" aria-label=\"前の予報時刻\" disabled={last < 1 || index === 0}\n           onClick={() => { setPlaying(false); setIndex(i => i - 1); }}>前へ</button>\n         <button type=\"button\" aria-label=\"次の予報時刻\" disabled={last < 1 || index >= last}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/components/RadarPlayer.tsx",
+      "source": {
+        "path": "app/components/RadarPlayer.tsx",
+        "coverage": "全文",
+        "text": "\"use client\";\n\nimport { useEffect, useState } from \"react\";\nimport { forecastRadarSources, type RadarPlaybackFrame } from \"../../lib/weather/rain/nationalForecastRadar\";\nimport { forecastTime } from \"../../lib/weather/rain/nationalForecastSnapshot\";\nimport styles from \"./national-heavy-rain-forecast.module.css\";\n\nconst formatTime = new Intl.DateTimeFormat(\"ja-JP\", {\n  timeZone: \"Asia/Tokyo\", hour: \"2-digit\", minute: \"2-digit\", hourCycle: \"h23\",\n});\n\nconst timeLabel = (value: string) => formatTime.format(forecastTime(value));\n\nexport default function RadarPlayer({ frames, blocky }: { frames: RadarPlaybackFrame[]; blocky: boolean }) {\n  const [index, setIndex] = useState(0);\n  const [playing, setPlaying] = useState(false);\n  const [loaded, setLoaded] = useState(\"\");\n  const [failed, setFailed] = useState(\"\");\n  const [mapFailed, setMapFailed] = useState(false);\n  const last = frames.length - 1;\n  const { basetime, validTime, tile } = frames[Math.min(index, last)];\n  const urls = basetime ? forecastRadarSources(basetime, validTime, tile) : undefined;\n  const rainUrl = urls?.rain;\n  useEffect(() => {\n    if (!playing || last < 1 || !rainUrl || loaded !== rainUrl || failed === rainUrl) return;\n    const timer = window.setTimeout(() => {\n      const next = (index + 1) % (last + 1);\n      setIndex(next);\n      if (!frames[next].basetime) setPlaying(false);\n    }, 1100);\n    return () => window.clearTimeout(timer);\n  }, [playing, last, loaded, failed, rainUrl, index, frames]);\n\n  return (\n    <div>\n      <div className={styles.map}>\n        {/* Fixed matching z10 tiles. Ordinary images avoid browser-side CORS reads. */}\n        {/* eslint-disable @next/next/no-img-element */}\n        {urls && <img key={urls.background} src={urls.background} alt=\"\" width={256} height={256} onError={() => setMapFailed(true)} />}\n        {urls && <img key={urls.rain} src={urls.rain} alt=\"\" width={256} height={256}\n          className={blocky ? styles.blocky : undefined} onLoad={() => setLoaded(urls.rain)}\n          onError={() => { setFailed(urls.rain); setPlaying(false); }} />}\n        {/* eslint-enable @next/next/no-img-element */}\n        <time className={styles.mapTime}>{timeLabel(validTime)} 予報（{basetime ? `${timeLabel(basetime)}基準` : \"未取得\"}）</time>\n        <span className={styles.mapCredit}>気象庁・地理院タイル</span>\n      </div>\n      {(!urls || mapFailed || failed === rainUrl) && <p role=\"status\">一部の地図・雨雲画像を取得できません。</p>}\n      <div className={styles.controls}>\n        <button type=\"button\" disabled={last < 1 || !rainUrl || failed === rainUrl} onClick={() => setPlaying(value => !value)}>\n          {playing ? \"一時停止\" : \"再生\"}\n        </button>\n        {last > 0 && <input className={styles.radarSlider} type=\"range\"\n          aria-label=\"雨雲の予報時刻を選択\" aria-valuetext={`${timeLabel(validTime)}${basetime ? \"\" : \"（未取得）\"}`}\n          min={0} max={last} step={1} value={index}\n          onChange={event => { setPlaying(false); setIndex(event.currentTarget.valueAsNumber); }} />}\n        <button type=\"button\" aria-label=\"前の予報時刻\" disabled={last < 1 || index === 0}\n          onClick={() => { setPlaying(false); setIndex(i => i - 1); }}>前へ</button>\n        <button type=\"button\" aria-label=\"次の予報時刻\" disabled={last < 1 || index >= last}\n          onClick={() => { setPlaying(false); setIndex(i => i + 1); }}>次へ</button>\n      </div>\n    </div>\n  );\n}\n",
+        "sha256": "b6d03b669b8783cc555eb50c11acdb8b9e0400b406f74206c6b5e74fe03f887c"
+      }
+    },
+    {
+      "path": "app/components/live-japan-forecast-map.module.css",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "patch": "diff --git a/app/components/live-japan-forecast-map.module.css b/app/components/live-japan-forecast-map.module.css\nindex de497d2d..91a7b09b 100644\n--- a/app/components/live-japan-forecast-map.module.css\n+++ b/app/components/live-japan-forecast-map.module.css\n@@ -31,4 +31,4 @@\n .markerPopup :global(.leaflet-popup-tip) { background: #10243b; color: #eef5ff; }\n .markerPopup :global(.leaflet-popup-close-button) { color: #d3e5f7; }\n .markerDetails { display: grid; gap: 6px; min-width: 8rem; }\n-.markerDetails button { text-align: left; border: 1px solid #54718e; border-radius: 6px; padding: 6px; color: inherit; background: #19334d; cursor: pointer; }\n+.markerDetails :is(button, a) { text-align: left; border: 1px solid #54718e; border-radius: 6px; padding: 6px; color: inherit; background: #19334d; cursor: pointer; }\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/components/live-japan-forecast-map.module.css",
+      "source": {
+        "path": "app/components/live-japan-forecast-map.module.css",
+        "coverage": "全文",
+        "text": ".map {\n  height: clamp(300px, 52vh, 610px);\n  border: 1px solid #cbd5e1;\n  border-radius: 12px;\n  background: #e8eff7;\n  isolation: isolate;\n}\n\n.areaMarker {\n  display: grid;\n  height: 32px;\n  place-items: center;\n  border: 2px solid #fff;\n  border-radius: 50%;\n  color: #171717;\n  font-weight: 800;\n}\n\n.areaMarker[data-tier=\"80\"] {\n  color: #fff;\n}\n\n.mapShell { position: relative; isolation: isolate; }\n.overview {\n  position: absolute; z-index: 1; top: 12px; left: 12px;\n  padding: 8px 12px; min-height: 36px; border: 1px solid #4b6885; border-radius: 10px;\n  background: #10243b; color: #eff8ff; cursor: pointer; font: inherit; font-weight: 700; font-size: .8rem;\n}\n.overview:focus-visible { outline: 2px solid #60c9ff; outline-offset: 2px; }\n.markerPopup :global(.leaflet-popup-content-wrapper),\n.markerPopup :global(.leaflet-popup-tip) { background: #10243b; color: #eef5ff; }\n.markerPopup :global(.leaflet-popup-close-button) { color: #d3e5f7; }\n.markerDetails { display: grid; gap: 6px; min-width: 8rem; }\n.markerDetails :is(button, a) { text-align: left; border: 1px solid #54718e; border-radius: 6px; padding: 6px; color: inherit; background: #19334d; cursor: pointer; }\n",
+        "sha256": "b446a2836fb11da5a57594dbfb70610e5c091a03e4a3199aada846862ced05a1"
+      }
+    },
+    {
+      "path": "app/components/national-heavy-rain-forecast.module.css",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "patch": "diff --git a/app/components/national-heavy-rain-forecast.module.css b/app/components/national-heavy-rain-forecast.module.css\nindex 86710a1e..706bda60 100644\n--- a/app/components/national-heavy-rain-forecast.module.css\n+++ b/app/components/national-heavy-rain-forecast.module.css\n@@ -61,16 +61,14 @@\n .compactRow .intensity[data-tier=\"50\"] { color: #ff6254; }\n .compactRow .intensity[data-tier=\"80\"] { color: #f17cb4; }\n .compactRow .intensity small { font-size: .7rem; }\n-.compactRow button { min-height: 36px; border-radius: 7px; border: 1px solid #4b7290; background: #234b69; color: #e8f5ff; padding: 5px 8px; cursor: pointer; }\n-.compactRow button:focus-visible { outline: 2px solid #8bdeff; outline-offset: 2px; }\n+.compactRow a { display: inline-flex; align-items: center; text-decoration: none; min-height: 36px; border-radius: 7px; border: 1px solid #4b7290; background: #234b69; color: #e8f5ff; padding: 5px 8px; cursor: pointer; }\n+.compactRow a:focus-visible { outline: 2px solid #8bdeff; outline-offset: 2px; }\n .timeStrip { display: flex; gap: 3px; margin-top: 8px; }\n .timeStrip span { height: 5px; flex: 1; border-radius: 2px; }\n .timeStrip span { background: #33475a; }\n .timeStrip [data-tier=\"30\"] { background: #ff9900; }\n .timeStrip [data-tier=\"50\"] { background: #ff2800; }\n .timeStrip [data-tier=\"80\"] { background: #b40068; }\n-.expandedRadar { margin-top: 10px; max-width: 320px; }\n-.expandedRadar p { font-size: .78rem; color: #d4e2f0; }\n \n .controls button[aria-pressed=\"true\"] { background: #b4e5ff; color: #102b40; border-color: #e8f5ff; font-weight: 700; box-shadow: inset 0 0 0 1px #102b40; }\n .forecastLink { display: inline-flex; align-items: center; min-height: 44px; margin: 12px 0; padding: 8px 16px; border-radius: 8px; background: #1957ac; color: white; font-weight: 700; text-decoration: underline; }\n@@ -103,3 +101,5 @@\n .timelineTicks small { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); color: #c4deef; font-size: .64rem; }\n .timelineTicks [data-missing] small, .timelineNotice { color: #a5b5c7; }\n .timelineNotice { margin: 0; font-size: .82rem; }\n+\n+.radarSlider { flex: 1 1 120px; min-width: 90px; max-width: 256px; accent-color: #8bdeff; }\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/app/components/national-heavy-rain-forecast.module.css",
+      "source": {
+        "path": "app/components/national-heavy-rain-forecast.module.css",
+        "coverage": "全文",
+        "text": ".band { margin-top: 28px; border-top: 1px solid #43627a; }\n.bandHeading { display: flex; align-items: center; gap: 12px; margin: 14px 0; }\n.bandHeading h2 { margin: 0; font-size: clamp(1.08rem, 4.5vw, 1.35rem); }\n.bandHeading span { background: #1a3b55; color: #b4e5ff; border-radius: 6px; padding: 1px 8px; font-size: .8rem; white-space: nowrap; }\n.intensity { color: #ffd08a; font-size: 1.65rem; font-weight: 800; line-height: 1.25; }\n.intensity[data-tier=\"50\"] { color: #ffa293; }\n.intensity[data-tier=\"80\"] { color: #ffaddb; }\n.intensity span { font-size: .84rem; }\n.map { aspect-ratio: 1; overflow: hidden; position: relative; background: #283845; }\n.map img { position: absolute; inset: 0; width: 100%; height: 100%; }\n.map img.blocky { image-rendering: pixelated; }\n.mapTime, .mapCredit { position: absolute; right: 6px; color: #fff; background: #0a1823e8; border-radius: 4px; padding: 2px 6px; }\n.mapTime { top: 6px; font-size: .85rem; }\n.mapCredit { bottom: 6px; font-size: .7rem; }\n.controls { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; }\n.controls button { min-height: 40px; padding: 4px 10px; color: #e8f5ff; background: #234b69; border: 1px solid #4b7290; border-radius: 7px; cursor: pointer; }\n.controls button:disabled { opacity: .6; cursor: default; }\n.controls button:focus-visible { outline: 2px solid #8bdeff; outline-offset: 2px; }\n\n.forecast { margin: 0; }\n.summary {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));\n  gap: 22px;\n  border: 1px solid #304f78;\n  border-top: 3px solid #3ae2ff;\n  border-radius: 18px;\n  background: #0b1628;\n  padding: clamp(16px, 4vw, 28px);\n}\n.summary h1 { margin: 0; font-size: clamp(1.8rem, 5vw, 2.7rem); line-height: 1.24; scroll-margin-top: 110px; }\n.summary h1 span { color: #3ae2ff; }\n.summary p, .myBanner p { margin: 6px 0 0; color: #abc0d9; font-size: .9rem; }\n.stats { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 11px; }\n.stats div { flex: 1 1 105px; border: 1px solid #294467; border-radius: 10px; padding: 8px 10px; background: #07101f; }\n.stats dt { color: #abc0d9; font-size: .72rem; }\n.stats dd { margin: 2px 0 0; font-weight: 800; font-variant-numeric: tabular-nums; }\n.summary .summaryNote { margin: 0 0 8px; }\n.legend { display: flex; flex-wrap: wrap; gap: 5px 10px; color: #c4d2e5; font-size: .76rem; }\n.legend i { display: inline-block; width: .85em; height: .65em; margin-right: 4px; border-radius: 2px; background: #ff9900; }\n.legend span:nth-child(3) i { background: #ff2800; }\n.legend span:nth-child(4) i { background: #b40068; }\n.myBanner { margin-top: 14px; padding: 14px 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid #294467; border-radius: 12px; background: #0c2139; }\n.myBanner a { padding: 8px 12px; border-radius: 8px; background: #1957ac; color: white; font-weight: 700; text-decoration: none; }\n.myBanner a:focus-visible { outline: 2px solid #8bdeff; outline-offset: 2px; }\n\n/* Compact severity / prefecture list: radar animation remains expandable. */\n.tierGroup { margin-top: 18px; }\n.tierHeading { margin: 0 0 10px; padding-left: 12px; border-left: 5px solid #ff9900; font-size: 1.1rem; }\n.tierHeading[data-tier=\"50\"] { border-color: #ff2800; }\n.tierHeading[data-tier=\"80\"] { border-color: #b40068; }\n.tierHeading small, .prefectureHeading small { color: #bbd2e9; font-size: .75rem; font-weight: 400; }\n.prefectureGroup { margin: 10px 0 16px; }\n.prefectureHeading { margin: 0 0 6px; font-size: .93rem; color: #d8e9fa; }\n.compactList { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); gap: 7px; }\n.compactCard { min-width: 0; border: 1px solid #36536b; border-radius: 10px; background: #122a40; padding: 9px 11px; }\n.compactRow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }\n.compactRow strong { flex: 1 1 100px; font-size: 1rem; }\n.compactTime { color: #d4e2f0; font-size: .8rem; white-space: nowrap; }\n.compactRow .intensity { font-size: 1rem; white-space: nowrap; color: #ffb341; }\n.compactRow .intensity[data-tier=\"50\"] { color: #ff6254; }\n.compactRow .intensity[data-tier=\"80\"] { color: #f17cb4; }\n.compactRow .intensity small { font-size: .7rem; }\n.compactRow a { display: inline-flex; align-items: center; text-decoration: none; min-height: 36px; border-radius: 7px; border: 1px solid #4b7290; background: #234b69; color: #e8f5ff; padding: 5px 8px; cursor: pointer; }\n.compactRow a:focus-visible { outline: 2px solid #8bdeff; outline-offset: 2px; }\n.timeStrip { display: flex; gap: 3px; margin-top: 8px; }\n.timeStrip span { height: 5px; flex: 1; border-radius: 2px; }\n.timeStrip span { background: #33475a; }\n.timeStrip [data-tier=\"30\"] { background: #ff9900; }\n.timeStrip [data-tier=\"50\"] { background: #ff2800; }\n.timeStrip [data-tier=\"80\"] { background: #b40068; }\n\n.controls button[aria-pressed=\"true\"] { background: #b4e5ff; color: #102b40; border-color: #e8f5ff; font-weight: 700; box-shadow: inset 0 0 0 1px #102b40; }\n.forecastLink { display: inline-flex; align-items: center; min-height: 44px; margin: 12px 0; padding: 8px 16px; border-radius: 8px; background: #1957ac; color: white; font-weight: 700; text-decoration: underline; }\n.forecastLink:focus-visible { outline: 2px solid #8bdeff; outline-offset: 2px; }\n\n.timeline { display: grid; gap: 4px; margin-bottom: 1rem; }\n.timelineHeader { display: flex; justify-content: space-between; align-items: center; gap: 8px; }\n.timelineTime { color: #f0f8ff; font-size: clamp(1rem, 5vw, 1.55rem); font-weight: 800; text-align: right; }\n.timelineSlider { width: 100%; appearance: none; height: 36px; margin: 0; background: transparent; cursor: pointer; }\n.timelineSlider::-webkit-slider-runnable-track {\n  height: 6px; border-radius: 6px;\n  background: linear-gradient(to right, #7dd3fc var(--forecast-progress), #35516b var(--forecast-progress));\n}\n.timelineSlider::-moz-range-track {\n  height: 6px; border-radius: 6px;\n  background: linear-gradient(to right, #7dd3fc var(--forecast-progress), #35516b var(--forecast-progress));\n}\n.timelineSlider::-webkit-slider-thumb {\n  appearance: none; width: 18px; height: 18px; border-radius: 50%; margin-top: -6px;\n  border: 2px solid #c7edff; background: #bae6fd;\n}\n.timelineSlider::-moz-range-thumb {\n  width: 16px; height: 16px; border: 2px solid #c7edff; border-radius: 50%; background: #bae6fd;\n}\n.timelineSlider:focus-visible { outline: 2px solid #7dd3fc; outline-offset: 2px; border-radius: 8px; }\n.timelineTicks { display: flex; justify-content: space-between; margin: -7px 9px 0; min-height: 22px; }\n.timelineTicks > span { position: relative; width: 2px; height: 8px; border-radius: 2px; background: #74c5ef; }\n.timelineTicks > span[data-missing] { background: #94a3b8; }\n.timelineTicks > span[data-active] { box-shadow: 0 0 0 2px #e3f4ff; }\n.timelineTicks small { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); color: #c4deef; font-size: .64rem; }\n.timelineTicks [data-missing] small, .timelineNotice { color: #a5b5c7; }\n.timelineNotice { margin: 0; font-size: .82rem; }\n\n.radarSlider { flex: 1 1 120px; min-width: 90px; max-width: 256px; accent-color: #8bdeff; }\n",
+        "sha256": "dbad003b919a58e6aa27e97c2263e39b8e1f15de71a3c10a3f5da2f61b31c4c1"
+      }
+    },
+    {
+      "path": "lib/weather/rain/nationalRainCaseDisplay.test.ts",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 1,
+      "patch": "diff --git a/lib/weather/rain/nationalRainCaseDisplay.test.ts b/lib/weather/rain/nationalRainCaseDisplay.test.ts\nindex 0801b9b4..2bf4bdf9 100644\n--- a/lib/weather/rain/nationalRainCaseDisplay.test.ts\n+++ b/lib/weather/rain/nationalRainCaseDisplay.test.ts\n@@ -1,6 +1,6 @@\n import { describe, expect, it } from \"vitest\";\n import {\n-  caseDetailsExpired, caseLeadMinutes, caseRadarFrames, presentCaseVersions, rainCaseSlug,\n+  caseDetailsExpired, caseLeadMinutes, caseRadarFrames, presentCaseVersions, rainCaseHref, rainCaseSlug,\n   type CaseSlot, type RainCase, type RainCaseVersion,\n } from \"./nationalRainCaseDisplay\";\n \n@@ -18,6 +18,13 @@ function version(base: string, slots: CaseSlot[], status: RainCaseVersion[\"detai\n }\n \n describe(\"rain case display\", () => {\n+  it(\"links both forecast views to a stored active case for the exact municipality only\", () => {\n+    expect(rainCaseHref(incident.slug, \"17384\")).toBe(`/cases/${incident.slug}`);\n+    expect(rainCaseHref(undefined, \"17385\")).toBeUndefined();\n+    expect(rainCaseHref(incident.slug, \"17385\")).toBeUndefined();\n+    expect(rainCaseHref(\"//example.com\", \"17384\")).toBeUndefined();\n+  });\n+\n   it(\"keeps the public summary URL, hides short-lived detail at expiry, and calculates lead to the peak valid time\", () => {\n     expect(rainCaseSlug.test(incident.slug)).toBe(true);\n     expect(rainCaseSlug.test(\"../17384-20261125-2105\")).toBe(false);\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/lib/weather/rain/nationalRainCaseDisplay.test.ts",
+      "source": {
+        "path": "lib/weather/rain/nationalRainCaseDisplay.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport {\n  caseDetailsExpired, caseLeadMinutes, caseRadarFrames, presentCaseVersions, rainCaseHref, rainCaseSlug,\n  type CaseSlot, type RainCase, type RainCaseVersion,\n} from \"./nationalRainCaseDisplay\";\n\nconst tile = { x: 901, y: 400 };\nconst incident: RainCase = {\n  slug: \"17384-20261125-2105\", municipality_code: \"17384\", prefecture: \"石川県\", municipality: \"志賀町\",\n  first_base: \"2026-11-25T12:05:00Z\", first_valid_time: \"2026-11-25T12:10:00Z\",\n  last_base: \"2026-11-25T12:40:00Z\", peak_tier: 80, peak_valid_time: \"2026-11-25T12:45:00Z\",\n  status: \"forecast\", ended_at: null, permanent: true, details_expire_at: null, verification_summary: null,\n};\n\nfunction version(base: string, slots: CaseSlot[], status: RainCaseVersion[\"detail_state\"] = \"rain\"): RainCaseVersion {\n  return { slug: incident.slug, base_time: base, detail_state: status,\n    slots, verification: null, peak_tier: slots.find(slot => slot.tier)?.tier ?? null, peak_valid_time: null };\n}\n\ndescribe(\"rain case display\", () => {\n  it(\"links both forecast views to a stored active case for the exact municipality only\", () => {\n    expect(rainCaseHref(incident.slug, \"17384\")).toBe(`/cases/${incident.slug}`);\n    expect(rainCaseHref(undefined, \"17385\")).toBeUndefined();\n    expect(rainCaseHref(incident.slug, \"17385\")).toBeUndefined();\n    expect(rainCaseHref(\"//example.com\", \"17384\")).toBeUndefined();\n  });\n\n  it(\"keeps the public summary URL, hides short-lived detail at expiry, and calculates lead to the peak valid time\", () => {\n    expect(rainCaseSlug.test(incident.slug)).toBe(true);\n    expect(rainCaseSlug.test(\"../17384-20261125-2105\")).toBe(false);\n    const expiry = Date.parse(\"2026-12-02T13:00:00Z\");\n    const details = { permanent: false, details_expire_at: new Date(expiry).toISOString() };\n    expect(caseDetailsExpired(details, expiry - 1)).toBe(false);\n    expect(caseDetailsExpired(details, expiry)).toBe(true);\n    expect(caseDetailsExpired({ ...details, permanent: true }, expiry)).toBe(false);\n    expect(caseLeadMinutes(incident)).toBe(40);\n  });\n\n  it(\"retains forecast gaps and keeps the latest observed outcome at each valid time\", () => {\n    const slot: CaseSlot = { validTime: \"2026-11-25T12:20:00Z\", band: \"detail\", state: \"rain\", tier: 30, basetime: \"20261125120500\", radarTile: tile };\n    const first = version(incident.first_base, [slot]);\n    const last = version(\"2026-11-25T12:10:00Z\",\n      [{ ...slot, tier: null, state: \"unknown\", basetime: null, radarTile: null }], \"unknown\");\n    first.verification = [{ validTime: slot.validTime, band: \"detail\", observedTier: 30, result: \"match\" }];\n    last.verification = [{ validTime: slot.validTime, band: \"detail\", observedTier: null, result: \"unknown\" }];\n    const display = presentCaseVersions([last, first]);\n    expect(display.history.map(({ change }) => change)).toEqual([\"初出\", \"未取得を含む\"]);\n    expect(display.timeline).toEqual(last.slots);\n    expect(display.verification).toEqual(last.verification);\n    expect(display.pin).toEqual(tile);\n  });\n\n  it(\"replays five compact JMA timestamps and leaves an unavailable frame empty\", () => {\n    const base = Date.parse(incident.first_base);\n    const slots: CaseSlot[] = Array.from({ length: 6 }, (_, i) => ({\n      validTime: new Date(base + (i + 1) * 300_000).toISOString(),\n      band: \"detail\", state: i === 1 ? \"unknown\" : \"rain\", tier: i === 1 ? null : 30,\n      basetime: i === 1 ? null : \"20261125120500\", radarTile: tile,\n      tileCoverage: [{ x: Math.floor(tile.x / 64), y: Math.floor(tile.y / 64), basetime: \"20261125120500\" }],\n    }));\n    const result = caseRadarFrames(incident, version(incident.first_base, slots), \"detail\", base);\n    expect(result).toHaveLength(5);\n    expect(result[0]).toMatchObject({ basetime: \"20261125120500\", validTime: \"20261125121000\", tile });\n    expect(result[1]).toMatchObject({ basetime: undefined, validTime: \"20261125121500\" });\n    expect(caseRadarFrames(incident, version(incident.first_base, slots), \"extended\", base)).toEqual([]);\n  });\n});\n",
+        "sha256": "44655cce5eb7afc5565188cf2f76047b9966be0457074a55dd1c449c5991e854"
+      }
+    },
+    {
+      "path": "lib/weather/rain/nationalRainCaseDisplay.ts",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/nationalRainCaseDisplay.ts b/lib/weather/rain/nationalRainCaseDisplay.ts\nindex c8a49aa0..e361dc29 100644\n--- a/lib/weather/rain/nationalRainCaseDisplay.ts\n+++ b/lib/weather/rain/nationalRainCaseDisplay.ts\n@@ -2,6 +2,12 @@ import { forecastRadarPlayback } from \"./nationalForecastRadar\";\n import { forecastTime, type NationalForecastFrame, type RadarTile } from \"./nationalForecastSnapshot\";\n \n export const rainCaseSlug = /^[0-9]{5}-[0-9]{8}-[0-9]{4}$/;\n+export type ActiveRainCaseSlugs = Readonly<Record<string, string | undefined>>;\n+\n+export function rainCaseHref(slug: string | undefined, code: string) {\n+  return typeof slug === \"string\" && rainCaseSlug.test(slug) && slug.startsWith(`${code}-`) ? `/cases/${slug}` : undefined;\n+}\n+\n export type RainTier = 30 | 50 | 80;\n export type CaseBand = \"detail\" | \"extended\";\n type CaseState = \"rain\" | \"below\" | \"unknown\";\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/lib/weather/rain/nationalRainCaseDisplay.ts",
+      "source": {
+        "path": "lib/weather/rain/nationalRainCaseDisplay.ts",
+        "coverage": "全文",
+        "text": "import { forecastRadarPlayback } from \"./nationalForecastRadar\";\nimport { forecastTime, type NationalForecastFrame, type RadarTile } from \"./nationalForecastSnapshot\";\n\nexport const rainCaseSlug = /^[0-9]{5}-[0-9]{8}-[0-9]{4}$/;\nexport type ActiveRainCaseSlugs = Readonly<Record<string, string | undefined>>;\n\nexport function rainCaseHref(slug: string | undefined, code: string) {\n  return typeof slug === \"string\" && rainCaseSlug.test(slug) && slug.startsWith(`${code}-`) ? `/cases/${slug}` : undefined;\n}\n\nexport type RainTier = 30 | 50 | 80;\nexport type CaseBand = \"detail\" | \"extended\";\ntype CaseState = \"rain\" | \"below\" | \"unknown\";\n\nexport type CaseSlot = {\n  validTime: string;\n  band: CaseBand;\n  state: CaseState;\n  tier: RainTier | null;\n  basetime: string | null;\n  radarTile?: RadarTile | null;\n  tileCoverage?: NationalForecastFrame[\"tileCoverage\"] | null;\n};\n\ntype CaseVerification = {\n  validTime: string;\n  band: CaseBand;\n  observedTier: RainTier | 0 | null;\n  result: \"match\" | \"different\" | \"unknown\";\n};\n\nexport type RainCaseVersion = {\n  slug: string;\n  base_time: string;\n  detail_state: CaseState;\n  peak_tier: RainTier | null;\n  peak_valid_time: string | null;\n  slots: CaseSlot[];\n  verification: CaseVerification[] | null;\n};\n\nexport type RainCase = {\n  slug: string;\n  municipality_code: string;\n  prefecture: string;\n  municipality: string;\n  first_base: string;\n  first_valid_time: string;\n  last_base: string;\n  peak_tier: RainTier;\n  peak_valid_time: string;\n  status: \"forecast\" | \"ended\" | \"verified\";\n  ended_at: string | null;\n  permanent: boolean;\n  details_expire_at: string | null;\n  verification_summary: { method: string; match: number; different: number; unknown: number } | null;\n};\n\nexport function caseDetailsExpired(details: Pick<RainCase, \"permanent\" | \"details_expire_at\">, now = Date.now()) {\n  return !details.permanent && details.details_expire_at !== null && forecastTime(details.details_expire_at) <= now;\n}\n\nexport function caseLeadMinutes(incident: RainCase) {\n  return Math.round((forecastTime(incident.peak_valid_time) - forecastTime(incident.first_base)) / 60_000);\n}\n\nconst orderTime = (left: string, right: string) => forecastTime(left) - forecastTime(right);\n\nexport function presentCaseVersions(versions: RainCaseVersion[]) {\n  const ordered = [...versions].sort((a, b) => orderTime(a.base_time, b.base_time));\n  const times = new Map<string, CaseSlot>();\n  const verification = new Map<number, CaseVerification>();\n  const history = [];\n  let previous: RainTier | null = null;\n  let pin: RadarTile | undefined;\n  for (const version of ordered) {\n    for (const slot of version.slots) {\n      times.set(`${slot.band}/${forecastTime(slot.validTime)}`, slot);\n      if (slot.radarTile) pin = slot.radarTile;\n    }\n    for (const result of version.verification ?? []) verification.set(forecastTime(result.validTime), result);\n    const change = version.detail_state === \"unknown\" ? \"未取得を含む\"\n      : version.detail_state === \"below\" ? \"詳細帯で30mm/h未満\"\n      : previous === null ? \"初出\"\n      : version.peak_tier === null || version.peak_tier === previous ? \"同じ強度\"\n      : version.peak_tier > previous ? \"強まった\" : \"弱まった\";\n    history.push({ version, change });\n    if (version.detail_state === \"rain\" && version.peak_tier !== null) previous = version.peak_tier;\n  }\n  return {\n    history, pin,\n    latest: ordered.at(-1),\n    timeline: [...times.values()].sort((a, b) => orderTime(a.validTime, b.validTime)),\n    verification: [...verification.values()].sort((a, b) => orderTime(a.validTime, b.validTime)),\n  };\n}\n\nfunction radarStamp(value: string) {\n  return new Date(forecastTime(value)).toISOString().slice(0, 19).replace(/[-:T]/g, \"\");\n}\n\nexport function caseRadarFrames(incident: RainCase, version: RainCaseVersion, band: CaseBand, now = Date.now()) {\n  const frames: NationalForecastFrame[] = version.slots\n    .filter(slot => slot.band === band && forecastTime(slot.validTime) > now)\n    .map(slot => ({\n      validTime: radarStamp(slot.validTime),\n      tileCoverage: slot.state !== \"unknown\" ? slot.tileCoverage ?? undefined : undefined,\n      municipalities: slot.state === \"rain\" && slot.tier !== null ? [{\n        code: incident.municipality_code,\n        prefecture: incident.prefecture,\n        municipality: incident.municipality,\n        minimumMmPerHour: slot.tier,\n        radarTile: slot.radarTile ?? undefined,\n      }] : [],\n    }));\n  return forecastRadarPlayback(frames, incident.municipality_code, radarStamp(version.base_time), true);\n}\n",
+        "sha256": "e7a74c597175bf178ffaddae80129d391664a63bb1dd5a0dd6f0054be830e7f3"
+      }
+    }
+  ],
+  "file_count": 10,
+  "reported_file_count": 10,
+  "commits": [
+    {
+      "sha": "4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24",
+      "message": "Link national forecasts to active rain cases (#311)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46050814949",
+      "id": 46050814949,
+      "updated_at": "2026-11-27T18:37:27Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46050814822",
+      "id": 46050814822,
+      "updated_at": "2026-11-27T18:37:17Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46050272237",
+      "id": 46050272237,
+      "updated_at": "2026-11-27T18:33:07Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46050146530",
+      "id": 46050146530,
+      "updated_at": "2026-11-27T18:31:54Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46050146482",
+      "id": 46050146482,
+      "updated_at": "2026-11-27T18:32:08Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46050146367",
+      "id": 46050146367,
+      "updated_at": "2026-11-27T18:32:43Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46050141065",
+      "id": 46050141065,
+      "updated_at": "2026-11-27T18:33:14Z",
+      "event": "create"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "25ab1a1f91d097ba9fcfcc49a170b847154e363b",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46050820486",
+      "id": 46050820486,
+      "updated_at": "2026-11-27T18:37:12Z",
+      "event": "push"
+    },
+    {
+      "name": "CI",
+      "head_sha": "25ab1a1f91d097ba9fcfcc49a170b847154e363b",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46050820548",
+      "id": 46050820548,
+      "updated_at": "2026-11-27T18:37:21Z",
+      "event": "push"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "25ab1a1f91d097ba9fcfcc49a170b847154e363b",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46050820578",
+      "id": 46050820578,
+      "updated_at": "2026-11-27T18:37:13Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "ActiveForecast",
+    "CaseMap",
+    "ForecastBand",
+    "GET",
+    "LiveJapanForecastMap",
+    "NationalHeavyRainForecast",
+    "RadarPlayer",
+    "RainCasePage",
+    "TimeBands",
+    "after",
+    "area",
+    "areas",
+    "bands",
+    "base",
+    "bounds",
+    "button",
+    "calendar",
+    "cards",
+    "caseDatabase",
+    "caseDetailsExpired",
+    "caseHref",
+    "caseLeadMinutes",
+    "caseRadarFrames",
+    "change",
+    "chooseTime",
+    "clock",
+    "colors",
+    "content",
+    "controller",
+    "count",
+    "current",
+    "cutoff",
+    "dateTime",
+    "db",
+    "deadline",
+    "description",
+    "detail",
+    "details",
+    "display",
+    "disposed",
+    "dynamic",
+    "element",
+    "expanded",
+    "expired",
+    "expiry",
+    "extendedFrames",
+    "first",
+    "formatTime",
+    "frame",
+    "frames",
+    "generateMetadata",
+    "group",
+    "groups",
+    "headers",
+    "history",
+    "hours",
+    "href",
+    "incident",
+    "incomplete",
+    "individual"
+  ],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "9f85e92708446877b5e41ed329577017e552a0204339f946abd0be6491cbc9dd",
+  "ci_digest": "4d1033c60bc2b473da9b764d623d5cb178e6a2e1f7ef7f23be0128b1fd36b403",
+  "collected_at": "2026-11-27T18:37:22.659851+00:00",
+  "decisions": [
+    {
+      "kind": "test",
+      "title": "links both forecast views to a stored active case for the exact municipality only",
+      "condition": "links both forecast views to a stored active case for the exact municipality only",
+      "behavior": "return typeof slug === \"string\" && rainCaseSlug.test(slug) && slug.startsWith(`${code}-`) ? `/cases/${slug}` : undefined;",
+      "verification": "テストの期待値: expect(rainCaseHref(incident.slug, \"17384\")).toBe(`/cases/${incident.slug}`); ／ expect(rainCaseHref(undefined, \"17385\")).toBeUndefined(); ／ expect(rainCaseHref(incident.slug, \"17385\")).toBeUndefined(); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/lib/weather/rain/nationalRainCaseDisplay.ts#L7",
+        "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/lib/weather/rain/nationalRainCaseDisplay.test.ts#L21"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "keeps the public summary URL, hides short-lived detail at expiry, and calculates lead to the peak valid time",
+      "condition": "keeps the public summary URL, hides short-lived detail at expiry, and calculates lead to the peak valid time",
+      "behavior": "return !details.permanent && details.details_expire_at !== null && forecastTime(details.details_expire_at) <= now;",
+      "verification": "テストの期待値: expect(rainCaseSlug.test(incident.slug)).toBe(true); ／ expect(rainCaseSlug.test(\"../17384-20261125-2105\")).toBe(false); ／ expect(caseDetailsExpired(details, expiry - 1)).toBe(false); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/lib/weather/rain/nationalRainCaseDisplay.ts#L59",
+        "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/lib/weather/rain/nationalRainCaseDisplay.test.ts#L28"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "retains forecast gaps and keeps the latest observed outcome at each valid time",
+      "condition": "retains forecast gaps and keeps the latest observed outcome at each valid time",
+      "behavior": "if (slot.radarTile) pin = slot.radarTile; ／ if (version.detail_state === \"rain\" && version.peak_tier !== null) previous = version.peak_tier; ／ return {",
+      "verification": "テストの期待値: expect(display.history.map(({ change }) => change)).toEqual([\"初出\", \"未取得を含む\"]); ／ expect(display.timeline).toEqual(last.slots); ／ expect(display.verification).toEqual(last.verification); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/lib/weather/rain/nationalRainCaseDisplay.ts#L69",
+        "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/lib/weather/rain/nationalRainCaseDisplay.test.ts#L39"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "replays five compact JMA timestamps and leaves an unavailable frame empty",
+      "condition": "replays five compact JMA timestamps and leaves an unavailable frame empty",
+      "behavior": "return forecastRadarPlayback(frames, incident.municipality_code, radarStamp(version.base_time), true);",
+      "verification": "テストの期待値: expect(result).toHaveLength(5); ／ expect(result[0]).toMatchObject({ basetime: \"20261125120500\", validTime: \"20261125121000\", tile }); ／ expect(result[1]).toMatchObject({ basetime: undefined, validTime: \"20261125121500\" }); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/lib/weather/rain/nationalRainCaseDisplay.ts#L102",
+        "https://github.com/miyazaki1016/emergencyalert/blob/4715d7b323d08e7dfb8539ab8f1c9ff60b80fd24/lib/weather/rain/nationalRainCaseDisplay.test.ts#L53"
+      ]
+    }
+  ]
+}
