@@ -1,0 +1,566 @@
+{
+  "id": "pr-312",
+  "number": 312,
+  "title": "全国大雨の自治体別事案を保存する (#307)",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Refs #307 / #291\n\n- 公開済みの完成タイル版をスキャン成功後の独立ステップで読み、詳細帯の初出でJSTの事案slugを作成。基準時刻ごとの詳細・延長、強度、欠測、タイル基準時刻を保存。確定した閾値未満が5分間隔で2版続けば終了。\n- 事案要約は全件保持。50mm/h以上は詳細も永久保持。30mm/h止まりの詳細は終了時刻から7日で失効し、後段の実行時に削除する。表示側は `details_expire_at` で失効を判定する。\n- 既存 #99 の実況出典は気象庁N1（5分刻み、基準時刻＝実況時刻）。この案件は自治体領域の30/50/80mm/h階級を予報有効時刻と完全一致で比較する。点評価の結果は流用せず、自治体マスクで集約した実況JSONを受け取る追記RPCを用意。実況の自動回収・実データ照合とフロント合同確認は未実施。\n- 隔離PostgreSQL互換DBでマイグレーション、志賀町12版、欠測・再上昇・重複・期限・答え合わせと権限を確認。入力Vitest 2件・TypeScript型検査・独立ステップの異常系を確認。\n- [着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/45811953896)・[準備パッケージ](https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7202902225)\n\n<!-- history-preflight {\"schema_version\":1,\"decisions\":[{\"id\":\"pr-303\",\"decision\":\"reuse\",\"reason\":\"公開済み完成タイルを組み立てる nationalForecastTiles を再利用する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/303\"},{\"id\":\"pr-306\",\"decision\":\"extend\",\"reason\":\"旧版・未取得を陰性としない設計を踏襲し、未マージのコードに依存しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/306\"},{\"id\":\"pr-99\",\"decision\":\"distinct\",\"reason\":\"N1の5分刻み実況という出典は踏襲。MY通知の単一点評価・回収と全国自治体最大の照合は別経路。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/99\"},{\"id\":\"pr-59\",\"decision\":\"distinct\",\"reason\":\"#307 の照合判断どおり。検出・起動基盤の変更と事案保存は別の作業。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/59\"},{\"id\":\"pr-251\",\"decision\":\"distinct\",\"reason\":\"#307 の照合判断どおり。検出・起動基盤の変更と事案保存は別の作業。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/251\"},{\"id\":\"pr-181\",\"decision\":\"distinct\",\"reason\":\"#307 の照合判断どおり。検出・起動基盤の変更と事案保存は別の作業。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/181\"},{\"id\":\"pr-291\",\"decision\":\"distinct\",\"reason\":\"データ・通知担当の作業窓口PRで、変更は運用ドキュメント1件のみ。事案保存のコードとは共有部分がない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/291\"},{\"id\":\"pr-266\",\"decision\":\"reuse\",\"reason\":\"スキャン側で再利用整備されたSupabase Secretsを、事案ステップも同じenv（SUPABASE_URL／SUPABASE_SERVICE_ROLE_KEY）で使う。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/266\"},{\"id\":\"pr-268\",\"decision\":\"reuse\",\"reason\":\"事案ステップは同じscanジョブ内に追加され、Production環境の指定をそのまま使う。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/268\"},{\"id\":\"pr-275\",\"decision\":\"distinct\",\"reason\":\"Cloudflare Cronへの起動切替の変更で、事案保存の処理とは別の関心事。トリガーの種類に依存しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/275\"},{\"id\":\"pr-276\",\"decision\":\"distinct\",\"reason\":\"GitHub schedule削除の未マージの変更で、事案ステップは起動方法に依存せず、コードの共有もない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/276\"}]} -->",
+  "snapshot_head": "3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea",
+  "snapshot_consistent": true,
+  "head": "3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea",
+  "base": "6c40a4adf739235612509fd720cd65e7b4e930f4",
+  "base_ref": "main",
+  "head_ref": "feat/national-rain-cases-307",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-27T14:53:16Z",
+  "merge_commit_sha": "c8bc94eee47c91f40dc650c800564e4085af195c",
+  "updated_at": "2026-11-27T14:53:16Z",
+  "code_facts": [
+    {
+      "file": ".github/workflows/national-heavy-rain-schedule.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "run: node --import tsx scripts/national-rain-cases.ts ingest",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/.github/workflows/national-heavy-rain-schedule.yml"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "import { describe, expect, it } from \"vitest\";",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.test.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function version(lead: number, age = 0): ForecastTileVersion[] {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"national rain case input\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"uses the public complete tile and marks missing or stale coverage unknown\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(planned.p_base).toBe(new Date(base).toISOString());",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(planned.p_batch.find(slot => slot.validTime === \"2026-11-25T12:15:00.000Z\"))",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(planned.p_batch.find(slot => slot.validTime === \"2026-11-25T12:20:00.000Z\"))",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(planned.p_batch.find(slot => slot.validTime === \"2026-11-25T12:25:00.000Z\"))",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(planned.p_batch.find(slot => slot.validTime === \"2026-11-25T12:40:00.000Z\"))",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"does not advance on extended-only input or an old completed detail version\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(planNationalRainCaseVersion(version(35), now)).toBeUndefined();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(planNationalRainCaseVersion(version(25, 10), now)).toBeUndefined();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "const STEP = 300_000;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function planNationalRainCaseVersion(rows: ForecastTileVersion[], now: number) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!forecast) return;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!newest) return;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (now - base > NATIONAL_FORECAST_FRESHNESS_MS) return;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (epoch <= now) continue;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!detail.length) return;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.ts"
+    },
+    {
+      "file": "scripts/national-rain-cases.ts",
+      "kind": "関数・クラス定義",
+      "expression": "async function main() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/scripts/national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/national-rain-cases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (mode !== \"ingest\" && !(mode === \"verify\" && slug && evidencePath)) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/scripts/national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/national-rain-cases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!url || !key) throw new Error(\"Missing case storage credentials\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/scripts/national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/national-rain-cases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (mode === \"verify\") {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/scripts/national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/national-rain-cases.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const { error } = await db.rpc(\"verify_national_rain_case\", {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/scripts/national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/national-rain-cases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (error) throw new Error(`CASE_VERIFICATION_FAILED: ${error.code}`);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/scripts/national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/national-rain-cases.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const { data, error } = await db.from(\"national_rain_forecast_tile_versions\")",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/scripts/national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/national-rain-cases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (error || !data || data.length === 1000) throw new Error(\"CASE_FORECAST_READ_INCOMPLETE\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/scripts/national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/national-rain-cases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!planned) return;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/scripts/national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/national-rain-cases.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const saved = await db.rpc(\"ingest_national_rain_case_version\", planned).abortSignal(deadline);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/scripts/national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/national-rain-cases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (saved.error) throw new Error(`CASE_INGEST_FAILED: ${saved.error.code}`);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/scripts/national-rain-cases.ts"
+    },
+    {
+      "file": "supabase/migrations/20261127070000_national_rain_cases.sql",
+      "kind": "SQL定義・権限",
+      "expression": "create table public.national_rain_cases (",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/supabase/migrations/20261127070000_national_rain_cases.sql"
+    },
+    {
+      "file": "supabase/migrations/20261127070000_national_rain_cases.sql",
+      "kind": "SQL定義・権限",
+      "expression": "create index national_rain_cases_prefecture on public.national_rain_cases (prefecture, first_base desc) where permanent;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/supabase/migrations/20261127070000_national_rain_cases.sql"
+    },
+    {
+      "file": "supabase/migrations/20261127070000_national_rain_cases.sql",
+      "kind": "SQL定義・権限",
+      "expression": "create table public.national_rain_case_versions (",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/supabase/migrations/20261127070000_national_rain_cases.sql"
+    },
+    {
+      "file": "supabase/migrations/20261127070000_national_rain_cases.sql",
+      "kind": "SQL定義・権限",
+      "expression": "create table public.national_rain_case_cursor (",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/supabase/migrations/20261127070000_national_rain_cases.sql"
+    },
+    {
+      "file": "supabase/migrations/20261127070000_national_rain_cases.sql",
+      "kind": "SQL定義・権限",
+      "expression": "alter table public.national_rain_cases enable row level security;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/supabase/migrations/20261127070000_national_rain_cases.sql"
+    },
+    {
+      "file": "supabase/migrations/20261127070000_national_rain_cases.sql",
+      "kind": "SQL定義・権限",
+      "expression": "alter table public.national_rain_case_versions enable row level security;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/supabase/migrations/20261127070000_national_rain_cases.sql"
+    },
+    {
+      "file": "supabase/migrations/20261127070000_national_rain_cases.sql",
+      "kind": "SQL定義・権限",
+      "expression": "alter table public.national_rain_case_cursor enable row level security;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/supabase/migrations/20261127070000_national_rain_cases.sql"
+    },
+    {
+      "file": "supabase/migrations/20261127070000_national_rain_cases.sql",
+      "kind": "SQL定義・権限",
+      "expression": "grant select, insert, update on public.national_rain_cases to service_role;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/supabase/migrations/20261127070000_national_rain_cases.sql"
+    },
+    {
+      "file": "supabase/migrations/20261127070000_national_rain_cases.sql",
+      "kind": "SQL定義・権限",
+      "expression": "grant select, insert, update, delete on public.national_rain_case_versions to service_role;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/supabase/migrations/20261127070000_national_rain_cases.sql"
+    },
+    {
+      "file": "supabase/migrations/20261127070000_national_rain_cases.sql",
+      "kind": "SQL定義・権限",
+      "expression": "grant select, insert, update on public.national_rain_case_cursor to service_role;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/supabase/migrations/20261127070000_national_rain_cases.sql"
+    },
+    {
+      "file": "supabase/migrations/20261127070000_national_rain_cases.sql",
+      "kind": "SQL定義・権限",
+      "expression": "create function public.ingest_national_rain_case_version(p_base timestamptz, p_batch jsonb)",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/supabase/migrations/20261127070000_national_rain_cases.sql"
+    },
+    {
+      "file": "supabase/migrations/20261127070000_national_rain_cases.sql",
+      "kind": "SQL定義・権限",
+      "expression": "create function public.verify_national_rain_case(p_slug text, p_method text, p_observations jsonb)",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/supabase/migrations/20261127070000_national_rain_cases.sql"
+    },
+    {
+      "file": "tests/sql/national-rain-cases-integration.sql",
+      "kind": "条件分岐・閾値",
+      "expression": "if (select count(*) from public.national_rain_cases) <> 1 or",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/tests/sql/national-rain-cases-integration.sql"
+    }
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/national-heavy-rain-schedule.yml",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "patch": "diff --git a/.github/workflows/national-heavy-rain-schedule.yml b/.github/workflows/national-heavy-rain-schedule.yml\nindex 230966e1..51e3ab3e 100644\n--- a/.github/workflows/national-heavy-rain-schedule.yml\n+++ b/.github/workflows/national-heavy-rain-schedule.yml\n@@ -48,6 +48,14 @@ jobs:\n           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}\n           JMA_Z10_CONCURRENCY: '8'\n         run: JMA_Z10_PIXEL_MASK_DIR=\"$RUNNER_TEMP/lrpm/20260101-v1\" node --import tsx scripts/national-heavy-rain-scan.ts \"$RUNNER_TEMP/n03\"\n+      - name: Record public rain cases from published completed tiles\n+        if: success() && github.ref == 'refs/heads/main'\n+        continue-on-error: true\n+        timeout-minutes: 1\n+        env:\n+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}\n+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}\n+        run: node --import tsx scripts/national-rain-cases.ts ingest\n       - uses: actions/cache/save@v4\n         if: always() && steps.inputs.outputs.cache-hit != 'true' && steps.prepare.outcome == 'success'\n         with:\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/.github/workflows/national-heavy-rain-schedule.yml",
+      "source": {
+        "path": ".github/workflows/national-heavy-rain-schedule.yml",
+        "coverage": "全文",
+        "text": "name: Nationwide heavy rain forecast\n\non:\n  workflow_dispatch:\n  schedule:\n    - cron: '*/5 * * * *'\n\npermissions:\n  contents: read\n\nconcurrency:\n  group: national-heavy-rain-production\n  cancel-in-progress: false\n\njobs:\n  scan:\n    if: github.repository == 'miyazaki1016/emergencyalert' && vars.NATIONAL_HEAVY_RAIN_ACTIONS_ENABLED == 'true' && (github.event_name != 'schedule' || vars.RAIN_ACTIONS_TRIGGER_SOURCE != 'cloudflare')\n    runs-on: ubuntu-latest\n    environment: Production\n    timeout-minutes: 9\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          persist-credentials: false\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 22\n      - run: npm install --no-save --no-package-lock --no-audit --no-fund tsx@4.20.6\n      # These official-N03-derived assets were already shared in the public\n      # verification artifacts. Never cache credentials or signed URLs here.\n      - uses: actions/cache/restore@v4\n        id: inputs\n        with:\n          path: |\n            ${{ runner.temp }}/n03\n            ${{ runner.temp }}/lrpm\n          key: national-heavy-rain-n03-20260101-lrpm-v1-5fb0823f190e\n      - name: Prepare verified N03 and LRPM inputs\n        id: prepare\n        if: steps.inputs.outputs.cache-hit != 'true'\n        env:\n          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}\n          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}\n        run: node --import tsx scripts/prepare-national-rain-inputs.ts \"$RUNNER_TEMP/n03\" \"$RUNNER_TEMP/lrpm\"\n      - name: Scan and publish latest fresh forecast\n        env:\n          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}\n          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}\n          JMA_Z10_CONCURRENCY: '8'\n        run: JMA_Z10_PIXEL_MASK_DIR=\"$RUNNER_TEMP/lrpm/20260101-v1\" node --import tsx scripts/national-heavy-rain-scan.ts \"$RUNNER_TEMP/n03\"\n      - name: Record public rain cases from published completed tiles\n        if: success() && github.ref == 'refs/heads/main'\n        continue-on-error: true\n        timeout-minutes: 1\n        env:\n          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}\n          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}\n        run: node --import tsx scripts/national-rain-cases.ts ingest\n      - uses: actions/cache/save@v4\n        if: always() && steps.inputs.outputs.cache-hit != 'true' && steps.prepare.outcome == 'success'\n        with:\n          path: |\n            ${{ runner.temp }}/n03\n            ${{ runner.temp }}/lrpm\n          key: ${{ steps.inputs.outputs.cache-primary-key }}\n",
+        "sha256": "ec92fed75a236ca938d532bae858e13d809dcc5961cd3763fd555c18c7ca10de"
+      }
+    },
+    {
+      "path": "lib/weather/rain/nationalRainCases.test.ts",
+      "status": "modified",
+      "additions": 41,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/nationalRainCases.test.ts b/lib/weather/rain/nationalRainCases.test.ts\nnew file mode 100644\nindex 00000000..e8b66ff5\n--- /dev/null\n+++ b/lib/weather/rain/nationalRainCases.test.ts\n@@ -0,0 +1,41 @@\n+import { describe, expect, it } from \"vitest\";\n+import { caseStamp, planNationalRainCaseVersion } from \"./nationalRainCases\";\n+import { NATIONAL_FORECAST_WIDE_TILES, type ForecastTileVersion } from \"./nationalForecastTiles\";\n+\n+const base = Date.parse(\"2026-11-25T12:05:00Z\");\n+const now = base + 6 * 60_000;\n+const hit = { code: \"17384\", prefecture: \"石川県\", municipality: \"志賀町\", minimumMmPerHour: 30 as const };\n+\n+function version(lead: number, age = 0): ForecastTileVersion[] {\n+  return NATIONAL_FORECAST_WIDE_TILES.map(([x, y]) => ({\n+    base_time: caseStamp(base - age * 60_000), valid_time: caseStamp(base + lead * 60_000),\n+    extended: lead > 30, x, y, payload: { pending: [], tiles: {} },\n+  }));\n+}\n+\n+describe(\"national rain case input\", () => {\n+  it(\"uses the public complete tile and marks missing or stale coverage unknown\", () => {\n+    const latest = version(10);\n+    latest[0].payload = { pending: [\"900/400\"], tiles: { \"900/400\": [hit] } };\n+    const older = version(10, 5);\n+    older[0].payload = { pending: [], tiles: { \"900/400\": [{ ...hit, minimumMmPerHour: 50 }] } };\n+    const complete = version(20);\n+    complete[0].payload = { pending: [], tiles: { \"900/400\": [hit] } };\n+\n+    const planned = planNationalRainCaseVersion([...older, ...latest, ...complete, ...version(35)], now)!;\n+    expect(planned.p_base).toBe(new Date(base).toISOString());\n+    expect(planned.p_batch.find(slot => slot.validTime === \"2026-11-25T12:15:00.000Z\"))\n+      .toMatchObject({ complete: false, municipalities: [{ ...hit, minimumMmPerHour: 50, basetime: caseStamp(base - 300_000) }] });\n+    expect(planned.p_batch.find(slot => slot.validTime === \"2026-11-25T12:20:00.000Z\"))\n+      .toMatchObject({ complete: false, municipalities: [] });\n+    expect(planned.p_batch.find(slot => slot.validTime === \"2026-11-25T12:25:00.000Z\"))\n+      .toMatchObject({ complete: true, municipalities: [hit] });\n+    expect(planned.p_batch.find(slot => slot.validTime === \"2026-11-25T12:40:00.000Z\"))\n+      .toMatchObject({ complete: true, band: \"extended\" });\n+  });\n+\n+  it(\"does not advance on extended-only input or an old completed detail version\", () => {\n+    expect(planNationalRainCaseVersion(version(35), now)).toBeUndefined();\n+    expect(planNationalRainCaseVersion(version(25, 10), now)).toBeUndefined();\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.test.ts",
+      "source": {
+        "path": "lib/weather/rain/nationalRainCases.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { caseStamp, planNationalRainCaseVersion } from \"./nationalRainCases\";\nimport { NATIONAL_FORECAST_WIDE_TILES, type ForecastTileVersion } from \"./nationalForecastTiles\";\n\nconst base = Date.parse(\"2026-11-25T12:05:00Z\");\nconst now = base + 6 * 60_000;\nconst hit = { code: \"17384\", prefecture: \"石川県\", municipality: \"志賀町\", minimumMmPerHour: 30 as const };\n\nfunction version(lead: number, age = 0): ForecastTileVersion[] {\n  return NATIONAL_FORECAST_WIDE_TILES.map(([x, y]) => ({\n    base_time: caseStamp(base - age * 60_000), valid_time: caseStamp(base + lead * 60_000),\n    extended: lead > 30, x, y, payload: { pending: [], tiles: {} },\n  }));\n}\n\ndescribe(\"national rain case input\", () => {\n  it(\"uses the public complete tile and marks missing or stale coverage unknown\", () => {\n    const latest = version(10);\n    latest[0].payload = { pending: [\"900/400\"], tiles: { \"900/400\": [hit] } };\n    const older = version(10, 5);\n    older[0].payload = { pending: [], tiles: { \"900/400\": [{ ...hit, minimumMmPerHour: 50 }] } };\n    const complete = version(20);\n    complete[0].payload = { pending: [], tiles: { \"900/400\": [hit] } };\n\n    const planned = planNationalRainCaseVersion([...older, ...latest, ...complete, ...version(35)], now)!;\n    expect(planned.p_base).toBe(new Date(base).toISOString());\n    expect(planned.p_batch.find(slot => slot.validTime === \"2026-11-25T12:15:00.000Z\"))\n      .toMatchObject({ complete: false, municipalities: [{ ...hit, minimumMmPerHour: 50, basetime: caseStamp(base - 300_000) }] });\n    expect(planned.p_batch.find(slot => slot.validTime === \"2026-11-25T12:20:00.000Z\"))\n      .toMatchObject({ complete: false, municipalities: [] });\n    expect(planned.p_batch.find(slot => slot.validTime === \"2026-11-25T12:25:00.000Z\"))\n      .toMatchObject({ complete: true, municipalities: [hit] });\n    expect(planned.p_batch.find(slot => slot.validTime === \"2026-11-25T12:40:00.000Z\"))\n      .toMatchObject({ complete: true, band: \"extended\" });\n  });\n\n  it(\"does not advance on extended-only input or an old completed detail version\", () => {\n    expect(planNationalRainCaseVersion(version(35), now)).toBeUndefined();\n    expect(planNationalRainCaseVersion(version(25, 10), now)).toBeUndefined();\n  });\n});\n",
+        "sha256": "b9ef0eaae4bca00b9c791d6e74638e475a7f19ef24b9e4c75f09fb26cfd9df91"
+      }
+    },
+    {
+      "path": "lib/weather/rain/nationalRainCases.ts",
+      "status": "modified",
+      "additions": 43,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/nationalRainCases.ts b/lib/weather/rain/nationalRainCases.ts\nnew file mode 100644\nindex 00000000..5c7d35ee\n--- /dev/null\n+++ b/lib/weather/rain/nationalRainCases.ts\n@@ -0,0 +1,43 @@\n+import { forecastTime, NATIONAL_FORECAST_FRESHNESS_MS, type NationalForecastFrame } from \"./nationalForecastSnapshot\";\n+import { buildNationalTileForecast, NATIONAL_FORECAST_WIDE_TILES, type ForecastTileVersion } from \"./nationalForecastTiles\";\n+\n+const STEP = 300_000;\n+export const caseStamp = (ms: number) => new Date(ms).toISOString().slice(0, 19).replace(/[-:T]/g, \"\");\n+\n+export function planNationalRainCaseVersion(rows: ForecastTileVersion[], now: number) {\n+  const forecast = buildNationalTileForecast(rows, now);\n+  if (!forecast) return;\n+  // An extended-only advance cannot move the detailed episode cursor.\n+  const newest = forecast.frames.flatMap(frame => frame.basetimes ?? []).sort().at(-1);\n+  if (!newest) return;\n+  const base = forecastTime(newest);\n+  if (now - base > NATIONAL_FORECAST_FRESHNESS_MS) return;\n+\n+  const slots = (frames: NationalForecastFrame[], first: number, last: number, band: \"detail\" | \"extended\") => {\n+    const byTime = new Map(frames.map(frame => [forecastTime(frame.validTime), frame]));\n+    const result = [];\n+    for (let lead = first; lead <= last; lead += STEP) {\n+      const epoch = base + lead;\n+      if (epoch <= now) continue;\n+      const frame = byTime.get(epoch);\n+      const coverage = frame?.tileCoverage ?? [];\n+      // The public snapshot may display older complete tiles while waiting\n+      // for a new version. Their data is retained but absence is not dry.\n+      const complete = NATIONAL_FORECAST_WIDE_TILES.every(([x, y]) =>\n+        coverage.some(tile => tile.x === x && tile.y === y && tile.basetime === newest));\n+      result.push({\n+        validTime: new Date(epoch).toISOString(), band, complete,\n+        tileCoverage: coverage,\n+        municipalities: frame?.municipalities ?? [],\n+      });\n+    }\n+    return result;\n+  };\n+\n+  const detail = slots(forecast.frames, STEP, 6 * STEP, \"detail\");\n+  if (!detail.length) return;\n+  return {\n+    p_base: new Date(base).toISOString(),\n+    p_batch: [...detail, ...slots(forecast.extendedFrames ?? [], 7 * STEP, 12 * STEP, \"extended\")],\n+  };\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.ts",
+      "source": {
+        "path": "lib/weather/rain/nationalRainCases.ts",
+        "coverage": "全文",
+        "text": "import { forecastTime, NATIONAL_FORECAST_FRESHNESS_MS, type NationalForecastFrame } from \"./nationalForecastSnapshot\";\nimport { buildNationalTileForecast, NATIONAL_FORECAST_WIDE_TILES, type ForecastTileVersion } from \"./nationalForecastTiles\";\n\nconst STEP = 300_000;\nexport const caseStamp = (ms: number) => new Date(ms).toISOString().slice(0, 19).replace(/[-:T]/g, \"\");\n\nexport function planNationalRainCaseVersion(rows: ForecastTileVersion[], now: number) {\n  const forecast = buildNationalTileForecast(rows, now);\n  if (!forecast) return;\n  // An extended-only advance cannot move the detailed episode cursor.\n  const newest = forecast.frames.flatMap(frame => frame.basetimes ?? []).sort().at(-1);\n  if (!newest) return;\n  const base = forecastTime(newest);\n  if (now - base > NATIONAL_FORECAST_FRESHNESS_MS) return;\n\n  const slots = (frames: NationalForecastFrame[], first: number, last: number, band: \"detail\" | \"extended\") => {\n    const byTime = new Map(frames.map(frame => [forecastTime(frame.validTime), frame]));\n    const result = [];\n    for (let lead = first; lead <= last; lead += STEP) {\n      const epoch = base + lead;\n      if (epoch <= now) continue;\n      const frame = byTime.get(epoch);\n      const coverage = frame?.tileCoverage ?? [];\n      // The public snapshot may display older complete tiles while waiting\n      // for a new version. Their data is retained but absence is not dry.\n      const complete = NATIONAL_FORECAST_WIDE_TILES.every(([x, y]) =>\n        coverage.some(tile => tile.x === x && tile.y === y && tile.basetime === newest));\n      result.push({\n        validTime: new Date(epoch).toISOString(), band, complete,\n        tileCoverage: coverage,\n        municipalities: frame?.municipalities ?? [],\n      });\n    }\n    return result;\n  };\n\n  const detail = slots(forecast.frames, STEP, 6 * STEP, \"detail\");\n  if (!detail.length) return;\n  return {\n    p_base: new Date(base).toISOString(),\n    p_batch: [...detail, ...slots(forecast.extendedFrames ?? [], 7 * STEP, 12 * STEP, \"extended\")],\n  };\n}\n",
+        "sha256": "226b0b68305f8186d7b18386a73a80460ba82346659db12750eb166a439d9b3c"
+      }
+    },
+    {
+      "path": "scripts/national-rain-cases.ts",
+      "status": "modified",
+      "additions": 41,
+      "deletions": 0,
+      "patch": "diff --git a/scripts/national-rain-cases.ts b/scripts/national-rain-cases.ts\nnew file mode 100644\nindex 00000000..c583b79f\n--- /dev/null\n+++ b/scripts/national-rain-cases.ts\n@@ -0,0 +1,41 @@\n+import { readFile } from \"node:fs/promises\";\n+import { createClient } from \"@supabase/supabase-js\";\n+import { caseStamp, planNationalRainCaseVersion } from \"../lib/weather/rain/nationalRainCases\";\n+import type { ForecastTileVersion } from \"../lib/weather/rain/nationalForecastTiles\";\n+\n+async function main() {\n+  const [mode, slug, evidencePath] = process.argv.slice(2);\n+  if (mode !== \"ingest\" && !(mode === \"verify\" && slug && evidencePath)) {\n+    throw new Error(\"Usage: national-rain-cases.ts ingest | verify <slug> <radar-observations.json>\");\n+  }\n+  const url = process.env.SUPABASE_URL;\n+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;\n+  if (!url || !key) throw new Error(\"Missing case storage credentials\");\n+  const db = createClient(url, key, { auth: { persistSession: false } });\n+  const deadline = AbortSignal.timeout(30_000);\n+  if (mode === \"verify\") {\n+    const evidence = JSON.parse(await readFile(evidencePath, \"utf8\"));\n+    const { error } = await db.rpc(\"verify_national_rain_case\", {\n+      p_slug: slug, p_method: evidence.method, p_observations: evidence.observations,\n+    }).abortSignal(deadline);\n+    if (error) throw new Error(`CASE_VERIFICATION_FAILED: ${error.code}`);\n+    return;\n+  }\n+\n+  const now = Date.now();\n+  const { data, error } = await db.from(\"national_rain_forecast_tile_versions\")\n+    .select(\"valid_time,base_time,extended,x,y,payload\")\n+    .gt(\"valid_time\", caseStamp(now)).lte(\"base_time\", caseStamp(now))\n+    .order(\"valid_time\").order(\"base_time\").order(\"extended\").order(\"x\").order(\"y\")\n+    .limit(1000).abortSignal(deadline);\n+  if (error || !data || data.length === 1000) throw new Error(\"CASE_FORECAST_READ_INCOMPLETE\");\n+  const planned = planNationalRainCaseVersion(data as ForecastTileVersion[], now);\n+  if (!planned) return;\n+  const saved = await db.rpc(\"ingest_national_rain_case_version\", planned).abortSignal(deadline);\n+  if (saved.error) throw new Error(`CASE_INGEST_FAILED: ${saved.error.code}`);\n+}\n+\n+main().catch(error => {\n+  console.error(error instanceof Error ? error.message : \"CASE_STEP_FAILED\");\n+  process.exitCode = 1;\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/scripts/national-rain-cases.ts",
+      "source": {
+        "path": "scripts/national-rain-cases.ts",
+        "coverage": "全文",
+        "text": "import { readFile } from \"node:fs/promises\";\nimport { createClient } from \"@supabase/supabase-js\";\nimport { caseStamp, planNationalRainCaseVersion } from \"../lib/weather/rain/nationalRainCases\";\nimport type { ForecastTileVersion } from \"../lib/weather/rain/nationalForecastTiles\";\n\nasync function main() {\n  const [mode, slug, evidencePath] = process.argv.slice(2);\n  if (mode !== \"ingest\" && !(mode === \"verify\" && slug && evidencePath)) {\n    throw new Error(\"Usage: national-rain-cases.ts ingest | verify <slug> <radar-observations.json>\");\n  }\n  const url = process.env.SUPABASE_URL;\n  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;\n  if (!url || !key) throw new Error(\"Missing case storage credentials\");\n  const db = createClient(url, key, { auth: { persistSession: false } });\n  const deadline = AbortSignal.timeout(30_000);\n  if (mode === \"verify\") {\n    const evidence = JSON.parse(await readFile(evidencePath, \"utf8\"));\n    const { error } = await db.rpc(\"verify_national_rain_case\", {\n      p_slug: slug, p_method: evidence.method, p_observations: evidence.observations,\n    }).abortSignal(deadline);\n    if (error) throw new Error(`CASE_VERIFICATION_FAILED: ${error.code}`);\n    return;\n  }\n\n  const now = Date.now();\n  const { data, error } = await db.from(\"national_rain_forecast_tile_versions\")\n    .select(\"valid_time,base_time,extended,x,y,payload\")\n    .gt(\"valid_time\", caseStamp(now)).lte(\"base_time\", caseStamp(now))\n    .order(\"valid_time\").order(\"base_time\").order(\"extended\").order(\"x\").order(\"y\")\n    .limit(1000).abortSignal(deadline);\n  if (error || !data || data.length === 1000) throw new Error(\"CASE_FORECAST_READ_INCOMPLETE\");\n  const planned = planNationalRainCaseVersion(data as ForecastTileVersion[], now);\n  if (!planned) return;\n  const saved = await db.rpc(\"ingest_national_rain_case_version\", planned).abortSignal(deadline);\n  if (saved.error) throw new Error(`CASE_INGEST_FAILED: ${saved.error.code}`);\n}\n\nmain().catch(error => {\n  console.error(error instanceof Error ? error.message : \"CASE_STEP_FAILED\");\n  process.exitCode = 1;\n});\n",
+        "sha256": "1cac39870ab2048faef9cc46c21e1b5aed8f0e72fce8eae9de20a9141c4977d6"
+      }
+    },
+    {
+      "path": "supabase/migrations/20261127070000_national_rain_cases.sql",
+      "status": "modified",
+      "additions": 184,
+      "deletions": 0,
+      "patch": "diff --git a/supabase/migrations/20261127070000_national_rain_cases.sql b/supabase/migrations/20261127070000_national_rain_cases.sql\nnew file mode 100644\nindex 00000000..88b2e9d9\n--- /dev/null\n+++ b/supabase/migrations/20261127070000_national_rain_cases.sql\n@@ -0,0 +1,184 @@\n+create table public.national_rain_cases (\n+  slug text primary key check (slug ~ '^[0-9]{5}-[0-9]{8}-[0-9]{4}$'),\n+  municipality_code text not null check (municipality_code ~ '^[0-9]{5}$'),\n+  prefecture text not null,\n+  municipality text not null,\n+  first_base timestamptz not null,\n+  first_valid_time timestamptz not null,\n+  last_base timestamptz not null,\n+  peak_tier smallint not null check (peak_tier in (30,50,80)),\n+  peak_valid_time timestamptz not null,\n+  status text not null default 'forecast' check (status in ('forecast','ended','verified')),\n+  ended_at timestamptz,\n+  permanent boolean generated always as (peak_tier >= 50) stored,\n+  details_expire_at timestamptz,\n+  verification_summary jsonb\n+);\n+create unique index national_rain_cases_one_open on public.national_rain_cases (municipality_code) where status = 'forecast';\n+create index national_rain_cases_prefecture on public.national_rain_cases (prefecture, first_base desc) where permanent;\n+create table public.national_rain_case_versions (\n+  slug text not null references public.national_rain_cases(slug),\n+  base_time timestamptz not null,\n+  detail_state text not null check (detail_state in ('rain','below','unknown')),\n+  peak_tier smallint check (peak_tier in (30,50,80)),\n+  peak_valid_time timestamptz,\n+  slots jsonb not null,\n+  verification jsonb,\n+  primary key (slug, base_time)\n+);\n+create table public.national_rain_case_cursor (\n+  id boolean primary key default true check (id),\n+  base_time timestamptz not null\n+);\n+\n+alter table public.national_rain_cases enable row level security;\n+alter table public.national_rain_case_versions enable row level security;\n+alter table public.national_rain_case_cursor enable row level security;\n+revoke all on public.national_rain_cases, public.national_rain_case_versions, public.national_rain_case_cursor\n+  from public, anon, authenticated, service_role;\n+grant select, insert, update on public.national_rain_cases to service_role;\n+grant select, insert, update, delete on public.national_rain_case_versions to service_role;\n+grant select, insert, update on public.national_rain_case_cursor to service_role;\n+\n+create function public.ingest_national_rain_case_version(p_base timestamptz, p_batch jsonb)\n+returns boolean language plpgsql set search_path = '' as $$\n+declare\n+  last_ingested timestamptz;\n+  candidate record;\n+  incident public.national_rain_cases%rowtype;\n+  episode_slots jsonb;\n+  episode_state text;\n+  version_peak smallint;\n+  version_peak_time timestamptz;\n+  prior_dry boolean;\n+begin\n+  if p_base is null or jsonb_typeof(p_batch) is distinct from 'array'\n+     or not exists (select 1 from jsonb_array_elements(p_batch) slot where slot->>'band' = 'detail') then\n+    raise exception 'invalid case version';\n+  end if;\n+\n+  -- Serialize ingestion so opening/closing and the cursor advance are atomic.\n+  perform pg_advisory_xact_lock(307, 1);\n+  delete from public.national_rain_case_versions v using public.national_rain_cases c\n+    where v.slug = c.slug and c.details_expire_at <= now() and not c.permanent;\n+  select base_time into last_ingested from public.national_rain_case_cursor where id;\n+  if last_ingested >= p_base then return false; end if;\n+\n+  for candidate in\n+    select distinct on (area->>'code') area, (slot->>'validTime')::timestamptz as valid_time\n+      from jsonb_array_elements(p_batch) slot\n+      cross join lateral jsonb_array_elements(slot->'municipalities') area\n+      where slot->>'band' = 'detail' and (area->>'minimumMmPerHour')::int in (30,50,80)\n+        and area->>'basetime' = to_char(p_base at time zone 'UTC', 'YYYYMMDDHH24MISS')\n+      order by area->>'code', (slot->>'validTime')::timestamptz\n+  loop\n+    insert into public.national_rain_cases\n+      (slug, municipality_code, prefecture, municipality, first_base, first_valid_time,\n+       last_base, peak_tier, peak_valid_time)\n+    values (\n+      (candidate.area->>'code') || '-' || to_char(p_base at time zone 'Asia/Tokyo', 'YYYYMMDD-HH24MI'),\n+      candidate.area->>'code', candidate.area->>'prefecture', candidate.area->>'municipality',\n+      p_base, candidate.valid_time, p_base, (candidate.area->>'minimumMmPerHour')::smallint, candidate.valid_time)\n+    on conflict do nothing;\n+  end loop;\n+\n+  for incident in select * from public.national_rain_cases where status = 'forecast'\n+  loop\n+    select jsonb_agg(jsonb_build_object(\n+      'validTime', slot->>'validTime', 'band', slot->>'band',\n+      'state', case when hit.area is not null then 'rain'\n+                    when slot->>'complete' = 'true' then 'below' else 'unknown' end,\n+      'tier', (hit.area->>'minimumMmPerHour')::smallint, 'basetime', hit.area->>'basetime',\n+      'radarTile', hit.area->'radarTile', 'tileCoverage', slot->'tileCoverage'\n+    ) order by slot->>'validTime') into episode_slots\n+    from jsonb_array_elements(p_batch) slot\n+    left join lateral (\n+      select area from jsonb_array_elements(slot->'municipalities') area\n+        where area->>'code' = incident.municipality_code\n+        order by (area->>'minimumMmPerHour')::smallint desc limit 1\n+    ) hit on true;\n+\n+    select case when bool_or(slot->>'state' = 'rain') then 'rain'\n+                when bool_and(slot->>'state' = 'below') then 'below' else 'unknown' end\n+      into episode_state from jsonb_array_elements(episode_slots) slot where slot->>'band' = 'detail';\n+\n+    select (slot->>'tier')::smallint, (slot->>'validTime')::timestamptz into version_peak, version_peak_time\n+      from jsonb_array_elements(episode_slots) slot where slot->>'tier' is not null\n+      order by (slot->>'tier')::smallint desc, (slot->>'validTime')::timestamptz limit 1;\n+\n+    select exists (select 1 from public.national_rain_case_versions\n+      where slug = incident.slug and base_time = p_base - interval '5 minutes' and detail_state = 'below')\n+      into prior_dry;\n+    insert into public.national_rain_case_versions (slug, base_time, detail_state, peak_tier, peak_valid_time, slots)\n+      values (incident.slug, p_base, episode_state, version_peak, version_peak_time, episode_slots);\n+    update public.national_rain_cases set\n+      last_base = p_base,\n+      peak_tier = greatest(incident.peak_tier, version_peak),\n+      peak_valid_time = case when version_peak > incident.peak_tier then version_peak_time\n+                        when version_peak = incident.peak_tier then least(incident.peak_valid_time, version_peak_time)\n+                        else incident.peak_valid_time end,\n+      status = case when episode_state = 'below' and prior_dry then 'ended' else 'forecast' end,\n+      ended_at = case when episode_state = 'below' and prior_dry then p_base end,\n+      details_expire_at = case when episode_state = 'below' and prior_dry\n+        and greatest(incident.peak_tier, version_peak) = 30 then p_base + interval '7 days' end\n+      where slug = incident.slug;\n+  end loop;\n+\n+  insert into public.national_rain_case_cursor (id, base_time) values (true, p_base)\n+    on conflict (id) do update set base_time = excluded.base_time;\n+  return true;\n+end;\n+$$;\n+\n+-- Input is an operator-verified municipal radar series at exact forecast-valid\n+-- times. Null/unprovided observations remain unknown. This RPC does not fetch\n+-- an observation feed or infer rain from tile availability.\n+create function public.verify_national_rain_case(p_slug text, p_method text, p_observations jsonb)\n+returns void language plpgsql set search_path = '' as $$\n+declare\n+  incident public.national_rain_cases%rowtype;\n+  matched integer;\n+  different integer;\n+  unknown integer;\n+begin\n+  select * into strict incident from public.national_rain_cases where slug = p_slug for update;\n+  if incident.status = 'forecast' or coalesce(trim(p_method), '') = ''\n+     or jsonb_typeof(p_observations) is distinct from 'object'\n+     or exists (select 1 from jsonb_each(p_observations) o where o.value::text not in ('null','0','30','50','80')) then\n+    raise exception 'invalid case verification';\n+  end if;\n+  update public.national_rain_case_versions v set verification = (\n+    select jsonb_agg(jsonb_build_object(\n+      'validTime', slot->>'validTime', 'band', slot->>'band',\n+      'observedTier', p_observations->(slot->>'validTime'),\n+      'result', case\n+        when slot->>'state' = 'unknown' or p_observations->>(slot->>'validTime') is null then 'unknown'\n+        when coalesce((slot->>'tier')::int, 0) = (p_observations->>(slot->>'validTime'))::int then 'match'\n+        else 'different' end\n+    ) order by slot->>'validTime') from jsonb_array_elements(v.slots) slot\n+  ) where v.slug = p_slug;\n+  if not found then raise exception 'no retained case detail'; end if;\n+\n+  -- Count each valid time once, using its most recent issued forecast.\n+  with latest as (\n+    select distinct on (entry->>'validTime') entry\n+      from public.national_rain_case_versions v cross join lateral jsonb_array_elements(v.verification) entry\n+      where v.slug = p_slug order by entry->>'validTime', v.base_time desc\n+  )\n+  select count(*) filter (where entry->>'result' = 'match'),\n+         count(*) filter (where entry->>'result' = 'different'),\n+         count(*) filter (where entry->>'result' = 'unknown')\n+    into matched, different, unknown from latest;\n+  update public.national_rain_cases set\n+    status = case when matched + different > 0 then 'verified' else 'ended' end,\n+    verification_summary = jsonb_build_object(\n+      'method', p_method, 'match', matched, 'different', different, 'unknown', unknown\n+    )\n+    where slug = p_slug;\n+end;\n+$$;\n+\n+revoke all on function public.ingest_national_rain_case_version(timestamptz, jsonb) from public, anon, authenticated, service_role;\n+revoke all on function public.verify_national_rain_case(text, text, jsonb) from public, anon, authenticated, service_role;\n+grant execute on function public.ingest_national_rain_case_version(timestamptz, jsonb) to service_role;\n+grant execute on function public.verify_national_rain_case(text, text, jsonb) to service_role;\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/supabase/migrations/20261127070000_national_rain_cases.sql",
+      "source": {
+        "path": "supabase/migrations/20261127070000_national_rain_cases.sql",
+        "coverage": "全文",
+        "text": "create table public.national_rain_cases (\n  slug text primary key check (slug ~ '^[0-9]{5}-[0-9]{8}-[0-9]{4}$'),\n  municipality_code text not null check (municipality_code ~ '^[0-9]{5}$'),\n  prefecture text not null,\n  municipality text not null,\n  first_base timestamptz not null,\n  first_valid_time timestamptz not null,\n  last_base timestamptz not null,\n  peak_tier smallint not null check (peak_tier in (30,50,80)),\n  peak_valid_time timestamptz not null,\n  status text not null default 'forecast' check (status in ('forecast','ended','verified')),\n  ended_at timestamptz,\n  permanent boolean generated always as (peak_tier >= 50) stored,\n  details_expire_at timestamptz,\n  verification_summary jsonb\n);\ncreate unique index national_rain_cases_one_open on public.national_rain_cases (municipality_code) where status = 'forecast';\ncreate index national_rain_cases_prefecture on public.national_rain_cases (prefecture, first_base desc) where permanent;\ncreate table public.national_rain_case_versions (\n  slug text not null references public.national_rain_cases(slug),\n  base_time timestamptz not null,\n  detail_state text not null check (detail_state in ('rain','below','unknown')),\n  peak_tier smallint check (peak_tier in (30,50,80)),\n  peak_valid_time timestamptz,\n  slots jsonb not null,\n  verification jsonb,\n  primary key (slug, base_time)\n);\ncreate table public.national_rain_case_cursor (\n  id boolean primary key default true check (id),\n  base_time timestamptz not null\n);\n\nalter table public.national_rain_cases enable row level security;\nalter table public.national_rain_case_versions enable row level security;\nalter table public.national_rain_case_cursor enable row level security;\nrevoke all on public.national_rain_cases, public.national_rain_case_versions, public.national_rain_case_cursor\n  from public, anon, authenticated, service_role;\ngrant select, insert, update on public.national_rain_cases to service_role;\ngrant select, insert, update, delete on public.national_rain_case_versions to service_role;\ngrant select, insert, update on public.national_rain_case_cursor to service_role;\n\ncreate function public.ingest_national_rain_case_version(p_base timestamptz, p_batch jsonb)\nreturns boolean language plpgsql set search_path = '' as $$\ndeclare\n  last_ingested timestamptz;\n  candidate record;\n  incident public.national_rain_cases%rowtype;\n  episode_slots jsonb;\n  episode_state text;\n  version_peak smallint;\n  version_peak_time timestamptz;\n  prior_dry boolean;\nbegin\n  if p_base is null or jsonb_typeof(p_batch) is distinct from 'array'\n     or not exists (select 1 from jsonb_array_elements(p_batch) slot where slot->>'band' = 'detail') then\n    raise exception 'invalid case version';\n  end if;\n\n  -- Serialize ingestion so opening/closing and the cursor advance are atomic.\n  perform pg_advisory_xact_lock(307, 1);\n  delete from public.national_rain_case_versions v using public.national_rain_cases c\n    where v.slug = c.slug and c.details_expire_at <= now() and not c.permanent;\n  select base_time into last_ingested from public.national_rain_case_cursor where id;\n  if last_ingested >= p_base then return false; end if;\n\n  for candidate in\n    select distinct on (area->>'code') area, (slot->>'validTime')::timestamptz as valid_time\n      from jsonb_array_elements(p_batch) slot\n      cross join lateral jsonb_array_elements(slot->'municipalities') area\n      where slot->>'band' = 'detail' and (area->>'minimumMmPerHour')::int in (30,50,80)\n        and area->>'basetime' = to_char(p_base at time zone 'UTC', 'YYYYMMDDHH24MISS')\n      order by area->>'code', (slot->>'validTime')::timestamptz\n  loop\n    insert into public.national_rain_cases\n      (slug, municipality_code, prefecture, municipality, first_base, first_valid_time,\n       last_base, peak_tier, peak_valid_time)\n    values (\n      (candidate.area->>'code') || '-' || to_char(p_base at time zone 'Asia/Tokyo', 'YYYYMMDD-HH24MI'),\n      candidate.area->>'code', candidate.area->>'prefecture', candidate.area->>'municipality',\n      p_base, candidate.valid_time, p_base, (candidate.area->>'minimumMmPerHour')::smallint, candidate.valid_time)\n    on conflict do nothing;\n  end loop;\n\n  for incident in select * from public.national_rain_cases where status = 'forecast'\n  loop\n    select jsonb_agg(jsonb_build_object(\n      'validTime', slot->>'validTime', 'band', slot->>'band',\n      'state', case when hit.area is not null then 'rain'\n                    when slot->>'complete' = 'true' then 'below' else 'unknown' end,\n      'tier', (hit.area->>'minimumMmPerHour')::smallint, 'basetime', hit.area->>'basetime',\n      'radarTile', hit.area->'radarTile', 'tileCoverage', slot->'tileCoverage'\n    ) order by slot->>'validTime') into episode_slots\n    from jsonb_array_elements(p_batch) slot\n    left join lateral (\n      select area from jsonb_array_elements(slot->'municipalities') area\n        where area->>'code' = incident.municipality_code\n        order by (area->>'minimumMmPerHour')::smallint desc limit 1\n    ) hit on true;\n\n    select case when bool_or(slot->>'state' = 'rain') then 'rain'\n                when bool_and(slot->>'state' = 'below') then 'below' else 'unknown' end\n      into episode_state from jsonb_array_elements(episode_slots) slot where slot->>'band' = 'detail';\n\n    select (slot->>'tier')::smallint, (slot->>'validTime')::timestamptz into version_peak, version_peak_time\n      from jsonb_array_elements(episode_slots) slot where slot->>'tier' is not null\n      order by (slot->>'tier')::smallint desc, (slot->>'validTime')::timestamptz limit 1;\n\n    select exists (select 1 from public.national_rain_case_versions\n      where slug = incident.slug and base_time = p_base - interval '5 minutes' and detail_state = 'below')\n      into prior_dry;\n    insert into public.national_rain_case_versions (slug, base_time, detail_state, peak_tier, peak_valid_time, slots)\n      values (incident.slug, p_base, episode_state, version_peak, version_peak_time, episode_slots);\n    update public.national_rain_cases set\n      last_base = p_base,\n      peak_tier = greatest(incident.peak_tier, version_peak),\n      peak_valid_time = case when version_peak > incident.peak_tier then version_peak_time\n                        when version_peak = incident.peak_tier then least(incident.peak_valid_time, version_peak_time)\n                        else incident.peak_valid_time end,\n      status = case when episode_state = 'below' and prior_dry then 'ended' else 'forecast' end,\n      ended_at = case when episode_state = 'below' and prior_dry then p_base end,\n      details_expire_at = case when episode_state = 'below' and prior_dry\n        and greatest(incident.peak_tier, version_peak) = 30 then p_base + interval '7 days' end\n      where slug = incident.slug;\n  end loop;\n\n  insert into public.national_rain_case_cursor (id, base_time) values (true, p_base)\n    on conflict (id) do update set base_time = excluded.base_time;\n  return true;\nend;\n$$;\n\n-- Input is an operator-verified municipal radar series at exact forecast-valid\n-- times. Null/unprovided observations remain unknown. This RPC does not fetch\n-- an observation feed or infer rain from tile availability.\ncreate function public.verify_national_rain_case(p_slug text, p_method text, p_observations jsonb)\nreturns void language plpgsql set search_path = '' as $$\ndeclare\n  incident public.national_rain_cases%rowtype;\n  matched integer;\n  different integer;\n  unknown integer;\nbegin\n  select * into strict incident from public.national_rain_cases where slug = p_slug for update;\n  if incident.status = 'forecast' or coalesce(trim(p_method), '') = ''\n     or jsonb_typeof(p_observations) is distinct from 'object'\n     or exists (select 1 from jsonb_each(p_observations) o where o.value::text not in ('null','0','30','50','80')) then\n    raise exception 'invalid case verification';\n  end if;\n  update public.national_rain_case_versions v set verification = (\n    select jsonb_agg(jsonb_build_object(\n      'validTime', slot->>'validTime', 'band', slot->>'band',\n      'observedTier', p_observations->(slot->>'validTime'),\n      'result', case\n        when slot->>'state' = 'unknown' or p_observations->>(slot->>'validTime') is null then 'unknown'\n        when coalesce((slot->>'tier')::int, 0) = (p_observations->>(slot->>'validTime'))::int then 'match'\n        else 'different' end\n    ) order by slot->>'validTime') from jsonb_array_elements(v.slots) slot\n  ) where v.slug = p_slug;\n  if not found then raise exception 'no retained case detail'; end if;\n\n  -- Count each valid time once, using its most recent issued forecast.\n  with latest as (\n    select distinct on (entry->>'validTime') entry\n      from public.national_rain_case_versions v cross join lateral jsonb_array_elements(v.verification) entry\n      where v.slug = p_slug order by entry->>'validTime', v.base_time desc\n  )\n  select count(*) filter (where entry->>'result' = 'match'),\n         count(*) filter (where entry->>'result' = 'different'),\n         count(*) filter (where entry->>'result' = 'unknown')\n    into matched, different, unknown from latest;\n  update public.national_rain_cases set\n    status = case when matched + different > 0 then 'verified' else 'ended' end,\n    verification_summary = jsonb_build_object(\n      'method', p_method, 'match', matched, 'different', different, 'unknown', unknown\n    )\n    where slug = p_slug;\nend;\n$$;\n\nrevoke all on function public.ingest_national_rain_case_version(timestamptz, jsonb) from public, anon, authenticated, service_role;\nrevoke all on function public.verify_national_rain_case(text, text, jsonb) from public, anon, authenticated, service_role;\ngrant execute on function public.ingest_national_rain_case_version(timestamptz, jsonb) to service_role;\ngrant execute on function public.verify_national_rain_case(text, text, jsonb) to service_role;\n",
+        "sha256": "7fbb5118afb3586116496182855ac135396923a3a3804e1d30b6ea3ac4dcf757"
+      }
+    },
+    {
+      "path": "tests/sql/national-rain-cases-integration.sql",
+      "status": "modified",
+      "additions": 94,
+      "deletions": 0,
+      "patch": "diff --git a/tests/sql/national-rain-cases-integration.sql b/tests/sql/national-rain-cases-integration.sql\nnew file mode 100644\nindex 00000000..fb2a80a6\n--- /dev/null\n+++ b/tests/sql/national-rain-cases-integration.sql\n@@ -0,0 +1,94 @@\n+begin;\n+do $$\n+declare\n+  base timestamptz := '2026-11-25 12:05Z';\n+  values_tier int[] := array[30,30,30,50,50,30,30,80,50,80,80,30];\n+  i integer;\n+  p jsonb;\n+  s text := '17384-20261125-2105';\n+  extended_only jsonb;\n+  first_target text := '2026-11-25T12:10:00.000Z';\n+begin\n+  extended_only := jsonb_build_array(\n+    jsonb_build_object('band','detail','validTime',first_target,'complete',true,'municipalities','[]'::jsonb),\n+    jsonb_build_object('band','extended','validTime','2026-11-25T12:35:00.000Z','complete',true,\n+      'municipalities',jsonb_build_array(jsonb_build_object('code','17384','basetime','20261125120000','minimumMmPerHour',50)))\n+  );\n+  perform public.ingest_national_rain_case_version(base - interval '5 minutes', extended_only);\n+  if exists (select 1 from public.national_rain_cases) then raise exception 'extended only opened a case'; end if;\n+\n+  for i in 0..11 loop\n+    p := jsonb_build_array(jsonb_build_object(\n+      'band','detail','validTime',to_char((base + (i+1)*interval '5 minutes') at time zone 'UTC','YYYY-MM-DD\"T\"HH24:MI:SS\".000Z\"'),\n+      'complete',true,'tileCoverage','[]'::jsonb,\n+      'municipalities',jsonb_build_array(jsonb_build_object('code','17384','prefecture','石川県',\n+        'municipality','志賀町','minimumMmPerHour',values_tier[i+1],\n+        'basetime',to_char((base+i*interval '5 minutes') at time zone 'UTC','YYYYMMDDHH24MISS')))\n+    ));\n+    if not public.ingest_national_rain_case_version(base+i*interval '5 minutes', p) then raise exception 'new batch rejected'; end if;\n+    if public.ingest_national_rain_case_version(base+i*interval '5 minutes', p) then raise exception 'duplicate accepted'; end if;\n+  end loop;\n+  if (select count(*) from public.national_rain_cases) <> 1 or\n+     (select count(*) from public.national_rain_case_versions where slug=s) <> 12 or\n+     not exists (select 1 from public.national_rain_cases where slug=s and permanent and peak_tier=80) then\n+    raise exception 'Shika progression/uniqueness failed';\n+  end if;\n+\n+  for i in 12..16 loop\n+    p := jsonb_build_array(jsonb_build_object('band','detail',\n+      'validTime',to_char((base+(i+1)*interval '5 minutes') at time zone 'UTC','YYYY-MM-DD\"T\"HH24:MI:SS\".000Z\"'),\n+      'complete',i<>13,'municipalities','[]'::jsonb));\n+    if i=15 then\n+      p := jsonb_set(p, '{0,municipalities}', jsonb_build_array(jsonb_build_object('code','17384','prefecture','石川県',\n+        'municipality','志賀町','minimumMmPerHour',30,\n+        'basetime',to_char((base+i*interval '5 minutes') at time zone 'UTC','YYYYMMDDHH24MISS'))));\n+    end if;\n+    perform public.ingest_national_rain_case_version(base+i*interval '5 minutes',p);\n+    if not exists (select 1 from public.national_rain_cases where slug=s and status='forecast') then\n+      raise exception 'unknown or intervening rain ended the case';\n+    end if;\n+  end loop;\n+\n+  perform public.ingest_national_rain_case_version(base+17*interval '5 minutes',\n+    jsonb_build_array(jsonb_build_object('band','detail','validTime','2026-11-25T13:35:00.000Z','complete',true,'municipalities','[]'::jsonb)));\n+  if not exists (select 1 from public.national_rain_cases where slug=s and status='ended' and details_expire_at is null) then\n+    raise exception 'two dry versions did not end the permanent case';\n+  end if;\n+  perform public.verify_national_rain_case(s,'Municipal radar maximum (isolated fixture)',\n+    jsonb_build_object(first_target,30));\n+  if not exists (select 1 from public.national_rain_cases where slug=s and status='verified'\n+    and (verification_summary->>'match')::int=1 and (verification_summary->>'unknown')::int>0) then\n+    raise exception 'verification did not preserve unknown and matched observations';\n+  end if;\n+end $$;\n+\n+do $$\n+declare\n+  b timestamptz := '2026-11-26 01:00Z';\n+  s text := '12207-20261126-1000';\n+  p jsonb;\n+  i integer;\n+begin\n+  p := jsonb_build_array(jsonb_build_object('band','detail','validTime','2026-11-26T01:05:00.000Z',\n+    'complete',true,'municipalities',jsonb_build_array(jsonb_build_object(\n+      'code','12207','prefecture','千葉県','municipality','松戸市','minimumMmPerHour',30,'basetime','20261126010000'))));\n+  perform public.ingest_national_rain_case_version(b,p);\n+  for i in 1..2 loop\n+    perform public.ingest_national_rain_case_version(b+i*interval '5 minutes',\n+      jsonb_build_array(jsonb_build_object('band','detail','validTime','2026-11-26T01:20:00.000Z','complete',true,'municipalities','[]'::jsonb)));\n+  end loop;\n+  if not exists (select 1 from public.national_rain_cases where slug=s and status='ended'\n+      and not permanent and details_expire_at=ended_at+interval '7 days') then raise exception 'retention not assigned'; end if;\n+  update public.national_rain_cases set details_expire_at=now()-interval '1 minute' where slug=s;\n+  perform public.ingest_national_rain_case_version(b+interval '10 minutes',\n+    jsonb_build_array(jsonb_build_object('band','detail','validTime','2026-11-26T01:20:00.000Z','complete',true,'municipalities','[]'::jsonb)));\n+  if exists (select 1 from public.national_rain_case_versions where slug=s)\n+     or not exists (select 1 from public.national_rain_cases where slug=s)\n+     or not exists (select 1 from public.national_rain_case_versions where slug='17384-20261125-2105') then raise exception 'retention layers failed'; end if;\n+  if has_table_privilege('anon', 'public.national_rain_cases', 'select')\n+     or has_function_privilege('authenticated', 'public.ingest_national_rain_case_version(timestamptz,jsonb)', 'execute')\n+     or not has_function_privilege('service_role', 'public.verify_national_rain_case(text,text,jsonb)', 'execute') then\n+    raise exception 'case privileges are incorrect';\n+  end if;\n+end $$;\n+rollback;\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/tests/sql/national-rain-cases-integration.sql",
+      "source": {
+        "path": "tests/sql/national-rain-cases-integration.sql",
+        "coverage": "全文",
+        "text": "begin;\ndo $$\ndeclare\n  base timestamptz := '2026-11-25 12:05Z';\n  values_tier int[] := array[30,30,30,50,50,30,30,80,50,80,80,30];\n  i integer;\n  p jsonb;\n  s text := '17384-20261125-2105';\n  extended_only jsonb;\n  first_target text := '2026-11-25T12:10:00.000Z';\nbegin\n  extended_only := jsonb_build_array(\n    jsonb_build_object('band','detail','validTime',first_target,'complete',true,'municipalities','[]'::jsonb),\n    jsonb_build_object('band','extended','validTime','2026-11-25T12:35:00.000Z','complete',true,\n      'municipalities',jsonb_build_array(jsonb_build_object('code','17384','basetime','20261125120000','minimumMmPerHour',50)))\n  );\n  perform public.ingest_national_rain_case_version(base - interval '5 minutes', extended_only);\n  if exists (select 1 from public.national_rain_cases) then raise exception 'extended only opened a case'; end if;\n\n  for i in 0..11 loop\n    p := jsonb_build_array(jsonb_build_object(\n      'band','detail','validTime',to_char((base + (i+1)*interval '5 minutes') at time zone 'UTC','YYYY-MM-DD\"T\"HH24:MI:SS\".000Z\"'),\n      'complete',true,'tileCoverage','[]'::jsonb,\n      'municipalities',jsonb_build_array(jsonb_build_object('code','17384','prefecture','石川県',\n        'municipality','志賀町','minimumMmPerHour',values_tier[i+1],\n        'basetime',to_char((base+i*interval '5 minutes') at time zone 'UTC','YYYYMMDDHH24MISS')))\n    ));\n    if not public.ingest_national_rain_case_version(base+i*interval '5 minutes', p) then raise exception 'new batch rejected'; end if;\n    if public.ingest_national_rain_case_version(base+i*interval '5 minutes', p) then raise exception 'duplicate accepted'; end if;\n  end loop;\n  if (select count(*) from public.national_rain_cases) <> 1 or\n     (select count(*) from public.national_rain_case_versions where slug=s) <> 12 or\n     not exists (select 1 from public.national_rain_cases where slug=s and permanent and peak_tier=80) then\n    raise exception 'Shika progression/uniqueness failed';\n  end if;\n\n  for i in 12..16 loop\n    p := jsonb_build_array(jsonb_build_object('band','detail',\n      'validTime',to_char((base+(i+1)*interval '5 minutes') at time zone 'UTC','YYYY-MM-DD\"T\"HH24:MI:SS\".000Z\"'),\n      'complete',i<>13,'municipalities','[]'::jsonb));\n    if i=15 then\n      p := jsonb_set(p, '{0,municipalities}', jsonb_build_array(jsonb_build_object('code','17384','prefecture','石川県',\n        'municipality','志賀町','minimumMmPerHour',30,\n        'basetime',to_char((base+i*interval '5 minutes') at time zone 'UTC','YYYYMMDDHH24MISS'))));\n    end if;\n    perform public.ingest_national_rain_case_version(base+i*interval '5 minutes',p);\n    if not exists (select 1 from public.national_rain_cases where slug=s and status='forecast') then\n      raise exception 'unknown or intervening rain ended the case';\n    end if;\n  end loop;\n\n  perform public.ingest_national_rain_case_version(base+17*interval '5 minutes',\n    jsonb_build_array(jsonb_build_object('band','detail','validTime','2026-11-25T13:35:00.000Z','complete',true,'municipalities','[]'::jsonb)));\n  if not exists (select 1 from public.national_rain_cases where slug=s and status='ended' and details_expire_at is null) then\n    raise exception 'two dry versions did not end the permanent case';\n  end if;\n  perform public.verify_national_rain_case(s,'Municipal radar maximum (isolated fixture)',\n    jsonb_build_object(first_target,30));\n  if not exists (select 1 from public.national_rain_cases where slug=s and status='verified'\n    and (verification_summary->>'match')::int=1 and (verification_summary->>'unknown')::int>0) then\n    raise exception 'verification did not preserve unknown and matched observations';\n  end if;\nend $$;\n\ndo $$\ndeclare\n  b timestamptz := '2026-11-26 01:00Z';\n  s text := '12207-20261126-1000';\n  p jsonb;\n  i integer;\nbegin\n  p := jsonb_build_array(jsonb_build_object('band','detail','validTime','2026-11-26T01:05:00.000Z',\n    'complete',true,'municipalities',jsonb_build_array(jsonb_build_object(\n      'code','12207','prefecture','千葉県','municipality','松戸市','minimumMmPerHour',30,'basetime','20261126010000'))));\n  perform public.ingest_national_rain_case_version(b,p);\n  for i in 1..2 loop\n    perform public.ingest_national_rain_case_version(b+i*interval '5 minutes',\n      jsonb_build_array(jsonb_build_object('band','detail','validTime','2026-11-26T01:20:00.000Z','complete',true,'municipalities','[]'::jsonb)));\n  end loop;\n  if not exists (select 1 from public.national_rain_cases where slug=s and status='ended'\n      and not permanent and details_expire_at=ended_at+interval '7 days') then raise exception 'retention not assigned'; end if;\n  update public.national_rain_cases set details_expire_at=now()-interval '1 minute' where slug=s;\n  perform public.ingest_national_rain_case_version(b+interval '10 minutes',\n    jsonb_build_array(jsonb_build_object('band','detail','validTime','2026-11-26T01:20:00.000Z','complete',true,'municipalities','[]'::jsonb)));\n  if exists (select 1 from public.national_rain_case_versions where slug=s)\n     or not exists (select 1 from public.national_rain_cases where slug=s)\n     or not exists (select 1 from public.national_rain_case_versions where slug='17384-20261125-2105') then raise exception 'retention layers failed'; end if;\n  if has_table_privilege('anon', 'public.national_rain_cases', 'select')\n     or has_function_privilege('authenticated', 'public.ingest_national_rain_case_version(timestamptz,jsonb)', 'execute')\n     or not has_function_privilege('service_role', 'public.verify_national_rain_case(text,text,jsonb)', 'execute') then\n    raise exception 'case privileges are incorrect';\n  end if;\nend $$;\nrollback;\n",
+        "sha256": "2754c6ae51df02b086ec5c0a07c17bdc1df046d74c1f07ec89bd8039abdf2ec8"
+      }
+    }
+  ],
+  "file_count": 6,
+  "reported_file_count": 6,
+  "commits": [
+    {
+      "sha": "3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea",
+      "message": "Implement public rain case persistence and post-scan ingestion (#307)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46019801882",
+      "id": 46019801882,
+      "updated_at": "2026-11-27T14:52:32Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46019801779",
+      "id": 46019801779,
+      "updated_at": "2026-11-27T14:52:40Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45979626173",
+      "id": 45979626173,
+      "updated_at": "2026-11-27T10:09:32Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45900652328",
+      "id": 45900652328,
+      "updated_at": "2026-11-26T21:48:53Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45900652242",
+      "id": 45900652242,
+      "updated_at": "2026-11-26T21:48:55Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45900652294",
+      "id": 45900652294,
+      "updated_at": "2026-11-26T21:49:41Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "c8bc94eee47c91f40dc650c800564e4085af195c",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46019939954",
+      "id": 46019939954,
+      "updated_at": "2026-11-27T14:53:22Z",
+      "event": "push"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "c8bc94eee47c91f40dc650c800564e4085af195c",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46019940073",
+      "id": 46019940073,
+      "updated_at": "2026-11-27T14:53:39Z",
+      "event": "push"
+    },
+    {
+      "name": "CI",
+      "head_sha": "c8bc94eee47c91f40dc650c800564e4085af195c",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46019939956",
+      "id": 46019939956,
+      "updated_at": "2026-11-27T14:53:23Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "STEP",
+    "base",
+    "byTime",
+    "caseStamp",
+    "complete",
+    "coverage",
+    "db",
+    "deadline",
+    "detail",
+    "epoch",
+    "evidence",
+    "forecast",
+    "frame",
+    "hit",
+    "key",
+    "latest",
+    "lead",
+    "main",
+    "newest",
+    "now",
+    "older",
+    "planNationalRainCaseVersion",
+    "planned",
+    "public",
+    "result",
+    "saved",
+    "slots",
+    "url",
+    "version"
+  ],
+  "related_sources": [
+    {
+      "path": "scripts/national-heavy-rain-scan.ts",
+      "coverage": "全文",
+      "text": "import { readFileSync } from \"node:fs\";\nimport { createClient } from \"@supabase/supabase-js\";\nimport { setTimeout as delay } from \"node:timers/promises\";\nimport { requireCompleteNationwideN03 } from \"../lib/weather/rain/lightRainNationwideN03\";\nimport { fetchForecastTargetTimes, type JmaTargetTime } from \"../lib/weather/providers/jma/targetTimes\";\nimport { buildJmaRainTileUrl } from \"../lib/weather/providers/jma/tileUrl\";\nimport { locateJmaRainPixelsAtLeast1mm } from \"../lib/weather/rain/lightRainProof\";\nimport { municipalitiesForLightRainTile } from \"../lib/weather/rain/lightRainMunicipalities\";\nimport { matchHeavyRainPixelsToMasks } from \"../lib/weather/rain/lightRainPixelMasks\";\nimport { openNationwidePixelMasks } from \"../lib/weather/rain/lightRainPixelMaskLoader\";\nimport { forecastTime } from \"../lib/weather/rain/nationalForecastSnapshot\";\nimport { NATIONAL_FORECAST_WIDE_TILES, type ForecastTilePayload, type ForecastTileVersion } from \"../lib/weather/rain/nationalForecastTiles\";\nimport { affectedAdministrativeAreas, type AdministrativeArea } from \"../lib/weather/rain/lightRainAdministrativeAreas\";\n\nconst root = process.argv[2] ?? \"\";\nif (!root) throw new Error(\"N03 root required\");\nconst MAX_TILES = Number(process.env.Z10_MAX_TILES ?? \"2500\");\nif (!Number.isInteger(MAX_TILES) || MAX_TILES < 1) throw new Error(\"Invalid Z10 tile budget\");\nconst maskDir = process.env.JMA_Z10_PIXEL_MASK_DIR ?? \"\";\nif (!maskDir) throw new Error(\"JMA_Z10_PIXEL_MASK_DIR is required\");\nconst N03_VERSION = \"20260101\";\nconst pixelMasks = openNationwidePixelMasks(maskDir, N03_VERSION);\nconst MINUTE = 60_000;\nconst CYCLE_BUDGET_MS = 4 * MINUTE;\nconst TABLE = \"national_rain_forecast_tile_versions\";\nconst utcStamp = (ms: number) => new Date(ms).toISOString().slice(0, 19).replace(/[-:T]/g, \"\");\nconst lon=(x:number,z:number)=>x/(2**z)*360-180;\nconst lat=(y:number,z:number)=>Math.atan(Math.sinh(Math.PI-2*Math.PI*y/(2**z)))*180/Math.PI;\nfunction bbox(area:AdministrativeArea):[number,number,number,number]{\n  const polys=area.geometry.type===\"Polygon\"?[area.geometry.coordinates as number[][][]]:area.geometry.coordinates as number[][][][];\n  let w=Infinity,s=Infinity,e=-Infinity,n=-Infinity;\n  for(const p of polys)for(const ring of p)for(const [x,y]of ring){w=Math.min(w,x);s=Math.min(s,y);e=Math.max(e,x);n=Math.max(n,y);}\n  return [w,s,e,n];\n}\nconst xy=(longitude:number,latitude:number,z:number):[number,number]=>{\n  const safe=Math.max(-85.05112878,Math.min(85.05112878,latitude));\n  const rad=safe*Math.PI/180;\n  return [Math.floor((longitude+180)/360*2**z),Math.floor((1-Math.asinh(Math.tan(rad))/Math.PI)/2*2**z)];\n};\nfunction limitParallelism(maximum: number) {\n  let active = 0;\n  const waiting: Array<() => void> = [];\n  return async function run<T>(work: () => Promise<T>): Promise<T> {\n    if (active < maximum) active++;\n    else await new Promise<void>(resolve => waiting.push(resolve));\n    try {\n      return await work();\n    } finally {\n      const next = waiting.shift();\n      if (next) next();\n      else active--;\n    }\n  };\n}\n\nconst z10Concurrency = Number(process.env.JMA_Z10_CONCURRENCY ?? \"4\");\nif (![4, 8].includes(z10Concurrency)) throw new Error(\"JMA_Z10_CONCURRENCY must be 4 or 8\");\nconst runTileRequest = limitParallelism(2 * z10Concurrency);\nconst runWideRequest = limitParallelism(2);\n\nasync function fetchTile(frame:{basetime:string;validtime:string},z:number,x:number,y:number, signal:AbortSignal){\n  const url=buildJmaRainTileUrl(frame,z,x,y);\n  const attempts: string[] = [];\n  for (let attempt = 0; attempt < 2; attempt++) {\n    signal.throwIfAborted();\n    const started = performance.now();\n    let outcome = \"transport_error\";\n    try {\n      const response = await fetch(url, { cache: \"no-store\", signal: AbortSignal.any([signal, AbortSignal.timeout(8_000)]) });\n      const headersMs = Math.round(performance.now()-started);\n      outcome = \"HTTP_\" + response.status;\n      if (response.ok) {\n        const bytes = Buffer.from(await response.arrayBuffer());\n        const bodyDoneMs = Math.round(performance.now()-started);\n        outcome = \"ok\";\n        console.log(JSON.stringify({event:\"JMA_TILE_FETCH\",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome:\"ok\",httpStatus:response.status,headersMs,bodyMs:bodyDoneMs-headersMs,elapsedMs:bodyDoneMs,bytes:bytes.length,cacheStatus:response.headers.get(\"x-cache\")}));\n        return bytes;\n      }\n      if (response.body) await response.body.cancel().catch(() => undefined);\n      if (response.status === 404) return null;\n      attempts.push(\"HTTP \" + response.status);\n      if (![408, 429, 500, 502, 503, 504].includes(response.status)) break;\n    } catch (error) {\n      outcome = signal.aborted ? \"slot_deadline_abort\" : error instanceof Error ? error.name : \"TransportError\";\n      attempts.push(outcome);\n    } finally {\n      if (outcome !== \"ok\") {\n        console.log(JSON.stringify({event:\"JMA_TILE_FETCH\",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome,elapsedMs:Math.round(performance.now()-started)}));\n      }\n    }\n    if (attempt < 1) await delay(500, undefined, { signal });\n  }\n  throw new Error(`INCOMPLETE_JMA_TILE ${url} attempts: ${attempts.join(\", \")}`);\n}\nfunction plannedDetailTiles(buffer: Buffer, x: number, y: number, indexed: IndexedArea[]) {\n  const bounds = [lon(x, 4), lat(y + 1, 4), lon(x + 1, 4), lat(y, 4)];\n  const relevant = indexed.filter(({ b }) => b[0] <= bounds[2] && b[2] >= bounds[0]\n    && b[1] <= bounds[3] && b[3] >= bounds[1]).map(({ area }) => area);\n  const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 4, x, y);\n  if (!pixels.length) return new Map<string, DetailTile>();\n  const areas = new Map(relevant.map(area => [area.code, area]));\n  const candidates = municipalitiesForLightRainTile(buffer, 4, x, y, relevant);\n  const rainyTiles = new Map<string, { x: number; y: number }>();\n  for (const { pixelX, pixelY } of pixels) {\n    const tileX = x * 64 + Math.floor(pixelX / 4);\n    const tileY = y * 64 + Math.floor(pixelY / 4);\n    rainyTiles.set(`${tileX}/${tileY}`, { x: tileX, y: tileY });\n  }\n  const planned = new Map<string, DetailTile>();\n  for (const candidate of candidates) {\n    const area = areas.get(candidate.code)!;\n    const [w, s, e, n] = bbox(area);\n    const [minX, minY] = xy(w, n, 10), [maxX, maxY] = xy(e, s, 10);\n    for (const [key, tile] of rainyTiles) {\n      if (tile.x < minX || tile.x > maxX || tile.y < minY || tile.y > maxY) continue;\n      const entry = planned.get(key) ?? { ...tile, areas: [] };\n      entry.areas.push(area);\n      planned.set(key, entry);\n    }\n  }\n  return planned;\n}\n\ntype IndexedArea = { area: AdministrativeArea; b: ReturnType<typeof bbox> };\ntype DetailTile = { x: number; y: number; areas: AdministrativeArea[] };\n\nasync function scanDetail(frame: JmaTargetTime, tile: DetailTile, signal: AbortSignal) {\n  const { x, y, areas } = tile;\n  const buffer = await runTileRequest(() => fetchTile(frame, 10, x, y, signal));\n  if (!buffer) return null;\n  const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 10, x, y);\n  const unlistedAndDisjoint = pixels.length > 0 && !pixelMasks.has(x, y)\n    && !affectedAdministrativeAreas([{ coordinates: [[\n      [lon(x, 10), lat(y, 10)], [lon(x + 1, 10), lat(y, 10)],\n      [lon(x + 1, 10), lat(y + 1, 10)], [lon(x, 10), lat(y + 1, 10)],\n    ]] }], areas).length;\n  const municipalities = pixels.length && !unlistedAndDisjoint\n    ? matchHeavyRainPixelsToMasks(pixels, x, y, pixelMasks.load(x, y), areas)\n    : [];\n  return municipalities.map(area => ({ ...area, radarTile: { x, y } }));\n}\n\nasync function scanRegion(row: ForecastTileVersion, indexed: IndexedArea[], signal: AbortSignal) {\n  const { x, y, payload } = row;\n  const frame = { basetime: row.base_time, validtime: row.valid_time, elements: [\"hrpns\"] };\n  const buffer = await runWideRequest(() => runTileRequest(() => fetchTile(frame, 4, x, y, signal)));\n  if (!buffer) return null;\n  const plan = plannedDetailTiles(buffer, x, y, indexed);\n  const tiles = { ...payload?.tiles };\n  if (payload) {\n    // The same JMA version has the same coverage plan. Treat any previously\n    // unresolved child as unknown until its own tile can be decoded.\n    for (const key of payload.pending) {\n      if (!plan.has(key)) {\n        const [x, y] = key.split(\"/\").map(Number);\n        plan.set(key, { x, y, areas: indexed.filter(({ b }) =>\n          b[0] <= lon(x + 1, 10) && b[2] >= lon(x, 10)\n          && b[1] <= lat(y, 10) && b[3] >= lat(y + 1, 10)).map(({ area }) => area) });\n      }\n    }\n  }\n  const jobs = [...plan].filter(([key]) => !(key in tiles));\n  const result: ForecastTilePayload = { pending: jobs.map(([key]) => key), tiles };\n  const attempts = jobs.slice(0, MAX_TILES);\n  for (let offset = 0; offset < attempts.length && !signal.aborted; offset += z10Concurrency) {\n    const batch = attempts.slice(offset, offset + z10Concurrency);\n    const outcomes = await Promise.allSettled(batch.map(([, tile]) => scanDetail(frame, tile, signal)));\n    for (const [index, outcome] of outcomes.entries()) {\n      if (outcome.status === \"fulfilled\" && outcome.value !== null) {\n        const [key] = batch[index];\n        tiles[key] = outcome.value;\n      }\n    }\n  }\n  result.pending = result.pending.filter(key => !(key in tiles));\n  return result;\n}\n\nasync function main() {\n  const url = process.env.SUPABASE_URL;\n  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;\n  if (!url || !key) throw new Error(\"Missing forecast storage credentials\");\n  const db = createClient(url, key, { auth: { persistSession: false } });\n  const now = Date.now();\n  const stamp = utcStamp(now);\n  const { error: cleanupError } = await db.from(TABLE).delete().lt(\"valid_time\", utcStamp(now - 24 * 60 * MINUTE));\n  if (cleanupError) throw new Error(\"FORECAST_TILE_CLEANUP_FAILED\");\n\n  const timeIndexSignal = AbortSignal.timeout(15_000);\n  let targets: JmaTargetTime[];\n  try {\n    targets = await fetchForecastTargetTimes((input, init) => fetch(input, { ...init, signal: timeIndexSignal }));\n  } catch (error) {\n    console.error(\"FORECAST_TARGET_INDEX_UNAVAILABLE\", error);\n    targets = [];\n  }\n  const newRows = new Map<string, ForecastTileVersion>();\n  for (const { basetime, validtime } of targets) {\n    if (!/^\\d{14}$/.test(basetime) || !/^\\d{14}$/.test(validtime)) continue;\n    const base = forecastTime(basetime);\n    const valid = forecastTime(validtime);\n    const lead = (valid - base) / MINUTE;\n    if (!(base <= now && valid > now && lead >= 5 && lead <= 60 && lead % 5 === 0)) continue;\n    for (const [x, y] of NATIONAL_FORECAST_WIDE_TILES) {\n      const row = { base_time: basetime, valid_time: validtime, extended: lead > 30, x, y, payload: null };\n      newRows.set(`${validtime}/${basetime}/${x}/${y}`, row);\n    }\n  }\n  if (newRows.size) {\n    const { error } = await db.from(TABLE).upsert([...newRows.values()], { ignoreDuplicates: true });\n    if (error) throw new Error(\"FORECAST_TILE_QUEUE_WRITE_FAILED\");\n  }\n  const { data, error } = await db.from(TABLE)\n    .select(\"valid_time,base_time,extended,x,y,payload\").gt(\"valid_time\", stamp)\n    .order(\"base_time\", { ascending: false }).order(\"valid_time\");\n  if (error) throw new Error(\"FORECAST_TILE_QUEUE_READ_FAILED\");\n\n  const coverage = requireCompleteNationwideN03(root);\n  const manifest = JSON.parse(readFileSync(maskDir + \"/manifest.json\", \"utf8\"));\n  if (manifest.municipalities !== coverage.municipalities) throw new Error(\"N03_LRPM_COVERAGE_MISMATCH\");\n  const indexed = coverage.areas.map(area => ({ area, b: bbox(area) }));\n  const cycleSignal = AbortSignal.timeout(Math.max(1, CYCLE_BUDGET_MS - (Date.now() - now)));\n  const runRegion = limitParallelism(2);\n  const complete = new Set<string>();\n  const work = new Map<string, ForecastTileVersion[]>();\n  for (const row of data as ForecastTileVersion[]) {\n    const region = `${row.valid_time}/${row.extended}/${row.x}/${row.y}`;\n    if (complete.has(region)) continue;\n    if (row.payload && !row.payload.pending.length) {\n      complete.add(region);\n      continue;\n    }\n    const versions = work.get(region) ?? [];\n    versions.push(row);\n    work.set(region, versions);\n  }\n  // Attempt one version per region in each pass so old retries do not block first reads.\n  const regions = [...work.entries()];\n  let failures = 0;\n  let writes = 0;\n  for (let pass = 0; regions.some(([, versions]) => versions.length > pass) && !cycleSignal.aborted; pass++) {\n    const satisfied = new Set<string>();\n    await Promise.all(regions.map(([region, versions]) => runRegion(async () => {\n      const row = versions[pass];\n      if (!row || cycleSignal.aborted || forecastTime(row.valid_time) <= Date.now()) return;\n      const signal = AbortSignal.any([cycleSignal, AbortSignal.timeout(Math.max(1, forecastTime(row.valid_time) - Date.now()))]);\n      let payload: ForecastTilePayload | null;\n      try {\n        payload = await scanRegion(row, indexed, signal);\n      } catch (error) {\n        failures++;\n        console.error(\"FORECAST_REGION_SCAN_FAILED\", row.base_time, row.valid_time, row.x, row.y, error);\n        return;\n      }\n      if (!payload || forecastTime(row.valid_time) <= Date.now()) return;\n      const { error } = await db.from(TABLE).update({ payload, updated_at: new Date().toISOString() })\n        .match({ base_time: row.base_time, valid_time: row.valid_time, extended: row.extended, x: row.x, y: row.y })\n        .abortSignal(AbortSignal.timeout(8_000));\n      if (error) {\n        failures++;\n        console.error(\"FORECAST_TILE_WRITE_FAILED\", row.base_time, row.valid_time, row.x, row.y, error.code);\n        return;\n      }\n      writes++;\n      if (!payload.pending.length) satisfied.add(region);\n      console.log(JSON.stringify({ event: \"FORECAST_REGION_UPDATED\", base: row.base_time, valid: row.valid_time,\n        x: row.x, y: row.y, pending: payload.pending.length, detailTiles: Object.keys(payload.tiles).length }));\n    })));\n    for (const [region, versions] of regions) if (satisfied.has(region)) versions.length = 0;\n  }\n  console.log(JSON.stringify({ event: \"FORECAST_TILE_CYCLE\", writes, failures, budgetExpired: cycleSignal.aborted }));\n  if (failures || (!writes && (!targets.length || regions.some(([, versions]) => versions.length)))) {\n    throw new Error(\"NO_FORECAST_TILE_UPDATES\");\n  }\n}\n\nmain().catch(error => {\n  console.error(error instanceof Error ? error.message : \"FORECAST_SCAN_FAILED\");\n  process.exitCode = 1;\n});\n",
+      "sha256": "7978b36c7173435678df5d0265bc308291fa9ec49853b11ffe3d1ca2a42115e4",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/scripts/national-heavy-rain-scan.ts"
+    },
+    {
+      "path": "scripts/prepare-national-rain-inputs.ts",
+      "coverage": "全文",
+      "text": "import { mkdir, writeFile } from \"node:fs/promises\";\nimport { join } from \"node:path\";\nimport { spawnSync } from \"node:child_process\";\nimport { createClient } from \"@supabase/supabase-js\";\nimport { ALL_PREFECTURE_CODES } from \"../lib/weather/rain/lightRainNationwideN03\";\n\nasync function main() {\n  const [n03Dir, maskCache] = process.argv.slice(2);\n  const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = process.env;\n  if (!n03Dir || !maskCache || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {\n    throw new Error(\"National rain input configuration is incomplete\");\n  }\n\n  const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });\n  const storage = db.storage.from(\"national-rain-n03\");\n  await mkdir(n03Dir, { recursive: true });\n  const signal = AbortSignal.timeout(90_000);\n  for (let i = 0; i < ALL_PREFECTURE_CODES.length; i += 8) {\n    await Promise.all(ALL_PREFECTURE_CODES.slice(i, i + 8).map(async code => {\n      const filename = code + \".areas.json\";\n      const { data, error } = await storage.download(\"20260101/\" + filename, {}, { signal });\n      if (error || !data) throw new Error(\"N03_DOWNLOAD_FAILED: \" + code);\n      await writeFile(join(n03Dir, filename), Buffer.from(await data.arrayBuffer()));\n    }));\n  }\n\n  const { data, error } = await storage.createSignedUrl(\"20260101/lrpm-20260101-v1.tar.gz\", 180);\n  if (error || !data) throw new Error(\"LRPM_SIGNED_URL_FAILED\");\n  const result = spawnSync(process.execPath, [\n    \"--import\", \"tsx\", \"scripts/light-rain-mask-prepare.ts\", maskCache,\n  ], {\n    env: {\n      ...process.env,\n      SUPABASE_SERVICE_ROLE_KEY: \"\",\n      LRPM_ARCHIVE_URL: data.signedUrl,\n      LRPM_ARCHIVE_SHA256: \"5fb0823f190e9ed893ba5ee9ae47aa7b1e4a8ad9c26601e2cae8b14bc1de33d8\",\n    },\n    stdio: [\"ignore\", \"ignore\", \"ignore\"],\n    timeout: 130_000,\n  });\n  if (result.status !== 0) throw new Error(\"LRPM_PREPARATION_FAILED\");\n  console.log(\"Validated the versioned LRPM archive and downloaded 47 prefectures\");\n}\n\nmain().catch(error => {\n  console.error(error instanceof Error ? error.message : \"FORECAST_INPUTS_FAILED\");\n  process.exitCode = 1;\n});\n",
+      "sha256": "bedbf60252056d9b9a9f2f37adf1badb432da0c8e7f2757ed7f81c04b03ff959",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/scripts/prepare-national-rain-inputs.ts"
+    }
+  ],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "1e63d5ba0cdacc816cf253e1216d8c1c02c0b10f87cb1c39746bc259af377c1b",
+  "ci_digest": "38ef2b5dde08d2dfc4a763bf89930dfd1c2fdef792164d87a58b678763d1ffbf",
+  "collected_at": "2026-11-27T14:53:33.326547+00:00",
+  "decisions": [
+    {
+      "kind": "test",
+      "title": "uses the public complete tile and marks missing or stale coverage unknown",
+      "condition": "uses the public complete tile and marks missing or stale coverage unknown",
+      "behavior": "if (!forecast) return; ／ if (!newest) return; ／ if (now - base > NATIONAL_FORECAST_FRESHNESS_MS) return;",
+      "verification": "テストの期待値: expect(planned.p_base).toBe(new Date(base).toISOString()); ／ expect(planned.p_batch.find(slot => slot.validTime === \"2026-11-25T12:15:00.000Z\")) .toMatchObject({ complete: false, municipalities: [{ ...hit, minimumMmPerHour: 50, basetime: caseStamp(base - 300_000) }] }); ／ expect(planned.p_batch.find(slot => slot.validTime === \"2026-11-25T12:20:00.000Z\")) .toMatchObject({ complete: false, municipalities: [] }); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.ts#L7",
+        "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.test.ts#L17"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "does not advance on extended-only input or an old completed detail version",
+      "condition": "does not advance on extended-only input or an old completed detail version",
+      "behavior": "if (!forecast) return; ／ if (!newest) return; ／ if (now - base > NATIONAL_FORECAST_FRESHNESS_MS) return;",
+      "verification": "テストの期待値: expect(planNationalRainCaseVersion(version(35), now)).toBeUndefined(); ／ expect(planNationalRainCaseVersion(version(25, 10), now)).toBeUndefined(); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.ts#L7",
+        "https://github.com/miyazaki1016/emergencyalert/blob/3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea/lib/weather/rain/nationalRainCases.test.ts#L37"
+      ]
+    }
+  ]
+}
