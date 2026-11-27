@@ -59,6 +59,10 @@ jobs:
         env:
           PGPASSWORD: local-test-only
         run: psql -h localhost -U postgres -d phase1_test -v ON_ERROR_STOP=1 -f tests/sql/national-rain-forecast-snapshot-integration.sql
+      - name: Test isolated Bluesky staging, deduplication and hourly limit
+        env:
+          PGPASSWORD: local-test-only
+        run: psql -h localhost -U postgres -d phase1_test -v ON_ERROR_STOP=1 -f tests/sql/national-bluesky-case-publication-integration.sql
 
   phase1-feedback-http:
     runs-on: ubuntu-latest

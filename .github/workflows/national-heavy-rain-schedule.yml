@@ -71,3 +71,29 @@ jobs:
             ${{ runner.temp }}/n03
             ${{ runner.temp }}/lrpm
           key: ${{ steps.inputs.outputs.cache-primary-key }}
+
+  bluesky-publication:
+    needs: scan
+    if: needs.scan.result == 'success' && github.ref == 'refs/heads/main' && vars.BLUESKY_SEND_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: Production
+    timeout-minutes: 4
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-save --no-package-lock --no-audit --no-fund tsx@4.20.6
+      - name: Prepare H.264 encoder
+        run: command -v ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg) || true
+      - name: Plan and deliver published case alerts
+        env:
+          BLUESKY_SEND_ENABLED: ${{ vars.BLUESKY_SEND_ENABLED }}
+          BLUESKY_IDENTIFIER: ${{ secrets.BLUESKY_IDENTIFIER }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node --import tsx scripts/bluesky-case-publication.ts --live
