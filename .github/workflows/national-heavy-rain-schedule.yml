@@ -48,6 +48,14 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           JMA_Z10_CONCURRENCY: '8'
         run: JMA_Z10_PIXEL_MASK_DIR="$RUNNER_TEMP/lrpm/20260101-v1" node --import tsx scripts/national-heavy-rain-scan.ts "$RUNNER_TEMP/n03"
+      - name: Record public rain cases from published completed tiles
+        if: success() && github.ref == 'refs/heads/main'
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node --import tsx scripts/national-rain-cases.ts ingest
       - uses: actions/cache/save@v4
         if: always() && steps.inputs.outputs.cache-hit != 'true' && steps.prepare.outcome == 'success'
         with:
