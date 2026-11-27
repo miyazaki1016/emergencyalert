@@ -1,0 +1,141 @@
+{
+  "id": "pr-291",
+  "number": 291,
+  "title": "さきどり データ・通知担当の作業窓口",
+  "topics": [
+    "通知・配信"
+  ],
+  "purpose": "通知・メール配信とその運用に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Refs #289 · #256 · #287\n\n全国大雨予測のスキャン・公開・答え合わせと、MYアメふるの雨の見張り・通知。5分トリガー、Supabase、雨データの読み方は共通基盤として同じ担当が確認し、変更案では両経路への影響を示す。\n\n#256に出た作業指示をこのPRに `[SAKIDORI-REQUEST]` と元指示の直接URL付きで渡します。担当が原本と個別案件の着手前照合を確認し、結果を #287 に直接報告します。このPRは窓口の運用文書のみを含みます。\n\n[着手前照合 #45320834594](https://github.com/miyazaki1016/emergencyalert/actions/runs/45320834594) は NO_STRONG_MATCH、公開確定・preflight成功。\n\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-251\",\"decision\":\"reuse\",\"reason\":\"全国予測とMY監視の共通実行基盤という担当境界に既存の成果を使い、起動方式はこのPRでは変更しない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/251\"},{\"id\":\"pr-181\",\"decision\":\"distinct\",\"reason\":\"z4走査・欠損時の挙動の実装案で、担当窓口の登録とは別案件\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/181\"},{\"id\":\"pr-193\",\"decision\":\"distinct\",\"reason\":\"JASPICの認証・管理者メールの実装で、今回のさきどり担当窓口とは別案件\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/193\"},{\"id\":\"pr-253\",\"decision\":\"reuse\",\"reason\":\"トップとMYページの表示分担の根拠として参照し、表示コードはこのPRでは変更しない\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/253\"},{\"id\":\"pr-252\",\"decision\":\"reuse\",\"reason\":\"全国予報カードと地図表示の既存成果を担当境界の根拠にする\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/252\"},{\"id\":\"pr-210\",\"decision\":\"distinct\",\"reason\":\"固定版N03試作の表示実装で、今回の担当窓口の登録とは別案件\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/210\"}]}\n-->",
+  "snapshot_head": "2f3e9fa34d765681009704dc6c802016b8668f44",
+  "snapshot_consistent": true,
+  "head": "2f3e9fa34d765681009704dc6c802016b8668f44",
+  "base": "8e9f33e2563db45a6441e1127a1bab2e5654943e",
+  "base_ref": "main",
+  "head_ref": "ops/sakidori-data-notifications",
+  "state": "open",
+  "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
+  "draft": true,
+  "merged_at": null,
+  "merge_commit_sha": null,
+  "updated_at": "2026-11-27T18:44:42Z",
+  "code_facts": [],
+  "files": [
+    {
+      "path": "docs/operations/sakidori-data-notifications.md",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "patch": "diff --git a/docs/operations/sakidori-data-notifications.md b/docs/operations/sakidori-data-notifications.md\nnew file mode 100644\nindex 00000000..7c032bfa\n--- /dev/null\n+++ b/docs/operations/sakidori-data-notifications.md\n@@ -0,0 +1,8 @@\n+# さきどり データ・通知担当\n+\n+全国大雨予測のスキャン・公開・答え合わせと、MYアメふるの雨の見張り・通知。5分トリガー、Supabase、雨データの読み方は共通基盤として同じ担当が確認し、変更案では両経路への影響を示す。\n+\n+- [#256](https://github.com/miyazaki1016/emergencyalert/issues/256) で進行と元指示を確認し、担当PRへ `[SAKIDORI-REQUEST]` と元指示コメントの直接URLを投稿する。\n+- 所有者の投稿を原本照合し、個別案件の着手前照合が通った依頼だけ処理する。対象HEADとCI、既存の検証証拠を確認する。\n+- [#287](https://github.com/miyazaki1016/emergencyalert/issues/287) に一件ずつ直接報告する。担当名、元指示と起動コメントのURL、対象、結果、根拠、未決事項を記載し、同じ元指示と担当の報告は一度に限る。\n+- 自動タスクの範囲は読み取り、設計差分案、外部送信のない隔離合成試験。実装・本番適用は個別の運用手順による。\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2f3e9fa34d765681009704dc6c802016b8668f44/docs/operations/sakidori-data-notifications.md",
+      "source": {
+        "path": "docs/operations/sakidori-data-notifications.md",
+        "coverage": "全文",
+        "text": "# さきどり データ・通知担当\n\n全国大雨予測のスキャン・公開・答え合わせと、MYアメふるの雨の見張り・通知。5分トリガー、Supabase、雨データの読み方は共通基盤として同じ担当が確認し、変更案では両経路への影響を示す。\n\n- [#256](https://github.com/miyazaki1016/emergencyalert/issues/256) で進行と元指示を確認し、担当PRへ `[SAKIDORI-REQUEST]` と元指示コメントの直接URLを投稿する。\n- 所有者の投稿を原本照合し、個別案件の着手前照合が通った依頼だけ処理する。対象HEADとCI、既存の検証証拠を確認する。\n- [#287](https://github.com/miyazaki1016/emergencyalert/issues/287) に一件ずつ直接報告する。担当名、元指示と起動コメントのURL、対象、結果、根拠、未決事項を記載し、同じ元指示と担当の報告は一度に限る。\n- 自動タスクの範囲は読み取り、設計差分案、外部送信のない隔離合成試験。実装・本番適用は個別の運用手順による。\n",
+        "sha256": "97eae10249ec05252283bc75b99498d660c44597ca40ecbdfa52135603298e9a"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "2f3e9fa34d765681009704dc6c802016b8668f44",
+      "message": "docs: record Sakidori data-notifications intake\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/2f3e9fa34d765681009704dc6c802016b8668f44"
+    }
+  ],
+  "comments": [
+    {
+      "body": "[SAKIDORI-DISPATCH]\n担当：データ・通知\n\n元指示：https://github.com/miyazaki1016/emergencyalert/issues/256#issuecomment-7120460991\n案件Issue：https://github.com/miyazaki1016/emergencyalert/issues/288\n着手前照合：https://github.com/miyazaki1016/emergencyalert/actions/runs/45315442652 （confirmed、preflight success、NO_STRONG_MATCH）\n\n目的：2026-11-24 11:05・11:10・11:15（JST）の全国大雨スキャン3回連続失敗を切り分ける。\n\n成功条件：\n1. 3回それぞれの失敗箇所と理由をGitHub Actionsログで特定し、同一の deadline abort パターンか判定する。\n2. 直近7日間の同一パターンの発生回数を集計する。\n3. 同一パターンが6回連続に発展しうる条件を示す。\n4. 1〜3の結果と根拠のActions実行URL、未決事項を、担当名・元指示の直接URLとともに、先頭行 [SAKIDORI-REPORT] で Issue #287 に直接報告する。\n報告先：https://github.com/miyazaki1016/emergencyalert/issues/287\n\n許可範囲はGitHub Actions履歴・ログの読み取り調査と上記GitHub報告です。修正が必要なら対象と理由を報告に含めてください。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/291#issuecomment-7121669050"
+    },
+    {
+      "body": "[SAKIDORI-DISPATCH]\nデータ・通知担当へ。元指示 https://github.com/miyazaki1016/emergencyalert/issues/256#issuecomment-7122228223\n案件 https://github.com/miyazaki1016/emergencyalert/issues/292\n\n11月24日03:50–04:10と11:05–11:25（JST）の全国スキャン連続失敗が公開予報の鮮度・範囲に与えた影響を調べてください。#288 のActionsログと既存の記録を使い、対象時刻の欠け、旧版が残ったタイルと遅れを根拠付きで示し、再構成できない範囲も明記してください。本番接続は行わず、既存証跡から判断できる範囲で調査します。\n成功条件は、両時間帯の結果・根拠リンク・未決事項を担当名と元指示URL付きの [SAKIDORI-REPORT] として #287 に直接報告することです。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/291#issuecomment-7122683640"
+    },
+    {
+      "body": "[SAKIDORI-DISPATCH]\n担当：データ・通知\n案件：https://github.com/miyazaki1016/emergencyalert/issues/292\n元指示：https://github.com/miyazaki1016/emergencyalert/issues/256#issuecomment-7122228223\n追加確認の根拠：https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7132446918\n既存照合：https://github.com/miyazaki1016/emergencyalert/actions/runs/45327547796（confirmed / success / REVIEW_RECORDED）。最新main AGENTS.md に従い本文・判断・鮮度の一致を確認し、必要なら担当自身で追加照合を完了してから再開。\n目的：公開予報の表示経路が tile_versions の base_time 最大を選ぶか updated_at 最大を選ぶかを、既存コード・SQL・テストの原本から確定する。04:30対象と11:35対象の遅着旧版の既存証跡を使い、逆戻りの有無、同順位時の扱い、確認できない範囲を明示。対象2タイルの結果を全国に一般化しない。根拠のファイル・行・コミットURLと結論、残課題を #287 に [SAKIDORI-REPORT] で報告。既存調査の続きとして重複実行は避ける。読み取りと報告のみ、本番接続・コード変更・DB変更・マージ・デプロイは行わない。照合待ちは担当自身で解消し、追加承認を待たず許可範囲で継続。",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/291#issuecomment-7147368747"
+    },
+    {
+      "body": "[SAKIDORI-DISPATCH] 案件 #302 の作業依頼（データ・通知担当）\n\n宛先：データ・通知担当\n案件：#302「Bluesky投稿再開①：投稿候補生成の現行データ形状（タイル版管理）への適合確認とドライラン」\nhttps://github.com/miyazaki1016/emergencyalert/issues/302\n\n## 起動条件の解消\n\n保留の理由だった #292 の順序確認は、Muse が表示側コード原本で確定し、#287 に結論を投稿しました。\nhttps://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7174006208\n（表示は base_time 最大の完了版を選ぶため、遅れて書かれた旧版による巻き戻しは起きません）\n\n## 依頼内容\n\n実装準備パッケージに沿って進めてください。\n[MUSE-PREP] 案件 #302：https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7168041648\n方向の原本：https://github.com/miyazaki1016/emergencyalert/issues/256#issuecomment-7149670953\n\n要点：\n- 対象は第1段階のみ。PR #215 の投稿候補生成を現行のタイル版管理データ形状に適合させ、ドライラン（送信なし）まで。\n- 候補は各タイルの base_time 最大の完了版からのみ生成し、未取得を「雨が止んだ」と読み替えないこと（パッケージの安全条件どおり）。\n- 実投稿は別案件・別承認です。本依頼には含みません。\n\n## 報告\n\n完了したら、窓口 Issue #287 に [SAKIDORI-REPORT] で1回報告してください（PR の URL とドライラン結果つき）。Muse がパッケージの受入条件と突き合わせて最終監査を行います。\n\n※ この振り分けは Muse が所有者の指示で投稿したものです。マージ・本番反映の承認ではありません。\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/291#issuecomment-7174006900"
+    },
+    {
+      "body": "[SAKIDORI-DISPATCH]\n\n宛先：データ・通知担当\n案件：#302「Bluesky投稿再開①：投稿候補生成の現行データ形状（タイル版管理）への適合確認とドライラン」\nhttps://github.com/miyazaki1016/emergencyalert/issues/302\n\n## 起動条件の解消\n\n保留の理由だった #292 の順序確認は、Muse が表示側コード原本で確定し、#287 に結論を投稿しました。\nhttps://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7174006208\n（表示は base_time 最大の完了版を選ぶため、遅れて書かれた旧版による巻き戻しは起きません）\n\n## 依頼内容\n\n実装準備パッケージに沿って進めてください。\n[MUSE-PREP] 案件 #302：https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7168041648\n方向の原本：https://github.com/miyazaki1016/emergencyalert/issues/256#issuecomment-7149670953\n\n要点：\n- 対象は第1段階のみ。PR #215 の投稿候補生成を現行のタイル版管理データ形状に適合させ、ドライラン（送信なし）まで。\n- 候補は各タイルの base_time 最大の完了版からのみ生成し、未取得を「雨が止んだ」と読み替えないこと（パッケージの安全条件どおり）。\n- 実投稿は別案件・別承認です。本依頼には含みません。\n\n## 報告\n\n完了したら、窓口 Issue #287 に [SAKIDORI-REPORT] で1回報告してください（PR の URL とドライラン結果つき）。Muse がパッケージの受入条件と突き合わせて最終監査を行います。\n\n※ この振り分けは Muse が所有者の指示で投稿したものです。マージ・本番反映の承認ではありません。\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/291#issuecomment-7185403992"
+    },
+    {
+      "body": "[SAKIDORI-DISPATCH]\n案件 #307（事案ページ：自治体×エピソード）のデータ・通知担当分の実装依頼です。\n\n- 元指示（#256 [CLAUDE-DIRECTION]）：https://github.com/miyazaki1016/emergencyalert/issues/256#issuecomment-7202907764\n- 案件：Issue #307 https://github.com/miyazaki1016/emergencyalert/issues/307\n- 準備パッケージ（[MUSE-PREP]、受入条件 C1〜C8）：https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7202902225\n- 担当分：パッケージ第3節「データ・通知担当」と第4節の手順1〜4（マイグレーションによる事案テーブル群の新設、公開済み完成版を読む後段ステップとしての事案生成＝選択肢A推奨、保存の2層分け、答え合わせの追記処理）。手順7の合同確認はフロント担当分と合わせて後段で行う。\n- 完了条件：受入条件のうちデータ側（C1・C2・C3・C5の保存側・C6・C7）を満たし、テスト実施と Draft PR への反映まで行い、窓口 Issue #287 へ [SAKIDORI-REPORT] を1回投稿すること。答え合わせの実況フィード（C5）で判断が要る点と、30mm止まり詳細の保持期限（C6）は、パッケージの定めどおり実装時に固定し、完了報告に明記すること。\n- 境界：main へのマージと本番反映は Muse の最終監査の後に Muse が指示する（監査前にマージしないこと）。フロント担当分（事案ページの表示）は、テーブル形状が固まった後に別途振り分ける。\n- 着手前照合・鮮度・競合はパッケージ記載どおり Muse 側で確認済みです。再確認で止まらず、実装を完了まで進めてください。\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/291#issuecomment-7203990744"
+    },
+    {
+      "body": "[SAKIDORI-DISPATCH]\n再照合の再開指示（データ・通知担当）：監査PASS済みの PR #312（大雨の事案ページ保存側、案件 #307）について、PR本文へ判断記録を追加し、着手前照合を再実行して合格まで持っていくこと。判断記録の内容は監査コメントに全文記載済みなので、それをそのまま `<!-- history-preflight {...} -->` の decisions へ追加すること（新たな判断や確認は不要）。完了したら #287 へ報告すること。マージはまだ行わないこと（照合合格後に Muse がマージ指示を出す）。\n\n判断記録5件（pr-291 distinct／pr-266 reuse／pr-268 reuse／pr-275 distinct／pr-276 distinct）：\nhttps://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7204880012\n\n通常CIと Muse の最終監査は通過済みで、残っているのはこの判断記録の追記と再照合だけである。なお #312 は表示側 PR #314 の先行条件になっているため、早めの完了が望ましい。\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/291#issuecomment-7215476749"
+    },
+    {
+      "body": "[SAKIDORI-DISPATCH]\nPR #312（案件ページ保存側・案件 #307 データ側）を main へマージし、マイグレーションを本番 DB へ適用してください。これは Muse の最終監査 PASS と再照合合格を受けた、マージ可否の委任ルール（2026-11-27 ユーザー決定）に基づくマージ指示です。#314 の公開に先立つ前提作業です。\n\n対象:\n- PR #312（branch `feat/national-rain-cases-307`、head `3572f9c5b2`）\n\n根拠:\n- 最終監査 PASS（C1/C2/C3/C6/C7/C8。C5 は保存側合格・実況フィード接続は後続）: https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7204880012\n- 再照合: PR 本文に判断記録（history-preflight、Muse の判断案5件）が追記され、preflight・回帰テストの success を Muse 側で確認済み（2026-11-27 19:09 JST）。\n\n実施内容:\n1. PR #312 を main へマージする。\n2. マイグレーションを本番 DB へ適用し、`national_rain_cases` / `national_rain_case_versions` / `national_rain_case_cursor` が作成されたことを確認する。\n3. 適用後のスキャンで、ケース生成が動き始めること、およびケース生成の失敗がスキャン公開を止めないこと（C7 フェイルアイソレーション）を確認する。\n4. 結果を #287 へ1回だけ報告する（マージ完了時刻・DB適用結果・ケース生成の初回確認を含む）。\n\n注意:\n- PR #314 のマージはまだ行わないでください。この報告を受けた後、Muse から #314 のマージ指示を出します。\n- 問題が起きた場合は作業を止めて #287 へ報告してください。\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/291#issuecomment-7220166009"
+    },
+    {
+      "body": "[SAKIDORI-DISPATCH]\n案件 #307 の残件：答え合わせの実況フィード接続（受入条件 C5 の未接続分）を実装してください。保存側と表示側は本番稼働中です。\n\n元指示・根拠:\n- 方向 [CLAUDE-DIRECTION]（#256）: https://github.com/miyazaki1016/emergencyalert/issues/256#issuecomment-7202907764\n- データ側 最終監査（C5 は保存側合格・実況フィードは後続として分離）: https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7204880012\n- 基準 main: `77e557659bef`（#312 マージ済み、`national_rain_cases` / `national_rain_case_versions` は本番稼働中）\n\n実施内容:\n1. 終了した事案について、予報時刻ごとの実況（レーダー実況）を取得し、`national_rain_case_versions` の verification へ自動で書き込む。事案の status を verified へ進める。\n2. 実況の取得元は公的機関の公開データの範囲で選定する（データ原則：自前で作らない）。選んだ取得元と照合方法（予報時刻ごとの突合が主、事案サマリ併記）を確定し、報告に明記する。事案ページに方法の注記が必要な場合は、その文面案も報告に含めること（表示側の変更はフロント担当と分担）。\n3. 実況が取得できない予報時刻は「未取得」として正直に残す（雨なしと読み替えない）。\n4. 失敗がスキャン公開や事案生成を止めないこと（C7 の分離を維持）。\n\n進め方:\n- 専用ブランチで実装し、Draft PR を作成する。着手前照合の候補が出たら、判断記録は PR 本文へ（判断に迷う候補があれば #287 で Muse へ確認）。\n- 完了したら #287 へ1回だけ報告する（PR の URL、選定した取得元と照合方法、実データでの検証結果を含む）。マージは Muse の最終監査 PASS の後、別途指示します。\n- 問題があれば作業を止めて #287 へ報告してください。\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/291#issuecomment-7225484739"
+    },
+    {
+      "body": "[SAKIDORI-DISPATCH]\n案件 #317（Bluesky 本投稿・ステージ3）を、実装準備パッケージに従って実装してください。この案件は「投稿直前まで＋ドライラン検証」までで、実投稿の実行は含みません。\n\n元指示・根拠:\n- 方向 [CLAUDE-DIRECTION]（#256）: https://github.com/miyazaki1016/emergencyalert/issues/256#issuecomment-7225545473\n- 案件 Issue #317（受入条件 S1〜S6 の正本）: https://github.com/miyazaki1016/emergencyalert/issues/317\n- 実装準備パッケージ [MUSE-PREP]（#287）: https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7225545902\n- 着手前照合：合格済み（REVIEW_RECORDED / publication_status=confirmed / job success、証跡は Issue #317 の bot コメント）。着手時点の再照合は不要です。\n- 基準 main: `77e557659bef`\n\n実施内容:\n1. パッケージの手順どおり：ステージ1（PR #306）の計画・ゲートを再利用し、事案（national_rain_cases）との結合、階層ルール、投稿文＋事案ページ URL、送信記録による二重投稿防止、送信経路（認証は秘密管理、実送信フラグはデフォルト OFF）を実装する。\n2. 前提として PR #306 のマージが先です。未了の場合は PR #306 のブランチを土台にしてよいので、その旨を報告に明記すること。\n3. 本番の実事案データと再現フィクスチャの両方でドライラン検証し、計画一覧を完了報告に添付する。\n\n進め方:\n- 専用ブランチで実装し、Draft PR を作成する。新 PR の着手前照合で候補が出たら、判断記録は PR 本文へ（判断に迷う候補があれば #287 で Muse へ確認）。\n- 完了したら #287 へ1回だけ報告する（PR の URL、未確認事項だった4点＝認証の置き場所／ダイジェスト締め時刻／時間あたり上限／50mm まとめ閾値 の確定内容、ドライラン結果を含む）。\n- **実投稿は実行しないこと**（フラグ OFF のまま完了させる。初回実行はユーザーの go-ahead 後）。\n- 問題があれば作業を止めて #287 へ報告してください。\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/291#issuecomment-7225546323"
+    },
+    {
+      "body": "[SAKIDORI-DISPATCH]\n案件 #317（Bluesky ステージ3）に、MP4 パラパラ動画の添付を追加します（2026-11-28 ユーザー追加指示）。先の dispatch（https://github.com/miyazaki1016/emergencyalert/pull/291#issuecomment-7225546323）の内容に、以下を加えてください。\n\n- 補足パッケージ [MUSE-PREP]：本 dispatch と同時に #287 へ投稿する補足を参照（案件 Issue #317 には受入条件 S7 として追記済み、着手前照合は再確認済み）。\n\n追加内容:\n1. 個別投稿（80mm／50mm）には、その事案のレーダーフレームから生成した MP4（パラパラ動画、H.264）を添付する。ダイジェスト投稿はテキスト＋リンクのみ。\n2. フレームの元は事案ページの RadarPlayer と同じ予報フレーム（対象自治体のタイル、詳細帯の予報時刻列）。GIF 生成プロトタイプ（PR #222）が参考になる。Bluesky の動画制限（長さ・サイズ）内に収め、制限値と採用した動画仕様を報告に明記する。視認性のため拡大（例：512×512）も検討する。\n3. 動画生成の失敗で投稿を止めない（テキストのみで投稿し、失敗を送信記録に残す）。\n4. ドライラン検証の報告に、生成した MP4 のフレーム数・時刻範囲・対象自治体を添付する。\n\nその他の進め方は先の dispatch のとおり（実送信フラグは OFF のまま、完了報告は #287 へ1回、この補足分も含めて報告すること）。\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/pull/291#issuecomment-7225821463"
+    }
+  ],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "2f3e9fa34d765681009704dc6c802016b8668f44",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45320969125",
+      "id": 45320969125,
+      "updated_at": "2026-11-24T03:39:19Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "2f3e9fa34d765681009704dc6c802016b8668f44",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45320968889",
+      "id": 45320968889,
+      "updated_at": "2026-11-24T03:39:21Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "2f3e9fa34d765681009704dc6c802016b8668f44",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45320968848",
+      "id": 45320968848,
+      "updated_at": "2026-11-24T03:39:58Z",
+      "event": "pull_request"
+    }
+  ],
+  "symbols": [],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "49f89c8f243d098bbb500d8f781c7493e37ae3edb665fad9dbba232efb742b5b",
+  "ci_digest": "818b8928872a0df07048f02b88e963d0a5992a28fcfd202d3cb86f4111aa50a6",
+  "collected_at": "2026-11-27T19:05:46.507954+00:00",
+  "decisions": []
+}
