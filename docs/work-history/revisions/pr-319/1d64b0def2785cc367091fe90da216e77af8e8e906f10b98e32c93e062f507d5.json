@@ -1,0 +1,561 @@
+{
+  "id": "pr-319",
+  "number": 319,
+  "title": "終了した大雨事案を気象庁レーダー実況で自動照合 (#307)",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Refs #307 / #291\n\n- 既存の事案版と検証RPCを再利用し、終了した事案を気象庁のN1実況で事後照合します。\n- 予報有効時刻と基準時刻＝実況時刻の一致で照合し、自治体内の全z10タイルのLRPM領域を集計します。欠落タイルや未確認色は未取得。30 mm/h未満を示す値0は自治体内の対象画素を取得したときだけ登録します。\n- 既存スキャン・事案生成の後に独立した失敗許容・時間制限つきステップとして配置。本番反映前に監査を受けます。\n- ローカル型検査・Vitest全444件成功。実データ検証結果は追記します。\n\n[元指示](https://github.com/miyazaki1016/emergencyalert/issues/256#issuecomment-7202907764) ・ [起動](https://github.com/miyazaki1016/emergencyalert/pull/291#issuecomment-7225484739) ・ [着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/45811953896)\n\n<!-- history-preflight {\"schema_version\":1,\"decisions\":[{\"id\":\"pr-312\",\"decision\":\"extend\",\"reason\":\"既存の事案／版テーブルと照合用RPCを再利用し、気象庁の実況を接続する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/312\"},{\"id\":\"pr-99\",\"decision\":\"extend\",\"reason\":\"実況N1と同時刻の取得を再利用し、単地点の代わりに自治体の画素マスクを用いる。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/99\"},{\"id\":\"pr-250\",\"decision\":\"reuse\",\"reason\":\"本番スキャンで取得済みのN03 LRPMを同じランナーの後段から読み取る。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/250\"},{\"id\":\"pr-251\",\"decision\":\"reuse\",\"reason\":\"スキャン後段の独立ステップとして既存Actionsの回路を使う。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/251\"},{\"id\":\"pr-59\",\"decision\":\"reuse\",\"reason\":\"自治体境界に対応する既存の候補抽出・画素マスクの地理的定義を使う。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/59\"},{\"id\":\"pr-181\",\"decision\":\"distinct\",\"reason\":\"既存スキャンの予報検出処理は変更せず、別の実況照合ステップで欠測をそのまま扱う。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/181\"},{\"id\":\"pr-291\",\"decision\":\"distinct\",\"reason\":\"データ・通知担当の窓口で、実況照合のランタイム実装は含まない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/291\"},{\"id\":\"pr-314\",\"decision\":\"reuse\",\"reason\":\"事案ページの既存の照合表示が読むverificationと要約の契約を維持する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/314\"},{\"id\":\"pr-318\",\"decision\":\"distinct\",\"reason\":\"地図・一覧の事案表示導線であり終了後の実況照合には変更を加えない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/318\"},{\"id\":\"pr-306\",\"decision\":\"distinct\",\"reason\":\"予報候補を計画するドライランで、終了事案の実況比較とは役割が異なる。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/306\"}]} -->",
+  "snapshot_head": "db4986619f3b54a774053c497a034ff2d13c5dbb",
+  "snapshot_consistent": true,
+  "head": "db4986619f3b54a774053c497a034ff2d13c5dbb",
+  "base": "25ab1a1f91d097ba9fcfcc49a170b847154e363b",
+  "base_ref": "main",
+  "head_ref": "feat/rain-case-observations-307",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-27T19:05:31Z",
+  "merge_commit_sha": "e74f1393c8761b234c194ce4725532fd80a259dd",
+  "updated_at": "2026-11-27T19:05:31Z",
+  "code_facts": [
+    {
+      "file": ".github/workflows/national-heavy-rain-schedule.yml",
+      "kind": "実行する検証コマンド",
+      "expression": "run: JMA_Z10_PIXEL_MASK_DIR=\"$RUNNER_TEMP/lrpm/20260101-v1\" node --import tsx scripts/verify-national-rain-cases.ts",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/.github/workflows/national-heavy-rain-schedule.yml"
+    },
+    {
+      "file": "lib/weather/rain/lightRainPixelMaskLoader.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!tile) throw new Error(\"PIXEL_MASK_MANIFEST_TILE_INVALID\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/lightRainPixelMaskLoader.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.test.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function image(...pixels: number[][]) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"rain case observations\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"uses only pixels within the municipality mask and separates dry from unrecognized\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(observedTileTier(wet, mask)).toBe(50);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(observedTileTier(dry, mask)).toBe(0);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(observedTileTier(unclassified, mask)).toBeNull();",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"uses the exact published valid time and requires every municipality tile\", async () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(result).toEqual({ [times[0]]: 50, [times[1]]: null, [times[2]]: null });",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(readTile).toHaveBeenCalledTimes(4);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "export const CASE_OBSERVATION_METHOD =",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function observedTileTier(buffer: Buffer, mask: Uint8Array): ObservedTier | null {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (png.width !== TILE_PIXELS || png.height !== TILE_PIXELS) throw new Error(\"Unexpected JMA observation tile dimensions\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!maskHasPixel(mask, pixel)) continue;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (status === \"UNKNOWN_PIXEL\") return null;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (intensityClass === \"GTE_80\") peak = 80;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "else if (intensityClass === \"50_TO_80\" && peak < 50) peak = 50;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "else if (intensityClass === \"30_TO_50\" && peak < 30) peak = 30;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export async function collectCaseObservations({",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!Number.isFinite(epoch)) throw new Error(\"Invalid stored forecast valid time\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalRainCaseObservations.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!masks.length || !published.has(stamp)) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.ts"
+    },
+    {
+      "file": "scripts/verify-national-rain-cases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "const MAX_LEAD_MS = 60 * 60_000;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/scripts/verify-national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/verify-national-rain-cases.ts",
+      "kind": "関数・クラス定義",
+      "expression": "async function main() {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/scripts/verify-national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/verify-national-rain-cases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !JMA_Z10_PIXEL_MASK_DIR) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/scripts/verify-national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/verify-national-rain-cases.ts",
+      "kind": "HTTP要求",
+      "expression": "const targets = await fetchObservationTargetTimes((input, init) => fetch(input, {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/scripts/verify-national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/verify-national-rain-cases.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "const published = new Set(targets.map(t => t.validtime).filter(t => /^\\d{14}$/.test(t) && Number.isFinite(forecastTime(t))));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/scripts/verify-national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/verify-national-rain-cases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!Number.isFinite(latestObservation)) throw new Error(\"No valid JMA observation times\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/scripts/verify-national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/verify-national-rain-cases.ts",
+      "kind": "DB・ストレージ操作の呼出し",
+      "expression": "const { data: cases, error } = await db.from(\"national_rain_cases\")",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/scripts/verify-national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/verify-national-rain-cases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (error) throw new Error(\"Could not read ended rain cases\");",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/scripts/verify-national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/verify-national-rain-cases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!cases?.length) return;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/scripts/verify-national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/verify-national-rain-cases.ts",
+      "kind": "関数・クラス定義",
+      "expression": "function readTile(stamp: string, x: number, y: number) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/scripts/verify-national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/verify-national-rain-cases.ts",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!request) {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/scripts/verify-national-rain-cases.ts"
+    },
+    {
+      "file": "scripts/verify-national-rain-cases.ts",
+      "kind": "HTTP要求",
+      "expression": "const response = await fetch(buildJmaRainTileUrl({ basetime: stamp, validtime: stamp }, 10, x, y), {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/scripts/verify-national-rain-cases.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/national-heavy-rain-schedule.yml",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "patch": "diff --git a/.github/workflows/national-heavy-rain-schedule.yml b/.github/workflows/national-heavy-rain-schedule.yml\nindex 51e3ab3e..d746a4d0 100644\n--- a/.github/workflows/national-heavy-rain-schedule.yml\n+++ b/.github/workflows/national-heavy-rain-schedule.yml\n@@ -56,6 +56,14 @@ jobs:\n           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}\n           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}\n         run: node --import tsx scripts/national-rain-cases.ts ingest\n+      - name: Verify ended public rain cases with JMA observations\n+        if: success() && github.ref == 'refs/heads/main'\n+        continue-on-error: true\n+        timeout-minutes: 1\n+        env:\n+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}\n+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}\n+        run: JMA_Z10_PIXEL_MASK_DIR=\"$RUNNER_TEMP/lrpm/20260101-v1\" node --import tsx scripts/verify-national-rain-cases.ts\n       - uses: actions/cache/save@v4\n         if: always() && steps.inputs.outputs.cache-hit != 'true' && steps.prepare.outcome == 'success'\n         with:\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/.github/workflows/national-heavy-rain-schedule.yml",
+      "source": {
+        "path": ".github/workflows/national-heavy-rain-schedule.yml",
+        "coverage": "全文",
+        "text": "name: Nationwide heavy rain forecast\n\non:\n  workflow_dispatch:\n  schedule:\n    - cron: '*/5 * * * *'\n\npermissions:\n  contents: read\n\nconcurrency:\n  group: national-heavy-rain-production\n  cancel-in-progress: false\n\njobs:\n  scan:\n    if: github.repository == 'miyazaki1016/emergencyalert' && vars.NATIONAL_HEAVY_RAIN_ACTIONS_ENABLED == 'true' && (github.event_name != 'schedule' || vars.RAIN_ACTIONS_TRIGGER_SOURCE != 'cloudflare')\n    runs-on: ubuntu-latest\n    environment: Production\n    timeout-minutes: 9\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          persist-credentials: false\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 22\n      - run: npm install --no-save --no-package-lock --no-audit --no-fund tsx@4.20.6\n      # These official-N03-derived assets were already shared in the public\n      # verification artifacts. Never cache credentials or signed URLs here.\n      - uses: actions/cache/restore@v4\n        id: inputs\n        with:\n          path: |\n            ${{ runner.temp }}/n03\n            ${{ runner.temp }}/lrpm\n          key: national-heavy-rain-n03-20260101-lrpm-v1-5fb0823f190e\n      - name: Prepare verified N03 and LRPM inputs\n        id: prepare\n        if: steps.inputs.outputs.cache-hit != 'true'\n        env:\n          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}\n          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}\n        run: node --import tsx scripts/prepare-national-rain-inputs.ts \"$RUNNER_TEMP/n03\" \"$RUNNER_TEMP/lrpm\"\n      - name: Scan and publish latest fresh forecast\n        env:\n          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}\n          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}\n          JMA_Z10_CONCURRENCY: '8'\n        run: JMA_Z10_PIXEL_MASK_DIR=\"$RUNNER_TEMP/lrpm/20260101-v1\" node --import tsx scripts/national-heavy-rain-scan.ts \"$RUNNER_TEMP/n03\"\n      - name: Record public rain cases from published completed tiles\n        if: success() && github.ref == 'refs/heads/main'\n        continue-on-error: true\n        timeout-minutes: 1\n        env:\n          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}\n          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}\n        run: node --import tsx scripts/national-rain-cases.ts ingest\n      - name: Verify ended public rain cases with JMA observations\n        if: success() && github.ref == 'refs/heads/main'\n        continue-on-error: true\n        timeout-minutes: 1\n        env:\n          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}\n          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}\n        run: JMA_Z10_PIXEL_MASK_DIR=\"$RUNNER_TEMP/lrpm/20260101-v1\" node --import tsx scripts/verify-national-rain-cases.ts\n      - uses: actions/cache/save@v4\n        if: always() && steps.inputs.outputs.cache-hit != 'true' && steps.prepare.outcome == 'success'\n        with:\n          path: |\n            ${{ runner.temp }}/n03\n            ${{ runner.temp }}/lrpm\n          key: ${{ steps.inputs.outputs.cache-primary-key }}\n",
+        "sha256": "c89666a5d8bcf585eaf5fe80a1e33b1a6f46d60c723c1a03bc88a85272b35e7a"
+      }
+    },
+    {
+      "path": "lib/weather/rain/lightRainPixelMaskLoader.ts",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/lightRainPixelMaskLoader.ts b/lib/weather/rain/lightRainPixelMaskLoader.ts\nindex 5a6995c2..efe4e7bd 100644\n--- a/lib/weather/rain/lightRainPixelMaskLoader.ts\n+++ b/lib/weather/rain/lightRainPixelMaskLoader.ts\n@@ -29,6 +29,13 @@ export function openNationwidePixelMasks(root: string, n03Version: string) {\n   // The generated nationwide manifest is only ~100KB; never retain all\n   // 35.9MiB of masks in memory. Read a tile on demand.\n   return {\n+    *coordinates() {\n+      for (const file of Object.keys(manifest.files)) {\n+        const tile = /^z10\\/(\\d+)\\/(\\d+)\\.bin$/.exec(file);\n+        if (!tile) throw new Error(\"PIXEL_MASK_MANIFEST_TILE_INVALID\");\n+        yield { x: Number(tile[1]), y: Number(tile[2]) };\n+      }\n+    },\n     has(tileX: number, tileY: number): boolean {\n       return Object.hasOwn(manifest.files, `z10/${tileX}/${tileY}.bin`);\n     },\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/lightRainPixelMaskLoader.ts",
+      "source": {
+        "path": "lib/weather/rain/lightRainPixelMaskLoader.ts",
+        "coverage": "全文",
+        "text": "/** Strict, read-only loader for Muse's versioned LRPM z10 artifacts. */\nimport { createHash } from \"node:crypto\";\nimport { readFileSync } from \"node:fs\";\nimport { join } from \"node:path\";\nimport {\n  PIXEL_MASK_ALGORITHM_VERSION, PIXEL_MASK_FORMAT_VERSION,\n  decodeTilePixelMasks, type TilePixelMasks,\n} from \"./lightRainPixelMasks\";\n\ntype Manifest = {\n  format: string; formatVersion: number; algorithmVersion: number;\n  n03Version: string; zoom: number; prefectures: string[];\n  municipalities: number; tiles: number;\n  files: Record<string, { bytes: number; sha256: string }>;\n};\nconst ALL_PREFECTURES = Array.from({ length: 47 }, (_, i) => String(i + 1).padStart(2, \"0\"));\nexport function openNationwidePixelMasks(root: string, n03Version: string) {\n  const manifest = JSON.parse(readFileSync(join(root, \"manifest.json\"), \"utf8\")) as Manifest;\n  if (manifest.format !== \"light-rain-pixel-masks\" ||\n      manifest.formatVersion !== PIXEL_MASK_FORMAT_VERSION ||\n      manifest.algorithmVersion !== PIXEL_MASK_ALGORITHM_VERSION ||\n      manifest.n03Version !== n03Version || manifest.zoom !== 10 ||\n      !Array.isArray(manifest.prefectures) ||\n      ALL_PREFECTURES.some(p => !manifest.prefectures.includes(p)) ||\n      !manifest.files || Object.keys(manifest.files).length !== manifest.tiles ||\n      !Number.isInteger(manifest.municipalities) || manifest.municipalities <= 0) {\n    throw new Error(\"PIXEL_MASK_MANIFEST_INCOMPATIBLE\");\n  }\n  // The generated nationwide manifest is only ~100KB; never retain all\n  // 35.9MiB of masks in memory. Read a tile on demand.\n  return {\n    *coordinates() {\n      for (const file of Object.keys(manifest.files)) {\n        const tile = /^z10\\/(\\d+)\\/(\\d+)\\.bin$/.exec(file);\n        if (!tile) throw new Error(\"PIXEL_MASK_MANIFEST_TILE_INVALID\");\n        yield { x: Number(tile[1]), y: Number(tile[2]) };\n      }\n    },\n    has(tileX: number, tileY: number): boolean {\n      return Object.hasOwn(manifest.files, `z10/${tileX}/${tileY}.bin`);\n    },\n    load(tileX: number, tileY: number): TilePixelMasks {\n      const relative = `z10/${tileX}/${tileY}.bin`;\n      const meta = manifest.files[relative];\n      if (!meta) throw new Error(`PIXEL_MASK_MISSING: ${relative}`);\n      const bytes = readFileSync(join(root, relative));\n      if (bytes.length !== meta.bytes ||\n          createHash(\"sha256\").update(bytes).digest(\"hex\") !== meta.sha256) {\n        throw new Error(`PIXEL_MASK_CHECKSUM_MISMATCH: ${relative}`);\n      }\n      const masks = decodeTilePixelMasks(bytes);\n      if (masks.zoom !== 10 || masks.tileX !== tileX || masks.tileY !== tileY) {\n        throw new Error(`PIXEL_MASK_TILE_MISMATCH: ${relative}`);\n      }\n      return masks;\n    },\n  };\n}\n",
+        "sha256": "a7bd750d09f926aab0f4f9037c7b74da394cd00dd67719ea7abadda407ed8df4"
+      }
+    },
+    {
+      "path": "lib/weather/rain/nationalRainCaseObservations.test.ts",
+      "status": "modified",
+      "additions": 39,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/nationalRainCaseObservations.test.ts b/lib/weather/rain/nationalRainCaseObservations.test.ts\nnew file mode 100644\nindex 00000000..1c816a56\n--- /dev/null\n+++ b/lib/weather/rain/nationalRainCaseObservations.test.ts\n@@ -0,0 +1,39 @@\n+import { PNG } from \"pngjs\";\n+import { describe, expect, it, vi } from \"vitest\";\n+import { collectCaseObservations, observedTileTier } from \"./nationalRainCaseObservations\";\n+import { MASK_BYTES } from \"./lightRainPixelMasks\";\n+\n+function image(...pixels: number[][]) {\n+  const png = new PNG({ width: 256, height: 256 });\n+  png.data.fill(0);\n+  pixels.forEach((pixel, index) => png.data.set(pixel, index * 4));\n+  return PNG.sync.write(png);\n+}\n+\n+const mask = new Uint8Array(MASK_BYTES);\n+mask[0] = 1;\n+const wet = image([255, 40, 0, 255]);\n+const dry = image([0, 0, 0, 0], [180, 0, 104, 255]);\n+const unclassified = image([50, 25, 12, 255]);\n+\n+describe(\"rain case observations\", () => {\n+  it(\"uses only pixels within the municipality mask and separates dry from unrecognized\", () => {\n+    expect(observedTileTier(wet, mask)).toBe(50);\n+    expect(observedTileTier(dry, mask)).toBe(0);\n+    expect(observedTileTier(unclassified, mask)).toBeNull();\n+  });\n+\n+  it(\"uses the exact published valid time and requires every municipality tile\", async () => {\n+    const times = [\"2026-11-28T03:00:00.000Z\", \"2026-11-28T03:05:00.000Z\", \"2026-11-28T03:10:00.000Z\"];\n+    const readTile = vi.fn(async (stamp: string, x: number) =>\n+      stamp === \"20261128030500\" && x === 2 ? null : x === 1 ? wet : dry);\n+    const result = await collectCaseObservations({\n+      validTimes: [...times, times[0]],\n+      published: new Set([\"20261128030000\", \"20261128030500\"]),\n+      masks: [{ x: 1, y: 0, mask }, { x: 2, y: 0, mask }],\n+      readTile, signal: new AbortController().signal,\n+    });\n+    expect(result).toEqual({ [times[0]]: 50, [times[1]]: null, [times[2]]: null });\n+    expect(readTile).toHaveBeenCalledTimes(4);\n+  });\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.test.ts",
+      "source": {
+        "path": "lib/weather/rain/nationalRainCaseObservations.test.ts",
+        "coverage": "全文",
+        "text": "import { PNG } from \"pngjs\";\nimport { describe, expect, it, vi } from \"vitest\";\nimport { collectCaseObservations, observedTileTier } from \"./nationalRainCaseObservations\";\nimport { MASK_BYTES } from \"./lightRainPixelMasks\";\n\nfunction image(...pixels: number[][]) {\n  const png = new PNG({ width: 256, height: 256 });\n  png.data.fill(0);\n  pixels.forEach((pixel, index) => png.data.set(pixel, index * 4));\n  return PNG.sync.write(png);\n}\n\nconst mask = new Uint8Array(MASK_BYTES);\nmask[0] = 1;\nconst wet = image([255, 40, 0, 255]);\nconst dry = image([0, 0, 0, 0], [180, 0, 104, 255]);\nconst unclassified = image([50, 25, 12, 255]);\n\ndescribe(\"rain case observations\", () => {\n  it(\"uses only pixels within the municipality mask and separates dry from unrecognized\", () => {\n    expect(observedTileTier(wet, mask)).toBe(50);\n    expect(observedTileTier(dry, mask)).toBe(0);\n    expect(observedTileTier(unclassified, mask)).toBeNull();\n  });\n\n  it(\"uses the exact published valid time and requires every municipality tile\", async () => {\n    const times = [\"2026-11-28T03:00:00.000Z\", \"2026-11-28T03:05:00.000Z\", \"2026-11-28T03:10:00.000Z\"];\n    const readTile = vi.fn(async (stamp: string, x: number) =>\n      stamp === \"20261128030500\" && x === 2 ? null : x === 1 ? wet : dry);\n    const result = await collectCaseObservations({\n      validTimes: [...times, times[0]],\n      published: new Set([\"20261128030000\", \"20261128030500\"]),\n      masks: [{ x: 1, y: 0, mask }, { x: 2, y: 0, mask }],\n      readTile, signal: new AbortController().signal,\n    });\n    expect(result).toEqual({ [times[0]]: 50, [times[1]]: null, [times[2]]: null });\n    expect(readTile).toHaveBeenCalledTimes(4);\n  });\n});\n",
+        "sha256": "6b4c812f1f4a9fdb263a9ec0f1610efd8a6bb94983c37f531901ef9741b8c271"
+      }
+    },
+    {
+      "path": "lib/weather/rain/nationalRainCaseObservations.ts",
+      "status": "modified",
+      "additions": 72,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/nationalRainCaseObservations.ts b/lib/weather/rain/nationalRainCaseObservations.ts\nnew file mode 100644\nindex 00000000..15d3b1d5\n--- /dev/null\n+++ b/lib/weather/rain/nationalRainCaseObservations.ts\n@@ -0,0 +1,72 @@\n+import { classifyRainPixel } from \"../providers/jma/classifyPixel\";\n+import { PNG } from \"pngjs\";\n+import { maskHasPixel, TILE_PIXELS } from \"./lightRainPixelMasks\";\n+import { caseStamp } from \"./nationalRainCases\";\n+import { forecastTime } from \"./nationalForecastSnapshot\";\n+\n+export type ObservedTier = 0 | 30 | 50 | 80;\n+export type ObservationMask = { x: number; y: number; mask: Uint8Array };\n+\n+export const CASE_OBSERVATION_METHOD =\n+  \"気象庁の高解像度降水ナウキャスト（5分刻みのレーダー実況）。予報有効時刻と同時刻の実況を、自治体領域の最大降水強度階級（30・50・80 mm/h以上）で比較。取得できない時刻・領域は不明。\";\n+\n+export function observedTileTier(buffer: Buffer, mask: Uint8Array): ObservedTier | null {\n+  const png = PNG.sync.read(buffer);\n+  if (png.width !== TILE_PIXELS || png.height !== TILE_PIXELS) throw new Error(\"Unexpected JMA observation tile dimensions\");\n+  let peak: ObservedTier = 0;\n+  for (let pixel = 0; pixel < TILE_PIXELS ** 2; pixel++) {\n+    if (!maskHasPixel(mask, pixel)) continue;\n+    const offset = pixel * 4;\n+    const { status, intensityClass } = classifyRainPixel({\n+      r: png.data[offset], g: png.data[offset + 1], b: png.data[offset + 2], a: png.data[offset + 3],\n+    });\n+    if (status === \"UNKNOWN_PIXEL\") return null;\n+    if (intensityClass === \"GTE_80\") peak = 80;\n+    else if (intensityClass === \"50_TO_80\" && peak < 50) peak = 50;\n+    else if (intensityClass === \"30_TO_50\" && peak < 30) peak = 30;\n+  }\n+  return peak;\n+}\n+\n+export async function collectCaseObservations({\n+  validTimes, published, masks, readTile, signal,\n+}: {\n+  validTimes: Iterable<string>;\n+  published: ReadonlySet<string>;\n+  masks: ObservationMask[];\n+  readTile: (stamp: string, x: number, y: number) => Promise<Buffer | null>;\n+  signal: AbortSignal;\n+}) {\n+  const observations: Record<string, ObservedTier | null> = {};\n+  const jobs: { stamp: string; times: string[]; tile: ObservationMask }[] = [];\n+  const byStamp = new Map<string, string[]>();\n+  for (const time of new Set(validTimes)) {\n+    const epoch = forecastTime(time);\n+    if (!Number.isFinite(epoch)) throw new Error(\"Invalid stored forecast valid time\");\n+    const stamp = caseStamp(epoch);\n+    if (!masks.length || !published.has(stamp)) {\n+      observations[time] = null;\n+      continue;\n+    }\n+    const times = byStamp.get(stamp) ?? [];\n+    times.push(time);\n+    byStamp.set(stamp, times);\n+    observations[time] = 0;\n+  }\n+  for (const [stamp, times] of byStamp) {\n+    for (const tile of masks) jobs.push({ stamp, times, tile });\n+  }\n+  const parallelism = 8;\n+  for (let i = 0; i < jobs.length; i += parallelism) {\n+    signal.throwIfAborted();\n+    await Promise.all(jobs.slice(i, i + parallelism).map(async ({ stamp, times, tile }) => {\n+      const image = await readTile(stamp, tile.x, tile.y);\n+      const tier = image === null ? null : observedTileTier(image, tile.mask);\n+      for (const time of times) {\n+        const previous = observations[time];\n+        observations[time] = tier === null || previous === null ? null : tier > previous ? tier : previous;\n+      }\n+    }));\n+  }\n+  return observations;\n+}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.ts",
+      "source": {
+        "path": "lib/weather/rain/nationalRainCaseObservations.ts",
+        "coverage": "全文",
+        "text": "import { classifyRainPixel } from \"../providers/jma/classifyPixel\";\nimport { PNG } from \"pngjs\";\nimport { maskHasPixel, TILE_PIXELS } from \"./lightRainPixelMasks\";\nimport { caseStamp } from \"./nationalRainCases\";\nimport { forecastTime } from \"./nationalForecastSnapshot\";\n\nexport type ObservedTier = 0 | 30 | 50 | 80;\nexport type ObservationMask = { x: number; y: number; mask: Uint8Array };\n\nexport const CASE_OBSERVATION_METHOD =\n  \"気象庁の高解像度降水ナウキャスト（5分刻みのレーダー実況）。予報有効時刻と同時刻の実況を、自治体領域の最大降水強度階級（30・50・80 mm/h以上）で比較。取得できない時刻・領域は不明。\";\n\nexport function observedTileTier(buffer: Buffer, mask: Uint8Array): ObservedTier | null {\n  const png = PNG.sync.read(buffer);\n  if (png.width !== TILE_PIXELS || png.height !== TILE_PIXELS) throw new Error(\"Unexpected JMA observation tile dimensions\");\n  let peak: ObservedTier = 0;\n  for (let pixel = 0; pixel < TILE_PIXELS ** 2; pixel++) {\n    if (!maskHasPixel(mask, pixel)) continue;\n    const offset = pixel * 4;\n    const { status, intensityClass } = classifyRainPixel({\n      r: png.data[offset], g: png.data[offset + 1], b: png.data[offset + 2], a: png.data[offset + 3],\n    });\n    if (status === \"UNKNOWN_PIXEL\") return null;\n    if (intensityClass === \"GTE_80\") peak = 80;\n    else if (intensityClass === \"50_TO_80\" && peak < 50) peak = 50;\n    else if (intensityClass === \"30_TO_50\" && peak < 30) peak = 30;\n  }\n  return peak;\n}\n\nexport async function collectCaseObservations({\n  validTimes, published, masks, readTile, signal,\n}: {\n  validTimes: Iterable<string>;\n  published: ReadonlySet<string>;\n  masks: ObservationMask[];\n  readTile: (stamp: string, x: number, y: number) => Promise<Buffer | null>;\n  signal: AbortSignal;\n}) {\n  const observations: Record<string, ObservedTier | null> = {};\n  const jobs: { stamp: string; times: string[]; tile: ObservationMask }[] = [];\n  const byStamp = new Map<string, string[]>();\n  for (const time of new Set(validTimes)) {\n    const epoch = forecastTime(time);\n    if (!Number.isFinite(epoch)) throw new Error(\"Invalid stored forecast valid time\");\n    const stamp = caseStamp(epoch);\n    if (!masks.length || !published.has(stamp)) {\n      observations[time] = null;\n      continue;\n    }\n    const times = byStamp.get(stamp) ?? [];\n    times.push(time);\n    byStamp.set(stamp, times);\n    observations[time] = 0;\n  }\n  for (const [stamp, times] of byStamp) {\n    for (const tile of masks) jobs.push({ stamp, times, tile });\n  }\n  const parallelism = 8;\n  for (let i = 0; i < jobs.length; i += parallelism) {\n    signal.throwIfAborted();\n    await Promise.all(jobs.slice(i, i + parallelism).map(async ({ stamp, times, tile }) => {\n      const image = await readTile(stamp, tile.x, tile.y);\n      const tier = image === null ? null : observedTileTier(image, tile.mask);\n      for (const time of times) {\n        const previous = observations[time];\n        observations[time] = tier === null || previous === null ? null : tier > previous ? tier : previous;\n      }\n    }));\n  }\n  return observations;\n}\n",
+        "sha256": "731ac3cec211de8389af0e921728aab3b185f101358a7d35ef10610ffe537c47"
+      }
+    },
+    {
+      "path": "scripts/verify-national-rain-cases.ts",
+      "status": "modified",
+      "additions": 98,
+      "deletions": 0,
+      "patch": "diff --git a/scripts/verify-national-rain-cases.ts b/scripts/verify-national-rain-cases.ts\nnew file mode 100644\nindex 00000000..fe6979a3\n--- /dev/null\n+++ b/scripts/verify-national-rain-cases.ts\n@@ -0,0 +1,98 @@\n+import { createClient } from \"@supabase/supabase-js\";\n+import { fetchObservationTargetTimes } from \"../lib/weather/providers/jma/observationTargetTimes\";\n+import { buildJmaRainTileUrl } from \"../lib/weather/providers/jma/tileUrl\";\n+import { openNationwidePixelMasks } from \"../lib/weather/rain/lightRainPixelMaskLoader\";\n+import {\n+  CASE_OBSERVATION_METHOD, collectCaseObservations, type ObservationMask,\n+} from \"../lib/weather/rain/nationalRainCaseObservations\";\n+import { forecastTime } from \"../lib/weather/rain/nationalForecastSnapshot\";\n+\n+const MAX_LEAD_MS = 60 * 60_000;\n+\n+async function main() {\n+  const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, JMA_Z10_PIXEL_MASK_DIR } = process.env;\n+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !JMA_Z10_PIXEL_MASK_DIR) {\n+    throw new Error(\"Case observation inputs are unavailable\");\n+  }\n+  const deadline = AbortSignal.timeout(45_000);\n+  const targets = await fetchObservationTargetTimes((input, init) => fetch(input, {\n+    ...init, signal: AbortSignal.any([deadline, AbortSignal.timeout(5_000)]),\n+  }));\n+  const published = new Set(targets.map(t => t.validtime).filter(t => /^\\d{14}$/.test(t) && Number.isFinite(forecastTime(t))));\n+  const latestObservation = Math.max(...[...published].map(forecastTime));\n+  if (!Number.isFinite(latestObservation)) throw new Error(\"No valid JMA observation times\");\n+  const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });\n+  const { data: cases, error } = await db.from(\"national_rain_cases\")\n+    .select(\"slug,municipality_code\").eq(\"status\", \"ended\").is(\"verification_summary\", null)\n+    .lte(\"ended_at\", new Date(latestObservation - MAX_LEAD_MS).toISOString())\n+    .or(`details_expire_at.is.null,details_expire_at.gt.${new Date().toISOString()}`)\n+    .order(\"ended_at\").order(\"slug\").limit(12).abortSignal(deadline);\n+  if (error) throw new Error(\"Could not read ended rain cases\");\n+  if (!cases?.length) return;\n+\n+  const masks = openNationwidePixelMasks(JMA_Z10_PIXEL_MASK_DIR, \"20260101\");\n+  const byCode = new Map<string, ObservationMask[]>(cases.map(row => [row.municipality_code, []]));\n+  for (const tile of masks.coordinates()) {\n+    deadline.throwIfAborted();\n+    for (const entry of masks.load(tile.x, tile.y).entries) {\n+      byCode.get(entry.code)?.push({ ...tile, mask: entry.mask });\n+    }\n+  }\n+\n+  const cache = new Map<string, Promise<Buffer | null>>();\n+  function readTile(stamp: string, x: number, y: number) {\n+    const key = `${stamp}/${x}/${y}`;\n+    let request = cache.get(key);\n+    if (!request) {\n+      request = (async () => {\n+        const response = await fetch(buildJmaRainTileUrl({ basetime: stamp, validtime: stamp }, 10, x, y), {\n+          cache: \"no-store\", signal: AbortSignal.any([deadline, AbortSignal.timeout(5_000)]),\n+        });\n+        if (response.status === 404) return null;\n+        if (!response.ok) throw new Error(`Observation tile HTTP ${response.status}`);\n+        return Buffer.from(await response.arrayBuffer());\n+      })();\n+      cache.set(key, request);\n+    }\n+    return request;\n+  }\n+\n+  for (const incident of cases) {\n+    if (deadline.aborted) break;\n+    try {\n+      const times = new Set<string>();\n+      let after: string | undefined;\n+      const pageSize = 100;\n+      while (true) {\n+        let query = db.from(\"national_rain_case_versions\").select(\"base_time,slots\")\n+          .eq(\"slug\", incident.slug).order(\"base_time\").limit(pageSize);\n+        if (after) query = query.gt(\"base_time\", after);\n+        const { data, error: readError } = await query.abortSignal(deadline);\n+        if (readError) throw new Error(\"Could not read stored forecast times\");\n+        for (const version of data) {\n+          for (const slot of version.slots as { validTime: string }[]) times.add(slot.validTime);\n+        }\n+        if (data.length < pageSize) break;\n+        after = data.at(-1)?.base_time;\n+      }\n+      if (!times.size || [...times].some(time => forecastTime(time) > latestObservation)) continue;\n+      const observations = await collectCaseObservations({\n+        validTimes: times, published, masks: byCode.get(incident.municipality_code) ?? [], readTile, signal: deadline,\n+      });\n+      const { error: writeError } = await db.rpc(\"verify_national_rain_case\", {\n+        p_slug: incident.slug, p_method: CASE_OBSERVATION_METHOD, p_observations: observations,\n+      }).abortSignal(deadline);\n+      if (writeError) throw new Error(`Verification RPC failed: ${writeError.code}`);\n+      console.log(JSON.stringify({ event: \"CASE_OBSERVATIONS\", slug: incident.slug,\n+        available: Object.values(observations).filter(tier => tier !== null).length, total: times.size }));\n+    } catch (error) {\n+      console.warn(JSON.stringify({ event: \"CASE_OBSERVATIONS_DEFERRED\", slug: incident.slug,\n+        reason: error instanceof Error ? error.name : \"Error\" }));\n+    }\n+  }\n+}\n+\n+main().catch(error => {\n+  console.error(error instanceof Error ? error.name : \"CASE_OBSERVATIONS_FAILED\");\n+  process.exitCode = 1;\n+});\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/scripts/verify-national-rain-cases.ts",
+      "source": {
+        "path": "scripts/verify-national-rain-cases.ts",
+        "coverage": "全文",
+        "text": "import { createClient } from \"@supabase/supabase-js\";\nimport { fetchObservationTargetTimes } from \"../lib/weather/providers/jma/observationTargetTimes\";\nimport { buildJmaRainTileUrl } from \"../lib/weather/providers/jma/tileUrl\";\nimport { openNationwidePixelMasks } from \"../lib/weather/rain/lightRainPixelMaskLoader\";\nimport {\n  CASE_OBSERVATION_METHOD, collectCaseObservations, type ObservationMask,\n} from \"../lib/weather/rain/nationalRainCaseObservations\";\nimport { forecastTime } from \"../lib/weather/rain/nationalForecastSnapshot\";\n\nconst MAX_LEAD_MS = 60 * 60_000;\n\nasync function main() {\n  const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, JMA_Z10_PIXEL_MASK_DIR } = process.env;\n  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !JMA_Z10_PIXEL_MASK_DIR) {\n    throw new Error(\"Case observation inputs are unavailable\");\n  }\n  const deadline = AbortSignal.timeout(45_000);\n  const targets = await fetchObservationTargetTimes((input, init) => fetch(input, {\n    ...init, signal: AbortSignal.any([deadline, AbortSignal.timeout(5_000)]),\n  }));\n  const published = new Set(targets.map(t => t.validtime).filter(t => /^\\d{14}$/.test(t) && Number.isFinite(forecastTime(t))));\n  const latestObservation = Math.max(...[...published].map(forecastTime));\n  if (!Number.isFinite(latestObservation)) throw new Error(\"No valid JMA observation times\");\n  const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });\n  const { data: cases, error } = await db.from(\"national_rain_cases\")\n    .select(\"slug,municipality_code\").eq(\"status\", \"ended\").is(\"verification_summary\", null)\n    .lte(\"ended_at\", new Date(latestObservation - MAX_LEAD_MS).toISOString())\n    .or(`details_expire_at.is.null,details_expire_at.gt.${new Date().toISOString()}`)\n    .order(\"ended_at\").order(\"slug\").limit(12).abortSignal(deadline);\n  if (error) throw new Error(\"Could not read ended rain cases\");\n  if (!cases?.length) return;\n\n  const masks = openNationwidePixelMasks(JMA_Z10_PIXEL_MASK_DIR, \"20260101\");\n  const byCode = new Map<string, ObservationMask[]>(cases.map(row => [row.municipality_code, []]));\n  for (const tile of masks.coordinates()) {\n    deadline.throwIfAborted();\n    for (const entry of masks.load(tile.x, tile.y).entries) {\n      byCode.get(entry.code)?.push({ ...tile, mask: entry.mask });\n    }\n  }\n\n  const cache = new Map<string, Promise<Buffer | null>>();\n  function readTile(stamp: string, x: number, y: number) {\n    const key = `${stamp}/${x}/${y}`;\n    let request = cache.get(key);\n    if (!request) {\n      request = (async () => {\n        const response = await fetch(buildJmaRainTileUrl({ basetime: stamp, validtime: stamp }, 10, x, y), {\n          cache: \"no-store\", signal: AbortSignal.any([deadline, AbortSignal.timeout(5_000)]),\n        });\n        if (response.status === 404) return null;\n        if (!response.ok) throw new Error(`Observation tile HTTP ${response.status}`);\n        return Buffer.from(await response.arrayBuffer());\n      })();\n      cache.set(key, request);\n    }\n    return request;\n  }\n\n  for (const incident of cases) {\n    if (deadline.aborted) break;\n    try {\n      const times = new Set<string>();\n      let after: string | undefined;\n      const pageSize = 100;\n      while (true) {\n        let query = db.from(\"national_rain_case_versions\").select(\"base_time,slots\")\n          .eq(\"slug\", incident.slug).order(\"base_time\").limit(pageSize);\n        if (after) query = query.gt(\"base_time\", after);\n        const { data, error: readError } = await query.abortSignal(deadline);\n        if (readError) throw new Error(\"Could not read stored forecast times\");\n        for (const version of data) {\n          for (const slot of version.slots as { validTime: string }[]) times.add(slot.validTime);\n        }\n        if (data.length < pageSize) break;\n        after = data.at(-1)?.base_time;\n      }\n      if (!times.size || [...times].some(time => forecastTime(time) > latestObservation)) continue;\n      const observations = await collectCaseObservations({\n        validTimes: times, published, masks: byCode.get(incident.municipality_code) ?? [], readTile, signal: deadline,\n      });\n      const { error: writeError } = await db.rpc(\"verify_national_rain_case\", {\n        p_slug: incident.slug, p_method: CASE_OBSERVATION_METHOD, p_observations: observations,\n      }).abortSignal(deadline);\n      if (writeError) throw new Error(`Verification RPC failed: ${writeError.code}`);\n      console.log(JSON.stringify({ event: \"CASE_OBSERVATIONS\", slug: incident.slug,\n        available: Object.values(observations).filter(tier => tier !== null).length, total: times.size }));\n    } catch (error) {\n      console.warn(JSON.stringify({ event: \"CASE_OBSERVATIONS_DEFERRED\", slug: incident.slug,\n        reason: error instanceof Error ? error.name : \"Error\" }));\n    }\n  }\n}\n\nmain().catch(error => {\n  console.error(error instanceof Error ? error.name : \"CASE_OBSERVATIONS_FAILED\");\n  process.exitCode = 1;\n});\n",
+        "sha256": "0e8689c5ca1a7be83f15a13bb54eec7edcd726faf635d191656e9170332c1858"
+      }
+    }
+  ],
+  "file_count": 5,
+  "reported_file_count": 5,
+  "commits": [
+    {
+      "sha": "db4986619f3b54a774053c497a034ff2d13c5dbb",
+      "message": "Compare ended rain cases against JMA radar observations (#307)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/db4986619f3b54a774053c497a034ff2d13c5dbb"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "db4986619f3b54a774053c497a034ff2d13c5dbb",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46054202508",
+      "id": 46054202508,
+      "updated_at": "2026-11-27T19:05:40Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "db4986619f3b54a774053c497a034ff2d13c5dbb",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46054202523",
+      "id": 46054202523,
+      "updated_at": "2026-11-27T19:05:51Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "db4986619f3b54a774053c497a034ff2d13c5dbb",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46052047677",
+      "id": 46052047677,
+      "updated_at": "2026-11-27T18:47:35Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "db4986619f3b54a774053c497a034ff2d13c5dbb",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46052047663",
+      "id": 46052047663,
+      "updated_at": "2026-11-27T18:47:45Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "db4986619f3b54a774053c497a034ff2d13c5dbb",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46052047673",
+      "id": 46052047673,
+      "updated_at": "2026-11-27T18:48:14Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "db4986619f3b54a774053c497a034ff2d13c5dbb",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46052043089",
+      "id": 46052043089,
+      "updated_at": "2026-11-27T18:48:41Z",
+      "event": "create"
+    },
+    {
+      "name": "Nationwide heavy rain forecast",
+      "head_sha": "e74f1393c8761b234c194ce4725532fd80a259dd",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46054249721",
+      "id": 46054249721,
+      "updated_at": "2026-11-27T19:06:00Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "MY Amefuru rain watch",
+      "head_sha": "e74f1393c8761b234c194ce4725532fd80a259dd",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46054249716",
+      "id": 46054249716,
+      "updated_at": "2026-11-27T19:06:37Z",
+      "event": "workflow_dispatch"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "e74f1393c8761b234c194ce4725532fd80a259dd",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46054207336",
+      "id": 46054207336,
+      "updated_at": "2026-11-27T19:05:37Z",
+      "event": "push"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "e74f1393c8761b234c194ce4725532fd80a259dd",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46054207371",
+      "id": 46054207371,
+      "updated_at": "2026-11-27T19:05:58Z",
+      "event": "push"
+    },
+    {
+      "name": "CI",
+      "head_sha": "e74f1393c8761b234c194ce4725532fd80a259dd",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46054207389",
+      "id": 46054207389,
+      "updated_at": "2026-11-27T19:06:28Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "ALL_PREFECTURES",
+    "CASE_OBSERVATION_METHOD",
+    "MAX_LEAD_MS",
+    "after",
+    "byCode",
+    "byStamp",
+    "bytes",
+    "cache",
+    "collectCaseObservations",
+    "db",
+    "deadline",
+    "dry",
+    "entry",
+    "epoch",
+    "file",
+    "i",
+    "image",
+    "incident",
+    "jobs",
+    "key",
+    "latestObservation",
+    "main",
+    "manifest",
+    "mask",
+    "masks",
+    "meta",
+    "observations",
+    "observedTileTier",
+    "offset",
+    "openNationwidePixelMasks",
+    "pageSize",
+    "parallelism",
+    "peak",
+    "pixel",
+    "png",
+    "previous",
+    "published",
+    "query",
+    "readTile",
+    "relative",
+    "request",
+    "response",
+    "result",
+    "slot",
+    "stamp",
+    "targets",
+    "tier",
+    "tile",
+    "time",
+    "times",
+    "unclassified",
+    "version",
+    "wet"
+  ],
+  "related_sources": [
+    {
+      "path": "scripts/national-heavy-rain-scan.ts",
+      "coverage": "全文",
+      "text": "import { readFileSync } from \"node:fs\";\nimport { createClient } from \"@supabase/supabase-js\";\nimport { setTimeout as delay } from \"node:timers/promises\";\nimport { requireCompleteNationwideN03 } from \"../lib/weather/rain/lightRainNationwideN03\";\nimport { fetchForecastTargetTimes, type JmaTargetTime } from \"../lib/weather/providers/jma/targetTimes\";\nimport { buildJmaRainTileUrl } from \"../lib/weather/providers/jma/tileUrl\";\nimport { locateJmaRainPixelsAtLeast1mm } from \"../lib/weather/rain/lightRainProof\";\nimport { municipalitiesForLightRainTile } from \"../lib/weather/rain/lightRainMunicipalities\";\nimport { matchHeavyRainPixelsToMasks } from \"../lib/weather/rain/lightRainPixelMasks\";\nimport { openNationwidePixelMasks } from \"../lib/weather/rain/lightRainPixelMaskLoader\";\nimport { forecastTime } from \"../lib/weather/rain/nationalForecastSnapshot\";\nimport { NATIONAL_FORECAST_WIDE_TILES, type ForecastTilePayload, type ForecastTileVersion } from \"../lib/weather/rain/nationalForecastTiles\";\nimport { affectedAdministrativeAreas, type AdministrativeArea } from \"../lib/weather/rain/lightRainAdministrativeAreas\";\n\nconst root = process.argv[2] ?? \"\";\nif (!root) throw new Error(\"N03 root required\");\nconst MAX_TILES = Number(process.env.Z10_MAX_TILES ?? \"2500\");\nif (!Number.isInteger(MAX_TILES) || MAX_TILES < 1) throw new Error(\"Invalid Z10 tile budget\");\nconst maskDir = process.env.JMA_Z10_PIXEL_MASK_DIR ?? \"\";\nif (!maskDir) throw new Error(\"JMA_Z10_PIXEL_MASK_DIR is required\");\nconst N03_VERSION = \"20260101\";\nconst pixelMasks = openNationwidePixelMasks(maskDir, N03_VERSION);\nconst MINUTE = 60_000;\nconst CYCLE_BUDGET_MS = 4 * MINUTE;\nconst TABLE = \"national_rain_forecast_tile_versions\";\nconst utcStamp = (ms: number) => new Date(ms).toISOString().slice(0, 19).replace(/[-:T]/g, \"\");\nconst lon=(x:number,z:number)=>x/(2**z)*360-180;\nconst lat=(y:number,z:number)=>Math.atan(Math.sinh(Math.PI-2*Math.PI*y/(2**z)))*180/Math.PI;\nfunction bbox(area:AdministrativeArea):[number,number,number,number]{\n  const polys=area.geometry.type===\"Polygon\"?[area.geometry.coordinates as number[][][]]:area.geometry.coordinates as number[][][][];\n  let w=Infinity,s=Infinity,e=-Infinity,n=-Infinity;\n  for(const p of polys)for(const ring of p)for(const [x,y]of ring){w=Math.min(w,x);s=Math.min(s,y);e=Math.max(e,x);n=Math.max(n,y);}\n  return [w,s,e,n];\n}\nconst xy=(longitude:number,latitude:number,z:number):[number,number]=>{\n  const safe=Math.max(-85.05112878,Math.min(85.05112878,latitude));\n  const rad=safe*Math.PI/180;\n  return [Math.floor((longitude+180)/360*2**z),Math.floor((1-Math.asinh(Math.tan(rad))/Math.PI)/2*2**z)];\n};\nfunction limitParallelism(maximum: number) {\n  let active = 0;\n  const waiting: Array<() => void> = [];\n  return async function run<T>(work: () => Promise<T>): Promise<T> {\n    if (active < maximum) active++;\n    else await new Promise<void>(resolve => waiting.push(resolve));\n    try {\n      return await work();\n    } finally {\n      const next = waiting.shift();\n      if (next) next();\n      else active--;\n    }\n  };\n}\n\nconst z10Concurrency = Number(process.env.JMA_Z10_CONCURRENCY ?? \"4\");\nif (![4, 8].includes(z10Concurrency)) throw new Error(\"JMA_Z10_CONCURRENCY must be 4 or 8\");\nconst runTileRequest = limitParallelism(2 * z10Concurrency);\nconst runWideRequest = limitParallelism(2);\n\nasync function fetchTile(frame:{basetime:string;validtime:string},z:number,x:number,y:number, signal:AbortSignal){\n  const url=buildJmaRainTileUrl(frame,z,x,y);\n  const attempts: string[] = [];\n  for (let attempt = 0; attempt < 2; attempt++) {\n    signal.throwIfAborted();\n    const started = performance.now();\n    let outcome = \"transport_error\";\n    try {\n      const response = await fetch(url, { cache: \"no-store\", signal: AbortSignal.any([signal, AbortSignal.timeout(8_000)]) });\n      const headersMs = Math.round(performance.now()-started);\n      outcome = \"HTTP_\" + response.status;\n      if (response.ok) {\n        const bytes = Buffer.from(await response.arrayBuffer());\n        const bodyDoneMs = Math.round(performance.now()-started);\n        outcome = \"ok\";\n        console.log(JSON.stringify({event:\"JMA_TILE_FETCH\",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome:\"ok\",httpStatus:response.status,headersMs,bodyMs:bodyDoneMs-headersMs,elapsedMs:bodyDoneMs,bytes:bytes.length,cacheStatus:response.headers.get(\"x-cache\")}));\n        return bytes;\n      }\n      if (response.body) await response.body.cancel().catch(() => undefined);\n      if (response.status === 404) return null;\n      attempts.push(\"HTTP \" + response.status);\n      if (![408, 429, 500, 502, 503, 504].includes(response.status)) break;\n    } catch (error) {\n      outcome = signal.aborted ? \"slot_deadline_abort\" : error instanceof Error ? error.name : \"TransportError\";\n      attempts.push(outcome);\n    } finally {\n      if (outcome !== \"ok\") {\n        console.log(JSON.stringify({event:\"JMA_TILE_FETCH\",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome,elapsedMs:Math.round(performance.now()-started)}));\n      }\n    }\n    if (attempt < 1) await delay(500, undefined, { signal });\n  }\n  throw new Error(`INCOMPLETE_JMA_TILE ${url} attempts: ${attempts.join(\", \")}`);\n}\nfunction plannedDetailTiles(buffer: Buffer, x: number, y: number, indexed: IndexedArea[]) {\n  const bounds = [lon(x, 4), lat(y + 1, 4), lon(x + 1, 4), lat(y, 4)];\n  const relevant = indexed.filter(({ b }) => b[0] <= bounds[2] && b[2] >= bounds[0]\n    && b[1] <= bounds[3] && b[3] >= bounds[1]).map(({ area }) => area);\n  const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 4, x, y);\n  if (!pixels.length) return new Map<string, DetailTile>();\n  const areas = new Map(relevant.map(area => [area.code, area]));\n  const candidates = municipalitiesForLightRainTile(buffer, 4, x, y, relevant);\n  const rainyTiles = new Map<string, { x: number; y: number }>();\n  for (const { pixelX, pixelY } of pixels) {\n    const tileX = x * 64 + Math.floor(pixelX / 4);\n    const tileY = y * 64 + Math.floor(pixelY / 4);\n    rainyTiles.set(`${tileX}/${tileY}`, { x: tileX, y: tileY });\n  }\n  const planned = new Map<string, DetailTile>();\n  for (const candidate of candidates) {\n    const area = areas.get(candidate.code)!;\n    const [w, s, e, n] = bbox(area);\n    const [minX, minY] = xy(w, n, 10), [maxX, maxY] = xy(e, s, 10);\n    for (const [key, tile] of rainyTiles) {\n      if (tile.x < minX || tile.x > maxX || tile.y < minY || tile.y > maxY) continue;\n      const entry = planned.get(key) ?? { ...tile, areas: [] };\n      entry.areas.push(area);\n      planned.set(key, entry);\n    }\n  }\n  return planned;\n}\n\ntype IndexedArea = { area: AdministrativeArea; b: ReturnType<typeof bbox> };\ntype DetailTile = { x: number; y: number; areas: AdministrativeArea[] };\n\nasync function scanDetail(frame: JmaTargetTime, tile: DetailTile, signal: AbortSignal) {\n  const { x, y, areas } = tile;\n  const buffer = await runTileRequest(() => fetchTile(frame, 10, x, y, signal));\n  if (!buffer) return null;\n  const pixels = locateJmaRainPixelsAtLeast1mm(buffer, 10, x, y);\n  const unlistedAndDisjoint = pixels.length > 0 && !pixelMasks.has(x, y)\n    && !affectedAdministrativeAreas([{ coordinates: [[\n      [lon(x, 10), lat(y, 10)], [lon(x + 1, 10), lat(y, 10)],\n      [lon(x + 1, 10), lat(y + 1, 10)], [lon(x, 10), lat(y + 1, 10)],\n    ]] }], areas).length;\n  const municipalities = pixels.length && !unlistedAndDisjoint\n    ? matchHeavyRainPixelsToMasks(pixels, x, y, pixelMasks.load(x, y), areas)\n    : [];\n  return municipalities.map(area => ({ ...area, radarTile: { x, y } }));\n}\n\nasync function scanRegion(row: ForecastTileVersion, indexed: IndexedArea[], signal: AbortSignal) {\n  const { x, y, payload } = row;\n  const frame = { basetime: row.base_time, validtime: row.valid_time, elements: [\"hrpns\"] };\n  const buffer = await runWideRequest(() => runTileRequest(() => fetchTile(frame, 4, x, y, signal)));\n  if (!buffer) return null;\n  const plan = plannedDetailTiles(buffer, x, y, indexed);\n  const tiles = { ...payload?.tiles };\n  if (payload) {\n    // The same JMA version has the same coverage plan. Treat any previously\n    // unresolved child as unknown until its own tile can be decoded.\n    for (const key of payload.pending) {\n      if (!plan.has(key)) {\n        const [x, y] = key.split(\"/\").map(Number);\n        plan.set(key, { x, y, areas: indexed.filter(({ b }) =>\n          b[0] <= lon(x + 1, 10) && b[2] >= lon(x, 10)\n          && b[1] <= lat(y, 10) && b[3] >= lat(y + 1, 10)).map(({ area }) => area) });\n      }\n    }\n  }\n  const jobs = [...plan].filter(([key]) => !(key in tiles));\n  const result: ForecastTilePayload = { pending: jobs.map(([key]) => key), tiles };\n  const attempts = jobs.slice(0, MAX_TILES);\n  for (let offset = 0; offset < attempts.length && !signal.aborted; offset += z10Concurrency) {\n    const batch = attempts.slice(offset, offset + z10Concurrency);\n    const outcomes = await Promise.allSettled(batch.map(([, tile]) => scanDetail(frame, tile, signal)));\n    for (const [index, outcome] of outcomes.entries()) {\n      if (outcome.status === \"fulfilled\" && outcome.value !== null) {\n        const [key] = batch[index];\n        tiles[key] = outcome.value;\n      }\n    }\n  }\n  result.pending = result.pending.filter(key => !(key in tiles));\n  return result;\n}\n\nasync function main() {\n  const url = process.env.SUPABASE_URL;\n  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;\n  if (!url || !key) throw new Error(\"Missing forecast storage credentials\");\n  const db = createClient(url, key, { auth: { persistSession: false } });\n  const now = Date.now();\n  const stamp = utcStamp(now);\n  const { error: cleanupError } = await db.from(TABLE).delete().lt(\"valid_time\", utcStamp(now - 24 * 60 * MINUTE));\n  if (cleanupError) throw new Error(\"FORECAST_TILE_CLEANUP_FAILED\");\n\n  const timeIndexSignal = AbortSignal.timeout(15_000);\n  let targets: JmaTargetTime[];\n  try {\n    targets = await fetchForecastTargetTimes((input, init) => fetch(input, { ...init, signal: timeIndexSignal }));\n  } catch (error) {\n    console.error(\"FORECAST_TARGET_INDEX_UNAVAILABLE\", error);\n    targets = [];\n  }\n  const newRows = new Map<string, ForecastTileVersion>();\n  for (const { basetime, validtime } of targets) {\n    if (!/^\\d{14}$/.test(basetime) || !/^\\d{14}$/.test(validtime)) continue;\n    const base = forecastTime(basetime);\n    const valid = forecastTime(validtime);\n    const lead = (valid - base) / MINUTE;\n    if (!(base <= now && valid > now && lead >= 5 && lead <= 60 && lead % 5 === 0)) continue;\n    for (const [x, y] of NATIONAL_FORECAST_WIDE_TILES) {\n      const row = { base_time: basetime, valid_time: validtime, extended: lead > 30, x, y, payload: null };\n      newRows.set(`${validtime}/${basetime}/${x}/${y}`, row);\n    }\n  }\n  if (newRows.size) {\n    const { error } = await db.from(TABLE).upsert([...newRows.values()], { ignoreDuplicates: true });\n    if (error) throw new Error(\"FORECAST_TILE_QUEUE_WRITE_FAILED\");\n  }\n  const { data, error } = await db.from(TABLE)\n    .select(\"valid_time,base_time,extended,x,y,payload\").gt(\"valid_time\", stamp)\n    .order(\"base_time\", { ascending: false }).order(\"valid_time\");\n  if (error) throw new Error(\"FORECAST_TILE_QUEUE_READ_FAILED\");\n\n  const coverage = requireCompleteNationwideN03(root);\n  const manifest = JSON.parse(readFileSync(maskDir + \"/manifest.json\", \"utf8\"));\n  if (manifest.municipalities !== coverage.municipalities) throw new Error(\"N03_LRPM_COVERAGE_MISMATCH\");\n  const indexed = coverage.areas.map(area => ({ area, b: bbox(area) }));\n  const cycleSignal = AbortSignal.timeout(Math.max(1, CYCLE_BUDGET_MS - (Date.now() - now)));\n  const runRegion = limitParallelism(2);\n  const complete = new Set<string>();\n  const work = new Map<string, ForecastTileVersion[]>();\n  for (const row of data as ForecastTileVersion[]) {\n    const region = `${row.valid_time}/${row.extended}/${row.x}/${row.y}`;\n    if (complete.has(region)) continue;\n    if (row.payload && !row.payload.pending.length) {\n      complete.add(region);\n      continue;\n    }\n    const versions = work.get(region) ?? [];\n    versions.push(row);\n    work.set(region, versions);\n  }\n  // Attempt one version per region in each pass so old retries do not block first reads.\n  const regions = [...work.entries()];\n  let failures = 0;\n  let writes = 0;\n  for (let pass = 0; regions.some(([, versions]) => versions.length > pass) && !cycleSignal.aborted; pass++) {\n    const satisfied = new Set<string>();\n    await Promise.all(regions.map(([region, versions]) => runRegion(async () => {\n      const row = versions[pass];\n      if (!row || cycleSignal.aborted || forecastTime(row.valid_time) <= Date.now()) return;\n      const signal = AbortSignal.any([cycleSignal, AbortSignal.timeout(Math.max(1, forecastTime(row.valid_time) - Date.now()))]);\n      let payload: ForecastTilePayload | null;\n      try {\n        payload = await scanRegion(row, indexed, signal);\n      } catch (error) {\n        failures++;\n        console.error(\"FORECAST_REGION_SCAN_FAILED\", row.base_time, row.valid_time, row.x, row.y, error);\n        return;\n      }\n      if (!payload || forecastTime(row.valid_time) <= Date.now()) return;\n      const { error } = await db.from(TABLE).update({ payload, updated_at: new Date().toISOString() })\n        .match({ base_time: row.base_time, valid_time: row.valid_time, extended: row.extended, x: row.x, y: row.y })\n        .abortSignal(AbortSignal.timeout(8_000));\n      if (error) {\n        failures++;\n        console.error(\"FORECAST_TILE_WRITE_FAILED\", row.base_time, row.valid_time, row.x, row.y, error.code);\n        return;\n      }\n      writes++;\n      if (!payload.pending.length) satisfied.add(region);\n      console.log(JSON.stringify({ event: \"FORECAST_REGION_UPDATED\", base: row.base_time, valid: row.valid_time,\n        x: row.x, y: row.y, pending: payload.pending.length, detailTiles: Object.keys(payload.tiles).length }));\n    })));\n    for (const [region, versions] of regions) if (satisfied.has(region)) versions.length = 0;\n  }\n  console.log(JSON.stringify({ event: \"FORECAST_TILE_CYCLE\", writes, failures, budgetExpired: cycleSignal.aborted }));\n  if (failures || (!writes && (!targets.length || regions.some(([, versions]) => versions.length)))) {\n    throw new Error(\"NO_FORECAST_TILE_UPDATES\");\n  }\n}\n\nmain().catch(error => {\n  console.error(error instanceof Error ? error.message : \"FORECAST_SCAN_FAILED\");\n  process.exitCode = 1;\n});\n",
+      "sha256": "7978b36c7173435678df5d0265bc308291fa9ec49853b11ffe3d1ca2a42115e4",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/scripts/national-heavy-rain-scan.ts"
+    },
+    {
+      "path": "scripts/national-rain-cases.ts",
+      "coverage": "全文",
+      "text": "import { readFile } from \"node:fs/promises\";\nimport { createClient } from \"@supabase/supabase-js\";\nimport { caseStamp, planNationalRainCaseVersion } from \"../lib/weather/rain/nationalRainCases\";\nimport type { ForecastTileVersion } from \"../lib/weather/rain/nationalForecastTiles\";\n\nasync function main() {\n  const [mode, slug, evidencePath] = process.argv.slice(2);\n  if (mode !== \"ingest\" && !(mode === \"verify\" && slug && evidencePath)) {\n    throw new Error(\"Usage: national-rain-cases.ts ingest | verify <slug> <radar-observations.json>\");\n  }\n  const url = process.env.SUPABASE_URL;\n  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;\n  if (!url || !key) throw new Error(\"Missing case storage credentials\");\n  const db = createClient(url, key, { auth: { persistSession: false } });\n  const deadline = AbortSignal.timeout(30_000);\n  if (mode === \"verify\") {\n    const evidence = JSON.parse(await readFile(evidencePath, \"utf8\"));\n    const { error } = await db.rpc(\"verify_national_rain_case\", {\n      p_slug: slug, p_method: evidence.method, p_observations: evidence.observations,\n    }).abortSignal(deadline);\n    if (error) throw new Error(`CASE_VERIFICATION_FAILED: ${error.code}`);\n    return;\n  }\n\n  const now = Date.now();\n  const { data, error } = await db.from(\"national_rain_forecast_tile_versions\")\n    .select(\"valid_time,base_time,extended,x,y,payload\")\n    .gt(\"valid_time\", caseStamp(now)).lte(\"base_time\", caseStamp(now))\n    .order(\"valid_time\").order(\"base_time\").order(\"extended\").order(\"x\").order(\"y\")\n    .limit(1000).abortSignal(deadline);\n  if (error || !data || data.length === 1000) throw new Error(\"CASE_FORECAST_READ_INCOMPLETE\");\n  const planned = planNationalRainCaseVersion(data as ForecastTileVersion[], now);\n  if (!planned) return;\n  const saved = await db.rpc(\"ingest_national_rain_case_version\", planned).abortSignal(deadline);\n  if (saved.error) throw new Error(`CASE_INGEST_FAILED: ${saved.error.code}`);\n}\n\nmain().catch(error => {\n  console.error(error instanceof Error ? error.message : \"CASE_STEP_FAILED\");\n  process.exitCode = 1;\n});\n",
+      "sha256": "1cac39870ab2048faef9cc46c21e1b5aed8f0e72fce8eae9de20a9141c4977d6",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/scripts/national-rain-cases.ts"
+    },
+    {
+      "path": "scripts/prepare-national-rain-inputs.ts",
+      "coverage": "全文",
+      "text": "import { mkdir, writeFile } from \"node:fs/promises\";\nimport { join } from \"node:path\";\nimport { spawnSync } from \"node:child_process\";\nimport { createClient } from \"@supabase/supabase-js\";\nimport { ALL_PREFECTURE_CODES } from \"../lib/weather/rain/lightRainNationwideN03\";\n\nasync function main() {\n  const [n03Dir, maskCache] = process.argv.slice(2);\n  const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = process.env;\n  if (!n03Dir || !maskCache || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {\n    throw new Error(\"National rain input configuration is incomplete\");\n  }\n\n  const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });\n  const storage = db.storage.from(\"national-rain-n03\");\n  await mkdir(n03Dir, { recursive: true });\n  const signal = AbortSignal.timeout(90_000);\n  for (let i = 0; i < ALL_PREFECTURE_CODES.length; i += 8) {\n    await Promise.all(ALL_PREFECTURE_CODES.slice(i, i + 8).map(async code => {\n      const filename = code + \".areas.json\";\n      const { data, error } = await storage.download(\"20260101/\" + filename, {}, { signal });\n      if (error || !data) throw new Error(\"N03_DOWNLOAD_FAILED: \" + code);\n      await writeFile(join(n03Dir, filename), Buffer.from(await data.arrayBuffer()));\n    }));\n  }\n\n  const { data, error } = await storage.createSignedUrl(\"20260101/lrpm-20260101-v1.tar.gz\", 180);\n  if (error || !data) throw new Error(\"LRPM_SIGNED_URL_FAILED\");\n  const result = spawnSync(process.execPath, [\n    \"--import\", \"tsx\", \"scripts/light-rain-mask-prepare.ts\", maskCache,\n  ], {\n    env: {\n      ...process.env,\n      SUPABASE_SERVICE_ROLE_KEY: \"\",\n      LRPM_ARCHIVE_URL: data.signedUrl,\n      LRPM_ARCHIVE_SHA256: \"5fb0823f190e9ed893ba5ee9ae47aa7b1e4a8ad9c26601e2cae8b14bc1de33d8\",\n    },\n    stdio: [\"ignore\", \"ignore\", \"ignore\"],\n    timeout: 130_000,\n  });\n  if (result.status !== 0) throw new Error(\"LRPM_PREPARATION_FAILED\");\n  console.log(\"Validated the versioned LRPM archive and downloaded 47 prefectures\");\n}\n\nmain().catch(error => {\n  console.error(error instanceof Error ? error.message : \"FORECAST_INPUTS_FAILED\");\n  process.exitCode = 1;\n});\n",
+      "sha256": "bedbf60252056d9b9a9f2f37adf1badb432da0c8e7f2757ed7f81c04b03ff959",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/scripts/prepare-national-rain-inputs.ts"
+    },
+    {
+      "path": "lib/weather/rain/lightRainPixelMaskLoader.test.ts",
+      "coverage": "全文",
+      "text": "import { describe, expect, it } from \"vitest\";\nimport { createHash } from \"node:crypto\";\nimport { mkdtempSync, mkdirSync, rmSync, writeFileSync } from \"node:fs\";\nimport { tmpdir } from \"node:os\";\nimport { join } from \"node:path\";\nimport { openNationwidePixelMasks } from \"./lightRainPixelMaskLoader\";\nimport { encodeTilePixelMasks, MASK_BYTES } from \"./lightRainPixelMasks\";\n\ndescribe(\"strict nationwide LRPM loader\", () => {\n  it(\"validates N03 version, checksum, tile identity and missing coverage\", () => {\n    const root = mkdtempSync(join(tmpdir(), \"lrpm-\"));\n    try {\n      const relative = \"z10/885/407.bin\";\n      mkdirSync(join(root, \"z10\", \"885\"), { recursive: true });\n      const bytes = encodeTilePixelMasks({\n        zoom: 10, tileX: 885, tileY: 407,\n        entries: [{ code: \"35001\", mask: new Uint8Array(MASK_BYTES).fill(1) }],\n      });\n      writeFileSync(join(root, relative), bytes);\n      const manifest = {\n        format: \"light-rain-pixel-masks\", formatVersion: 1, algorithmVersion: 1,\n        n03Version: \"20260101\", zoom: 10,\n        prefectures: Array.from({ length: 47 }, (_, i) => String(i + 1).padStart(2, \"0\")),\n        municipalities: 1905, tiles: 1,\n        files: { [relative]: { bytes: bytes.length, sha256: createHash(\"sha256\").update(bytes).digest(\"hex\") } },\n      };\n      writeFileSync(join(root, \"manifest.json\"), JSON.stringify(manifest));\n      const loader = openNationwidePixelMasks(root, \"20260101\");\n      expect(loader.load(885, 407).entries[0].code).toBe(\"35001\");\n      expect(() => loader.load(885, 408)).toThrow(\"PIXEL_MASK_MISSING\");\n      expect(() => openNationwidePixelMasks(root, \"20270101\")).toThrow(\"PIXEL_MASK_MANIFEST_INCOMPATIBLE\");\n      writeFileSync(join(root, relative), Buffer.alloc(bytes.length));\n      expect(() => loader.load(885, 407)).toThrow(\"PIXEL_MASK_CHECKSUM_MISMATCH\");\n    } finally {\n      rmSync(root, { recursive: true, force: true });\n    }\n  });\n});\n",
+      "sha256": "86fcad0f150f6c44743d6ea781666a07509c1cb9521d21f09597a9feffdbb35c",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/lightRainPixelMaskLoader.test.ts"
+    }
+  ],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "571af418b496fc6effaef1b5fcfa2f4e06b93b020c1d2e3dd0550b3877e6759d",
+  "ci_digest": "133518f0811d617d61ba7ca0f1bca3e68cec92194ad8a12b3fc2726ac79042dc",
+  "collected_at": "2026-11-27T19:06:56.554018+00:00",
+  "decisions": [
+    {
+      "kind": "test",
+      "title": "uses only pixels within the municipality mask and separates dry from unrecognized",
+      "condition": "uses only pixels within the municipality mask and separates dry from unrecognized",
+      "behavior": "if (png.width !== TILE_PIXELS || png.height !== TILE_PIXELS) throw new Error(\"Unexpected JMA observation tile dimensions\"); ／ if (!maskHasPixel(mask, pixel)) continue; ／ if (status === \"UNKNOWN_PIXEL\") return null; ／ if (intensityClass === \"GTE_80\") peak = 80; ／ return peak;",
+      "verification": "テストの期待値: expect(observedTileTier(wet, mask)).toBe(50); ／ expect(observedTileTier(dry, mask)).toBe(0); ／ expect(observedTileTier(unclassified, mask)).toBeNull(); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.ts#L13",
+        "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.test.ts#L20"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "uses the exact published valid time and requires every municipality tile",
+      "condition": "uses the exact published valid time and requires every municipality tile",
+      "behavior": "if (!Number.isFinite(epoch)) throw new Error(\"Invalid stored forecast valid time\"); ／ if (!masks.length || !published.has(stamp)) { ／ return observations;",
+      "verification": "テストの期待値: expect(result).toEqual({ [times[0]]: 50, [times[1]]: null, [times[2]]: null }); ／ expect(readTile).toHaveBeenCalledTimes(4); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.ts#L31",
+        "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/nationalRainCaseObservations.test.ts#L26"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "validates N03 version, checksum, tile identity and missing coverage",
+      "condition": "validates N03 version, checksum, tile identity and missing coverage",
+      "behavior": "if (manifest.format !== \"light-rain-pixel-masks\" || ／ return { ／ if (!tile) throw new Error(\"PIXEL_MASK_MANIFEST_TILE_INVALID\"); ／ return Object.hasOwn(manifest.files, `z10/${tileX}/${tileY}.bin`); ／ if (!meta) throw new Error(`PIXEL_MASK_MISSING: ${relative}`); ／ if (bytes.length !== meta.bytes || ／ if (masks.zoom !== 10 || masks.tileX !== tileX || masks.tileY !== tileY) { ／ return masks;",
+      "verification": "テストの期待値: expect(loader.load(885, 407).entries[0].code).toBe(\"35001\"); ／ expect(() => loader.load(885, 408)).toThrow(\"PIXEL_MASK_MISSING\"); ／ expect(() => openNationwidePixelMasks(root, \"20270101\")).toThrow(\"PIXEL_MASK_MANIFEST_INCOMPATIBLE\"); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/lightRainPixelMaskLoader.ts#L17",
+        "https://github.com/miyazaki1016/emergencyalert/blob/db4986619f3b54a774053c497a034ff2d13c5dbb/lib/weather/rain/lightRainPixelMaskLoader.test.ts#L10"
+      ]
+    }
+  ]
+}
