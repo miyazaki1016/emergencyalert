@@ -26,7 +26,6 @@
 | #59 | Add nationwide heavy-rain scan proof | feat/national-heavy-rain-preview |
 | #60 | docs: 美咲との気象・防災連携契約案（未実装） | docs/misaki-weather-integration-20261016 |
 | #61 | feat: LIVE JAPAN 生きている日本列島の体験試作 | feat/live-japan-experience-prototype |
-| #62 | test: measure real JMA Z4 stride-2 missed rain regions (read-only) | test/z4-stride-parity-20261016 |
 | #63 | WIP: MYアメふる通知履歴・実天気フィードバック・判定根拠（検証用） | feat/my-rain-notification-history-20261019 |
 | #73 | fix: retained notification history stays viewable beyond seven days | fix/archived-history-beyond-seven-days-20261023 |
 | #88 | docs: 通常雨通知の見直し仕様と検証条件 | docs/rain-notification-phase1-20261026 |
@@ -50,19 +49,18 @@
 | #217 | [Draft] 1mm/h全国雨域検証の独立スキャナ（Issue #216） | feat/national-rain-1mm-dry-run-216 |
 | #222 | [Draft] 全国雨予報6コマGIF生成の独立プロトタイプ (#221) | feat/national-rain-gif-221 |
 | #232 | feat(jaspic): show held counts in completion email | feat/jaspic-completion-held-count-20261113 |
-| #236 | fix(jaspic): 滋賀の一括登録を20件制限で停止させない (#235) | fix/jaspic-235-batched-shiga |
 | #239 | Draft: JASPIC 34件隔離DB・Gmail送信試験の安全ゲート | test/jaspic-238-isolated-bulk |
 | #242 | feat(rain): z10タイル×N03画素対応表の事前計算（Issue #220） | feat/light-rain-pixel-mask-precompute-220 |
 | #243 | Draft: z10 read-only scanner LRPM integration (stacked on #242) | feat/light-rain-mask-scanner-integration-220 |
 | #245 | 全国30mm/h予報を5分監視からトップ用スナップショットに接続 | work/national-forecast-snapshot-209 |
-| #253 | 全国大雨予報トップとMYアメふるを別ページに分離 (#209) | fix/standalone-forecast-home-209 |
 | #254 | fix(rain): LRPM資材のSHA照合付きStorage配置ツール (#250) | fix/national-rain-lrpm-storage-250 |
-| #270 | 箱根日帰りガイドブックの公開 | publish/hakone-guide-269 |
-| #271 | 箱根日帰りガイドを公開 | publish-hakone-guide |
 | #276 | Cloudflare起動へ一本化：雨監視2ワークフローのGitHub scheduleを削除 | fix/cloudflare-only-rain-actions-trigger |
 | #290 | さきどり フロント担当の作業窓口 | ops/sakidori-frontend |
 | #291 | さきどり データ・通知担当の作業窓口 | ops/sakidori-data-notifications |
 | #306 | Bluesky候補生成をタイル版に適合するドライラン (#302) | feat/bluesky-tile-dry-run-302 |
+| #312 | 全国大雨の自治体別事案を保存する (#307) | feat/national-rain-cases-307 |
+| #313 | 全国地図に時刻スライダーと段階ズームを追加 (#311) | feat/national-map-usability-311 |
+| #314 | 自治体別の大雨予報事案ページを追加 (#307) | feat/national-rain-case-page-307 |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
