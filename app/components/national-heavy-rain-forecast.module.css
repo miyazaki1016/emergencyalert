@@ -61,16 +61,14 @@
 .compactRow .intensity[data-tier="50"] { color: #ff6254; }
 .compactRow .intensity[data-tier="80"] { color: #f17cb4; }
 .compactRow .intensity small { font-size: .7rem; }
-.compactRow button { min-height: 36px; border-radius: 7px; border: 1px solid #4b7290; background: #234b69; color: #e8f5ff; padding: 5px 8px; cursor: pointer; }
-.compactRow button:focus-visible { outline: 2px solid #8bdeff; outline-offset: 2px; }
+.compactRow a { display: inline-flex; align-items: center; text-decoration: none; min-height: 36px; border-radius: 7px; border: 1px solid #4b7290; background: #234b69; color: #e8f5ff; padding: 5px 8px; cursor: pointer; }
+.compactRow a:focus-visible { outline: 2px solid #8bdeff; outline-offset: 2px; }
 .timeStrip { display: flex; gap: 3px; margin-top: 8px; }
 .timeStrip span { height: 5px; flex: 1; border-radius: 2px; }
 .timeStrip span { background: #33475a; }
 .timeStrip [data-tier="30"] { background: #ff9900; }
 .timeStrip [data-tier="50"] { background: #ff2800; }
 .timeStrip [data-tier="80"] { background: #b40068; }
-.expandedRadar { margin-top: 10px; max-width: 320px; }
-.expandedRadar p { font-size: .78rem; color: #d4e2f0; }
 
 .controls button[aria-pressed="true"] { background: #b4e5ff; color: #102b40; border-color: #e8f5ff; font-weight: 700; box-shadow: inset 0 0 0 1px #102b40; }
 .forecastLink { display: inline-flex; align-items: center; min-height: 44px; margin: 12px 0; padding: 8px 16px; border-radius: 8px; background: #1957ac; color: white; font-weight: 700; text-decoration: underline; }
@@ -103,3 +101,5 @@
 .timelineTicks small { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); color: #c4deef; font-size: .64rem; }
 .timelineTicks [data-missing] small, .timelineNotice { color: #a5b5c7; }
 .timelineNotice { margin: 0; font-size: .82rem; }
+
+.radarSlider { flex: 1 1 120px; min-width: 90px; max-width: 256px; accent-color: #8bdeff; }

@@ -31,4 +31,4 @@
 .markerPopup :global(.leaflet-popup-tip) { background: #10243b; color: #eef5ff; }
 .markerPopup :global(.leaflet-popup-close-button) { color: #d3e5f7; }
 .markerDetails { display: grid; gap: 6px; min-width: 8rem; }
-.markerDetails button { text-align: left; border: 1px solid #54718e; border-radius: 6px; padding: 6px; color: inherit; background: #19334d; cursor: pointer; }
+.markerDetails :is(button, a) { text-align: left; border: 1px solid #54718e; border-radius: 6px; padding: 6px; color: inherit; background: #19334d; cursor: pointer; }
