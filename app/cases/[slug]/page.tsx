@@ -80,7 +80,7 @@ function ActiveForecast({ incident, version, now }: { incident: RainCase; versio
       const frames = caseRadarFrames(incident, version, key, now);
       return <section className={styles.radar} key={key} aria-label={`${label}の雨雲再生`}>
         <h3>{label}の雨雲</h3>
-        {frames.length ? <RadarPlayer frames={frames} blocky={key === "extended"} /> : <p>再生できる予報画像はありません。</p>}
+        {frames.length ? <RadarPlayer key={version.base_time} frames={frames} blocky={key === "extended"} /> : <p>再生できる予報画像はありません。</p>}
       </section>;
     })}</div>
   </section>;

@@ -2,6 +2,12 @@ import { forecastRadarPlayback } from "./nationalForecastRadar";
 import { forecastTime, type NationalForecastFrame, type RadarTile } from "./nationalForecastSnapshot";
 
 export const rainCaseSlug = /^[0-9]{5}-[0-9]{8}-[0-9]{4}$/;
+export type ActiveRainCaseSlugs = Readonly<Record<string, string | undefined>>;
+
+export function rainCaseHref(slug: string | undefined, code: string) {
+  return typeof slug === "string" && rainCaseSlug.test(slug) && slug.startsWith(`${code}-`) ? `/cases/${slug}` : undefined;
+}
+
 export type RainTier = 30 | 50 | 80;
 export type CaseBand = "detail" | "extended";
 type CaseState = "rain" | "below" | "unknown";

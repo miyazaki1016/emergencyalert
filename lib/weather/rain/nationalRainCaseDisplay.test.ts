@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  caseDetailsExpired, caseLeadMinutes, caseRadarFrames, presentCaseVersions, rainCaseSlug,
+  caseDetailsExpired, caseLeadMinutes, caseRadarFrames, presentCaseVersions, rainCaseHref, rainCaseSlug,
   type CaseSlot, type RainCase, type RainCaseVersion,
 } from "./nationalRainCaseDisplay";
 
@@ -18,6 +18,13 @@ function version(base: string, slots: CaseSlot[], status: RainCaseVersion["detai
 }
 
 describe("rain case display", () => {
+  it("links both forecast views to a stored active case for the exact municipality only", () => {
+    expect(rainCaseHref(incident.slug, "17384")).toBe(`/cases/${incident.slug}`);
+    expect(rainCaseHref(undefined, "17385")).toBeUndefined();
+    expect(rainCaseHref(incident.slug, "17385")).toBeUndefined();
+    expect(rainCaseHref("//example.com", "17384")).toBeUndefined();
+  });
+
   it("keeps the public summary URL, hides short-lived detail at expiry, and calculates lead to the peak valid time", () => {
     expect(rainCaseSlug.test(incident.slug)).toBe(true);
     expect(rainCaseSlug.test("../17384-20261125-2105")).toBe(false);

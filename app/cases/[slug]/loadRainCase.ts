@@ -2,7 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { caseDetailsExpired, rainCaseSlug, type RainCase, type RainCaseVersion } from "../../../lib/weather/rain/nationalRainCaseDisplay";
+import { caseDetailsExpired, rainCaseHref, rainCaseSlug, type RainCase, type RainCaseVersion } from "../../../lib/weather/rain/nationalRainCaseDisplay";
 
 const summaryFields = "slug,municipality_code,prefecture,municipality,first_base,first_valid_time,last_base,peak_tier,peak_valid_time,status,ended_at,permanent,details_expire_at,verification_summary";
 const versionFields = "slug,base_time,detail_state,peak_tier,peak_valid_time,slots,verification";
@@ -14,6 +14,26 @@ function caseDatabase() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) throw new Error("Rain case storage is unavailable");
   return createClient(url, key, { auth: { persistSession: false } });
+}
+
+export async function readActiveRainCaseSlugs() {
+  const db = caseDatabase();
+  const deadline = AbortSignal.timeout(5000);
+  const pageSize = 250;
+  const slugs: Record<string, string> = {};
+  let after: string | undefined;
+  while (true) {
+    let query = db.from("national_rain_cases").select("municipality_code,slug")
+      .eq("status", "forecast").order("municipality_code").limit(pageSize);
+    if (after) query = query.gt("municipality_code", after);
+    const { data, error } = await query.abortSignal(deadline);
+    if (error) throw new Error("Active rain cases are unavailable");
+    for (const { municipality_code: code, slug } of data) {
+      if (rainCaseHref(slug, code)) slugs[code] = slug;
+    }
+    if (data.length < pageSize) return slugs;
+    after = data.at(-1)?.municipality_code;
+  }
 }
 
 export const readRainCase = cache(async (slug: string): Promise<RainCase | null> => {

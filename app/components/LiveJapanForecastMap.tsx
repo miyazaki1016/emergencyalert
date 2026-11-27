@@ -6,6 +6,7 @@ import { forecastTime, type NationalForecastFrame } from "../../lib/weather/rain
 import {
   FORECAST_COVERAGE_ZOOM, FORECAST_MARKER_SIZE, forecastMarkersOverlap, forecastMarkerZIndex, missingLandOverlay,
 } from "../../lib/weather/rain/nationalForecastMapOverlay";
+import { rainCaseHref, type ActiveRainCaseSlugs } from "../../lib/weather/rain/nationalRainCaseDisplay";
 import municipalityPoints from "../../lib/weather/rain/nationalMapMunicipalityPoints.json";
 import styles from "./live-japan-forecast-map.module.css";
 
@@ -22,7 +23,7 @@ function overview(map: LeafletMap) {
   map.fitBounds(japan, { padding: [18, 18], maxZoom: 5, animate: true });
 }
 
-function popupDetails(areas: Area[], peaks: ReadonlyMap<string, { time: string }>) {
+function popupDetails(areas: Area[], peaks: ReadonlyMap<string, { time: string }>, caseSlugs: ActiveRainCaseSlugs) {
   const content = document.createElement("div");
   content.className = styles.markerDetails;
   const showArea = (area: Area) => {
@@ -38,6 +39,14 @@ function popupDetails(areas: Area[], peaks: ReadonlyMap<string, { time: string }
     showArea(areas[0]);
   } else {
     for (const area of areas) {
+      const href = rainCaseHref(caseSlugs[area.code], area.code);
+      if (href) {
+        const link = document.createElement("a");
+        link.href = href;
+        link.textContent = `${area.prefecture} ${area.municipality}の事案を見る`;
+        content.append(link);
+        continue;
+      }
       const button = document.createElement("button");
       button.type = "button";
       button.textContent = `${area.prefecture} ${area.municipality}・${area.minimumMmPerHour} mm/h以上`;
@@ -52,9 +61,10 @@ function popupDetails(areas: Area[], peaks: ReadonlyMap<string, { time: string }
   return content;
 }
 
-export default function LiveJapanForecastMap({ frame, peaks }: {
+export default function LiveJapanForecastMap({ frame, peaks, caseSlugs }: {
   frame?: NationalForecastFrame;
   peaks: ReadonlyMap<string, { time: string }>;
+  caseSlugs: ActiveRainCaseSlugs;
 }) {
   const element = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<LeafletMap>();
@@ -141,8 +151,13 @@ export default function LiveJapanForecastMap({ frame, peaks }: {
             const nearby = points.filter(candidate => forecastMarkersOverlap(origin, map.latLngToLayerPoint(candidate.location)))
               .flatMap(candidate => candidate.areas)
               .sort((a, b) => b.minimumMmPerHour - a.minimumMmPerHour);
+            const caseHref = nearby.length === 1 ? rainCaseHref(caseSlugs[nearby[0].code], nearby[0].code) : undefined;
+            if (caseHref) {
+              window.location.assign(caseHref);
+              return;
+            }
             L.popup({ className: styles.markerPopup }).setLatLng(location)
-              .setContent(popupDetails(nearby, peaks)).openOn(map);
+              .setContent(popupDetails(nearby, peaks, caseSlugs)).openOn(map);
           });
         }
       }
@@ -157,7 +172,7 @@ export default function LiveJapanForecastMap({ frame, peaks }: {
       };
     });
     return () => { disposed = true; removeLayers?.(); };
-  }, [map, frame, peaks]);
+  }, [map, frame, peaks, caseSlugs]);
 
   return <div className={styles.mapShell}>
     <div ref={element} className={styles.map} role="region" aria-label="日本地図・全国の大雨予報" />

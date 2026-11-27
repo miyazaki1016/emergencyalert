@@ -49,6 +49,10 @@ export default function RadarPlayer({ frames, blocky }: { frames: RadarPlaybackF
         <button type="button" disabled={last < 1 || !rainUrl || failed === rainUrl} onClick={() => setPlaying(value => !value)}>
           {playing ? "一時停止" : "再生"}
         </button>
+        {last > 0 && <input className={styles.radarSlider} type="range"
+          aria-label="雨雲の予報時刻を選択" aria-valuetext={`${timeLabel(validTime)}${basetime ? "" : "（未取得）"}`}
+          min={0} max={last} step={1} value={index}
+          onChange={event => { setPlaying(false); setIndex(event.currentTarget.valueAsNumber); }} />}
         <button type="button" aria-label="前の予報時刻" disabled={last < 1 || index === 0}
           onClick={() => { setPlaying(false); setIndex(i => i - 1); }}>前へ</button>
         <button type="button" aria-label="次の予報時刻" disabled={last < 1 || index >= last}

@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { forecastRadarPlayback } from "../../lib/weather/rain/nationalForecastRadar";
 import { forecastTime, NATIONAL_FORECAST_FRESHNESS_MS, type NationalForecastSnapshot, type NationalForecastFrame } from "../../lib/weather/rain/nationalForecastSnapshot";
 import { forecastMapSelection, type ForecastMapBand } from "../../lib/weather/rain/nationalForecastMap";
+import { rainCaseHref, type ActiveRainCaseSlugs } from "../../lib/weather/rain/nationalRainCaseDisplay";
 import ForecastMapTimeline from "./ForecastMapTimeline";
-import RadarPlayer from "./RadarPlayer";
 import LiveJapanForecastMap from "./LiveJapanForecastMap";
 import styles from "./national-heavy-rain-forecast.module.css";
 
@@ -22,10 +21,9 @@ type AreaCard = Municipality & {
   intensityByTime: Map<string, Municipality["minimumMmPerHour"]>;
 };
 
-function ForecastBand({ frames, basetime, extended, tileVersions }: {
-  frames?: NationalForecastFrame[]; basetime?: string; extended: boolean; tileVersions?: true;
+function ForecastBand({ frames, basetime, extended, tileVersions, caseSlugs }: {
+  frames?: NationalForecastFrame[]; basetime?: string; extended: boolean; tileVersions?: true; caseSlugs: ActiveRainCaseSlugs;
 }) {
-  const [selected, setSelected] = useState<string>();
   const municipalities = new Map<string, AreaCard>();
   for (const frame of frames ?? []) {
     for (const area of frame.municipalities) {
@@ -36,9 +34,7 @@ function ForecastBand({ frames, basetime, extended, tileVersions }: {
         intensityByTime.set(frame.validTime, area.minimumMmPerHour);
       }
       if (!current || current.minimumMmPerHour < area.minimumMmPerHour) {
-        municipalities.set(area.code, { ...area, radarTile: area.radarTile ?? current?.radarTile, peakTime: frame.validTime, intensityByTime });
-      } else if (!current.radarTile && area.radarTile) {
-        current.radarTile = area.radarTile;
+        municipalities.set(area.code, { ...area, peakTime: frame.validTime, intensityByTime });
       }
     }
   }
@@ -81,21 +77,15 @@ function ForecastBand({ frames, basetime, extended, tileVersions }: {
               <div className={styles.compactList}>
                 {entries.map(area => {
                   const times = [...area.intensityByTime.keys()].sort();
-                  const expanded = selected === area.code;
-                  const radarFrames = expanded && basetime
-                    ? forecastRadarPlayback(frames ?? [], area.code, basetime, tileVersions)
-                    : [];
+                  const caseHref = rainCaseHref(caseSlugs[area.code], area.code);
                   return (
                     <article className={styles.compactCard} key={area.code}>
                       <div className={styles.compactRow}>
                         <strong>{area.municipality}</strong>
                         <span className={styles.compactTime}>{timeLabel(times[0])}ごろから</span>
                         <span className={styles.intensity} data-tier={area.minimumMmPerHour}>{area.minimumMmPerHour}<small> mm/h以上</small></span>
-                        {area.radarTile && <button type="button" aria-expanded={expanded}
-                          aria-label={`${area.prefecture}${area.municipality}の雨雲の動きを${expanded ? "閉じる" : "見る"}`}
-                          onClick={() => setSelected(code => code === area.code ? undefined : area.code)}>
-                          {expanded ? "閉じる" : "雨雲を見る"}
-                        </button>}
+                        {caseHref && <Link href={caseHref} prefetch={false}
+                          aria-label={`${area.prefecture}${area.municipality}の事案を見る`}>事案を見る</Link>}
                       </div>
                       <div className={styles.timeStrip} role="img" aria-label={times.map(time =>
                         `${timeLabel(time)} ${area.intensityByTime.get(time)}mm/h以上`).join("、")}>
@@ -105,13 +95,6 @@ function ForecastBand({ frames, basetime, extended, tileVersions }: {
                             title={`${timeLabel(validTime)} ${intensity ? `${intensity}mm/h以上` : incomplete ? "未取得を含む" : "30mm/h以上の予報なし"}`} />;
                         })}
                       </div>
-                      {!!radarFrames.length && (
-                        <div className={styles.expandedRadar}>
-                          <p>対象時刻：{radarFrames.map(frame => timeLabel(frame.validTime)).join("、")}</p>
-                          <RadarPlayer key={radarFrames.map(frame => `${frame.basetime}/${frame.validTime}/${frame.tile.x}/${frame.tile.y}`).join(",")}
-                            frames={radarFrames} blocky={extended} />
-                        </div>
-                      )}
                     </article>
                   );
                 })}
@@ -128,6 +111,7 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
   const [band, setBand] = useState<ForecastMapBand>("all");
   const [time, setTime] = useState<number | null>(null);
   const [forecast, setForecast] = useState<NationalForecastSnapshot | null>();
+  const [caseSlugs, setCaseSlugs] = useState<ActiveRainCaseSlugs>({});
   useEffect(() => {
     const controller = new AbortController();
     async function refresh() {
@@ -140,8 +124,22 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
         if (!controller.signal.aborted) setForecast(current => current ?? null);
       }
     }
-    void refresh();
-    const interval = window.setInterval(refresh, 60_000);
+    async function refreshCaseSlugs() {
+      try {
+        const response = await fetch("/api/rain/active-cases", { cache: "no-store", signal: controller.signal });
+        if (!response.ok) throw new Error("Case links unavailable");
+        const slugs: ActiveRainCaseSlugs = await response.json();
+        if (!controller.signal.aborted) setCaseSlugs(slugs);
+      } catch {
+        if (!controller.signal.aborted) setCaseSlugs({});
+      }
+    }
+    function refreshPageData() {
+      void refresh();
+      void refreshCaseSlugs();
+    }
+    refreshPageData();
+    const interval = window.setInterval(refreshPageData, 60_000);
     return () => {
       controller.abort();
       window.clearInterval(interval);
@@ -199,7 +197,7 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
         <h1 id="live-japan-heading">全国の大雨を地図で見る</h1>
         <ForecastMapTimeline key={band} slots={slots} activeTime={activeTime}
           expired={expired || timeExpired} setTime={chooseTime} formatTime={time => formatTime.format(time)} />
-        <LiveJapanForecastMap frame={frame} peaks={peaks} />
+        <LiveJapanForecastMap frame={frame} peaks={peaks} caseSlugs={caseSlugs} />
         <div className={styles.controls} aria-label="予報帯">
           <button type="button" aria-pressed={band === "all"} onClick={() => { setBand("all"); chooseTime(null); }}>すべて</button>
           <button type="button" aria-pressed={band === "detail"} onClick={() => { setBand("detail"); chooseTime(null); }}>詳細 +5〜30分</button>
@@ -244,8 +242,8 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
       </aside>
       {forecast === undefined && <p role="status">全国の予報を取得中…</p>}
       {forecast === null && <p role="status">現在、全国の予報を確認できません。</p>}
-      <ForecastBand frames={forecast?.frames} basetime={forecast?.basetime} tileVersions={forecast?.tileVersions} extended={false} />
-      <ForecastBand frames={forecast?.extendedFrames} basetime={forecast?.basetime} tileVersions={forecast?.tileVersions} extended />
+      <ForecastBand frames={forecast?.frames} basetime={forecast?.basetime} tileVersions={forecast?.tileVersions} caseSlugs={caseSlugs} extended={false} />
+      <ForecastBand frames={forecast?.extendedFrames} basetime={forecast?.basetime} tileVersions={forecast?.tileVersions} caseSlugs={caseSlugs} extended />
       </>}
     </section>
   );
