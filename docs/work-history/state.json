@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "repository": "miyazaki1016/emergencyalert",
-  "generated_at": "2026-11-27T09:39:49.201320+00:00",
+  "generated_at": "2026-11-27T14:52:08.065414+00:00",
   "cases": {
     "pr-316": {
       "id": "pr-316",
@@ -12,19 +12,19 @@
       ],
       "purpose": "画面表示や操作に関する変更",
       "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
-      "body": "Refs #315 / #290\n\n- `/sky/2026-12-14-geminids` に、極大・見頃・暗い空での流星数の目安、観察のコツ、国立天文台の出典と全国地図へのリンクを掲載。\n- 「当日の天気」に12月13日夕方の更新予定を記載。ページ固有のOGPタイトル・説明・URLを設定。\n- 変更は新規ページ1ファイル。PR #314 などの未マージ成果への依存なし。\n- 12月7日の公開期限。マージ・本番表示確認はMuseの最終監査後。\n\n[着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/45951288299)・[準備パッケージ](https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7211471324)\n\n<!-- history-preflight {\"schema_version\":1,\"decisions\":[{\"id\":\"pr-314\",\"decision\":\"distinct\",\"reason\":\"事案ページの実装には依存せず、現行mainから静的なイベントページを追加する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/314\"}]} -->",
+      "body": "Refs #315 / #290\n\n- `/sky/2026-12-14-geminids` に、極大・見頃・暗い空での流星数の目安、観察のコツ、国立天文台の出典と全国地図へのリンクを掲載。\n- 「当日の天気」に12月13日夕方の更新予定を記載。ページ固有のOGPタイトル・説明・URLを設定。\n- 変更は新規ページ1ファイル。PR #314 などの未マージ成果への依存なし。\n- 12月7日の公開期限。マージ・本番表示確認はMuseの最終監査後。\n\n[着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/45951288299)・[準備パッケージ](https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7211471324)\n\n<!-- history-preflight {\"schema_version\":1,\"decisions\":[{\"id\":\"pr-314\",\"decision\":\"distinct\",\"reason\":\"事案ページの実装には依存せず、現行mainから静的なイベントページを追加する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/314\"},{\"id\":\"pr-290\",\"decision\":\"distinct\",\"reason\":\"PR #290はフロント窓口の運用文書のみで、#315は既存ファイルを変更せず新規の静的ページ1件を追加するだけのため。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/blob/development-history/docs/work-history/cases/pr-290.md\"},{\"id\":\"pr-303\",\"decision\":\"distinct\",\"reason\":\"#301の地図集約・危険度優先表示の実装で、#315は雨量判定・予測・表示ロジックのいずれにも触れない静的ページのため。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/blob/development-history/docs/work-history/cases/pr-303.md\"},{\"id\":\"pr-59\",\"decision\":\"distinct\",\"reason\":\"全国大雨候補から詳細タイル・自治体照合へ進む処理とN03分割・キャッシュ・負荷の検証で、#315はタイル・自治体照合・N03のいずれにも触れないため。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/blob/development-history/docs/work-history/cases/pr-59.md\"}]} -->",
       "snapshot_head": "3ec9087ea305d826c5d1c86ab708d1ec9484ad81",
       "snapshot_consistent": true,
       "head": "3ec9087ea305d826c5d1c86ab708d1ec9484ad81",
       "base": "6c40a4adf739235612509fd720cd65e7b4e930f4",
       "base_ref": "main",
       "head_ref": "feat/geminids-event-page-315",
-      "state": "open",
-      "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
-      "draft": true,
-      "merged_at": null,
-      "merge_commit_sha": null,
-      "updated_at": "2026-11-27T06:25:25Z",
+      "state": "merged",
+      "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+      "draft": false,
+      "merged_at": "2026-11-27T14:51:53Z",
+      "merge_commit_sha": "a001fdb12cc3f06f612856c14f7231bbc005a400",
+      "updated_at": "2026-11-27T14:51:53Z",
       "code_facts": [
         {
           "file": "app/sky/2026-12-14-geminids/page.tsx",
@@ -67,6 +67,36 @@
           "head_sha": "3ec9087ea305d826c5d1c86ab708d1ec9484ad81",
           "conclusion": "success",
           "status": "completed",
+          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46019711287",
+          "id": 46019711287,
+          "updated_at": "2026-11-27T14:51:57Z",
+          "event": "pull_request"
+        },
+        {
+          "name": "Existing work preflight (read-only)",
+          "head_sha": "3ec9087ea305d826c5d1c86ab708d1ec9484ad81",
+          "conclusion": "success",
+          "status": "completed",
+          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46019711366",
+          "id": 46019711366,
+          "updated_at": "2026-11-27T14:52:05Z",
+          "event": "pull_request"
+        },
+        {
+          "name": "Existing work preflight (read-only)",
+          "head_sha": "3ec9087ea305d826c5d1c86ab708d1ec9484ad81",
+          "conclusion": "success",
+          "status": "completed",
+          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45979392940",
+          "id": 45979392940,
+          "updated_at": "2026-11-27T10:07:36Z",
+          "event": "pull_request"
+        },
+        {
+          "name": "PR promotion classification (review only)",
+          "head_sha": "3ec9087ea305d826c5d1c86ab708d1ec9484ad81",
+          "conclusion": "success",
+          "status": "completed",
           "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45951765970",
           "id": 45951765970,
           "updated_at": "2026-11-27T06:25:38Z",
@@ -101,6 +131,36 @@
           "id": 45951743104,
           "updated_at": "2026-11-27T06:26:56Z",
           "event": "create"
+        },
+        {
+          "name": "Ledger facts proposal PR (review required)",
+          "head_sha": "a001fdb12cc3f06f612856c14f7231bbc005a400",
+          "conclusion": "success",
+          "status": "completed",
+          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46019735535",
+          "id": 46019735535,
+          "updated_at": "2026-11-27T14:52:13Z",
+          "event": "push"
+        },
+        {
+          "name": "Development inventory (read-only)",
+          "head_sha": "a001fdb12cc3f06f612856c14f7231bbc005a400",
+          "conclusion": null,
+          "status": "in_progress",
+          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46019735517",
+          "id": 46019735517,
+          "updated_at": "2026-11-27T14:51:59Z",
+          "event": "push"
+        },
+        {
+          "name": "CI",
+          "head_sha": "a001fdb12cc3f06f612856c14f7231bbc005a400",
+          "conclusion": null,
+          "status": "in_progress",
+          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46019735557",
+          "id": 46019735557,
+          "updated_at": "2026-11-27T14:52:08Z",
+          "event": "push"
         }
       ],
       "symbols": [
@@ -114,16 +174,32 @@
         "source",
         "title"
       ],
-      "related_sources": [],
+      "related_sources": [
+        {
+          "path": "docs/work-history/cases/pr-290.md",
+          "coverage": "削除済み／取得不能・差分参照",
+          "url": "https://github.com/miyazaki1016/emergencyalert/blob/3ec9087ea305d826c5d1c86ab708d1ec9484ad81/docs/work-history/cases/pr-290.md"
+        },
+        {
+          "path": "docs/work-history/cases/pr-303.md",
+          "coverage": "削除済み／取得不能・差分参照",
+          "url": "https://github.com/miyazaki1016/emergencyalert/blob/3ec9087ea305d826c5d1c86ab708d1ec9484ad81/docs/work-history/cases/pr-303.md"
+        },
+        {
+          "path": "docs/work-history/cases/pr-59.md",
+          "coverage": "削除済み／取得不能・差分参照",
+          "url": "https://github.com/miyazaki1016/emergencyalert/blob/3ec9087ea305d826c5d1c86ab708d1ec9484ad81/docs/work-history/cases/pr-59.md"
+        }
+      ],
       "curated": {},
       "implementation": "変更差分を取得。実装の受入完了は未認定",
       "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
       "production": "未確認（main統合／Vercelプレビューから推定しない）",
       "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
       "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
-      "fingerprint": "6239ad6de23999a233c3f7333ff6b86244c70fb90000f6b33d348be2f04c9f13",
-      "ci_digest": "3f6ef8460d4dc6d4d679856d1f82939546f2acbd18a3d59dc0217e9cc005838b",
-      "collected_at": "2026-11-27T09:39:49.201320+00:00",
+      "fingerprint": "01e165c1a4548c09bfb618b37c5adc42a72868956ab142339d32741821343404",
+      "ci_digest": "5df8cc9d4077f5992ddac551c816aac24919a82de3b1b0fb13e02807ad1576d8",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00",
       "decisions": []
     },
     "pr-314": {
@@ -136,7 +212,7 @@
       ],
       "purpose": "雨量判定・予測・全国候補抽出に関する変更／画面表示や操作に関する変更",
       "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
-      "body": "Refs #307 / #290。データ契約は [Draft #312](https://github.com/miyazaki1016/emergencyalert/pull/312) の監査済みマイグレーションに依存。本番公開には同マイグレーションの適用が必要。\n\n- `/cases/[slug]` に自治体・3状態・最強予報・初回検出からピーク予報時刻までの分数・始まり／強まり／ピーク／収束を表示。2帯の時系列、版履歴、未取得、予報タイル付近の小地図、MYアメふる・全国地図・同県の関連事案、事案ごとのOGPを追加。\n- 発生中の最新保存版に時刻別強度と5枠の雨雲再生。既存のRadarPlayerを共有し、一覧の再生を維持。事案データのみをサーバーで読み取り、未取得を閾値未満として扱わない。\n- 30mm/h止まりは期限後に要約のみを返し、期限切れの詳細テーブルを読まない。終了後の照合結果は最新の版を時刻別に表示。実況の自動回収と実データ照合は未実施。\n- 型検査、Vitest 3件、#312の隔離SQL、志賀町の保存12版と合成実況を入れた390pxブラウザー検証が成功。予報中・終了・答え合わせ済み、期限前後の30mm/h、永久保持80mm/h、OGP、同県リンク、再生5枠を確認。スマホ実機未確認。\n\n[着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/45811953896)・[準備パッケージ](https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7202902225)・[データ側監査](https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7204880012)\n\n<!-- history-preflight {\"schema_version\":1,\"decisions\":[{\"id\":\"pr-312\",\"decision\":\"reuse\",\"reason\":\"監査済みの事案2テーブルの読み取り契約、期限、実況の形を使用。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/312\"},{\"id\":\"pr-303\",\"decision\":\"reuse\",\"reason\":\"陸地の概形と地図表示の既存成果を使用。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/303\"},{\"id\":\"pr-300\",\"decision\":\"reuse\",\"reason\":\"一覧で使う5枠のレーダー再生を共通部品に抽出し事案でも使用。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/300\"},{\"id\":\"pr-311\",\"decision\":\"distinct\",\"reason\":\"全国地図の時刻スライダーと事案ページは別の表示。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/issues/311\"},{\"id\":\"pr-61\",\"decision\":\"distinct\",\"reason\":\"試作ブランチは取り込まず、現行の地図の陸地パスを使用。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/61\"},{\"id\":\"pr-297\",\"decision\":\"reuse\",\"reason\":\"既存の地図・一覧・MYアメふるへの導線を使用。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/297\"},{\"id\":\"pr-59\",\"decision\":\"distinct\",\"reason\":\"検出・自治体照合側を変えず結果の読み取りだけを行う。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/59\"},{\"id\":\"pr-251\",\"decision\":\"distinct\",\"reason\":\"スキャンと起動系を変更しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/251\"},{\"id\":\"pr-181\",\"decision\":\"distinct\",\"reason\":\"データ抽出と公開済み記録の表示は別工程。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/181\"}]} -->",
+      "body": "Refs #307 / #290。データ契約は [Draft #312](https://github.com/miyazaki1016/emergencyalert/pull/312) の監査済みマイグレーションに依存。本番公開には同マイグレーションの適用が必要。\n\n- `/cases/[slug]` に自治体・3状態・最強予報・初回検出からピーク予報時刻までの分数・始まり／強まり／ピーク／収束を表示。2帯の時系列、版履歴、未取得、予報タイル付近の小地図、MYアメふる・全国地図・同県の関連事案、事案ごとのOGPを追加。\n- 発生中の最新保存版に時刻別強度と5枠の雨雲再生。既存のRadarPlayerを共有し、一覧の再生を維持。事案データのみをサーバーで読み取り、未取得を閾値未満として扱わない。\n- 30mm/h止まりは期限後に要約のみを返し、期限切れの詳細テーブルを読まない。終了後の照合結果は最新の版を時刻別に表示。実況の自動回収と実データ照合は未実施。\n- 型検査、Vitest 3件、#312の隔離SQL、志賀町の保存12版と合成実況を入れた390pxブラウザー検証が成功。予報中・終了・答え合わせ済み、期限前後の30mm/h、永久保持80mm/h、OGP、同県リンク、再生5枠を確認。スマホ実機未確認。\n\n[着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/45811953896)・[準備パッケージ](https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7202902225)・[データ側監査](https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7204880012)\n\n<!-- history-preflight {\"schema_version\":1,\"decisions\":[{\"id\":\"pr-312\",\"decision\":\"reuse\",\"reason\":\"監査済みの事案2テーブルの読み取り契約、期限、実況の形を使用。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/312\"},{\"id\":\"pr-303\",\"decision\":\"reuse\",\"reason\":\"陸地の概形と地図表示の既存成果を使用。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/303\"},{\"id\":\"pr-300\",\"decision\":\"reuse\",\"reason\":\"一覧で使う5枠のレーダー再生を共通部品に抽出し事案でも使用。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/300\"},{\"id\":\"pr-311\",\"decision\":\"distinct\",\"reason\":\"全国地図の時刻スライダーと事案ページは別の表示。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/issues/311\"},{\"id\":\"pr-61\",\"decision\":\"distinct\",\"reason\":\"試作ブランチは取り込まず、現行の地図の陸地パスを使用。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/61\"},{\"id\":\"pr-297\",\"decision\":\"reuse\",\"reason\":\"既存の地図・一覧・MYアメふるへの導線を使用。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/297\"},{\"id\":\"pr-59\",\"decision\":\"distinct\",\"reason\":\"検出・自治体照合側を変えず結果の読み取りだけを行う。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/59\"},{\"id\":\"pr-251\",\"decision\":\"distinct\",\"reason\":\"スキャンと起動系を変更しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/251\"},{\"id\":\"pr-181\",\"decision\":\"distinct\",\"reason\":\"データ抽出と公開済み記録の表示は別工程。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/181\"},{\"id\":\"pr-290\",\"decision\":\"distinct\",\"reason\":\"フロント担当の運用文書のみのPRで、事案ページが使うコードはない。実装は新規PR #314で行った。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/290\"},{\"id\":\"pr-252\",\"decision\":\"reuse\",\"reason\":\"全国予報カードと雨雲再生の既存成果を使い、5枠再生を共通部品RadarPlayerとして事案ページでも使う。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/252\"},{\"id\":\"pr-284\",\"decision\":\"distinct\",\"reason\":\"表示側のkeep-last-goodは使わず、事案ページは監査済みの事案テーブルだけを読む。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/284\"},{\"id\":\"pr-253\",\"decision\":\"distinct\",\"reason\":\"トップとMYページの分離は変更せず、既存ページへの導線だけを事案ページに付ける。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/253\"},{\"id\":\"pr-286\",\"decision\":\"distinct\",\"reason\":\"広域タイル単位の原子更新は使わず、事案ページはタイル版テーブルを直接読まない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/286\"},{\"id\":\"pr-282\",\"decision\":\"extend\",\"reason\":\"一覧の雨雲再生を共通部品に抽出し、事案ページの予報中再生にも使うよう広げた。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/282\"}]} -->",
       "snapshot_head": "e7d959b5e68129f7baf4cf3eb33b88bc20965207",
       "snapshot_consistent": true,
       "head": "e7d959b5e68129f7baf4cf3eb33b88bc20965207",
@@ -148,7 +224,7 @@
       "draft": true,
       "merged_at": null,
       "merge_commit_sha": null,
-      "updated_at": "2026-11-26T22:48:03Z",
+      "updated_at": "2026-11-27T10:07:15Z",
       "code_facts": [
         {
           "file": "app/cases/[slug]/loadRainCase.ts",
@@ -517,6 +593,16 @@
       "reviews": [],
       "runs": [
         {
+          "name": "Existing work preflight (read-only)",
+          "head_sha": "e7d959b5e68129f7baf4cf3eb33b88bc20965207",
+          "conclusion": "success",
+          "status": "completed",
+          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45979399554",
+          "id": 45979399554,
+          "updated_at": "2026-11-27T10:07:42Z",
+          "event": "pull_request"
+        },
+        {
           "name": "PR promotion classification (review only)",
           "head_sha": "e7d959b5e68129f7baf4cf3eb33b88bc20965207",
           "conclusion": "success",
@@ -616,9 +702,9 @@
       "production": "未確認（main統合／Vercelプレビューから推定しない）",
       "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
       "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
-      "fingerprint": "bc90ac66c9845a7dd4da3d12731f5cca8cec70a832f4bfa2e8c73b617241c149",
-      "ci_digest": "bf590d42571f6e03504277e4905aa438653437e066125a99bf9d7887525f8a4c",
-      "collected_at": "2026-11-27T09:39:49.201320+00:00",
+      "fingerprint": "7edb70a23a666b6cf8b6241c2bcaf496bf40cc3f5b0394f3d0afe140bb4527de",
+      "ci_digest": "c6dbb6303b02569e9c0775142e91e6a680f342c800771f399c1d7a03b7225c88",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00",
       "decisions": [
         {
           "kind": "test",
@@ -668,7 +754,7 @@
       ],
       "purpose": "雨量判定・予測・全国候補抽出に関する変更／画面表示や操作に関する変更",
       "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
-      "body": "Refs #311 / #290（フェーズ1・2）\n\n- B案の雨の街画像を専用ブランチから同一blobで取り込み。暗いグラデーションと不透明な下地を配置。\n- 全時刻ピル、再生、5分スロットの時刻スライダー。内部欠けは灰色と未取得ラベル、選択時刻が消えた場合は全時刻への復帰を表示。すべて帯のスライダーには詳細・延長双方を載せ、再生は末尾で停止。\n- 帯は地図下へ移動。地図下の市区町村チップと地図内の旧詳細パネルを廃止。個別予報は暫定の地図ポップアップで確認でき、一覧の5枠再生は維持。\n- 全国→県域（z7）→市区町村域（z9）へアニメーション移動し、全体表示で復帰。市区町村マーカーには1905コードの代表点を使用。国土交通省「国土数値情報（行政区域データ）」を加工した[2026-08-04.1境界](https://geo.maderaojen.me/en/)の最大陸域ポリゴンから、穴を除いた内部点を再現可能なスクリプトで算出。加工境界基準。 \n- 検証：TypeScriptと表示系Vitest 6件成功。390pxのブラウザーで沖縄の初期表示、段階ズーム・戻る、内部欠け灰色、再生、消えた時刻の復帰を確認。06:50 JST基準の公開版を地図と一覧に揃え、26地域・最大80 mm/hで一致。一覧のカード再生も起動確認。\n- フェーズ3（#307事案ページへの接続）は別途。スマホ実機未確認。\n\n[着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/45899563699)・[Muse準備パッケージ](https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7203962964)\n\n<!-- history-preflight {\"schema_version\":1,\"decisions\":[{\"id\":\"pr-303\",\"decision\":\"reuse\",\"reason\":\"既存の全時刻集計・欠測判定・陸地ハッチとテストを使用。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/303\"},{\"id\":\"pr-297\",\"decision\":\"extend\",\"reason\":\"既存の地図にスライダーと段階ズームを追加。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/297\"},{\"id\":\"pr-61\",\"decision\":\"distinct\",\"reason\":\"試作の取り込みは行わず、mainの地図を対象とする。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/61\"},{\"id\":\"pr-300\",\"decision\":\"reuse\",\"reason\":\"一覧の5枠レーダー再生はそのまま使用。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/300\"},{\"id\":\"pr-312\",\"decision\":\"distinct\",\"reason\":\"自治体事案の保存と地図の操作改善は独立。事案導線は後続フェーズ。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/312\"}]} -->",
+      "body": "Refs #311 / #290（フェーズ1・2）\n\n- B案の雨の街画像を専用ブランチから同一blobで取り込み。暗いグラデーションと不透明な下地を配置。\n- 全時刻ピル、再生、5分スロットの時刻スライダー。内部欠けは灰色と未取得ラベル、選択時刻が消えた場合は全時刻への復帰を表示。すべて帯のスライダーには詳細・延長双方を載せ、再生は末尾で停止。\n- 帯は地図下へ移動。地図下の市区町村チップと地図内の旧詳細パネルを廃止。個別予報は暫定の地図ポップアップで確認でき、一覧の5枠再生は維持。\n- 全国→県域（z7）→市区町村域（z9）へアニメーション移動し、全体表示で復帰。市区町村マーカーには1905コードの代表点を使用。国土交通省「国土数値情報（行政区域データ）」を加工した[2026-08-04.1境界](https://geo.maderaojen.me/en/)の最大陸域ポリゴンから、穴を除いた内部点を再現可能なスクリプトで算出。加工境界基準。 \n- 検証：TypeScriptと表示系Vitest 6件成功。390pxのブラウザーで沖縄の初期表示、段階ズーム・戻る、内部欠け灰色、再生、消えた時刻の復帰を確認。06:50 JST基準の公開版を地図と一覧に揃え、26地域・最大80 mm/hで一致。一覧のカード再生も起動確認。\n- フェーズ3（#307事案ページへの接続）は別途。スマホ実機未確認。\n\n[着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/45899563699)・[Muse準備パッケージ](https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7203962964)\n\n<!-- history-preflight {\"schema_version\":1,\"decisions\":[{\"id\":\"pr-303\",\"decision\":\"reuse\",\"reason\":\"既存の全時刻集計・欠測判定・陸地ハッチとテストを使用。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/303\"},{\"id\":\"pr-297\",\"decision\":\"extend\",\"reason\":\"既存の地図にスライダーと段階ズームを追加。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/297\"},{\"id\":\"pr-61\",\"decision\":\"distinct\",\"reason\":\"試作の取り込みは行わず、mainの地図を対象とする。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/61\"},{\"id\":\"pr-300\",\"decision\":\"reuse\",\"reason\":\"一覧の5枠レーダー再生はそのまま使用。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/300\"},{\"id\":\"pr-312\",\"decision\":\"distinct\",\"reason\":\"自治体事案の保存と地図の操作改善は独立。事案導線は後続フェーズ。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/312\"},{\"id\":\"pr-290\",\"decision\":\"distinct\",\"reason\":\"フロント担当の作業窓口PRで、変更は運用ドキュメント1件のみ。地図改善のコードとは共有部分がない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/290\"},{\"id\":\"pr-252\",\"decision\":\"reuse\",\"reason\":\"一覧カードとレーダー再生は現行のまま利用し、変更しない（報告の「一覧の5枠再生は維持」どおり）。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/252\"},{\"id\":\"pr-282\",\"decision\":\"extend\",\"reason\":\"分離後の全国予報トップを前提に、その操作部（スライダー・帯・チップ廃止）を改善する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/282\"},{\"id\":\"pr-253\",\"decision\":\"distinct\",\"reason\":\"未マージの並行する分離案で、このPRはmainに統合済みの分離を対象とし、ブランチのコードを使わない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/253\"},{\"id\":\"pr-286\",\"decision\":\"distinct\",\"reason\":\"広域タイル単位の更新ロジックは表示側の変更では触らず、公開値の読み取り経路も変わらない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/286\"},{\"id\":\"pr-284\",\"decision\":\"distinct\",\"reason\":\"表示側のkeep-last-goodは変更せず、スライダーは現行の公開値を表示するだけ。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/284\"},{\"id\":\"pr-211\",\"decision\":\"distinct\",\"reason\":\"トップへの全国予報表示の起点で、既にmainへ吸収済み。このPRの直接の土台は記録済みのpr-303／pr-297／pr-300。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/211\"}]} -->",
       "snapshot_head": "a10717f2d9421a8942bf0eb5063fdd0cf212f830",
       "snapshot_consistent": true,
       "head": "a10717f2d9421a8942bf0eb5063fdd0cf212f830",
@@ -680,7 +766,7 @@
       "draft": true,
       "merged_at": null,
       "merge_commit_sha": null,
-      "updated_at": "2026-11-26T21:59:44Z",
+      "updated_at": "2026-11-27T10:07:18Z",
       "code_facts": [
         {
           "file": "app/components/ForecastMapTimeline.tsx",
@@ -1010,6 +1096,16 @@
         {
           "name": "Existing work preflight (read-only)",
           "head_sha": "a10717f2d9421a8942bf0eb5063fdd0cf212f830",
+          "conclusion": "success",
+          "status": "completed",
+          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45979406730",
+          "id": 45979406730,
+          "updated_at": "2026-11-27T10:07:39Z",
+          "event": "pull_request"
+        },
+        {
+          "name": "Existing work preflight (read-only)",
+          "head_sha": "a10717f2d9421a8942bf0eb5063fdd0cf212f830",
           "conclusion": "failure",
           "status": "completed",
           "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45901845074",
@@ -1107,9 +1203,9 @@
       "production": "未確認（main統合／Vercelプレビューから推定しない）",
       "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
       "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
-      "fingerprint": "cf547d3baddf5e9c18e0a41e5a9eea1b138cbe7f8325795ab967352f6eae5326",
-      "ci_digest": "01014cb2d629da1677233fd94c8b1f31476d12f9c164bed14eb6373e559bb119",
-      "collected_at": "2026-11-27T09:39:49.201320+00:00",
+      "fingerprint": "3c5a487b4afecefd8ce1536b6bf8ba0e1c62e3cbab8f3c6b26456c0d155c657e",
+      "ci_digest": "9d101a5323b458249bf61459226020c891dc6e6045ceabbcbf763e40018c4d05",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00",
       "decisions": []
     },
     "pr-312": {
@@ -1121,7 +1217,7 @@
       ],
       "purpose": "雨量判定・予測・全国候補抽出に関する変更",
       "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
-      "body": "Refs #307 / #291\n\n- 公開済みの完成タイル版をスキャン成功後の独立ステップで読み、詳細帯の初出でJSTの事案slugを作成。基準時刻ごとの詳細・延長、強度、欠測、タイル基準時刻を保存。確定した閾値未満が5分間隔で2版続けば終了。\n- 事案要約は全件保持。50mm/h以上は詳細も永久保持。30mm/h止まりの詳細は終了時刻から7日で失効し、後段の実行時に削除する。表示側は `details_expire_at` で失効を判定する。\n- 既存 #99 の実況出典は気象庁N1（5分刻み、基準時刻＝実況時刻）。この案件は自治体領域の30/50/80mm/h階級を予報有効時刻と完全一致で比較する。点評価の結果は流用せず、自治体マスクで集約した実況JSONを受け取る追記RPCを用意。実況の自動回収・実データ照合とフロント合同確認は未実施。\n- 隔離PostgreSQL互換DBでマイグレーション、志賀町12版、欠測・再上昇・重複・期限・答え合わせと権限を確認。入力Vitest 2件・TypeScript型検査・独立ステップの異常系を確認。\n- [着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/45811953896)・[準備パッケージ](https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7202902225)\n\n<!-- history-preflight {\"schema_version\":1,\"decisions\":[{\"id\":\"pr-303\",\"decision\":\"reuse\",\"reason\":\"公開済み完成タイルを組み立てる nationalForecastTiles を再利用する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/303\"},{\"id\":\"pr-306\",\"decision\":\"extend\",\"reason\":\"旧版・未取得を陰性としない設計を踏襲し、未マージのコードに依存しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/306\"},{\"id\":\"pr-99\",\"decision\":\"distinct\",\"reason\":\"N1の5分刻み実況という出典は踏襲。MY通知の単一点評価・回収と全国自治体最大の照合は別経路。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/99\"},{\"id\":\"pr-59\",\"decision\":\"distinct\",\"reason\":\"#307 の照合判断どおり。検出・起動基盤の変更と事案保存は別の作業。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/59\"},{\"id\":\"pr-251\",\"decision\":\"distinct\",\"reason\":\"#307 の照合判断どおり。検出・起動基盤の変更と事案保存は別の作業。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/251\"},{\"id\":\"pr-181\",\"decision\":\"distinct\",\"reason\":\"#307 の照合判断どおり。検出・起動基盤の変更と事案保存は別の作業。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/181\"}]} -->",
+      "body": "Refs #307 / #291\n\n- 公開済みの完成タイル版をスキャン成功後の独立ステップで読み、詳細帯の初出でJSTの事案slugを作成。基準時刻ごとの詳細・延長、強度、欠測、タイル基準時刻を保存。確定した閾値未満が5分間隔で2版続けば終了。\n- 事案要約は全件保持。50mm/h以上は詳細も永久保持。30mm/h止まりの詳細は終了時刻から7日で失効し、後段の実行時に削除する。表示側は `details_expire_at` で失効を判定する。\n- 既存 #99 の実況出典は気象庁N1（5分刻み、基準時刻＝実況時刻）。この案件は自治体領域の30/50/80mm/h階級を予報有効時刻と完全一致で比較する。点評価の結果は流用せず、自治体マスクで集約した実況JSONを受け取る追記RPCを用意。実況の自動回収・実データ照合とフロント合同確認は未実施。\n- 隔離PostgreSQL互換DBでマイグレーション、志賀町12版、欠測・再上昇・重複・期限・答え合わせと権限を確認。入力Vitest 2件・TypeScript型検査・独立ステップの異常系を確認。\n- [着手前照合](https://github.com/miyazaki1016/emergencyalert/actions/runs/45811953896)・[準備パッケージ](https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7202902225)\n\n<!-- history-preflight {\"schema_version\":1,\"decisions\":[{\"id\":\"pr-303\",\"decision\":\"reuse\",\"reason\":\"公開済み完成タイルを組み立てる nationalForecastTiles を再利用する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/303\"},{\"id\":\"pr-306\",\"decision\":\"extend\",\"reason\":\"旧版・未取得を陰性としない設計を踏襲し、未マージのコードに依存しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/306\"},{\"id\":\"pr-99\",\"decision\":\"distinct\",\"reason\":\"N1の5分刻み実況という出典は踏襲。MY通知の単一点評価・回収と全国自治体最大の照合は別経路。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/99\"},{\"id\":\"pr-59\",\"decision\":\"distinct\",\"reason\":\"#307 の照合判断どおり。検出・起動基盤の変更と事案保存は別の作業。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/59\"},{\"id\":\"pr-251\",\"decision\":\"distinct\",\"reason\":\"#307 の照合判断どおり。検出・起動基盤の変更と事案保存は別の作業。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/251\"},{\"id\":\"pr-181\",\"decision\":\"distinct\",\"reason\":\"#307 の照合判断どおり。検出・起動基盤の変更と事案保存は別の作業。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/181\"},{\"id\":\"pr-291\",\"decision\":\"distinct\",\"reason\":\"データ・通知担当の作業窓口PRで、変更は運用ドキュメント1件のみ。事案保存のコードとは共有部分がない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/291\"},{\"id\":\"pr-266\",\"decision\":\"reuse\",\"reason\":\"スキャン側で再利用整備されたSupabase Secretsを、事案ステップも同じenv（SUPABASE_URL／SUPABASE_SERVICE_ROLE_KEY）で使う。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/266\"},{\"id\":\"pr-268\",\"decision\":\"reuse\",\"reason\":\"事案ステップは同じscanジョブ内に追加され、Production環境の指定をそのまま使う。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/268\"},{\"id\":\"pr-275\",\"decision\":\"distinct\",\"reason\":\"Cloudflare Cronへの起動切替の変更で、事案保存の処理とは別の関心事。トリガーの種類に依存しない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/275\"},{\"id\":\"pr-276\",\"decision\":\"distinct\",\"reason\":\"GitHub schedule削除の未マージの変更で、事案ステップは起動方法に依存せず、コードの共有もない。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/276\"}]} -->",
       "snapshot_head": "3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea",
       "snapshot_consistent": true,
       "head": "3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea",
@@ -1130,10 +1226,10 @@
       "head_ref": "feat/national-rain-cases-307",
       "state": "open",
       "main_status": "main祖先として未確認（squash・同等実装は別途照合）",
-      "draft": true,
+      "draft": false,
       "merged_at": null,
       "merge_commit_sha": null,
-      "updated_at": "2026-11-26T21:48:38Z",
+      "updated_at": "2026-11-27T14:52:19Z",
       "code_facts": [
         {
           "file": ".github/workflows/national-heavy-rain-schedule.yml",
@@ -1505,6 +1601,16 @@
       "reviews": [],
       "runs": [
         {
+          "name": "Existing work preflight (read-only)",
+          "head_sha": "3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea",
+          "conclusion": "success",
+          "status": "completed",
+          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45979626173",
+          "id": 45979626173,
+          "updated_at": "2026-11-27T10:09:32Z",
+          "event": "pull_request"
+        },
+        {
           "name": "PR promotion classification (review only)",
           "head_sha": "3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea",
           "conclusion": "success",
@@ -1532,6 +1638,26 @@
           "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/45900652294",
           "id": 45900652294,
           "updated_at": "2026-11-26T21:49:41Z",
+          "event": "pull_request"
+        },
+        {
+          "name": "PR promotion classification (review only)",
+          "head_sha": "3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea",
+          "conclusion": "success",
+          "status": "completed",
+          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46019801882",
+          "id": 46019801882,
+          "updated_at": "2026-11-27T14:52:32Z",
+          "event": "pull_request"
+        },
+        {
+          "name": "Existing work preflight (read-only)",
+          "head_sha": "3572f9c5b2d042e2f2716fb6d0e58c75c14c03ea",
+          "conclusion": null,
+          "status": "in_progress",
+          "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46019801779",
+          "id": 46019801779,
+          "updated_at": "2026-11-27T14:52:26Z",
           "event": "pull_request"
         }
       ],
@@ -1588,9 +1714,9 @@
       "production": "未確認（main統合／Vercelプレビューから推定しない）",
       "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
       "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
-      "fingerprint": "a98ac8964e1f53b49220c7d5717b019156614f5253aabcce703a234cd86dd013",
-      "ci_digest": "daed565248ff39b6c93bb3e32d551bf5200a7d20fa63ecd35e4f84d0df6a0c8b",
-      "collected_at": "2026-11-27T09:39:49.201320+00:00",
+      "fingerprint": "8988997a92cb90b4cf0dc65c2d58f70b576e391b2e8341b149362989742d0cc0",
+      "ci_digest": "b8c4e03f43bfbe428f3544086aced1ea3a1f71812f51e90ce5a12c45dfb13871",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00",
       "decisions": [
         {
           "kind": "test",
@@ -17034,7 +17160,7 @@
       "draft": true,
       "merged_at": null,
       "merge_commit_sha": null,
-      "updated_at": "2026-11-26T21:42:56Z",
+      "updated_at": "2026-11-27T13:58:05Z",
       "code_facts": [],
       "files": [
         {
@@ -17086,6 +17212,14 @@
         {
           "body": "[SAKIDORI-DISPATCH]\n案件 #307（事案ページ：自治体×エピソード）のデータ・通知担当分の実装依頼です。\n\n- 元指示（#256 [CLAUDE-DIRECTION]）：https://github.com/miyazaki1016/emergencyalert/issues/256#issuecomment-7202907764\n- 案件：Issue #307 https://github.com/miyazaki1016/emergencyalert/issues/307\n- 準備パッケージ（[MUSE-PREP]、受入条件 C1〜C8）：https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7202902225\n- 担当分：パッケージ第3節「データ・通知担当」と第4節の手順1〜4（マイグレーションによる事案テーブル群の新設、公開済み完成版を読む後段ステップとしての事案生成＝選択肢A推奨、保存の2層分け、答え合わせの追記処理）。手順7の合同確認はフロント担当分と合わせて後段で行う。\n- 完了条件：受入条件のうちデータ側（C1・C2・C3・C5の保存側・C6・C7）を満たし、テスト実施と Draft PR への反映まで行い、窓口 Issue #287 へ [SAKIDORI-REPORT] を1回投稿すること。答え合わせの実況フィード（C5）で判断が要る点と、30mm止まり詳細の保持期限（C6）は、パッケージの定めどおり実装時に固定し、完了報告に明記すること。\n- 境界：main へのマージと本番反映は Muse の最終監査の後に Muse が指示する（監査前にマージしないこと）。フロント担当分（事案ページの表示）は、テーブル形状が固まった後に別途振り分ける。\n- 着手前照合・鮮度・競合はパッケージ記載どおり Muse 側で確認済みです。再確認で止まらず、実装を完了まで進めてください。\n",
           "url": "https://github.com/miyazaki1016/emergencyalert/pull/291#issuecomment-7203990744"
+        },
+        {
+          "body": "[SAKIDORI-DISPATCH]\n再照合の再開指示（データ・通知担当）：監査PASS済みの PR #312（大雨の事案ページ保存側、案件 #307）について、PR本文へ判断記録を追加し、着手前照合を再実行して合格まで持っていくこと。判断記録の内容は監査コメントに全文記載済みなので、それをそのまま `<!-- history-preflight {...} -->` の decisions へ追加すること（新たな判断や確認は不要）。完了したら #287 へ報告すること。マージはまだ行わないこと（照合合格後に Muse がマージ指示を出す）。\n\n判断記録5件（pr-291 distinct／pr-266 reuse／pr-268 reuse／pr-275 distinct／pr-276 distinct）：\nhttps://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7204880012\n\n通常CIと Muse の最終監査は通過済みで、残っているのはこの判断記録の追記と再照合だけである。なお #312 は表示側 PR #314 の先行条件になっているため、早めの完了が望ましい。\n",
+          "url": "https://github.com/miyazaki1016/emergencyalert/pull/291#issuecomment-7215476749"
+        },
+        {
+          "body": "[SAKIDORI-DISPATCH]\nPR #312（案件ページ保存側・案件 #307 データ側）を main へマージし、マイグレーションを本番 DB へ適用してください。これは Muse の最終監査 PASS と再照合合格を受けた、マージ可否の委任ルール（2026-11-27 ユーザー決定）に基づくマージ指示です。#314 の公開に先立つ前提作業です。\n\n対象:\n- PR #312（branch `feat/national-rain-cases-307`、head `3572f9c5b2`）\n\n根拠:\n- 最終監査 PASS（C1/C2/C3/C6/C7/C8。C5 は保存側合格・実況フィード接続は後続）: https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7204880012\n- 再照合: PR 本文に判断記録（history-preflight、Muse の判断案5件）が追記され、preflight・回帰テストの success を Muse 側で確認済み（2026-11-27 19:09 JST）。\n\n実施内容:\n1. PR #312 を main へマージする。\n2. マイグレーションを本番 DB へ適用し、`national_rain_cases` / `national_rain_case_versions` / `national_rain_case_cursor` が作成されたことを確認する。\n3. 適用後のスキャンで、ケース生成が動き始めること、およびケース生成の失敗がスキャン公開を止めないこと（C7 フェイルアイソレーション）を確認する。\n4. 結果を #287 へ1回だけ報告する（マージ完了時刻・DB適用結果・ケース生成の初回確認を含む）。\n\n注意:\n- PR #314 のマージはまだ行わないでください。この報告を受けた後、Muse から #314 のマージ指示を出します。\n- 問題が起きた場合は作業を止めて #287 へ報告してください。\n",
+          "url": "https://github.com/miyazaki1016/emergencyalert/pull/291#issuecomment-7220166009"
         }
       ],
       "reviews": [],
@@ -17129,9 +17263,9 @@
       "production": "未確認（main統合／Vercelプレビューから推定しない）",
       "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
       "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
-      "fingerprint": "63768224bb74215f2c6905bfa0bb6358d0294b4f768ad46cbaf5184c2f9695c9",
+      "fingerprint": "380dfba2fd7d06f3ac5ca8b7fae3b8667950c2fddfa9673b7059091be5f5a04e",
       "ci_digest": "818b8928872a0df07048f02b88e963d0a5992a28fcfd202d3cb86f4111aa50a6",
-      "collected_at": "2026-11-27T09:39:49.201320+00:00",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00",
       "decisions": []
     },
     "pr-290": {
@@ -17155,7 +17289,7 @@
       "draft": true,
       "merged_at": null,
       "merge_commit_sha": null,
-      "updated_at": "2026-11-27T06:22:40Z",
+      "updated_at": "2026-11-27T13:58:03Z",
       "code_facts": [],
       "files": [
         {
@@ -17219,6 +17353,14 @@
         {
           "body": "[SAKIDORI-DISPATCH]\n案件 #315「ふたご座流星群（2026-12-14）イベントページ」の実装をお願いします。\n\n方向の正本：#256 の [CLAUDE-DIRECTION] https://github.com/miyazaki1016/emergencyalert/issues/256#issuecomment-7211471822\n実装準備パッケージ（対象ファイル・手順・受入条件 E1〜E6）：https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7211471324\n案件本文：https://github.com/miyazaki1016/emergencyalert/issues/315\n\n要点：\n- 新規ルート `app/sky/2026-12-14-geminids/page.tsx` の1枚のみ。既存ページと未マージ成果（PR #314）に触らない／依存しない。\n- 着手前照合は合格済み・鮮度と競合の確認は Muse 側で完了済み。再確認で止まらず実装に進んでください。\n- 期限：2026年12月7日までに本番で見られる状態（Bluesky 投稿①のリンク先のため）。\n- 完了したら #287 へ [SAKIDORI-REPORT] を1回。マージ指示は Muse の最終監査 PASS 後に別途出します。\n",
           "url": "https://github.com/miyazaki1016/emergencyalert/pull/290#issuecomment-7211472215"
+        },
+        {
+          "body": "[SAKIDORI-DISPATCH]\n再照合の再開指示（フロント担当）：監査PASS済みの3件について、PR本文へ判断記録を追加し、着手前照合を再実行して合格まで持っていくこと。判断記録の内容は各監査コメントに全文記載済みなので、それをそのまま `<!-- history-preflight {...} -->` の decisions へ追加すること（新たな判断や確認は不要）。完了したら #287 へ報告すること。マージはまだ行わないこと（照合合格後に Muse がマージ指示を出す）。\n\n優先順位つきで対象は次の3件：\n\n1. **PR #316（ふたご座流星群ページ、案件 #315）— 最優先。12月7日の公開期限がある。**\n   判断記録3件（pr-290 distinct／pr-303 distinct／pr-59 distinct、貼り付け可能な完成形つき）：\n   https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7211943343\n\n2. **PR #314（大雨の事案ページ表示側、案件 #307）**\n   判断記録6件（pr-290 distinct／pr-252 reuse／pr-284 distinct／pr-253 distinct／pr-286 distinct／pr-282 extend、JSON形式で記載済み）：\n   https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7205514911\n   ※ #314 のマージは PR #312（保存側）の適用が先行条件。今回は照合の合格まででよい。\n\n3. **PR #313（全国地図の見やすさ改善、案件 #311 段階1〜2）**\n   判断記録7件（pr-290 distinct／pr-252 reuse／pr-282 extend／pr-253 distinct／pr-286 distinct／pr-284 distinct／pr-211 distinct）：\n   https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7204880516\n\nいずれも通常CIと Muse の最終監査は通過済みで、残っているのはこの判断記録の追記と再照合だけである。\n",
+          "url": "https://github.com/miyazaki1016/emergencyalert/pull/290#issuecomment-7215476103"
+        },
+        {
+          "body": "[SAKIDORI-DISPATCH]\nPR #316（ふたご座流星群イベントページ・案件 #315）を main へマージしてください。これは Muse の最終監査 PASS と再照合合格を受けた、マージ可否の委任ルール（2026-11-27 ユーザー決定）に基づくマージ指示です。\n\n対象:\n- PR #316（branch `feat/geminids-event-page-315`、head `3ec9087ea3`）\n\n根拠:\n- 最終監査 PASS（E1〜E6 全合格）: https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7211943343\n- 再照合: PR 本文に判断記録（history-preflight）が追記され、preflight チェック success を Muse 側で確認済み（2026-11-27 19:07 JST）。CI も success。\n\n実施内容:\n1. PR #316 を main へマージする。\n2. マージ後、本番（Vercel Production）に反映されたことを確認し、https://emergencyalert.news/sky/2026-12-14-geminids が表示できることを確認する（12/7 の Bluesky 告知①のリンク先になります）。\n3. 結果を #287 へ1回だけ報告する（マージ完了時刻・本番確認結果を含む）。\n\n注意:\n- PR #314 / #313 のマージはまだ行わないでください。そちらは別途 Muse から指示します（#314 は #312 のマージ＋DB適用の完了後）。\n- 問題が起きた場合はマージを止めて #287 へ報告してください。\n",
+          "url": "https://github.com/miyazaki1016/emergencyalert/pull/290#issuecomment-7220165547"
         }
       ],
       "reviews": [],
@@ -17262,9 +17404,9 @@
       "production": "未確認（main統合／Vercelプレビューから推定しない）",
       "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
       "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
-      "fingerprint": "1e4fe9b2e6ebd216e7cab47706f138c6b5ecc4d35e8ba3209646602c637bf854",
+      "fingerprint": "bff082fd1613f8aa03cf1263c4a775073b5415900725a46ecc44b5ec8e1f8d04",
       "ci_digest": "424b73c01a4996389149b0cb04d120182ee0d25c8ba4de2820fc2c15204d2bd6",
-      "collected_at": "2026-11-27T09:39:49.201320+00:00",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00",
       "decisions": []
     },
     "pr-286": {
@@ -124499,8 +124641,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "d7b8bbf2ee027d826e91595389891ecb7b4daf576020063f703323ef39cc6a13",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "9361df235846ccd1f7ec28aeb0adbd283b03464e08b09db102e158eca2acb0f6",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-b313912bbf16a1b1": {
       "id": "branch-b313912bbf16a1b1",
@@ -124529,8 +124671,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "a7a3d7103021e492fc6c1dee95dc7c19a98dd097f280914146bd3482df0559df",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "63d3609441568a10d097c38a9e4529bca17110cebfcccea4d5d183c40e4e9b2d",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-1a3f41526f29265d": {
       "id": "branch-1a3f41526f29265d",
@@ -124559,8 +124701,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "4fde5c503b8bd062aaedda43c885c23d21940c4f05157d6d78711fcdb236728c",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "f140793c2ae6a8405ee036a4655c160e7a9c94fb2fbb7821ae6cac174b01ad43",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-051c30db2c2ec79a": {
       "id": "branch-051c30db2c2ec79a",
@@ -124589,8 +124731,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "7fb26e864aae11db460392b3a28384bf625e6ce239e28258fcbbae7a05c42787",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "dc740ddcc75d54c164e106f7c8e8ed134ff9683d33b81b37a7d946ce3a0828ee",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-54f73f86cfa8d5fd": {
       "id": "branch-54f73f86cfa8d5fd",
@@ -124619,8 +124761,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "2aa6bd2f0eed56b6b0e8ba7a3bf2f406b2a2cf04d907e2a47894dfb0208e7567",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "fd6c364d7b481291fbcde54f191dbcb18d73496bfe46d9cc3ca2c6baba6611d4",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-1794ffb921ec56a5": {
       "id": "branch-1794ffb921ec56a5",
@@ -124649,8 +124791,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "9d091407ac6059e26fdbf4c2e64847e23f1912ee11fc4a86d8d93d4fb894cacd",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "daea8a4d39274b9f94a1bc5026c92a131e1fca5b40b9f92d63df97996711f214",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-1513cae2a13dfcb6": {
       "id": "branch-1513cae2a13dfcb6",
@@ -124679,8 +124821,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "6e77a208336978d062ae6cc7bfd5a82b5f2783f28e63356ef593ec2dec890241",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "aa3a6222eae4d5c4da0ca03221b39ce4d6735f6f9848f241f5396a600ca6ebf4",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-bfaf33b9380d0f62": {
       "id": "branch-bfaf33b9380d0f62",
@@ -124709,8 +124851,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "8c0c23f4123dec764ff8ea08f815c7abc8ee70ae63f5b925a50c47bd66e39654",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "0aaf09c9419d5e9a2216b585ae54e6ac42157690b9b072cb311d78f656f9729e",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-bc544269ae39d86b": {
       "id": "branch-bc544269ae39d86b",
@@ -124739,8 +124881,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "c4eef1bb207c78ee94472649477489ee34a85943b0c055a5b67e50a2a7e2b5d8",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "06f87a0ed17b287cd3a7e32cfbc37c67487bbbfae7900b8098a695ff9c66ee27",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-512ee974c7b0695a": {
       "id": "branch-512ee974c7b0695a",
@@ -124769,8 +124911,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "cc49e494233f500b722c4d3fc4d992659446e454877fa5387ac4fd54cc35dedc",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "88885813b16d9a6788b29150ee7011412403da31876df2ea50a864feb5b7ac1f",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-f272bef1288f071f": {
       "id": "branch-f272bef1288f071f",
@@ -124799,8 +124941,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "ade0eb53411f873aad4a9e3c94d9c49b815d4fb8d6f96ce7d1f37c2adb73e4a6",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "1d76a1a472655a6baa867c10185e06668e3f9f270d180bb2db96c66214ffd43b",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-d94f48695e3a96be": {
       "id": "branch-d94f48695e3a96be",
@@ -124829,8 +124971,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "af6d2c967f76931ae28cda2b08841eb4df9f84a9ab7724efc7046e24039c1f2b",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "92a6c1decce918eed957f7389394e56fa4466d5555b1b1d10a0fc504c7b93d1e",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-083f29c4f7c978b0": {
       "id": "branch-083f29c4f7c978b0",
@@ -124864,8 +125006,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "af7727181aea3a7fdb05f71fc5bcb9f7eee97b1fefdf397583ace1099a86c16e",
-      "collected_at": "2026-11-27T09:39:49.201320+00:00"
+      "fingerprint": "cf85d1f9ef3b7956548d79a3a65ea4316300981ae78d0d307e96ef727429ec30",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-aa03068761c4cdeb": {
       "id": "branch-aa03068761c4cdeb",
@@ -124892,8 +125034,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "9228935af83d5fc9222bc244285d3d01a7ff4453fd679e3a27e8cfca6bb7497c",
-      "collected_at": "2026-11-27T09:39:49.201320+00:00"
+      "fingerprint": "43f89ff54afc8a1d39867d50a543f89e9ad390697a28dc9c24316cecb938600a",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-c77184eedfbd0794": {
       "id": "branch-c77184eedfbd0794",
@@ -125061,8 +125203,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "399a594e8fe8c59abfb028fceb18ba476b35634b1760bf0fef29e06493cc88b7",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "dbafb7469cb54b865d0071e98b0f5ac88c02414adc405de73ef33cbee1e912ba",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-48c2a1d7535af739": {
       "id": "branch-48c2a1d7535af739",
@@ -125091,8 +125233,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "e0e99f51eb3af736b94e0fe7241229950a8ba7b4def2afa77309abe0e59c0a72",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "f43a225275ecb2b004abd5e1497f079852b3c14bed5d8e37d1b29d09be4c4f6c",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-ba3b4daa8793346b": {
       "id": "branch-ba3b4daa8793346b",
@@ -125119,8 +125261,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "29f657f24075f1c4ab29a486afacd09108c06a5e2b1026464d909701010e8b0f",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "57c73515020fa09f515de5cdf2a688b60350ba7b51c38402d7df736be79af9c4",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-edd70e09c86ba11d": {
       "id": "branch-edd70e09c86ba11d",
@@ -125154,8 +125296,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "658a49cb249afada2a1e66cf274ec5da4963bd59fabb6ea310a9e8093e3e421b",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "a7a2cf1032e70f3de737dd539adc128dc32b5d6b79d5ccec9ce30b588cd7059a",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-25f899eac907a886": {
       "id": "branch-25f899eac907a886",
@@ -125183,8 +125325,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "3b44dfa23360abfa49374c992758d76d02baa6719693bba675425667a81bc890",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "3fc7473c306df8441ba1a908dcd9715e5a3a37d4d45289ed905978b80b0fd762",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-1790942244d0a449": {
       "id": "branch-1790942244d0a449",
@@ -125211,8 +125353,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "5c011a7138e31849832ff3a20b585894fe1f1a8b1efb442f3abb77f7ae5907bc",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "24e19d4d8d9445ffaa3b0e596216d1058a7d0dd3088f383d2ea65ce254c7f802",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-d7e01c30db10e1cb": {
       "id": "branch-d7e01c30db10e1cb",
@@ -125246,8 +125388,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "e4d0adb5bc07e9349fb566d7e9d068e44eb06d5054c0e066bd8fb262606607c5",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "66f289e1d494b00c6ba9758cb194127e098813b215ce83f8b29ec554a1d63201",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-ec7f6a5ca74ddaea": {
       "id": "branch-ec7f6a5ca74ddaea",
@@ -125302,8 +125444,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "747eb27e02c82cf99b7b55b1aaeb994a48f538f39fe3106fc251c652127a46c5",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "af120c74f7a2549185d213394f0f769aeec9c705f2436e9037da1c293ba153a3",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-c3de2c2817efa4dd": {
       "id": "branch-c3de2c2817efa4dd",
@@ -125330,8 +125472,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "810b96400544b2c7fc89253ca025afd194d6f9afd325e3a19f445e7f982de593",
-      "collected_at": "2026-11-27T09:39:49.201320+00:00"
+      "fingerprint": "8ad6514008758ef998d1e3b57822791748c0f7a0d4be44f4867db76863161f31",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-ed5a77acb086e38f": {
       "id": "branch-ed5a77acb086e38f",
@@ -125365,8 +125507,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "b0354776dcdcd193843a33a7c346d8cd2dc7d2586bb01f5fcf8d4bfe2a882023",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "0bcc5b8d7cea4d97820d66ef9a2e585b48d2120bf3fe632a1b214b57681b1989",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-f21e5c06f0afa189": {
       "id": "branch-f21e5c06f0afa189",
@@ -125639,8 +125781,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "9867aded91bba2205bcbb35a0ad26f59061fbb0a5399f63642b86b92e70cdc02",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "d285943103b98b242c42a19519a378476317936bf613db9e838c269332f11905",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-12242ada665792be": {
       "id": "branch-12242ada665792be",
@@ -125892,8 +126034,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "5710944e7d41cfd859047fc32905442ae4341b5049758f7b1dda6343d6853cae",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "e75942569807ae826b211f4c69d9ee986821292857cf800c500707e0b72f29d5",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-153fab71251172b0": {
       "id": "branch-153fab71251172b0",
@@ -125969,8 +126111,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "107356a791239a7d16a5240c22daf68a1268aee86a999e28d6f9dbf8fa15e94e",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "58d4eb618ddf331e416d37fb847d2c65be9cca96ed01458dd4aabe6feaa2bc67",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-f481c53a0ffb9f36": {
       "id": "branch-f481c53a0ffb9f36",
@@ -126288,8 +126430,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "ba25b130114bb0c08b350f45fcd0c5377a3cfa8e5aa9748b927dd81e06b8ffaf",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "c9d18ce8396cea77bd0a5405ff94e1d4adf7adb91ec4cd1aa6c32879d2c24416",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-377b0cfa46ba51e5": {
       "id": "branch-377b0cfa46ba51e5",
@@ -127207,8 +127349,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "ac30258eceb56408cbdda3b93aad8e1252b7771a726d9974be631b5a3a4e5f4a",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "cbda1e852761072edb8def3ef1b5b3192ac048b3dafdce48dd83d6dc131f6ea5",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-a650d8bfbd0015bf": {
       "id": "branch-a650d8bfbd0015bf",
@@ -127299,8 +127441,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "ede4ea9fac533b30d9250c02fdca1dec6fab05500d55cdd140827002290576a3",
-      "collected_at": "2026-11-27T09:39:49.201320+00:00"
+      "fingerprint": "aed0c9784cdeb7d366ab2d040ac5a6b774ed417ba840a03051bc5f7e7d53262c",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-7d28c1fe1dcbf427": {
       "id": "branch-7d28c1fe1dcbf427",
@@ -127517,8 +127659,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "6d261952ba9771126c968bee79f831bb82f4e77d09a2b0fbdef630650e0e506a",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "4c153c172f9d86afceb2e68952d1941b97a24e80a3c60fd114e7485772b07011",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-100952441fa6a692": {
       "id": "branch-100952441fa6a692",
@@ -127588,8 +127730,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "f37e17f81a06ecf638668376c09dd15b624cb5876fee9d0d95f138a4e20c151d",
-      "collected_at": "2026-11-27T09:39:49.201320+00:00"
+      "fingerprint": "2b83cf3a55aeabd2a85a524da57c289df511a4bd6359ae87309f7e394c2c93c5",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-28ea85fa6e490e62": {
       "id": "branch-28ea85fa6e490e62",
@@ -127651,8 +127793,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "85687172b26a7cdab5cbf033eec6d6e79b6f2deb707542a648e31eef2fe6b267",
-      "collected_at": "2026-11-27T09:39:49.201320+00:00"
+      "fingerprint": "a6f890692da83dff8170306dd426857953532cc4d4af2955ea2313a683b58ced",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-2dd17474ef4e7083": {
       "id": "branch-2dd17474ef4e7083",
@@ -127904,8 +128046,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "b7f635cd4943dd3070cdd97476ed0a445096abc766db75a199ae5aa06ce18d2d",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "ea3dbcc430199e2279bc6a3568b6d0f1ef4b5e991b18737fb7ba914785cef27b",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-2b0a1b21c1150676": {
       "id": "branch-2b0a1b21c1150676",
@@ -128002,8 +128144,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "44a638ed58c35c6604851426d8e0555f251afa32e7bbda0736a7f5761f11112f",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "03636c8c0823f8c67149924d6b4401fa595dc4fef1d4935441da981551562343",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-89ed93054e66b5e1": {
       "id": "branch-89ed93054e66b5e1",
@@ -128030,8 +128172,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "898579e3bf7c6740c6986ad0e09cf322447b9cc683ef70b80f9d3520467b3cde",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "c70155ea533b421f288db58531f89ea1f04a538fab33c048562003b9350049e9",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-978ef60235fbbf68": {
       "id": "branch-978ef60235fbbf68",
@@ -128074,8 +128216,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "5979f7de4c32e6d1736390f84540f8eb69ea4dc7ba4ce2346d4d52375b839307",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "547a5905803346861e19a60f82ff810c773d028fab57ac6e9b33d6be8b92bca0",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-7d74693488d68979": {
       "id": "branch-7d74693488d68979",
@@ -128128,8 +128270,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "2ca8a076579bfcd206d25301a25f618b54b26b2881c3cc6f634bdd5e8264f560",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "423053dd787ee7433626c436e33226f689e6868435c1fa8a287563952f9b9285",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-b43c66152ec6ca74": {
       "id": "branch-b43c66152ec6ca74",
@@ -128163,8 +128305,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "3a98c779293a139aabd840e0d653d566199c4bbb018030206282c84b25f473ee",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "ad8e5f1abc566aec673f7064c3fe85d1f475c948199dcaf72325d2256fc31f94",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-1d61765cd085a548": {
       "id": "branch-1d61765cd085a548",
@@ -128233,8 +128375,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "f551da20702dfc9eed74a94d8e68aa5731f68dca88d96674b644fb6a81b8f9a7",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "dc3717227b4f2d5692110e5564c51ed3ace15f6b5f255389330ce36d9011dc12",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-4f6a16d597900890": {
       "id": "branch-4f6a16d597900890",
@@ -128263,8 +128405,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "7893faf1de4ecb3def97191a302cc28136c6823d611d5d98f4f673afb13c4ebb",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "b8311b1acdca7900643c7bcc505dd00fe3eabd2398b8210a4e4a2b99e2b49d19",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-2d0caa2b5330cf58": {
       "id": "branch-2d0caa2b5330cf58",
@@ -129196,8 +129338,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "2eee51923881a6942bca9d520e939df6551a4837856db81ab52968cc8c00eb69",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "6d562ae6b2068e93845aea0be4c46c63f1142b20750414377938ae671e5be1a1",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-6e419b491831d753": {
       "id": "branch-6e419b491831d753",
@@ -129231,8 +129373,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "bb7e2653b54b20ceb872f1f3728145bf5709730524797a5e4e17fd9497bb65c7",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "5b46c271a73f46d2001bed61c7a9701e9a5cae3da5a62eeca87e9ed9058b04d0",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-d60839d7bd6952a6": {
       "id": "branch-d60839d7bd6952a6",
@@ -129273,8 +129415,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "38c6ed72793f54ec17931a60dbc258d9ccf7404ad1ceba7df2923a02c1337684",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "610f4400bbe048a4ad8a298f25a2a59ada67619244c55ea5e323d370bb74608e",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-d5162b95174defec": {
       "id": "branch-d5162b95174defec",
@@ -129358,8 +129500,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "9bf787bdeddc67a27b55f946c94f215e00a48e76013db98fa507eded2dda0810",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "74d459d959df92bf91045bdda4a716babcca9ac2103faa3f96d1d1008e127d0a",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-ca454f2bb90e5f74": {
       "id": "branch-ca454f2bb90e5f74",
@@ -129460,8 +129602,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "adfcc7d9c366a576e23f77c5878910f8b306e0dce48ff7ed8b437e8efef93189",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "b36daad75aa917e64250c9f5fe34d91f2500b544df2f842f1a878eac8c38332a",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-02a275bdb00b0ef0": {
       "id": "branch-02a275bdb00b0ef0",
@@ -129488,8 +129630,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "d85455083501c17e4341bc1c7c9233bf673e4d0ecd0cbff96edde2a137b175a8",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "a84fb15e3fdc9574d7bd4a3267c154d4a538c80c192ff9db9f26d6d88f913607",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-1608b5c20bbb4d34": {
       "id": "branch-1608b5c20bbb4d34",
@@ -129516,8 +129658,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "7e759f3ba0fe1baa4ee488ae60577f71ec107b14039fbf5df7faaa2644e236aa",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "dab69338af40df369a2e34871b81883541d96e4795c13d3ea7b1773658f7c0bc",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-ddd6296c87b48297": {
       "id": "branch-ddd6296c87b48297",
@@ -129547,8 +129689,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "55bc08bb408b502318d89aef84da9b453f929375ea7f5052a207be59e9d388c0",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "191e31f38847baa9c135190b8b1b10d7ba8cebe3d706a5a3f30dd7c0eb797448",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-73e6b0b5ff225598": {
       "id": "branch-73e6b0b5ff225598",
@@ -129575,8 +129717,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "b4ec535c77bcc3ad85231aa5fc697a4aa3b5725b475675b2093edf2d5eb850b6",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "be20a4e5274ad72bc2b99950d5c73020513aa727d27031824d94e9a124ae2978",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-a2cfb8135048dc77": {
       "id": "branch-a2cfb8135048dc77",
@@ -129603,8 +129745,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "d6ed9381ffe34b6c2a4937e50d5c2d23456faa5da4d292f9e201849ccb98715d",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "58bc95f20b088862f8383be9f6c13ee45f2f17a5f2ae907822d73b3b373556a6",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-c32f0f97af1ba1b5": {
       "id": "branch-c32f0f97af1ba1b5",
@@ -130439,8 +130581,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "017261fd5b2305d89a4d9b5a0e7133a08d550eea34cee56a98a224966b27bcf7",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "baf88b7d7d92a3432f6bc1b68a6ca2896eae872c541d83a1bfd0d4dc7d610012",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-06febc013000a880": {
       "id": "branch-06febc013000a880",
@@ -130539,8 +130681,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "7d217628fd40a7ecb221bd4ce829e02d552744600f1786272011349d81e784ad",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "7a32821d1511bc3afb5ccdb15d1931f73bcefa1db1674150f26cac6aea25bead",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-22f64fc517bd98c8": {
       "id": "branch-22f64fc517bd98c8",
@@ -130602,8 +130744,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "345049c425d2eaa43f8e6851c8b71ec53c4217878e7362eff287920195a5224e",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "cded3ff778cf1e54f4d642d8d5af02c6f7ca9d5d77921fe5a56d78912834f9a4",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-18dd3fe9c679357b": {
       "id": "branch-18dd3fe9c679357b",
@@ -130848,8 +130990,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "f3e183531c5aaf6f1593a1a0105fe6ed8cfe73491d2a7ddc35ffb9ef1bfa1f86",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "c0866df280f542ee215beb74bb32f93434cd5043151fd2056f93b27ba82cbe7c",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-b19749e19dee17a5": {
       "id": "branch-b19749e19dee17a5",
@@ -130905,8 +131047,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "c4084a575f8b17eb0df5f5a0137d4618135fed3e0923c8a6c269d2289cff98de",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "0b8d14998f4a7783ce90cc84293f4505e5f3fb99b3e4aaa7169d927788b7f7da",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-57aa15d8696906c8": {
       "id": "branch-57aa15d8696906c8",
@@ -130946,8 +131088,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "22f31ac72914c63198b164bc6038f9d71c85f10e8344d6ef58e7c71cc9f8b611",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "0f6f0b83e873a08c00987aa15bf56cdfb5b8986b88cce73bc3ae5548e9c3fede",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-d27ce89e1738b672": {
       "id": "branch-d27ce89e1738b672",
@@ -130988,8 +131130,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "fc189a07c5aea1ba83ddbe25e37f4ba118877c3725305e45962e2c9682f42cd7",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "7c9e7e76538f0bd611533151317a9b171fae8844e23cc02e4f30244d49300568",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-e887abe92356f2f8": {
       "id": "branch-e887abe92356f2f8",
@@ -131185,8 +131327,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "822f6ff257e900926f03719eea92a81aa54d9294eb6ff6ecbcdfa95df336f53d",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "bc7d0bf33f0fd0367aed908a06bf97aa04be69bdd11a6a3d07c35d8ff0d9c7d3",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-31d6803113173639": {
       "id": "branch-31d6803113173639",
@@ -131213,8 +131355,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "b617c9283f81c954757a40c3eb0c3c8eff8e1c70b9039bb513fab76623264bbf",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "98209d6328df3b9f637d7774c8d90cf7d1bca5668aa38e661ab605b659d43127",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-7886dfcc563cb30d": {
       "id": "branch-7886dfcc563cb30d",
@@ -131424,8 +131566,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "f2acd45786e6d8739345f14028ced72add95d04452ba98c16b9e8407c59b86f9",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "3dd6f58ac97d62c66632268d8397ac67016289bc53ddd8cd60e8ef73279b4f23",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-6f858d7bdec005b4": {
       "id": "branch-6f858d7bdec005b4",
@@ -131477,8 +131619,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "eff08ee8ea7ca05006032e1a12375e29011db66ce338c4027722b2551f538988",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "80a7a294be1f065b662abf07dc7e50752099fc3f6796d2d897c3c4135d44ed1e",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-64503a3847e876c9": {
       "id": "branch-64503a3847e876c9",
@@ -132417,8 +132559,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "c85c665fb7ed0efba9f6079c5c4dac63f96db2c288a6ee00d31cdb3aec1d636e",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "417a599975a9017499bea583efc24c1483b2db5be7bc397a4a3bc63f047bd903",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-94d665cd64c44050": {
       "id": "branch-94d665cd64c44050",
@@ -132466,8 +132608,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "58f489bae5bb16e595856868a4256fefe8191e44b2e5bf9affeb391f4b02e02e",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "18616a10ff2be16fb01eb2cbf76948f228d246351bbcbf009363989175ed4b05",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-b6e5605d0721ab6f": {
       "id": "branch-b6e5605d0721ab6f",
@@ -132893,8 +133035,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "d770eaaaae707df0aa7a1e1691229d2e00855220d3bc4b0e734f27571dd3ae80",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "87d0702d4e98c9776270276988ff00c4f8732a740aba12c36861866975915cca",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-349358bb4a595e5f": {
       "id": "branch-349358bb4a595e5f",
@@ -133320,8 +133462,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "8e477a4969026b36e8a88ab21b02864908bc87a8a692c2d99e81c9410d0edcd7",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "09641f5c9df7fac846b59c9f9a287774d2cc88e3a61f390ea8ca39ea8bb20d21",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-214503f4c56a6d5e": {
       "id": "branch-214503f4c56a6d5e",
@@ -133747,8 +133889,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "4396344d98e31ff720f3504915491f2e7ef2b84e7a4126d6f69464d5859741bd",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "9e3c5ba656244b8beb93c61c38aebcb0ea66fe54e5da2059169e9bb866b7260e",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-451605c0e2751387": {
       "id": "branch-451605c0e2751387",
@@ -134021,8 +134163,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "d339a915d44ccd38e4ca1f6b00106bf281a2832d9ce4e73b453a602b7af7d942",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "96736ffc3102b8214c8aa8230c3aa0be1cfc938ce230402d6ea1920dfcfed0c9",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-8ac7382a5a280d93": {
       "id": "branch-8ac7382a5a280d93",
@@ -134996,8 +135138,8 @@
       "production": "未確認",
       "implementation": "mainとの差分を収録。差分ゼロも記録",
       "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
-      "fingerprint": "bff9f2aef5f09ab787f3bec56c02ef98b14a42b5be03ce86c9d8b941463d6929",
-      "collected_at": "2026-11-26T20:28:31.041167+00:00"
+      "fingerprint": "22ad60529f248746bac9e105e4376902b0dc4d827497e8956ad91a8533bf1ca2",
+      "collected_at": "2026-11-27T14:52:08.065414+00:00"
     },
     "branch-38e6283b99123cd5": {
       "id": "branch-38e6283b99123cd5",
@@ -144367,6 +144509,6 @@
     "pr_cases": 252,
     "branches": 69,
     "errors": [],
-    "api_calls": 75
+    "api_calls": 35
   }
 }
