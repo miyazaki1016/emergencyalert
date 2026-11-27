@@ -58,7 +58,6 @@
 | #290 | さきどり フロント担当の作業窓口 | ops/sakidori-frontend |
 | #291 | さきどり データ・通知担当の作業窓口 | ops/sakidori-data-notifications |
 | #306 | Bluesky候補生成をタイル版に適合するドライラン (#302) | feat/bluesky-tile-dry-run-302 |
-| #312 | 全国大雨の自治体別事案を保存する (#307) | feat/national-rain-cases-307 |
 | #313 | 全国地図に時刻スライダーと段階ズームを追加 (#311) | feat/national-map-usability-311 |
 | #314 | 自治体別の大雨予報事案ページを追加 (#307) | feat/national-rain-case-page-307 |
 
