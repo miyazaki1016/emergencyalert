@@ -90,18 +90,38 @@
     "pr-32",
     "pr-34"
   ],
+  "app/cases/[slug]/loadRainCase.ts": [
+    "branch-100952441fa6a692",
+    "pr-314"
+  ],
+  "app/cases/[slug]/page.tsx": [
+    "branch-100952441fa6a692",
+    "pr-314"
+  ],
+  "app/cases/[slug]/rain-case.module.css": [
+    "branch-100952441fa6a692",
+    "pr-314"
+  ],
   "app/components/DeveloperLabLink.tsx": [
     "branch-dbcfae267568d52d",
     "pr-102"
   ],
+  "app/components/ForecastMapTimeline.tsx": [
+    "branch-a650d8bfbd0015bf",
+    "pr-313"
+  ],
   "app/components/LiveJapanForecastMap.tsx": [
+    "branch-a650d8bfbd0015bf",
     "pr-297",
-    "pr-303"
+    "pr-303",
+    "pr-313"
   ],
   "app/components/NationalHeavyRainForecast.tsx": [
+    "branch-100952441fa6a692",
     "branch-3cc3b2f103fcdb49",
     "branch-82eb6ae5e3cdd506",
     "branch-8ac7382a5a280d93",
+    "branch-a650d8bfbd0015bf",
     "branch-d47e9b0dcd4ebc9b",
     "branch-d5162b95174defec",
     "branch-fd5202c6b3114feb",
@@ -114,7 +134,9 @@
     "pr-286",
     "pr-297",
     "pr-300",
-    "pr-303"
+    "pr-303",
+    "pr-313",
+    "pr-314"
   ],
   "app/components/NotificationFeedbackHistory.tsx": [
     "branch-091c543ebb50d507",
@@ -145,6 +167,10 @@
     "branch-b5bac1644f15f8e7",
     "pr-77"
   ],
+  "app/components/RadarPlayer.tsx": [
+    "branch-100952441fa6a692",
+    "pr-314"
+  ],
   "app/components/ResumeDiagnosticsPanel.tsx": [
     "branch-1df54a47e158f2ad",
     "branch-6a8121b2550dbe9c",
@@ -163,13 +189,20 @@
     "pr-86",
     "pr-87"
   ],
+  "app/components/live-japan-forecast-map.module.css": [
+    "branch-a650d8bfbd0015bf",
+    "pr-297",
+    "pr-313"
+  ],
   "app/components/national-heavy-rain-forecast.module.css": [
+    "branch-a650d8bfbd0015bf",
     "branch-d5162b95174defec",
     "branch-fd5202c6b3114feb",
     "pr-252",
     "pr-253",
     "pr-282",
-    "pr-303"
+    "pr-303",
+    "pr-313"
   ],
   "app/dev/rain-lab/RainLab.tsx": [
     "branch-22f64fc517bd98c8",
@@ -210,10 +243,12 @@
     "pr-97"
   ],
   "app/forecast-home.module.css": [
+    "branch-a650d8bfbd0015bf",
     "branch-d5162b95174defec",
     "branch-fd5202c6b3114feb",
     "pr-253",
-    "pr-282"
+    "pr-282",
+    "pr-313"
   ],
   "app/icon.tsx": [
     "branch-d8037f3cde5d4713",
@@ -419,6 +454,7 @@
     "branch-8ac7382a5a280d93",
     "branch-91ead96821aaeff5",
     "branch-a5f2511bf36597a1",
+    "branch-a650d8bfbd0015bf",
     "branch-aeef70603b294028",
     "branch-b5bac1644f15f8e7",
     "branch-b71ab24ac30a1cb5",
@@ -443,6 +479,7 @@
     "pr-282",
     "pr-29",
     "pr-297",
+    "pr-313",
     "pr-36",
     "pr-41",
     "pr-42",
@@ -468,6 +505,10 @@
   "app/pwa-register.tsx": [
     "branch-8850eea2b9e8ed04",
     "pr-2"
+  ],
+  "app/sky/2026-12-14-geminids/page.tsx": [
+    "branch-c3de2c2817efa4dd",
+    "pr-316"
   ],
   "components/weather/NationalRainPlayer.tsx": [
     "branch-2dd17474ef4e7083",
@@ -1295,6 +1336,22 @@
     "branch-8ac7382a5a280d93",
     "pr-59"
   ],
+  "lib/weather/rain/nationalRainCaseDisplay.test.ts": [
+    "branch-100952441fa6a692",
+    "pr-314"
+  ],
+  "lib/weather/rain/nationalRainCaseDisplay.ts": [
+    "branch-100952441fa6a692",
+    "pr-314"
+  ],
+  "lib/weather/rain/nationalRainCases.test.ts": [
+    "branch-28ea85fa6e490e62",
+    "pr-312"
+  ],
+  "lib/weather/rain/nationalRainCases.ts": [
+    "branch-28ea85fa6e490e62",
+    "pr-312"
+  ],
   "lib/weather/rain/nationalRainCycle.test.ts": [
     "branch-2d0caa2b5330cf58",
     "branch-377b0cfa46ba51e5",
@@ -1480,6 +1537,11 @@
     "branch-d3098223d84bfb12",
     "pr-271"
   ],
+  "public/header-cityrain.webp": [
+    "branch-a650d8bfbd0015bf",
+    "branch-aa03068761c4cdeb",
+    "pr-313"
+  ],
   "public/sw.js": [
     "branch-8850eea2b9e8ed04",
     "branch-d5162b95174defec",
@@ -1505,6 +1567,10 @@
   "scripts/bluesky-national-forecast-dry-run.ts": [
     "branch-ec7f6a5ca74ddaea",
     "pr-306"
+  ],
+  "scripts/build-national-map-municipality-points.py": [
+    "branch-a650d8bfbd0015bf",
+    "pr-313"
   ],
   "scripts/census-town-boundary-benchmark.test.ts": [
     "branch-2d0caa2b5330cf58",
@@ -2070,6 +2136,10 @@
     "branch-8ac7382a5a280d93",
     "pr-59"
   ],
+  "scripts/national-rain-cases.ts": [
+    "branch-28ea85fa6e490e62",
+    "pr-312"
+  ],
   "scripts/national-rain-fixed-n03.ts": [
     "branch-8ac7382a5a280d93",
     "pr-210"
@@ -2532,5 +2602,9 @@
   "supabase/migrations/20261121060000_national_rain_forecast_tile_versions.sql": [
     "branch-82eb6ae5e3cdd506",
     "pr-286"
+  ],
+  "supabase/migrations/20261127070000_national_rain_cases.sql": [
+    "branch-28ea85fa6e490e62",
+    "pr-312"
   ]
 }
