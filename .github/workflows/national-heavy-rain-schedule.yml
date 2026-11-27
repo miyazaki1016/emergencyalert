@@ -56,6 +56,14 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node --import tsx scripts/national-rain-cases.ts ingest
+      - name: Verify ended public rain cases with JMA observations
+        if: success() && github.ref == 'refs/heads/main'
+        continue-on-error: true
+        timeout-minutes: 1
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: JMA_Z10_PIXEL_MASK_DIR="$RUNNER_TEMP/lrpm/20260101-v1" node --import tsx scripts/verify-national-rain-cases.ts
       - uses: actions/cache/save@v4
         if: always() && steps.inputs.outputs.cache-hit != 'true' && steps.prepare.outcome == 'success'
         with:
