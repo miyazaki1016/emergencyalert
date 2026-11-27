@@ -58,7 +58,6 @@
 | #290 | さきどり フロント担当の作業窓口 | ops/sakidori-frontend |
 | #291 | さきどり データ・通知担当の作業窓口 | ops/sakidori-data-notifications |
 | #306 | Bluesky候補生成をタイル版に適合するドライラン (#302) | feat/bluesky-tile-dry-run-302 |
-| #313 | 全国地図に時刻スライダーと段階ズームを追加 (#311) | feat/national-map-usability-311 |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
