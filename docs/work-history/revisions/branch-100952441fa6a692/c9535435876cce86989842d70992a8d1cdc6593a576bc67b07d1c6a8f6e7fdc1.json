@@ -1,0 +1,71 @@
+{
+  "id": "branch-100952441fa6a692",
+  "title": "feat/national-rain-case-page-307",
+  "head": "e7d959b5e68129f7baf4cf3eb33b88bc20965207",
+  "head_ref": "feat/national-rain-case-page-307",
+  "linked_prs": [
+    314
+  ],
+  "files": [
+    {
+      "path": "app/cases/[slug]/loadRainCase.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e7d959b5e68129f7baf4cf3eb33b88bc20965207/app/cases/%5Bslug%5D/loadRainCase.ts"
+    },
+    {
+      "path": "app/cases/[slug]/page.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e7d959b5e68129f7baf4cf3eb33b88bc20965207/app/cases/%5Bslug%5D/page.tsx"
+    },
+    {
+      "path": "app/cases/[slug]/rain-case.module.css",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e7d959b5e68129f7baf4cf3eb33b88bc20965207/app/cases/%5Bslug%5D/rain-case.module.css"
+    },
+    {
+      "path": "app/components/NationalHeavyRainForecast.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e7d959b5e68129f7baf4cf3eb33b88bc20965207/app/components/NationalHeavyRainForecast.tsx"
+    },
+    {
+      "path": "app/components/RadarPlayer.tsx",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e7d959b5e68129f7baf4cf3eb33b88bc20965207/app/components/RadarPlayer.tsx"
+    },
+    {
+      "path": "lib/weather/rain/nationalRainCaseDisplay.test.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e7d959b5e68129f7baf4cf3eb33b88bc20965207/lib/weather/rain/nationalRainCaseDisplay.test.ts"
+    },
+    {
+      "path": "lib/weather/rain/nationalRainCaseDisplay.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/e7d959b5e68129f7baf4cf3eb33b88bc20965207/lib/weather/rain/nationalRainCaseDisplay.ts"
+    }
+  ],
+  "commits": "e7d959b5e68129f7baf4cf3eb33b88bc20965207 Show public municipal rain case pages from stored episodes (#307)",
+  "topics": [
+    "雨量・全国検知",
+    "画面・表示"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "05b1bd0a3ffa53008f635a58f1710c33f0866fad49077a2030ba88971733a510",
+  "collected_at": "2026-11-28T18:08:39.544214+00:00"
+}

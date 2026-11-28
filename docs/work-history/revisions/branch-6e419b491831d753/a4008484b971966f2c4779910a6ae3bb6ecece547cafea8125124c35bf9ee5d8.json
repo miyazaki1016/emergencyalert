@@ -1,0 +1,35 @@
+{
+  "id": "branch-6e419b491831d753",
+  "title": "fix/national-rain-lrpm-storage-250",
+  "head": "79a732eb1f16bec63141eff6d70a766847c45b9a",
+  "head_ref": "fix/national-rain-lrpm-storage-250",
+  "linked_prs": [
+    254
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/upload-national-lrpm-manual.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/.github/workflows/upload-national-lrpm-manual.yml"
+    },
+    {
+      "path": "scripts/upload-national-lrpm.ts",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/79a732eb1f16bec63141eff6d70a766847c45b9a/scripts/upload-national-lrpm.ts"
+    }
+  ],
+  "commits": "79a732eb1f16bec63141eff6d70a766847c45b9a ci(rain): add guarded manual LRPM artifact upload workflow (#250)\n8b33684de57581b59c21e4a028b73c9e0d4e5636 fix(rain): add SHA-verified no-overwrite LRPM Storage uploader for issue 250",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "ac1511b27c96dfbd4833ea7bdbaa052aee74216be67e72a9bd5a107a3009c914",
+  "collected_at": "2026-11-28T18:08:39.544214+00:00"
+}

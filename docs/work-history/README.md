@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-28T16:29:26.906126+00:00
+更新 (UTC): 2026-11-28T18:08:39.544214+00:00
 
 ## 全案件
 
@@ -54,6 +54,7 @@
 | [docs/good-things-sakidori-329](cases/branch-246e4cfe403c4013.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [design/lighter-rain-blue](cases/branch-2547eaf64b81bc09.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/rain-notification-phase1-20261026](cases/branch-25f899eac907a886.md) | 雨量・全国検知・通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [fix/timeline-return-341](cases/branch-26819a25132283b7.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [automation/ledger-facts-41477958167](cases/branch-2714dafd1fe20f53.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/vision-continuity-327](cases/branch-2840ff2ac1e76be7.md) | 開発管理・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [chore-remove-push-test-ui](cases/branch-28cc10b2d6d01d4c.md) | 通知・配信・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -496,6 +497,7 @@
 | [fix: JASPIC分割継続の認証を移設後本番へ揃える](cases/pr-339.md) | 通知・配信・開発管理・認証・安全性：JASPIC分割継続が移設前トークンを参照して21件目で止まる問題を修復 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Add forecast-frame rain diagnostics](cases/pr-34.md) | 雨量・全国検知：予測フレームの雨量診断を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [docs: JASPIC復旧・21件完了通知の受信結果を台帳へ保存](cases/pr-340.md) | 通知・配信・開発管理：通知・メール配信とその運用に関する変更／開発資産の把握・引継ぎ・レビューを支援する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [全国地図の再生終了後に全時刻へ戻す](cases/pr-342.md) | 雨量・全国検知・画面・表示：雨量判定・予測・全国候補抽出に関する変更／画面表示や操作に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Fix dry forecast boundary at cron tick](cases/pr-35.md) | 雨量・全国検知：cron実行時刻の雨なし予測境界を修正 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Add today&#x27;s latest delivered alerts](cases/pr-36.md) | 画面・表示：本日配信済みの最新通知を表示 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Confirm observed rain facts after three checks](cases/pr-37.md) | 雨量・全国検知：3回の観測で降雨の事実を確認 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
@@ -588,7 +590,7 @@
 - app/cases/[slug]/page.tsx：[branch-100952441fa6a692](cases/branch-100952441fa6a692.md), [branch-7977503da57ae121](cases/branch-7977503da57ae121.md), [pr-314](cases/pr-314.md), [pr-318](cases/pr-318.md)
 - app/cases/[slug]/rain-case.module.css：[branch-100952441fa6a692](cases/branch-100952441fa6a692.md), [pr-314](cases/pr-314.md)
 - app/components/DeveloperLabLink.tsx：[branch-dbcfae267568d52d](cases/branch-dbcfae267568d52d.md), [pr-102](cases/pr-102.md)
-- app/components/ForecastMapTimeline.tsx：[branch-a051930c83883780](cases/branch-a051930c83883780.md), [branch-a650d8bfbd0015bf](cases/branch-a650d8bfbd0015bf.md), [pr-313](cases/pr-313.md), [pr-337](cases/pr-337.md)
+- app/components/ForecastMapTimeline.tsx：[branch-a051930c83883780](cases/branch-a051930c83883780.md), [branch-a650d8bfbd0015bf](cases/branch-a650d8bfbd0015bf.md), [pr-313](cases/pr-313.md), [pr-337](cases/pr-337.md), [pr-342](cases/pr-342.md)
 - app/components/LiveJapanForecastMap.tsx：[branch-7977503da57ae121](cases/branch-7977503da57ae121.md), [branch-a650d8bfbd0015bf](cases/branch-a650d8bfbd0015bf.md), [pr-297](cases/pr-297.md), [pr-303](cases/pr-303.md), [pr-313](cases/pr-313.md), [pr-318](cases/pr-318.md)
 - app/components/NationalHeavyRainForecast.tsx：[branch-100952441fa6a692](cases/branch-100952441fa6a692.md), [branch-3cc3b2f103fcdb49](cases/branch-3cc3b2f103fcdb49.md), [branch-7977503da57ae121](cases/branch-7977503da57ae121.md), [branch-82eb6ae5e3cdd506](cases/branch-82eb6ae5e3cdd506.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [branch-a051930c83883780](cases/branch-a051930c83883780.md), [branch-a650d8bfbd0015bf](cases/branch-a650d8bfbd0015bf.md), [branch-d47e9b0dcd4ebc9b](cases/branch-d47e9b0dcd4ebc9b.md), [branch-d5162b95174defec](cases/branch-d5162b95174defec.md), [branch-fd5202c6b3114feb](cases/branch-fd5202c6b3114feb.md), [pr-210](cases/pr-210.md), [pr-211](cases/pr-211.md), [pr-252](cases/pr-252.md), [pr-253](cases/pr-253.md), [pr-282](cases/pr-282.md), [pr-284](cases/pr-284.md), [pr-286](cases/pr-286.md), [pr-297](cases/pr-297.md), [pr-300](cases/pr-300.md), [pr-303](cases/pr-303.md), [pr-313](cases/pr-313.md), [pr-314](cases/pr-314.md), [pr-318](cases/pr-318.md), [pr-337](cases/pr-337.md)
 - app/components/NotificationFeedbackHistory.tsx：[branch-091c543ebb50d507](cases/branch-091c543ebb50d507.md), [branch-5437e621b3e2f897](cases/branch-5437e621b3e2f897.md), [branch-5c8dd10b120b7b96](cases/branch-5c8dd10b120b7b96.md), [branch-60bf0fe58994b8d1](cases/branch-60bf0fe58994b8d1.md), [branch-7cf91be9fae8af1b](cases/branch-7cf91be9fae8af1b.md), [branch-7d74693488d68979](cases/branch-7d74693488d68979.md), [branch-87d4561c05ed70fb](cases/branch-87d4561c05ed70fb.md), [branch-8d4b5b57bc91e1f1](cases/branch-8d4b5b57bc91e1f1.md), [branch-978ef60235fbbf68](cases/branch-978ef60235fbbf68.md), [branch-9bfa97f866ff8bc0](cases/branch-9bfa97f866ff8bc0.md), [branch-a5f2511bf36597a1](cases/branch-a5f2511bf36597a1.md), [branch-b5bac1644f15f8e7](cases/branch-b5bac1644f15f8e7.md), [pr-65](cases/pr-65.md), [pr-66](cases/pr-66.md), [pr-68](cases/pr-68.md), [pr-69](cases/pr-69.md), [pr-71](cases/pr-71.md), [pr-72](cases/pr-72.md), [pr-73](cases/pr-73.md), [pr-74](cases/pr-74.md), [pr-76](cases/pr-76.md), [pr-77](cases/pr-77.md), [pr-83](cases/pr-83.md)
