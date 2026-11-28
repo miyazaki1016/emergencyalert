@@ -349,3 +349,6 @@ main supabase/functions/archive-rain/index.ts 5d0a28de1146b38d403362923618240f0c
 
 ### 現行実装照合 42：#88/#94/#95 通知価値と文脈（2026-11-28）
 #88 HEAD 7b4eddab9380af6b855fbfd654a6ae510517e779 PROJECT_OVERVIEW 2d13e656c9fa2edc1fe480c4b598f53eeba3d81b、生活目線/早め降る・確実止む、#73未完。#94 HEAD 9657b86fc02a76946dd2f5e2db1a3c8cdf658d77 同文書 c12eca410dbaa8d72fb6abe3f7b1c6a7b2554d65 ユーザー確定10/28：降る前に正確に、誤報/見逃し/lead同時評価、止むは補助、共通遅延ゲート禁止、面への置換は精度確認後。#95 HEAD 1e39976d58c78f287020956c800b356774209752 docs/research/CONTEXTUAL_RAIN_ALERTS_20261028.md 223ae641aec0c303807ad64bb5678fbcf12bb2f1 は通知要否と文面分離、直前配信成功/エピソード参照、止む予測を実際の停止と混同しない、5回帰候補。main watch-rain/index.ts 42b2dddff7e91e8a468fc404f11fc0f52296a32e returningRain文面あり、episode latchあり、配信成功参照の同等性は未確認。VISION-002/018/020関連。第41回保存再取得確認。#88/#94/#95終了保留、最新CI未確認、本番変更なし。
+
+### 現行実装照合 43：#95 再接近文面の無効化確認（2026-11-28）
+main watch-rain/index.ts 42b2dddff7e91e8a468fc404f11fc0f52296a32e L69 returningRain=false固定、L74文面/L75 RAIN_RETURNING分岐は到達不能。L60-63終了条件とepisode decision、L98/108 accepted集計・履歴、L109-110通知時刻/終了通知状態は別管理。#95の直前成功通知に基づく再接近文面はこの経路では未継承。意図的無効化の理由・別経路・実機未確認、復活は通知安全性と別承認必須。通常接近通知全体が無効という意味ではない。第42回保存再取得確認、preflight46158229679/inventory46158229693/classification46158229684成功、CI46158229786実行中。終了・本番変更なし。
