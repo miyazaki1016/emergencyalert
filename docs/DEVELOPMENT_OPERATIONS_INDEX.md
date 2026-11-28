@@ -57,6 +57,10 @@
 | #276 | Cloudflare起動へ一本化：雨監視2ワークフローのGitHub scheduleを削除 | fix/cloudflare-only-rain-actions-trigger |
 | #290 | さきどり フロント担当の作業窓口 | ops/sakidori-frontend |
 | #291 | さきどり データ・通知担当の作業窓口 | ops/sakidori-data-notifications |
+| #328 | 構想・思想の継承：旧総覧の移行照合台帳（第1段階） | docs/vision-continuity-327 |
+| #330 | 構想研究：いいことのさきどり — 空・季節・暮らし | docs/good-things-vision-329 |
+| #331 | 構想研究：いいことのさきどり — 空・季節・暮らしとLIVE JAPAN（Issue #329） | docs/good-things-sakidori-329 |
+| #333 | 全国大雨スキャンで予算切れのタイルを次回へ先送りする (#332) | fix/national-scan-cycle-budget-332 |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
