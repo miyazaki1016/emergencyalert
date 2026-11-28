@@ -11,9 +11,9 @@ const formatTime = new Intl.DateTimeFormat("ja-JP", {
 
 const timeLabel = (value: string) => formatTime.format(forecastTime(value));
 
-export default function RadarPlayer({ frames, blocky }: { frames: RadarPlaybackFrame[]; blocky: boolean }) {
+export default function RadarPlayer({ frames, blocky, autoPlay = false }: { frames: RadarPlaybackFrame[]; blocky: boolean; autoPlay?: boolean }) {
   const [index, setIndex] = useState(() => Math.max(0, firstPlayableRadarFrame(frames)));
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState(() => autoPlay && firstPlayableRadarFrame(frames) >= 0);
   const [loaded, setLoaded] = useState("");
   const [failed, setFailed] = useState<ReadonlySet<string>>(() => new Set());
   const [mapFailed, setMapFailed] = useState(false);
