@@ -240,3 +240,6 @@ main lib/weather/rain/lightRainPixelMasks.test.ts blob b3345f3ae5df7d74ce0bc810b
 
 ### 現行実装照合 9：Bluesky研究の後続継承（2026-11-28）
 #306 HEAD ebecf27a5d3fcbbe842d16bb6439b51e3f136afd は#215候補生成・テストをコピーしたと本文に明記、完了タイル版ゲートとリプレイ追加。#321 HEAD 13f66483a22fb42f912c3acc4bbc4db3016b56b7 は#306 extend、#215 reuse、#222 extend（GIF時刻順序からMP4へ）を明記。事案×強度一意予約、同一レコードキー、結果不明照会、個別MP4/失敗テキスト、県まとめ/ダイジェスト。main取得結果：lib/weather/rain/nationalForecastBluesky.ts d69a9f43c9e3e35efa01d200a593084d393be10a；lib/weather/rain/nationalForecastBluesky.test.ts 48aef6ad559fea1261dee8dc046fa1988aef8b57；lib/weather/rain/nationalBlueskyCasePosts.ts c27de14ba45fb46bf9e333e6bb008f7998891222；lib/weather/rain/nationalBlueskyCaseVideo.ts f45f911640884ba5d54d5e69dbf62b85a0b0e89e。旧#215の終了候補判定には旧新コード・テスト比較と固有資産保全が必要。#222はGIF独自資産未照合。実送信・本番検証なし。終了なし。
+
+### 現行実装照合 10：#215全変更ファイル完全一致（2026-11-28）
+#215 HEAD 2e79ef53556d49decb0a868a9716f62ff1e5780d の全変更2件をmainと全文比較。lib/weather/rain/nationalForecastBluesky.ts blob d69a9f43c9e3e35efa01d200a593084d393be10a、同.test.ts blob 48aef6ad559fea1261dee8dc046fa1988aef8b57、両方SHA・全文完全一致。#306 extend/#321 reuseの記録とも整合。コード成果の未継承なし、重複マージ不要、終了候補（全体棚卸し後の終了方針に従う）。旧PRの履歴・判断・HEAD・後続参照を保存。最新main CI/運用確認は別軸、ブランチ削除は別判断。PR終了操作なし。
