@@ -301,3 +301,6 @@ main supabase/migrations/20261029023607_replay_area_images.sql blob b5fe2d374a6c
 
 ### 現行実装照合 25：後続収集経路の検索と検証状態（2026-11-28）
 第24回HEAD b2156ddf68cb785726bc056061827525be375d6e と保存内容を再取得確認。preflight 46156906019、inventory 46156905978、classification 46156906007 success、CI 46156906003 in_progress。default branchコード検索 claim_rain_image_jobs は既知の原本も返さず0件のため網羅性不足。PR検索 NO_SUBSCRIPTIONS は#195のみ。後続migration不存在の証明には使わない。研究課題は判断保留、次はmigration一覧取得可能性と別評価経路、他PR照合へ移行。main・本番・終了操作なし。
+
+### 現行実装照合 26：#93 通知安全監査の後続実装（2026-11-28）
+#93 HEAD a0a4cc891065a52333c7aaca8b93193d8cb7c2d9 本文の並行cron、Push後DB失敗、#63 DB CHECK不整合の3監査課題を再確認。現行watch-rain/index.ts blob 42b2dddff7e91e8a468fc404f11fc0f52296a32e は27–30行target lease取得/BUSY/fenced save、93行subscription単位push attempt claim、101–103行durable intent後ラッチ保存、119行finally release。並行実行と送信後失敗に対する後続対策の呼出実装あり。RPC内部・DB制約・障害テスト・#63 CHECK解消は未確認、完全解消とはしない。VISION-020関連。第25回保存再取得確認。次はRPC migrationと旧監査原本。main・本番・終了操作なし。
