@@ -26,7 +26,6 @@
 | #59 | Add nationwide heavy-rain scan proof | feat/national-heavy-rain-preview |
 | #60 | docs: 美咲との気象・防災連携契約案（未実装） | docs/misaki-weather-integration-20261016 |
 | #61 | feat: LIVE JAPAN 生きている日本列島の体験試作 | feat/live-japan-experience-prototype |
-| #62 | test: measure real JMA Z4 stride-2 missed rain regions (read-only) | test/z4-stride-parity-20261016 |
 | #63 | WIP: MYアメふる通知履歴・実天気フィードバック・判定根拠（検証用） | feat/my-rain-notification-history-20261019 |
 | #73 | fix: retained notification history stays viewable beyond seven days | fix/archived-history-beyond-seven-days-20261023 |
 | #88 | docs: 通常雨通知の見直し仕様と検証条件 | docs/rain-notification-phase1-20261026 |
@@ -37,6 +36,31 @@
 | #97 | Preview only: 外部AIレビュー用の公開総覧 | review/external-ai-page-20261028 |
 | #98 | 研究: 通知予測と実況の自動答え合わせ基盤 設計 | research/notification-replay-20261029 |
 | #109 | 研究用: 大雨予測の継続性判定（通知ロジック非接続） | research/severe-rain-consistency-20261101 |
+| #155 | Draft: JASPIC無送信MIME互換・Windows旧版比較と独立移植 | research/jaspic-mail-compat-20261104 |
+| #160 | 雨の判定ラボ：現地保留を主判定から外し、降り始め不明を補足表示 | fix/rain-lab-hold-copy-20261105 |
+| #164 | feat: Vercelデプロイ履歴の読み取り専用監視（自動制御前段階） | feat/vercel-quota-monitor-20261105 |
+| #165 | docs: 雨の判定ラボ173コマの方式差分・未検証事項を整理 | research/rain-lab-five-frame-differences-20261105 |
+| #175 | Research: rain notification accuracy baseline and replay plan | research/rain-accuracy-baseline-20261109 |
+| #179 | Research: distinguish rain onset from strengthening in failed alerts | research/rain-approach-timing-20261109 |
+| #181 | fix: exhaustive z4 heavy-rain scan and fail-closed missing tiles (PR #62 evidence) | fix/national-preview-fail-closed-20261109 |
+| #195 | 研究: 未通知ケースを含む雨のエピソード評価基盤 | research/rain-episode-evaluation-api-20261110 |
+| #210 | 固定版N03の全国大雨予報をさきどりトップに接続 | work/national-rain-fixed-n03-209 |
+| #215 | Draft: 全国大雨予報からBluesky投稿候補を生成（Issue #213） | feat/bluesky-national-forecast-213 |
+| #217 | [Draft] 1mm/h全国雨域検証の独立スキャナ（Issue #216） | feat/national-rain-1mm-dry-run-216 |
+| #222 | [Draft] 全国雨予報6コマGIF生成の独立プロトタイプ (#221) | feat/national-rain-gif-221 |
+| #232 | feat(jaspic): show held counts in completion email | feat/jaspic-completion-held-count-20261113 |
+| #239 | Draft: JASPIC 34件隔離DB・Gmail送信試験の安全ゲート | test/jaspic-238-isolated-bulk |
+| #242 | feat(rain): z10タイル×N03画素対応表の事前計算（Issue #220） | feat/light-rain-pixel-mask-precompute-220 |
+| #243 | Draft: z10 read-only scanner LRPM integration (stacked on #242) | feat/light-rain-mask-scanner-integration-220 |
+| #245 | 全国30mm/h予報を5分監視からトップ用スナップショットに接続 | work/national-forecast-snapshot-209 |
+| #254 | fix(rain): LRPM資材のSHA照合付きStorage配置ツール (#250) | fix/national-rain-lrpm-storage-250 |
+| #276 | Cloudflare起動へ一本化：雨監視2ワークフローのGitHub scheduleを削除 | fix/cloudflare-only-rain-actions-trigger |
+| #290 | さきどり フロント担当の作業窓口 | ops/sakidori-frontend |
+| #291 | さきどり データ・通知担当の作業窓口 | ops/sakidori-data-notifications |
+| #328 | 構想・思想の継承：旧総覧の移行照合台帳（第1段階） | docs/vision-continuity-327 |
+| #330 | 構想研究：いいことのさきどり — 空・季節・暮らし | docs/good-things-vision-329 |
+| #331 | 構想研究：いいことのさきどり — 空・季節・暮らしとLIVE JAPAN（Issue #329） | docs/good-things-sakidori-329 |
+| #333 | 全国大雨スキャンで予算切れのタイルを次回へ先送りする (#332) | fix/national-scan-cycle-budget-332 |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
