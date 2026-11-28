@@ -32,10 +32,10 @@ Issue #327。原本は変更しない。以下は見出し単位の全行範囲�
 | M-024 | [L226–233](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L226-L233) | ## G. 次のソラの推奨順序（2026-10-23） | 開発履歴・運用候補 | 部分照合： 当時の推奨順 → 歴史記録、現行優先順位ではない |
 | M-025 | [L234–243](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L234-L243) | ## H. 引継ぎでの表現ルール | 開発履歴・運用候補 | 部分照合： 証拠別の報告・りょ・復帰句 → 憲章 §6/WORK_RESUME候補 |
 | M-026 | [L244–248](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L244-L248) | # EmergencyAlert 2026 — Project Overview | 開発履歴・運用候補 | 部分照合： 旧総覧の存在理由 → 憲章 §6 |
-| M-027 | [L249–263](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L249-L263) | ## Origin | 思想・原点候補 | 部分照合： 原点の両エピソード・生活行動の目的 → [憲章 §6](SAKIKURU_PRODUCT_CHARTER.md#6-原点基本思想の継承2026-11-28-復元案) |
-| M-028 | [L264–273](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L264-L273) | ## Constitution | 思想・原点候補 | 部分照合： 憲章の三文・タグライン → 憲章 §6 |
-| M-029 | [L274–285](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L274-L285) | ## Meteorological boundary | 思想・原点候補 | 部分照合： 公式情報・独自予測禁止 → 憲章 §6（補足確認あり） |
-| M-030 | [L286–293](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L286-L293) | ## Missing-data rule | 思想・原点候補 | 部分照合： 欠測を安全としない → 憲章 §6 |
+| M-027 | [L249–263](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L249-L263) | ## Origin | 思想・原点候補 | 移行確認済：両原点の発言と生活行動の目的を憲章 §6 に確認。 |
+| M-028 | [L264–273](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L264-L273) | ## Constitution | 思想・原点候補 | 移行確認済：憲章三文と機能タグラインを憲章 §6 に確認。 |
+| M-029 | [L274–285](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L274-L285) | ## Meteorological boundary | 思想・原点候補 | 移行確認済：公式情報正本・独自予測禁止・AI創作禁止・地点と生活への接続を憲章 §2-A・§6 に確認。 |
+| M-030 | [L286–293](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L286-L293) | ## Missing-data rule | 思想・原点候補 | 移行確認済：不明・取得失敗・欠測を雨なし／安全としない原則を憲章 §6 に確認。 |
 | M-031 | [L294–321](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L294-L321) | ## 2023 archaeology | 研究・検証候補 | 部分照合： 2023色表・一次証拠優先 → 憲章 §6、PNG_PALETTE_EVIDENCE.md候補 |
 | M-032 | [L322–347](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L322-L347) | ## 2026 rain product | 仕様候補 | 部分照合： 初期閾値・終了条件は歴史的仕様として原本保持、現行仕様未確認 |
 | M-033 | [L348–355](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L348-L355) | ## Cost constraint | 思想・原点候補 | 部分照合： 固定気象データ費ゼロ・有料GRIB2は将来候補、憲章追記候補 |
@@ -91,3 +91,5 @@ M-007〜026の20範囲の原文を確認し、保存先候補と歴史扱いを�
 
 ### 全範囲の一次確認
 残り23範囲を原文確認し、保存先候補を記録。累計64範囲の一次確認、完全照合0。候補先の原本・現行実装・個別決定の漏れは別途照合する。防犯メール研究の記述はM-001末尾〜M-002冒頭の境界も確認すること。
+
+2026-11-28 個別移行確認：M-027〜030 は旧原本L249–293と製品憲章を再取得して意味内容を照合。移行確認は実装・本番整合性の認定ではない。残り60範囲は部分照合。
