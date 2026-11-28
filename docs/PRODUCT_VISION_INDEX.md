@@ -165,3 +165,6 @@ GitHub open PRを作成順昇順で20件取得：#25,59,60,61,63,73,88,93,94,95,
 - #164 2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8、Draft、mergeable=false、現HEAD workflow一覧0件。Vercel読み取り監視、公式quota未確認、自動制御禁止。
 - #175 4c8383f6154fc5136092ae75f49061ace74c35a6、Draft、mergeable=false、CI失敗42549707851。雨通知精度baseline・offline replay設計、後続研究との照合候補。
 初回20件のPR本文・HEAD・workflow・mergeable確認完了。CI成功15、失敗1、action_required1、workflow一覧0件3。全open PRの網羅・現行実装照合・終了判断は未完了。
+
+### 外部AIレビュー専用ページの成立背景（2026-11-28 ユーザー証言）
+#96・#97は最初期にMuseへ構想を評価してもらうため作成。当時は現在のように開発環境を公開していなかった。ユーザー本人による成立背景の説明。AI判断：現行連携により役割終了の可能性が高い。終了候補とするが、現行の代替経路・独自資料の継承・利用残存を確認してから終了判断。PR終了・ブランチ削除は未実施。
