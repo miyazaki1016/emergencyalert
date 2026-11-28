@@ -325,3 +325,6 @@ main lib/weather/rain/feedbackObservationTime.ts 05ad6ab8d5d0df3e8b50958664b64c3
 
 ### 現行実装照合 34：#63 非対称通知方針と再降雨評価の保全（2026-11-28）
 固定HEAD 784173985f676dc7f06d7a81275750e0ad07464e の docs/MY_RAIN_ASYMMETRIC_NOTIFICATION_VALIDATION_20261019.md blob bafcf0229fd3d52fcdc74dde4f7243d606fbb0c5 はユーザー方針「降りそう：早めに知らせる」「止みそう：確実に知らせる」、通知回数でなく意味ある精度、15/30分再降雨率と見逃し/空振り分離、shadow比較、UNKNOWN晴れ扱い禁止。docs/MY_RAIN_ENDING_RADAR_OFFLINE_AUDIT.md 1ae86ff2b940710480b26083e0abd31396722fb9 は5–10分候補を5–7.5未満/7.5–10に分離、地点/終了時刻の最初の候補だけ、10分再降雨、母数とcoverage併記、0件精度null。疑似データ道具で実績ではない。第33回の現行#99実況3乾燥コマ/±5/±10とは別指標、15/30分再降雨や未送信候補の継承未確認。VISION-002/018/020に関連。#63の残存研究として保全し終了保留。第33回保存再取得確認。最新CI・実行・本番未確認。次は他未終了PRへ移る。
+
+### 現行実装照合 35：#109 大雨予報の継続性・全フレーム保存研究（2026-11-28）
+#109固定HEAD 6e650705260825c33a9905bbd3802919ba341cc4、25変更パス。津南町#576/狐島#577旧予報復元不能、将来サンプル必要、旧CI未起動/容量運用未整備は当時のブロッカー。supabase/functions/_shared/forecastEvidenceCompact.ts e5f9ce3fdef8389b95328b6b88c98a04b73c7229 は全コマbase/valid/status/intensity/RGBA、COMPLETE/PARTIAL/MISSING、lib/research/severeRainConsistency.ts a028585b9c3e84e250dc5379cb4bfbf45be3f1d4 は同対象時刻の発表間継続性PERSISTENT/NEW/ABSENT/UNKNOWN、forecastEvidenceCapacity.ts f9f7f40dc8fb056ba3699f0cde34aee67bd1277c は件数×頻度×payload×保持日数、TOAST/index/WAL除外。main同パス3件404、別実装未照合。通知判定非接続、旧承認は今回の本番許可ではない。VISION-018/019/020関連、研究保全・終了保留。第34回保存再取得確認。次は現行診断保存と容量/継続性の後続照合。最新CI・実行・本番未確認。
