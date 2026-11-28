@@ -2,8 +2,6 @@ name: Nationwide heavy rain forecast
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '*/5 * * * *'
 
 permissions:
   contents: read
