@@ -243,3 +243,12 @@ main lib/weather/rain/lightRainPixelMasks.test.ts blob b3345f3ae5df7d74ce0bc810b
 
 ### 現行実装照合 10：#215全変更ファイル完全一致（2026-11-28）
 #215 HEAD 2e79ef53556d49decb0a868a9716f62ff1e5780d の全変更2件をmainと全文比較。lib/weather/rain/nationalForecastBluesky.ts blob d69a9f43c9e3e35efa01d200a593084d393be10a、同.test.ts blob 48aef6ad559fea1261dee8dc046fa1988aef8b57、両方SHA・全文完全一致。#306 extend/#321 reuseの記録とも整合。コード成果の未継承なし、重複マージ不要、終了候補（全体棚卸し後の終了方針に従う）。旧PRの履歴・判断・HEAD・後続参照を保存。最新main CI/運用確認は別軸、ブランチ削除は別判断。PR終了操作なし。
+
+### 現行実装照合 11：#222 GIF独自資産（2026-11-28）
+#222固定HEAD 5d9de2ff9fe5cd52a701bf718f7081c908a74924 の全変更5件を取得確認。main同一パスは全件404。原本索引：
+- [components/weather/NationalRainPlayer.tsx](https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/components/weather/NationalRainPlayer.tsx) blob e3e02ed7f97d2b1fc3218db175d48a268a61a4b2
+- [lib/weather/rain/nationalRainGif.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.test.ts) blob 1bfb6bdbce424d98c3355098b2a948fdaf268dac
+- [lib/weather/rain/nationalRainGif.ts](https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainGif.ts) blob cdfac9389da95c7d58612f8b2554eb98debd5f2d
+- [lib/weather/rain/nationalRainPlayback.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts) blob ab5f389f782f6353095dbffa5852afae63b2ea77
+- [lib/weather/rain/nationalRainPlayback.ts](https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts) blob fce8db383a927d5bf2015e9cf8f394c1f51754da
+#321は時刻順序研究をextendしMP4化、GIF生成器自体の継承は未確認。軽量GIF・再生制御の研究保全候補（AI判断、採用承認ではない）。移動先・現行RadarPlayerとの差・恒久保存・実行検証は未確認。PR終了・branch削除なし。
