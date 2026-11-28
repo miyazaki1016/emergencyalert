@@ -103,3 +103,17 @@
 後者はユーザーが2026-11-28の対話で説明した、引き継ぎシステム、自動棚卸し、照合システムへと発展した開発管理の原点。構想・思想の継承もその延長に位置する。自動棚卸しで製品方針を上書きしない。
 
 根拠：[旧総覧 L152–162](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L152-L162)、[L249–293](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L249-L293)、[L460–610](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L460-L610)。[移行照合台帳](VISION_MIGRATION_LEDGER.md)。
+
+### 共通情報基盤と各サービスの体験
+
+> EmergencyAlert = 目。各サービス = 伝え方。
+>
+> 判断はEmergencyAlertに寄せる。表現は利用側に渡す。ただし、利用側に気象ロジックを再実装させない。
+>
+> アメくる？は簡潔に。美咲は会話の中に。
+
+「アメくる？」は旧資料の表記。共有するのは事実と行動につながる意味であり、文面ではない。Push、LINE、音声、美咲等は固有の体験を保つ。構造化イベントの候補項目は状態・種別・緊急度・対象時刻・強度・推奨行動・出典・確認時刻・地点と精度・データおよび解釈状態。スキーマは未確定であり、PR #60の詳細照合を要する。利用側は色・閾値・連続フレーム・欠測処理を再実装しない。
+
+信頼性の原則：checkedAt と sourceValidAt は別。元時刻が不正なら推測せず省略。「雨の予報なし」は「雨なし」ではない。透過ピクセルの扱いは2026-09-23時点ではUNKNOWN_PIXEL、一次証拠または再現可能な公式カバレッジ比較によってのみ緩和可能とされた。現行判定は別途確認する。
+
+根拠： [旧総覧 L502–625](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L502-L625)。
