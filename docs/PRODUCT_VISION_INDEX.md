@@ -130,3 +130,9 @@ M-008関連。mainの[PNG証拠資料](https://github.com/miyazaki1016/emergency
 
 ### 未統合成果の発掘・初回候補抽出（2026-11-28）
 GitHub open PRを作成順昇順で20件取得：#25,59,60,61,63,73,88,93,94,95,96,97,98,109,147,155,160,164,165,175。全件数ではなく初回20件。各PR原本・最新HEADのCI・mainとの差分・後続代替・承認条件は未照合。優先候補は#25,#73,#93,#95,#109,#160,#165および既存VISION-001関連#61。openのみを根拠に未実装・統合可能と判断しない。既存開発台帳を再利用し、別の状態台帳を増設しない。
+
+### 未統合成果の個別確認 1（2026-11-28）
+- [#25](https://github.com/miyazaki1016/emergencyalert/pull/25)：HEAD 55174d5c0de802fa06ada23b6ce77aab8840bf6a、非Draft、mergeable=false、取得したworkflow一覧0件。固定東京地点の実JMA予報CI smoke test。後続代替未確認。
+- [#73](https://github.com/miyazaki1016/emergencyalert/pull/73)：HEAD fb1d1a3f9f0cee3985fffa1831dc52b187c182b3、Draft、mergeable=false、[CI成功](https://github.com/miyazaki1016/emergencyalert/actions/runs/39872146828)。旧履歴切替で最大200件の過去配信を既存RLSで取得、通常7日維持、削除なし、テスト追加とPR本文に記載。現行main代替・競合原因未確認。
+- [#93](https://github.com/miyazaki1016/emergencyalert/pull/93)：HEAD a0a4cc891065a52333c7aaca8b93193d8cb7c2d9、Draft、mergeable=true、[CI成功](https://github.com/miyazaki1016/emergencyalert/actions/runs/40565395757)。並行cron・送信後DB失敗・#63とDB CHECK不整合の監査記録のみ。修正実装とは区別。後続解消・承認未確認。
+次：現行main・後続PRの代替確認。いずれも統合承認なし、マージしない。
