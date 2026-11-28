@@ -89,6 +89,67 @@
           "evidence": []
         }
       }
+    },
+    {
+      "issue": 327,
+      "goal": "構想・基本思想を復元し、継続保存と実装整合性照合を検証する",
+      "status": "active",
+      "updated": "2026-11-29",
+      "blocked_by": [],
+      "next": "第51〜54回で旧総覧64/64の移行参照、既存20構想の現行main静的照合、39 PRの研究資産と実装継承、VISION-021の登録を記録。次はDraftの最新CIと保存原本をIssue #327で確認し、新しい通常チャットで自発保存・再取得・再引継ぎを独立再試験する。既存調査の再実施不要。main・本番・機能変更・PR終了は禁止。",
+      "completion": "旧総覧の個別移行確認、構想と実装の差異記録、通常チャット間の自発保存・再取得・再引継ぎ検証、最新CI成功、正式導入の承認。自動化は別案件で追跡。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/issues/327",
+        "https://github.com/miyazaki1016/emergencyalert/pull/328",
+        "https://github.com/miyazaki1016/emergencyalert/commit/8995c91244a1cf3a8a691c4e9cfe142b42c3a433",
+        "https://github.com/miyazaki1016/emergencyalert/issues/327#issuecomment-7238805021",
+        "https://github.com/miyazaki1016/emergencyalert/actions/runs/46120887723",
+        "https://github.com/miyazaki1016/emergencyalert/blob/docs/vision-continuity-327/docs/PRODUCT_VISION_INDEX.md",
+        "https://github.com/miyazaki1016/emergencyalert/commit/172716a415d7e378cebf19d670514ab697b2eb2e",
+        "https://github.com/miyazaki1016/emergencyalert/commit/20a58cefdf98bfed0fc18982b292f5998db95982",
+        "https://github.com/miyazaki1016/emergencyalert/blob/docs/vision-continuity-327/docs/VISION_MIGRATION_LEDGER.md"
+      ],
+      "stages": {
+        "implementation": {
+          "status": "unconfirmed",
+          "evidence": [
+            "https://github.com/miyazaki1016/emergencyalert/pull/328"
+          ]
+        },
+        "verification": {
+          "status": "unconfirmed",
+          "pr": 328,
+          "head_sha": "20a58cefdf98bfed0fc18982b292f5998db95982",
+          "evidence": [
+            "https://github.com/miyazaki1016/emergencyalert/actions/runs/46158653174",
+            "https://github.com/miyazaki1016/emergencyalert/actions/runs/46158653150",
+            "https://github.com/miyazaki1016/emergencyalert/actions/runs/46158653154",
+            "https://github.com/miyazaki1016/emergencyalert/actions/runs/46158653212"
+          ]
+        },
+        "main": {
+          "status": "unconfirmed",
+          "evidence": []
+        },
+        "production": {
+          "status": "not_applicable",
+          "evidence": [
+            "https://github.com/miyazaki1016/emergencyalert/issues/327"
+          ]
+        },
+        "device": {
+          "status": "not_applicable",
+          "evidence": [
+            "https://github.com/miyazaki1016/emergencyalert/issues/327"
+          ]
+        }
+      },
+      "resumed": {
+        "by": "通常チャット担当",
+        "at": "2026-11-28T14:57:25.015Z",
+        "from": "前担当の第12回照合済み記録から第13〜29回を追記し、保存再取得を確認。",
+        "evidence": "https://github.com/miyazaki1016/emergencyalert/commit/172716a415d7e378cebf19d670514ab697b2eb2e"
+      }
     }
   ]
 }
