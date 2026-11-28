@@ -96,7 +96,7 @@
       "status": "active",
       "updated": "2026-11-28",
       "blocked_by": [],
-      "next": "PRODUCT_VISION_INDEX.md 第29回から再開。#63の別コンポーネント・SQL・終了研究を照合し、他の未終了PR、旧総覧64範囲の完全移行、構想20件の詳細証拠照合、自発保存・再引継ぎを進める。一次調査39/39は繰り返さない。最新HEAD CI確認必須。全体棚卸し・根拠保全前のPR終了禁止。main・本番変更禁止。",
+      "next": "第48回まで保存済み。PRODUCT_VISION_INDEX.md 第45回、VISION_MIGRATION_LEDGER.md 第46〜48回を起点に、旧総覧16/64移行確認済・残48部分照合、構想20件の詳細証拠、#73履歴制限、#95再接近無効化の経緯、#330/#331構想正式整合を進める。一次調査39/39は繰り返さない。MY大雨初回のみは現行静的整合済、実機未確認。最新HEAD CI必須、全体保全前PR終了禁止、main・本番変更禁止。",
       "completion": "旧総覧の個別移行確認、構想と実装の差異記録、通常チャット間の自発保存・再取得・再引継ぎ検証、最新CI成功、正式導入の承認。自動化は別案件で追跡。",
       "evidence": [
         "https://github.com/miyazaki1016/emergencyalert/issues/327",
@@ -105,7 +105,9 @@
         "https://github.com/miyazaki1016/emergencyalert/issues/327#issuecomment-7238805021",
         "https://github.com/miyazaki1016/emergencyalert/actions/runs/46120887723",
         "https://github.com/miyazaki1016/emergencyalert/blob/docs/vision-continuity-327/docs/PRODUCT_VISION_INDEX.md",
-        "https://github.com/miyazaki1016/emergencyalert/commit/172716a415d7e378cebf19d670514ab697b2eb2e"
+        "https://github.com/miyazaki1016/emergencyalert/commit/172716a415d7e378cebf19d670514ab697b2eb2e",
+        "https://github.com/miyazaki1016/emergencyalert/commit/20a58cefdf98bfed0fc18982b292f5998db95982",
+        "https://github.com/miyazaki1016/emergencyalert/blob/docs/vision-continuity-327/docs/VISION_MIGRATION_LEDGER.md"
       ],
       "stages": {
         "implementation": {
@@ -117,12 +119,12 @@
         "verification": {
           "status": "unconfirmed",
           "pr": 328,
-          "head_sha": "172716a415d7e378cebf19d670514ab697b2eb2e",
+          "head_sha": "20a58cefdf98bfed0fc18982b292f5998db95982",
           "evidence": [
-            "https://github.com/miyazaki1016/emergencyalert/actions/runs/46157241061",
-            "https://github.com/miyazaki1016/emergencyalert/actions/runs/46157241064",
-            "https://github.com/miyazaki1016/emergencyalert/actions/runs/46157241119",
-            "https://github.com/miyazaki1016/emergencyalert/actions/runs/46157241078"
+            "https://github.com/miyazaki1016/emergencyalert/actions/runs/46158653174",
+            "https://github.com/miyazaki1016/emergencyalert/actions/runs/46158653150",
+            "https://github.com/miyazaki1016/emergencyalert/actions/runs/46158653154",
+            "https://github.com/miyazaki1016/emergencyalert/actions/runs/46158653212"
           ]
         },
         "main": {
