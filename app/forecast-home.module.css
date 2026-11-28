@@ -9,10 +9,18 @@
     repeating-linear-gradient(90deg, transparent 0 43px, #5a8cdc0c 43px 44px),
     #04070f;
 }
-.header { position: sticky; top: 0; z-index: 10; background: linear-gradient(100deg, #060b16eb, #060b16c9), url("/header-cityrain.webp") center 45% / cover no-repeat, #060b16;
-  border-bottom: 1px solid #203553; }
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background:
+    linear-gradient(100deg, #060b16e6 0%, #060b16b8 28%, #060b1640 64%, #060b1659 100%),
+    url("/header-cityrain.webp") center 60% / cover no-repeat,
+    #060b16;
+  border-bottom: 1px solid #203553;
+}
 .headerInner, .main { max-width: 1120px; margin: 0 auto; padding-inline: 16px; }
-.headerInner { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 10px; }
+.headerInner { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 16px; }
 .brand { color: #edf6ff; text-decoration: none; font-size: 1.45rem; font-weight: 900; letter-spacing: .12em; line-height: 1.2; }
 .brand span { color: #3ae2ff; }
 .nav { display: flex; gap: 4px; padding: 4px; border: 1px solid #294467; border-radius: 24px; background: #10203a; }
@@ -20,7 +28,11 @@
 .nav a[aria-current] { color: white; background: #1854b5; }
 .nav a:focus-visible, .brand:focus-visible { outline: 2px solid #6fd3ff; outline-offset: 3px; }
 .main { padding-block: 18px 56px; }
+@media (max-width: 600px) {
+  .headerInner { padding-block: 12px; }
+  .header { background-position: center, 60% 60%; }
+}
 @media (max-width: 370px) { .nav { width: 100%; } .nav a { flex: 1; text-align: center; } }
 
-.identity { display: flex; flex-direction: column; gap: 4px; }
+.identity { display: flex; flex-direction: column; gap: 4px; text-shadow: 0 1px 5px #060b16; }
 .tagline { color: #e3edfa; font-size: .72rem; }
