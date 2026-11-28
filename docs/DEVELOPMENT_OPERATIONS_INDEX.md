@@ -61,6 +61,7 @@
 | #330 | 構想研究：いいことのさきどり — 空・季節・暮らし | docs/good-things-vision-329 |
 | #331 | 構想研究：いいことのさきどり — 空・季節・暮らしとLIVE JAPAN（Issue #329） | docs/good-things-sakidori-329 |
 | #333 | 全国大雨スキャンで予算切れのタイルを次回へ先送りする (#332) | fix/national-scan-cycle-budget-332 |
+| #337 | 全国地図の時刻操作をスライダーに集約する | fix/map-timeline-336 |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
