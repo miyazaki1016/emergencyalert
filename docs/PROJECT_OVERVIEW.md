@@ -16,6 +16,8 @@
 | 知りたいこと | 開く場所 |
 | --- | --- |
 | **製品理念・完成形・3つの役割（恒久）** | [サキくる製品憲章](SAKIKURU_PRODUCT_CHARTER.md) |
+| **将来構想・確定方針・未確定案** | [構想台帳](PRODUCT_VISION_INDEX.md) |
+| **旧総覧の記述と移行先の確認** | [移行照合台帳](VISION_MIGRATION_LEDGER.md) |
 | **過去の作業内容・検証結果・全PR/ブランチを探す** | [過去作業の履歴索引](WORK_HISTORY_INDEX.md) |
 | **着手前に必ず見る：過去の日本語開発履歴** | [両プロジェクト共通の検索画面](https://miyazaki1016.github.io/misaki/history.html) · [運用手順](WORK_HISTORY_OPERATIONS.md) |
 | 案件の現在地・証拠・次の一手 | [開発台帳](DEVELOPMENT_LEDGER.md) · [中断・復帰手順](WORK_RESUME.md) |
