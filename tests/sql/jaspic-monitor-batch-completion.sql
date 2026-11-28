@@ -4,6 +4,7 @@ create table public.jaspic_deliveries(
 \ir ../../docs/sql/jaspic-batch-completion.sql
 truncate jaspic_monitor.alerts,net.requests,public.jaspic_runs,cron.job_run_details;
 insert into vault.decrypted_secrets values('jaspic_production_dispatch_token','test-only') on conflict do nothing;
+insert into vault.decrypted_secrets values('jaspic_production_dispatch_token_new_vercel','current-test-only') on conflict do nothing;
 insert into cron.job_run_details values(5,'succeeded','2026-11-14T09:00Z');
 insert into public.jaspic_runs values
  ('00000000-0000-0000-0000-000000000030','2026-11-14T09:00:01Z','2026-11-14T09:01Z','SUCCEEDED','{"sent":{"hiroshima":20,"shiga":0},"remainingPrepared":14}',null);
@@ -17,6 +18,9 @@ select jaspic_monitor.scan_completions('2026-11-14T09:06Z');
 do $$begin
  if exists(select 1 from jaspic_monitor.alerts) then raise exception 'premature completion'; end if;
  if (select count(*) from net.requests where url like '%/dispatch')<>1 then raise exception 'continuation must enqueue once'; end if;
+ if exists(select 1 from net.requests where url like '%/dispatch'
+   and headers->>'Authorization' is distinct from 'Bearer current-test-only')
+ then raise exception 'continuation used the legacy credential'; end if;
 end $$;
 update public.jaspic_deliveries set status='UNKNOWN' where province='shiga';
 select jaspic_monitor.scan_completions('2026-11-14T09:07Z');
