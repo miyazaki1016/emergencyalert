@@ -4,11 +4,24 @@ import { fetchObservationTargetTimes } from "./observationTargetTimes";
 import { fetchForecastTargetTimes } from "./targetTimes";
 import { buildJmaRainTileUrl } from "./tileUrl";
 import { fetchPngPixel } from "./readPixel";
+import type { PngTileMeasurement } from "./readPixel";
+
+export interface JmaTileSizeRecord extends PngTileMeasurement {
+  baseTime: string;
+  validTime: string;
+  zoom: number;
+  tileX: number;
+  tileY: number;
+}
+
 import { classifyRainPixel } from "./classifyPixel";
 import { latLonToTilePixel } from "./webMercator";
 
 export class JmaPublicImageProvider implements RainDataProvider {
-  constructor(private readonly fetcher: typeof fetch = fetch) {}
+  constructor(
+    private readonly fetcher: typeof fetch = fetch,
+    private readonly onTileMeasured?: (record: JmaTileSizeRecord) => void,
+  ) {}
 
   async getObservationFrames(lat: number, lon: number): Promise<OfficialRainFrame[]> {
     const targets = await fetchObservationTargetTimes(this.fetcher);
@@ -40,7 +53,22 @@ export class JmaPublicImageProvider implements RainDataProvider {
     return Promise.all(targets.map(async (target) => {
       try {
         const url = buildJmaRainTileUrl(target, p.zoom, p.tileX, p.tileY);
-        const rgba = await fetchPngPixel(url, p.pixelX, p.pixelY, this.fetcher);
+        const rgba = await fetchPngPixel(url, p.pixelX, p.pixelY, this.fetcher, {
+          onMeasured: (measurement) => {
+            try {
+              this.onTileMeasured?.({
+                ...measurement,
+                baseTime: target.basetime,
+                validTime: target.validtime,
+                zoom: p.zoom,
+                tileX: p.tileX,
+                tileY: p.tileY,
+              });
+            } catch {
+              // Measurement must not affect the rain forecast.
+            }
+          },
+        });
         const classification = classifyRainPixel(rgba);
         return {
           baseTime: target.basetime,
