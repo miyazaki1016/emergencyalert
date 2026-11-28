@@ -206,3 +206,6 @@ GitHub検索 is:pr is:open、作成順昇順、上限100で39件取得。初回2
 - #330 bf4684e12cd12456394d92366781241d9e25a923、CI成功46144114162、preflight失敗46144114157。いいことのさきどり引継ぎ資料。
 - #331 0c5fcbc80b212a7c53d88c867d92a35f115ab220、CI成功46144534352、preflight成功46144534410。空・季節・暮らし研究、ユーザー方針とAI案を区別。#330との継承関係は原本照合待ち。
 初回39/39件のPR本文・HEAD・workflow・mergeable確認完了。通常CI成功33、失敗1、action_required1、workflow一覧0件3、実行中1。時点観測であり最新再取得が必要。次は系統別に現行main/後続PR/独自資産/終了理由を照合。閉鎖済未マージPR・PRなしブランチは未調査。終了・削除・マージなし。
+
+### 現行実装照合 1：起動基盤 #276（2026-11-28）
+mainの `.github/workflows/my-rain-watch-schedule.yml` blob 464e5bb63fc82b3490abbab25be49e9e302d07c1 と `.github/workflows/national-heavy-rain-schedule.yml` blob 82f7a7290b1d5b52928e8749a89fc67fff406c8e を取得。両方schedule残存、workflow_dispatchあり、RAIN_ACTIONS_TRIGGER_SOURCE=cloudflareの場合schedule job抑止条件あり。#276のschedule削除自体は未反映、目的の二重起動抑止は条件付き実装。部分実装・判断保留。実変数、Cloudflare稼働、運用意図、最新preflightは未確認。終了・マージ禁止のまま担当データ通知へ確認候補。全国workflowにはN03/LRPM cache、prepare-national-rain-inputs.ts、national-heavy-rain-scan.ts、JMA_Z10_PIXEL_MASK_DIRの接続も確認。#217/242/243/245/254の詳細同等性は次工程。main全体SHA固定なし、blob単位の観測。
