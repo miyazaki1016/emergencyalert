@@ -47,8 +47,8 @@ Issue #327。原本は変更しない。以下は見出し単位の全行範囲�
 | M-039 | [L460–468](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L460-L468) | ## Must not break | 思想・原点候補 | 移行確認済：独自予測禁止・欠測・旧色表・当時の費用制約・利用者の簡潔さを憲章 §6 に確認。 |
 | M-040 | [L469–481](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L469-L481) | ## Recovery phrases | 思想・原点候補 | 移行確認済：復帰句二つと文書の存在理由を憲章 §6 に確認。 |
 | M-041 | [L482–501](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L482-L501) | ## 2023 design intent recovered from operation history | 思想・原点候補 | 移行確認済：GIFの目的・旧ブラウザ自動化・X側MP4変換・公式時系列の原則を憲章 §2-B・§5・§6 に確認。 |
-| M-042 | [L502–535](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L502-L535) | ## Output boundary — facts first, expression later | 思想・原点候補 | 部分照合： 構造化事実と表現の分離 → [製品憲章](SAKIKURU_PRODUCT_CHARTER.md) §6 |
-| M-043 | [L536–568](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L536-L568) | ### Consumer simplicity is part of the EmergencyAlert contract | 思想・原点候補 | 部分照合： 利用側に気象ロジックを再実装させない・イベント候補項目 → 憲章 §6、PR #60詳細未確認 |
+| M-042 | [L502–535](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L502-L535) | ## Output boundary — facts first, expression later | 思想・原点候補 | 移行確認済：構造化事実・解釈と表現の境界、利用側の人格・文脈、創作禁止を憲章 §6 に確認。 |
+| M-043 | [L536–568](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L536-L568) | ### Consumer simplicity is part of the EmergencyAlert contract | 思想・原点候補 | 移行確認済：意味的イベント候補、利用側の気象ロジック再実装禁止、API/SDK簡潔化を憲章 §6 に確認。具体契約の実装検証は別。 |
 | M-044 | [L569–590](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L569-L590) | ### Keep each consumer's experience distinct | 思想・原点候補 | 移行確認済：各サービス固有の体験、簡潔さ、美咲の会話、事実と表現の分離を憲章 §6 に確認。 |
 | M-045 | [L591–610](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L591-L610) | ### Current trust metadata checkpoint (2026-09-23) | 仕様候補 | 移行確認済：時刻区分、不正時刻の省略、予報なしと確実性の区別を憲章 §6 に確認。現行実装認定とは別。 |
 | M-046 | [L611–625](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L611-L625) | ### Transparent hrpns pixels fail closed until coverage semantics are proven | 開発履歴・運用候補 | 移行確認済：2026-09-23の透過ピクセルの歴史的扱い、根拠による緩和条件を憲章 §6 に確認。現行判定とは別。 |
@@ -97,3 +97,5 @@ M-007〜026の20範囲の原文を確認し、保存先候補と歴史扱いを�
 2026-11-28 個別移行確認：M-040、044〜046を旧原本と憲章 §6 で照合。M-039の費用方針とM-041のブラウザ自動化によるGIF生成手順は補足が必要なため部分照合を維持。
 
 2026-11-28 個別移行確認：M-033、039、041を旧原本と憲章の追加復元（126aefe）で再照合。M-047は初回実機の歴史証拠・工程順序が残るため部分照合を維持。
+
+2026-11-28 個別移行確認：M-042〜043を旧原本L502–568と憲章の補足（07cf054）で再照合。具体API/SDKの実装済みを意味しない。
