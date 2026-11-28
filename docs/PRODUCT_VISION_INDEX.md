@@ -289,3 +289,6 @@ main app/api/rain/route.ts blob 48c1b39c9d36f73256468c78457faa910da13adc はinte
 
 ### 現行実装照合 21：弱雨情報と行動通知の分離構想（2026-11-28）
 #179固定HEAD e61aad6fd16f22111cf618dc5a6e0a4e20d9fed2 の RAIN_APPROACH_EXISTING_ENGINE_AUDIT_20261109.md blob 968fae77805aef4e8c86c2477b360ca8388cf79f と RAIN_APPROACH_ISSUANCE_FEASIBILITY_20261109.md blob c97c6243dda8ff24b1833937baecb7c5821737a2 を取得。旧研究は既存startsAt/actionableAtの再利用、弱雨onsetの非送信情報信号、既存actionable通知・ラッチ維持を提案。二重pushは明示判断なしに導入しない。旧20配信snapshotの13 MATCH/7 MISMATCH中、firstRainがactionableより早いのは10/13・6/7。早いtargetは早い発報可能性の証明ではない。現行 canPublishRainInterpretation.test.ts blob 7345870d7781766b3c3352bec86af7ec08bb770c の3テストは後方欠損許容、主張前UNKNOWN拒否、DRY fail-closedを明示。第20回保存再取得確認。弱雨情報案は過去AI研究提案でユーザー採用決定ではない。現行mainの研究資料同パス・実行テスト・最新CIは未確認。次は残資料と構想IDへの関連整理。main・本番・終了操作なし。
+
+### 現行実装照合 22：雨研究の構想ID横断索引（2026-11-28）
+第15〜21回を既存IDへ関連付ける（AI索引判断、方針変更なし）。VISION-002：#175/#179/#195、弱雨INFOと行動通知の分離、startsAt/actionableAt、現行API/workerの部分継承。VISION-018：同3PRの評価基準、レーダー一致≠地上真値、未通知含む分母・打切り・UNKNOWN、旧49件基準と28件再生、前倒し不採用根拠。VISION-019：現行severe独立ゲート、通常通知ラッチとの分離（実配信未確認）。VISION-020：公開ゲート、3 distinct CLEAR、重複防止、旧回帰資産。弱雨の非送信情報信号は既存VISION-002関連の未採用研究案として検索可能にし、新IDや承認済み仕様への昇格なし。「いいことのさきどり」との関連はAI解釈。#175/#179/#195の終了判断は全体棚卸し後、原本保全と代替確認を経る。第21回保存再取得確認。次は#179残資料・#195評価資産の現行代替、他未統合PR。完全照合0/20維持、main・本番・終了操作なし。
