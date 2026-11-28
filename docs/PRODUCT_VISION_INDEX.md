@@ -343,3 +343,6 @@ main supabase/functions/archive-rain/index.ts 5d0a28de1146b38d403362923618240f0c
 
 ### 現行実装照合 40：#147 自動棚卸しの事実スナップショット（2026-11-28）
 #147 HEAD 5f677924604d67e3578d8ee1dfed30764f1f67dc は自動生成事実のみ、2変更パス。DEVELOPMENT_OPERATIONS_INDEX.md 15ab9ed81a77f81906b7129eab58a1514ed5d0a1→main fefb5415722412e8a008a69a38feac5e42be364a、A-01〜06照合索引・人の状態判断と自動事実の分離は一致、Open PR表は観測時点差（#62等）。DEVELOPMENT_LEDGER.md 34dd813515231dba36054de7a4cb735987a0c5b5→main 06814304b573140cf6f3badd01f5568fa27d85f8、冒頭とJASPIC/#250/#209記録一致、全文差分未照合。古い事実表を現行へ上書きしない。独立機能PRではなく履歴スナップショット、終了候補は全文差分と全体保全後。第39回保存再取得確認。最新CI未確認、main本番変更なし。
+
+### 現行実装照合 41：#73 旧通知履歴7日制限の未継承差分（2026-11-28）
+#73 HEAD fb1d1a3f9f0cee3985fffa1831dc52b187c182b3、全3パス比較。NotificationFeedbackHistory.tsx 5f27b3e869634ce990da0e9bddc1ed24eeee803a→main 3a923411ae288721e17121a3774a7e6f7cbd4a17、旧showArchived時historyQuerySince=nullでgte省略、依存ownerId/showArchived、最大200。mainはgte delivered_at since固定、UI非破壊archive保持。feedbackPhase1.ts 2ae18751cdc81c2c9af0ad06548d2a4c639a3525→5c5efc1c00c598e464c6e4f34c81368ce558f93b、historyQuerySinceなし。tests/feedbackPhase1.test.ts 35ec951990e4754ccfba33af1264f614f8ab5246→1b41b4357c4465e8c0cc2236b81991d19d830ed0、旧7日/解除2テストなし。現行別経路・実機未確認、未継承候補、修正/終了は別承認。第40回保存再取得確認。最新CI未確認、main本番変更なし。
