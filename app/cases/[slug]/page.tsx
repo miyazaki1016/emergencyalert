@@ -71,18 +71,21 @@ function TimeBands({ slots }: { slots: CaseSlot[] }) {
   })}</div>;
 }
 
+function CaseRadar({ incident, version, now, band }: { incident: RainCase; version: RainCaseVersion; now: number; band: CaseBand }) {
+  const label = bands.find(item => item.key === band)!.label;
+  const frames = caseRadarFrames(incident, version, band, now);
+  return <section className={styles.radar} aria-label={`${label}の雨雲再生`}>
+    <h3>{label}の雨雲</h3>
+    {frames.length ? <RadarPlayer key={version.base_time} frames={frames} blocky={band === "extended"} autoPlay={band === "detail"} /> : <p>再生できる予報画像はありません。</p>}
+  </section>;
+}
+
 function ActiveForecast({ incident, version, now }: { incident: RainCase; version: RainCaseVersion; now: number }) {
   return <section className={styles.card} aria-labelledby="active-forecast">
     <h2 id="active-forecast">予報詳細</h2>
     <p><time dateTime={dateTime(version.base_time)}>{timedDay.format(forecastTime(version.base_time))}</time> 基準</p>
     <TimeBands slots={version.slots.filter(slot => forecastTime(slot.validTime) > now)} />
-    <div className={styles.bands}>{bands.map(({ key, label }) => {
-      const frames = caseRadarFrames(incident, version, key, now);
-      return <section className={styles.radar} key={key} aria-label={`${label}の雨雲再生`}>
-        <h3>{label}の雨雲</h3>
-        {frames.length ? <RadarPlayer key={version.base_time} frames={frames} blocky={key === "extended"} /> : <p>再生できる予報画像はありません。</p>}
-      </section>;
-    })}</div>
+    <div className={styles.bands}><CaseRadar incident={incident} version={version} now={now} band="extended" /></div>
   </section>;
 }
 
@@ -105,6 +108,7 @@ export default async function RainCasePage({ params }: Route) {
       </div>
       <h1>{incident.municipality}の大雨予報</h1>
       <p>{incident.prefecture} · 気象庁の予報をもとにした記録</p>
+      {!expired && incident.status === "forecast" && latest && <CaseRadar incident={incident} version={latest} now={now} band="detail" />}
       <div className={styles.numbers}>
         <div><span>最強の予報</span><strong>{incident.peak_tier} <small>mm/h以上</small></strong>
           <time dateTime={dateTime(incident.peak_valid_time)}>{timedDay.format(forecastTime(incident.peak_valid_time))}ごろ</time></div>
