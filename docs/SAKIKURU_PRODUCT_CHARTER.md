@@ -132,3 +132,8 @@
 歴史的GIF生成：2023年の旧運用はブラウザを自動操作して気象庁ナウキャストの連続フレームを取得し、GIFを組み立ててXへ投稿した。現行実装の証明ではない。
 
 根拠：[旧総覧 L348–355](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L348-L355)、[L482–501](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L482-L501)、[L626–657](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L626-L657)、[L699–772](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L699-L772)。
+
+### 利用側との契約の補足（旧総覧 L502–568）
+共通基盤の正本出力は構造化された事実と解釈まで。独自の日常語文面を提供しても連携先にその文面を必須としない。利用側は口調・人格・関係性・文脈に応じた伝え方を選べるが、気象解釈を変えたり、根拠のない雨・時刻・強度・危険を付加したりしない。意味的イベントの例は接近・降雨中・弱まり・終了。将来のAPI/SDKは内部の複雑さにかかわらず受信・利用を簡単にする。具体スキーマは別途検証する。
+
+根拠：[旧総覧 L502–568](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L502-L568)。
