@@ -337,3 +337,6 @@ main app/api/rain/route.ts 48c1b39c9d36f73256468c78457faa910da13adc にexpectedF
 
 ### 現行実装照合 38：#98 レーダー画像容量測定研究（2026-11-28）
 #98固定HEAD 79b4bae479f9b39f48d9fbf0d1745944a3442804、11変更パス。docs/research/RAIN_TILE_BENCHMARK_RESULTS_20261029.md 01ed5586b67ecbea72dd55574fe858b48f3fe522 は人工256角PNG dry/scattered/noisy 334/708/98901B、19角PNG77/90/701B、RGBA1444B、zlib20/23/614B。JMA DNS失敗で実画像未測定、古いキャッシュを現在と扱わない。lib/weather/providers/jma/tileSizeCollector.ts 69f90baa40f75f382fb2d8d52ec22351eb5a26f7 は任意有効化・メモリ内最大1000件・base/valid/zoom/x/y重複排除・空平均null。main同パス2件404、別経路未照合。#99独立実況照合・現行画像archiveとは別の容量研究、VISION-018/015関連。第37回保存再取得確認、CI46157813156/preflight46157813138/inventory46157813149実行中、classification46157813194成功。#98終了保留、本番変更なし。
+
+### 現行実装照合 39：#98 画像保存方式の継承と差異（2026-11-28）
+main supabase/functions/archive-rain/index.ts 5d0a28de1146b38d403362923618240f0cb6fc3a はcaptureAreaのcrop_png/availability_maskをbyteaでrain_evaluation_imagesへupsert、評価ID/種類/base/valid一意、期限、probe SHA256往復確認、rain_image_storage_bytesと32MiB予算。#98の必要領域保存思想は継承、人工zlib RGBA比較とは別方式。main JmaPublicImageProvider.ts 2bf5fec8f82ef108a6c6987915c2e5fcb1486d9e / readPixel.ts e53838e97f270efa11d83da55e40656bc7bdeabc はPNG画素読取、旧任意容量collectorの同等経路未確認。実画像容量・DB稼働・最新CI未確認。第38回保存再取得確認。#98終了保留、main本番変更なし。
