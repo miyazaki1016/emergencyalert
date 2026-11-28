@@ -160,8 +160,8 @@ export default function LiveJapanForecastMap({ frame, peaks, caseSlugs, glow = f
           marker.style.backgroundColor = colors[tier];
           marker.textContent = glow ? "" : String(tier);
           if (glow) {
-            marker.style.backgroundColor = tier === 80 ? "#fff0ff" : tier === 50 ? "#78fff0" : "#c8d6df";
-            marker.style.boxShadow = tier === 80 ? "0 0 8px 4px #ff55dd, 0 0 22px 8px #ff55dd88" : tier === 50 ? "0 0 8px 3px #00ffd5" : "none";
+            marker.style.backgroundColor = colors[tier];
+            marker.style.boxShadow = tier === 80 ? `0 0 8px 4px ${colors[tier]}, 0 0 22px 8px ${colors[tier]}88` : tier === 50 ? `0 0 8px 3px ${colors[tier]}` : "none";
             marker.style.width = marker.style.height = tier === 80 ? "12px" : tier === 50 ? "9px" : "5px";
             marker.style.margin = "auto";
           }
