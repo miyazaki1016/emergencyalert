@@ -62,3 +62,9 @@ Issue #327 / Draft PR #328。2026-11-28。製品方針の正本は [製品憲章
 | 020 | #64/#63 の原本と後続安全対策を確認 |
 
 20 IDすべてに一次照合の結果または根拠不足を記録。完全整合性判定は0件。索引の古い状態は最新状態の証明ではない。
+
+### 個別PR差分の確認（2026-11-28）
+- VISION-006: [#60](https://github.com/miyazaki1016/emergencyalert/pull/60) 差分の共同設計契約案を確認。提供側は公式情報・地域判定・鮮度・欠損・重複識別、利用側は許可地点・会話関連性・表現。人格や記憶を提供側に渡さない。重要災害情報を生成AIが捏造・格下げ・抑止しない。Phase Aは認証付きread-only Pull、降雨観測・短時間予測・UNKNOWN・期限。Phase Bは実装済み公式イベントから拡張。契約案であり現行API未確認。
+- VISION-004/005: [#61](https://github.com/miyazaki1016/emergencyalert/pull/61) 差分にEventEnvelope型、安定eventId・revision・地域コード・公式出典。型定義だけでは外部フィード接続の証明にならない。
+- VISION-019: [#91](https://github.com/miyazaki1016/emergencyalert/pull/91) 差分に初回30mm/hのみ、強度上昇追加なし、有効な乾燥観測3回で終了の当時仕様。 [#108](https://github.com/miyazaki1016/emergencyalert/pull/108) 差分にSEVERE_RAINの評価スナップショット追加。現行workerの独立条件・本番到達は未確認。
+- VISION-017: [#155](https://github.com/miyazaki1016/emergencyalert/pull/155) 差分に独立JASPIC互換CIと旧C#出力比較。無送信互換試験と実配信は別証拠。後続PRと現行運用を確認する。
