@@ -1,0 +1,36 @@
+{
+  "id": "branch-85b3f42d2f0baf43",
+  "title": "docs/jaspic-338-recovery-result",
+  "head": "a4b03813b64a45558270d23d051057d5ba98eb3f",
+  "head_ref": "docs/jaspic-338-recovery-result",
+  "linked_prs": [
+    340
+  ],
+  "files": [
+    {
+      "path": "docs/DEVELOPMENT_LEDGER.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a4b03813b64a45558270d23d051057d5ba98eb3f/docs/DEVELOPMENT_LEDGER.md"
+    },
+    {
+      "path": "docs/work-history/curated.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a4b03813b64a45558270d23d051057d5ba98eb3f/docs/work-history/curated.json"
+    }
+  ],
+  "commits": "a4b03813b64a45558270d23d051057d5ba98eb3f docs: record JASPIC recovery delivery and completion receipt (#338)",
+  "topics": [
+    "通知・配信",
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "65509cce551ffabd403612c96b0411679690138ffdbd490de4159cec77da4f48",
+  "collected_at": "2026-11-28T19:29:04.146460+00:00"
+}

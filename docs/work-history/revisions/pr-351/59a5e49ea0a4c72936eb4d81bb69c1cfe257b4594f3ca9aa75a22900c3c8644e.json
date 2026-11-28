@@ -1,0 +1,177 @@
+{
+  "id": "pr-351",
+  "number": 351,
+  "title": "詳細帯レーダーの完走後に先頭へ戻す (#350)",
+  "topics": [
+    "その他の開発"
+  ],
+  "purpose": "変更対象ファイルに関する開発。具体的な目的は原文・差分を確認",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "Refs #350\n着手前照合 https://github.com/miyazaki1016/emergencyalert/actions/runs/46181108780\n#349 の完走処理を再利用し、停止と同時に最初の再生可能コマに戻す。手動操作・延長帯は維持。CI・画面検証待ち。\n<!-- history-preflight\n{\"decisions\":[{\"id\":\"pr-344\",\"decision\":\"extend\",\"reason\":\"詳細帯のautoPlayを維持する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/344\"},{\"id\":\"pr-323\",\"decision\":\"reuse\",\"reason\":\"既存の先頭再生可能コマ判定を利用する。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/323\"},{\"id\":\"pr-349\",\"decision\":\"extend\",\"reason\":\"完走停止のタイマーを維持し、停止時のindexを最初の再生可能コマに変更する。完走フラグは不要になるため削除。\",\"evidence\":\"https://github.com/miyazaki1016/emergencyalert/pull/349\"}]}\n-->",
+  "snapshot_head": "baab085a41ca407671d6f95adacda996c900fb43",
+  "snapshot_consistent": true,
+  "head": "baab085a41ca407671d6f95adacda996c900fb43",
+  "base": "a6bd43aae4cc59133dfb12015bad2e9e418ead11",
+  "base_ref": "main",
+  "head_ref": "fix/case-radar-reset-350",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-28T19:28:45Z",
+  "merge_commit_sha": "67e135a52e4db6ed96a8f61243fc0549268cf234",
+  "updated_at": "2026-11-28T19:28:45Z",
+  "code_facts": [
+    {
+      "file": "app/components/RadarPlayer.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (autoPlay) setIndex(Math.max(0, first));",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/baab085a41ca407671d6f95adacda996c900fb43/app/components/RadarPlayer.tsx"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/components/RadarPlayer.tsx",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 14,
+      "patch": "diff --git a/app/components/RadarPlayer.tsx b/app/components/RadarPlayer.tsx\nindex d5238c17..7d2e027c 100644\n--- a/app/components/RadarPlayer.tsx\n+++ b/app/components/RadarPlayer.tsx\n@@ -14,7 +14,6 @@ const timeLabel = (value: string) => formatTime.format(forecastTime(value));\n export default function RadarPlayer({ frames, blocky, autoPlay = false }: { frames: RadarPlaybackFrame[]; blocky: boolean; autoPlay?: boolean }) {\n   const [index, setIndex] = useState(() => Math.max(0, firstPlayableRadarFrame(frames)));\n   const [playing, setPlaying] = useState(() => autoPlay && firstPlayableRadarFrame(frames) >= 0);\n-  const [finished, setFinished] = useState(false);\n   const [loaded, setLoaded] = useState(\"\");\n   const [failed, setFailed] = useState<ReadonlySet<string>>(() => new Set());\n   const [mapFailed, setMapFailed] = useState(false);\n@@ -23,19 +22,20 @@ export default function RadarPlayer({ frames, blocky, autoPlay = false }: { fram\n   const urls = frame?.basetime ? forecastRadarSources(frame.basetime, frame.validTime, frame.tile) : undefined;\n   const rainUrl = urls?.rain;\n   const unavailable = !rainUrl || failed.has(rainUrl);\n-  const canPlay = firstPlayableRadarFrame(frames, failed) >= 0;\n+  const first = firstPlayableRadarFrame(frames, failed);\n+  const canPlay = first >= 0;\n   const isPlaying = playing && canPlay;\n   useEffect(() => {\n     if (!isPlaying || (!unavailable && loaded !== rainUrl)) return;\n     const timer = window.setTimeout(() => {\n       if (last === 0 || (autoPlay && index >= last)) {\n         setPlaying(false);\n-        if (autoPlay) setFinished(true);\n+        if (autoPlay) setIndex(Math.max(0, first));\n       }\n       else setIndex((index + 1) % (last + 1));\n     }, 1100);\n     return () => window.clearTimeout(timer);\n-  }, [isPlaying, last, loaded, unavailable, rainUrl, index, autoPlay]);\n+  }, [isPlaying, last, loaded, unavailable, rainUrl, index, autoPlay, first]);\n \n   if (!frame) return <p>再生できる予報画像はありません。</p>;\n   const label = timeLabel(frame.validTime);\n@@ -55,23 +55,17 @@ export default function RadarPlayer({ frames, blocky, autoPlay = false }: { fram\n       </div>\n       {(unavailable || mapFailed) && <p role=\"status\">一部の地図・雨雲画像を取得できません。</p>}\n       <div className={styles.controls}>\n-        <button type=\"button\" disabled={!canPlay} onClick={() => {\n-          if (autoPlay && finished) {\n-            setIndex(Math.max(0, firstPlayableRadarFrame(frames, failed)));\n-            setFinished(false);\n-            setPlaying(true);\n-          } else setPlaying(value => !value);\n-        }}>\n+        <button type=\"button\" disabled={!canPlay} onClick={() => setPlaying(value => !value)}>\n           {isPlaying ? \"一時停止\" : \"再生\"}\n         </button>\n         {last > 0 && <input className={styles.radarSlider} type=\"range\"\n           aria-label=\"雨雲の予報時刻を選択\" aria-valuetext={`${label}${unavailable ? \"（未取得）\" : \"\"}`}\n           min={0} max={last} step={1} value={index}\n-          onChange={event => { setPlaying(false); setFinished(false); setIndex(event.currentTarget.valueAsNumber); }} />}\n+          onChange={event => { setPlaying(false); setIndex(event.currentTarget.valueAsNumber); }} />}\n         <button type=\"button\" aria-label=\"前の予報時刻\" disabled={last < 1 || index === 0}\n-          onClick={() => { setPlaying(false); setFinished(false); setIndex(i => i - 1); }}>前へ</button>\n+          onClick={() => { setPlaying(false); setIndex(i => i - 1); }}>前へ</button>\n         <button type=\"button\" aria-label=\"次の予報時刻\" disabled={last < 1 || index >= last}\n-          onClick={() => { setPlaying(false); setFinished(false); setIndex(i => i + 1); }}>次へ</button>\n+          onClick={() => { setPlaying(false); setIndex(i => i + 1); }}>次へ</button>\n       </div>\n     </div>\n   );\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/baab085a41ca407671d6f95adacda996c900fb43/app/components/RadarPlayer.tsx",
+      "source": {
+        "path": "app/components/RadarPlayer.tsx",
+        "coverage": "全文",
+        "text": "\"use client\";\n\nimport { useEffect, useState } from \"react\";\nimport { firstPlayableRadarFrame, forecastRadarSources, type RadarPlaybackFrame } from \"../../lib/weather/rain/nationalForecastRadar\";\nimport { forecastTime } from \"../../lib/weather/rain/nationalForecastSnapshot\";\nimport styles from \"./national-heavy-rain-forecast.module.css\";\n\nconst formatTime = new Intl.DateTimeFormat(\"ja-JP\", {\n  timeZone: \"Asia/Tokyo\", hour: \"2-digit\", minute: \"2-digit\", hourCycle: \"h23\",\n});\n\nconst timeLabel = (value: string) => formatTime.format(forecastTime(value));\n\nexport default function RadarPlayer({ frames, blocky, autoPlay = false }: { frames: RadarPlaybackFrame[]; blocky: boolean; autoPlay?: boolean }) {\n  const [index, setIndex] = useState(() => Math.max(0, firstPlayableRadarFrame(frames)));\n  const [playing, setPlaying] = useState(() => autoPlay && firstPlayableRadarFrame(frames) >= 0);\n  const [loaded, setLoaded] = useState(\"\");\n  const [failed, setFailed] = useState<ReadonlySet<string>>(() => new Set());\n  const [mapFailed, setMapFailed] = useState(false);\n  const last = frames.length - 1;\n  const frame = frames[Math.min(index, last)];\n  const urls = frame?.basetime ? forecastRadarSources(frame.basetime, frame.validTime, frame.tile) : undefined;\n  const rainUrl = urls?.rain;\n  const unavailable = !rainUrl || failed.has(rainUrl);\n  const first = firstPlayableRadarFrame(frames, failed);\n  const canPlay = first >= 0;\n  const isPlaying = playing && canPlay;\n  useEffect(() => {\n    if (!isPlaying || (!unavailable && loaded !== rainUrl)) return;\n    const timer = window.setTimeout(() => {\n      if (last === 0 || (autoPlay && index >= last)) {\n        setPlaying(false);\n        if (autoPlay) setIndex(Math.max(0, first));\n      }\n      else setIndex((index + 1) % (last + 1));\n    }, 1100);\n    return () => window.clearTimeout(timer);\n  }, [isPlaying, last, loaded, unavailable, rainUrl, index, autoPlay, first]);\n\n  if (!frame) return <p>再生できる予報画像はありません。</p>;\n  const label = timeLabel(frame.validTime);\n\n  return (\n    <div>\n      <div className={styles.map}>\n        {/* Fixed matching z10 tiles. Ordinary images avoid browser-side CORS reads. */}\n        {/* eslint-disable @next/next/no-img-element */}\n        {urls && <img key={urls.background} src={urls.background} alt=\"\" width={256} height={256} onError={() => setMapFailed(true)} />}\n        {urls && !unavailable && <img key={urls.rain} src={urls.rain} alt=\"\" width={256} height={256}\n          className={blocky ? styles.blocky : undefined} onLoad={() => setLoaded(urls.rain)}\n          onError={() => setFailed(previous => new Set(previous).add(urls.rain))} />}\n        {/* eslint-enable @next/next/no-img-element */}\n        <time className={styles.mapTime}>{label} 予報（{!unavailable && frame.basetime ? `${timeLabel(frame.basetime)}基準` : \"未取得\"}）</time>\n        <span className={styles.mapCredit}>気象庁・地理院タイル</span>\n      </div>\n      {(unavailable || mapFailed) && <p role=\"status\">一部の地図・雨雲画像を取得できません。</p>}\n      <div className={styles.controls}>\n        <button type=\"button\" disabled={!canPlay} onClick={() => setPlaying(value => !value)}>\n          {isPlaying ? \"一時停止\" : \"再生\"}\n        </button>\n        {last > 0 && <input className={styles.radarSlider} type=\"range\"\n          aria-label=\"雨雲の予報時刻を選択\" aria-valuetext={`${label}${unavailable ? \"（未取得）\" : \"\"}`}\n          min={0} max={last} step={1} value={index}\n          onChange={event => { setPlaying(false); setIndex(event.currentTarget.valueAsNumber); }} />}\n        <button type=\"button\" aria-label=\"前の予報時刻\" disabled={last < 1 || index === 0}\n          onClick={() => { setPlaying(false); setIndex(i => i - 1); }}>前へ</button>\n        <button type=\"button\" aria-label=\"次の予報時刻\" disabled={last < 1 || index >= last}\n          onClick={() => { setPlaying(false); setIndex(i => i + 1); }}>次へ</button>\n      </div>\n    </div>\n  );\n}\n",
+        "sha256": "5b586d9d8da49067528308b9f37ed8972a72d0bc95e2824609c348fee151d31d"
+      }
+    }
+  ],
+  "file_count": 1,
+  "reported_file_count": 1,
+  "commits": [
+    {
+      "sha": "baab085a41ca407671d6f95adacda996c900fb43",
+      "message": "Return detail radar to first playable frame after one cycle (#350)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/baab085a41ca407671d6f95adacda996c900fb43"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "baab085a41ca407671d6f95adacda996c900fb43",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46181369140",
+      "id": 46181369140,
+      "updated_at": "2026-11-28T19:28:56Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "baab085a41ca407671d6f95adacda996c900fb43",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46181369202",
+      "id": 46181369202,
+      "updated_at": "2026-11-28T19:29:04Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "baab085a41ca407671d6f95adacda996c900fb43",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46181236914",
+      "id": 46181236914,
+      "updated_at": "2026-11-28T19:27:27Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "baab085a41ca407671d6f95adacda996c900fb43",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46181183626",
+      "id": 46181183626,
+      "updated_at": "2026-11-28T19:26:39Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "baab085a41ca407671d6f95adacda996c900fb43",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46181183548",
+      "id": 46181183548,
+      "updated_at": "2026-11-28T19:26:47Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "baab085a41ca407671d6f95adacda996c900fb43",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46181183590",
+      "id": 46181183590,
+      "updated_at": "2026-11-28T19:27:38Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "67e135a52e4db6ed96a8f61243fc0549268cf234",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46181374253",
+      "id": 46181374253,
+      "updated_at": "2026-11-28T19:28:52Z",
+      "event": "push"
+    },
+    {
+      "name": "CI",
+      "head_sha": "67e135a52e4db6ed96a8f61243fc0549268cf234",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46181374189",
+      "id": 46181374189,
+      "updated_at": "2026-11-28T19:28:52Z",
+      "event": "push"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "67e135a52e4db6ed96a8f61243fc0549268cf234",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46181374254",
+      "id": 46181374254,
+      "updated_at": "2026-11-28T19:29:09Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "RadarPlayer",
+    "canPlay",
+    "first",
+    "formatTime",
+    "frame",
+    "isPlaying",
+    "label",
+    "last",
+    "rainUrl",
+    "timeLabel",
+    "timer",
+    "unavailable",
+    "urls"
+  ],
+  "related_sources": [],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "d4dd061ca821babafbd382c933ac9161e1dee96fe69db47e3014b25ec350456b",
+  "ci_digest": "ed91cfa0f08c59177740067441549bdf36fbf0758b9d4f9611b03fdccb4ae8f3",
+  "collected_at": "2026-11-28T19:29:04.146460+00:00",
+  "decisions": []
+}
