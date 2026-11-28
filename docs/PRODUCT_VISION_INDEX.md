@@ -212,3 +212,6 @@ mainの `.github/workflows/my-rain-watch-schedule.yml` blob 464e5bb63fc82b3490ab
 
 ### 現行実装照合 2：LRPM #242/#243/#254（2026-11-28）
 mainの lib/weather/rain/lightRainPixelMasks.ts blob f9f388c47a2a538a7b932594ecc56d4684b15962 にLRPM形式・参照/高速生成・encode/decode・照合関数あり。scripts/prepare-national-rain-inputs.ts blob 814795233c9597a5b327fd536d9db462c3f9b1bb に版固定archive SHA256・47県準備。scripts/national-heavy-rain-scan.ts blob b4465ce076c77729623bd4d0dd9e5061a9fc4b69 にLRPM loader/照合接続・自治体数整合性確認。#242/#243の主要機能は現行コードに存在、完全同等性・独自資産未確認。#254の配置ツールと現行取得処理は別物で終了判断保留。旧 scripts/light-rain-pixel-mask-generate.ts はmain取得404、移動・代替・原本保存要確認。後続テスト取得は404で処理中断したため未確認。main全体SHA固定なし、blob単位。実行・本番・終了操作なし。
+
+### 現行実装照合 3：LRPM回帰テストと研究ツール（2026-11-28）
+main lib/weather/rain/lightRainPixelMasks.test.ts blob b3345f3ae5df7d74ce0bc810bd560ac523dd15f1 に全画素一致、穴、離島・境界、変化フレーム、binary破損、参照高速一致、欠損fail-closed、30mm奇数画素・階級テストあり。lib/weather/rain/lightRainPixelMaskLoader.ts blob efe4e7bda2ace0d4dba91a20b3779d4611119237 に形式/版/zoom/47県/件数/タイル座標/bytes/SHA検証あり。#242/#243主要機能と回帰テスト継承の根拠を追加。scripts/light-rain-pixel-mask-parity.ts と scripts/light-rain-pixel-mask-benchmark.ts はmain旧パス404（生成器も前回404）。移動・代替未確認、旧PR原本と実測資料の保存先確認が必要。テスト実行・本番検証・完全同等性は未確認。終了保留。
