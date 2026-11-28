@@ -8,10 +8,10 @@ Issue #327。原本は変更しない。以下は見出し単位の全行範囲�
 |---|---|---|---|---|
 | M-001 | [L1–23](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L1-L23) | > [!IMPORTANT] | 開発履歴・運用候補 | 未照合 |
 | M-002 | [L24–49](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L24-L49) | # 🚨🚨🚨 最重要・永久運用ルール：main総覧は「索引」、詳細は各ブランチ！絶対に忘れるな！ 🚨🚨🚨 | 開発履歴・運用候補 | 未照合 |
-| M-003 | [L50–60](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L50-L60) | ## 2026-10-31 ユーザー確定：自動答え合わせ優先・30mm/h以上の独立重要通知 | 仕様候補 | 未照合 |
-| M-004 | [L61–66](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L61-L66) | ## 2026-10-29 開発者専用「雨の判定ラボ」 | 開発履歴・運用候補 | 未照合 |
-| M-005 | [L67–80](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L67-L80) | ## 2026-10-29 最新の再開地点：通知予測・実況の答え合わせと半径1km画像保存 | 仕様候補 | 未照合 |
-| M-006 | [L81–91](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L81-L91) | ## 🎯 2026-10-26 — ユーザー確定：通知数より予測の正確さを優先 | 仕様候補 | 未照合 |
+| M-003 | [L50–60](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L50-L60) | ## 2026-10-31 ユーザー確定：自動答え合わせ優先・30mm/h以上の独立重要通知 | 仕様候補 | 部分照合： 自動評価・独立大雨通知 → 旧原本の確定要求、[通常評価記録](NOTIFICATION_REPLAY_PRODUCTION_20261029.md) は強雨対象外。大雨仕様の最新正本未確認 |
+| M-004 | [L61–66](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L61-L66) | ## 2026-10-29 開発者専用「雨の判定ラボ」 | 開発履歴・運用候補 | 部分照合： [判定ラボ](RAIN_RESEARCH_DASHBOARD_20261029.md) #102、実機未確認の歴史記録 |
+| M-005 | [L67–80](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L67-L80) | ## 2026-10-29 最新の再開地点：通知予測・実況の答え合わせと半径1km画像保存 | 仕様候補 | 部分照合： [点評価](NOTIFICATION_REPLAY_PRODUCTION_20261029.md)・[画像](RAIN_AREA_EVIDENCE_20261029.md)・[面比較](RAIN_AREA_SHADOW_20261029.md) #99〜101、当時の実測と現状を区別 |
+| M-006 | [L81–91](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L81-L91) | ## 🎯 2026-10-26 — ユーザー確定：通知数より予測の正確さを優先 | 仕様候補 | 部分照合： 精度優先 → 憲章 §6、[面比較](RAIN_AREA_SHADOW_20261029.md)・[判定ラボ](RAIN_RESEARCH_DASHBOARD_20261029.md)。優先順・2km研究の移行先未確定 |
 | M-007 | [L92–103](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L92-L103) | # 🚨🚨🚨 ソラへの最重要指示：「りょ」＝「どんどん進めて！」 🚨🚨🚨 | 開発履歴・運用候補 | 未照合 |
 | M-008 | [L104–113](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L104-L113) | ## ✅ 2026-10-23 黄色20〜30mm/h判定・現行コード照合【確認済み／コード側クローズ】 | 開発履歴・運用候補 | 未照合 |
 | M-009 | [L114–127](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L114-L127) | ## ☔ 2026-10-23 重要・未統合研究の所在：雨域密度・歯抜け解析 | 研究・検証候補 | 未照合 |
@@ -37,8 +37,8 @@ Issue #327。原本は変更しない。以下は見出し単位の全行範囲�
 | M-029 | [L274–285](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L274-L285) | ## Meteorological boundary | 思想・原点候補 | 部分照合： 公式情報・独自予測禁止 → 憲章 §6（補足確認あり） |
 | M-030 | [L286–293](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L286-L293) | ## Missing-data rule | 思想・原点候補 | 部分照合： 欠測を安全としない → 憲章 §6 |
 | M-031 | [L294–321](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L294-L321) | ## 2023 archaeology | 研究・検証候補 | 未照合 |
-| M-032 | [L322–347](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L322-L347) | ## 2026 rain product | 仕様候補 | 未照合 |
-| M-033 | [L348–355](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L348-L355) | ## Cost constraint | 思想・原点候補 | 未照合 |
+| M-032 | [L322–347](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L322-L347) | ## 2026 rain product | 仕様候補 | 部分照合： 初期閾値・終了条件は歴史的仕様として原本保持、現行仕様未確認 |
+| M-033 | [L348–355](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L348-L355) | ## Cost constraint | 思想・原点候補 | 部分照合： 固定気象データ費ゼロ・有料GRIB2は将来候補、憲章追記候補 |
 | M-034 | [L356–379](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L356-L379) | ## Current implementation / checkpoint (2026-09-20) | 開発履歴・運用候補 | 未照合 |
 | M-035 | [L380–401](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L380-L401) | ### Rain interpretation safety now locked by tests | 開発履歴・運用候補 | 未照合 |
 | M-036 | [L402–419](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L402-L419) | ### Current user-facing behavior | 仕様候補 | 未照合 |
@@ -65,10 +65,10 @@ Issue #327。原本は変更しない。以下は見出し単位の全行範囲�
 | M-057 | [L812–822](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L812-L822) | ## 2026-10-24 — Anonymous auth loss: code-level audit checkpoint | 開発履歴・運用候補 | 未照合 |
 | M-058 | [L823–828](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L823-L828) | ### 2026-10-24 — iPhone PWA unknown localStorage key investigation | 開発履歴・運用候補 | 未照合 |
 | M-059 | [L829–834](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L829-L834) | ### 2026-10-24 — Persistent opt-in auth-key presence journal (reproduction preparation) | 開発履歴・運用候補 | 未照合 |
-| M-060 | [L835–844](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L835-L844) | ## 2026-10-26 通知過多抑制・実装PR | 仕様候補 | 未照合 |
-| M-061 | [L845–857](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L845-L857) | ### 2026-10-26 — 通知過多対策の本番反映確認・残課題（追記） | 仕様候補 | 未照合 |
-| M-062 | [L858–864](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L858-L864) | ### 2026-10-26 — 大雨通知と履歴の新仕様（実装進行中） | 仕様候補 | 未照合 |
-| M-063 | [L865–873](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L865-L873) | ### 2026-10-29 — 通常通知の予測・実況答え合わせを本番追加 | 仕様候補 | 未照合 |
+| M-060 | [L835–844](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L835-L844) | ## 2026-10-26 通知過多抑制・実装PR | 仕様候補 | 部分照合： 旧通知抑制仕様 #89、現行コード未確認 |
+| M-061 | [L845–857](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L845-L857) | ### 2026-10-26 — 通知過多対策の本番反映確認・残課題（追記） | 仕様候補 | 部分照合： #89の当時の本番・CI証拠は原本保持、開発台帳との詳細照合待ち |
+| M-062 | [L858–864](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L858-L864) | ### 2026-10-26 — 大雨通知と履歴の新仕様（実装進行中） | 仕様候補 | 部分照合： 独立大雨通知・履歴グラフの歴史的要求、最新正本未確認 |
+| M-063 | [L865–873](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L865-L873) | ### 2026-10-29 — 通常通知の予測・実況答え合わせを本番追加 | 仕様候補 | 部分照合： [通常評価記録](NOTIFICATION_REPLAY_PRODUCTION_20261029.md) #99、後続画像保存とは時点を区別 |
 | M-064 | [L874–876](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L874-L876) | ## 2026-11-01 棚卸し・ブランチ差分調査 | 開発履歴・運用候補 | 未照合 |
 
 ## 完了条件
@@ -82,3 +82,6 @@ Issue #327。原本は変更しない。以下は見出し単位の全行範囲�
 
 ### 追加照合記録
 M-042〜046の5範囲を追加。累計部分照合11、未照合53、完全照合0。旧記録の6範囲は当時の進捗。
+
+### 雨仕様・研究の追加照合
+10範囲を部分照合。4つの既存詳細資料の所在と主要記述を確認。特に2026-09-23の透過UNKNOWN方針と10-29の研究資料の取得済み透明画素の分類差は時点・用途を区別し、現行コードの判断を未確認のまま変更しない。累計部分照合21、未照合43、完全照合0。
