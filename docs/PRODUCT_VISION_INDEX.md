@@ -252,3 +252,8 @@ main lib/weather/rain/lightRainPixelMasks.test.ts blob b3345f3ae5df7d74ce0bc810b
 - [lib/weather/rain/nationalRainPlayback.test.ts](https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.test.ts) blob ab5f389f782f6353095dbffa5852afae63b2ea77
 - [lib/weather/rain/nationalRainPlayback.ts](https://github.com/miyazaki1016/emergencyalert/blob/5d9de2ff9fe5cd52a701bf718f7081c908a74924/lib/weather/rain/nationalRainPlayback.ts) blob fce8db383a927d5bf2015e9cf8f394c1f51754da
 #321は時刻順序研究をextendしMP4化、GIF生成器自体の継承は未確認。軽量GIF・再生制御の研究保全候補（AI判断、採用承認ではない）。移動先・現行RadarPlayerとの差・恒久保存・実行検証は未確認。PR終了・branch削除なし。
+
+### 現行実装照合 12：全国雨基礎研究 #59/#181/#210（2026-11-28）
+#59 HEAD 0f5ec30e20bf53f470cdff621f31436a6d52a992 全変更一覧・本文確認。原本 docs/NATIONAL_RAIN_READINESS_PROOF.md、docs/N03_PARTITION_DESIGN.md、docs/NATIONAL_FINAL_GATE_PROOF.md。当時の報告：47県502 chunks/591 queries、自治体順序同等、32MiB bounded cache、地域局所性、42秒付近の中断で100 offered/2 claimed/2 deferred/98 unclaimed/0 failed。固定50×2 cronは不採用、cap2 baseline/cap4未承認、proof-onlyと実worker区別。現行採用は未確認、旧本番不可を現行判断に流用しない。
+#181 HEAD 011ca047241641a2af4c4bf12412063e19d0e5bd 全5変更確認。#62 run38967793373 2026-10-16実JMA6完全枠、30mm/h以上全画素177対stride2 45、独立4連結88雨域中47をstride2が未検出（特定サンプルのみ）。z4 preview/queue stride1明示、欠損/破損503、回帰テスト。原本 https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/NATIONAL_Z4_STRIDE_EVIDENCE_20261109.md 。高速化時の見逃し防止根拠として保存。
+#210 HEAD 1bd934d87180f2d6125d0edff5af7caa0917261a 全7変更確認。#59 extend/#181 reuse、固定N03→ローカルJSON→トップ、NATIONAL_RAIN_SNAPSHOT_PATH共有、当時全47県通し/本番方式/アニメ未完。#211後続とmain比較待ち。3件ともコード全件同等性・現行運用未確認、終了なし。
