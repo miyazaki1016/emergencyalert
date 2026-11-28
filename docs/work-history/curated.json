@@ -1316,11 +1316,12 @@
     },
     "339": {
       "summary": "JASPIC分割継続が移設前トークンを参照して21件目で止まる問題を修復",
-      "conclusion": "2026-11-27定時は広島21件中20件SENT/1件PREPARED、11/28は旧キュー保護で停止。定時wrapperは新Vercel用、継続scannerだけ旧Vault名。旧認証の非送信previewで401、新認証で200を確認。既存の0/20/34/50/100件分割・途中停止・重複防止試験へ認証照合を加え、新認証欠落時に旧へ戻らない条件を検証する。最新CI・本番適用・実送信の確定結果はIssue #338の証拠で別途確認。",
+      "conclusion": "2026-11-27定時は広島21件中20件SENT/1件PREPARED、11/28は旧キュー保護で停止。定時wrapperは新Vercel用、継続scannerだけ旧Vault名。旧認証の非送信previewで401、新認証で200を確認。既存の0/20/34/50/100件分割・途中停止・重複防止試験へ認証照合を加え、新認証欠落時に旧へ戻らない条件を検証する。最新CI・本番適用・実送信の確定結果はIssue #338の証拠で別途確認。 2026-11-29本番適用・復旧完了。広島1件を追加送信して11/27合計21件、滋賀0件。両県失敗/不明/未送信0、後続ソース差分0。Gmail受付とSENTを確認。完了メールはResend1試行、管理者Gmail INBOXへ1通到着。配信先受信は未確認。",
       "evidence": [
         "https://github.com/miyazaki1016/emergencyalert/issues/338",
         "https://github.com/miyazaki1016/emergencyalert/pull/339",
-        "https://github.com/miyazaki1016/emergencyalert/pull/339/checks"
+        "https://github.com/miyazaki1016/emergencyalert/pull/339/checks",
+        "https://github.com/miyazaki1016/emergencyalert/issues/338#issuecomment-7242247676"
       ]
     }
   }
