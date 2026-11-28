@@ -117,3 +117,18 @@
 信頼性の原則：checkedAt と sourceValidAt は別。元時刻が不正なら推測せず省略。「雨の予報なし」は「雨なし」ではない。透過ピクセルの扱いは2026-09-23時点ではUNKNOWN_PIXEL、一次証拠または再現可能な公式カバレッジ比較によってのみ緩和可能とされた。現行判定は別途確認する。
 
 根拠： [旧総覧 L502–625](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L502-L625)。
+
+### 原点の追加復元（2026-11-28）
+> 見張るのは天気ではなく、「今ならひと言かける意味がある変化」。
+
+旧総覧2026-09-23の地点監視思想。意図して登録した地点を継続評価し、根拠のある意味的変化だけを通知する。欠測は不明のまま、同一エピソードの繰り返し通知を避け、Pushは判断エンジンでなく配送層とする。今回の「いいことのさきどり」との接続はAIによる解釈であり、個別通知仕様の承認ではない。
+
+> 第3条：ソラの「入れた」は、実物を見るまで信用するな。
+
+旧総覧2026-09-25の検証原則。書き込み後の原本確認とCI・本番・実機の区別を継承する。
+
+歴史的費用制約：当初は固定気象データ購読費ゼロ。有料JMBSC GRIB2はPhase 1の依存先にせず、収益・資金確保後の候補とした。現在の費用方針の再承認とは区別する。
+
+歴史的GIF生成：2023年の旧運用はブラウザを自動操作して気象庁ナウキャストの連続フレームを取得し、GIFを組み立ててXへ投稿した。現行実装の証明ではない。
+
+根拠：[旧総覧 L348–355](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L348-L355)、[L482–501](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L482-L501)、[L626–657](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L626-L657)、[L699–772](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L699-L772)。
