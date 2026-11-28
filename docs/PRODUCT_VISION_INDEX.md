@@ -68,3 +68,10 @@ Issue #327 / Draft PR #328。2026-11-28。製品方針の正本は [製品憲章
 - VISION-004/005: [#61](https://github.com/miyazaki1016/emergencyalert/pull/61) 差分にEventEnvelope型、安定eventId・revision・地域コード・公式出典。型定義だけでは外部フィード接続の証明にならない。
 - VISION-019: [#91](https://github.com/miyazaki1016/emergencyalert/pull/91) 差分に初回30mm/hのみ、強度上昇追加なし、有効な乾燥観測3回で終了の当時仕様。 [#108](https://github.com/miyazaki1016/emergencyalert/pull/108) 差分にSEVERE_RAINの評価スナップショット追加。現行workerの独立条件・本番到達は未確認。
 - VISION-017: [#155](https://github.com/miyazaki1016/emergencyalert/pull/155) 差分に独立JASPIC互換CIと旧C#出力比較。無送信互換試験と実配信は別証拠。後続PRと現行運用を確認する。
+
+### 現行mainコードの部分照合（2026-11-28）
+- VISION-010: [トップページ](https://github.com/miyazaki1016/emergencyalert/blob/main/app/page.tsx) の現行表示名は「さきどり」、タグライン「暮らしを少し先回りする」。表示名は確認済み、正式名称の決定履歴は別確認。
+- VISION-002: [MYアメふる](https://github.com/miyazaki1016/emergencyalert/blob/main/app/my-amefuru/page.tsx) blob 0e072ad20b56e0516a7712a0e0dce0c7adfde5d6。登録地点の追加・削除・見張り切替、通知登録照合、DRY表示「この先、雨の予報なし」、意味ある変化だけ知らせるという原点の文言を確認。UI部分整合、worker・配信・実機は未検証。
+- VISION-003: [全国大雨予報](https://github.com/miyazaki1016/emergencyalert/blob/main/app/components/NationalHeavyRainForecast.tsx) blob 7a33c7ddc50b52a7ac2b75173ec9d039e16d7a7a。30分詳細・35〜60分延長、取得範囲限定の閾値未満表示、未取得区別、API・時刻選択・事案導線を確認。UI部分整合、公式フレームの全経路・本番は未検証。
+- VISION-001/004/005: mainトップは全国雨地図中心、LiveJapanForecastMapを利用。app/live-japan/page.tsx はmain取得404。#61の試作と現行トップの関係は部分確認に留め、最終構想との差を直ちに不具合扱いしない。
+以上はmain参照時点の個別ファイル証拠であり、完全照合は0/20のまま。全体の固定SHA・テスト・本番確認は後続。
