@@ -1,4 +1,6 @@
 begin;
+\ir ../../supabase/migrations/20261127070000_national_rain_cases.sql
+\ir ../../supabase/migrations/20261128040000_national_rain_case_local_coverage.sql
 do $$
 declare
   base timestamptz := '2026-11-25 12:05Z';
@@ -89,6 +91,34 @@ begin
      or has_function_privilege('authenticated', 'public.ingest_national_rain_case_version(timestamptz,jsonb)', 'execute')
      or not has_function_privilege('service_role', 'public.verify_national_rain_case(text,text,jsonb)', 'execute') then
     raise exception 'case privileges are incorrect';
+  end if;
+end $$;
+
+do $$
+declare
+  b timestamptz := '2026-11-28 02:00Z';
+  covered_case text := '16205-20261128-1100';
+  uncovered_case text := '01202-20261128-1100';
+  local_dry jsonb := '[{"band":"detail","validTime":"2026-11-28T02:25:00Z","complete":false,"completeMunicipalities":["16205"],"municipalities":[]}]';
+  unavailable jsonb := '[{"band":"detail","validTime":"2026-11-28T02:25:00Z","complete":true,"completeMunicipalities":[],"municipalities":[]}]';
+begin
+  perform public.ingest_national_rain_case_version(b, '[{"band":"detail","validTime":"2026-11-28T02:05:00Z","complete":false,"completeMunicipalities":[],"municipalities":[
+    {"code":"16205","prefecture":"富山県","municipality":"氷見市","minimumMmPerHour":80,"basetime":"20261128020000"},
+    {"code":"01202","prefecture":"北海道","municipality":"函館市","minimumMmPerHour":50,"basetime":"20261128020000"}]}]');
+  perform public.ingest_national_rain_case_version(b+interval '5 minutes', local_dry);
+  if not exists (select 1 from public.national_rain_case_versions where slug=covered_case and base_time=b+interval '5 minutes' and detail_state='below')
+    or not exists (select 1 from public.national_rain_case_versions where slug=uncovered_case and base_time=b+interval '5 minutes' and detail_state='unknown') then
+    raise exception 'municipal dry and unknown states were not separated';
+  end if;
+  perform public.ingest_national_rain_case_version(b+interval '10 minutes', unavailable);
+  perform public.ingest_national_rain_case_version(b+interval '15 minutes', local_dry);
+  if not exists (select 1 from public.national_rain_cases where slug=covered_case and status='forecast') then
+    raise exception 'unavailable version incorrectly counted toward ending';
+  end if;
+  perform public.ingest_national_rain_case_version(b+interval '20 minutes', local_dry);
+  if not exists (select 1 from public.national_rain_cases where slug=covered_case and status='ended')
+    or not exists (select 1 from public.national_rain_cases where slug=uncovered_case and status='forecast') then
+    raise exception 'ending was not limited to the municipality with two covered dry versions';
   end if;
 end $$;
 rollback;

@@ -63,6 +63,10 @@ jobs:
         env:
           PGPASSWORD: local-test-only
         run: psql -h localhost -U postgres -d phase1_test -v ON_ERROR_STOP=1 -f tests/sql/national-bluesky-case-publication-integration.sql
+      - name: Test municipal rain case coverage and closure in isolated Postgres
+        env:
+          PGPASSWORD: local-test-only
+        run: psql -h localhost -U postgres -d phase1_test -v ON_ERROR_STOP=1 -f tests/sql/national-rain-cases-integration.sql
 
   phase1-feedback-http:
     runs-on: ubuntu-latest

@@ -1,12 +1,13 @@
 import { readFile } from "node:fs/promises";
 import { createClient } from "@supabase/supabase-js";
-import { caseStamp, planNationalRainCaseVersion } from "../lib/weather/rain/nationalRainCases";
+import { caseStamp, municipalityCaseTiles, planNationalRainCaseVersion } from "../lib/weather/rain/nationalRainCases";
+import { requireCompleteNationwideN03 } from "../lib/weather/rain/lightRainNationwideN03";
 import type { ForecastTileVersion } from "../lib/weather/rain/nationalForecastTiles";
 
 async function main() {
-  const [mode, slug, evidencePath] = process.argv.slice(2);
-  if (mode !== "ingest" && !(mode === "verify" && slug && evidencePath)) {
-    throw new Error("Usage: national-rain-cases.ts ingest | verify <slug> <radar-observations.json>");
+  const [mode, target, evidencePath] = process.argv.slice(2);
+  if (!target || (mode !== "ingest" && !(mode === "verify" && evidencePath))) {
+    throw new Error("Usage: national-rain-cases.ts ingest <n03-root> | verify <slug> <radar-observations.json>");
   }
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -16,7 +17,7 @@ async function main() {
   if (mode === "verify") {
     const evidence = JSON.parse(await readFile(evidencePath, "utf8"));
     const { error } = await db.rpc("verify_national_rain_case", {
-      p_slug: slug, p_method: evidence.method, p_observations: evidence.observations,
+      p_slug: target, p_method: evidence.method, p_observations: evidence.observations,
     }).abortSignal(deadline);
     if (error) throw new Error(`CASE_VERIFICATION_FAILED: ${error.code}`);
     return;
@@ -29,7 +30,8 @@ async function main() {
     .order("valid_time").order("base_time").order("extended").order("x").order("y")
     .limit(1000).abortSignal(deadline);
   if (error || !data || data.length === 1000) throw new Error("CASE_FORECAST_READ_INCOMPLETE");
-  const planned = planNationalRainCaseVersion(data as ForecastTileVersion[], now);
+  const { areas } = requireCompleteNationwideN03(target);
+  const planned = planNationalRainCaseVersion(data as ForecastTileVersion[], now, municipalityCaseTiles(areas));
   if (!planned) return;
   const saved = await db.rpc("ingest_national_rain_case_version", planned).abortSignal(deadline);
   if (saved.error) throw new Error(`CASE_INGEST_FAILED: ${saved.error.code}`);
