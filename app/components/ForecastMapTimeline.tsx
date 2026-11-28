@@ -19,13 +19,16 @@ export default function ForecastMapTimeline({ slots, activeTime, expired, setTim
   const nextTime = slots[index + 1]?.time;
   useEffect(() => {
     if (!playing) return;
-    if (expired || nextTime === undefined) {
+    if (expired || total === 0) {
       setPlaying(false);
       return;
     }
-    const timer = window.setTimeout(() => setTime(nextTime), 1100);
+    const timer = window.setTimeout(() => {
+      if (nextTime === undefined) setPlaying(false);
+      setTime(nextTime ?? null);
+    }, 1100);
     return () => window.clearTimeout(timer);
-  }, [playing, nextTime, expired, setTime]);
+  }, [playing, nextTime, expired, total, setTime]);
   const labelIndices = new Set(Array.from({ length: Math.min(total, 5) }, (_, i) =>
     total <= 5 ? i : Math.round(i * (total - 1) / 4)));
   const progress = total > 0 ? (index + 1) * 100 / total : 0;
