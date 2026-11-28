@@ -45,13 +45,13 @@ Issue #327。原本は変更しない。以下は見出し単位の全行範囲�
 | M-037 | [L420–444](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L420-L444) | ### Current blocker | 開発履歴・運用候補 | 部分照合： 9/23色表未解決・自動昇格禁止 → 研究資料候補、10/23更新と区別 |
 | M-038 | [L445–459](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L445-L459) | ## Immediate work from this checkpoint | 開発履歴・運用候補 | 部分照合： 初期工程順 → 歴史原本 |
 | M-039 | [L460–468](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L460-L468) | ## Must not break | 思想・原点候補 | 部分照合： 独自予測禁止・無料費用・簡潔さ → 憲章 §6、費用方針追記候補 |
-| M-040 | [L469–481](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L469-L481) | ## Recovery phrases | 思想・原点候補 | 部分照合： 復帰の二つの言葉 → 憲章 §6 |
+| M-040 | [L469–481](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L469-L481) | ## Recovery phrases | 思想・原点候補 | 移行確認済：復帰句二つと文書の存在理由を憲章 §6 に確認。 |
 | M-041 | [L482–501](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L482-L501) | ## 2023 design intent recovered from operation history | 思想・原点候補 | 部分照合： GIFの目的・MP4変換 → 憲章 §2-B・§5・§6（旧実装詳細は原本参照） |
 | M-042 | [L502–535](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L502-L535) | ## Output boundary — facts first, expression later | 思想・原点候補 | 部分照合： 構造化事実と表現の分離 → [製品憲章](SAKIKURU_PRODUCT_CHARTER.md) §6 |
 | M-043 | [L536–568](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L536-L568) | ### Consumer simplicity is part of the EmergencyAlert contract | 思想・原点候補 | 部分照合： 利用側に気象ロジックを再実装させない・イベント候補項目 → 憲章 §6、PR #60詳細未確認 |
-| M-044 | [L569–590](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L569-L590) | ### Keep each consumer's experience distinct | 思想・原点候補 | 部分照合： 各サービス固有の体験 → 憲章 §6 |
-| M-045 | [L591–610](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L591-L610) | ### Current trust metadata checkpoint (2026-09-23) | 仕様候補 | 部分照合： checkedAt/sourceValidAt・不正時刻・予報なし → 憲章 §6、現行実装未確認 |
-| M-046 | [L611–625](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L611-L625) | ### Transparent hrpns pixels fail closed until coverage semantics are proven | 開発履歴・運用候補 | 部分照合： 透過ピクセルの歴史的判定と緩和条件 → 憲章 §6、現行判定未確認 |
+| M-044 | [L569–590](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L569-L590) | ### Keep each consumer's experience distinct | 思想・原点候補 | 移行確認済：各サービス固有の体験、簡潔さ、美咲の会話、事実と表現の分離を憲章 §6 に確認。 |
+| M-045 | [L591–610](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L591-L610) | ### Current trust metadata checkpoint (2026-09-23) | 仕様候補 | 移行確認済：時刻区分、不正時刻の省略、予報なしと確実性の区別を憲章 §6 に確認。現行実装認定とは別。 |
+| M-046 | [L611–625](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L611-L625) | ### Transparent hrpns pixels fail closed until coverage semantics are proven | 開発履歴・運用候補 | 移行確認済：2026-09-23の透過ピクセルの歴史的扱い、根拠による緩和条件を憲章 §6 に確認。現行判定とは別。 |
 | M-047 | [L626–657](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L626-L657) | ## First production-device milestone and next product phase (2026-09-23) | 開発履歴・運用候補 | 部分照合： 初回実機・地点見張りの意味・通知の段階設計 → 憲章追記候補 |
 | M-048 | [L658–661](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L658-L661) | ## Handoff checkpoint — 2026-09-24 | 開発履歴・運用候補 | 部分照合： 9/24引継ぎ見出し → 歴史原本 |
 | M-049 | [L662–679](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L662-L679) | ### Production / verified on real devices | 開発履歴・運用候補 | 部分照合： PWA・地点登録・住所検索・cronの当時実測 → 開発台帳候補 |
@@ -93,3 +93,5 @@ M-007〜026の20範囲の原文を確認し、保存先候補と歴史扱いを�
 残り23範囲を原文確認し、保存先候補を記録。累計64範囲の一次確認、完全照合0。候補先の原本・現行実装・個別決定の漏れは別途照合する。防犯メール研究の記述はM-001末尾〜M-002冒頭の境界も確認すること。
 
 2026-11-28 個別移行確認：M-027〜030 は旧原本L249–293と製品憲章を再取得して意味内容を照合。移行確認は実装・本番整合性の認定ではない。残り60範囲は部分照合。
+
+2026-11-28 個別移行確認：M-040、044〜046を旧原本と憲章 §6 で照合。M-039の費用方針とM-041のブラウザ自動化によるGIF生成手順は補足が必要なため部分照合を維持。
