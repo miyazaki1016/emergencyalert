@@ -155,3 +155,13 @@ GitHub open PRを作成順昇順で20件取得：#25,59,60,61,63,73,88,93,94,95,
 
 ### 発掘後の現状照合と終了整理（2026-11-28 ユーザー確認）
 ユーザー方針：一通り洗い出した後、現状実装と照合し、不要なものは締める。運用案：後続実装済み、統合候補、部分再利用、研究・設計の継承、方針変更による終了、判断保留に分類する。終了前に原本・HEAD・後続PR/main証拠・研究資産の所在・終了理由を既存開発台帳へ記録する。未確定は担当・残課題・再開条件を明記。PR終了とブランチ削除は別判断。今回の作業は方針保存のみ、個別終了・マージ・削除は未実施。
+
+### 未統合成果の個別確認 4（2026-11-28）
+- #96 f9fe24bf2f74c82096017b809c02e2d925b5db3f、Draft、mergeable=true、CI成功40693106375。静的外部レビュー用、main公開禁止。
+- #97 713eca9ebee4587f8653ac8a80a8ef99e07210cd、Draft、mergeable=true、CI成功40694481422。Muse向けプレビュー専用、main公開禁止。#96との用途重複要確認。
+- #98 79b4bae479f9b39f48d9fbf0d1745944a3442804、Draft、mergeable=true、CI成功40730952622。通常雨答え合わせ設計、後続#99等との照合候補。
+- #147 5f677924604d67e3578d8ee1dfed30764f1f67dc、非Draft、mergeable=true、CI action_required 46107005256、他3 workflowもaction_required。自動生成棚卸し、現行台帳への反映確認候補。
+- #155 a83e3f018e60daba771bf832fdfb05d480c58549、Draft、mergeable=false、現HEAD workflow一覧0件。旧コードHEADの通常・専用CI成功と区別。JASPIC MIME研究、現行配信実装と照合、本PRはマージ禁止。
+- #164 2a4c0eeffcb8127d1cc9f3e01614d0729540a3e8、Draft、mergeable=false、現HEAD workflow一覧0件。Vercel読み取り監視、公式quota未確認、自動制御禁止。
+- #175 4c8383f6154fc5136092ae75f49061ace74c35a6、Draft、mergeable=false、CI失敗42549707851。雨通知精度baseline・offline replay設計、後続研究との照合候補。
+初回20件のPR本文・HEAD・workflow・mergeable確認完了。CI成功15、失敗1、action_required1、workflow一覧0件3。全open PRの網羅・現行実装照合・終了判断は未完了。
