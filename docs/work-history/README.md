@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-28T16:23:52.102917+00:00
+更新 (UTC): 2026-11-28T16:27:28.849917+00:00
 
 ## 全案件
 
@@ -157,6 +157,7 @@
 | [feat/national-forecast-tile-versions-285](cases/branch-82eb6ae5e3cdd506.md) | 雨量・全国検知・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/amafuru-complete-handoff-20261023](cases/branch-8367b3efe35cb974.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/dedupe-place-search-results](cases/branch-8408fe81c12a3d3e.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [docs/jaspic-338-recovery-result](cases/branch-85b3f42d2f0baf43.md) | 通知・配信・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/rain-feedback-phase1-history-20261021](cases/branch-87d4561c05ed70fb.md) | 雨量・全国検知・通知・配信・開発管理・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/pwa-foundation](cases/branch-8850eea2b9e8ed04.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/jaspic-308-prepare-timeout](cases/branch-88620a78929560a4.md) | 通知・配信・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -491,9 +492,10 @@
 | [構想研究：いいことのさきどり — 空・季節・暮らしとLIVE JAPAN（Issue #329）](cases/pr-331.md) | その他の開発：変更対象ファイルに関する開発。具体的な目的は原文・差分を確認 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [全国大雨スキャンで予算切れのタイルを次回へ先送りする (#332)](cases/pr-333.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [さきどりトップの「雨の街」背景を見やすくする](cases/pr-335.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
-| [全国地図の時刻操作をスライダーに集約する](cases/pr-337.md) | 雨量・全国検知・画面・表示：雨量判定・予測・全国候補抽出に関する変更／画面表示や操作に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
+| [全国地図の時刻操作をスライダーに集約する](cases/pr-337.md) | 雨量・全国検知・画面・表示：雨量判定・予測・全国候補抽出に関する変更／画面表示や操作に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [fix: JASPIC分割継続の認証を移設後本番へ揃える](cases/pr-339.md) | 通知・配信・開発管理・認証・安全性：JASPIC分割継続が移設前トークンを参照して21件目で止まる問題を修復 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Add forecast-frame rain diagnostics](cases/pr-34.md) | 雨量・全国検知：予測フレームの雨量診断を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [docs: JASPIC復旧・21件完了通知の受信結果を台帳へ保存](cases/pr-340.md) | 通知・配信・開発管理：通知・メール配信とその運用に関する変更／開発資産の把握・引継ぎ・レビューを支援する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [Fix dry forecast boundary at cron tick](cases/pr-35.md) | 雨量・全国検知：cron実行時刻の雨なし予測境界を修正 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Add today&#x27;s latest delivered alerts](cases/pr-36.md) | 画面・表示：本日配信済みの最新通知を表示 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Confirm observed rain facts after three checks](cases/pr-37.md) | 雨量・全国検知：3回の観測で降雨の事実を確認 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
