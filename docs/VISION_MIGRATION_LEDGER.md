@@ -47,11 +47,11 @@ Issue #327。原本は変更しない。以下は見出し単位の全行範囲�
 | M-039 | [L460–468](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L460-L468) | ## Must not break | 思想・原点候補 | 未照合 |
 | M-040 | [L469–481](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L469-L481) | ## Recovery phrases | 思想・原点候補 | 部分照合： 復帰の二つの言葉 → 憲章 §6 |
 | M-041 | [L482–501](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L482-L501) | ## 2023 design intent recovered from operation history | 思想・原点候補 | 部分照合： GIFの目的・MP4変換 → 憲章 §2-B・§5・§6（旧実装詳細は原本参照） |
-| M-042 | [L502–535](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L502-L535) | ## Output boundary — facts first, expression later | 思想・原点候補 | 未照合 |
-| M-043 | [L536–568](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L536-L568) | ### Consumer simplicity is part of the EmergencyAlert contract | 思想・原点候補 | 未照合 |
-| M-044 | [L569–590](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L569-L590) | ### Keep each consumer's experience distinct | 思想・原点候補 | 未照合 |
-| M-045 | [L591–610](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L591-L610) | ### Current trust metadata checkpoint (2026-09-23) | 仕様候補 | 未照合 |
-| M-046 | [L611–625](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L611-L625) | ### Transparent hrpns pixels fail closed until coverage semantics are proven | 開発履歴・運用候補 | 未照合 |
+| M-042 | [L502–535](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L502-L535) | ## Output boundary — facts first, expression later | 思想・原点候補 | 部分照合： 構造化事実と表現の分離 → [製品憲章](SAKIKURU_PRODUCT_CHARTER.md) §6 |
+| M-043 | [L536–568](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L536-L568) | ### Consumer simplicity is part of the EmergencyAlert contract | 思想・原点候補 | 部分照合： 利用側に気象ロジックを再実装させない・イベント候補項目 → 憲章 §6、PR #60詳細未確認 |
+| M-044 | [L569–590](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L569-L590) | ### Keep each consumer's experience distinct | 思想・原点候補 | 部分照合： 各サービス固有の体験 → 憲章 §6 |
+| M-045 | [L591–610](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L591-L610) | ### Current trust metadata checkpoint (2026-09-23) | 仕様候補 | 部分照合： checkedAt/sourceValidAt・不正時刻・予報なし → 憲章 §6、現行実装未確認 |
+| M-046 | [L611–625](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L611-L625) | ### Transparent hrpns pixels fail closed until coverage semantics are proven | 開発履歴・運用候補 | 部分照合： 透過ピクセルの歴史的判定と緩和条件 → 憲章 §6、現行判定未確認 |
 | M-047 | [L626–657](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L626-L657) | ## First production-device milestone and next product phase (2026-09-23) | 開発履歴・運用候補 | 未照合 |
 | M-048 | [L658–661](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L658-L661) | ## Handoff checkpoint — 2026-09-24 | 開発履歴・運用候補 | 未照合 |
 | M-049 | [L662–679](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L662-L679) | ### Production / verified on real devices | 開発履歴・運用候補 | 未照合 |
@@ -79,3 +79,6 @@ Issue #327。原本は変更しない。以下は見出し単位の全行範囲�
 
 ## 2026-11-28 照合記録
 6範囲について原本と追記済み憲章を比較し、保存先を記録した。逐語・例外・技術詳細までの完全性は未認定。残り58範囲は未照合。全64範囲の完了判定は保留。
+
+### 追加照合記録
+M-042〜046の5範囲を追加。累計部分照合11、未照合53、完全照合0。旧記録の6範囲は当時の進捗。
