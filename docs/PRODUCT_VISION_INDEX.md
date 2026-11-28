@@ -142,3 +142,13 @@ GitHub open PRを作成順昇順で20件取得：#25,59,60,61,63,73,88,93,94,95,
 - [#109](https://github.com/miyazaki1016/emergencyalert/pull/109)：HEAD 6e650705260825c33a9905bbd3802919ba341cc4、Draft、mergeable=false、[CI成功](https://github.com/miyazaki1016/emergencyalert/actions/runs/41742698783)。全予測フレーム保存・復元・継続性比較・容量監査の研究実装。本文のCI未起動は現HEADの成功と異なる。容量運用・実サンプル・後続代替未確認。過去承認記載は今回のマージ許可としない。
 - [#160](https://github.com/miyazaki1016/emergencyalert/pull/160)：HEAD c5a46647e183eb00e335cefc3af4054733db9bd7、非Draft、mergeable=false、[CI成功](https://github.com/miyazaki1016/emergencyalert/actions/runs/41965440350)。現地報告を主判定必須とせず開始時刻不明を補足に分離するUI修正。現行代替未確認。
 - [#165](https://github.com/miyazaki1016/emergencyalert/pull/165)：HEAD 0ae9da31f65a2afe184a6efd36628a0ac1c2bda3、Draft、mergeable=true、[CI成功](https://github.com/miyazaki1016/emergencyalert/actions/runs/42534581037)。173コマの純増と相違数を区別する資料のみ、明細未取得。全件とも現行mainとの差分・承認・採用未確認。累計7件個別確認、CI成功6件。
+
+### 未統合成果の個別確認 3（2026-11-28）
+全6件mergeable=false、最新HEADのCI成功。後続代替・現行mainとの差分未確認。
+- #59 HEAD 0f5ec30e20bf53f470cdff621f31436a6d52a992 非Draft、CI 38831518366と5 proof成功。初期全国大雨研究、旧本文の本番未接続は歴史記録。現行全国予報との重複要確認。
+- #60 HEAD 6d86d7a83ef17911abb5ebd57e190c690d08709d Draft、CI 38828030585。美咲連携契約案、コードなし。
+- #61 HEAD 19fc21c247b934490dbc6f7c104dfc2cea233eb4 Draft、CI 38863566050。独立/live-japanのLeaflet試作、時間軸・サンプル地点、実データなし。本文のビルド未検証は後続CI成功と区別、実機未確認。
+- #63 HEAD 784173985f676dc7f06d7a81275750e0ad07464e Draft、CI 39558322125。履歴・回答・snapshot・再降雨shadow。DB/RLS前提あり、そのままマージ禁止。
+- #88 HEAD 7b4eddab9380af6b855fbfd654a6ae510517e779 Draft、CI 40255141501。通知過多防止仕様のみ。
+- #94 HEAD 9657b86fc02a76946dd2f5e2db1a3c8cdf658d77 非Draft、CI 40565437482。降るよ優先方針の文書のみ。
+累計13件個別確認、CI成功12件。今回の承認・統合なし。
