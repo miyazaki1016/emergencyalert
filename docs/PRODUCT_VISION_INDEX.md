@@ -257,3 +257,6 @@ main lib/weather/rain/lightRainPixelMasks.test.ts blob b3345f3ae5df7d74ce0bc810b
 #59 HEAD 0f5ec30e20bf53f470cdff621f31436a6d52a992 全変更一覧・本文確認。原本 docs/NATIONAL_RAIN_READINESS_PROOF.md、docs/N03_PARTITION_DESIGN.md、docs/NATIONAL_FINAL_GATE_PROOF.md。当時の報告：47県502 chunks/591 queries、自治体順序同等、32MiB bounded cache、地域局所性、42秒付近の中断で100 offered/2 claimed/2 deferred/98 unclaimed/0 failed。固定50×2 cronは不採用、cap2 baseline/cap4未承認、proof-onlyと実worker区別。現行採用は未確認、旧本番不可を現行判断に流用しない。
 #181 HEAD 011ca047241641a2af4c4bf12412063e19d0e5bd 全5変更確認。#62 run38967793373 2026-10-16実JMA6完全枠、30mm/h以上全画素177対stride2 45、独立4連結88雨域中47をstride2が未検出（特定サンプルのみ）。z4 preview/queue stride1明示、欠損/破損503、回帰テスト。原本 https://github.com/miyazaki1016/emergencyalert/blob/011ca047241641a2af4c4bf12412063e19d0e5bd/docs/NATIONAL_Z4_STRIDE_EVIDENCE_20261109.md 。高速化時の見逃し防止根拠として保存。
 #210 HEAD 1bd934d87180f2d6125d0edff5af7caa0917261a 全7変更確認。#59 extend/#181 reuse、固定N03→ローカルJSON→トップ、NATIONAL_RAIN_SNAPSHOT_PATH共有、当時全47県通し/本番方式/アニメ未完。#211後続とmain比較待ち。3件ともコード全件同等性・現行運用未確認、終了なし。
+
+### 研究・開発の共有記憶（2026-11-28）
+ユーザーの希望：「いままでやってきたことをみんなが振り返って思い出せるようにしたいね」。初期には非常に細部まで深掘りした研究もあったとのユーザー証言。実装への継承状況と研究資産価値は別軸で評価する。AI提案（未承認の具体案）：既存台帳・研究原本・開発履歴を再利用し、原点、開発年表、研究図鑑、失敗と教訓、技術系譜、未実現構想の切り口で閲覧・検索できる共有記憶を整備する。担当AI・Muse・所有者が原本、実測、判断理由、後続実装を再発見できることを目標とする。公開範囲・UI・自動化は未決定、既存所有者限定の権限を拡張しない。新規機能実装の承認ではない。
