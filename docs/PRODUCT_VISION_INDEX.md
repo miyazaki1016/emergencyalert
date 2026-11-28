@@ -304,3 +304,6 @@ main supabase/migrations/20261029023607_replay_area_images.sql blob b5fe2d374a6c
 
 ### 現行実装照合 26：#93 通知安全監査の後続実装（2026-11-28）
 #93 HEAD a0a4cc891065a52333c7aaca8b93193d8cb7c2d9 本文の並行cron、Push後DB失敗、#63 DB CHECK不整合の3監査課題を再確認。現行watch-rain/index.ts blob 42b2dddff7e91e8a468fc404f11fc0f52296a32e は27–30行target lease取得/BUSY/fenced save、93行subscription単位push attempt claim、101–103行durable intent後ラッチ保存、119行finally release。並行実行と送信後失敗に対する後続対策の呼出実装あり。RPC内部・DB制約・障害テスト・#63 CHECK解消は未確認、完全解消とはしない。VISION-020関連。第25回保存再取得確認。次はRPC migrationと旧監査原本。main・本番・終了操作なし。
+
+### 現行実装照合 27：#93/#63→#104 安全対策の継承（2026-11-28）
+#104 merged HEAD 03ba9cc8d5209ea281b7d5409d91d6dd79606a9d 本文が#93/#63研究再利用を明記。main migration 20261029075241_forecast_notification_episodes.sql blob 0c5e0e7e66b1ab494af267d1190f13963ac0a829 は2分lease、期限/ID照合FOR UPDATE、target/event/subscription UNIQUE、service_role限定、CLAIMEDのみ結果更新。deliveryGuard.ts 85b194c0f78df4a7c4325fffde995bebd022ea76 はclaim前提、finish失敗でも再送権なし。tests/rain-delivery-concurrency.py 53aeae33c9de9c36a6720861feed50be136e807d は独立2接続競合、旧writer拒否、受理/不明再送拒否、新世代・強雨別権限、権限検査。#104本文は269テスト等当時成功と既存delivered_count>0 CHECK維持を記録。今回テスト実行・稼働DB・#63全差分未確認。#93は後続対策継承の終了候補（全体棚卸し後に判断）、監査原本保全必要。第26回再取得確認。VISION-020関連。main・本番・終了操作なし。
