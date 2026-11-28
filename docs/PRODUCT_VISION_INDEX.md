@@ -75,3 +75,10 @@ Issue #327 / Draft PR #328。2026-11-28。製品方針の正本は [製品憲章
 - VISION-003: [全国大雨予報](https://github.com/miyazaki1016/emergencyalert/blob/main/app/components/NationalHeavyRainForecast.tsx) blob 7a33c7ddc50b52a7ac2b75173ec9d039e16d7a7a。30分詳細・35〜60分延長、取得範囲限定の閾値未満表示、未取得区別、API・時刻選択・事案導線を確認。UI部分整合、公式フレームの全経路・本番は未検証。
 - VISION-001/004/005: mainトップは全国雨地図中心、LiveJapanForecastMapを利用。app/live-japan/page.tsx はmain取得404。#61の試作と現行トップの関係は部分確認に留め、最終構想との差を直ちに不具合扱いしない。
 以上はmain参照時点の個別ファイル証拠であり、完全照合は0/20のまま。全体の固定SHA・テスト・本番確認は後続。
+
+### 現行mainの地点判定・公開ゲート（2026-11-28）
+VISION-002/006/018/020関連の部分証拠（通知workerとは別）。
+- [地点API](https://github.com/miyazaki1016/emergencyalert/blob/main/app/api/rain/route.ts) blob 48c1b39c9d36f73256468c78457faa910da13adc：JMA画像取得、checkedAt/sourceValidAt分離、判定公開不可なら解釈・イベント・文面をnull、取得例外503。生成AIによる気象判断なし。
+- [判定エンジン](https://github.com/miyazaki1016/emergencyalert/blob/main/lib/weather/rain/RainInterpretationEngine.ts) blob afbeef8a8fe95e47102770fbb945a374783a173b：UNKNOWN等を不足扱い、観測鮮度-5〜15分、時刻形式・予報時刻順序検査、DRYは期待枚数一致かつ全有効、弱雨1〜5は5分間隔3枚、5〜10は2枚、10以上は単枚候補、30分以内の通知候補。ENDINGはNO_RAIN 3枚を要求。ただしENDINGの5分間隔連続性を明示検査していないため、欠落フレームをまたぐ可能性は入力側契約・テストで要確認。予報のENDINGと観測によるエピソード終了は別。
+- [公開ゲート](https://github.com/miyazaki1016/emergencyalert/blob/main/lib/weather/rain/canPublishRainInterpretation.ts) blob be3bcd3bb3f3dc64804f36410c14a3df07356f6b：主張ごとに必要な証拠を検査。後続の無関係な欠損で有効な近未来雨の主張を消さない。原点の不明≠安全と部分整合。
+- workerの候補パス2件は取得不可。現行workerの正本位置・通知排他・大雨独立通知・実配信は未確認。上記APIのshouldNotifyを実送信と同一視しない。完全照合0/20維持。
