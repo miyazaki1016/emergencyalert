@@ -10,6 +10,14 @@ export function forecastRadarSources(basetime: string, validTime: string, tile: 
 
 export type RadarPlaybackFrame = { validTime: string; basetime?: string; tile: RadarTile };
 
+export function firstPlayableRadarFrame(
+  frames: RadarPlaybackFrame[], failedUrls?: ReadonlySet<string>,
+) {
+  return frames.findIndex(frame => frame.basetime && !failedUrls?.has(
+    forecastRadarSources(frame.basetime, frame.validTime, frame.tile).rain,
+  ));
+}
+
 export function forecastRadarPlayback(
   frames: NationalForecastFrame[], code: string, snapshotBase: string, tileVersions?: true,
 ): RadarPlaybackFrame[] {
