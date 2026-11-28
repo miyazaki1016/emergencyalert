@@ -1,0 +1,378 @@
+{
+  "id": "pr-323",
+  "number": 323,
+  "title": "事案ページで先頭コマが未取得でもレーダーを再生できるようにする (#322)",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "purpose": "雨量判定・予測・全国候補抽出に関する変更",
+  "purpose_basis": "変更パスと表題による分類（意味の確定には原文を確認）",
+  "body": "## 対象\n- 案件 https://github.com/miyazaki1016/emergencyalert/issues/322\n- 元指示 https://github.com/miyazaki1016/emergencyalert/issues/256#issuecomment-7232599323\n- 起動 https://github.com/miyazaki1016/emergencyalert/pull/290#issuecomment-7232601166\n\n## 変更\n- 初期表示は最初に画像があるコマ。再生可否は全コマの取得状況で判定し、未取得や画像取得失敗のコマも対象時刻と「未取得」を表示して次へ進みます。\n- スライダーの全時刻とスクラブ時に一時停止する操作を維持します。単体テストで先頭欠け、残り1コマ、全コマ取得不能を検証しました。\n\n## 検証\n- ローカル Vitest 71ファイル・451件成功。着手前照合の回帰テストは Python 21件、Node 12件成功。\n- 着手前照合は Muse の記録で NO_STRONG_MATCH / publication_status=confirmed / preflight_job_result=success。https://github.com/miyazaki1016/emergencyalert/actions/runs/46099731535\n- 調査報告 https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7232552088\n- ブランチはリポジトリの Vercel 自動デプロイ対象外（main のみ有効）。\n\n## 既存成果の照合\n[Muse 最終監査・判断記録](https://github.com/miyazaki1016/emergencyalert/issues/287#issuecomment-7233049638)\n\n<!-- history-preflight {\"decisions\": [{\"id\": \"pr-252\", \"decision\": \"reuse\", \"reason\": \"#209で追加された雨雲再生の基盤（forecastRadarSources／forecastRadarPlayback）をそのまま使い、再生可否の判定だけを上に足した。PR #323の差分はforecastRadarPlaybackに触れていない。\", \"evidence\": \"https://github.com/miyazaki1016/emergencyalert/blob/development-history/docs/work-history/cases/pr-252.md\"}, {\"id\": \"pr-300\", \"decision\": \"reuse\", \"reason\": \"#296の5枠連続生成（欠けた時刻を未取得枠として維持する形状）をそのまま使い、R2が依拠する未取得枠の扱いは変えていない。nationalForecastRadar.tsの追加はfirstPlayableRadarFrameの8行のみ。\", \"evidence\": \"https://github.com/miyazaki1016/emergencyalert/blob/development-history/docs/work-history/cases/pr-300.md\"}, {\"id\": \"pr-318\", \"decision\": \"extend\", \"reason\": \"#311段階3で事案ページに置かれたRadarPlayerの配線はそのまま使い、その再生挙動だけを変えた。配線の重複はなく、RadarPlayer.tsxの変更は再生可否・初期表示の範囲内。\", \"evidence\": \"https://github.com/miyazaki1016/emergencyalert/blob/development-history/docs/work-history/cases/pr-318.md\"}]} -->\n",
+  "snapshot_head": "a8752fed8e89904111f3344c3e17d2612c7fd000",
+  "snapshot_consistent": true,
+  "head": "a8752fed8e89904111f3344c3e17d2612c7fd000",
+  "base": "8fdac2ee21444e72d161488739df5f8d236a465c",
+  "base_ref": "main",
+  "head_ref": "fix/radar-player-missing-first-322",
+  "state": "merged",
+  "main_status": "mainに祖先コミットとして存在（機能受入・本番は別）",
+  "draft": false,
+  "merged_at": "2026-11-28T04:18:43Z",
+  "merge_commit_sha": "b0e25998294b231adb88d017174c90da548a7b0d",
+  "updated_at": "2026-11-28T04:18:43Z",
+  "code_facts": [
+    {
+      "file": "app/components/RadarPlayer.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!isPlaying || (!unavailable && loaded !== rainUrl)) return;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/app/components/RadarPlayer.tsx"
+    },
+    {
+      "file": "app/components/RadarPlayer.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (last === 0) setPlaying(false);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/app/components/RadarPlayer.tsx"
+    },
+    {
+      "file": "app/components/RadarPlayer.tsx",
+      "kind": "条件分岐・閾値",
+      "expression": "if (!frame) return <p>再生できる予報画像はありません。</p>;",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/app/components/RadarPlayer.tsx"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastRadar.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "describe(\"firstPlayableRadarFrame\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastRadar.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"starts at the first available image when a detailed forecast has no +5 slot\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastRadar.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(firstPlayableRadarFrame(slots)).toBe(1);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastRadar.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"keeps playback available if only a later image can be played\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastRadar.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(firstPlayableRadarFrame(slots, failed)).toBe(5);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastRadar.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(firstPlayableRadarFrame(slots, failed)).toBe(-1);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastRadar.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "it(\"disallows playback with no available images\", () => {",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastRadar.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(firstPlayableRadarFrame(slots.slice(0, 1))).toBe(-1);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastRadar.test.ts",
+      "kind": "テストの期待値・条件",
+      "expression": "expect(firstPlayableRadarFrame([])).toBe(-1);",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.test.ts"
+    },
+    {
+      "file": "lib/weather/rain/nationalForecastRadar.ts",
+      "kind": "関数・クラス定義",
+      "expression": "export function firstPlayableRadarFrame(",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.ts"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/components/RadarPlayer.tsx",
+      "status": "modified",
+      "additions": 22,
+      "deletions": 17,
+      "patch": "diff --git a/app/components/RadarPlayer.tsx b/app/components/RadarPlayer.tsx\nindex 1ff3d7f2..f2827c2d 100644\n--- a/app/components/RadarPlayer.tsx\n+++ b/app/components/RadarPlayer.tsx\n@@ -1,7 +1,7 @@\n \"use client\";\n \n import { useEffect, useState } from \"react\";\n-import { forecastRadarSources, type RadarPlaybackFrame } from \"../../lib/weather/rain/nationalForecastRadar\";\n+import { firstPlayableRadarFrame, forecastRadarSources, type RadarPlaybackFrame } from \"../../lib/weather/rain/nationalForecastRadar\";\n import { forecastTime } from \"../../lib/weather/rain/nationalForecastSnapshot\";\n import styles from \"./national-heavy-rain-forecast.module.css\";\n \n@@ -12,24 +12,29 @@ const formatTime = new Intl.DateTimeFormat(\"ja-JP\", {\n const timeLabel = (value: string) => formatTime.format(forecastTime(value));\n \n export default function RadarPlayer({ frames, blocky }: { frames: RadarPlaybackFrame[]; blocky: boolean }) {\n-  const [index, setIndex] = useState(0);\n+  const [index, setIndex] = useState(() => Math.max(0, firstPlayableRadarFrame(frames)));\n   const [playing, setPlaying] = useState(false);\n   const [loaded, setLoaded] = useState(\"\");\n-  const [failed, setFailed] = useState(\"\");\n+  const [failed, setFailed] = useState<ReadonlySet<string>>(() => new Set());\n   const [mapFailed, setMapFailed] = useState(false);\n   const last = frames.length - 1;\n-  const { basetime, validTime, tile } = frames[Math.min(index, last)];\n-  const urls = basetime ? forecastRadarSources(basetime, validTime, tile) : undefined;\n+  const frame = frames[Math.min(index, last)];\n+  const urls = frame?.basetime ? forecastRadarSources(frame.basetime, frame.validTime, frame.tile) : undefined;\n   const rainUrl = urls?.rain;\n+  const unavailable = !rainUrl || failed.has(rainUrl);\n+  const canPlay = firstPlayableRadarFrame(frames, failed) >= 0;\n+  const isPlaying = playing && canPlay;\n   useEffect(() => {\n-    if (!playing || last < 1 || !rainUrl || loaded !== rainUrl || failed === rainUrl) return;\n+    if (!isPlaying || (!unavailable && loaded !== rainUrl)) return;\n     const timer = window.setTimeout(() => {\n-      const next = (index + 1) % (last + 1);\n-      setIndex(next);\n-      if (!frames[next].basetime) setPlaying(false);\n+      if (last === 0) setPlaying(false);\n+      else setIndex((index + 1) % (last + 1));\n     }, 1100);\n     return () => window.clearTimeout(timer);\n-  }, [playing, last, loaded, failed, rainUrl, index, frames]);\n+  }, [isPlaying, last, loaded, unavailable, rainUrl, index]);\n+\n+  if (!frame) return <p>再生できる予報画像はありません。</p>;\n+  const label = timeLabel(frame.validTime);\n \n   return (\n     <div>\n@@ -37,20 +42,20 @@ export default function RadarPlayer({ frames, blocky }: { frames: RadarPlaybackF\n         {/* Fixed matching z10 tiles. Ordinary images avoid browser-side CORS reads. */}\n         {/* eslint-disable @next/next/no-img-element */}\n         {urls && <img key={urls.background} src={urls.background} alt=\"\" width={256} height={256} onError={() => setMapFailed(true)} />}\n-        {urls && <img key={urls.rain} src={urls.rain} alt=\"\" width={256} height={256}\n+        {urls && !unavailable && <img key={urls.rain} src={urls.rain} alt=\"\" width={256} height={256}\n           className={blocky ? styles.blocky : undefined} onLoad={() => setLoaded(urls.rain)}\n-          onError={() => { setFailed(urls.rain); setPlaying(false); }} />}\n+          onError={() => setFailed(previous => new Set(previous).add(urls.rain))} />}\n         {/* eslint-enable @next/next/no-img-element */}\n-        <time className={styles.mapTime}>{timeLabel(validTime)} 予報（{basetime ? `${timeLabel(basetime)}基準` : \"未取得\"}）</time>\n+        <time className={styles.mapTime}>{label} 予報（{!unavailable && frame.basetime ? `${timeLabel(frame.basetime)}基準` : \"未取得\"}）</time>\n         <span className={styles.mapCredit}>気象庁・地理院タイル</span>\n       </div>\n-      {(!urls || mapFailed || failed === rainUrl) && <p role=\"status\">一部の地図・雨雲画像を取得できません。</p>}\n+      {(unavailable || mapFailed) && <p role=\"status\">一部の地図・雨雲画像を取得できません。</p>}\n       <div className={styles.controls}>\n-        <button type=\"button\" disabled={last < 1 || !rainUrl || failed === rainUrl} onClick={() => setPlaying(value => !value)}>\n-          {playing ? \"一時停止\" : \"再生\"}\n+        <button type=\"button\" disabled={!canPlay} onClick={() => setPlaying(value => !value)}>\n+          {isPlaying ? \"一時停止\" : \"再生\"}\n         </button>\n         {last > 0 && <input className={styles.radarSlider} type=\"range\"\n-          aria-label=\"雨雲の予報時刻を選択\" aria-valuetext={`${timeLabel(validTime)}${basetime ? \"\" : \"（未取得）\"}`}\n+          aria-label=\"雨雲の予報時刻を選択\" aria-valuetext={`${label}${unavailable ? \"（未取得）\" : \"\"}`}\n           min={0} max={last} step={1} value={index}\n           onChange={event => { setPlaying(false); setIndex(event.currentTarget.valueAsNumber); }} />}\n         <button type=\"button\" aria-label=\"前の予報時刻\" disabled={last < 1 || index === 0}\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/app/components/RadarPlayer.tsx",
+      "source": {
+        "path": "app/components/RadarPlayer.tsx",
+        "coverage": "全文",
+        "text": "\"use client\";\n\nimport { useEffect, useState } from \"react\";\nimport { firstPlayableRadarFrame, forecastRadarSources, type RadarPlaybackFrame } from \"../../lib/weather/rain/nationalForecastRadar\";\nimport { forecastTime } from \"../../lib/weather/rain/nationalForecastSnapshot\";\nimport styles from \"./national-heavy-rain-forecast.module.css\";\n\nconst formatTime = new Intl.DateTimeFormat(\"ja-JP\", {\n  timeZone: \"Asia/Tokyo\", hour: \"2-digit\", minute: \"2-digit\", hourCycle: \"h23\",\n});\n\nconst timeLabel = (value: string) => formatTime.format(forecastTime(value));\n\nexport default function RadarPlayer({ frames, blocky }: { frames: RadarPlaybackFrame[]; blocky: boolean }) {\n  const [index, setIndex] = useState(() => Math.max(0, firstPlayableRadarFrame(frames)));\n  const [playing, setPlaying] = useState(false);\n  const [loaded, setLoaded] = useState(\"\");\n  const [failed, setFailed] = useState<ReadonlySet<string>>(() => new Set());\n  const [mapFailed, setMapFailed] = useState(false);\n  const last = frames.length - 1;\n  const frame = frames[Math.min(index, last)];\n  const urls = frame?.basetime ? forecastRadarSources(frame.basetime, frame.validTime, frame.tile) : undefined;\n  const rainUrl = urls?.rain;\n  const unavailable = !rainUrl || failed.has(rainUrl);\n  const canPlay = firstPlayableRadarFrame(frames, failed) >= 0;\n  const isPlaying = playing && canPlay;\n  useEffect(() => {\n    if (!isPlaying || (!unavailable && loaded !== rainUrl)) return;\n    const timer = window.setTimeout(() => {\n      if (last === 0) setPlaying(false);\n      else setIndex((index + 1) % (last + 1));\n    }, 1100);\n    return () => window.clearTimeout(timer);\n  }, [isPlaying, last, loaded, unavailable, rainUrl, index]);\n\n  if (!frame) return <p>再生できる予報画像はありません。</p>;\n  const label = timeLabel(frame.validTime);\n\n  return (\n    <div>\n      <div className={styles.map}>\n        {/* Fixed matching z10 tiles. Ordinary images avoid browser-side CORS reads. */}\n        {/* eslint-disable @next/next/no-img-element */}\n        {urls && <img key={urls.background} src={urls.background} alt=\"\" width={256} height={256} onError={() => setMapFailed(true)} />}\n        {urls && !unavailable && <img key={urls.rain} src={urls.rain} alt=\"\" width={256} height={256}\n          className={blocky ? styles.blocky : undefined} onLoad={() => setLoaded(urls.rain)}\n          onError={() => setFailed(previous => new Set(previous).add(urls.rain))} />}\n        {/* eslint-enable @next/next/no-img-element */}\n        <time className={styles.mapTime}>{label} 予報（{!unavailable && frame.basetime ? `${timeLabel(frame.basetime)}基準` : \"未取得\"}）</time>\n        <span className={styles.mapCredit}>気象庁・地理院タイル</span>\n      </div>\n      {(unavailable || mapFailed) && <p role=\"status\">一部の地図・雨雲画像を取得できません。</p>}\n      <div className={styles.controls}>\n        <button type=\"button\" disabled={!canPlay} onClick={() => setPlaying(value => !value)}>\n          {isPlaying ? \"一時停止\" : \"再生\"}\n        </button>\n        {last > 0 && <input className={styles.radarSlider} type=\"range\"\n          aria-label=\"雨雲の予報時刻を選択\" aria-valuetext={`${label}${unavailable ? \"（未取得）\" : \"\"}`}\n          min={0} max={last} step={1} value={index}\n          onChange={event => { setPlaying(false); setIndex(event.currentTarget.valueAsNumber); }} />}\n        <button type=\"button\" aria-label=\"前の予報時刻\" disabled={last < 1 || index === 0}\n          onClick={() => { setPlaying(false); setIndex(i => i - 1); }}>前へ</button>\n        <button type=\"button\" aria-label=\"次の予報時刻\" disabled={last < 1 || index >= last}\n          onClick={() => { setPlaying(false); setIndex(i => i + 1); }}>次へ</button>\n      </div>\n    </div>\n  );\n}\n",
+        "sha256": "1f2bd393626d277334e9fe6ee8e31dcde49e047eb210b91eef2cc002c05aa076"
+      }
+    },
+    {
+      "path": "lib/weather/rain/nationalForecastRadar.test.ts",
+      "status": "modified",
+      "additions": 26,
+      "deletions": 1,
+      "patch": "diff --git a/lib/weather/rain/nationalForecastRadar.test.ts b/lib/weather/rain/nationalForecastRadar.test.ts\nindex e30d0fcf..70a83bce 100644\n--- a/lib/weather/rain/nationalForecastRadar.test.ts\n+++ b/lib/weather/rain/nationalForecastRadar.test.ts\n@@ -1,11 +1,36 @@\n import { describe, expect, it } from \"vitest\";\n-import { forecastRadarPlayback } from \"./nationalForecastRadar\";\n+import { firstPlayableRadarFrame, forecastRadarPlayback, forecastRadarSources } from \"./nationalForecastRadar\";\n import type { NationalForecastFrame } from \"./nationalForecastSnapshot\";\n \n const tile = { x: 860, y: 416 };\n const base = \"20261124090000\";\n const older = \"20261124085500\";\n \n+describe(\"firstPlayableRadarFrame\", () => {\n+  const slots = [5, 10, 15, 20, 25, 30].map(minutes => ({\n+    validTime: `2026112409${String(minutes).padStart(2, \"0\")}00`,\n+    basetime: minutes === 5 ? undefined : base,\n+    tile,\n+  }));\n+\n+  it(\"starts at the first available image when a detailed forecast has no +5 slot\", () => {\n+    expect(firstPlayableRadarFrame(slots)).toBe(1);\n+  });\n+\n+  it(\"keeps playback available if only a later image can be played\", () => {\n+    const failed = new Set(slots.slice(1, -1).map(frame =>\n+      forecastRadarSources(base, frame.validTime, tile).rain));\n+    expect(firstPlayableRadarFrame(slots, failed)).toBe(5);\n+    failed.add(forecastRadarSources(base, slots[5].validTime, tile).rain);\n+    expect(firstPlayableRadarFrame(slots, failed)).toBe(-1);\n+  });\n+\n+  it(\"disallows playback with no available images\", () => {\n+    expect(firstPlayableRadarFrame(slots.slice(0, 1))).toBe(-1);\n+    expect(firstPlayableRadarFrame([])).toBe(-1);\n+  });\n+});\n+\n function fixtures(offset: number, hits: number[]): NationalForecastFrame[] {\n   return Array.from({ length: 6 }, (_, i) => ({\n     validTime: new Date(Date.UTC(2026, 10, 24, 9, offset + 5 * i)).toISOString(),\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.test.ts",
+      "source": {
+        "path": "lib/weather/rain/nationalForecastRadar.test.ts",
+        "coverage": "全文",
+        "text": "import { describe, expect, it } from \"vitest\";\nimport { firstPlayableRadarFrame, forecastRadarPlayback, forecastRadarSources } from \"./nationalForecastRadar\";\nimport type { NationalForecastFrame } from \"./nationalForecastSnapshot\";\n\nconst tile = { x: 860, y: 416 };\nconst base = \"20261124090000\";\nconst older = \"20261124085500\";\n\ndescribe(\"firstPlayableRadarFrame\", () => {\n  const slots = [5, 10, 15, 20, 25, 30].map(minutes => ({\n    validTime: `2026112409${String(minutes).padStart(2, \"0\")}00`,\n    basetime: minutes === 5 ? undefined : base,\n    tile,\n  }));\n\n  it(\"starts at the first available image when a detailed forecast has no +5 slot\", () => {\n    expect(firstPlayableRadarFrame(slots)).toBe(1);\n  });\n\n  it(\"keeps playback available if only a later image can be played\", () => {\n    const failed = new Set(slots.slice(1, -1).map(frame =>\n      forecastRadarSources(base, frame.validTime, tile).rain));\n    expect(firstPlayableRadarFrame(slots, failed)).toBe(5);\n    failed.add(forecastRadarSources(base, slots[5].validTime, tile).rain);\n    expect(firstPlayableRadarFrame(slots, failed)).toBe(-1);\n  });\n\n  it(\"disallows playback with no available images\", () => {\n    expect(firstPlayableRadarFrame(slots.slice(0, 1))).toBe(-1);\n    expect(firstPlayableRadarFrame([])).toBe(-1);\n  });\n});\n\nfunction fixtures(offset: number, hits: number[]): NationalForecastFrame[] {\n  return Array.from({ length: 6 }, (_, i) => ({\n    validTime: new Date(Date.UTC(2026, 10, 24, 9, offset + 5 * i)).toISOString(),\n    municipalities: hits.includes(i) ? [{\n      code: \"13101\", prefecture: \"東京都\", municipality: \"千代田区\",\n      minimumMmPerHour: 30, radarTile: i === hits[0] ? tile : { ...tile, x: tile.x + 1 },\n    }] : [],\n    tileCoverage: [{ x: 13, y: 6, basetime: i === 0 ? older : base }],\n  }));\n}\n\ndescribe(\"forecastRadarPlayback\", () => {\n  it.each([[5, [0, 1]], [5, [0, 1, 3]], [35, [1, 2, 3, 5]], [35, [4, 5]]] as const)(\n    \"uses five consecutive slots in the band starting at +%s\",\n    (offset, hits) => {\n      const frames = fixtures(offset, [...hits]);\n      const result = forecastRadarPlayback(frames, \"13101\", base, true);\n      expect(result.map(frame => frame.validTime)).toEqual(frames.slice(Math.min(hits[0], 1), Math.min(hits[0], 1) + 5).map(frame => frame.validTime));\n      expect(result.every(frame => frame.tile === tile && frame.basetime)).toBe(true);\n      if (hits[0] === 0) expect(result[0].basetime).toBe(older);\n    },\n  );\n\n  it(\"keeps an absent timestamp and an uncovered tile as unavailable slots\", () => {\n    const frames = fixtures(5, [0, 4]);\n    frames[2].tileCoverage = [{ x: 13, y: 6 }];\n    frames.splice(1, 1);\n    const result = forecastRadarPlayback(frames, \"13101\", base, true);\n    expect(result).toHaveLength(5);\n    expect(result[1].validTime).toBe(\"20261124091000\");\n    expect(result.slice(1, 3).map(frame => frame.basetime)).toEqual([undefined, undefined]);\n  });\n\n  it(\"uses the snapshot base for available legacy frames\", () => {\n    const frames = fixtures(5, [0, 2]);\n    expect(forecastRadarPlayback(frames, \"13101\", base).map(frame => frame.basetime)).toEqual(Array(5).fill(base));\n  });\n});\n",
+        "sha256": "b3583f9a6b57a0172571d8b28a10b8158be0f6532547f98c5791d6edf28fa930"
+      }
+    },
+    {
+      "path": "lib/weather/rain/nationalForecastRadar.ts",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "patch": "diff --git a/lib/weather/rain/nationalForecastRadar.ts b/lib/weather/rain/nationalForecastRadar.ts\nindex b45bcfa5..79948b0a 100644\n--- a/lib/weather/rain/nationalForecastRadar.ts\n+++ b/lib/weather/rain/nationalForecastRadar.ts\n@@ -10,6 +10,14 @@ export function forecastRadarSources(basetime: string, validTime: string, tile:\n \n export type RadarPlaybackFrame = { validTime: string; basetime?: string; tile: RadarTile };\n \n+export function firstPlayableRadarFrame(\n+  frames: RadarPlaybackFrame[], failedUrls?: ReadonlySet<string>,\n+) {\n+  return frames.findIndex(frame => frame.basetime && !failedUrls?.has(\n+    forecastRadarSources(frame.basetime, frame.validTime, frame.tile).rain,\n+  ));\n+}\n+\n export function forecastRadarPlayback(\n   frames: NationalForecastFrame[], code: string, snapshotBase: string, tileVersions?: true,\n ): RadarPlaybackFrame[] {\n",
+      "patch_coverage": "git merge-baseから対象HEADへの差分（最大60000文字）",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.ts",
+      "source": {
+        "path": "lib/weather/rain/nationalForecastRadar.ts",
+        "coverage": "全文",
+        "text": "import { buildJmaRainTileUrl } from \"../providers/jma/tileUrl\";\nimport { forecastTime, type NationalForecastFrame, type RadarTile } from \"./nationalForecastSnapshot\";\n\nexport function forecastRadarSources(basetime: string, validTime: string, tile: RadarTile) {\n  return {\n    background: `https://cyberjapandata.gsi.go.jp/xyz/pale/10/${tile.x}/${tile.y}.png`,\n    rain: buildJmaRainTileUrl({ basetime, validtime: validTime }, 10, tile.x, tile.y),\n  };\n}\n\nexport type RadarPlaybackFrame = { validTime: string; basetime?: string; tile: RadarTile };\n\nexport function firstPlayableRadarFrame(\n  frames: RadarPlaybackFrame[], failedUrls?: ReadonlySet<string>,\n) {\n  return frames.findIndex(frame => frame.basetime && !failedUrls?.has(\n    forecastRadarSources(frame.basetime, frame.validTime, frame.tile).rain,\n  ));\n}\n\nexport function forecastRadarPlayback(\n  frames: NationalForecastFrame[], code: string, snapshotBase: string, tileVersions?: true,\n): RadarPlaybackFrame[] {\n  const ordered = [...frames].sort((a, b) => forecastTime(a.validTime) - forecastTime(b.validTime));\n  const first = ordered.find(frame => frame.municipalities.some(area => area.code === code));\n  const anchor = first?.municipalities.find(area => area.code === code && area.radarTile)\n    ?? ordered.flatMap(frame => frame.municipalities).find(area => area.code === code && area.radarTile);\n  if (!first || !anchor?.radarTile) return [];\n  const tile = anchor.radarTile;\n  const step = 5 * 60_000;\n  const end = forecastTime(ordered[ordered.length - 1].validTime);\n  const start = Math.min(forecastTime(first.validTime), end - 4 * step);\n  const byTime = new Map(ordered.map(frame => [forecastTime(frame.validTime), frame]));\n  return Array.from({ length: 5 }, (_, index) => {\n    const time = start + index * step;\n    const frame = byTime.get(time);\n    const validTime = frame?.validTime ?? new Date(time).toISOString().slice(0, 19).replace(/[-:T]/g, \"\");\n    const coverage = frame?.tileCoverage?.find(entry =>\n      entry.x === Math.floor(tile.x / 64) && entry.y === Math.floor(tile.y / 64));\n    const basetime = frame && (tileVersions ? coverage?.basetime : snapshotBase);\n    return { validTime, basetime, tile };\n  });\n}\n",
+        "sha256": "fa68b8543c10a627c759dca3e9ab30822c10dd95d198897b42baffe33527f376"
+      }
+    }
+  ],
+  "file_count": 3,
+  "reported_file_count": 3,
+  "commits": [
+    {
+      "sha": "a8752fed8e89904111f3344c3e17d2612c7fd000",
+      "message": "Allow case radar playback across missing frames (#322)\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/commit/a8752fed8e89904111f3344c3e17d2612c7fd000"
+    }
+  ],
+  "comments": [],
+  "reviews": [],
+  "runs": [
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "a8752fed8e89904111f3344c3e17d2612c7fd000",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46106931822",
+      "id": 46106931822,
+      "updated_at": "2026-11-28T04:18:48Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "a8752fed8e89904111f3344c3e17d2612c7fd000",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46106931759",
+      "id": 46106931759,
+      "updated_at": "2026-11-28T04:18:57Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "a8752fed8e89904111f3344c3e17d2612c7fd000",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46103751873",
+      "id": 46103751873,
+      "updated_at": "2026-11-28T03:37:46Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "CI",
+      "head_sha": "a8752fed8e89904111f3344c3e17d2612c7fd000",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46100031570",
+      "id": 46100031570,
+      "updated_at": "2026-11-28T02:51:45Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "PR promotion classification (review only)",
+      "head_sha": "a8752fed8e89904111f3344c3e17d2612c7fd000",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46100031554",
+      "id": 46100031554,
+      "updated_at": "2026-11-28T02:50:54Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Existing work preflight (read-only)",
+      "head_sha": "a8752fed8e89904111f3344c3e17d2612c7fd000",
+      "conclusion": "failure",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46100031587",
+      "id": 46100031587,
+      "updated_at": "2026-11-28T02:51:05Z",
+      "event": "pull_request"
+    },
+    {
+      "name": "Development inventory (read-only)",
+      "head_sha": "b0e25998294b231adb88d017174c90da548a7b0d",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46106940970",
+      "id": 46106940970,
+      "updated_at": "2026-11-28T04:18:49Z",
+      "event": "push"
+    },
+    {
+      "name": "Ledger facts proposal PR (review required)",
+      "head_sha": "b0e25998294b231adb88d017174c90da548a7b0d",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46106940960",
+      "id": 46106940960,
+      "updated_at": "2026-11-28T04:19:03Z",
+      "event": "push"
+    },
+    {
+      "name": "CI",
+      "head_sha": "b0e25998294b231adb88d017174c90da548a7b0d",
+      "conclusion": null,
+      "status": "in_progress",
+      "url": "https://github.com/miyazaki1016/emergencyalert/actions/runs/46106941025",
+      "id": 46106941025,
+      "updated_at": "2026-11-28T04:18:49Z",
+      "event": "push"
+    }
+  ],
+  "symbols": [
+    "RadarPlayer",
+    "anchor",
+    "base",
+    "basetime",
+    "byTime",
+    "canPlay",
+    "coverage",
+    "end",
+    "failed",
+    "first",
+    "firstPlayableRadarFrame",
+    "fixtures",
+    "forecastRadarPlayback",
+    "forecastRadarSources",
+    "formatTime",
+    "frame",
+    "frames",
+    "isPlaying",
+    "label",
+    "last",
+    "next",
+    "older",
+    "ordered",
+    "rainUrl",
+    "result",
+    "slots",
+    "start",
+    "step",
+    "tile",
+    "time",
+    "timeLabel",
+    "timer",
+    "unavailable",
+    "urls",
+    "validTime"
+  ],
+  "related_sources": [
+    {
+      "path": "docs/work-history/cases/pr-252.md",
+      "coverage": "削除済み／取得不能・差分参照",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/docs/work-history/cases/pr-252.md"
+    },
+    {
+      "path": "docs/work-history/cases/pr-300.md",
+      "coverage": "削除済み／取得不能・差分参照",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/docs/work-history/cases/pr-300.md"
+    },
+    {
+      "path": "docs/work-history/cases/pr-318.md",
+      "coverage": "削除済み／取得不能・差分参照",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/docs/work-history/cases/pr-318.md"
+    }
+  ],
+  "curated": {},
+  "implementation": "変更差分を取得。実装の受入完了は未認定",
+  "verification": "Actionsの成否は実行単位の事実。製品の受入検証とは別",
+  "production": "未確認（main統合／Vercelプレビューから推定しない）",
+  "remaining": "受入条件・未解決事項をPR本文、レビュー、台帳と照合",
+  "next": "類似コード・既存結論を確認し、未解決条件だけを次の作業にする",
+  "fingerprint": "1c04d86c4ad172a34f503e4d8e32e1b087e7a9eed42787ef27fe36c9a873a8df",
+  "ci_digest": "fb9f265293220a936af6ab972189d36b1f86d187bc6816f0252348341321ea1a",
+  "collected_at": "2026-11-28T04:19:28.623456+00:00",
+  "decisions": [
+    {
+      "kind": "test",
+      "title": "starts at the first available image when a detailed forecast has no +5 slot",
+      "condition": "starts at the first available image when a detailed forecast has no +5 slot",
+      "behavior": "return frames.findIndex(frame => frame.basetime && !failedUrls?.has(",
+      "verification": "テストの期待値: expect(firstPlayableRadarFrame(slots)).toBe(1); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.ts#L13",
+        "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.test.ts#L16"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "keeps playback available if only a later image can be played",
+      "condition": "keeps playback available if only a later image can be played",
+      "behavior": "return frames.findIndex(frame => frame.basetime && !failedUrls?.has(",
+      "verification": "テストの期待値: expect(firstPlayableRadarFrame(slots, failed)).toBe(5); ／ expect(firstPlayableRadarFrame(slots, failed)).toBe(-1); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.ts#L13",
+        "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.test.ts#L20"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "disallows playback with no available images",
+      "condition": "disallows playback with no available images",
+      "behavior": "return frames.findIndex(frame => frame.basetime && !failedUrls?.has(",
+      "verification": "テストの期待値: expect(firstPlayableRadarFrame(slots.slice(0, 1))).toBe(-1); ／ expect(firstPlayableRadarFrame([])).toBe(-1); ／ expect(result.map(frame => frame.validTime)).toEqual(frames.slice(Math.min(hits[0], 1), Math.min(hits[0], 1) + 5).map(frame => frame.validTime)); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.ts#L13",
+        "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.test.ts#L28"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "keeps an absent timestamp and an uncovered tile as unavailable slots",
+      "condition": "keeps an absent timestamp and an uncovered tile as unavailable slots",
+      "behavior": "if (!first || !anchor?.radarTile) return []; ／ return Array.from({ length: 5 }, (_, index) => { ／ return { validTime, basetime, tile };",
+      "verification": "テストの期待値: expect(result).toHaveLength(5); ／ expect(result[1].validTime).toBe(\"20261124091000\"); ／ expect(result.slice(1, 3).map(frame => frame.basetime)).toEqual([undefined, undefined]); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.ts#L21",
+        "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.test.ts#L57"
+      ]
+    },
+    {
+      "kind": "test",
+      "title": "uses the snapshot base for available legacy frames",
+      "condition": "uses the snapshot base for available legacy frames",
+      "behavior": "if (!first || !anchor?.radarTile) return []; ／ return Array.from({ length: 5 }, (_, index) => { ／ return { validTime, basetime, tile };",
+      "verification": "テストの期待値: expect(forecastRadarPlayback(frames, \"13101\", base).map(frame => frame.basetime)).toEqual(Array(5).fill(base)); ／ 実行証拠: 個別の実行結果は未確認",
+      "remaining": "呼び出し元・本番採用・実機を確認",
+      "links": [
+        "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.ts#L21",
+        "https://github.com/miyazaki1016/emergencyalert/blob/a8752fed8e89904111f3344c3e17d2612c7fd000/lib/weather/rain/nationalForecastRadar.test.ts#L67"
+      ]
+    }
+  ]
+}
