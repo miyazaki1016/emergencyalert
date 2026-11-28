@@ -340,3 +340,6 @@ main app/api/rain/route.ts 48c1b39c9d36f73256468c78457faa910da13adc にexpectedF
 
 ### 現行実装照合 39：#98 画像保存方式の継承と差異（2026-11-28）
 main supabase/functions/archive-rain/index.ts 5d0a28de1146b38d403362923618240f0cb6fc3a はcaptureAreaのcrop_png/availability_maskをbyteaでrain_evaluation_imagesへupsert、評価ID/種類/base/valid一意、期限、probe SHA256往復確認、rain_image_storage_bytesと32MiB予算。#98の必要領域保存思想は継承、人工zlib RGBA比較とは別方式。main JmaPublicImageProvider.ts 2bf5fec8f82ef108a6c6987915c2e5fcb1486d9e / readPixel.ts e53838e97f270efa11d83da55e40656bc7bdeabc はPNG画素読取、旧任意容量collectorの同等経路未確認。実画像容量・DB稼働・最新CI未確認。第38回保存再取得確認。#98終了保留、main本番変更なし。
+
+### 現行実装照合 40：#147 自動棚卸しの事実スナップショット（2026-11-28）
+#147 HEAD 5f677924604d67e3578d8ee1dfed30764f1f67dc は自動生成事実のみ、2変更パス。DEVELOPMENT_OPERATIONS_INDEX.md 15ab9ed81a77f81906b7129eab58a1514ed5d0a1→main fefb5415722412e8a008a69a38feac5e42be364a、A-01〜06照合索引・人の状態判断と自動事実の分離は一致、Open PR表は観測時点差（#62等）。DEVELOPMENT_LEDGER.md 34dd813515231dba36054de7a4cb735987a0c5b5→main 06814304b573140cf6f3badd01f5568fa27d85f8、冒頭とJASPIC/#250/#209記録一致、全文差分未照合。古い事実表を現行へ上書きしない。独立機能PRではなく履歴スナップショット、終了候補は全文差分と全体保全後。第39回保存再取得確認。最新CI未確認、main本番変更なし。
