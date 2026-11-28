@@ -9,7 +9,9 @@
 - [Issue #338](https://github.com/miyazaki1016/emergencyalert/issues/338)、[着手前照合合格](https://github.com/miyazaki1016/emergencyalert/actions/runs/46164373856)。11/27は広島21件中20件SENT、1件PREPARED。11/28は古いキューを検出して安全停止。
 - 初回定時関数は新Vercel用Vault名、継続scannerは旧Vault名だった。旧認証による非送信previewはHTTP401（request 51847）。既存のscanner・定時関数の参照を新Vault名に揃える。20件分割、23時間制限、UNKNOWN停止、起動1回、完了通知の冪等性は維持。
 - 旧・新トークンが共存する0/20/34/50/100件のSQL試験で全起動の認証を照合し、新トークン欠落時に旧へ戻らず停止する回帰試験を追加。CI成功・バックアップ・本番適用・復旧送信の結果はIssueへ記録する。
-- 復旧時は結果不明を自動再送しない。送信開始後の台帳・baseline過去版上書きは禁止。先に11/27 PREPARED1件を再開し、その後に両県差分を再評価する。
+- 復旧完了：今回広島1件・滋賀0件を追加送信。11/27累計は広島21・滋賀0、両県とも失敗/不明/未送信0。復旧後preview51850で新規/更新差分0、隔離0。Gmail受付・SENTを確認、配信先の受信は未確認。[最終証拠](https://github.com/miyazaki1016/emergencyalert/issues/338#issuecomment-7242247676)。
+- 完了通知はcompletion:2026-11-27の1行・1試行、Resend受付と管理者Gmail INBOXの1通到着を確認。main `5c07b43370afd5760b4627ae2c7b6fa4ad20f0b3`、[CI](https://github.com/miyazaki1016/emergencyalert/actions/runs/46164917198)・[SQL](https://github.com/miyazaki1016/emergencyalert/actions/runs/46164917277)成功。本番migration `jaspic_continuation_current_credential_338` 適用済み。次回定時の自動継続実績は運用観測で確認する。
+- 送信開始後の台帳・baselineの過去版上書きは禁止。バックアップは `jaspic_backup_20261129_continuation`。切戻しは保存済み関数定義に限定し、送信済み/結果不明台帳を保持する。
 
 ## JASPIC DB保存タイムアウトの復旧（2026-11-26）
 
@@ -94,6 +96,55 @@
         "device": {
           "status": "unconfirmed",
           "evidence": []
+        }
+      }
+    },
+    {
+      "issue": 338,
+      "goal": "JASPIC移設後の分割自動継続を修復し残件と後続差分を安全復旧",
+      "status": "complete",
+      "updated": "2026-11-29",
+      "blocked_by": [],
+      "next": "次回定時実行の実台帳を運用観測する。未送信・不明の残件はなし。",
+      "completion": "最新CI・SQL成功、本番適用、PREPARED1件送信、後続差分0、完了通知1通受信",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/issues/338#issuecomment-7242247676",
+        "https://github.com/miyazaki1016/emergencyalert/pull/339"
+      ],
+      "stages": {
+        "implementation": {
+          "status": "passed",
+          "evidence": [
+            "https://github.com/miyazaki1016/emergencyalert/pull/339"
+          ]
+        },
+        "verification": {
+          "status": "passed",
+          "pr": 339,
+          "head_sha": "1803b7b08f2e94b0543756da01cefa99af494799",
+          "evidence": [
+            "https://github.com/miyazaki1016/emergencyalert/actions/runs/46164742175",
+            "https://github.com/miyazaki1016/emergencyalert/actions/runs/46164742144"
+          ]
+        },
+        "main": {
+          "status": "passed",
+          "evidence": [
+            "https://github.com/miyazaki1016/emergencyalert/commit/5c07b43370afd5760b4627ae2c7b6fa4ad20f0b3"
+          ]
+        },
+        "production": {
+          "status": "passed",
+          "evidence": [
+            "https://github.com/miyazaki1016/emergencyalert/issues/338#issuecomment-7242247676"
+          ]
+        },
+        "device": {
+          "status": "not_applicable",
+          "evidence": [
+            "https://github.com/miyazaki1016/emergencyalert/issues/338#issuecomment-7242247676"
+          ],
+          "reason": "DB関数とバックエンド復旧。実機UI変更なし。Gmail APIで管理者INBOX受信を確認。"
         }
       }
     }
@@ -401,4 +452,5 @@
 | #335 | さきどりトップの「雨の街」背景を見やすくする | merged | `55b43d5d9ec3bd44feb94dccf9401598c2220395` | 2026-11-28T15:58:12Z |
 | #337 | 全国地図の時刻操作をスライダーに集約する | merged | `c5cc877df2f414acb1c5d815a255b4984887436d` | 2026-11-28T16:27:12Z |
 | #339 | fix: JASPIC分割継続の認証を移設後本番へ揃える | merged | `1803b7b08f2e94b0543756da01cefa99af494799` | 2026-11-28T16:26:42Z |
+| #340 | docs: JASPIC復旧・21件完了通知の受信結果を台帳へ保存 | merged | `a4b03813b64a45558270d23d051057d5ba98eb3f` | 2026-11-28T16:29:11Z |
 <!-- INVENTORY_FACTS_END -->
