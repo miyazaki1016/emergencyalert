@@ -209,3 +209,6 @@ GitHub検索 is:pr is:open、作成順昇順、上限100で39件取得。初回2
 
 ### 現行実装照合 1：起動基盤 #276（2026-11-28）
 mainの `.github/workflows/my-rain-watch-schedule.yml` blob 464e5bb63fc82b3490abbab25be49e9e302d07c1 と `.github/workflows/national-heavy-rain-schedule.yml` blob 82f7a7290b1d5b52928e8749a89fc67fff406c8e を取得。両方schedule残存、workflow_dispatchあり、RAIN_ACTIONS_TRIGGER_SOURCE=cloudflareの場合schedule job抑止条件あり。#276のschedule削除自体は未反映、目的の二重起動抑止は条件付き実装。部分実装・判断保留。実変数、Cloudflare稼働、運用意図、最新preflightは未確認。終了・マージ禁止のまま担当データ通知へ確認候補。全国workflowにはN03/LRPM cache、prepare-national-rain-inputs.ts、national-heavy-rain-scan.ts、JMA_Z10_PIXEL_MASK_DIRの接続も確認。#217/242/243/245/254の詳細同等性は次工程。main全体SHA固定なし、blob単位の観測。
+
+### 現行実装照合 2：LRPM #242/#243/#254（2026-11-28）
+mainの lib/weather/rain/lightRainPixelMasks.ts blob f9f388c47a2a538a7b932594ecc56d4684b15962 にLRPM形式・参照/高速生成・encode/decode・照合関数あり。scripts/prepare-national-rain-inputs.ts blob 814795233c9597a5b327fd536d9db462c3f9b1bb に版固定archive SHA256・47県準備。scripts/national-heavy-rain-scan.ts blob b4465ce076c77729623bd4d0dd9e5061a9fc4b69 にLRPM loader/照合接続・自治体数整合性確認。#242/#243の主要機能は現行コードに存在、完全同等性・独自資産未確認。#254の配置ツールと現行取得処理は別物で終了判断保留。旧 scripts/light-rain-pixel-mask-generate.ts はmain取得404、移動・代替・原本保存要確認。後続テスト取得は404で処理中断したため未確認。main全体SHA固定なし、blob単位。実行・本番・終了操作なし。
