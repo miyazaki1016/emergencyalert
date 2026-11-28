@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { forecastRadarSources, type RadarPlaybackFrame } from "../../lib/weather/rain/nationalForecastRadar";
+import { firstPlayableRadarFrame, forecastRadarSources, type RadarPlaybackFrame } from "../../lib/weather/rain/nationalForecastRadar";
 import { forecastTime } from "../../lib/weather/rain/nationalForecastSnapshot";
 import styles from "./national-heavy-rain-forecast.module.css";
 
@@ -12,24 +12,29 @@ const formatTime = new Intl.DateTimeFormat("ja-JP", {
 const timeLabel = (value: string) => formatTime.format(forecastTime(value));
 
 export default function RadarPlayer({ frames, blocky }: { frames: RadarPlaybackFrame[]; blocky: boolean }) {
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(() => Math.max(0, firstPlayableRadarFrame(frames)));
   const [playing, setPlaying] = useState(false);
   const [loaded, setLoaded] = useState("");
-  const [failed, setFailed] = useState("");
+  const [failed, setFailed] = useState<ReadonlySet<string>>(() => new Set());
   const [mapFailed, setMapFailed] = useState(false);
   const last = frames.length - 1;
-  const { basetime, validTime, tile } = frames[Math.min(index, last)];
-  const urls = basetime ? forecastRadarSources(basetime, validTime, tile) : undefined;
+  const frame = frames[Math.min(index, last)];
+  const urls = frame?.basetime ? forecastRadarSources(frame.basetime, frame.validTime, frame.tile) : undefined;
   const rainUrl = urls?.rain;
+  const unavailable = !rainUrl || failed.has(rainUrl);
+  const canPlay = firstPlayableRadarFrame(frames, failed) >= 0;
+  const isPlaying = playing && canPlay;
   useEffect(() => {
-    if (!playing || last < 1 || !rainUrl || loaded !== rainUrl || failed === rainUrl) return;
+    if (!isPlaying || (!unavailable && loaded !== rainUrl)) return;
     const timer = window.setTimeout(() => {
-      const next = (index + 1) % (last + 1);
-      setIndex(next);
-      if (!frames[next].basetime) setPlaying(false);
+      if (last === 0) setPlaying(false);
+      else setIndex((index + 1) % (last + 1));
     }, 1100);
     return () => window.clearTimeout(timer);
-  }, [playing, last, loaded, failed, rainUrl, index, frames]);
+  }, [isPlaying, last, loaded, unavailable, rainUrl, index]);
+
+  if (!frame) return <p>再生できる予報画像はありません。</p>;
+  const label = timeLabel(frame.validTime);
 
   return (
     <div>
@@ -37,20 +42,20 @@ export default function RadarPlayer({ frames, blocky }: { frames: RadarPlaybackF
         {/* Fixed matching z10 tiles. Ordinary images avoid browser-side CORS reads. */}
         {/* eslint-disable @next/next/no-img-element */}
         {urls && <img key={urls.background} src={urls.background} alt="" width={256} height={256} onError={() => setMapFailed(true)} />}
-        {urls && <img key={urls.rain} src={urls.rain} alt="" width={256} height={256}
+        {urls && !unavailable && <img key={urls.rain} src={urls.rain} alt="" width={256} height={256}
           className={blocky ? styles.blocky : undefined} onLoad={() => setLoaded(urls.rain)}
-          onError={() => { setFailed(urls.rain); setPlaying(false); }} />}
+          onError={() => setFailed(previous => new Set(previous).add(urls.rain))} />}
         {/* eslint-enable @next/next/no-img-element */}
-        <time className={styles.mapTime}>{timeLabel(validTime)} 予報（{basetime ? `${timeLabel(basetime)}基準` : "未取得"}）</time>
+        <time className={styles.mapTime}>{label} 予報（{!unavailable && frame.basetime ? `${timeLabel(frame.basetime)}基準` : "未取得"}）</time>
         <span className={styles.mapCredit}>気象庁・地理院タイル</span>
       </div>
-      {(!urls || mapFailed || failed === rainUrl) && <p role="status">一部の地図・雨雲画像を取得できません。</p>}
+      {(unavailable || mapFailed) && <p role="status">一部の地図・雨雲画像を取得できません。</p>}
       <div className={styles.controls}>
-        <button type="button" disabled={last < 1 || !rainUrl || failed === rainUrl} onClick={() => setPlaying(value => !value)}>
-          {playing ? "一時停止" : "再生"}
+        <button type="button" disabled={!canPlay} onClick={() => setPlaying(value => !value)}>
+          {isPlaying ? "一時停止" : "再生"}
         </button>
         {last > 0 && <input className={styles.radarSlider} type="range"
-          aria-label="雨雲の予報時刻を選択" aria-valuetext={`${timeLabel(validTime)}${basetime ? "" : "（未取得）"}`}
+          aria-label="雨雲の予報時刻を選択" aria-valuetext={`${label}${unavailable ? "（未取得）" : ""}`}
           min={0} max={last} step={1} value={index}
           onChange={event => { setPlaying(false); setIndex(event.currentTarget.valueAsNumber); }} />}
         <button type="button" aria-label="前の予報時刻" disabled={last < 1 || index === 0}

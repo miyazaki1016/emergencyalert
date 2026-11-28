@@ -1,10 +1,35 @@
 import { describe, expect, it } from "vitest";
-import { forecastRadarPlayback } from "./nationalForecastRadar";
+import { firstPlayableRadarFrame, forecastRadarPlayback, forecastRadarSources } from "./nationalForecastRadar";
 import type { NationalForecastFrame } from "./nationalForecastSnapshot";
 
 const tile = { x: 860, y: 416 };
 const base = "20261124090000";
 const older = "20261124085500";
+
+describe("firstPlayableRadarFrame", () => {
+  const slots = [5, 10, 15, 20, 25, 30].map(minutes => ({
+    validTime: `2026112409${String(minutes).padStart(2, "0")}00`,
+    basetime: minutes === 5 ? undefined : base,
+    tile,
+  }));
+
+  it("starts at the first available image when a detailed forecast has no +5 slot", () => {
+    expect(firstPlayableRadarFrame(slots)).toBe(1);
+  });
+
+  it("keeps playback available if only a later image can be played", () => {
+    const failed = new Set(slots.slice(1, -1).map(frame =>
+      forecastRadarSources(base, frame.validTime, tile).rain));
+    expect(firstPlayableRadarFrame(slots, failed)).toBe(5);
+    failed.add(forecastRadarSources(base, slots[5].validTime, tile).rain);
+    expect(firstPlayableRadarFrame(slots, failed)).toBe(-1);
+  });
+
+  it("disallows playback with no available images", () => {
+    expect(firstPlayableRadarFrame(slots.slice(0, 1))).toBe(-1);
+    expect(firstPlayableRadarFrame([])).toBe(-1);
+  });
+});
 
 function fixtures(offset: number, hits: number[]): NationalForecastFrame[] {
   return Array.from({ length: 6 }, (_, i) => ({
