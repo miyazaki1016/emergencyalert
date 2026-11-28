@@ -59,7 +59,7 @@ create or replace function jaspic_monitor.dispatch_scheduled_1800() returns void
 language plpgsql set search_path='' as $$
 declare dispatch_token text;
 begin
- select decrypted_secret into dispatch_token from vault.decrypted_secrets where name='jaspic_production_dispatch_token';
+ select decrypted_secret into dispatch_token from vault.decrypted_secrets where name='jaspic_production_dispatch_token_new_vercel';
  if nullif(dispatch_token,'') is null then raise exception 'JASPIC dispatch credential missing'; end if;
  perform net.http_post(url:='https://emergencyalert.news/jaspic/dispatch',
   headers:=jsonb_build_object('Content-Type','application/json','Authorization','Bearer '||dispatch_token,

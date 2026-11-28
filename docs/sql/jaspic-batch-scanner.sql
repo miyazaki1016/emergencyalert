@@ -71,7 +71,7 @@ begin
      if req.requested_at>p_now-interval '10 minutes' then continue; end if;
     elsif not exists(select 1 from public.jaspic_deliveries
        where status in ('PREPARED','SENDING','UNKNOWN','FAILED') and initial_run_id is distinct from r.id) then
-     select decrypted_secret into dispatch_token from vault.decrypted_secrets where name='jaspic_production_dispatch_token';
+     select decrypted_secret into dispatch_token from vault.decrypted_secrets where name='jaspic_production_dispatch_token_new_vercel';
      if nullif(dispatch_token,'') is not null then
       request_id=net.http_post(url:='https://emergencyalert.news/jaspic/dispatch',
        headers:=jsonb_build_object('Content-Type','application/json','Authorization','Bearer '||dispatch_token,'X-JASPIC-Resume-Run',last_run.id::text),

@@ -1297,22 +1297,31 @@
         "https://github.com/miyazaki1016/emergencyalert/blob/feat/jaspic-completion-mail/docs/research/JASPIC_COMPLETION_NOTIFICATION_20261110.md"
       ]
     },
-      "248": {
-        "summary": "JASPICの18時配信を20件ずつ自動継続し、Google認証状態と県別集計を完了メールに追加",
-        "conclusion": "既存の配信台帳とResend通知を再利用。日次の処理に限るSupabaseジョブで継続と完了通知を行う。0・20・34・50・100件、途中停止、通知再試行を模擬環境で検証。本番受入は別途。",
-        "evidence": [
-          "https://github.com/miyazaki1016/emergencyalert/pull/248",
-          "https://github.com/miyazaki1016/emergencyalert/pull/248/checks"
-        ]
-      },
-      "251": {
-        "summary": "全国30mm/h大雨予報とMYアメふる監視の5分起動をGitHub Actionsへ移行",
-        "conclusion": "PR #243のLRPM・全画素走査と現行watch-rainを再利用。全国予報は6フレーム完走と基準時刻から10分未満を保存条件とする。30mm/h閾値と最高階級のローカル検証、保存SQL、監視呼出しの模擬検証を実施。本番相当の複数枠と通知動作の受入は残課題。",
-        "evidence": [
-          "https://github.com/miyazaki1016/emergencyalert/issues/250",
-          "https://github.com/miyazaki1016/emergencyalert/pull/251",
-          "https://github.com/miyazaki1016/emergencyalert/blob/feat/rain-actions-schedule-250/docs/NATIONAL_RAIN_ACTIONS_250.md"
-        ]
-      }
+    "248": {
+      "summary": "JASPICの18時配信を20件ずつ自動継続し、Google認証状態と県別集計を完了メールに追加",
+      "conclusion": "既存の配信台帳とResend通知を再利用。日次の処理に限るSupabaseジョブで継続と完了通知を行う。0・20・34・50・100件、途中停止、通知再試行を模擬環境で検証。本番受入は別途。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/pull/248",
+        "https://github.com/miyazaki1016/emergencyalert/pull/248/checks"
+      ]
+    },
+    "251": {
+      "summary": "全国30mm/h大雨予報とMYアメふる監視の5分起動をGitHub Actionsへ移行",
+      "conclusion": "PR #243のLRPM・全画素走査と現行watch-rainを再利用。全国予報は6フレーム完走と基準時刻から10分未満を保存条件とする。30mm/h閾値と最高階級のローカル検証、保存SQL、監視呼出しの模擬検証を実施。本番相当の複数枠と通知動作の受入は残課題。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/issues/250",
+        "https://github.com/miyazaki1016/emergencyalert/pull/251",
+        "https://github.com/miyazaki1016/emergencyalert/blob/feat/rain-actions-schedule-250/docs/NATIONAL_RAIN_ACTIONS_250.md"
+      ]
+    },
+    "339": {
+      "summary": "JASPIC分割継続が移設前トークンを参照して21件目で止まる問題を修復",
+      "conclusion": "2026-11-27定時は広島21件中20件SENT/1件PREPARED、11/28は旧キュー保護で停止。定時wrapperは新Vercel用、継続scannerだけ旧Vault名。旧認証の非送信previewで401、新認証で200を確認。既存の0/20/34/50/100件分割・途中停止・重複防止試験へ認証照合を加え、新認証欠落時に旧へ戻らない条件を検証する。最新CI・本番適用・実送信の確定結果はIssue #338の証拠で別途確認。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/issues/338",
+        "https://github.com/miyazaki1016/emergencyalert/pull/339",
+        "https://github.com/miyazaki1016/emergencyalert/pull/339/checks"
+      ]
+    }
   }
 }

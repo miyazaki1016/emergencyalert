@@ -7,6 +7,9 @@ select jaspic_monitor.dispatch_scheduled_1800();
 do $$begin
  if not exists(select 1 from net.requests where headers->>'X-JASPIC-Trigger'='scheduled-1800')
  then raise exception 'scheduled invocation marker missing'; end if;
+ if exists(select 1 from net.requests where url like '%/dispatch'
+   and headers->>'Authorization' is distinct from 'Bearer current-test-only')
+ then raise exception 'scheduled invocation used the legacy credential'; end if;
 end $$;
 
 do $$
@@ -52,6 +55,9 @@ begin
       or exists(select 1 from jaspic_monitor.alerts) then
     raise exception 'duplicate continuation or premature notification for %',size;
    end if;
+   if exists(select 1 from net.requests where url like '%/dispatch'
+     and headers->>'Authorization' is distinct from 'Bearer current-test-only')
+   then raise exception 'continuation used the legacy credential for %',size; end if;
    child=gen_random_uuid();
    insert into public.jaspic_runs values(child,at_time+step*interval '1 minute',null,'RUNNING',null,null);
    update public.jaspic_deliveries set run_id=child where status='PREPARED';
@@ -123,4 +129,34 @@ do $$begin
  if has_function_privilege('anon','jaspic_monitor.dispatch_scheduled_1800()','EXECUTE')
    or has_function_privilege('service_role','jaspic_monitor.start_scheduled_delivery_worker()','EXECUTE')
  then raise exception 'scheduler privilege leak'; end if;
+end $$;
+
+-- Missing current credential must never fall back to the still-present legacy token.
+do $$
+declare root uuid; at_time timestamptz; before_count bigint;
+begin
+ truncate jaspic_monitor.alerts,jaspic_monitor.batch_requests,net.requests,net._http_response,
+  public.jaspic_deliveries,public.jaspic_runs;
+ delete from vault.decrypted_secrets where name='jaspic_production_dispatch_token_new_vercel';
+ root=gen_random_uuid();
+ at_time=((now() at time zone 'Asia/Tokyo')::date-1+time '18:00') at time zone 'Asia/Tokyo';
+ insert into public.jaspic_runs values(root,at_time,at_time+interval '1 minute','SUCCEEDED',
+  jsonb_build_object('scheduledDay',to_char(at_time at time zone 'Asia/Tokyo','YYYY-MM-DD'),
+    'sent',jsonb_build_object('hiroshima',20,'shiga',0),'remainingPrepared',1),null);
+ insert into public.jaspic_deliveries(province,status,gmail_message_id,run_id)
+ select 'hiroshima',case when n<=20 then 'SENT' else 'PREPARED' end,
+  case when n<=20 then n::text end,root from generate_series(1,21)n;
+ perform jaspic_monitor.run_scheduled_delivery(root,at_time+interval '2 minutes');
+ if exists(select 1 from net.requests where url like '%/dispatch')
+   or not exists(select 1 from jaspic_monitor.alerts where code='DISPATCH_BATCH_STOPPED')
+   or (select count(*) from public.jaspic_deliveries where status='PREPARED')<>1
+ then raise exception 'missing current credential did not stop safely'; end if;
+ begin
+  perform jaspic_monitor.dispatch_scheduled_1800();
+  raise exception 'missing scheduled credential accepted';
+ exception when raise_exception then
+  if sqlerrm<>'JASPIC dispatch credential missing' then raise; end if;
+ end;
+ if exists(select 1 from net.requests where url like '%/dispatch')
+ then raise exception 'scheduled dispatch fell back to legacy token'; end if;
 end $$;

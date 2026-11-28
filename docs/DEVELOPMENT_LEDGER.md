@@ -4,6 +4,13 @@
 
 **案件の状態・担当・次の一手を更新する場所はここ。** 状態を変える際は、確認日・PRやブランチ・該当ファイル・検証証拠を残す。main、本番、実機は別々に判定する。
 
+## JASPIC分割継続の移設後認証修復（2026-11-29）
+
+- [Issue #338](https://github.com/miyazaki1016/emergencyalert/issues/338)、[着手前照合合格](https://github.com/miyazaki1016/emergencyalert/actions/runs/46164373856)。11/27は広島21件中20件SENT、1件PREPARED。11/28は古いキューを検出して安全停止。
+- 初回定時関数は新Vercel用Vault名、継続scannerは旧Vault名だった。旧認証による非送信previewはHTTP401（request 51847）。既存のscanner・定時関数の参照を新Vault名に揃える。20件分割、23時間制限、UNKNOWN停止、起動1回、完了通知の冪等性は維持。
+- 旧・新トークンが共存する0/20/34/50/100件のSQL試験で全起動の認証を照合し、新トークン欠落時に旧へ戻らず停止する回帰試験を追加。CI成功・バックアップ・本番適用・復旧送信の結果はIssueへ記録する。
+- 復旧時は結果不明を自動再送しない。送信開始後の台帳・baseline過去版上書きは禁止。先に11/27 PREPARED1件を再開し、その後に両県差分を再評価する。
+
 ## JASPIC DB保存タイムアウトの復旧（2026-11-26）
 
 - [Issue #308](https://github.com/miyazaki1016/emergencyalert/issues/308)、[PR #309](https://github.com/miyazaki1016/emergencyalert/pull/309)。18時run `88dee18e-970f-4180-a453-e4c9ba8a3e20` は認証正常後prepare-deliveryで失敗。PostgreSQL/PostgRESTログでSQLSTATE 57014、statement_timeout 8秒を確認。
