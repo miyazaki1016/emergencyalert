@@ -298,3 +298,6 @@ main app/api/rain/route.ts blob 48c1b39c9d36f73256468c78457faa910da13adc はinte
 
 ### 現行実装照合 24：未通知研究の収集制約（2026-11-28）
 main supabase/migrations/20261029023607_replay_area_images.sql blob b5fe2d374a6cbd2466d5d7e728a0bfdcc79fd926 の69–71行にaccepted_count>0と33554432 bytes上限、service_role限定。archive-rain/index.ts blob 5d0a28de1146b38d403362923618240f0cb6fc3a はbatch_size2、40秒/6試行制限、expires_at削除、run30日削除。watch-rain/index.ts blob 42b2dddff7e91e8a468fc404f11fc0f52296a32e は診断insert結果未検査、shouldNotify時のみsnapshot、NO_SUBSCRIPTIONS等配信状態を区別。#195当時の収集制約がこれらの現行同パスに残る。後続SQLによる上書き・別収集経路・稼働DBは未照合のため未解消確定ではない。VISION-018研究再開候補、容量拡張や個人データ収集は承認なしに行わない。第23回保存再取得確認。次は後続migration・評価代替経路。main・本番・終了操作なし。
+
+### 現行実装照合 25：後続収集経路の検索と検証状態（2026-11-28）
+第24回HEAD b2156ddf68cb785726bc056061827525be375d6e と保存内容を再取得確認。preflight 46156906019、inventory 46156905978、classification 46156906007 success、CI 46156906003 in_progress。default branchコード検索 claim_rain_image_jobs は既知の原本も返さず0件のため網羅性不足。PR検索 NO_SUBSCRIPTIONS は#195のみ。後続migration不存在の証明には使わない。研究課題は判断保留、次はmigration一覧取得可能性と別評価経路、他PR照合へ移行。main・本番・終了操作なし。
