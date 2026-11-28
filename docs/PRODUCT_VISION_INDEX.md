@@ -215,3 +215,10 @@ mainの lib/weather/rain/lightRainPixelMasks.ts blob f9f388c47a2a538a7b932594ecc
 
 ### 現行実装照合 3：LRPM回帰テストと研究ツール（2026-11-28）
 main lib/weather/rain/lightRainPixelMasks.test.ts blob b3345f3ae5df7d74ce0bc810bd560ac523dd15f1 に全画素一致、穴、離島・境界、変化フレーム、binary破損、参照高速一致、欠損fail-closed、30mm奇数画素・階級テストあり。lib/weather/rain/lightRainPixelMaskLoader.ts blob efe4e7bda2ace0d4dba91a20b3779d4611119237 に形式/版/zoom/47県/件数/タイル座標/bytes/SHA検証あり。#242/#243主要機能と回帰テスト継承の根拠を追加。scripts/light-rain-pixel-mask-parity.ts と scripts/light-rain-pixel-mask-benchmark.ts はmain旧パス404（生成器も前回404）。移動・代替未確認、旧PR原本と実測資料の保存先確認が必要。テスト実行・本番検証・完全同等性は未確認。終了保留。
+
+### 現行実装照合 4：LRPM独立研究資産の原本確保（2026-11-28）
+#242固定HEAD c858740d4a846b6bf5da3306c841cd96a4123c69 から3原本を取得確認。再利用索引：
+- [生成器](https://github.com/miyazaki1016/emergencyalert/blob/c858740d4a846b6bf5da3306c841cd96a4123c69/scripts/light-rain-pixel-mask-generate.ts) blob 817b331432e8310a26b2fef7984af69f52e627c0、N03読取のみ、ローカル資材生成・shard・再開・manifest統合。
+- [一致検証器](https://github.com/miyazaki1016/emergencyalert/blob/c858740d4a846b6bf5da3306c841cd96a4123c69/scripts/light-rain-pixel-mask-parity.ts) blob 28700e3010903ccab8ffbeccb6d046671ae27955、実N03の参照/高速mask byte一致、差異時exit1。
+- [ベンチマーク](https://github.com/miyazaki1016/emergencyalert/blob/c858740d4a846b6bf5da3306c841cd96a4123c69/scripts/light-rain-pixel-mask-benchmark.ts) blob 9ed92106393ae0f1706051dc62d433927f868836、合成雨パターンと実N03で速度・自治体集合一致、cold/warm cache区別。
+原本所在と用途を記録。恒久保全（参照維持・必要なら別途承認済み保存先）と現行依存互換性、実測結果、移動先の網羅検索は未確認。原本コードの移植・実行・PR終了・branch削除なし。
