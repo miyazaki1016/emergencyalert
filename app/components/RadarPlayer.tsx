@@ -14,6 +14,7 @@ const timeLabel = (value: string) => formatTime.format(forecastTime(value));
 export default function RadarPlayer({ frames, blocky, autoPlay = false }: { frames: RadarPlaybackFrame[]; blocky: boolean; autoPlay?: boolean }) {
   const [index, setIndex] = useState(() => Math.max(0, firstPlayableRadarFrame(frames)));
   const [playing, setPlaying] = useState(() => autoPlay && firstPlayableRadarFrame(frames) >= 0);
+  const [finished, setFinished] = useState(false);
   const [loaded, setLoaded] = useState("");
   const [failed, setFailed] = useState<ReadonlySet<string>>(() => new Set());
   const [mapFailed, setMapFailed] = useState(false);
@@ -27,11 +28,14 @@ export default function RadarPlayer({ frames, blocky, autoPlay = false }: { fram
   useEffect(() => {
     if (!isPlaying || (!unavailable && loaded !== rainUrl)) return;
     const timer = window.setTimeout(() => {
-      if (last === 0) setPlaying(false);
+      if (last === 0 || (autoPlay && index >= last)) {
+        setPlaying(false);
+        if (autoPlay) setFinished(true);
+      }
       else setIndex((index + 1) % (last + 1));
     }, 1100);
     return () => window.clearTimeout(timer);
-  }, [isPlaying, last, loaded, unavailable, rainUrl, index]);
+  }, [isPlaying, last, loaded, unavailable, rainUrl, index, autoPlay]);
 
   if (!frame) return <p>再生できる予報画像はありません。</p>;
   const label = timeLabel(frame.validTime);
@@ -51,17 +55,23 @@ export default function RadarPlayer({ frames, blocky, autoPlay = false }: { fram
       </div>
       {(unavailable || mapFailed) && <p role="status">一部の地図・雨雲画像を取得できません。</p>}
       <div className={styles.controls}>
-        <button type="button" disabled={!canPlay} onClick={() => setPlaying(value => !value)}>
+        <button type="button" disabled={!canPlay} onClick={() => {
+          if (autoPlay && finished) {
+            setIndex(Math.max(0, firstPlayableRadarFrame(frames, failed)));
+            setFinished(false);
+            setPlaying(true);
+          } else setPlaying(value => !value);
+        }}>
           {isPlaying ? "一時停止" : "再生"}
         </button>
         {last > 0 && <input className={styles.radarSlider} type="range"
           aria-label="雨雲の予報時刻を選択" aria-valuetext={`${label}${unavailable ? "（未取得）" : ""}`}
           min={0} max={last} step={1} value={index}
-          onChange={event => { setPlaying(false); setIndex(event.currentTarget.valueAsNumber); }} />}
+          onChange={event => { setPlaying(false); setFinished(false); setIndex(event.currentTarget.valueAsNumber); }} />}
         <button type="button" aria-label="前の予報時刻" disabled={last < 1 || index === 0}
-          onClick={() => { setPlaying(false); setIndex(i => i - 1); }}>前へ</button>
+          onClick={() => { setPlaying(false); setFinished(false); setIndex(i => i - 1); }}>前へ</button>
         <button type="button" aria-label="次の予報時刻" disabled={last < 1 || index >= last}
-          onClick={() => { setPlaying(false); setIndex(i => i + 1); }}>次へ</button>
+          onClick={() => { setPlaying(false); setFinished(false); setIndex(i => i + 1); }}>次へ</button>
       </div>
     </div>
   );
