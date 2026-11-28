@@ -57,6 +57,7 @@
 | #276 | Cloudflare起動へ一本化：雨監視2ワークフローのGitHub scheduleを削除 | fix/cloudflare-only-rain-actions-trigger |
 | #290 | さきどり フロント担当の作業窓口 | ops/sakidori-frontend |
 | #291 | さきどり データ・通知担当の作業窓口 | ops/sakidori-data-notifications |
+| #325 | 大雨事案の未取得判定を自治体のタイル取得状況に合わせる (#324) | fix/rain-case-local-coverage-324 |
 
 全ブランチのmain差分と滞留候補はGitHub Actionsのdevelopment-inventory成果物を参照。
 既存案件ID・判断欄は変更しません。
