@@ -121,3 +121,6 @@ M-009の研究計画は作業ブランチの同名パスでは404だが、[初�
 
 ### 形態研究と後続シャドー比較の差分（2026-11-28）
 [PR #101](https://github.com/miyazaki1016/emergencyalert/pull/101) の [研究資料](https://github.com/miyazaki1016/emergencyalert/blob/main/docs/RAIN_AREA_SHADOW_20261029.md) を原本照合。250/500/1000m、占有率、連結成分、穴、最近接距離、欠測分離は後続研究に継承。2026-10-29時点でshadow-rain配備・実画像PROBE・定時実行成功の記録あり。ただし当時の実通知比較0件、中心レーダー実況を比較基準とし地上真値ではない。旧計画の2km、独立地上雨量計、無通知サンプルによる見逃し評価、全国・地域季節層別の達成証拠は今回未確認。現行の稼働や採用状況は別途確認。再研究では既存#101を再利用候補とし、未確認項目を新規実装済みと扱わない。
+
+### 黄色パレットの歴史資料と現行コードの差異（2026-11-28）
+M-008関連。mainの[PNG証拠資料](https://github.com/miyazaki1016/emergencyalert/blob/main/docs/PNG_PALETTE_EVIDENCE.md)冒頭は2026-09-23時点の20–30mm/h未解決を記載するが、旧総覧L104–113は10-23のコード解決を記録。今回mainのpngPalette.ts（blob 8548ac5dccf396a6cdf81196467bc413e46ead51）で#FAF500→20_TO_30、classifyPixel.ts（a19859d261119a3338446b777b2b274624935a11）で既知強度→RAIN、pngPalette.test.ts（a12468362860d55c2fbda14ad7149ea9643dce4f）で562画素の回帰テストを静的確認。旧資料の未解決を現在のコード未対応と誤認しない。今回の個別テスト実行・本番・実機Push・#FFF500の意味・公式の色差原因は未確認。資料冒頭への現況注記は別途検討し、原本を消さない。
