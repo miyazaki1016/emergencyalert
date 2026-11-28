@@ -4,7 +4,7 @@
 
 実装の存在、検証の成功、main統合、本番反映を別々に扱います。未確認を完成扱いしません。
 
-更新 (UTC): 2026-11-28T08:53:55.380705+00:00
+更新 (UTC): 2026-11-28T15:58:28.401205+00:00
 
 ## 全案件
 
@@ -51,9 +51,11 @@
 | [verify/supabase-vercel-cron-209](cases/branch-214503f4c56a6d5e.md) | 雨量・全国検知・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [research/rain-accuracy-baseline-20261109](cases/branch-22f64fc517bd98c8.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/jma-tile-publication-277](cases/branch-23703c81c69f2675.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [docs/good-things-sakidori-329](cases/branch-246e4cfe403c4013.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [design/lighter-rain-blue](cases/branch-2547eaf64b81bc09.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/rain-notification-phase1-20261026](cases/branch-25f899eac907a886.md) | 雨量・全国検知・通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [automation/ledger-facts-41477958167](cases/branch-2714dafd1fe20f53.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [docs/vision-continuity-327](cases/branch-2840ff2ac1e76be7.md) | 開発管理・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [chore-remove-push-test-ui](cases/branch-28cc10b2d6d01d4c.md) | 通知・配信・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/national-rain-cases-307](cases/branch-28ea85fa6e490e62.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/inventory-actions-read-permission-20261101](cases/branch-28fc3c410f8d2108.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -162,6 +164,7 @@
 | [fix/jaspic-supabase-trailing-slash-20261106](cases/branch-8c6a80e8f4c87a06.md) | 通知・配信・認証・安全性：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/feedback-observation-summary-20261022](cases/branch-8d4b5b57bc91e1f1.md) | 雨量・全国検知・通知・配信・開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/jaspic-google-identity-callback-20261106](cases/branch-8e34b82c3ff2a9ac.md) | 通知・配信・認証・安全性：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [docs/good-things-vision-329](cases/branch-8ecc4539d59f4f7c.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [chore-push-test-ui](cases/branch-91ead96821aaeff5.md) | 通知・配信・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [docs/test-case-reconciliation-20261101](cases/branch-9386e47050e9d8a9.md) | その他の開発：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/cloudflare-rain-cron-274](cases/branch-93b0152732d96cc4.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -189,6 +192,7 @@
 | [design/header-bg-cityrain-2026-11-27](cases/branch-aa03068761c4cdeb.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/jaspic-dispatch-dry-run-20261113](cases/branch-aa227dbec6e5a3d2.md) | 通知・配信：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/ledger-proposal-pr-automation-20261101](cases/branch-ac4d9f4766a37ec1.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [fix/national-scan-cycle-budget-332](cases/branch-ad9c5d7068a889a3.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [fix/rain-lab-restore-times-20261109](cases/branch-adfd5936a62983f3.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [research/jaspic-gmail-send-consent-20261106](cases/branch-ae94438b6e247b91.md) | 通知・配信・認証・安全性・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/delete-watch-target](cases/branch-aeef70603b294028.md) | 画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -247,6 +251,7 @@
 | [chore/development-inventory-automation-20261031](cases/branch-d92ca54cbab20357.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [automation/ledger-facts-41478448528](cases/branch-d94f48695e3a96be.md) | 開発管理：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/work-resume-rollout-20261112](cases/branch-da4ff3297fb6648a.md) | 開発管理・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
+| [fix/header-photo-334](cases/branch-daba2bc8fa5abd9b.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feature/push-registration-status-20261024](cases/branch-db53b568abce0bbd.md) | 通知・配信・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/rain-comparison-dashboard-20261029](cases/branch-dbcfae267568d52d.md) | 雨量・全国検知・開発管理・画面・表示：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
 | [feat/rain-case-observations-307](cases/branch-dd33132f5c223464.md) | 雨量・全国検知：mainとのソース差分を収録・関連PRを照合 | 未確認 | 未確認 |
@@ -478,7 +483,12 @@
 | [大雨事案に紐づくBluesky投稿計画とMP4添付を準備 (#317)](cases/pr-321.md) | 雨量・全国検知・ラウンジ・画面：雨量判定・予測・全国候補抽出に関する変更／ラウンジ・映像・画面演出に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [事案ページで先頭コマが未取得でもレーダーを再生できるようにする (#322)](cases/pr-323.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [大雨事案の未取得判定を自治体のタイル取得状況に合わせる (#324)](cases/pr-325.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [構想・思想の継承：旧総覧の移行照合台帳（第1段階）](cases/pr-328.md) | 開発管理：開発資産の把握・引継ぎ・レビューを支援する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
 | [Fix transparent JMA pixels blocking dry/ending states](cases/pr-33.md) | 雨量・全国検知・画面・表示：JMAの透明画素で晴れ・雨終了判定が止まる問題を修正 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
+| [構想研究：いいことのさきどり — 空・季節・暮らし](cases/pr-330.md) | その他の開発：変更対象ファイルに関する開発。具体的な目的は原文・差分を確認 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
+| [構想研究：いいことのさきどり — 空・季節・暮らしとLIVE JAPAN（Issue #329）](cases/pr-331.md) | その他の開発：変更対象ファイルに関する開発。具体的な目的は原文・差分を確認 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
+| [全国大雨スキャンで予算切れのタイルを次回へ先送りする (#332)](cases/pr-333.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | main祖先として未確認（squash・同等実装は別途照合） | 未確認 |
+| [さきどりトップの「雨の街」背景を見やすくする](cases/pr-335.md) | 雨量・全国検知：雨量判定・予測・全国候補抽出に関する変更 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Add forecast-frame rain diagnostics](cases/pr-34.md) | 雨量・全国検知：予測フレームの雨量診断を追加 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Fix dry forecast boundary at cron tick](cases/pr-35.md) | 雨量・全国検知：cron実行時刻の雨なし予測境界を修正 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
 | [Add today&#x27;s latest delivered alerts](cases/pr-36.md) | 画面・表示：本日配信済みの最新通知を表示 | mainに祖先コミットとして存在（機能受入・本番は別） | 未確認 |
@@ -585,7 +595,7 @@
 - app/dev/rain-lab/lab.module.css：[branch-22f64fc517bd98c8](cases/branch-22f64fc517bd98c8.md), [branch-62efc69d0291dcce](cases/branch-62efc69d0291dcce.md), [branch-dbcfae267568d52d](cases/branch-dbcfae267568d52d.md), [branch-dfd42da398610013](cases/branch-dfd42da398610013.md), [pr-102](cases/pr-102.md), [pr-103](cases/pr-103.md), [pr-175](cases/pr-175.md), [pr-176](cases/pr-176.md)
 - app/dev/rain-lab/page.tsx：[branch-dbcfae267568d52d](cases/branch-dbcfae267568d52d.md), [pr-102](cases/pr-102.md)
 - app/external-ai-review/page.tsx：[branch-31d6803113173639](cases/branch-31d6803113173639.md), [pr-97](cases/pr-97.md)
-- app/forecast-home.module.css：[branch-a650d8bfbd0015bf](cases/branch-a650d8bfbd0015bf.md), [branch-d5162b95174defec](cases/branch-d5162b95174defec.md), [branch-fd5202c6b3114feb](cases/branch-fd5202c6b3114feb.md), [pr-253](cases/pr-253.md), [pr-282](cases/pr-282.md), [pr-313](cases/pr-313.md)
+- app/forecast-home.module.css：[branch-a650d8bfbd0015bf](cases/branch-a650d8bfbd0015bf.md), [branch-d5162b95174defec](cases/branch-d5162b95174defec.md), [branch-daba2bc8fa5abd9b](cases/branch-daba2bc8fa5abd9b.md), [branch-fd5202c6b3114feb](cases/branch-fd5202c6b3114feb.md), [pr-253](cases/pr-253.md), [pr-282](cases/pr-282.md), [pr-313](cases/pr-313.md), [pr-335](cases/pr-335.md)
 - app/icon.tsx：[branch-d8037f3cde5d4713](cases/branch-d8037f3cde5d4713.md), [pr-3](cases/pr-3.md)
 - app/jaspic/dispatch/preview/route.ts：[branch-09bdbf4a9671c3f0](cases/branch-09bdbf4a9671c3f0.md), [branch-1a34f59f12c294d3](cases/branch-1a34f59f12c294d3.md), [branch-1d61765cd085a548](cases/branch-1d61765cd085a548.md), [branch-4f6a16d597900890](cases/branch-4f6a16d597900890.md), [branch-a606cdef1c84e53b](cases/branch-a606cdef1c84e53b.md), [branch-aa227dbec6e5a3d2](cases/branch-aa227dbec6e5a3d2.md), [pr-226](cases/pr-226.md), [pr-234](cases/pr-234.md), [pr-236](cases/pr-236.md), [pr-237](cases/pr-237.md), [pr-240](cases/pr-240.md)
 - app/jaspic/dispatch/route.ts：[branch-1a34f59f12c294d3](cases/branch-1a34f59f12c294d3.md), [branch-1d61765cd085a548](cases/branch-1d61765cd085a548.md), [branch-334cfb3f08d270ec](cases/branch-334cfb3f08d270ec.md), [branch-3caa7689f822f5c5](cases/branch-3caa7689f822f5c5.md), [branch-43a84b5ab5fae095](cases/branch-43a84b5ab5fae095.md), [branch-45a77a4b88927129](cases/branch-45a77a4b88927129.md), [branch-68a04500a5ab7038](cases/branch-68a04500a5ab7038.md), [branch-f7e70a5901d7838e](cases/branch-f7e70a5901d7838e.md), [pr-190](cases/pr-190.md), [pr-191](cases/pr-191.md), [pr-193](cases/pr-193.md), [pr-224](cases/pr-224.md), [pr-236](cases/pr-236.md), [pr-240](cases/pr-240.md), [pr-241](cases/pr-241.md), [pr-248](cases/pr-248.md)
@@ -742,6 +752,8 @@
 - lib/weather/rain/nationalForecastBlueskyTiles.ts：[branch-ec7f6a5ca74ddaea](cases/branch-ec7f6a5ca74ddaea.md), [pr-306](cases/pr-306.md)
 - lib/weather/rain/nationalForecastRadar.test.ts：[branch-2f39ba052e67a212](cases/branch-2f39ba052e67a212.md), [pr-300](cases/pr-300.md), [pr-323](cases/pr-323.md)
 - lib/weather/rain/nationalForecastRadar.ts：[branch-2f39ba052e67a212](cases/branch-2f39ba052e67a212.md), [pr-252](cases/pr-252.md), [pr-300](cases/pr-300.md), [pr-323](cases/pr-323.md)
+- lib/weather/rain/nationalForecastScanCycle.test.ts：[branch-ad9c5d7068a889a3](cases/branch-ad9c5d7068a889a3.md), [pr-333](cases/pr-333.md)
+- lib/weather/rain/nationalForecastScanCycle.ts：[branch-ad9c5d7068a889a3](cases/branch-ad9c5d7068a889a3.md), [pr-333](cases/pr-333.md)
 - lib/weather/rain/nationalForecastSnapshot.test.ts：[branch-3cc3b2f103fcdb49](cases/branch-3cc3b2f103fcdb49.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [branch-d47e9b0dcd4ebc9b](cases/branch-d47e9b0dcd4ebc9b.md), [pr-210](cases/pr-210.md), [pr-211](cases/pr-211.md), [pr-252](cases/pr-252.md), [pr-284](cases/pr-284.md)
 - lib/weather/rain/nationalForecastSnapshot.ts：[branch-3cc3b2f103fcdb49](cases/branch-3cc3b2f103fcdb49.md), [branch-82eb6ae5e3cdd506](cases/branch-82eb6ae5e3cdd506.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [branch-d47e9b0dcd4ebc9b](cases/branch-d47e9b0dcd4ebc9b.md), [pr-210](cases/pr-210.md), [pr-211](cases/pr-211.md), [pr-252](cases/pr-252.md), [pr-284](cases/pr-284.md), [pr-286](cases/pr-286.md)
 - lib/weather/rain/nationalForecastTiles.test.ts：[branch-82eb6ae5e3cdd506](cases/branch-82eb6ae5e3cdd506.md), [pr-286](cases/pr-286.md)
@@ -865,7 +877,7 @@
 - scripts/national-forecast-lowzoom-validation.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [pr-59](cases/pr-59.md)
 - scripts/national-forecast-refinement-zoom-proof.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [pr-59](cases/pr-59.md)
 - scripts/national-forecast-z4-screening-proof.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [pr-59](cases/pr-59.md)
-- scripts/national-heavy-rain-scan.ts：[branch-76d856e87cd7222d](cases/branch-76d856e87cd7222d.md), [branch-82eb6ae5e3cdd506](cases/branch-82eb6ae5e3cdd506.md), [pr-251](cases/pr-251.md), [pr-252](cases/pr-252.md), [pr-278](cases/pr-278.md), [pr-280](cases/pr-280.md), [pr-286](cases/pr-286.md)
+- scripts/national-heavy-rain-scan.ts：[branch-76d856e87cd7222d](cases/branch-76d856e87cd7222d.md), [branch-82eb6ae5e3cdd506](cases/branch-82eb6ae5e3cdd506.md), [branch-ad9c5d7068a889a3](cases/branch-ad9c5d7068a889a3.md), [pr-251](cases/pr-251.md), [pr-252](cases/pr-252.md), [pr-278](cases/pr-278.md), [pr-280](cases/pr-280.md), [pr-286](cases/pr-286.md), [pr-333](cases/pr-333.md)
 - scripts/national-light-rain-jma-proof.ts：[branch-12242ada665792be](cases/branch-12242ada665792be.md), [branch-214503f4c56a6d5e](cases/branch-214503f4c56a6d5e.md), [branch-2dd17474ef4e7083](cases/branch-2dd17474ef4e7083.md), [branch-349358bb4a595e5f](cases/branch-349358bb4a595e5f.md), [branch-451605c0e2751387](cases/branch-451605c0e2751387.md), [branch-7d28c1fe1dcbf427](cases/branch-7d28c1fe1dcbf427.md), [branch-b6e5605d0721ab6f](cases/branch-b6e5605d0721ab6f.md), [branch-f21e5c06f0afa189](cases/branch-f21e5c06f0afa189.md), [pr-217](cases/pr-217.md)
 - scripts/national-lowzoom-max-rank-proof.test.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [pr-59](cases/pr-59.md)
 - scripts/national-lowzoom-max-rank-proof.ts：[branch-2d0caa2b5330cf58](cases/branch-2d0caa2b5330cf58.md), [branch-377b0cfa46ba51e5](cases/branch-377b0cfa46ba51e5.md), [branch-64503a3847e876c9](cases/branch-64503a3847e876c9.md), [branch-8ac7382a5a280d93](cases/branch-8ac7382a5a280d93.md), [pr-59](cases/pr-59.md)
