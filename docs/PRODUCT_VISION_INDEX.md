@@ -136,3 +136,9 @@ GitHub open PRを作成順昇順で20件取得：#25,59,60,61,63,73,88,93,94,95,
 - [#73](https://github.com/miyazaki1016/emergencyalert/pull/73)：HEAD fb1d1a3f9f0cee3985fffa1831dc52b187c182b3、Draft、mergeable=false、[CI成功](https://github.com/miyazaki1016/emergencyalert/actions/runs/39872146828)。旧履歴切替で最大200件の過去配信を既存RLSで取得、通常7日維持、削除なし、テスト追加とPR本文に記載。現行main代替・競合原因未確認。
 - [#93](https://github.com/miyazaki1016/emergencyalert/pull/93)：HEAD a0a4cc891065a52333c7aaca8b93193d8cb7c2d9、Draft、mergeable=true、[CI成功](https://github.com/miyazaki1016/emergencyalert/actions/runs/40565395757)。並行cron・送信後DB失敗・#63とDB CHECK不整合の監査記録のみ。修正実装とは区別。後続解消・承認未確認。
 次：現行main・後続PRの代替確認。いずれも統合承認なし、マージしない。
+
+### 未統合成果の個別確認 2（2026-11-28）
+- [#95](https://github.com/miyazaki1016/emergencyalert/pull/95)：HEAD 1e39976d58c78f287020956c800b356774209752、Draft、mergeable=true、[CI成功](https://github.com/miyazaki1016/emergencyalert/actions/runs/40566338072)。止むよの後の再接近を「止みそうだったけど、また降りそう！」と伝える設計のみ。現行実装未照合。
+- [#109](https://github.com/miyazaki1016/emergencyalert/pull/109)：HEAD 6e650705260825c33a9905bbd3802919ba341cc4、Draft、mergeable=false、[CI成功](https://github.com/miyazaki1016/emergencyalert/actions/runs/41742698783)。全予測フレーム保存・復元・継続性比較・容量監査の研究実装。本文のCI未起動は現HEADの成功と異なる。容量運用・実サンプル・後続代替未確認。過去承認記載は今回のマージ許可としない。
+- [#160](https://github.com/miyazaki1016/emergencyalert/pull/160)：HEAD c5a46647e183eb00e335cefc3af4054733db9bd7、非Draft、mergeable=false、[CI成功](https://github.com/miyazaki1016/emergencyalert/actions/runs/41965440350)。現地報告を主判定必須とせず開始時刻不明を補足に分離するUI修正。現行代替未確認。
+- [#165](https://github.com/miyazaki1016/emergencyalert/pull/165)：HEAD 0ae9da31f65a2afe184a6efd36628a0ac1c2bda3、Draft、mergeable=true、[CI成功](https://github.com/miyazaki1016/emergencyalert/actions/runs/42534581037)。173コマの純増と相違数を区別する資料のみ、明細未取得。全件とも現行mainとの差分・承認・採用未確認。累計7件個別確認、CI成功6件。
