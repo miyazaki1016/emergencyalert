@@ -8,6 +8,7 @@ import {
 } from "../../lib/weather/rain/nationalForecastMapOverlay";
 import { rainCaseHref, type ActiveRainCaseSlugs } from "../../lib/weather/rain/nationalRainCaseDisplay";
 import municipalityPoints from "../../lib/weather/rain/nationalMapMunicipalityPoints.json";
+import { solarRaster } from "../../lib/weather/solarAmbience";
 import styles from "./live-japan-forecast-map.module.css";
 
 const colors = { 30: "#FF9900", 50: "#FF2800", 80: "#B40068" };
@@ -61,7 +62,8 @@ function popupDetails(areas: Area[], peaks: ReadonlyMap<string, { time: string }
   return content;
 }
 
-export default function LiveJapanForecastMap({ frame, peaks, caseSlugs }: {
+export default function LiveJapanForecastMap({ frame, peaks, caseSlugs, glow = false }: {
+  glow?: boolean;
   frame?: NationalForecastFrame;
   peaks: ReadonlyMap<string, { time: string }>;
   caseSlugs: ActiveRainCaseSlugs;
@@ -86,6 +88,29 @@ export default function LiveJapanForecastMap({ frame, peaks, caseSlugs }: {
     });
     return () => { disposed = true; instance?.remove(); };
   }, []);
+
+  useEffect(() => {
+    if (!map || !glow) return;
+    let disposed = false;
+    let cleanup: (() => void) | undefined;
+    void import("leaflet").then(L => {
+      if (disposed) return;
+      const pane = map.createPane("solarAmbience");
+      pane.style.zIndex = "250";
+      pane.style.pointerEvents = "none";
+      const layer = L.layerGroup().addTo(map);
+      const render = () => {
+        const url = solarRaster(new Date());
+        if (!url) return;
+        layer.clearLayers();
+        L.imageOverlay(url, [[-85.05112878, -180], [85.05112878, 180]], { pane: "solarAmbience", interactive: false }).addTo(layer);
+      };
+      render();
+      const timer = window.setInterval(render, 120_000);
+      cleanup = () => { window.clearInterval(timer); layer.remove(); pane.remove(); };
+    });
+    return () => { disposed = true; cleanup?.(); };
+  }, [map, glow]);
 
   useEffect(() => {
     if (!map || !frame) return;
@@ -133,7 +158,13 @@ export default function LiveJapanForecastMap({ frame, peaks, caseSlugs }: {
           marker.dataset.tier = String(tier);
           marker.dataset.municipalities = String(areas.length);
           marker.style.backgroundColor = colors[tier];
-          marker.textContent = String(tier);
+          marker.textContent = glow ? "" : String(tier);
+          if (glow) {
+            marker.style.backgroundColor = tier === 80 ? "#fff0ff" : tier === 50 ? "#78fff0" : "#c8d6df";
+            marker.style.boxShadow = tier === 80 ? "0 0 8px 4px #ff55dd, 0 0 22px 8px #ff55dd88" : tier === 50 ? "0 0 8px 3px #00ffd5" : "none";
+            marker.style.width = marker.style.height = tier === 80 ? "12px" : tier === 50 ? "9px" : "5px";
+            marker.style.margin = "auto";
+          }
           const title = areas.map(area => area.municipality).join("、");
           const point = L.marker(location, {
             icon: L.divIcon({ className: "", html: marker, iconSize: [FORECAST_MARKER_SIZE, FORECAST_MARKER_SIZE] }),
@@ -172,7 +203,7 @@ export default function LiveJapanForecastMap({ frame, peaks, caseSlugs }: {
       };
     });
     return () => { disposed = true; removeLayers?.(); };
-  }, [map, frame, peaks, caseSlugs]);
+  }, [map, frame, peaks, caseSlugs, glow]);
 
   return <div className={styles.mapShell}>
     <div ref={element} className={styles.map} role="region" aria-label="日本地図・全国の大雨予報" />
