@@ -222,3 +222,6 @@ main lib/weather/rain/lightRainPixelMasks.test.ts blob b3345f3ae5df7d74ce0bc810b
 - [一致検証器](https://github.com/miyazaki1016/emergencyalert/blob/c858740d4a846b6bf5da3306c841cd96a4123c69/scripts/light-rain-pixel-mask-parity.ts) blob 28700e3010903ccab8ffbeccb6d046671ae27955、実N03の参照/高速mask byte一致、差異時exit1。
 - [ベンチマーク](https://github.com/miyazaki1016/emergencyalert/blob/c858740d4a846b6bf5da3306c841cd96a4123c69/scripts/light-rain-pixel-mask-benchmark.ts) blob 9ed92106393ae0f1706051dc62d433927f868836、合成雨パターンと実N03で速度・自治体集合一致、cold/warm cache区別。
 原本所在と用途を記録。恒久保全（参照維持・必要なら別途承認済み保存先）と現行依存互換性、実測結果、移動先の網羅検索は未確認。原本コードの移植・実行・PR終了・branch削除なし。
+
+### 現行実装照合 5：LRPM実測記録の継承（2026-11-28）
+原本 [PR #242](https://github.com/miyazaki1016/emergencyalert/pull/242) HEAD c858740d4a846b6bf5da3306c841cd96a4123c69 の本文全体を確認。Muse共有1.5 CPU Linux Node v24。新規7+既存13テスト成功との報告。実N03 parity 885/407候補6区域と879/406で差分0画素、萩市63.4→0.43秒、対馬58.1→0.42秒。全国47県1905自治体、733タイル4595エントリ37,689,065 bytes、4 shard合計547秒。6県pilot 104タイル470エントリ3,855,610 bytes。合成全面雨885/407 59539→36.8ms、879/406 42866→30.8ms、結果一致。閾値非依存の幾何、中心点近似・間引きなし、LRPM v1、版不一致無効化。これらは当時のPR報告であり全国スキャン全体の高速化倍率・現行実測・独立再実行の証明ではない。統合後スロット時間は当時未測定。原本リンクと条件を保存、恒久資産保全・現行互換・終了判断は未完了。
