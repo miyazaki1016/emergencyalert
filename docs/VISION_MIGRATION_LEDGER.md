@@ -38,15 +38,15 @@ Issue #327。原本は変更しない。以下は見出し単位の全行範囲�
 | M-030 | [L286–293](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L286-L293) | ## Missing-data rule | 思想・原点候補 | 移行確認済：不明・取得失敗・欠測を雨なし／安全としない原則を憲章 §6 に確認。 |
 | M-031 | [L294–321](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L294-L321) | ## 2023 archaeology | 研究・検証候補 | 部分照合： 2023色表・一次証拠優先 → 憲章 §6、PNG_PALETTE_EVIDENCE.md候補 |
 | M-032 | [L322–347](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L322-L347) | ## 2026 rain product | 仕様候補 | 部分照合： 初期閾値・終了条件は歴史的仕様として原本保持、現行仕様未確認 |
-| M-033 | [L348–355](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L348-L355) | ## Cost constraint | 思想・原点候補 | 部分照合： 固定気象データ費ゼロ・有料GRIB2は将来候補、憲章追記候補 |
+| M-033 | [L348–355](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L348-L355) | ## Cost constraint | 思想・原点候補 | 移行確認済：固定購読費ゼロ・有料GRIB2の将来条件を憲章 §6 に歴史的方針として保存。現行費用方針は別途確認。 |
 | M-034 | [L356–379](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L356-L379) | ## Current implementation / checkpoint (2026-09-20) | 開発履歴・運用候補 | 部分照合： 9/20初期実装・状態モデル → 歴史原本、現行コード未確認 |
 | M-035 | [L380–401](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L380-L401) | ### Rain interpretation safety now locked by tests | 開発履歴・運用候補 | 部分照合： 時刻・欠測・鮮度の安全テスト → 現行テスト照合候補 |
 | M-036 | [L402–419](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L402-L419) | ### Current user-facing behavior | 仕様候補 | 部分照合： 簡潔な生活言葉・不確実性表示 → 憲章 §6、旧文面は歴史 |
 | M-037 | [L420–444](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L420-L444) | ### Current blocker | 開発履歴・運用候補 | 部分照合： 9/23色表未解決・自動昇格禁止 → 研究資料候補、10/23更新と区別 |
 | M-038 | [L445–459](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L445-L459) | ## Immediate work from this checkpoint | 開発履歴・運用候補 | 部分照合： 初期工程順 → 歴史原本 |
-| M-039 | [L460–468](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L460-L468) | ## Must not break | 思想・原点候補 | 部分照合： 独自予測禁止・無料費用・簡潔さ → 憲章 §6、費用方針追記候補 |
+| M-039 | [L460–468](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L460-L468) | ## Must not break | 思想・原点候補 | 移行確認済：独自予測禁止・欠測・旧色表・当時の費用制約・利用者の簡潔さを憲章 §6 に確認。 |
 | M-040 | [L469–481](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L469-L481) | ## Recovery phrases | 思想・原点候補 | 移行確認済：復帰句二つと文書の存在理由を憲章 §6 に確認。 |
-| M-041 | [L482–501](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L482-L501) | ## 2023 design intent recovered from operation history | 思想・原点候補 | 部分照合： GIFの目的・MP4変換 → 憲章 §2-B・§5・§6（旧実装詳細は原本参照） |
+| M-041 | [L482–501](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L482-L501) | ## 2023 design intent recovered from operation history | 思想・原点候補 | 移行確認済：GIFの目的・旧ブラウザ自動化・X側MP4変換・公式時系列の原則を憲章 §2-B・§5・§6 に確認。 |
 | M-042 | [L502–535](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L502-L535) | ## Output boundary — facts first, expression later | 思想・原点候補 | 部分照合： 構造化事実と表現の分離 → [製品憲章](SAKIKURU_PRODUCT_CHARTER.md) §6 |
 | M-043 | [L536–568](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L536-L568) | ### Consumer simplicity is part of the EmergencyAlert contract | 思想・原点候補 | 部分照合： 利用側に気象ロジックを再実装させない・イベント候補項目 → 憲章 §6、PR #60詳細未確認 |
 | M-044 | [L569–590](https://github.com/miyazaki1016/emergencyalert/blob/9d47267330929aa4c2142bdd0c829185fe022d18/docs/PROJECT_OVERVIEW.md#L569-L590) | ### Keep each consumer's experience distinct | 思想・原点候補 | 移行確認済：各サービス固有の体験、簡潔さ、美咲の会話、事実と表現の分離を憲章 §6 に確認。 |
@@ -95,3 +95,5 @@ M-007〜026の20範囲の原文を確認し、保存先候補と歴史扱いを�
 2026-11-28 個別移行確認：M-027〜030 は旧原本L249–293と製品憲章を再取得して意味内容を照合。移行確認は実装・本番整合性の認定ではない。残り60範囲は部分照合。
 
 2026-11-28 個別移行確認：M-040、044〜046を旧原本と憲章 §6 で照合。M-039の費用方針とM-041のブラウザ自動化によるGIF生成手順は補足が必要なため部分照合を維持。
+
+2026-11-28 個別移行確認：M-033、039、041を旧原本と憲章の追加復元（126aefe）で再照合。M-047は初回実機の歴史証拠・工程順序が残るため部分照合を維持。
