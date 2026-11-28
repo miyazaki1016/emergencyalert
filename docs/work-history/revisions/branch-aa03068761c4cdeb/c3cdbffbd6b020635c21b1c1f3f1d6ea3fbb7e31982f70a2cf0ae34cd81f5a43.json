@@ -1,0 +1,28 @@
+{
+  "id": "branch-aa03068761c4cdeb",
+  "title": "design/header-bg-cityrain-2026-11-27",
+  "head": "2dd9bb36a67c611f734557480c42b8d7b9098563",
+  "head_ref": "design/header-bg-cityrain-2026-11-27",
+  "linked_prs": [],
+  "files": [
+    {
+      "path": "public/header-cityrain.webp",
+      "source": {
+        "path": "public/header-cityrain.webp",
+        "coverage": "対象外（秘密情報候補／非テキスト）"
+      },
+      "patch": "diff --git a/public/header-cityrain.webp b/public/header-cityrain.webp\nnew file mode 100644\nindex 00000000..f0560c85\nBinary files /dev/null and b/public/header-cityrain.webp differ\n",
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/2dd9bb36a67c611f734557480c42b8d7b9098563/public/header-cityrain.webp"
+    }
+  ],
+  "commits": "2dd9bb36a67c611f734557480c42b8d7b9098563 design: ヘッダー背景画像（B案・雨の街）",
+  "topics": [
+    "雨量・全国検知"
+  ],
+  "state": "PR未関連のブランチ差分",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "6042f4a63010837aaa5eba67972ef6f2d646bbf795e010328834162b6a609104",
+  "collected_at": "2026-11-28T18:23:55.456873+00:00"
+}

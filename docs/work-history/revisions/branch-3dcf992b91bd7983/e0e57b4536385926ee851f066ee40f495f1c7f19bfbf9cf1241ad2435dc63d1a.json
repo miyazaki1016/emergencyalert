@@ -1,0 +1,71 @@
+{
+  "id": "branch-3dcf992b91bd7983",
+  "title": "fix/jaspic-continuation-338",
+  "head": "1803b7b08f2e94b0543756da01cefa99af494799",
+  "head_ref": "fix/jaspic-continuation-338",
+  "linked_prs": [
+    339
+  ],
+  "files": [
+    {
+      "path": ".github/workflows/jaspic-admin-monitor.yml",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/1803b7b08f2e94b0543756da01cefa99af494799/.github/workflows/jaspic-admin-monitor.yml"
+    },
+    {
+      "path": "docs/DEVELOPMENT_LEDGER.md",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/1803b7b08f2e94b0543756da01cefa99af494799/docs/DEVELOPMENT_LEDGER.md"
+    },
+    {
+      "path": "docs/sql/jaspic-batch-scanner.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/1803b7b08f2e94b0543756da01cefa99af494799/docs/sql/jaspic-batch-scanner.sql"
+    },
+    {
+      "path": "docs/sql/jaspic-self-continue.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/1803b7b08f2e94b0543756da01cefa99af494799/docs/sql/jaspic-self-continue.sql"
+    },
+    {
+      "path": "docs/work-history/curated.json",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/1803b7b08f2e94b0543756da01cefa99af494799/docs/work-history/curated.json"
+    },
+    {
+      "path": "tests/sql/jaspic-monitor-batch-completion.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/1803b7b08f2e94b0543756da01cefa99af494799/tests/sql/jaspic-monitor-batch-completion.sql"
+    },
+    {
+      "path": "tests/sql/jaspic-monitor-self-continue.sql",
+      "source": {
+        "coverage": "同一HEADのPR案件に原文収録"
+      },
+      "url": "https://github.com/miyazaki1016/emergencyalert/blob/1803b7b08f2e94b0543756da01cefa99af494799/tests/sql/jaspic-monitor-self-continue.sql"
+    }
+  ],
+  "commits": "1803b7b08f2e94b0543756da01cefa99af494799 docs: preserve JASPIC continuation credential diagnosis and evidence\nd739555ed48689a22d477c6ed28d89fba68fb0af fix(jaspic): use current production credential for batch continuation (#338)",
+  "topics": [
+    "通知・配信",
+    "開発管理"
+  ],
+  "state": "ブランチ差分（PR関連あり）",
+  "production": "未確認",
+  "implementation": "mainとの差分を収録。差分ゼロも記録",
+  "next": "関連PR・mainとの同等実装を照合。ブランチの存在だけで未完成扱いしない",
+  "fingerprint": "541f3fc6e9a6d58a8b7ad206282739e2f7619b4b7749c3ca7aeb722d4b3895fc",
+  "collected_at": "2026-11-28T18:23:55.456873+00:00"
+}
