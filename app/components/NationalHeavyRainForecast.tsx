@@ -167,6 +167,10 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
   const { slots, activeTime, peaks, frame, hasCoverage } = useMemo(
     () => forecastMapSelection(forecast, band, time), [forecast, band, time],
   );
+  const activeSlot = slots.find(slot => slot.time === activeTime);
+  const selectedTimeLabel = activeSlot
+    ? formatTime.format(activeSlot.time) + (activeSlot.missing ? "（未取得）" : "")
+    : "全時刻";
   const expired = time !== null && activeTime === null;
   const [timeExpired, setTimeExpired] = useState(false);
   useEffect(() => {
@@ -196,8 +200,12 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
       {view === "map" ? <section aria-labelledby="live-japan-heading" className={styles.band}>
         <h1 id="live-japan-heading">全国の大雨を地図で見る</h1>
         <ForecastMapTimeline key={band} slots={slots} activeTime={activeTime}
-          expired={expired || timeExpired} setTime={chooseTime} formatTime={time => formatTime.format(time)} />
-        <LiveJapanForecastMap frame={frame} peaks={peaks} caseSlugs={caseSlugs} />
+          expired={expired || timeExpired} setTime={chooseTime} formatTime={time => formatTime.format(time)}
+          label={selectedTimeLabel} />
+        <div className={styles.forecastMapShell}>
+          <LiveJapanForecastMap frame={frame} peaks={peaks} caseSlugs={caseSlugs} />
+          <output className={styles.timelineTime} htmlFor="forecast-map-time">{selectedTimeLabel}</output>
+        </div>
         <div className={styles.controls} aria-label="予報帯">
           <button type="button" aria-pressed={band === "all"} onClick={() => { setBand("all"); chooseTime(null); }}>すべて</button>
           <button type="button" aria-pressed={band === "detail"} onClick={() => { setBand("detail"); chooseTime(null); }}>詳細 +5〜30分</button>

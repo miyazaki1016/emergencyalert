@@ -74,10 +74,27 @@
 .forecastLink { display: inline-flex; align-items: center; min-height: 44px; margin: 12px 0; padding: 8px 16px; border-radius: 8px; background: #1957ac; color: white; font-weight: 700; text-decoration: underline; }
 .forecastLink:focus-visible { outline: 2px solid #8bdeff; outline-offset: 2px; }
 
-.timeline { display: grid; gap: 4px; margin-bottom: 1rem; }
-.timelineHeader { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.timelineTime { color: #f0f8ff; font-size: clamp(1rem, 5vw, 1.55rem); font-weight: 800; text-align: right; }
-.timelineSlider { width: 100%; appearance: none; height: 36px; margin: 0; background: transparent; cursor: pointer; }
+.timeline {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: start;
+  gap: 4px 10px;
+  margin-bottom: 1rem;
+}
+.timelinePlay {
+  display: grid; place-items: center; width: 44px; height: 44px;
+  border: 1px solid #4b6885; border-radius: 10px;
+  background: #10243b; color: #eff8ff; cursor: pointer; font: inherit;
+}
+.timelinePlay:disabled, .timelineSlider:disabled { opacity: .55; cursor: default; }
+.timelinePlay:focus-visible { outline: 2px solid #7dd3fc; outline-offset: 2px; }
+.forecastMapShell { position: relative; isolation: isolate; }
+.timelineTime {
+  position: absolute; z-index: 1; top: 12px; right: 12px; pointer-events: none;
+  padding: 6px 10px; border-radius: 10px; background: #10243b; color: #f0f8ff;
+  font-size: clamp(.9rem, 4vw, 1.2rem); font-weight: 800; font-variant-numeric: tabular-nums;
+}
+.timelineSlider { width: 100%; appearance: none; height: 44px; display: block; margin: 0; background: transparent; cursor: pointer; }
 .timelineSlider::-webkit-slider-runnable-track {
   height: 6px; border-radius: 6px;
   background: linear-gradient(to right, #7dd3fc var(--forecast-progress), #35516b var(--forecast-progress));
@@ -99,7 +116,8 @@
 .timelineTicks > span[data-missing] { background: #94a3b8; }
 .timelineTicks > span[data-active] { box-shadow: 0 0 0 2px #e3f4ff; }
 .timelineTicks small { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); color: #c4deef; font-size: .64rem; }
+.timelineTicks .timelineAllLabel { left: 50%; transform: translateX(-75%); white-space: nowrap; }
 .timelineTicks [data-missing] small, .timelineNotice { color: #a5b5c7; }
-.timelineNotice { margin: 0; font-size: .82rem; }
+.timelineNotice { grid-column: 1 / -1; margin: 0; font-size: .82rem; }
 
 .radarSlider { flex: 1 1 120px; min-width: 90px; max-width: 256px; accent-color: #8bdeff; }
