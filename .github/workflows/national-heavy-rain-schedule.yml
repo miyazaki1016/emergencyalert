@@ -55,7 +55,7 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: node --import tsx scripts/national-rain-cases.ts ingest
+        run: node --import tsx scripts/national-rain-cases.ts ingest "$RUNNER_TEMP/n03"
       - name: Verify ended public rain cases with JMA observations
         if: success() && github.ref == 'refs/heads/main'
         continue-on-error: true
