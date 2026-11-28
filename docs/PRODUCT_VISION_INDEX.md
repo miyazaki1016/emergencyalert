@@ -1,5 +1,5 @@
 # サービス構想台帳（復元案）
-Issue #327 / Draft PR #328。2026-11-28。製品方針の正本は [製品憲章](SAKIKURU_PRODUCT_CHARTER.md)。本台帳は構想の所在と状態を索引化し、開発状態は [開発台帳](DEVELOPMENT_LEDGER.md) を参照する。現行実装の最新確認は未実施。
+Issue #327 / Draft PR #328。2026-11-28。製品方針の正本は [製品憲章](SAKIKURU_PRODUCT_CHARTER.md)。本台帳は構想の所在と状態を索引化し、開発状態は [開発台帳](DEVELOPMENT_LEDGER.md) を参照する。現行実装の静的照合と未確認事項は第52回を参照。
 
 | ID | 構想 | 方針状態 | 根拠・実装参照 |
 |---|---|---|---|
@@ -13,7 +13,6 @@ Issue #327 / Draft PR #328。2026-11-28。製品方針の正本は [製品憲章
 | VISION-008 | ブラウザAI | 将来候補 | 旧総覧 M-006。詳細未確認 |
 | VISION-009 | 土砂災害・洪水・ダム放流・防犯等 | 旧運用実績・将来範囲未確定 | 製品憲章 §2-B。全項目を現行機能としない |
 | VISION-010 | 親サービス名称 | 未確定 | 製品憲章のサキくる仮称、今回の依頼のさきどり表記。正式名称はユーザー確認待ち |
-
 | VISION-011 | 地点判定半径を選択 | 再発見・構想 | 旧総覧 M-012、M-009。研究の半径比較と利用者設定は別 |
 | VISION-012 | 利用者の移動方向推定 | 再発見・構想 | M-012。M-053の登録地点監視とは別機能、追跡の許可・目的未確定 |
 | VISION-013 | 強雨の前後画像・根拠履歴 | 確定要求・詳細要照合 | M-003、M-012、M-023、M-062。全国動画・MY履歴・研究画像を区別 |
@@ -24,6 +23,7 @@ Issue #327 / Draft PR #328。2026-11-28。製品方針の正本は [製品憲章
 | VISION-018 | 自動答え合わせ優先・現地回答任意 | 確定要求 | M-003、M-005、M-063。対象有効時刻と時間ずれを区別 |
 | VISION-019 | MY大雨30mm/h初回独立通知 | 確定要求 | M-003、M-062。通常通知済みでも独立、強度上昇で追加しない。全国投稿とは別 |
 | VISION-020 | 正式公開前の通知配信安全性検証 | 歴史的必須方針・現行要照合 | M-022、M-024、Issue #64。現行対策の証拠確認待ち |
+| VISION-021 | 暮らしを見守り、いいことをさきどりする | ユーザー方針・個別設計は検討中 | 第53回、Issue #329、PR #330/#331 |
 
 ## 継承ルール案
 - IDは永続。未実装・保留・撤回でも削除せず理由、日付、決定者、根拠を追記する。
@@ -358,3 +358,66 @@ PR検索 returningRain→#206本文に既存returningRain=falseを維持、C案�
 
 ### 現行実装照合 45：#330/#331 いいことのさきどり構想資産（2026-11-28）
 #330 HEAD bf4684e12cd12456394d92366781241d9e25a923 docs/GOOD_THINGS_VISION_329.md 423d597b5943ce7924d8d81b156768c1cc5ddb77、ユーザー方針＝暮らしを見守る、いいこと最重要、空/季節支持。個別機能・コピーはAI案。#331 HEAD e2effda6c3970fe28a756384c79a9719d4e0226d docs/research/good-things-sakidori-2026-11-28.md 2a40a52ac625d36d891359e69a6e49fb5786591b、楽しみの先取り/予測先回りの二義（Muse記録上ユーザー確認）、NAOJ暦/JAXA ISS/気象庁生物季節・黄砂・UV候補、スターリンクは公的データ配信窓口と軌道計算の原則判断待ち。対象外案やロードマップは未承認。資料の外部事実・本番公開記述は独立検証未実施。VISION-001/004/006/007/015関連、正式統合とID採番は整合確認後。#330/#331は独立研究で終了保留。第44回保存再取得確認、最新CI未確認、main本番変更なし。
+
+## 第52回：既存20構想と現行コードの照合（2026-11-29）
+
+比較対象は [mainの固定コミット](https://github.com/miyazaki1016/emergencyalert/commit/d0b6946efadb2f31c60aed3b458005f4917cdc3f)。第1〜45回の資料を再利用し、既存20 IDを一件ずつ対応付けた。コード・テストの存在、実行結果、デプロイ、実機はそれぞれ独立した証拠。未確認の範囲は行ごとに記録する。
+
+| ID | 主な現行コード | 継承と差分 |
+|---|---|---|
+| VISION-001 | [app/page.tsx](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/app/page.tsx) | 部分継承。全国地図を既定、全国の大雨とMYへの入口あり。#61の総合LIVE JAPAN・昼夜・複数災害の完成は未確認。 |
+| VISION-002 | [app/my-amefuru/page.tsx](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/app/my-amefuru/page.tsx) | 登録地点の入口あり。地点モデルとwatch-rainを使用する構成は第19・27・31回。初回機器登録から実Pushの現行通しは未確認。 |
+| VISION-003 | [scripts/national-heavy-rain-scan.ts](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/scripts/national-heavy-rain-scan.ts) | 全国大雨予報経路と地図・雨雲表示あり。第8〜14回に先行試作との差。データ鮮度・実稼働は未確認。 |
+| VISION-004 | [app/sky/2026-12-14-geminids/page.tsx](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/app/sky/2026-12-14-geminids/page.tsx) | 単発の空イベントページあり。#61の昼夜・時間軸試作は別枝。季節・昼夜レイヤー全体と公式接続は未確認。 |
+| VISION-005 | [app/api/rain/active-cases/route.ts](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/app/api/rain/active-cases/route.ts) | 雨事案の経路を確認。#61計画の震度3以上・警報・津波・訂正履歴を統合表示する現行経路は未確認。独自EEW対象外の方針を保持。 |
+| VISION-006 | [lib/weather/providers/types.ts](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/lib/weather/providers/types.ts) | 雨データ型と第20回のイベント変換は基礎資産。#60の外部契約・美咲の消費経路・稼働は未確認。 |
+| VISION-007 | [app/page.tsx](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/app/page.tsx) | 現行トップの導線は全国地図・大雨・MY。暑さ指数の常設レイヤーは確認できず、#331の候補を参照。 |
+| VISION-008 | [app/page.tsx](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/app/page.tsx) | トップの導線でブラウザAIを確認できず。旧優先順の候補のまま。要件・統合先未確定。 |
+| VISION-009 | [app/jaspic/dispatch/route.ts](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/app/jaspic/dispatch/route.ts) | 不審者メール系統のみ該当コード確認。土砂・洪水・ダム放流の現行公開経路は未確認。 |
+| VISION-010 | [app/page.tsx](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/app/page.tsx) | 画面表記は「さきどり」、MYアメふるは別入口。名称決裁・LIVE JAPANの正式名称採用は未確認。 |
+| VISION-011 | [app/api/rain/route.ts](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/app/api/rain/route.ts) | 地点APIと第15〜25回の研究上の半径比較を確認。利用者の半径指定を受け渡す現行経路は未確認。 |
+| VISION-012 | [lib/watch/WatchTarget.ts](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/lib/watch/WatchTarget.ts) | 登録地点モデルは位置を保持。移動方向の推定・追跡の承認・同意設計は未確認。 |
+| VISION-013 | [supabase/functions/archive-rain/index.ts](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/supabase/functions/archive-rain/index.ts) | 評価画像のcrop/欠測マスク・保存経路あり。全国事案の動画とMYの予報更新・強雨履歴グラフは別。詳細一式の実機は未確認。 |
+| VISION-014 | [app/api/rain/active-cases/route.ts](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/app/api/rain/active-cases/route.ts) | 大雨事案表示と区別。外部浸水リスク源を実際に接続する経路・表示範囲は未確認。 |
+| VISION-015 | [lib/weather/providers/jma/grib2/README.md](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/lib/weather/providers/jma/grib2/README.md) | GRIB2アダプタの所在とテストあり。有料契約・課金・本番経路の証拠は未確認。 |
+| VISION-016 | [.github/workflows/palette-watch.yml](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/.github/workflows/palette-watch.yml) | 読取り専用ワークフローが色の証拠を観測。比較処理はpaletteWatcher.ts、運用時の実行は未確認。2026-10-23黄色更新はM-008。 |
+| VISION-017 | [app/jaspic/dispatch/route.ts](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/app/jaspic/dispatch/route.ts) | 広島・滋賀の計画・送信処理あり。production-plan.tsは広島人物/犯罪と滋賀人物を区分。現在のメール受領・配送成功は今回未確認。 |
+| VISION-018 | [supabase/functions/evaluate-rain/index.ts](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/supabase/functions/evaluate-rain/index.ts) | 独立評価と有効時刻の扱いは第23・24・33回。現地回答は補助。地上真値・未通知母集団・全半径の実評価は未確認。 |
+| VISION-019 | [supabase/functions/watch-rain/forecastEpisode.ts](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/supabase/functions/watch-rain/forecastEpisode.ts) | 独立SEVEREキーと初回条件、関連テストtests/forecastEpisode.test.ts。M-003/062の静的結果を継承。実送受信は未確認。 |
+| VISION-020 | [supabase/functions/watch-rain/deliveryGuard.ts](https://github.com/miyazaki1016/emergencyalert/blob/d0b6946efadb2f31c60aed3b458005f4917cdc3f/supabase/functions/watch-rain/deliveryGuard.ts) | 第26〜29回の排他・永続intent・RLS/隔離検証を継承。現在の配信障害耐性と正式公開判定は未確認。 |
+
+#95の補足。 [#89の統合コミット](https://github.com/miyazaki1016/emergencyalert/commit/51389b82c4aa521b145fb6eedf1a76531640d23c) で、既存の再接近条件が `returningRain=false` に変わった差分を確認。通常雨の通知過多対策と同じ変更。無効化単独の意思決定記録は未確認。第44回の#206は後続での維持判断。
+
+## 第53回：VISION-021の登録と構想研究の参照（2026-11-29）
+
+- **ユーザー方針（2026-11-28）** 「暮らしを見守る」が原点。「いいことのさきどり」が最も重要。空のさきどりと季節のさきどりの方向性を支持。安全が必要なときは既存の安全優先を維持する。満月、天体ショー、スターリンクトレインへの関心は着想の記録。
+- **AI提案・検討中** キャッチコピー、個別イベント、景色・お出かけ・暮らしの候補、地図と時間軸、SNSや美咲との接続、データ源・採否・段階計画。#331の「楽しみの先取り」と「予測して先回りする」の二義はMuse資料でユーザー確認と記載される。確認発言の原本はこの作業では取得していない。
+- **実装の接点** VISION-001/004（地図と空）、006（外部への事実連携）、007（暑さと生活）、015（継続コスト）。健全性・欠測・公的根拠を既存憲章に従って評価する。ふたご座ページのコードは第52回参照。季節・ISS・スターリンクの接続、再配信条件、恒常運用は未確認。
+- **資料** [Issue #329](https://github.com/miyazaki1016/emergencyalert/issues/329)、[#330の原本](https://github.com/miyazaki1016/emergencyalert/blob/bf4684e12cd12456394d92366781241d9e25a923/docs/GOOD_THINGS_VISION_329.md)、[#331の原本](https://github.com/miyazaki1016/emergencyalert/blob/e2effda6c3970fe28a756384c79a9719d4e0226d/docs/research/good-things-sakidori-2026-11-28.md)。前者は引継ぎ、後者は深掘り研究。両資料は作成時点の判断と出典の所在として保持する。
+
+## 第54回：未終了PR 39件の研究資産と実装継承（2026-11-29）
+
+第1〜45回と一次調査8回の原本・HEAD・CI記録を再利用。対象は既存の39件。
+
+| PR | 研究資産・保全理由 | 実装継承と残件 |
+|---|---|---|
+| #25 | 実JMAを使った固定地点のsmoke条件 | 同等の定時CI未確認 |
+| #59 / #181 / #210 | 全国大雨、画素スキャン、N03接続の設計と実測 | #211以降に公開経路を継承。第12〜14回の旧差分を保持 |
+| #60 / #61 | イベント契約、地図・昼夜試作、公式災害統合計画 | 現行地図・内部イベントに部分的な接点。総合トップと外部契約は未確認 |
+| #63 / #93 | 配信安全、失敗時の保全、利用者回答と再降雨研究 | #104/#65/#99へ別経路で部分継承。旧DB制約と再降雨指標は別途 |
+| #73 | 7日制限を解除して読む履歴と回帰テスト | 非破壊整理は継承。旧取得解除は未継承候補（第41回） |
+| #88 / #94 / #95 | 降るよ優先・生活文脈と再接近文面の設計 | エピソード制御は採用。再接近の専用文面は第43〜44・52回参照 |
+| #96 / #97 | 外部AIレビューを依頼した経緯と静的資料 | 現行代替の利用状況と独自資料の完全移行は未確認 |
+| #98 / #109 | 容量比較、全フレーム、保持・失敗監視と容量制約 | #99以降に一部対応。画像形式、収集と保持の運用は差分あり（第35〜39回） |
+| #147 | 当時の自動棚卸し観測点 | 現行索引に構造を継承。全文一致は未確認（第40回） |
+| #155 / #232 / #239 | 旧MIME比較、保留数の定義、隔離DB・Gmail試験設計 | 現行JASPICコードあり。旧MIMEとの差、当該回の保留遷移、隔離実送信は未確認 |
+| #160 / #165 | 現地回答を任意にする表示要件、173コマの集計定義 | VISION-018の現行照合に接続。旧全UI差分と内訳データは未確認 |
+| #164 | Vercelの読取り監視とquota判断の保留 | quota検証・自動制御の安全性は未確認 |
+| #175 / #179 / #195 | 雨精度baseline、弱雨再生、未通知を含む評価指標 | 弱雨ルールと一部評価を継承。旧比較と独立真値の条件に差分（第15〜25回） |
+| #215 | Bluesky投稿の設計・テスト原本 | 全変更パス一致確認済み（第10回）。実送信・運用とは別 |
+| #217 / #242 / #243 / #245 / #254 | 全国1mm走査、LRPM高速化・配置・接続と測定記録 | 第2〜8回にコード・ツールの継承状況。独立研究資材、全国QAと連続運用の残件 |
+| #222 | 6コマGIF encoderと専用テスト | 後続動画経路は別。独自GIF資材を保全（第11回） |
+| #276 | 起動経路の切り替え、タイマー撤去の設計 | 第1回の現行workflow照合を継承。実際の全対象の定時起動は別確認 |
+| #290 / #291 | 現役担当の作業・監査窓口 | 機能ごとの判断は各後続PRと監査窓口へ |
+| #328 | この継承システムのDraftと検証証拠 | ブランチ上で検証。mainへの正式導入は別承認 |
+| #330 / #331 | 引継ぎメモと独立研究はVISION-021へ接続 | #330/#331自体は研究文書。実装接点は第52〜53回 |
