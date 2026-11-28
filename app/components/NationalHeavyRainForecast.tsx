@@ -107,7 +107,7 @@ function ForecastBand({ frames, basetime, extended, tileVersions, caseSlugs }: {
   );
 }
 
-export default function NationalHeavyRainForecast({ view = "map" }: { view?: "map" | "list" }) {
+export default function NationalHeavyRainForecast({ view = "map", glow = false }: { view?: "map" | "list"; glow?: boolean }) {
   const [band, setBand] = useState<ForecastMapBand>("all");
   const [time, setTime] = useState<number | null>(null);
   const [forecast, setForecast] = useState<NationalForecastSnapshot | null>();
@@ -203,7 +203,7 @@ export default function NationalHeavyRainForecast({ view = "map" }: { view?: "ma
           expired={expired || timeExpired} setTime={chooseTime} formatTime={time => formatTime.format(time)}
           label={selectedTimeLabel} />
         <div className={styles.forecastMapShell}>
-          <LiveJapanForecastMap frame={frame} peaks={peaks} caseSlugs={caseSlugs} />
+          <LiveJapanForecastMap frame={frame} peaks={peaks} caseSlugs={caseSlugs} glow={glow} />
           <output className={styles.timelineTime} htmlFor="forecast-map-time">{selectedTimeLabel}</output>
         </div>
         <div className={styles.controls} aria-label="予報帯">
