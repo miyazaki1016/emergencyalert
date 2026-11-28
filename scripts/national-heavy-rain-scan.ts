@@ -9,6 +9,7 @@ import { municipalitiesForLightRainTile } from "../lib/weather/rain/lightRainMun
 import { matchHeavyRainPixelsToMasks } from "../lib/weather/rain/lightRainPixelMasks";
 import { openNationwidePixelMasks } from "../lib/weather/rain/lightRainPixelMaskLoader";
 import { forecastTime } from "../lib/weather/rain/nationalForecastSnapshot";
+import { forecastTileCycleFailed, scanForecastRegionWithinBudget } from "../lib/weather/rain/nationalForecastScanCycle";
 import { NATIONAL_FORECAST_WIDE_TILES, type ForecastTilePayload, type ForecastTileVersion } from "../lib/weather/rain/nationalForecastTiles";
 import { affectedAdministrativeAreas, type AdministrativeArea } from "../lib/weather/rain/lightRainAdministrativeAreas";
 
@@ -65,8 +66,9 @@ async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:num
     signal.throwIfAborted();
     const started = performance.now();
     let outcome = "transport_error";
+    const requestSignal = AbortSignal.any([signal, AbortSignal.timeout(8_000)]);
     try {
-      const response = await fetch(url, { cache: "no-store", signal: AbortSignal.any([signal, AbortSignal.timeout(8_000)]) });
+      const response = await fetch(url, { cache: "no-store", signal: requestSignal });
       const headersMs = Math.round(performance.now()-started);
       outcome = "HTTP_" + response.status;
       if (response.ok) {
@@ -81,14 +83,27 @@ async function fetchTile(frame:{basetime:string;validtime:string},z:number,x:num
       attempts.push("HTTP " + response.status);
       if (![408, 429, 500, 502, 503, 504].includes(response.status)) break;
     } catch (error) {
-      outcome = signal.aborted ? "slot_deadline_abort" : error instanceof Error ? error.name : "TransportError";
+      if (signal.aborted && requestSignal.reason === signal.reason
+        && (error === signal.reason || (error instanceof DOMException && error.name === "AbortError"))) {
+        outcome = "slot_deadline_abort";
+        throw signal.reason;
+      }
+      outcome = error instanceof Error ? error.name : "TransportError";
       attempts.push(outcome);
     } finally {
       if (outcome !== "ok") {
         console.log(JSON.stringify({event:"JMA_TILE_FETCH",basetime:frame.basetime,validtime:frame.validtime,z,x,y,attempt:attempt+1,outcome,elapsedMs:Math.round(performance.now()-started)}));
       }
     }
-    if (attempt < 1) await delay(500, undefined, { signal });
+    if (attempt < 1) {
+      try {
+        await delay(500, undefined, { signal });
+      } catch (error) {
+        // Node's timers wrap the abort reason in an AbortError.
+        if (signal.aborted && error instanceof Error && error.cause === signal.reason) throw signal.reason;
+        throw error;
+      }
+    }
   }
   throw new Error(`INCOMPLETE_JMA_TILE ${url} attempts: ${attempts.join(", ")}`);
 }
@@ -237,6 +252,7 @@ async function main() {
   // Attempt one version per region in each pass so old retries do not block first reads.
   const regions = [...work.entries()];
   let failures = 0;
+  let budgetDeferred = 0;
   let writes = 0;
   for (let pass = 0; regions.some(([, versions]) => versions.length > pass) && !cycleSignal.aborted; pass++) {
     const satisfied = new Set<string>();
@@ -244,14 +260,17 @@ async function main() {
       const row = versions[pass];
       if (!row || cycleSignal.aborted || forecastTime(row.valid_time) <= Date.now()) return;
       const signal = AbortSignal.any([cycleSignal, AbortSignal.timeout(Math.max(1, forecastTime(row.valid_time) - Date.now()))]);
-      let payload: ForecastTilePayload | null;
-      try {
-        payload = await scanRegion(row, indexed, signal);
-      } catch (error) {
-        failures++;
-        console.error("FORECAST_REGION_SCAN_FAILED", row.base_time, row.valid_time, row.x, row.y, error);
+      const result = await scanForecastRegionWithinBudget(cycleSignal, signal, () => scanRegion(row, indexed, signal));
+      if (result.status === "deferred") {
+        budgetDeferred++;
         return;
       }
+      if (result.status === "failed") {
+        failures++;
+        console.error("FORECAST_REGION_SCAN_FAILED", row.base_time, row.valid_time, row.x, row.y, result.error);
+        return;
+      }
+      const { payload } = result;
       if (!payload || forecastTime(row.valid_time) <= Date.now()) return;
       const { error } = await db.from(TABLE).update({ payload, updated_at: new Date().toISOString() })
         .match({ base_time: row.base_time, valid_time: row.valid_time, extended: row.extended, x: row.x, y: row.y })
@@ -268,8 +287,10 @@ async function main() {
     })));
     for (const [region, versions] of regions) if (satisfied.has(region)) versions.length = 0;
   }
-  console.log(JSON.stringify({ event: "FORECAST_TILE_CYCLE", writes, failures, budgetExpired: cycleSignal.aborted }));
-  if (failures || (!writes && (!targets.length || regions.some(([, versions]) => versions.length)))) {
+  const budgetExpired = cycleSignal.aborted;
+  console.log(JSON.stringify({ event: "FORECAST_TILE_CYCLE", writes, failures, budgetExpired, budgetDeferred }));
+  if (forecastTileCycleFailed({ writes, failures, budgetExpired, hasTargets: targets.length > 0,
+    hasWork: regions.some(([, versions]) => versions.length > 0) })) {
     throw new Error("NO_FORECAST_TILE_UPDATES");
   }
 }
