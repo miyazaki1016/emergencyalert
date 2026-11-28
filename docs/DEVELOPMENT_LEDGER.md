@@ -89,6 +89,53 @@
           "evidence": []
         }
       }
+    },
+    {
+      "issue": 327,
+      "goal": "構想・基本思想を復元し、継続保存と実装整合性照合を検証する",
+      "status": "active",
+      "updated": "2026-11-28",
+      "blocked_by": [],
+      "next": "PR #328の最新HEADのCIを確認し、自発的保存の再試験、旧総覧64範囲の完全移行、構想20件の詳細証拠照合を進める。自動化は別案件。main・本番変更禁止。",
+      "completion": "旧総覧の個別移行確認、構想と実装の差異記録、通常チャット間の自発保存・再取得・再引継ぎ検証、最新CI成功、正式導入の承認。自動化は別案件で追跡。",
+      "evidence": [
+        "https://github.com/miyazaki1016/emergencyalert/issues/327",
+        "https://github.com/miyazaki1016/emergencyalert/pull/328",
+        "https://github.com/miyazaki1016/emergencyalert/commit/8995c91244a1cf3a8a691c4e9cfe142b42c3a433",
+        "https://github.com/miyazaki1016/emergencyalert/issues/327#issuecomment-7238805021"
+      ],
+      "stages": {
+        "implementation": {
+          "status": "unconfirmed",
+          "evidence": [
+            "https://github.com/miyazaki1016/emergencyalert/pull/328"
+          ]
+        },
+        "verification": {
+          "status": "unconfirmed",
+          "pr": 328,
+          "head_sha": "8995c91244a1cf3a8a691c4e9cfe142b42c3a433",
+          "evidence": [
+            "https://github.com/miyazaki1016/emergencyalert/actions/runs/46142706784"
+          ]
+        },
+        "main": {
+          "status": "unconfirmed",
+          "evidence": []
+        },
+        "production": {
+          "status": "not_applicable",
+          "evidence": [
+            "https://github.com/miyazaki1016/emergencyalert/issues/327"
+          ]
+        },
+        "device": {
+          "status": "not_applicable",
+          "evidence": [
+            "https://github.com/miyazaki1016/emergencyalert/issues/327"
+          ]
+        }
+      }
     }
   ]
 }
