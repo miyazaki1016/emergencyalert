@@ -260,3 +260,8 @@ main lib/weather/rain/lightRainPixelMasks.test.ts blob b3345f3ae5df7d74ce0bc810b
 
 ### 研究・開発の共有記憶（2026-11-28）
 ユーザーの希望：「いままでやってきたことをみんなが振り返って思い出せるようにしたいね」。初期には非常に細部まで深掘りした研究もあったとのユーザー証言。実装への継承状況と研究資産価値は別軸で評価する。AI提案（未承認の具体案）：既存台帳・研究原本・開発履歴を再利用し、原点、開発年表、研究図鑑、失敗と教訓、技術系譜、未実現構想の切り口で閲覧・検索できる共有記憶を整備する。担当AI・Muse・所有者が原本、実測、判断理由、後続実装を再発見できることを目標とする。公開範囲・UI・自動化は未決定、既存所有者限定の権限を拡張しない。新規機能実装の承認ではない。
+
+
+### 現行実装照合 13：全国予報公開経路 #210→#211→main（2026-11-28）
+通常チャット引継ぎ：Issue #327の公開済みREVIEW_RECORDED run46120887723の指紋を現在のタイトル・本文から再計算し完全一致。PR #328 HEAD 845d429e83efd3f487109d866ca917f3a0f6f785 のCI run46151965946、preflight run46151965977成功、ログREVIEW_RECORDED。既存39件一次調査と詳細照合12までを再利用。
+#211（merged、HEAD 2257cf75011bdef9f1f4e2cd511ec4a63031a256）本文は#210参照、#59 extend/#181 reuse。API route.ts は#210 blob f0661e05b20480667292c3ac70f2141090d9fde9 のローカルPATHから#211 blob 3785a0e1d4eb2d19d4e90a93e88a973dfff65c3e のHTTPS URL/PATHへ、main blob 4eff1d9701e6c1ac805d01ea05bd479c11ad266c はSupabase接続も追加。503応答は三者に存在。nationalForecastSnapshot.ts は#210/#211 blob a8fbac0a4340d5a489d8c8c21e511c5790d7d7df 完全一致、main blob 36984e94357e9d7e7f6e04294ad52a886735f985 に表示用検証・radar tile検証追加。#210の [固定N03研究スクリプト](https://github.com/miyazaki1016/emergencyalert/blob/1bd934d87180f2d6125d0edff5af7caa0917261a/scripts/national-rain-fixed-n03.ts) blob 200a14818f7f3ed825686e3fdac0385d58a26a03 は#211/main同一パス404。研究保全候補（AI判断）、移動・代替未確認。#210全7変更中3パス照合、残4パスと現行生成経路・独自資産の詳細比較が次工程。main全体SHA固定なし、blob観測。実装継承は部分確認、研究価値は別軸、終了・本番・main変更なし。
